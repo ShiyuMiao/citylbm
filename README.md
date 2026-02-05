@@ -1,4 +1,4 @@
-# citylbm
+# CityLBM
 
 CityLBM is an academic, design-oriented urban wind field simulation
 and risk identification system based on the lattice Boltzmann method (LBM).
