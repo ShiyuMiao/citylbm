@@ -1,0 +1,107 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\</OutputPath>
+    <!-- Grasshopper 插件配置 -->
+    <AssemblyName>CityLBM</AssemblyName>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <!-- 编译后自动复制为 .gha -->
+  <Target Name="RenameToGha" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetDir)CityLBM.dll" DestinationFiles="$(TargetDir)CityLBM.gha" />
+    <Message Text="已生成 CityLBM.gha" Importance="high" />
+  </Target>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <!-- 动态检测 Rhino 版本并引用对应的 DLL -->
+  <PropertyGroup>
+    <!-- 按优先级搜索 Rhino 版本 -->
+    <Rhino7Path>$(ProgramFiles)\Rhino 7</Rhino7Path>
+    <Rhino6Path>$(ProgramFiles)\Rhino 6</Rhino6Path>
+    <Rhino8Path>$(ProgramFiles)\Rhino 8</Rhino8Path>
+  </PropertyGroup>
+
+  <!-- 选择可用的 Rhino 版本（优先 Rhino 6，保持向后兼容） -->
+  <Choose>
+    <When Condition="Exists('$(Rhino6Path)\System\RhinoCommon.dll')">
+      <PropertyGroup>
+        <RhinoPath>$(Rhino6Path)</RhinoPath>
+      </PropertyGroup>
+    </When>
+    <When Condition="Exists('$(Rhino7Path)\System\RhinoCommon.dll')">
+      <PropertyGroup>
+        <RhinoPath>$(Rhino7Path)</RhinoPath>
+      </PropertyGroup>
+    </When>
+    <When Condition="Exists('$(Rhino8Path)\System\RhinoCommon.dll')">
+      <PropertyGroup>
+        <RhinoPath>$(Rhino8Path)</RhinoPath>
+      </PropertyGroup>
+    </When>
+  </Choose>
+
+  <ItemGroup>
+    <!-- RhinoCommon and Grasshopper references (动态路径) -->
+    <Reference Include="RhinoCommon">
+      <HintPath>$(RhinoPath)\System\RhinoCommon.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Grasshopper">
+      <HintPath>$(RhinoPath)\Plug-ins\Grasshopper\Grasshopper.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="GH_IO">
+      <HintPath>$(RhinoPath)\Plug-ins\Grasshopper\GH_IO.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ILRepack" Version="2.0.33">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NLog" Version="5.2.0" />
+  </ItemGroup>
+
+  <!-- 使用 ILRepack 将依赖嵌入到 GHA 中，避免 DLL 冲突 -->
+  <Target Name="MergeDependencies" AfterTargets="RenameToGha">
+    <PropertyGroup>
+      <NugetCache>$(USERPROFILE)\.nuget\packages</NugetCache>
+      <IlRepackPath>$(NugetCache)\ilrepack\2.0.33\tools\ILRepack.exe</IlRepackPath>
+    </PropertyGroup>
+    <!-- 检查 ILRepack 是否存在 -->
+    <Error Condition="!Exists('$(IlRepackPath)')" Text="ILRepack not found. Run: dotnet add package ILRepack --version 2.0.33" />
+    <!-- 合并依赖到 GHA -->
+    <Exec Command="&quot;$(IlRepackPath)&quot; /out:&quot;$(TargetDir)CityLBM.merged.dll&quot; &quot;$(TargetDir)CityLBM.dll&quot; &quot;$(NugetCache)\newtonsoft.json\13.0.3\lib\netstandard2.0\Newtonsoft.Json.dll&quot; &quot;$(NugetCache)\nlog\5.2.0\lib\netstandard2.0\NLog.dll&quot; /wildcards /parallel /union" />
+    <!-- 替换为合并后的文件 -->
+    <Delete Files="$(TargetDir)CityLBM.gha" />
+    <Move SourceFiles="$(TargetDir)CityLBM.merged.dll" DestinationFiles="$(TargetDir)CityLBM.gha" />
+    <Message Text="已合并依赖到 CityLBM.gha" Importance="high" />
+  </Target>
+
+</Project>
