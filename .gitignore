@@ -1,0 +1,32 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+[Dd]ebug/
+[Rr]elease/
+x64/
+obj/
+
+# Build results (exclude everything except bin/distributable)
+*.dll
+bin/*
+!bin/CityLBM.gha
+!bin/FluidX3D.exe
+
+# NuGet
+packages/
+*.nupkg
+
+# Rider
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.log
+*.cache
