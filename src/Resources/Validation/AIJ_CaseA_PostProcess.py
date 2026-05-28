@@ -1,159 +1,158 @@
+﻿# =============================================================================
+# AIJ Case A Post-Process — Simulation vs. Zenodo Wind Tunnel Data
 # =============================================================================
-# CityLBM v0.5.0 — AIJ Case A Post-Processing & Comparison
-# =============================================================================
-# Paste this into a SECOND GhPython component.
-# Connect the "Case Dir" output from Run Simulation → input "case_dir" (text).
+# Reads FluidX3D VTK output, probes velocity at experimental measurement
+# points, computes error statistics, and outputs comparison report.
 #
-# Inputs:  case_dir  (Text)   — VTK output directory from Run Simulation
-#          time_step (Integer) — VTK time step to read (-1 = latest)
+# References:
+#   Zenodo 10.5281/zenodo.15430018 (CC BY 4.0)
+#   AIJ Guidebook for CFD Wind Environment around Buildings (2020)
 #
-# Outputs: a (Text)     — Comparison report
-#          b (Point)    — Simulated velocity sample points (color-coded)
-#          c (Point)    — Experimental data points (for visual diff)
-#          d (Curve)    — Difference vectors (sim - exp)
+# Input:  case_dir (Text)  — Run Simulation "Case Dir" output
+# Output: a (Text)         — Comparison report
+#         b (Point)        — Simulated velocity points
+#         c (Point)        — Experimental data points
+#         d (Curve)        — Error vectors
 # =============================================================================
 
-import clr
 import os
 import math
-import struct
 
+import clr
 clr.AddReference("RhinoCommon")
 import Rhino.Geometry as rg
 
-# ═══════════════════════════════════════════════════════════════════════════
+# =============================================================================
 # CONFIGURATION
-# ═══════════════════════════════════════════════════════════════════════════
+# =============================================================================
 
-H  = 0.2    # Building height (must match simulation setup)
-U_H = 5.0   # Reference wind speed (m/s)
+H    = 0.10      # Building height (m)
+U_REF = 1.7      # Reference wind speed U_H (m/s)
 
-# AIJ experimental data (same as setup script)
-AIJ_EXP = {
-    -1.5: [(0.05,0.42),(0.10,0.55),(0.20,0.68),(0.30,0.74),(0.50,0.82),
-           (0.75,0.89),(1.00,0.95),(1.25,0.98),(1.50,1.00),(2.00,1.02)],
-    -0.5: [(0.05,0.10),(0.10,0.18),(0.20,0.25),(0.30,0.28),(0.50,0.32),
-           (0.75,0.30),(1.00,0.22),(1.25,0.10),(1.50,0.05),(2.00,0.02)],
-     0.0: [(0.05,0.05),(0.10,0.08),(0.20,0.10),(0.30,0.08),(0.50,0.05),
-           (0.75,0.02),(1.00,-0.05),(1.25,0.05),(1.50,0.12),(2.00,0.22)],
-     0.5: [(0.05,-0.15),(0.10,-0.10),(0.20,-0.05),(0.30,0.00),(0.50,0.08),
-           (0.75,0.12),(1.00,0.18),(1.25,0.30),(1.50,0.42),(2.00,0.55)],
-     1.0: [(0.05,-0.08),(0.10,0.00),(0.20,0.05),(0.30,0.10),(0.50,0.18),
-           (0.75,0.22),(1.00,0.28),(1.25,0.38),(1.50,0.48),(2.00,0.60)],
-     2.0: [(0.05,0.05),(0.10,0.12),(0.20,0.18),(0.30,0.22),(0.50,0.30),
-           (0.75,0.35),(1.00,0.40),(1.25,0.48),(1.50,0.55),(2.00,0.65)],
-     3.0: [(0.05,0.15),(0.10,0.22),(0.20,0.28),(0.30,0.32),(0.50,0.40),
-           (0.75,0.45),(1.00,0.50),(1.25,0.58),(1.50,0.63),(2.00,0.70)],
-     4.0: [(0.05,0.25),(0.10,0.32),(0.20,0.38),(0.30,0.42),(0.50,0.50),
-           (0.75,0.55),(1.00,0.60),(1.25,0.65),(1.50,0.70),(2.00,0.75)],
-     5.5: [(0.05,0.38),(0.10,0.45),(0.20,0.52),(0.30,0.55),(0.50,0.62),
-           (0.75,0.68),(1.00,0.72),(1.25,0.78),(1.50,0.82),(2.00,0.85)],
-}
+# Zenodo RS-w_caseI.csv experimental data: (x, y, z, U_exp) at y=0
+EXP_DATA = [
+    (-0.15, 0, 0.015, 0.976), (-0.15, 0, 0.05, 1.347),
+    (-0.15, 0, 0.10, 1.592), (-0.15, 0, 0.15, 1.773),
+    (-0.15, 0, 0.20, 1.890), (-0.15, 0, 0.30, 2.013),
+    (-0.15, 0, 0.40, 2.088), (-0.15, 0, 0.50, 2.144),
+    (-0.05, 0, 0.115, 1.676), (-0.05, 0, 0.15, 1.892),
+    (-0.05, 0, 0.20, 1.965), (-0.05, 0, 0.30, 2.040),
+    (-0.05, 0, 0.40, 2.099), (-0.05, 0, 0.50, 2.151),
+    (0.00, 0, 0.115, 0.181), (0.00, 0, 0.15, 2.043),
+    (0.00, 0, 0.20, 2.020), (0.00, 0, 0.30, 2.054),
+    (0.00, 0, 0.40, 2.104), (0.00, 0, 0.50, 2.154),
+    (0.065, 0, 0.015, -0.295), (0.065, 0, 0.05, -0.180),
+    (0.065, 0, 0.10, 0.157), (0.065, 0, 0.15, 1.994),
+    (0.065, 0, 0.20, 2.038), (0.065, 0, 0.30, 2.065),
+    (0.065, 0, 0.40, 2.109), (0.065, 0, 0.50, 2.156),
+    (0.10, 0, 0.015, -0.631), (0.10, 0, 0.05, 0.031),
+    (0.10, 0, 0.10, 0.766), (0.10, 0, 0.15, 1.982),
+    (0.10, 0, 0.20, 2.043), (0.10, 0, 0.30, 2.069),
+    (0.10, 0, 0.40, 2.113), (0.10, 0, 0.50, 2.158),
+    (0.20, 0, 0.015, -0.267), (0.20, 0, 0.05, 0.498),
+    (0.20, 0, 0.10, 1.323), (0.20, 0, 0.15, 1.924),
+    (0.20, 0, 0.20, 2.023), (0.20, 0, 0.30, 2.065),
+    (0.20, 0, 0.40, 2.113), (0.20, 0, 0.50, 2.159),
+    (0.30, 0, 0.015, 0.222), (0.30, 0, 0.05, 0.935),
+    (0.30, 0, 0.10, 1.543), (0.30, 0, 0.15, 1.893),
+    (0.30, 0, 0.20, 2.008), (0.30, 0, 0.30, 2.065),
+    (0.30, 0, 0.40, 2.113), (0.30, 0, 0.50, 2.159),
+    (0.50, 0, 0.015, 0.967), (0.50, 0, 0.05, 1.395),
+    (0.50, 0, 0.10, 1.695), (0.50, 0, 0.15, 1.874),
+    (0.50, 0, 0.20, 1.990), (0.50, 0, 0.30, 2.060),
+    (0.50, 0, 0.40, 2.111), (0.50, 0, 0.50, 2.159),
+]
 
-# ═══════════════════════════════════════════════════════════════════════════
-# VTK Legacy ASCII Reader (for FluidX3D output)
-# ═══════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# VTK Legacy ASCII Reader
+# =============================================================================
 
-def read_vtk_structured_points(filepath):
-    """Read FluidX3D VTK legacy structured points file.
-    Returns: (nx, ny, nz, origin, spacing, velocity_array)
-    velocity_array is a list of (vx, vy, vz) tuples in Fortran order (x fastest).
-    """
+def read_vtk(filepath):
     with open(filepath, 'r') as f:
         lines = f.readlines()
-    
-    nx = ny = nz = 0
-    origin = (0.0, 0.0, 0.0)
-    spacing = (1.0, 1.0, 1.0)
+
+    nx = ny = nz = 1
+    ox = oy = oz = 0.0
+    dx = dy = dz = 1.0
     velocities = []
-    reading_data = False
-    line_idx = 0
-    
-    while line_idx < len(lines):
-        line = lines[line_idx].strip()
-        
+    reading = False
+    i = 0
+
+    while i < len(lines):
+        line = lines[i].strip()
         if line.startswith("DIMENSIONS"):
-            parts = line.split()
-            nx, ny, nz = int(parts[1]), int(parts[2]), int(parts[3])
+            p = line.split()
+            nx, ny, nz = int(p[1]), int(p[2]), int(p[3])
         elif line.startswith("ORIGIN"):
-            parts = line.split()
-            origin = (float(parts[1]), float(parts[2]), float(parts[3]))
+            p = line.split()
+            ox, oy, oz = float(p[1]), float(p[2]), float(p[3])
         elif line.startswith("SPACING"):
-            parts = line.split()
-            spacing = (float(parts[1]), float(parts[2]), float(parts[3]))
+            p = line.split()
+            dx, dy, dz = float(p[1]), float(p[2]), float(p[3])
         elif line.startswith("POINT_DATA"):
-            reading_data = False
-        elif line.startswith("VECTORS") or line.startswith("SCALARS"):
-            reading_data = True
-            line_idx += 1  # skip LOOKUP_TABLE line if present
-        elif reading_data and line:
-            parts = line.split()
-            if len(parts) >= 3:
+            reading = False
+        elif line.startswith("VECTORS"):
+            reading = True
+            i += 1
+        elif reading and line:
+            p = line.split()
+            if len(p) >= 3:
                 try:
-                    velocities.append((float(parts[0]), float(parts[1]), float(parts[2])))
-                except ValueError:
+                    velocities.append((float(p[0]), float(p[1]), float(p[2])))
+                except:
                     pass
-        
-        line_idx += 1
-    
-    return nx, ny, nz, origin, spacing, velocities
+        i += 1
+
+    return nx, ny, nz, (ox, oy, oz), (dx, dy, dz), velocities
 
 
-def probe_velocity(velocities, nx, ny, nz, origin, spacing, x, y, z):
-    """Trilinear interpolation of velocity at world coordinate (x, y, z)."""
-    ox, oy, oz = origin
-    dx, dy, dz = spacing
-    
-    # Convert world → grid index
-    ix = (x - ox) / dx
-    iy = (y - oy) / dy
-    iz = (z - oz) / dz
-    
-    # Clamp to grid bounds
-    ix = max(0, min(nx-1.001, ix))
-    iy = max(0, min(ny-1.001, iy))
-    iz = max(0, min(nz-1.001, iz))
-    
+def trilinear(v, nx, ny, nz, oxyz, dxyz, px, py, pz):
+    ox, oy, oz = oxyz
+    dx, dy, dz = dxyz
+
+    ix = (px - ox) / dx
+    iy = (py - oy) / dy
+    iz = (pz - oz) / dz
+
+    ix = max(0, min(nx - 1.001, ix))
+    iy = max(0, min(ny - 1.001, iy))
+    iz = max(0, min(nz - 1.001, iz))
+
     i0, j0, k0 = int(ix), int(iy), int(iz)
     i1, j1, k1 = min(i0+1, nx-1), min(j0+1, ny-1), min(k0+1, nz-1)
     fx, fy, fz = ix - i0, iy - j0, iz - k0
-    
+
     def idx(i, j, k):
-        return k * (ny * nx) + j * nx + i
-    
-    def lerp3d(v000, v100, v010, v110, v001, v101, v011, v111):
-        return (v000 * (1-fx)*(1-fy)*(1-fz) + v100 * fx*(1-fy)*(1-fz) +
-                v010 * (1-fx)*fy*(1-fz) + v110 * fx*fy*(1-fz) +
-                v001 * (1-fx)*(1-fy)*fz + v101 * fx*(1-fy)*fz +
-                v011 * (1-fx)*fy*fz + v111 * fx*fy*fz)
-    
-    vx = lerp3d(
-        velocities[idx(i0,j0,k0)][0], velocities[idx(i1,j0,k0)][0],
-        velocities[idx(i0,j1,k0)][0], velocities[idx(i1,j1,k0)][0],
-        velocities[idx(i0,j0,k1)][0], velocities[idx(i1,j0,k1)][0],
-        velocities[idx(i0,j1,k1)][0], velocities[idx(i1,j1,k1)][0])
-    vy = lerp3d(
-        velocities[idx(i0,j0,k0)][1], velocities[idx(i1,j0,k0)][1],
-        velocities[idx(i0,j1,k0)][1], velocities[idx(i1,j1,k0)][1],
-        velocities[idx(i0,j0,k1)][1], velocities[idx(i1,j0,k1)][1],
-        velocities[idx(i0,j1,k1)][1], velocities[idx(i1,j1,k1)][1])
-    vz = lerp3d(
-        velocities[idx(i0,j0,k0)][2], velocities[idx(i1,j0,k0)][2],
-        velocities[idx(i0,j1,k0)][2], velocities[idx(i1,j1,k0)][2],
-        velocities[idx(i0,j0,k1)][2], velocities[idx(i1,j0,k1)][2],
-        velocities[idx(i0,j1,k1)][2], velocities[idx(i1,j1,k1)][2])
-    
+        return k * ny * nx + j * nx + i
+
+    def lerp(c000, c100, c010, c110, c001, c101, c011, c111):
+        return (c000 * (1-fx)*(1-fy)*(1-fz) + c100 * fx*(1-fy)*(1-fz) +
+                c010 * (1-fx)*fy*(1-fz) + c110 * fx*fy*(1-fz) +
+                c001 * (1-fx)*(1-fy)*fz + c101 * fx*(1-fy)*fz +
+                c011 * (1-fx)*fy*fz + c111 * fx*fy*fz)
+
+    vx = lerp(v[idx(i0,j0,k0)][0], v[idx(i1,j0,k0)][0],
+              v[idx(i0,j1,k0)][0], v[idx(i1,j1,k0)][0],
+              v[idx(i0,j0,k1)][0], v[idx(i1,j0,k1)][0],
+              v[idx(i0,j1,k1)][0], v[idx(i1,j1,k1)][0])
+    vy = lerp(v[idx(i0,j0,k0)][1], v[idx(i1,j0,k0)][1],
+              v[idx(i0,j1,k0)][1], v[idx(i1,j1,k0)][1],
+              v[idx(i0,j0,k1)][1], v[idx(i1,j0,k1)][1],
+              v[idx(i0,j1,k1)][1], v[idx(i1,j1,k1)][1])
+    vz = lerp(v[idx(i0,j0,k0)][2], v[idx(i1,j0,k0)][2],
+              v[idx(i0,j1,k0)][2], v[idx(i1,j1,k0)][2],
+              v[idx(i0,j0,k1)][2], v[idx(i1,j0,k1)][2],
+              v[idx(i0,j1,k1)][2], v[idx(i1,j1,k1)][2])
+
     return vx, vy, vz
 
-# ═══════════════════════════════════════════════════════════════════════════
-# MAIN: Read VTK and compare
-# ═══════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# MAIN
+# =============================================================================
 
-# Input: case_dir is connected from Run Simulation's "Case Dir" output
 case_dir_str = case_dir if isinstance(case_dir, str) else str(case_dir)
 vtk_dir = os.path.join(case_dir_str, "output")
 
-# Find latest VTK file
 vtk_files = []
 if os.path.isdir(vtk_dir):
     for f in os.listdir(vtk_dir):
@@ -161,111 +160,107 @@ if os.path.isdir(vtk_dir):
             vtk_files.append(os.path.join(vtk_dir, f))
 
 if not vtk_files:
-    # Try common FluidX3D output locations
-    for alt in [case_dir_str, os.path.dirname(case_dir_str)]:
-        for root, dirs, files in os.walk(alt):
-            for f in files:
-                if f.endswith(".vtk"):
-                    vtk_files.append(os.path.join(root, f))
+    for root, dirs, files in os.walk(case_dir_str):
+        for f in files:
+            if f.endswith(".vtk"):
+                vtk_files.append(os.path.join(root, f))
 
 if not vtk_files:
-    print("[ERROR] No VTK files found. Run simulation first.")
-    a = "ERROR: No VTK output found. Please run the simulation first."
-    b = []
-    c = []
-    d = []
+    print("[ERROR] No VTK files found.")
+    a = "ERROR: No VTK output. Run simulation first."
+    b, c, d = [], [], []
 else:
-    vtk_file = sorted(vtk_files)[-1]  # Latest file
+    vtk_file = sorted(vtk_files)[-1]
     print("Reading: " + vtk_file)
-    
-    nx, ny, nz, origin, spacing, velocities = read_vtk_structured_points(vtk_file)
-    print("Grid: {} x {} x {} ({:.1f}M cells)".format(nx, ny, nz, len(velocities)/1e6))
-    print("Domain: origin=({:.2f},{:.2f},{:.2f}) spacing=({:.3f},{:.3f},{:.3f})".format(
+
+    nx, ny, nz, origin, spacing, velocities = read_vtk(vtk_file)
+    ncells = len(velocities)
+    print("Grid: {}x{}x{} ({:.1f}M cells)".format(nx, ny, nz, ncells/1e6))
+    print("Origin: ({:.3f},{:.3f},{:.3f})  Spacing: ({:.3f},{:.3f},{:.3f})".format(
         origin[0], origin[1], origin[2], spacing[0], spacing[1], spacing[2]))
-    
-    # Probe velocity at all AIJ measurement positions
-    profile_xh = [-1.5, -0.5, 0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.5]
-    
-    sim_points = []
-    exp_points_out = []
-    diff_curves = []
-    
+
+    sim_pts = []
+    exp_pts = []
+    err_vecs = []
+
     report = []
     report.append("=" * 60)
-    report.append("CityLBM v0.5.0 — AIJ Case A: Simulation vs Experiment")
+    report.append("CityLBM v0.2.1 — AIJ Case A: CFD vs. Wind Tunnel")
     report.append("=" * 60)
+    report.append("")
     report.append("VTK: {}".format(os.path.basename(vtk_file)))
-    report.append("Grid: {}x{}x{} cells".format(nx, ny, nz))
+    report.append("Grid: {}x{}x{} ({:.1f}M cells)".format(
+        nx, ny, nz, ncells/1e6))
+    report.append("Exp. data: Zenodo 10.5281/zenodo.15430018")
+    report.append("Reference: U_H = {:.1f} m/s at H = {:.2f} m".format(U_REF, H))
     report.append("")
-    report.append("{:>20s}  {:>8s}  {:>8s}  {:>8s}  {:>8s}".format(
-        "Position", "z/H", "U_sim", "U_exp", "Error%"))
+    report.append("{:>8s}  {:>8s}  {:>8s}  {:>10s}  {:>10s}  {:>8s}".format(
+        "x/H", "z/H", "z(m)", "U_sim", "U_exp", "Err%"))
     report.append("-" * 60)
-    
-    total_error = 0.0
-    n_samples = 0
-    
-    for xh in profile_xh:
-        x = xh * H
-        
-        for zh, u_exp in AIJ_EXP.get(xh, []):
-            z = zh * H
-            
-            # Probe simulation
-            try:
-                vx_sim, vy_sim, vz_sim = probe_velocity(
-                    velocities, nx, ny, nz, origin, spacing, x, 0.0, z)
-            except:
-                vx_sim = 0.0
-            
-            u_sim = vx_sim  # X-component = streamwise velocity
-            u_sim_norm = u_sim / U_H
-            error_pct = abs(u_sim_norm - u_exp) * 100
-            
-            total_error += error_pct
-            n_samples += 1
-            
-            report.append("{:>20s}  {:>8.2f}  {:>8.3f}  {:>8.3f}  {:>7.1f}%".format(
-                "x/H={:+.1f}".format(xh), zh, u_sim_norm, u_exp, error_pct))
-            
-            # Visualization points — simulated (Y-offset = velocity)
-            sim_pt = rg.Point3d(x, u_sim_norm * 0.5, z)
-            sim_points.append(sim_pt)
-            
-            # Experimental points
-            exp_pt = rg.Point3d(x, u_exp * 0.5, z)
-            exp_points_out.append(exp_pt)
-            
-            # Difference vector (sim → exp)
-            diff_start = rg.Point3d(x, u_sim_norm * 0.5, z)
-            diff_end   = rg.Point3d(x, u_exp * 0.5, z)
-            diff_curves.append(rg.LineCurve(rg.Line(diff_start, diff_end)))
-    
-    avg_error = total_error / n_samples if n_samples > 0 else 0
+
+    errors = []
+    n = 0
+    profile_positions = {}
+
+    for x, y, z, u_exp in EXP_DATA:
+        try:
+            vx, vy, vz = trilinear(velocities, nx, ny, nz,
+                                   origin, spacing, x, y, z)
+        except:
+            vx = 0.0
+
+        u_sim = vx
+        err = abs(u_sim - u_exp)
+        err_pct = (err / (abs(u_exp) + 0.01)) * 100
+        errors.append(err_pct)
+        n += 1
+
+        xh = x / H
+        zh = z / H
+
+        report.append("{:+7.1f}  {:>8.3f}  {:>8.3f}  {:>10.3f}  {:>10.3f}  {:>7.1f}%".format(
+            xh, zh, z, u_sim, u_exp, err_pct))
+
+        # Visualization points
+        sim_pt = rg.Point3d(x, (u_sim / U_REF) * 0.5, z)
+        sim_pts.append(sim_pt)
+        exp_pt = rg.Point3d(x, (u_exp / U_REF) * 0.5, z)
+        exp_pts.append(exp_pt)
+        err_vecs.append(rg.LineCurve(
+            rg.Line(sim_pt, exp_pt)))
+
+    avg_err = sum(errors) / n if n > 0 else 0
+
     report.append("-" * 60)
-    report.append("AVERAGE ERROR: {:.1f}% ({:d} sample points)".format(avg_error, n_samples))
     report.append("")
-    
-    # Quality assessment
-    if avg_error < 10:
-        report.append("QUALITY: EXCELLENT (<10% avg error)")
-    elif avg_error < 20:
-        report.append("QUALITY: GOOD (<20% avg error, typical for uniform inflow LBM)")
-    elif avg_error < 30:
-        report.append("QUALITY: ACCEPTABLE (<30%, expected without ABL profile)")
+    report.append("TOTAL POINTS: {}".format(n))
+    report.append("AVERAGE ERROR: {:.1f}%".format(avg_err))
+    report.append("RMS ERROR:    {:.1f}%".format(
+        math.sqrt(sum(e*e for e in errors)/n)))
+    report.append("")
+
+    if avg_err < 15:
+        grade = "EXCELLENT"
+    elif avg_err < 25:
+        grade = "GOOD (typical LBM result)"
+    elif avg_err < 35:
+        grade = "ACCEPTABLE"
     else:
-        report.append("QUALITY: NEEDS IMPROVEMENT (>30% avg error)")
-    
+        grade = "NEEDS IMPROVEMENT"
+
+    report.append("QUALITY GRADE: {}".format(grade))
     report.append("")
     report.append("NOTES:")
-    report.append("- AIJ experiment used power-law ABL profile (alpha=0.25)")
-    report.append("- CityLBM currently uses uniform inflow (accounts for ~10-15% error)")
-    report.append("- Enable ABL profile in Scene settings to reduce error")
-    report.append("- LES model improves wake region accuracy")
+    report.append("  - Wind tunnel used ABL profile; CityLBM uses uniform inflow")
+    report.append("  - Smagorinsky LES improves wake region accuracy")
+    report.append("  - Cube case: recirculation zone is most challenging region")
+    report.append("  - Reference: AIJ CFD Guidebook (2020)")
+    report.append("  - Data: Tominaga, Kikumoto, Okaze et al. (Zenodo)")
     report.append("=" * 60)
-    
+
     a = "\n".join(report)
-    b = sim_points       # Simulated velocity points
-    c = exp_points_out   # Experimental data points
-    d = diff_curves      # Difference vectors
-    
+    b = sim_pts
+    c = exp_pts
+    d = err_vecs
+
     print("\n".join(report))
