@@ -19,11 +19,12 @@ the solver from Grasshopper requires the local FluidX3D path above.
 
 ## Components
 
-CityLBM v0.2.0 contains 18 Grasshopper components:
+CityLBM v0.2.0 contains 18 core Grasshopper components plus the `CityLBM.Lawson.gha` companion component:
 
 - Scene setup: create wind scenes, add buildings, define domains, set wind conditions.
 - Simulation: generate Cartesian grids and FluidX3D cases.
 - Results: read VTK files, visualize velocity fields, extract slices, streamlines, point probes, and wind-speed grids.
+- Comfort: `Lawson Comfort` classifies pedestrian-level wind speeds for Lawson-style comfort and safety checks.
 
 ## Basic Workflow
 

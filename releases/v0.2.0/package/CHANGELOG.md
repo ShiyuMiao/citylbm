@@ -4,7 +4,8 @@
 
 - Prepared a clean Food4Rhino user package for Rhino 7/8 Grasshopper.
 - Set plugin and assembly version to `0.2.0.0`.
-- Kept 18 stable CityLBM components for scene setup, simulation case generation, and VTK result visualization.
+- Kept 18 stable CityLBM core components for scene setup, simulation case generation, and VTK result visualization.
+- Added `CityLBM.Lawson.gha` as a v0.2.0 companion component so Grasshopper workflows can emit `Lawson Comfort`.
 - Added `CustomTable` inlet wind profile support for measured CSV profiles.
 - Corrected custom-profile height sampling with domain-origin offset.
 - Kept FluidX3D as an external dependency instead of bundling solver source or executable files.
@@ -16,6 +17,6 @@
 ## Known limitations
 
 - Full simulation runs require a local FluidX3D source tree and build environment.
-- The `Lawson Comfort` source exists in the development tree but is not compiled into the verified v0.2.0 package binary; validation workflows treat it as optional until the binary is rebuilt with that component.
+- The main development source tree still contains encoding-damaged files and should not be used as the public build baseline until those files are cleaned. The packaged v0.2.0 binaries are the verified install artifacts.
 - Rhino 7 was available for local build targeting; Rhino 8 compatibility is the release target but should be checked on a Rhino 8 machine before public submission.
 - The examples are provided as validation-oriented workflows; numerical results depend on the user's FluidX3D build, GPU/CPU environment, grid size, and timestep settings.

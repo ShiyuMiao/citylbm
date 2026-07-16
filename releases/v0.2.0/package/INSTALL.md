@@ -5,6 +5,7 @@
 1. Close Rhino.
 2. Copy these files into `%APPDATA%\Grasshopper\Libraries\`:
    - `CityLBM.gha`
+   - `CityLBM.Lawson.gha`
    - `Newtonsoft.Json.dll`
    - `NLog.dll`
 3. If Windows marks downloaded files as blocked, right-click each file, open `Properties`, and choose `Unblock`.
