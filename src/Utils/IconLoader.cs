@@ -41,13 +41,13 @@ namespace CityLBM.Utils
                 using (var stream = assembly.GetManifestResourceStream(resourceName))
                 {
                     if (stream != null)
-                        return new Bitmap(stream);
+                        return NormalizeIcon(new Bitmap(stream));
                 }
 
                 // 方式2：从 gha 同级 Icons/ 目录加载
                 string filePath = Path.Combine(_assemblyDir, "Icons", iconName);
                 if (File.Exists(filePath))
-                    return new Bitmap(filePath);
+                    return NormalizeIcon(new Bitmap(filePath));
 
                 // 方式3：检查 gha 上级目录的 Icons/（处理 CityLBM.gha 在子目录的情况）
                 string parentDir = Path.GetDirectoryName(_assemblyDir);
@@ -55,7 +55,7 @@ namespace CityLBM.Utils
                 {
                     filePath = Path.Combine(parentDir, "Icons", iconName);
                     if (File.Exists(filePath))
-                        return new Bitmap(filePath);
+                        return NormalizeIcon(new Bitmap(filePath));
                 }
             }
             catch
@@ -65,6 +65,24 @@ namespace CityLBM.Utils
 
             // 回退：返回默认蓝色图标
             return LoadDefaultIcon();
+        }
+
+        private static Bitmap NormalizeIcon(Bitmap source)
+        {
+            if (source.Width == 24 && source.Height == 24)
+                return source;
+
+            var scaled = new Bitmap(24, 24);
+            using (var g = Graphics.FromImage(scaled))
+            {
+                g.Clear(Color.Transparent);
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                g.DrawImage(source, new Rectangle(0, 0, 24, 24));
+            }
+            source.Dispose();
+            return scaled;
         }
 
         private static Bitmap _defaultIcon;

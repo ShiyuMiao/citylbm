@@ -1,0 +1,28 @@
+name: citylbm
+version: 0.2.0
+
+authors:
+  - name: Shiyu Miao
+    email: miaoshiyu@mail.dlut.edu.cn
+    organization: Dalian University of Technology
+
+description: >
+  CityLBM is a Grasshopper plugin for urban wind environment simulation.
+  It generates FluidX3D LBM cases from Rhino geometry, supports measured
+  inlet wind profiles, and provides VTK-based visualization and probe tools.
+
+url: https://github.com/ShiyuMiao/citylbm
+
+keywords:
+  - cfd
+  - grasshopper
+  - rhino
+  - urban-wind
+  - wind-environment
+  - lbm
+  - fluidx3d
+  - aij-validation
+  - pedestrian-wind
+
+icon: icon.png
+license: MIT
