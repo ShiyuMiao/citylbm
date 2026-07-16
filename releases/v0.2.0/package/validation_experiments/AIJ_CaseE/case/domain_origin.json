@@ -1,0 +1,16 @@
+﻿{
+  "DomainOriginX": -300.0,
+  "DomainOriginY": -500.0,
+  "DomainOriginZ": 0.0,
+  "DomainMinX": -300.0,
+  "DomainMinY": -500.0,
+  "DomainMinZ": 0.0,
+  "DomainMaxX": 300.0,
+  "DomainMaxY": 300.0,
+  "DomainMaxZ": 240.0,
+  "Nx": 120,
+  "Ny": 160,
+  "Nz": 48,
+  "Dx": 5.0,
+  "Description": "CityLBM domain origin for VTK coordinate mapping"
+}

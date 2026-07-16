@@ -1,0 +1,14 @@
+*.3dm binary
+*.3dmbak binary
+*.gha binary
+*.gh binary
+*.dll binary
+*.exe binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.stl binary
+*.vtk binary
+*.xlsx binary
+*.xls binary
+*.zip binary
