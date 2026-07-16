@@ -24,6 +24,8 @@ package to keep the GitHub and user package size manageable.
 - Grasshopper file: `AIJ_CaseE/grasshopper/AIJ_CaseE_ac_N_citylbm_full_workflow.gh`
 - Excel result: `AIJ_CaseE/excel/AIJCASEE_ac_N_citylbm_measure_points.xlsx`
 - Screenshot: `AIJ_CaseE/screenshots/rhino_casee_citylbm_no_arrow_vtk_points.png`
+- Grasshopper proof screenshot: `AIJ_CaseE/screenshots/grasshopper_casee_workflow_proof_full.png`
+- Grasshopper zoom screenshot: `AIJ_CaseE/screenshots/grasshopper_casee_workflow_proof_zoom.png`
 - Case metadata: `AIJ_CaseE/case/domain_origin.json`, `AIJ_CaseE/case/setup.cpp`
 
 The Case E result is based on the CityLBM-generated FluidX3D VTK file
@@ -43,8 +45,11 @@ its error statistics.
 
 ## Component Note
 
-The current v0.2.0 package binary exposes 18 Grasshopper components. The
-`Lawson Comfort` source exists in the development tree, but the verified
-v0.2.0 binary inspected during this cleanup does not contain that compiled
-component. The Case E full workflow therefore treats Lawson post-processing as
-optional until a rebuilt binary includes it.
+The v0.2.0 package exposes 18 stable CityLBM core components through
+`CityLBM.gha`. The missing `Lawson Comfort` component is provided by the
+companion assembly `CityLBM.Lawson.gha`, which must be copied to the same
+Grasshopper Libraries folder as `CityLBM.gha`.
+
+The included Grasshopper screenshots are real Grasshopper canvas captures from
+the Case E workflow. They are included as workflow proof, while the Rhino
+screenshot and Excel workbook document the VTK-derived validation result.

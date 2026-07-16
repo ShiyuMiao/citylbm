@@ -68,3 +68,12 @@ Date: 2026-06-04
 - Current ZIP hash: `D08F8DD2F0B68259070AEE7E4F1525EDD8697625BF16AA63B101747851183BCC`.
 - Current Lawson assembly hash: `E9ACA7FB5CF89D4C5079622417863BAEE7896653F9847F3538DCF3E7331A9BE3`.
 - Full `v0.2.1\src` rebuild is still blocked by widespread encoding-damaged C# source files; the verified v0.2.0 install artifacts remain the package binaries.
+
+## Grasshopper Icon Hotfix - 2026-07-16
+
+- Patched embedded PNG resources in `package/CityLBM.gha` from 200x200 to 24x24 without changing component logic.
+- Verified by reflection that all 18 `CityLBM.gha` components return `Icon_24x24` as 24x24; `BadIconCount=0`.
+- Updated local Grasshopper library copy `%APPDATA%\Grasshopper\Libraries\CityLBM.gha` after closing Rhino, so the next Rhino/GH launch loads the fixed toolbar icons.
+- The original pre-iconfix `CityLBM.gha` is retained only in `release_notes\CityLBM.gha.pre_iconfix_backup` for audit history and is not included in the upload ZIP.
+- Current ZIP hash: `64F4086576F5287E964B477E58BE82F2DD7758353AD9AF2C1327C4C8A5300887`.
+- Current `CityLBM.gha` hash: `A0A75EB3E57CCDA9E54A5F5BC25ABD17E70D51C4A18E2144C0AB67F56C069623`.
