@@ -71,6 +71,7 @@ Photogrammetry counterexample:
 - Building-form wind-environment literature context: `reports/building_form_wind_environment_literature_context.md`
 - Climate/building type/campus wind application context: `reports/climate_building_type_campus_wind_application_context.md`
 - Basic building-morphology wind-response analysis: `reports/basic_morphology_wind_response_analysis.md`
+- Detailed paper-conclusion data synthesis: `reports/detailed_data_synthesis_for_paper_conclusions.md`
 - Note: the recommended manuscript-facing morphology interpretation now uses basic building-morphology parameters. LCZ-like files below are retained as audit/superseded context, not as the main classification framework.
 
 ## Paper Text
@@ -85,6 +86,7 @@ Photogrammetry counterexample:
 - Building-form wind-environment discussion: `paper_text/building_form_wind_environment_discussion_zh.md`
 - Climate-campus-digital-twin conclusion: `paper_text/conclusion_climate_campus_digital_twin_wind_zh.md`
 - Basic morphology wind-response conclusion: `paper_text/basic_morphology_wind_response_conclusion_zh.md`
+- Detailed paper conclusions: `paper_text/detailed_paper_conclusions_zh.md`
 - Morphology/LCZ-like wind-response conclusion: `paper_text/morphology_lcz_wind_response_conclusion_zh.md`
 - LCZ scale-validity discussion: `paper_text/lcz_scale_validity_discussion_zh.md`
 
@@ -97,6 +99,7 @@ Photogrammetry counterexample:
 - GCRI scoring table: `manifests/gcri_scoring_table.csv`
 - Design scenario status: `manifests/design_scenario_manifest.csv`
 - GCBTE status: `manifests/gcbte_status_table.csv`
+- Detailed paper-conclusion claims: `manifests/detailed_conclusion_claims.csv`
 - Wind rose weights: `manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv`
 - Nature-style figure manifest: `manifests/nature_style_figure_manifest.csv`
 

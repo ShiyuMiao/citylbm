@@ -47,8 +47,10 @@ Core distinction:
 4. `reports/fluidx3d_core_prism_timesampled_8dir_dx2m_report.md`
 5. `reports/paraview_vtk_core_wind_statistics_and_building_analysis.md`
 6. `reports/basic_morphology_wind_response_analysis.md`
-7. `paper_text/method_section_zh.md`
-8. `paper_text/basic_morphology_wind_response_conclusion_zh.md`
+7. `reports/detailed_data_synthesis_for_paper_conclusions.md`
+8. `paper_text/detailed_paper_conclusions_zh.md`
+9. `paper_text/method_section_zh.md`
+10. `paper_text/basic_morphology_wind_response_conclusion_zh.md`
 
 ## Current Main Conclusion
 
