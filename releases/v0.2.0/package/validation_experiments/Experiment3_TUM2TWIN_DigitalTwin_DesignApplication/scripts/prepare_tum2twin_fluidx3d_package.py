@@ -10,6 +10,9 @@ import xml.etree.ElementTree as ET
 from collections import Counter
 from pathlib import Path
 
+# Legacy packager retained for provenance. It created the initial no-solver
+# template package and should not be used to overwrite the later executed
+# FluidX3D-native reports without manual review.
 
 ROOT = Path(__file__).resolve().parents[1]
 HEAVY_RAW = Path(r"D:\citylbm_tum2twin_heavy_store\raw")
@@ -442,7 +445,7 @@ void main_setup() {{
 """
     write_text(fluid_dir / "setup_tum2twin_wind_pilot.cpp", setup_cpp)
     write_text(fluid_dir / "run_matrix.csv", "case_id,wind_dir_deg,Uref_10m,ped_height_m,dx_m,Nx,Ny,Nz,status\n" + "\n".join(
-        f"S0_WD{d},{d},5.0,1.5,{rows[0][1]},{rows[0][2]},{rows[0][3]},{rows[0][4]},blocked_by_missing_solver"
+        f"S0_WD{d},{d},5.0,1.5,{rows[0][1]},{rows[0][2]},{rows[0][3]},{rows[0][4]},legacy_template_superseded_by_executed_fluidx3d_run"
         for d in [0,45,90,135,180,225,270,315]
     ) + "\n")
     write_text(fluid_dir / "paraview_pipeline.md", """# ParaView visualization pipeline
@@ -561,7 +564,7 @@ QA JSON：`manifests/geometry_qa.json`
 
 evidence_type: blocked
 
-状态：blocked_by_missing_solver。当前机器尚未安装/编译 FluidX3D，也未运行 ParaView 后处理。
+状态：legacy_template_superseded_by_executed_fluidx3d_run。当前归档已有后续 FluidX3D-native 实跑报告；本脚本保留早期模板生成逻辑，不应用于覆盖当前报告。
 
 主路线：
 1. 安装 OpenCL GPU/CPU runtime。

@@ -1,4 +1,4 @@
-﻿claim,evidence_type,source
+claim,evidence_type,source
 "UAS 3D Mesh is used as visual/photogrammetric reference, not final collision boundary.",preexisting_artifact,TUM2TWIN cm-mesh page and downloaded OBJ/MTL
 LoD2/LoD3 CityGML building models provide semantic building surfaces for CFD collision geometry.,preexisting_artifact,TUM2TWIN semantic building models page and downloaded CityGML
 building_collision_z0.stl was generated from four LoD2 buildings and checked locally.,newly_run,C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\manifests\geometry_qa.json
@@ -63,3 +63,13 @@ Basic building-morphology parameters were derived for retained central component
 Spearman correlations between basic morphology parameters and eight-direction wind-response metrics were computed for facade-adjacent and local-context pedestrian open-cell zones.,newly_run,C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\reports\basic_morphology_wind_response_analysis.md
 "The strongest local-context morphology signal is sector enclosure within 50 m; footprint area, elongation ratio, and perimeter-area compactness are weak predictors in this screened core model.",newly_run,C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\figures\basic_morphology_parameter_correlations.csv
 LCZ-like morphology labels are retained only as audit/superseded context; the recommended manuscript interpretation uses basic building-morphology parameters.,newly_run,C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\reports\final_experiment_package_index.md
+data_manifest.csv Open-Meteo URL field is CSV-safe after URL-encoding the hourly variable comma.,newly_run,manifests/data_manifest.csv
+"FluidX3D boundary condition, viscosity, Re, timestep, and sampling table is extracted from archived scripts/logs.",newly_run,manifests/fluidx3d_core_prism_boundary_condition_table.csv; reports/fluidx3d_boundary_condition_numerics_and_convergence.md
+GCRI is calculated as an explicit 0-1 paper-internal readiness score for accepted/counterexample geometry artifacts.,newly_run,manifests/gcri_scoring_table.csv; reports/geometry_to_cfd_readiness_index_results.md
+CityLBM-Grasshopper end-to-end plugin run is not completed in this archive.,blocked,cfd_ready/CityLBM_GH_input_template/README.md
+The manuscript positioning is FluidX3D-native simulation with a CityLBM-compatible geometry package.,newly_run,README.md; cfd_ready/CityLBM_GH_input_template/README.md
+"Open-Meteo 2024 data are used as a wind-climate proxy, not as measured annual exceedance-probability validation.",preexisting_artifact + newly_run,reports/metric_system_for_digital_twin_wind_application.md; reports/design_scenario_and_unfinished_metric_boundary.md
+Pollutant dispersion metrics are templates only and no scalar transport result is reported.,blocked,reports/metric_system_for_digital_twin_wind_application.md
+S1 design-intervention scenario is documented as a protocol placeholder but has not been simulated.,blocked,manifests/design_scenario_manifest.csv; reports/design_scenario_and_unfinished_metric_boundary.md
+GCBTE metrics are defined but not computed because no independent 3DGS-derived collision boundary extraction exists.,blocked,manifests/gcbte_status_table.csv; reports/design_scenario_and_unfinished_metric_boundary.md
+github_archive_manifest.csv is regenerated after text-file LF normalization for checkout-stable SHA256 evidence.,newly_run,.gitattributes; manifests/github_archive_manifest.csv

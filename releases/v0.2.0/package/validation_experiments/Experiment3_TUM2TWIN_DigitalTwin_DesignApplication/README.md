@@ -10,7 +10,9 @@ This folder archives the third experiment supporting the CityLBM urban wind-envi
 - Experiment 2: AIJ Case E, benchmark/validation support.
 - Experiment 3: TUM2TWIN real urban digital-twin design-application experiment.
 
-The first two AIJ cases support the solver/workflow validation layer. This experiment does not re-claim solver accuracy; it tests whether real digital-twin city data can be transformed into CFD-ready geometry, simulated with FluidX3D, inspected in ParaView/Rhino, and interpreted as an architectural design application.
+The first two AIJ cases support the solver/workflow validation layer. This experiment does not re-claim solver accuracy; it tests whether real digital-twin city data can be transformed into CFD-ready geometry, simulated with FluidX3D, inspected in ParaView/Rhino, and interpreted as an architectural wind screening and morphology-explanation application.
+
+Current archive positioning: **FluidX3D-native simulation with a CityLBM-compatible geometry package**. The CityLBM/Grasshopper folder is retained as an interoperability template only and is not a completed end-to-end CityLBM plugin run.
 
 ## Research Object
 
@@ -56,6 +58,6 @@ The key new finding is that the immediate 0-20 m facade-adjacent band is uniform
 
 ## Evidence Boundary
 
-This archive supports a reproducible digital-twin-to-CFD design-application workflow and preliminary FluidX3D pedestrian-height wind-response screening. It does not provide field-validated prediction accuracy, formal annual comfort/safety compliance, or pollutant-dispersion results.
+This archive supports a reproducible digital-twin-to-CFD design-application workflow and preliminary FluidX3D pedestrian-height wind-response screening. It does not provide field-validated prediction accuracy, formal annual comfort/safety compliance, pollutant-dispersion results, simulated S1-Sn design-intervention comparisons, 3DGS boundary-transfer error results, or a completed CityLBM-GH end-to-end run.
 
 Large raw assets and full VTK outputs are not fully embedded in this GitHub archive. Their local paths and source boundaries are recorded in `EXTERNAL_ARTIFACTS.md` and `manifests/evidence_inventory.csv`.

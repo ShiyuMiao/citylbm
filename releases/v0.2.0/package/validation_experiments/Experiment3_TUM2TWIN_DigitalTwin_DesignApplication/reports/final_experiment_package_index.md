@@ -54,6 +54,9 @@ Photogrammetry counterexample:
 - Rhino report: `reports/rhino_geometry_conversion_report.md`
 - CFD-ready geometry QA: `reports/cfd_ready_geometry_qa.md`
 - Metric system: `reports/metric_system_for_digital_twin_wind_application.md`
+- FluidX3D boundary/numerics/convergence boundary: `reports/fluidx3d_boundary_condition_numerics_and_convergence.md`
+- Geometry-to-CFD Readiness Index results: `reports/geometry_to_cfd_readiness_index_results.md`
+- Design scenario and unfinished metric boundary: `reports/design_scenario_and_unfinished_metric_boundary.md`
 - Simulation protocol: `reports/simulation_protocol_without_solver.md`
 - Claim boundary: `reports/claim_boundary.md`
 - ParaView package: `reports/paraview_visualization_package.md`
@@ -90,6 +93,10 @@ Photogrammetry counterexample:
 - Data: `manifests/data_manifest.csv`
 - Geometry: `manifests/geometry_manifest.csv`
 - Evidence: `manifests/evidence_inventory.csv`
+- FluidX3D boundary/numerics table: `manifests/fluidx3d_core_prism_boundary_condition_table.csv`
+- GCRI scoring table: `manifests/gcri_scoring_table.csv`
+- Design scenario status: `manifests/design_scenario_manifest.csv`
+- GCBTE status: `manifests/gcbte_status_table.csv`
 - Wind rose weights: `manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv`
 - Nature-style figure manifest: `manifests/nature_style_figure_manifest.csv`
 

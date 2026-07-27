@@ -38,6 +38,9 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - ParaView headless screenshots are not available yet because RenderView creation fails without a working OpenGL/OSMesa path.
 - 3DGS or photogrammetry mesh should not be claimed as a direct closed collision boundary.
 - The user-provided photogrammetry FluidX3D pilot should not be used as a final wind comfort/safety result; it is evidence for geometry readiness limits only.
+- The CityLBM-Grasshopper chain is optional and not executed; manuscript wording should be FluidX3D-native simulation with a CityLBM-compatible geometry package unless GH run evidence is added.
+- GCRI has been scored as a paper-internal geometry-readiness metric, but it does not validate wind-result accuracy.
+- GCBTE, pollutant dispersion, and S1-Sn design-intervention comparisons are not completed and must remain blocked/future-work items.
 
 ## Remaining Work Before Final SCI-Level Claims
 
@@ -46,3 +49,4 @@ evidence_type: newly_run + preexisting_artifact + blocked
 3. Consider a longer sampling window or dx=1 m local refinement if detailed 1.5 m pedestrian-height classification is required.
 4. Add pollutant dispersion only after source terms and scalar transport setup are explicitly defined.
 5. Use ParaView GUI or install a software-rendering runtime for final publication screenshots.
+6. If the paper title or method foregrounds CityLBM-GH, add Grasshopper definition files, plugin-run screenshots, solver logs, and output artifacts; otherwise keep the current FluidX3D-native positioning.

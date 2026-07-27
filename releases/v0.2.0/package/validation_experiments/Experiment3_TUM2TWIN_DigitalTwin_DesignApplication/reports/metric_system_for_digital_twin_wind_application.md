@@ -87,11 +87,14 @@ Recommended formula:
 | `E` export success | STL/3DM/VTK/ParaView state generated | 0-1 |
 | `V` voxelization success | FluidX3D solid mask matches expected geometry | 0-1 |
 
-Current evidence:
+Current evidence and computed scores are now recorded in `manifests/gcri_scoring_table.csv` and `reports/geometry_to_cfd_readiness_index_results.md`.
 
-- user photogrammetry STL: useful visual mesh, not watertight; voxelization behaves as fragmented shell;
-- core semantic prism STL: preferred CFD-ready local collision geometry;
-- district prism STL: preferred whole-district application geometry.
+| Geometry | Current GCRI | Status |
+|---|---:|---|
+| User photogrammetry STL | `0.455` | visual reference / counterexample, not final collision |
+| Core semantic prism STL | `0.925` | preferred local CFD-ready collision geometry |
+| District prism STL | `0.918` | preferred whole-district screening geometry |
+| LoD3 direct OBJ collision candidate | `0.528` | semantic reference requiring repair before collision use |
 
 ### 4.2 3DGS/Photogrammetry-to-Collision Transfer Error
 
@@ -105,6 +108,8 @@ If a 3DGS or photogrammetry-derived collision boundary is later extracted, compa
 - solid voxel mask agreement.
 
 This metric directly supports the paper argument that visual reconstruction must be semantically converted or repaired before becoming a robust CFD collision boundary.
+
+Current status: the metric is defined but not computed because this archive does not include an independent 3DGS-derived building collision extraction. The available photogrammetry STL is treated as a qualitative counterexample only. See `manifests/gcbte_status_table.csv`.
 
 ## 5. Pollutant and Ventilation Risk Metrics
 
@@ -129,7 +134,7 @@ For baseline `S0` and interventions `S1...Sn`:
 - Wind Benefit per Modeling Cost: `Delta A_comfort / modeling_hours`
 - Digital Twin Scenario Turnaround Time: `t_case_ready - t_download_start`
 
-These are not yet reported numerically because no design intervention scenario has been simulated.
+These are not yet reported numerically because no design intervention scenario has been simulated. The current `S0` baseline is executed; the documented `S1` ventilation-relief candidate is a blocked protocol placeholder. See `manifests/design_scenario_manifest.csv`.
 
 ## 7. Evidence Boundary
 
