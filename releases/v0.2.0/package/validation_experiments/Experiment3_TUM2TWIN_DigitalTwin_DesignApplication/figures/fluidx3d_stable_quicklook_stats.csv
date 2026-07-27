@@ -1,0 +1,2 @@
+case,evidence_type,nx,ny,nz,dx_m,time_step,pedestrian_z_index,pedestrian_height_m_approx,solid_cells_ped,fluid_cells_ped,vr_mean_ped,vr_p75_ped,vr_p90_ped,vr_p95_ped,vr_max_ped,stagnation_ratio_vr_lt_0p2,accelerated_ratio_vr_gt_1p2,solid_cells_by_z_first_16_layers
+stable_coarse_smoke_wd000,newly_run,133,115,72,2.0,2000,2,4.0,484,14811,0.37708044052124023,0.4504864364862442,0.8405666351318359,1.0,1.1315720081329346,0.19559786645061103,0.0,z0:15295;z1:0;z2:484;z3:484;z4:484;z5:484;z6:484;z7:484;z8:484;z9:482;z10:419;z11:215;z12:38;z13:0;z14:0;z15:0

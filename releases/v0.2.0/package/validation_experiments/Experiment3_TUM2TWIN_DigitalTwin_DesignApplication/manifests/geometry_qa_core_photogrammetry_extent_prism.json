@@ -1,0 +1,86 @@
+{
+  "created_at_local": "2026-07-26 23:06:41",
+  "purpose": "high-resolution pedestrian subdomain matching the user-provided photogrammetry visual extent, using semantic closed prism collision geometry",
+  "source_obj": "D:\\citylbm_tum2twin_heavy_store\\raw\\tum2twin_gitlab_selected\\obj\\lod3_merged_city_model\\TUM_CentralCampus.obj",
+  "source_material": "defaultMat",
+  "parameters": {
+    "raster_resolution_m": 5.0,
+    "vertex_z_threshold_m": 1.5,
+    "face_zmax_threshold_m": 3.0,
+    "min_component_cells": 4,
+    "min_height_m": 6.0,
+    "crop_source_xy": {
+      "xmin": -190.0,
+      "xmax": 235.0,
+      "ymin": -215.0,
+      "ymax": 345.0
+    }
+  },
+  "obj_vertices": 776439,
+  "obj_total_faces": 1664042,
+  "selected_defaultmat_faces": 1234040,
+  "crop_intersecting_faces": 1139278,
+  "selected_crop_high_points": 3384733,
+  "crop_source_xy": {
+    "xmin": -190.0,
+    "xmax": 235.0,
+    "ymin": -215.0,
+    "ymax": 345.0
+  },
+  "local_origin_source_xy": [
+    -190.0,
+    -215.0
+  ],
+  "raster_resolution_m": 5.0,
+  "raster_shape_ny_nx": [
+    113,
+    86
+  ],
+  "raw_occupied_cells": 1766,
+  "footprint_cells": 2365,
+  "component_count": 46,
+  "triangles": 15964,
+  "bbox": {
+    "min": [
+      5.0,
+      5.0,
+      0.0
+    ],
+    "max": [
+      425.0,
+      560.0,
+      32.430015563964844
+    ]
+  },
+  "height_min_max_mean_m": [
+    6.0,
+    32.430015563964844,
+    20.72244644165039
+  ],
+  "grid_estimates": [
+    {
+      "level": "core_dx2m",
+      "dx_m": 2.0,
+      "Nx": 308,
+      "Ny": 375,
+      "Nz": 49,
+      "cells": 5659500,
+      "rough_vram_GB_120B_cell": 0.63,
+      "rough_vram_GB_200B_cell": 1.05
+    },
+    {
+      "level": "core_dx1m_candidate",
+      "dx_m": 1.0,
+      "Nx": 615,
+      "Ny": 750,
+      "Nz": 98,
+      "cells": 45202500,
+      "rough_vram_GB_120B_cell": 5.05,
+      "rough_vram_GB_200B_cell": 8.42
+    }
+  ],
+  "stl_path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\cfd_ready\\core_photogrammetry_extent_prism_collision_z0.stl",
+  "stl_size_bytes": 798284,
+  "stl_sha256": "97194f31c056eb3d8f0a89c1ed76b46be1ba0b1f23ae3bfc7a80ca94e42ec457",
+  "audit_figure": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\figures\\core_photogrammetry_extent_prism_collision_audit.png"
+}

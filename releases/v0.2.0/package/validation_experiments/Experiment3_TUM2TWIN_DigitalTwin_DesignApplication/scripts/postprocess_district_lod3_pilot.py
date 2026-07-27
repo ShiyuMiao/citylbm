@@ -1,0 +1,126 @@
+from __future__ import annotations
+
+import csv
+import os
+import re
+import shutil
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+ROOT = Path(__file__).resolve().parents[1]
+CASE_DIR = Path(r"F:\citylbm_fluidx3d_workspace\tum2twin_case")
+OUT_DIR = CASE_DIR / "output"
+CASE_FIG_DIR = CASE_DIR / "figures"
+PROJECT_FIG_DIR = ROOT / "figures"
+CASE_FIG_DIR.mkdir(parents=True, exist_ok=True)
+PROJECT_FIG_DIR.mkdir(parents=True, exist_ok=True)
+
+LABEL = os.environ.get("TUM2TWIN_POST_LABEL", "district_lod3_wd000_coarse6m_2k")
+STEP = os.environ.get("TUM2TWIN_POST_STEP", "000002000")
+DX = float(os.environ.get("TUM2TWIN_POST_DX", "6.0"))
+U_REF = 5.0
+Z_LEVELS = [1, 2, 4, 8]
+
+
+def read_vtk(path: Path):
+    raw = path.read_bytes()
+    marker = b"LOOKUP_TABLE default\n"
+    start = raw.index(marker) + len(marker)
+    header = raw[:start].decode("ascii", errors="replace")
+    dims = tuple(int(v) for v in re.search(r"DIMENSIONS\s+(\d+)\s+(\d+)\s+(\d+)", header).groups())
+    origin = tuple(float(v) for v in re.search(r"ORIGIN\s+([-+0-9.Ee]+)\s+([-+0-9.Ee]+)\s+([-+0-9.Ee]+)", header).groups())
+    spacing = tuple(float(v) for v in re.search(r"SPACING\s+([-+0-9.Ee]+)\s+([-+0-9.Ee]+)\s+([-+0-9.Ee]+)", header).groups())
+    point_data = int(re.search(r"POINT_DATA\s+(\d+)", header).group(1))
+    scalar_match = re.search(r"SCALARS\s+\S+\s+(\S+)(?:\s+(\d+))?", header)
+    dtype_name = scalar_match.group(1)
+    components = int(scalar_match.group(2) or "1")
+    dtype = ">f4" if dtype_name == "float" else np.uint8
+    arr = np.frombuffer(raw, dtype=dtype, count=point_data * components, offset=start).copy()
+    if dtype_name == "float":
+        arr = arr.astype(np.float32)
+    if components > 1:
+        arr = arr.reshape((dims[2], dims[1], dims[0], components))
+    else:
+        arr = arr.reshape((dims[2], dims[1], dims[0]))
+    return {"dims": dims, "origin": origin, "spacing": spacing}, arr
+
+
+def extent_xy(meta):
+    nx, ny, _ = meta["dims"]
+    ox, oy, _ = meta["origin"]
+    sx, sy, _ = meta["spacing"]
+    return [ox, ox + sx * (nx - 1), oy, oy + sy * (ny - 1)]
+
+
+def main():
+    u_path = OUT_DIR / f"matrix_{LABEL}_u_finalu-{STEP}.vtk"
+    f_path = OUT_DIR / f"matrix_{LABEL}_flags_finalflags-{STEP}.vtk"
+    meta, u = read_vtk(u_path)
+    _, flags = read_vtk(f_path)
+    speed = np.linalg.norm(u, axis=3)
+    vr = speed / U_REF
+    extent = extent_xy(meta)
+
+    rows = []
+    fig, axes = plt.subplots(2, len(Z_LEVELS), figsize=(18, 8), dpi=160, constrained_layout=True)
+    for col, z in enumerate(Z_LEVELS):
+        solid = (flags[z] & 1) > 0
+        values = vr[z][~solid]
+        rows.append({
+            "case": LABEL,
+            "evidence_type": "newly_run",
+            "dx_m": DX,
+            "z_index": z,
+            "z_height_m_approx": z * DX,
+            "solid_cells": int(solid.sum()),
+            "open_cells": int((~solid).sum()),
+            "solid_ratio": float(solid.mean()),
+            "vr_mean": float(values.mean()),
+            "vr_p90": float(np.percentile(values, 90)),
+            "vr_p95": float(np.percentile(values, 95)),
+            "vr_max": float(values.max()),
+            "stagnation_ratio_vr_lt_0p2": float((values < 0.2).mean()),
+        })
+        ax0 = axes[0, col]
+        ax0.imshow(solid, origin="lower", extent=extent, cmap="gray_r", interpolation="nearest")
+        ax0.set_title(f"solid mask z~{z*DX:.0f} m")
+        ax0.set_aspect("equal")
+        ax0.set_xticks([])
+        ax0.set_yticks([])
+
+        ax1 = axes[1, col]
+        masked_vr = np.ma.masked_where(solid, vr[z])
+        im = ax1.imshow(masked_vr, origin="lower", extent=extent, cmap="turbo", vmin=0.0, vmax=1.6, interpolation="nearest")
+        ax1.contour(solid.astype(float), levels=[0.5], origin="lower", extent=extent, colors="black", linewidths=0.15)
+        ax1.set_title(f"VR z~{z*DX:.0f} m")
+        ax1.set_aspect("equal")
+        ax1.set_xticks([])
+        ax1.set_yticks([])
+    cbar = fig.colorbar(im, ax=axes[1, :].tolist(), shrink=0.88)
+    cbar.set_label("|U| / Uref")
+    fig.suptitle("TUM2TWIN district-scale LoD3 OBJ FluidX3D voxelization/flow audit, WD000, dx=6 m, 2000 steps")
+    panel = CASE_FIG_DIR / f"fluidx3d_{LABEL}_voxel_vr_audit.png"
+    fig.savefig(panel)
+    plt.close(fig)
+
+    csv_path = CASE_FIG_DIR / f"fluidx3d_{LABEL}_metrics.csv"
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+    copied = []
+    for path in [panel, csv_path]:
+        target = PROJECT_FIG_DIR / path.name
+        shutil.copyfile(path, target)
+        copied.append(str(target))
+    print("\n".join(copied))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,232 @@
+{
+  "triangles": 3833,
+  "bbox": {
+    "min": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "max": [
+      273.62899999995716,
+      373.50499999988824,
+      42.38999999999993
+    ]
+  },
+  "signed_volume_m3": 563421.0938367168,
+  "unique_edges": 5753,
+  "boundary_edges": 19,
+  "nonmanifold_edges": 6,
+  "degenerate_triangles": 11,
+  "duplicate_triangles": 5,
+  "watertight": false,
+  "source_gml_count": 27,
+  "source_ring_count": 905,
+  "source_building_id_count": 27,
+  "origin_world_easting_northing_z": [
+    690815.103,
+    5335874.965,
+    509.79
+  ],
+  "coordinate_reference_system": "EPSG:25832 in source CityGML; exported STLs use local z0 meters",
+  "source_files": [
+    {
+      "name": "DEBY_LOD2_4906965.gml",
+      "size_bytes": 170193,
+      "rings": 190
+    },
+    {
+      "name": "DEBY_LOD2_4906966.gml",
+      "size_bytes": 54682,
+      "rings": 59
+    },
+    {
+      "name": "DEBY_LOD2_4906970.gml",
+      "size_bytes": 14379,
+      "rings": 13
+    },
+    {
+      "name": "DEBY_LOD2_4906972.gml",
+      "size_bytes": 23543,
+      "rings": 24
+    },
+    {
+      "name": "DEBY_LOD2_4906976.gml",
+      "size_bytes": 34074,
+      "rings": 36
+    },
+    {
+      "name": "DEBY_LOD2_4906978.gml",
+      "size_bytes": 12240,
+      "rings": 11
+    },
+    {
+      "name": "DEBY_LOD2_4906979.gml",
+      "size_bytes": 12161,
+      "rings": 11
+    },
+    {
+      "name": "DEBY_LOD2_4906980.gml",
+      "size_bytes": 8459,
+      "rings": 7
+    },
+    {
+      "name": "DEBY_LOD2_4906981.gml",
+      "size_bytes": 14776,
+      "rings": 14
+    },
+    {
+      "name": "DEBY_LOD2_4907506.gml",
+      "size_bytes": 13540,
+      "rings": 12
+    },
+    {
+      "name": "DEBY_LOD2_4907507.gml",
+      "size_bytes": 12404,
+      "rings": 11
+    },
+    {
+      "name": "DEBY_LOD2_4907514.gml",
+      "size_bytes": 22204,
+      "rings": 22
+    },
+    {
+      "name": "DEBY_LOD2_4907515.gml",
+      "size_bytes": 27812,
+      "rings": 29
+    },
+    {
+      "name": "DEBY_LOD2_4907516.gml",
+      "size_bytes": 11521,
+      "rings": 10
+    },
+    {
+      "name": "DEBY_LOD2_4907517.gml",
+      "size_bytes": 18089,
+      "rings": 17
+    },
+    {
+      "name": "DEBY_LOD2_4907518.gml",
+      "size_bytes": 15929,
+      "rings": 15
+    },
+    {
+      "name": "DEBY_LOD2_4907520.gml",
+      "size_bytes": 10300,
+      "rings": 9
+    },
+    {
+      "name": "DEBY_LOD2_4907521.gml",
+      "size_bytes": 17429,
+      "rings": 17
+    },
+    {
+      "name": "DEBY_LOD2_4959321.gml",
+      "size_bytes": 9717,
+      "rings": 8
+    },
+    {
+      "name": "DEBY_LOD2_4959322.gml",
+      "size_bytes": 9074,
+      "rings": 7
+    },
+    {
+      "name": "DEBY_LOD2_4959323.gml",
+      "size_bytes": 15217,
+      "rings": 14
+    },
+    {
+      "name": "DEBY_LOD2_4959324.gml",
+      "size_bytes": 8594,
+      "rings": 7
+    },
+    {
+      "name": "DEBY_LOD2_4959457.gml",
+      "size_bytes": 84938,
+      "rings": 90
+    },
+    {
+      "name": "DEBY_LOD2_4959458.gml",
+      "size_bytes": 13289,
+      "rings": 12
+    },
+    {
+      "name": "DEBY_LOD2_4959460.gml",
+      "size_bytes": 27637,
+      "rings": 28
+    },
+    {
+      "name": "DEBY_LOD2_4959462.gml",
+      "size_bytes": 11179,
+      "rings": 10
+    },
+    {
+      "name": "DEBY_LOD2_60042.gml",
+      "size_bytes": 197956,
+      "rings": 222
+    }
+  ],
+  "created_at_local": "2026-07-26 21:15:42",
+  "grid_estimates": [
+    {
+      "level": "coarse_full",
+      "dx_m": 4.0,
+      "Nx": 306,
+      "Ny": 306,
+      "Nz": 64,
+      "cells": 5992704,
+      "rough_vram_GB_120B_cell": 0.67,
+      "rough_vram_GB_200B_cell": 1.12
+    },
+    {
+      "level": "medium_full",
+      "dx_m": 2.0,
+      "Nx": 611,
+      "Ny": 611,
+      "Nz": 128,
+      "cells": 47785088,
+      "rough_vram_GB_120B_cell": 5.34,
+      "rough_vram_GB_200B_cell": 8.9
+    },
+    {
+      "level": "fine_full",
+      "dx_m": 1.0,
+      "Nx": 1222,
+      "Ny": 1222,
+      "Nz": 255,
+      "cells": 380787420,
+      "rough_vram_GB_120B_cell": 42.56,
+      "rough_vram_GB_200B_cell": 70.93
+    }
+  ],
+  "stl_path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\cfd_ready\\building_collision_full_lod2_z0.stl",
+  "stl_size_bytes": 191734,
+  "stl_sha256": "f9cb8e326fcbb18537ee86dd291dcd224240e9540f56bfa79cd86ad42feea757",
+  "ground_stl_path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\cfd_ready\\ground_domain_full_lod2_z0.stl",
+  "ground_qa": {
+    "triangles": 2,
+    "bbox": {
+      "min": [
+        -211.94999999999965,
+        -211.94999999999965,
+        0.0
+      ],
+      "max": [
+        485.5789999999568,
+        585.4549999998878,
+        0.0
+      ]
+    },
+    "signed_volume_m3": 0.0,
+    "unique_edges": 5,
+    "boundary_edges": 4,
+    "nonmanifold_edges": 0,
+    "degenerate_triangles": 0,
+    "duplicate_triangles": 0,
+    "watertight": false
+  },
+  "ground_stl_sha256": "045e2fc6fc67f72a421496300350300930fa31e5efe9a107bf4c963f8ee7ef83",
+  "footprint_audit_figure": {
+    "created": true,
+    "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\figures\\full_lod2_collision_footprint_audit.png"
+  }
+}

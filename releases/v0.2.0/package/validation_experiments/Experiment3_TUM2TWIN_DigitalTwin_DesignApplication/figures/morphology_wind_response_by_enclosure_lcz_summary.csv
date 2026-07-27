@@ -1,0 +1,17 @@
+﻿analysis_zone,enclosure_class,lcz_like_class,component_count,sample_open_cells,mean_vr,p95_vr,stagnation_ratio_vr_lt_0p2,acceleration_ratio_vr_gt_0p6
+local_context_20_50m,high_enclosure,LCZ1_compact_highrise_like,5,51896,0.0025603345228947263,0.009934780163690152,1.0,0.0
+local_context_20_50m,high_enclosure,LCZ2_compact_midrise_like,29,387400,0.004714062256273604,0.019789108766499967,1.0,0.0
+local_context_20_50m,low_enclosure,LCZ1_compact_highrise_like,2,21416,0.0018667565777827255,0.010016830401171174,1.0,0.0
+local_context_20_50m,low_enclosure,LCZ2_compact_midrise_like,4,76424,0.007909957283892483,0.02880516246169702,1.0,0.0
+local_context_20_50m,low_enclosure,LCZ4_open_highrise_like,3,44232,0.029775134035272908,0.06046069450939002,1.0,0.0
+local_context_20_50m,low_enclosure,LCZ5_open_midrise_like,25,337848,0.007885270410498255,0.030035225203323863,1.0,0.0
+local_context_20_50m,medium_enclosure,LCZ1_compact_highrise_like,6,60744,0.0015352745725879739,0.005764273172069298,1.0,0.0
+local_context_20_50m,medium_enclosure,LCZ2_compact_midrise_like,27,323488,0.00443176704541402,0.0171341009598359,1.0,0.0
+near_facade_0_20m,high_enclosure,LCZ1_compact_highrise_like,5,13000,0.0009137047705589794,0.003776362995631644,1.0,0.0
+near_facade_0_20m,high_enclosure,LCZ2_compact_midrise_like,29,117960,0.002156488015656354,0.010051842898902036,1.0,0.0
+near_facade_0_20m,low_enclosure,LCZ1_compact_highrise_like,2,7048,0.0013836397723579954,0.00482945266750519,1.0,0.0
+near_facade_0_20m,low_enclosure,LCZ2_compact_midrise_like,4,47872,0.007415298039492813,0.03238962605196369,1.0,0.0
+near_facade_0_20m,low_enclosure,LCZ4_open_highrise_like,3,12696,0.019148117703698585,0.06623711402531067,0.9998424700693131,0.0
+near_facade_0_20m,low_enclosure,LCZ5_open_midrise_like,25,128760,0.00432566453677803,0.01626116382482348,1.0,0.0
+near_facade_0_20m,medium_enclosure,LCZ1_compact_highrise_like,6,16568,0.0014856821773011355,0.004738237158095344,1.0,0.0
+near_facade_0_20m,medium_enclosure,LCZ2_compact_midrise_like,27,107936,0.001958788116549029,0.008471778969546106,1.0,0.0

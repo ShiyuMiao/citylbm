@@ -53,3 +53,24 @@ Grasshopper Libraries folder as `CityLBM.gha`.
 The included Grasshopper screenshots are real Grasshopper canvas captures from
 the Case E workflow. They are included as workflow proof, while the Rhino
 screenshot and Excel workbook document the VTK-derived validation result.
+
+### Experiment 3: TUM2TWIN Digital-Twin Design Application
+
+- Archive folder: `Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/`
+- Main index: `Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/reports/final_experiment_package_index.md`
+- CFD-ready geometry: `Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/cfd_ready/`
+- Rhino visual/management files: `Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/rhino/`
+- FluidX3D/ParaView figures: `Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/figures/`
+- Manuscript text: `Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/paper_text/`
+- Evidence inventory: `Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/manifests/evidence_inventory.csv`
+
+This third experiment is organized as a design-application case rather than a
+benchmark case. AIJ Case A and AIJ Case E support the validation layer of the
+paper, while the TUM2TWIN case tests the downstream application workflow:
+
+`digital-twin data -> CFD-ready geometry -> FluidX3D VTK simulation -> ParaView/Rhino review -> morphology-based design interpretation`
+
+The TUM2TWIN archive keeps LCZ-like analysis only as audit context. The
+recommended manuscript conclusion uses basic building-morphology parameters
+such as height, footprint, local built fraction, sector enclosure, and combined
+enclosure score.

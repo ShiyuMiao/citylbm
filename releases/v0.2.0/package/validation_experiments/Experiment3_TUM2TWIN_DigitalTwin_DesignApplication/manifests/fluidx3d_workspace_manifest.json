@@ -1,0 +1,17 @@
+﻿{
+    "created_at":  "2026-07-26 18:17:35 +08:00",
+    "workspace_root":  "F:\\citylbm_fluidx3d_workspace",
+    "fluidx3d_repo":  "https://github.com/ProjectPhysX/FluidX3D",
+    "fluidx3d_path":  "F:\\citylbm_fluidx3d_workspace\\FluidX3D",
+    "fluidx3d_commit":  "8986874e626e0aebd317ab16c420b39e30dfa273",
+    "tum2twin_case_path":  "F:\\citylbm_fluidx3d_workspace\\tum2twin_case",
+    "temp_path_for_future_runs":  "F:\\citylbm_fluidx3d_workspace\\_tmp",
+    "c_drive_free_bytes_after_prepare":  782024704,
+    "f_drive_free_bytes_after_prepare":  2291403374592,
+    "status":  "ready_for_next_session_not_run",
+    "gpu_summary":  "4 x NVIDIA Tesla P100-PCIE-16GB, driver 560.76",
+    "opencl_detected":  true,
+    "build_tools_detected_in_path":  false,
+    "paraview_detected_in_path":  false,
+    "next_step":  "install_or_configure_build_toolchain_and_paraview_then_compile_fluidx3d"
+}

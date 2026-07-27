@@ -1,0 +1,7 @@
+panel,metric,value,source
+b,visual_3dm_x_extent_m,409.0559997558594,tum2twin_rhino_layered_geometry_scope_audit.csv
+b,core_stl_x_extent_m,420.0,geometry_qa_core_photogrammetry_extent_prism.json
+c,visual_mesh_triangles,999999,user_converted_rhino_layered_package_audit.md
+c,core_stl_triangles,15964,geometry_qa_core_photogrammetry_extent_prism.json
+d,visual_stl_boundary_edges,2245,user_converted_rhino_layered_package_audit.md
+d,core_stl_boundary_edges,0,semantic closed-prism construction

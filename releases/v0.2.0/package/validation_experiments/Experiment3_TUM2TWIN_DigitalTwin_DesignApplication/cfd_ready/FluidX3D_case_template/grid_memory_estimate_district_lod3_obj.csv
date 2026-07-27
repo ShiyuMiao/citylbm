@@ -1,0 +1,4 @@
+level,dx_m,Nx,Ny,Nz,cells,rough_vram_GB_120B_cell,rough_vram_GB_200B_cell
+district_coarse,6.0,384,356,53,7245312,0.81,1.35
+district_medium,4.0,575,534,79,24256950,2.71,4.52
+district_fine_candidate,2.0,1150,1067,158,193873900,21.67,36.11

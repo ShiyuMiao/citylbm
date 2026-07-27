@@ -1,0 +1,12 @@
+category,metric_id,metric_name,formula,required_fields,outputs,evidence_type,status
+pedestrian_wind,VR,pedestrian wind speed ratio,VR=|U(z_ped)|/Uref,Ux Uy Uz Uref solid_mask,"mean median P75 P90 P95 max map",newly_run,pending_formal_runs
+pedestrian_wind,ACCEL_AREA,accelerated area ratio,A(VR>1.2)/A_open,VR solid_mask,area_ratio,newly_run,pending_formal_runs
+pedestrian_wind,STAG_AREA,stagnation area ratio,A(VR<0.2)/A_open,VR solid_mask,area_ratio connected_hotspots,newly_run,pending_formal_runs
+comfort,COMFORT_ZONE,comfort/safety zoning,threshold wind speed plus exceedance probability,U_ped wind_climate thresholds,comfortable tolerable uncomfortable unsafe area,blocked,pending_wind_climate
+pollution,CSTAR,dimensionless pollutant concentration,C/C0,C C0,mean P90 P95 max hotspot_area,blocked,pending_dispersion_solver
+pollution,EXPOSURE,path exposure integral,integral_path C*(s) ds,Cstar path_geometry,path_exposure_rank,blocked,pending_dispersion_solver
+digital_twin,GCRI,Geometry-to-CFD Readiness Index,0.20W+0.15M+0.15S+0.15C+0.15E+0.20V,geometry_qa layer_manifest voxel_flags,index_0_1,newly_run,pending_full_voxel_qa
+digital_twin,GCBTE,3DGS-to-Collision Boundary Transfer Error,"IoU Chamfer Hausdorff roof_error solid_mask_agreement",3DGS_boundary CityGML_GT,transfer_error_table,blocked,pending_3dgs_boundary
+numerics,GRID_SENS,grid sensitivity error,abs(M_fine-M_medium)/abs(M_fine),coarse medium fine metrics,relative_error,newly_run,pending_medium_fine
+numerics,TIME_CONV,time convergence,rolling metric variation over averaging window,time_series_metrics,convergence_plot,newly_run,pending_formal_runs
+scenario,DELTA_COMFORT,comfort benefit,Area_comfort(Si)-Area_comfort(S0),scenario_metrics,delta_area,blocked,pending_design_scenarios

@@ -1,0 +1,9 @@
+case_id,wind_dir_deg,Uref_10m,ped_height_m,dx_m,Nx,Ny,Nz,status
+S0_WD0,0,5.0,1.5,2.0,133,115,72,blocked_by_missing_solver
+S0_WD45,45,5.0,1.5,2.0,133,115,72,blocked_by_missing_solver
+S0_WD90,90,5.0,1.5,2.0,133,115,72,blocked_by_missing_solver
+S0_WD135,135,5.0,1.5,2.0,133,115,72,blocked_by_missing_solver
+S0_WD180,180,5.0,1.5,2.0,133,115,72,blocked_by_missing_solver
+S0_WD225,225,5.0,1.5,2.0,133,115,72,blocked_by_missing_solver
+S0_WD270,270,5.0,1.5,2.0,133,115,72,blocked_by_missing_solver
+S0_WD315,315,5.0,1.5,2.0,133,115,72,blocked_by_missing_solver

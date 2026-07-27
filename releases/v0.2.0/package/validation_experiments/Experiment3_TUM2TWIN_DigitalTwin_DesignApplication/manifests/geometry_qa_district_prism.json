@@ -1,0 +1,79 @@
+{
+  "created_at_local": "2026-07-26 22:10:28",
+  "source_obj": "D:\\citylbm_tum2twin_heavy_store\\raw\\tum2twin_gitlab_selected\\obj\\lod3_merged_city_model\\TUM_CentralCampus.obj",
+  "source_material": "defaultMat",
+  "face_zmax_threshold_m": 3.0,
+  "vertex_z_threshold_m": 1.5,
+  "min_component_cells": 4,
+  "min_height_m": 6.0,
+  "triangles": 135122,
+  "bbox": {
+    "min": [
+      5.0,
+      5.0,
+      0.0
+    ],
+    "max": [
+      1545.0,
+      1380.0,
+      58.00029754638672
+    ]
+  },
+  "height_min_max_mean_m": [
+    6.0,
+    58.00029754638672,
+    20.86498260498047
+  ],
+  "obj_vertices": 776439,
+  "obj_total_faces": 1664042,
+  "selected_defaultmat_faces": 1234040,
+  "selected_high_points": 3598730,
+  "origin_obj_xy": [
+    -717.4561767578125,
+    -732.5538940429688
+  ],
+  "raster_resolution_m": 5.0,
+  "raster_shape_ny_nx": [
+    277,
+    310
+  ],
+  "raw_occupied_cells": 13008,
+  "footprint_cells": 21967,
+  "component_count": 217,
+  "grid_estimates": [
+    {
+      "level": "district_prism_coarse",
+      "dx_m": 6.0,
+      "Nx": 373,
+      "Ny": 346,
+      "Nz": 49,
+      "cells": 6323842,
+      "rough_vram_GB_120B_cell": 0.71,
+      "rough_vram_GB_200B_cell": 1.18
+    },
+    {
+      "level": "district_prism_medium",
+      "dx_m": 4.0,
+      "Nx": 560,
+      "Ny": 518,
+      "Nz": 73,
+      "cells": 21175840,
+      "rough_vram_GB_120B_cell": 2.37,
+      "rough_vram_GB_200B_cell": 3.94
+    },
+    {
+      "level": "district_prism_fine_candidate",
+      "dx_m": 2.0,
+      "Nx": 1119,
+      "Ny": 1036,
+      "Nz": 146,
+      "cells": 169255464,
+      "rough_vram_GB_120B_cell": 18.92,
+      "rough_vram_GB_200B_cell": 31.53
+    }
+  ],
+  "stl_path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\cfd_ready\\district_prism_collision_z0.stl",
+  "stl_size_bytes": 6756184,
+  "stl_sha256": "2a6dbcb752b301a079aa06fd7b7e3d5db4d51bbd4dfbf32a3a89c600ad3f5d4f",
+  "audit_figure": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\figures\\district_prism_collision_audit.png"
+}
