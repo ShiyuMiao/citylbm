@@ -1,4 +1,4 @@
-callout_id,recommended_file,purpose
+﻿callout_id,recommended_file,purpose
 Fig. E3-1,figures/paraview_vtk_core_dx2m_statistical_maps_z2m.png,Baseline pedestrian-layer spatial VR/stagnation pattern for manual review.
 Fig. E3-2,figures/basic_morphology_multivariate_rank_model_importance.png,Morphology ranking: rank-regression coefficients and permutation importance.
 Fig. E3-3,figures/fluidx3d_design_sensitivity_directional_tradeoff_heatmap_z2m.png,S1/S2 directional local trade-off summary.

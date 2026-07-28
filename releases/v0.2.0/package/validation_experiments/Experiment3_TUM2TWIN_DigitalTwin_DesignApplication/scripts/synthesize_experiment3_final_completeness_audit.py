@@ -178,6 +178,13 @@ def main() -> None:
             "paper_safe_interpretation": "The final discussion/conclusion module is paragraph-mapped to evidence and blocked wording; target-journal formatting and paper-level integration remain separate tasks.",
         },
         {
+            "requirement": "SCI abstract, highlights and graphical-abstract caption",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/experiment3_abstract_highlights_evidence_map.csv; reports/experiment3_sci_abstract_highlights_audit.md; paper_text/experiment3_sci_abstract_highlights_keywords_en.md",
+            "paper_safe_interpretation": "The abstract/highlights package is sentence-mapped to evidence and excludes validation, compliance, pollutant, GCBTE, CityLBM-GH and optimization claims.",
+        },
+        {
             "requirement": "CityLBM-Grasshopper end-to-end execution",
             "status": "blocked",
             "evidence_type": "blocked",

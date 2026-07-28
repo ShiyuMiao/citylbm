@@ -32,6 +32,7 @@ Invoke-PythonStep "scripts\synthesize_experiment3_section_paper_draft.py"
 Invoke-PythonStep "scripts\synthesize_fluidx3d_numerical_protocol_audit.py"
 Invoke-PythonStep "scripts\synthesize_building_form_wind_mechanism.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_final_sci_discussion_package.py"
+Invoke-PythonStep "scripts\synthesize_experiment3_sci_abstract_highlights.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_reviewer_reproducibility_pack.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_final_completeness_audit.py"
 

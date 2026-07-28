@@ -84,6 +84,7 @@ def classify_claim(row: pd.Series) -> tuple[str, str, str]:
         "FluidX3D numerical protocol transparency": "Are the boundary conditions, viscosity, Reynolds descriptors, sampling and convergence limits recorded?",
         "Building-form wind mechanism synthesis": "What is the architectural mechanism linking building form and the wind-environment pattern?",
         "Final SCI discussion synthesis": "Can each final discussion paragraph be traced to evidence and blocked wording?",
+        "SCI abstract and highlights readiness": "Does the abstract remain no stronger than the verified discussion evidence?",
     }.get(claim_layer, "What evidence supports this claim and where is the boundary?")
     required_wording = (
         "Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible."

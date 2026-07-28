@@ -1,4 +1,4 @@
-requirement,status,evidence_artifact,interpretation
+﻿requirement,status,evidence_artifact,interpretation
 TUM2TWIN source/layer verification,complete,reports/data_source_and_download_manifest.md; manifests/data_manifest.csv,"Official dataset pages, source URLs, checksums and license/citation records are archived."
 Rhino/OBJ visual consistency,complete,reports/rhino_geometry_conversion_report.md; reports/current_data_summary_and_conclusions.md,The user photogrammetry block and core CFD extent are documented as the same study-scale object.
 CFD-ready closed geometry,complete,cfd_ready/core_photogrammetry_extent_prism_collision_z0.stl; manifests/geometry_qa_core_photogrammetry_extent_prism.json,"Closed-prism geometry is z0-aligned, QA-recorded and accepted by FluidX3D."

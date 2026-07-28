@@ -6,14 +6,14 @@ This audit reflects the current archive after the morphology-response archetype,
 
 ## Evidence Counts
 
-- Key result matrix rows: `17`
+- Key result matrix rows: `18`
 - Figure/table callouts: `12`
 - Submission-readiness assets: `12`
 - Ready for manual review: `12`
 - Missing figure/table assets: `0`
-- Evidence inventory rows: `120`
+- Evidence inventory rows: `122`
 - Verified references used in Experiment 3 section draft: `12`
-- Claim verification rows: `39`
+- Claim verification rows: `40`
 
 ## Key Result Matrix
 
@@ -36,6 +36,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | newly_run + preexisting_artifact + blocked | FluidX3D numerical protocol transparency | dx / grid / Uref / nu_air / tau / samples / blocked convergence | 2 m / 320x390x60 / 5 m s-1 / 1.5e-5 m2 s-1 / 0.52999996 / 8000-10000-12000 / residual not recorded | manifests/fluidx3d_numerical_protocol_audit.csv; manifests/fluidx3d_core_prism_boundary_condition_table.csv | The FluidX3D case is transparent enough for screening-level reproduction, while formal convergence, field validation and annual compliance remain blocked. |
 | newly_run + preexisting_artifact + blocked | Building-form wind mechanism synthesis | near/local VR / enclosure-height correlations / stage directional range / best subgroup rule | 0.0032/0.0056; rho sector=-0.396, height=-0.351; persistent/recovery/reactive range=0.0016/0.0189/0.0214; best rule n=5 recovery=0.0065 | figures/building_form_wind_mechanism_parameter_matrix.csv; reports/building_form_wind_mechanism_synthesis.md | The campus wind response is best interpreted as a staged morphology mechanism: near-facade low-speed saturation, 20-50 m local-context recovery, and wind-sector directional reactivity. |
 | newly_run + preexisting_artifact + blocked | Final SCI discussion synthesis | paragraph evidence map / final bilingual discussion-conclusion module / blocked wording control | 8 mapped paragraphs / 16 source key-result rows before final upsert / blocked validation-compliance-pollutant-GCBTE-CityLBM claims retained | manifests/experiment3_final_discussion_paragraph_evidence_map.csv; paper_text/experiment3_final_sci_discussion_conclusion_zh.md | Experiment 3 is ready as a manuscript discussion module when framed as digital-twin-to-CFD wind screening with explicit evidence boundaries. |
+| newly_run + preexisting_artifact + blocked | SCI abstract and highlights readiness | abstract evidence map / bilingual abstract-highlights-keywords / graphical abstract caption | 10 mapped abstract-highlight units / 17 source key-result rows before abstract upsert | manifests/experiment3_abstract_highlights_evidence_map.csv; paper_text/experiment3_sci_abstract_highlights_keywords_en.md | Experiment 3 has a claim-controlled abstract/highlights package for manuscript submission. |
 
 ## Requirement Coverage
 
@@ -55,6 +56,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | Directional anisotropy and wind-sector design logic | complete_with_boundary | newly_run + preexisting_artifact + blocked | reports/experiment3_directional_anisotropy_analysis.md; figures/experiment3_directional_anisotropy_summary.csv | Low-speed sheltering is quasi-omnidirectional; local intervention response is sector-sensitive but not globally restorative. |
 | SCI section draft and figure/table captions | complete_as_generic_section | newly_run + preexisting_artifact + blocked | academic-paper-writer/paper-drafts/paper_draft.md; academic-paper-writer/paper-drafts/paper_draft_en.md; paper_text/experiment3_sci_figure_captions_en.md | A generic SCI section and traceable figure/table assets are available, pending target-journal formatting. |
 | Final SCI discussion and conclusion evidence map | complete_with_boundary | newly_run + preexisting_artifact + blocked | manifests/experiment3_final_discussion_paragraph_evidence_map.csv; reports/experiment3_final_sci_discussion_evidence_map.md; paper_text/experiment3_final_sci_discussion_conclusion_zh.md | The final discussion/conclusion module is paragraph-mapped to evidence and blocked wording; target-journal formatting and paper-level integration remain separate tasks. |
+| SCI abstract, highlights and graphical-abstract caption | complete_with_boundary | newly_run + preexisting_artifact + blocked | manifests/experiment3_abstract_highlights_evidence_map.csv; reports/experiment3_sci_abstract_highlights_audit.md; paper_text/experiment3_sci_abstract_highlights_keywords_en.md | The abstract/highlights package is sentence-mapped to evidence and excludes validation, compliance, pollutant, GCBTE, CityLBM-GH and optimization claims. |
 | CityLBM-Grasshopper end-to-end execution | blocked | blocked | cfd_ready/CityLBM_GH_input_template/README.md; reports/claim_boundary.md | Frame as FluidX3D-native simulation with a CityLBM-compatible geometry package unless GH execution evidence is added. |
 | Measured or wind-tunnel validation | blocked | blocked | reports/claim_boundary.md | Do not claim field-validated predictive accuracy. |
 | Formal Lawson/NEN/AIJ annual comfort compliance | blocked | blocked | reports/claim_boundary.md | Do not claim annual threshold-exceedance comfort or safety classes. |
