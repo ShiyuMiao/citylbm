@@ -1,0 +1,4 @@
+claim,evidence_type,source,claim_readiness
+"The 0-20 m facade-adjacent band is a low-speed saturated stage, while the 20-50 m local-context band exposes morphology-differentiated recovery.",newly_run + blocked,figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_panel.png,paper_ready_with_boundary
+"Top-recovery components have lower relative vertical scale than bottom-recovery components, supporting relative massing rather than absolute size as a screening descriptor.",newly_run + blocked,figures/morphology_stage_transition_feature_contrasts.csv,paper_ready_with_boundary
+The best subgroup rule is sample-internal and must not be generalized as a universal design threshold.,newly_run + blocked,figures/morphology_stage_transition_rule_table.csv; reports/morphology_stage_transition_analysis.md,weaken_claim

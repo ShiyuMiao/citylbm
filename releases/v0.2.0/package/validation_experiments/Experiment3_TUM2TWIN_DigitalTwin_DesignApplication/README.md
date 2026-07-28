@@ -249,6 +249,30 @@ The archive now includes a compact morphology-response typology for the 101 reta
 
 Paper-safe interpretation: the type separation supports a more detailed building-form conclusion for Experiment 3. Pedestrian-layer recovery is associated with combinations of relative vertical massing, elongation and local enclosure, not with a single footprint, height or porosity variable alone. The typology is a FluidX3D/digital-twin screening result, not a field-validated causal taxonomy.
 
+## Morphology Stage-Transition Addendum
+
+The archive now includes a stage-transition analysis that separates the 0-20 m
+facade-adjacent sheltered band, the 20-50 m local-context recovery band, and
+directional reactivity for the same 101 retained central components.
+
+- `scripts/analyze_morphology_stage_transition.py`
+- `figures/morphology_stage_transition_summary.csv`
+- `figures/morphology_stage_transition_feature_contrasts.csv`
+- `figures/morphology_stage_transition_rule_table.csv`
+- `figures/morphology_stage_transition_by_component.csv`
+- `figures/morphology_stage_transition_panel.png`
+- `reports/morphology_stage_transition_analysis.md`
+- `paper_text/morphology_stage_transition_conclusion_zh.md`
+- `manifests/morphology_stage_transition_claims.csv`
+
+Paper-safe interpretation: the 0-20 m facade-adjacent band is a low-speed
+saturated stage, while the 20-50 m local-context band reveals
+morphology-differentiated recovery. Top-recovery components have lower
+relative vertical scale than bottom-recovery components, and the strongest
+sample-internal subgroup combines low height, high elongation, and high
+relative enclosure. This remains a digital-twin screening result, not a
+field-validated or universal design threshold.
+
 ## Final Completeness and Gap Audit Layer
 
 The archive now includes a final reconciliation layer that checks whether the
@@ -264,8 +288,8 @@ verification, and remaining blockers are mutually consistent.
 - `paper_text/experiment3_final_contribution_and_conclusion_en.md`
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
-Audit result: the final archive currently contains 12 key result rows, 10
-reviewer-facing figure/table callouts, 10 ready submission assets, and 108
+Audit result: the final archive currently contains 13 key result rows, 10
+reviewer-facing figure/table callouts, 10 ready submission assets, and 110
 evidence-inventory entries. It is complete for a standalone Experiment 3
 section if framed as FluidX3D-native digital-twin-to-CFD wind screening with
 CityLBM-compatible geometry preparation. It remains incomplete for field

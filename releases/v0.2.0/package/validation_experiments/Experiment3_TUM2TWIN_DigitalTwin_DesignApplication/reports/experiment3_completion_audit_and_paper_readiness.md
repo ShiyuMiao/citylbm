@@ -2,16 +2,16 @@
 
 evidence_type: newly_run + preexisting_artifact + blocked
 
-This audit reflects the current archive after the morphology-response archetype addendum. It checks whether the TUM2TWIN Experiment 3 package is ready for manuscript use and where claim boundaries must remain explicit.
+This audit reflects the current archive after the morphology-response archetype and stage-transition addenda. It checks whether the TUM2TWIN Experiment 3 package is ready for manuscript use and where claim boundaries must remain explicit.
 
 ## Evidence Counts
 
-- Key result matrix rows: `12`
+- Key result matrix rows: `13`
 - Figure/table callouts: `10`
 - Submission-readiness assets: `10`
 - Ready for manual review: `10`
 - Missing figure/table assets: `0`
-- Evidence inventory rows: `108`
+- Evidence inventory rows: `110`
 - Verified references used in Experiment 3 section draft: `12`
 - Claim verification rows: `27`
 
@@ -31,6 +31,7 @@ This audit reflects the current archive after the morphology-response archetype 
 | newly_run + blocked | Effect-size uncertainty | z~2 m mean VR CI / z~2 m stagnation CI / z40-z2 VR delta CI / S2 z~2 m delta range | 0.076338 [0.075529,0.077110] / 0.929184 [0.926430,0.932069] / 0.972170 [0.967413,0.977473] / -0.000532 to -0.000336 | figures/experiment3_effect_size_uncertainty_summary.csv | The low-speed baseline, vertical recovery and S1/S2 negative sensitivity are stable within the archived direction-sample or directional uncertainty layer, but this is not field uncertainty or annual comfort probability. |
 | newly_run + preexisting_artifact + blocked | Directional anisotropy | z~2 m VR anisotropy / stagnation anisotropy / vertical recovery range / S2 strongest local direction | 0.078610 / 0.018724 / 0.953365 to 0.998616 / 315 deg | figures/experiment3_directional_anisotropy_summary.csv; figures/experiment3_directional_response_by_wind.csv | The pedestrian-layer low-speed condition is quasi-omnidirectional, while S2 has directionally localized response that does not translate into global recovery. |
 | newly_run + blocked | Building-form response archetypes | strongest archetype / weakest archetype / Kruskal p / recovery delta contrast | R1_A1_linear_low_relative_height_recovery / R4_A5_open_or_mixed_low_response / 0.0001682 / 0.0080 vs 0.0007 | figures/morphology_form_response_archetype_summary.csv; reports/morphology_form_response_archetype_analysis.md | The campus-core wind-response differences are better framed as combined morphology archetypes involving relative vertical massing, elongation and local enclosure than as a single footprint, height or porosity effect. |
+| newly_run + blocked | Morphology stage transition | near-to-context stage response / best subgroup rule / relative vertical-scale contrast | near/local/recovery mean VR 0.003182 / 0.005560 / 0.002378; best rule mean_height_m_tertile=low + elongation_ratio_tertile=high + relative_enclosure_score_tertile=high / n=5 / mean recovery 0.0065 / top share 1.000; height/sqrt(area) Cliff delta -0.577 | figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_rule_table.csv; figures/morphology_stage_transition_feature_contrasts.csv | The 20-50 m local-context band converts a saturated near-facade low-speed signal into a morphology-differentiated recovery signal; the rule is sample-internal and not a universal design threshold. |
 
 ## Requirement Coverage
 
@@ -43,7 +44,7 @@ This audit reflects the current archive after the morphology-response archetype 
 | ParaView and manual visual audit assets | complete_with_environment_boundary | newly_run + blocked | paraview_states/; reports/paraview_visualization_package.md; reports/paraview_vtk_core_wind_statistics_and_building_analysis.md | ParaView states and Python-rendered audit maps exist; headless ParaView screenshots remain blocked by Windows OpenGL/OSMesa. |
 | Climate-direction proxy sensitivity | complete_with_boundary | newly_run + preexisting_artifact | figures/fluidx3d_core_prism_open_meteo_2024_weighted_metrics.csv; manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv | Open-Meteo is a proxy directional weighting layer, not measured annual comfort compliance. |
 | Basic morphology and multivariate robustness | complete_with_boundary | newly_run | reports/basic_morphology_wind_response_analysis.md; reports/basic_morphology_multivariate_robustness.md | Local enclosure and height context are interpretable screening descriptors, not a high-accuracy predictor. |
-| Morphology threshold and archetype interpretation | complete_with_boundary | newly_run + blocked | reports/morphology_threshold_design_rule_analysis.md; reports/morphology_form_response_archetype_analysis.md | The 20-50 m band and response archetypes support sample-internal design screening, not universal causal thresholds. |
+| Morphology threshold, archetype and stage-transition interpretation | complete_with_boundary | newly_run + blocked | reports/morphology_threshold_design_rule_analysis.md; reports/morphology_form_response_archetype_analysis.md; reports/morphology_stage_transition_analysis.md | The 20-50 m band, response archetypes and near-to-context transition metrics support sample-internal design screening, not universal causal thresholds. |
 | S1/S2 design sensitivity | complete_negative_result | newly_run | figures/fluidx3d_s0_s1_ventilation_relief_metric_comparison.csv; figures/fluidx3d_s0_s2_network_porosity_metric_comparison.csv | S1/S2 are near-null or negative; they support design-boundary reasoning rather than optimization success. |
 | Directional anisotropy and wind-sector design logic | complete_with_boundary | newly_run + preexisting_artifact + blocked | reports/experiment3_directional_anisotropy_analysis.md; figures/experiment3_directional_anisotropy_summary.csv | Low-speed sheltering is quasi-omnidirectional; local intervention response is sector-sensitive but not globally restorative. |
 | SCI section draft and figure/table captions | complete_as_generic_section | newly_run + preexisting_artifact + blocked | academic-paper-writer/paper-drafts/paper_draft.md; academic-paper-writer/paper-drafts/paper_draft_en.md; paper_text/experiment3_sci_figure_captions_en.md | A generic SCI section and 10 traceable figure/table assets are available, pending target-journal formatting. |
@@ -55,6 +56,6 @@ This audit reflects the current archive after the morphology-response archetype 
 
 ## Paper-Ready Positioning
 
-Experiment 3 is paper-ready as a FluidX3D-native digital-twin wind-environment screening and design-interpretation case. Its strongest claims concern data-layer separation, CFD-ready geometry construction, pedestrian-layer low-speed screening, local morphology diagnosis, morphology-response archetypes, directional anisotropy and negative S1/S2 design-sensitivity evidence.
+Experiment 3 is paper-ready as a FluidX3D-native digital-twin wind-environment screening and design-interpretation case. Its strongest claims concern data-layer separation, CFD-ready geometry construction, pedestrian-layer low-speed screening, local morphology diagnosis, morphology-response archetypes, near-to-context stage transition, directional anisotropy and negative S1/S2 design-sensitivity evidence.
 
 It is not ready for claims of field-validated accuracy, formal annual comfort/safety compliance, pollutant dispersion, successful design optimization, GCBTE closure, or CityLBM-Grasshopper end-to-end execution. These blockers should remain visible in the manuscript rather than being hidden as limitations after the fact.
