@@ -10,7 +10,7 @@ evidence_type: newly_run + preexisting_artifact + user_claim + blocked
 |---|---|---:|---|---|
 | Download/source manifest | `manifests/data_manifest.csv` | 21 rows | newly_run + preexisting_artifact | Records source URL, size, checksum, download time, license/citation information |
 | Geometry manifest | `manifests/geometry_manifest.csv` | 13 rows | newly_run | Records Rhino/OBJ/STL geometry files, roles, sizes and checksums |
-| Evidence inventory | `manifests/evidence_inventory.csv` | 95 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
+| Evidence inventory | `manifests/evidence_inventory.csv` | 96 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
 | Wind-climate proxy weights | `manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv` | 8 sectors | newly_run + preexisting_artifact | Converts 2024 hourly 10 m wind data into 8 FluidX3D velocity-direction weights |
 
 ### 1.2 Visual and Rhino Data
@@ -152,3 +152,7 @@ S1 ventilation relief was simulated after the baseline synthesis. It removes 66 
 ### 7.2 S2 Network-Porosity Addendum
 
 S2 network porosity was simulated as a stronger follow-up to S1. It removes `201` heightfield collision cells (`8.50%` of S0 footprint) along three least-removal corridors and reruns the same FluidX3D dx=2 m, eight-direction, three-sample protocol. At z~2 m, equal-weighted mean VR changes by `-0.000466`, while newly opened cells have mean VR `0.004384` and stagnation ratio `1.000`. This extends the design conclusion: simple geometric porosity, even at a network scale, is insufficient unless located where external momentum can enter the campus core.
+
+### 7.3 Directional Trade-Off Addendum
+
+Directional post-processing of S1/S2 confirms that the interventions are not simply blank null results. S2-S0 has its best common-open response at 315 deg, with mean common-open delta VR `0.000368`, but the mean share of common-open cells with delta VR>0.02 is only `0.002374`. Newly opened S2 cells still have maximum direction-wise mean VR only `0.006646` and remain fully stagnant at z~2 m. The paper-safe interpretation is that local aerodynamic response exists but is too sparse and too weak to generate pedestrian-layer ventilation recovery.

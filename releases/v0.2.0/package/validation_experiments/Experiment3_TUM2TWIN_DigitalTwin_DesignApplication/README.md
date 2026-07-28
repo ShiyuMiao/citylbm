@@ -99,3 +99,13 @@ The design-application layer now includes a second executed sensitivity case, `S
 - `manifests/s2_design_intervention_claims.csv`
 - `figures/fluidx3d_s0_s2_network_porosity_equal_weighted_vr_delta_z2m.png`
 - `figures/fluidx3d_s0_s1_s2_design_sensitivity_height_metric_comparison.png`
+
+## Directional Design Trade-Off Addendum
+
+The archive now includes a deterministic post-processing analysis of S1/S2 directional local trade-offs. It shows that S2 has more localized positive common-open-cell response than S1, but the response is sparse and newly opened cells remain fully low-speed at z~2 m.
+
+- `reports/design_sensitivity_directional_tradeoff_analysis.md`
+- `paper_text/design_sensitivity_directional_tradeoff_discussion_zh.md`
+- `figures/fluidx3d_design_sensitivity_directional_tradeoff_summary_z2m.csv`
+- `figures/fluidx3d_design_sensitivity_directional_tradeoff_heatmap_z2m.png`
+- `figures/fluidx3d_s2_minus_s0_directional_delta_panel_z2m.png`

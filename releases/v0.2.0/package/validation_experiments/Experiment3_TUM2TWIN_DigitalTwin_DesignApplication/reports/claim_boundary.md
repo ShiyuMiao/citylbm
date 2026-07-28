@@ -61,3 +61,10 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Supported claim: S2 does not produce meaningful global pedestrian-layer ventilation recovery under the current dx=2 m, 8-direction protocol.
 - Unsupported claim: S2 proves that all porosity interventions fail, or that the tested geometry is a constructable campus design.
 - Paper-safe interpretation: S1 and S2 jointly suggest that effective ventilation improvement in this campus core requires wind-sector-coupled porosity and momentum-entry positioning rather than simple geometric opening area.
+
+## Directional Trade-Off Claim Boundary Addendum
+
+- `newly_run`: S1/S2 directional trade-offs were computed from existing FluidX3D VTK outputs using the same three-sample averaging protocol.
+- Supported claim: S2 creates slightly more localized common-open-cell response than S1, but the affected area is sparse and newly opened cells remain low-speed.
+- Unsupported claim: the directional trade-off analysis proves a positive design solution or annual wind comfort improvement.
+- Paper-safe interpretation: S3-Sn should be framed around wind-sector-coupled gateway placement and pressure-exchange continuity rather than arbitrary porosity area.
