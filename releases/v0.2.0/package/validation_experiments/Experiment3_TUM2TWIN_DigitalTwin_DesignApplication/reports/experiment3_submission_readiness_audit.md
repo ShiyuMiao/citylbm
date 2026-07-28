@@ -6,8 +6,8 @@ Generated at: 2026-07-28
 
 ## Summary
 
-- Figure/table assets checked: `9`
-- Ready for manual review: `9`
+- Figure/table assets checked: `10`
+- Ready for manual review: `10`
 - Missing assets: `0`
 - Canonical paper position: FluidX3D-native simulation with a CityLBM-compatible geometry package.
 - Claim strength: screening-level wind-environment application and morphology interpretation, not field-validated prediction.

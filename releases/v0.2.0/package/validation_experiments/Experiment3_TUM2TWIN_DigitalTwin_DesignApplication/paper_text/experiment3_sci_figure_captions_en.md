@@ -57,3 +57,12 @@ Fig. E3-S2. Supplementary eight-direction anisotropy and design-sector response 
 - Source data: `figures/experiment3_directional_anisotropy_summary.csv; figures/experiment3_directional_response_by_wind.csv`
 - Evidence type: `newly_run + preexisting_artifact + blocked`
 - Boundary: not measured wind rose; not annual comfort compliance; not successful optimization
+
+## Fig. E3-S3
+
+Fig. E3-S3. Supplementary building-form wind-response archetype analysis for the 101 retained central components. The left panel maps morphology clusters in sector-enclosure and relative-height space, with point size proportional to footprint area; the right panel compares the mean 20-50 m recovery delta by archetype. The groups differ significantly in recovery delta (Kruskal-Wallis p=0.0001682), supporting a screening-level conclusion that wind recovery is associated with combinations of relative vertical massing, elongation and local enclosure rather than any single building-form variable.
+
+- Asset: `figures/morphology_form_response_archetype_panel.png`
+- Source data: `figures/morphology_form_response_archetype_summary.csv; figures/morphology_form_response_archetype_by_component.csv`
+- Evidence type: `newly_run + blocked`
+- Boundary: not causal typology; not field validation; not universal design class

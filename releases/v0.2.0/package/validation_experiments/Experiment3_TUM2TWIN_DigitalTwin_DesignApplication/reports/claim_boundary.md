@@ -124,3 +124,10 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Supported claim: S0 pedestrian-layer low-speed and high-stagnation patterns are quasi-omnidirectional across the eight simulated directions; S1/S2 global z~2 m mean-VR deltas remain negative in all tested directions; S2 has localized response strongest at 315 deg.
 - Unsupported claim: this addendum is not a measured annual wind rose, formal annual comfort/safety compliance, field validation, wind-tunnel closure, pollutant dispersion result, or successful optimization proof.
 - Paper-safe interpretation: use `reports/experiment3_directional_anisotropy_analysis.md`, `figures/experiment3_directional_anisotropy_summary.csv`, and `paper_text/experiment3_directional_anisotropy_results_zh.md` to discuss wind-sector-coupled design implications.
+
+## Building-Form Wind-Response Archetype Claim Boundary Addendum
+
+- `newly_run + blocked`: building-form archetypes were computed from archived component-level morphology metrics and FluidX3D-derived near/context wind-response CSVs.
+- Supported claim: the retained TUM2TWIN campus-core components can be separated into morphology-response groups with different 20-50 m pedestrian-layer recovery deltas; the strongest and weakest groups differ in relative vertical massing, elongation and local enclosure context.
+- Unsupported claim: the archetypes are not field-validated causal types, universal design classes, comfort/safety certification, pollutant exposure categories, or proof that one morphology parameter alone controls wind environment.
+- Paper-safe interpretation: use `reports/morphology_form_response_archetype_analysis.md`, `figures/morphology_form_response_archetype_summary.csv`, and `paper_text/morphology_form_response_archetype_conclusion_zh.md` as a digital-twin design-screening layer.

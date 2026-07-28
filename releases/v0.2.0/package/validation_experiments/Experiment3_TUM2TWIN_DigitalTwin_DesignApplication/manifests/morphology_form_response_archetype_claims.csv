@@ -1,0 +1,3 @@
+claim_id,claim,evidence_type,source,claim_readiness
+FRA1,Building-form response archetypes separate stronger and weaker 20-50 m pedestrian-layer wind recovery in the retained TUM2TWIN campus core.,newly_run,figures/morphology_form_response_archetype_summary.csv; reports/morphology_form_response_archetype_analysis.md,paper_ready_as_screening
+FRA2,"The observed wind-response differences are better framed as combinations of relative vertical massing, elongation and local enclosure than as single-variable building-size effects.",newly_run + blocked,figures/morphology_form_response_archetype_by_component.csv; paper_text/morphology_form_response_archetype_conclusion_zh.md,paper_ready_with_boundary

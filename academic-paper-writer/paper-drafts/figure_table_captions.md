@@ -42,6 +42,12 @@ Fig. E3-S2. Supplementary eight-direction anisotropy and design-sector response 
 
 图 E3-S2. 实验3八风向各向异性与设计扇区响应补充图。图中比较 S0 行人层 mean VR、行人层滞风比例、40 m-2 m 竖向恢复以及 S2 common-open-cell 局地响应。结果显示行人层低速和高滞风在八个来流方向中近似全向存在，而 S2 的局部响应具有方向性，最强响应出现在 315 deg；但S1/S2全局行人层 mean-VR delta 在全部方向上仍为负。该图支持风扇区耦合的设计解释，不支持年度风玫瑰合规或成功优化宣称。
 
+### Fig. E3-S3
+
+Fig. E3-S3. Supplementary building-form wind-response archetype analysis for the 101 retained central components. The left panel maps morphology clusters in sector-enclosure and relative-height space, with point size proportional to footprint area; the right panel compares the mean 20-50 m recovery delta by archetype. The groups differ significantly in recovery delta (Kruskal-Wallis p=0.0001682), supporting a screening-level conclusion that wind recovery is associated with combinations of relative vertical massing, elongation and local enclosure rather than any single building-form variable.
+
+图 E3-S3. 101 个保留中心区建筑构件的建筑形式风响应类型学补充图。左图在 50 m 扇区围合度和相对高度空间中显示形态聚类，点大小表示建筑足迹面积；右图比较不同类型的 20-50 m 平均恢复量。类型间恢复量差异显著（Kruskal-Wallis p=0.0001682），支持筛查层结论：本校园核心区的行人层风速恢复更适合解释为相对竖向体量、平面延展性和局地围合共同作用的结果，而不是单一建筑形态变量的结果。
+
 ## Tables
 
 ### Table E3-1

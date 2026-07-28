@@ -57,3 +57,12 @@ These captions are tied to archived source artifacts. They should be edited only
 - Source data: `figures/experiment3_directional_anisotropy_summary.csv; figures/experiment3_directional_response_by_wind.csv`
 - Evidence type: `newly_run + preexisting_artifact + blocked`
 - Boundary: not measured wind rose; not annual comfort compliance; not successful optimization
+
+## Fig. E3-S3
+
+图 E3-S3. 101 个保留中心区建筑构件的建筑形式风响应类型学补充图。左图在 50 m 扇区围合度和相对高度空间中显示形态聚类，点大小表示建筑足迹面积；右图比较不同类型的 20-50 m 平均恢复量。类型间恢复量差异显著（Kruskal-Wallis p=0.0001682），支持筛查层结论：本校园核心区的行人层风速恢复更适合解释为相对竖向体量、平面延展性和局地围合共同作用的结果，而不是单一建筑形态变量的结果。
+
+- Asset: `figures/morphology_form_response_archetype_panel.png`
+- Source data: `figures/morphology_form_response_archetype_summary.csv; figures/morphology_form_response_archetype_by_component.csv`
+- Evidence type: `newly_run + blocked`
+- Boundary: not causal typology; not field validation; not universal design class

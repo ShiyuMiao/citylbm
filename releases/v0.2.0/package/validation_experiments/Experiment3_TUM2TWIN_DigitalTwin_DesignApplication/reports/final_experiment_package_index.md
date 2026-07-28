@@ -286,3 +286,17 @@ New directional-mechanism files:
 - `manifests/experiment3_directional_anisotropy_claims.csv`
 
 Paper-safe interpretation: the campus-core low-speed state is quasi-omnidirectional across the eight simulated directions, while S2 shows localized direction-sensitive response that does not produce global pedestrian-layer recovery. This supports a design conclusion focused on wind-sector entry and pressure-exchange paths rather than porosity area alone.
+
+## Building-Form Wind-Response Archetype Addendum
+
+New archetype-analysis files:
+
+- `scripts/analyze_morphology_form_response_archetypes.py`
+- `figures/morphology_form_response_archetype_by_component.csv`
+- `figures/morphology_form_response_archetype_summary.csv`
+- `figures/morphology_form_response_archetype_panel.png`
+- `reports/morphology_form_response_archetype_analysis.md`
+- `paper_text/morphology_form_response_archetype_conclusion_zh.md`
+- `manifests/morphology_form_response_archetype_claims.csv`
+
+Paper-safe interpretation: 101 retained building components can be separated into morphology-response archetypes with statistically different 20-50 m recovery deltas. The strongest group is `R1_A1_linear_low_relative_height_recovery`, while the weakest is `R4_A5_open_or_mixed_low_response`; Kruskal-Wallis `p=0.0001682`. This is useful for digital-twin design screening, but it is not a causal typology, field validation, or general design code.

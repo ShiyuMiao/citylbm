@@ -206,7 +206,7 @@ The archive now includes bilingual SCI-style captions for the four recommended f
 - `reports/experiment3_submission_readiness_audit.md`
 - `manifests/experiment3_submission_readiness_checklist.csv`
 
-Audit result: all nine planned figure/table assets exist and are ready for manual review. Remaining blockers are unchanged: field/wind-tunnel validation, annual comfort/safety compliance, pollutant transport, GCBTE computation, and CityLBM-Grasshopper end-to-end execution.
+Audit result: all ten planned figure/table assets exist and are ready for manual review. Remaining blockers are unchanged: field/wind-tunnel validation, annual comfort/safety compliance, pollutant transport, GCBTE computation, and CityLBM-Grasshopper end-to-end execution.
 
 ## Effect-Size and Uncertainty Addendum
 
@@ -234,3 +234,17 @@ The archive now includes an eight-direction mechanism analysis that distinguishe
 - `manifests/experiment3_directional_anisotropy_claims.csv`
 
 Paper-safe interpretation: pedestrian-layer mean VR remains low and stagnation remains high across all eight simulated directions, so the main problem is not a single exceptional inflow direction. S2 has a localized directional response, strongest at 315 deg, but S1/S2 global pedestrian-layer mean-VR deltas remain negative in every tested direction. This supports wind-sector-coupled design reasoning, not annual wind-climate compliance or successful optimization.
+
+## Building-Form Wind-Response Archetype Addendum
+
+The archive now includes a compact morphology-response typology for the 101 retained central building components. The clustering uses only basic building-form parameters, then interprets each group using FluidX3D-derived near-facade and 20-50 m local-context wind metrics.
+
+- `scripts/analyze_morphology_form_response_archetypes.py`
+- `figures/morphology_form_response_archetype_by_component.csv`
+- `figures/morphology_form_response_archetype_summary.csv`
+- `figures/morphology_form_response_archetype_panel.png`
+- `reports/morphology_form_response_archetype_analysis.md`
+- `paper_text/morphology_form_response_archetype_conclusion_zh.md`
+- `manifests/morphology_form_response_archetype_claims.csv`
+
+Paper-safe interpretation: the type separation supports a more detailed building-form conclusion for Experiment 3. Pedestrian-layer recovery is associated with combinations of relative vertical massing, elongation and local enclosure, not with a single footprint, height or porosity variable alone. The typology is a FluidX3D/digital-twin screening result, not a field-validated causal taxonomy.
