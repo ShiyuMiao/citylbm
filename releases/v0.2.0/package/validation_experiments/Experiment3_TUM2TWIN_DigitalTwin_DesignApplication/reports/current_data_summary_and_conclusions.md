@@ -10,7 +10,7 @@ evidence_type: newly_run + preexisting_artifact + user_claim + blocked
 |---|---|---:|---|---|
 | Download/source manifest | `manifests/data_manifest.csv` | 21 rows | newly_run + preexisting_artifact | Records source URL, size, checksum, download time, license/citation information |
 | Geometry manifest | `manifests/geometry_manifest.csv` | 13 rows | newly_run | Records Rhino/OBJ/STL geometry files, roles, sizes and checksums |
-| Evidence inventory | `manifests/evidence_inventory.csv` | 101 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
+| Evidence inventory | `manifests/evidence_inventory.csv` | 102 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
 | Wind-climate proxy weights | `manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv` | 8 sectors | newly_run + preexisting_artifact | Converts 2024 hourly 10 m wind data into 8 FluidX3D velocity-direction weights |
 
 ### 1.2 Visual and Rhino Data
@@ -182,3 +182,9 @@ The strongest paper-safe conclusion is no longer that a specific intervention im
 The paper-draft package creates a continuous section-level draft in `academic-paper-writer/paper-drafts/paper_draft.md`, an English companion draft in `academic-paper-writer/paper-drafts/paper_draft_en.md`, and release copies in `paper_text/experiment3_sci_section_paper_draft_zh.md` and `paper_text/experiment3_sci_section_paper_draft_en.md`. The draft uses `12` verified references, `9` key result rows, `7` figure/table callouts, and `23` claim/asset verification rows.
 
 This is the most complete prose artifact for integrating Experiment 3 into the broader SCI paper. It is not yet a venue-formatted full paper because target journal, citation style, paper-level introduction/related work, and any optional CityLBM-GH foregrounding decision remain author-input items.
+
+### 7.9 SCI Figure/Table Caption and Submission-Readiness Addendum
+
+The submission-readiness layer adds bilingual captions for the four planned figures and three planned tables, plus an asset-level audit in `reports/experiment3_submission_readiness_audit.md` and `manifests/experiment3_submission_readiness_checklist.csv`. All seven assets exist and are ready for manual review. This layer improves paper usability because each figure/table is tied to its evidence type, source data, safe manuscript role, and boundary condition.
+
+The strongest supported use is reviewer-facing presentation of the completed FluidX3D-native digital-twin screening workflow: baseline pedestrian-layer low-speed mapping, morphology ranking, S1/S2 negative design-sensitivity trade-off, morphology threshold screening, integrated result matrix, completion audit, and GCRI geometry-readiness scoring. The captions retain the same limits as the evidence archive: no field/wind-tunnel validation, no annual comfort/safety compliance, no pollutant transport, no GCBTE computation, and no completed CityLBM-Grasshopper end-to-end execution.

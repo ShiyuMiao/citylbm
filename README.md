@@ -30,6 +30,15 @@ The current Experiment 3 SCI section draft and verification package are stored
 under `academic-paper-writer/paper-drafts/`, with release copies under
 `releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/paper_text/`.
 
+The latest Experiment 3 submission-readiness layer adds figure/table captions,
+asset-level evidence checks, and a reviewer-facing readiness audit:
+
+- `academic-paper-writer/paper-drafts/figure_table_captions.md`
+- `releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/paper_text/experiment3_sci_figure_captions_zh.md`
+- `releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/paper_text/experiment3_sci_table_captions_zh.md`
+- `releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/reports/experiment3_submission_readiness_audit.md`
+- `releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/manifests/experiment3_submission_readiness_checklist.csv`
+
 ## License
 License information will be provided upon the first public release.
 The project is intended for non-commercial academic use.

@@ -99,6 +99,10 @@ Photogrammetry counterexample:
 - Experiment 3 figure/table callouts: `paper_text/experiment3_figure_table_callouts_zh.md`
 - Experiment 3 section paper draft, Chinese: `paper_text/experiment3_sci_section_paper_draft_zh.md`
 - Experiment 3 section paper draft, English: `paper_text/experiment3_sci_section_paper_draft_en.md`
+- Experiment 3 SCI figure captions, Chinese: `paper_text/experiment3_sci_figure_captions_zh.md`
+- Experiment 3 SCI figure captions, English: `paper_text/experiment3_sci_figure_captions_en.md`
+- Experiment 3 SCI table captions, Chinese: `paper_text/experiment3_sci_table_captions_zh.md`
+- Experiment 3 SCI table captions, English: `paper_text/experiment3_sci_table_captions_en.md`
 - Detailed paper conclusions: `paper_text/detailed_paper_conclusions_zh.md`
 - Strengthened SCI results/discussion, Chinese: `paper_text/sci_results_discussion_strengthened_zh.md`
 - Strengthened SCI results/discussion, English: `paper_text/sci_results_discussion_strengthened_en.md`
@@ -120,6 +124,7 @@ Photogrammetry counterexample:
 - Nature-style figure manifest: `manifests/nature_style_figure_manifest.csv`
 - Experiment 3 manuscript module claims: `manifests/experiment3_manuscript_module_claims.csv`
 - Experiment 3 manuscript figure/table plan: `manifests/experiment3_manuscript_figure_table_plan.csv`
+- Experiment 3 submission-readiness checklist: `manifests/experiment3_submission_readiness_checklist.csv`
 - Morphology threshold design-rule claims: `manifests/morphology_threshold_design_rule_claims.csv`
 
 ## Current Claim Boundary in One Sentence
@@ -234,3 +239,17 @@ New paper-draft files:
 - `reports/experiment3_paper_draft_verification.md`
 
 Paper-safe interpretation: this is the continuous section-level draft for integrating Experiment 3 into the broader SCI paper. It is generic rather than venue-formatted and keeps unresolved publication debts explicit.
+
+## SCI Figure/Table Caption and Submission-Readiness Layer
+
+New submission-readiness files:
+
+- `academic-paper-writer/paper-drafts/figure_table_captions.md`
+- `paper_text/experiment3_sci_figure_captions_zh.md`
+- `paper_text/experiment3_sci_figure_captions_en.md`
+- `paper_text/experiment3_sci_table_captions_zh.md`
+- `paper_text/experiment3_sci_table_captions_en.md`
+- `reports/experiment3_submission_readiness_audit.md`
+- `manifests/experiment3_submission_readiness_checklist.csv`
+
+Paper-safe interpretation: all seven planned reviewer-facing figure/table assets are present and traceable to source data. Captions explicitly separate screening-level wind and morphology findings from blocked field validation, annual comfort compliance, pollutant transport, GCBTE, and CityLBM-GH claims.

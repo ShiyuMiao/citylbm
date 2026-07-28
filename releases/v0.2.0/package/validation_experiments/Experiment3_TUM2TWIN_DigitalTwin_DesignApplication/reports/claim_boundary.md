@@ -103,3 +103,10 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Supported claim: `academic-paper-writer/paper-drafts/paper_draft.md` and `paper_text/experiment3_sci_section_paper_draft_zh.md` are continuous section-level drafts suitable for integration into the broader SCI manuscript.
 - Unsupported claim: the draft is not a venue-formatted final article, does not complete paper-level introduction/related-work framing, and does not close field validation, annual comfort compliance, pollutant dispersion, GCBTE, or CityLBM-GH execution.
 - Paper-safe interpretation: treat the paper draft as the current Experiment 3 section manuscript, with target-journal formatting and optional CityLBM-GH foregrounding left as author-input decisions.
+
+## SCI Figure/Table Caption and Submission-Readiness Claim Boundary Addendum
+
+- `newly_run + preexisting_artifact + blocked`: figure/table captions and the submission-readiness audit were generated from the existing figure plan, key result matrix, GCRI table, and claim inventory.
+- Supported claim: the four planned figures and three planned tables exist, are traceable to source data, and are ready for manual review as reviewer-facing paper assets.
+- Unsupported claim: captions and readiness auditing do not add new CFD fields, field validation, pollutant transport, annual comfort/safety exceedance statistics, GCBTE results, or CityLBM-Grasshopper execution evidence.
+- Paper-safe interpretation: use `paper_text/experiment3_sci_figure_captions_zh.md`, `paper_text/experiment3_sci_table_captions_zh.md`, and `reports/experiment3_submission_readiness_audit.md` to present the visual evidence while retaining all blocked-claim language.

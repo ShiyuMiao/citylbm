@@ -67,6 +67,9 @@ Core distinction:
 24. `paper_text/experiment3_sci_section_paper_draft_zh.md`
 25. `paper_text/experiment3_sci_section_paper_draft_en.md`
 26. `reports/experiment3_paper_draft_verification.md`
+27. `paper_text/experiment3_sci_figure_captions_zh.md`
+28. `paper_text/experiment3_sci_table_captions_zh.md`
+29. `reports/experiment3_submission_readiness_audit.md`
 
 ## Current Main Conclusion
 
@@ -186,3 +189,17 @@ The archive now includes a continuous section-level paper draft generated from t
 - `reports/experiment3_paper_draft_verification.md`
 
 Paper-safe interpretation: this is a generic SCI section draft, not a venue-formatted final manuscript. It is ready for integration into the wider paper after the target journal, final citation style, and paper-level introduction/related-work framing are fixed.
+
+## SCI Figure/Table Caption and Submission-Readiness Layer
+
+The archive now includes bilingual SCI-style captions for the four recommended figures and three recommended tables, plus an asset-level submission-readiness audit. This layer does not add new CFD results; it binds each reviewer-facing figure/table to its evidence type, source data, safe paper use, and claim boundary.
+
+- `academic-paper-writer/paper-drafts/figure_table_captions.md`
+- `paper_text/experiment3_sci_figure_captions_zh.md`
+- `paper_text/experiment3_sci_figure_captions_en.md`
+- `paper_text/experiment3_sci_table_captions_zh.md`
+- `paper_text/experiment3_sci_table_captions_en.md`
+- `reports/experiment3_submission_readiness_audit.md`
+- `manifests/experiment3_submission_readiness_checklist.csv`
+
+Audit result: all seven planned figure/table assets exist and are ready for manual review. Remaining blockers are unchanged: field/wind-tunnel validation, annual comfort/safety compliance, pollutant transport, GCBTE computation, and CityLBM-Grasshopper end-to-end execution.
