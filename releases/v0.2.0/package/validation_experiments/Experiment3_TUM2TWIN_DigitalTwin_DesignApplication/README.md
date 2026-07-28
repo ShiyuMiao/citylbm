@@ -56,6 +56,9 @@ Core distinction:
 13. `paper_text/basic_morphology_wind_response_conclusion_zh.md`
 14. `reports/basic_morphology_multivariate_robustness.md`
 15. `paper_text/basic_morphology_multivariate_robustness_conclusion_zh.md`
+16. `reports/experiment3_completion_audit_and_paper_readiness.md`
+17. `paper_text/final_integrated_results_discussion_zh.md`
+18. `paper_text/final_integrated_results_discussion_en.md`
 
 ## Current Main Conclusion
 
@@ -123,3 +126,13 @@ The archive now includes a lightweight bootstrap/partial-correlation/rank-regres
 - `figures/basic_morphology_multivariate_robustness.csv`
 - `figures/basic_morphology_rank_model_cv_summary.csv`
 - `figures/basic_morphology_multivariate_rank_model_importance.png`
+
+## Final Integrated Paper-Readiness Layer
+
+The archive now includes a final integrated result matrix, completion audit, and manuscript-ready Chinese/English results-discussion sections. This layer binds the baseline, climate-proxy weighting, S1/S2 sensitivity, directional trade-off, morphology robustness, GCRI geometry readiness, and claim boundary into a single paper-facing package.
+
+- `figures/final_integrated_key_result_matrix.csv`
+- `figures/experiment3_completion_audit_matrix.csv`
+- `reports/experiment3_completion_audit_and_paper_readiness.md`
+- `paper_text/final_integrated_results_discussion_zh.md`
+- `paper_text/final_integrated_results_discussion_en.md`

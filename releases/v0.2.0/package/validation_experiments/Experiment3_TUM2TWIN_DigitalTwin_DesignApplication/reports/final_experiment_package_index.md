@@ -72,6 +72,7 @@ Photogrammetry counterexample:
 - Climate/building type/campus wind application context: `reports/climate_building_type_campus_wind_application_context.md`
 - Basic building-morphology wind-response analysis: `reports/basic_morphology_wind_response_analysis.md`
 - Multivariate robustness of basic morphology-wind relations: `reports/basic_morphology_multivariate_robustness.md`
+- Final completion audit and paper-readiness matrix: `reports/experiment3_completion_audit_and_paper_readiness.md`
 - Detailed paper-conclusion data synthesis: `reports/detailed_data_synthesis_for_paper_conclusions.md`
 - SCI statistical robustness analysis: `reports/sci_statistical_robustness_analysis.md`
 - Note: the recommended manuscript-facing morphology interpretation now uses basic building-morphology parameters. LCZ-like files below are retained as audit/superseded context, not as the main classification framework.
@@ -89,6 +90,8 @@ Photogrammetry counterexample:
 - Climate-campus-digital-twin conclusion: `paper_text/conclusion_climate_campus_digital_twin_wind_zh.md`
 - Basic morphology wind-response conclusion: `paper_text/basic_morphology_wind_response_conclusion_zh.md`
 - Basic morphology multivariate robustness conclusion: `paper_text/basic_morphology_multivariate_robustness_conclusion_zh.md`
+- Final integrated results/discussion, Chinese: `paper_text/final_integrated_results_discussion_zh.md`
+- Final integrated results/discussion, English: `paper_text/final_integrated_results_discussion_en.md`
 - Detailed paper conclusions: `paper_text/detailed_paper_conclusions_zh.md`
 - Strengthened SCI results/discussion, Chinese: `paper_text/sci_results_discussion_strengthened_zh.md`
 - Strengthened SCI results/discussion, English: `paper_text/sci_results_discussion_strengthened_en.md`
@@ -167,3 +170,15 @@ New multivariate robustness files:
 - `figures/basic_morphology_multivariate_rank_model_importance.png`
 
 Paper-safe interpretation: the 20-50 m local-context morphology response is better described by local enclosure and momentum-exchange context than by single-building footprint or elongation alone. The rank-regression explanatory power is limited, so this is an interpretable screening conclusion rather than a predictive urban-wind model.
+
+## Final Integrated Paper-Readiness Layer
+
+New paper-readiness files:
+
+- `figures/final_integrated_key_result_matrix.csv`
+- `figures/experiment3_completion_audit_matrix.csv`
+- `reports/experiment3_completion_audit_and_paper_readiness.md`
+- `paper_text/final_integrated_results_discussion_zh.md`
+- `paper_text/final_integrated_results_discussion_en.md`
+
+Paper-safe interpretation: Experiment 3 is complete as a FluidX3D-native digital-twin wind screening, morphology interpretation, and negative S1/S2 design-sensitivity case. It remains bounded against field validation, annual comfort/safety compliance, pollutant dispersion, GCBTE closure, successful S3-Sn optimization, and CityLBM-GH end-to-end execution.

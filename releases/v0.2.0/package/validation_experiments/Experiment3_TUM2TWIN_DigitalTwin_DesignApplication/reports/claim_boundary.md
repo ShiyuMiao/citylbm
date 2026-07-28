@@ -75,3 +75,10 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Supported claim: local enclosure and mean-height context are stronger ordered descriptors of the 20-50 m local-context mean VR than footprint area, elongation, or perimeter-area compactness.
 - Unsupported claim: morphology parameters form a high-accuracy predictive model or establish causal design effects without additional intervention experiments and measured validation.
 - Paper-safe interpretation: use the multivariate result as an interpretable campus wind-screening diagnosis with limited explanatory power (`R2 = 0.122 +/- 0.166`).
+
+## Final Integrated Paper-Readiness Claim Boundary Addendum
+
+- `newly_run + preexisting_artifact + blocked`: final integrated paper-readiness files consolidate existing evidence and blockers without adding new CFD fields.
+- Supported claim: the archive is manuscript-ready for a FluidX3D-native digital-twin-to-CFD screening workflow and morphology/design-sensitivity interpretation.
+- Unsupported claim: the final integrated layer completes field validation, pollutant dispersion, annual comfort/safety compliance, GCBTE closure, successful design optimization, or CityLBM-GH end-to-end execution.
+- Paper-safe interpretation: use `paper_text/final_integrated_results_discussion_zh.md` or `paper_text/final_integrated_results_discussion_en.md` as the highest-level Results/Discussion source.
