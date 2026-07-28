@@ -63,7 +63,7 @@ The key new finding is that the immediate 0-20 m facade-adjacent band is uniform
 
 ## Evidence Boundary
 
-This archive supports a reproducible digital-twin-to-CFD design-application workflow and preliminary FluidX3D pedestrian-height wind-response screening. It does not provide field-validated prediction accuracy, formal annual comfort/safety compliance, pollutant-dispersion results, simulated S1-Sn design-intervention comparisons, 3DGS boundary-transfer error results, or a completed CityLBM-GH end-to-end run.
+This archive supports a reproducible digital-twin-to-CFD design-application workflow, preliminary FluidX3D pedestrian-height wind-response screening, and one executed S1 design-sensitivity comparison. It does not provide field-validated prediction accuracy, formal annual comfort/safety compliance, pollutant-dispersion results, S2-Sn design-intervention proof or successful optimization, 3DGS boundary-transfer error results, or a completed CityLBM-GH end-to-end run.
 
 Large raw assets and full VTK outputs are not fully embedded in this GitHub archive. Their local paths and source boundaries are recorded in `EXTERNAL_ARTIFACTS.md` and `manifests/evidence_inventory.csv`.
 
@@ -78,3 +78,13 @@ The latest addendum links the FluidX3D/ParaView outputs to verified pedestrian-w
 - `paper_text/literature_grounded_discussion_sci_en.md`
 
 Use these files when writing the final SCI discussion because they explicitly separate paper-ready claims from blocked claims.
+
+## Executed S1 Design Sensitivity Scenario
+
+The design-application layer now includes an executed S1 ventilation-relief sensitivity scenario. S1 was simulated with the same FluidX3D dx=2 m, 8-direction, three-sample protocol as S0. The result is a near-null/negative design sensitivity outcome rather than a successful optimization.
+
+- `reports/s1_ventilation_relief_fluidx3d_comparison_report.md`
+- `paper_text/design_intervention_s1_discussion_zh.md`
+- `paper_text/design_intervention_s1_discussion_en.md`
+- `manifests/s1_design_intervention_claims.csv`
+- `figures/fluidx3d_s0_s1_ventilation_relief_equal_weighted_vr_delta_z2m.png`

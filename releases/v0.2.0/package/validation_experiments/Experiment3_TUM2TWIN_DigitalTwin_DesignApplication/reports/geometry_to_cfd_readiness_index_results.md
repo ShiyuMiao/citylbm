@@ -21,6 +21,7 @@ where `W` is watertightness, `M` manifoldness, `S` semantic completeness, `C` co
 | Whole-district prism collision | accepted district collision | `0.918` | suitable for district-scale coarse/medium screening |
 | LoD3 direct OBJ collision candidate | semantic detail reference / repair candidate | `0.528` | semantically valuable but needs closure/repair before collision use |
 | LoD2/LoD3-derived closed prism target | recommended future production collision | `0.955` | target-state criterion, not a new solver result |
+| S1 ventilation-relief closed prism | design sensitivity collision | `0.920` | CFD-ready hypothetical intervention geometry; semantic score is lower than S0 because it is not an observed existing condition |
 
 ## Paper Claim Boundary
 

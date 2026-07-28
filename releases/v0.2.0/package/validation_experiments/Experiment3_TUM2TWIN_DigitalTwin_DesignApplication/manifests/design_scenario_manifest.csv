@@ -1,3 +1,3 @@
 scenario_id,description,geometry_change,simulation_status,evidence_type,paper_use
 S0,baseline core-prism campus block,current accepted collision geometry,"executed: 8 directions, dx=2 m, three time samples after spin-up",newly_run,primary screening and morphology interpretation
-S1,simple ventilation-relief intervention candidate,open or lower selected enclosure elements near highest stagnation corridor identified from S0; exact geometry not committed,not simulated,blocked,protocol placeholder only; do not report performance improvement
+S1,ventilation-relief morphology sensitivity scenario,"removed 66 heightfield collision cells (1650.0 m2, 2.79% of baseline footprint) along a least-removal east-west corridor","executed: 8 directions, dx=2 m, three time samples after spin-up; all runs ok, total elapsed 176.32 s",newly_run,"design sensitivity result; report as a negative/near-null intervention comparison, not as a proven design optimization"

@@ -370,8 +370,8 @@ def main():
         {"claim": "UAS 3D Mesh is used as visual/photogrammetric reference, not final collision boundary.", "evidence_type": "preexisting_artifact", "source": "TUM2TWIN cm-mesh page and downloaded OBJ/MTL"},
         {"claim": "LoD2/LoD3 CityGML building models provide semantic building surfaces for CFD collision geometry.", "evidence_type": "preexisting_artifact", "source": "TUM2TWIN semantic building models page and downloaded CityGML"},
         {"claim": "building_collision_z0.stl was generated from four LoD2 buildings and checked locally.", "evidence_type": "newly_run", "source": str(OUT_MANIFESTS / "geometry_qa.json")},
-        {"claim": "FluidX3D simulation results are not available on this machine yet.", "evidence_type": "blocked", "source": "FluidX3D executable/OpenCL build not installed or run in this session"},
-        {"claim": "ParaView visualization is specified as VTK workflow; no ParaView-rendered images were generated.", "evidence_type": "blocked", "source": "No FluidX3D VTK output yet"},
+        {"claim": "FluidX3D S0 and S1 screening outputs are available in the later archive package; this initial preparation script is superseded for solver status.", "evidence_type": "newly_run", "source": "reports/fluidx3d_core_prism_timesampled_8dir_dx2m_report.md; reports/s1_ventilation_relief_fluidx3d_comparison_report.md"},
+        {"claim": "ParaView/VTK review workflow is prepared; manual ParaView review states are included, while headless ParaView render automation remains limited.", "evidence_type": "newly_run + blocked", "source": "paraview_states/; reports/paraview_vtk_core_wind_statistics_and_building_analysis.md"},
     ]
     with open(OUT_MANIFESTS / "evidence_inventory.csv", "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.DictWriter(f, fieldnames=evidence_rows[0].keys())
@@ -615,7 +615,7 @@ evidence_type: user_claim + preexisting_artifact + blocked
 | 舒适安全 | Lawson/NEN/AIJ 思路 | 阈值风速 + 超越概率 + 活动类型 | comfortable/tolerable/uncomfortable/unsafe 面积比例 | blocked |
 | 通风不足 | stagnation area ratio | A(U/Uref < 阈值)/A_total | 污染滞留与热舒适风险区 | blocked |
 | 污染扩散 | C/C0 | 道路/点/面源无量纲浓度 | hotspot 面积、路径暴露积分 | blocked |
-| 方案比较 | ΔA, Δhotspot | S0 baseline vs S1-Sn | 舒适面积提升、危险面积降低 | blocked |
+| 方案比较 | ΔA, Δhotspot | S0 baseline vs S1, S2-Sn | S1 已作为近零/负向敏感性实跑；S2-Sn 与成功优化仍为后续工作 | newly_run + blocked |
 | Geometry-to-CFD Readiness Index | GCRI | 0.25W + 0.15(1-NM) + 0.15S + 0.15C + 0.15E + 0.15V | 0-1，越高越可进入 CFD | newly_run + blocked |
 | 3DGS-to-Collision Boundary Transfer Error | GCBTE | IoU, Chamfer/Hausdorff, roof/wall boundary error, solid mask agreement | 用 CityGML LoD2/LoD3 作 GT | blocked |
 | 工程效率 | Wind Benefit per Modeling Cost | Δ舒适面积 / 建模修复小时 | 方案工程收益 | blocked |

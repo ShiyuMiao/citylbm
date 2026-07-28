@@ -1,0 +1,9 @@
+# S1 Design-Intervention Discussion Paragraphs (English)
+
+evidence_type: newly_run + preexisting_artifact + blocked
+
+To move Experiment 3 beyond baseline screening, we added an S1 ventilation-relief sensitivity scenario. S1 is not a constructability-verified architectural proposal. It modifies the S0 closed-prism collision boundary by opening a Dijkstra-selected east-west relief corridor with minimal collision-cell removal. The intervention removes 66 cells from the 5 m heightfield, corresponding to approximately 1650.0 m2 or 2.79% of the S0 footprint. S1 was then simulated with the same FluidX3D protocol as S0: eight wind directions, dx=2 m, and three post-spin-up time samples.
+
+The result is near-null rather than beneficial at the global pedestrian-layer scale. At z=2 m, the equal-weighted mean VR changes from 0.076338 in S0 to 0.076124 in S1, a difference of only -0.000213. The VR<0.2 stagnation ratio changes from 0.933547 to 0.933780. Among cells open in both scenarios, mean ΔVR is only 0.000043; newly opened S1 cells remain low-speed, with mean VR 0.002697 and stagnation ratio 1.000. The intervention therefore adds open cells inside an already sheltered flow field, but does not introduce enough momentum to ventilate the campus core.
+
+This negative sensitivity result strengthens the morphology interpretation. The pedestrian-layer stagnation in the TUM Downtown core is not explained by one removable local blockage; it reflects a broader configuration of continuous enclosure, courtyard networks and limited porosity. For design application, the digital-twin workflow should therefore support network-scale alternatives involving multiple gateways, passage connectivity and wind-sector-aware porosity, rather than relying on a single relief corridor. This statement remains bounded to the current FluidX3D-native sensitivity experiment and does not imply pollutant-dispersion performance, field validation or formal wind-comfort compliance.

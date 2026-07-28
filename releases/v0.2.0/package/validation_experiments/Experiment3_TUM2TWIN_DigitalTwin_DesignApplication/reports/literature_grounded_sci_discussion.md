@@ -53,4 +53,4 @@ The digital-twin model result is a separate methodological contribution. The tex
 
 ## 5. Claim Boundary
 
-These conclusions are paper-ready as simulation-based design-screening and morphology-interpretation claims. They are not field validation, wind-tunnel validation, formal annual wind-comfort/safety compliance, pollutant dispersion prediction, S1-Sn intervention proof, CityLBM-GH end-to-end execution, or a computed 3DGS-to-collision transfer-error result.
+These conclusions are paper-ready as simulation-based design-screening and morphology-interpretation claims. They are not field validation, wind-tunnel validation, formal annual wind-comfort/safety compliance, pollutant dispersion prediction, successful intervention optimization, S2-Sn intervention proof, CityLBM-GH end-to-end execution, or a computed 3DGS-to-collision transfer-error result.

@@ -260,7 +260,7 @@ The GCRI table supports a separate digital-twin conclusion. The visual photogram
 - No field-measured or wind-tunnel validation is available.
 - No formal Lawson/NEN/AIJ comfort-safety exceedance assessment is supported.
 - No pollutant dispersion result is available.
-- No S1 design intervention has been simulated.
+- S1 ventilation-relief has been simulated, but it is a near-null/negative design-sensitivity result rather than proof of successful optimization; S2-Sn interventions remain future work.
 - No GCBTE value is computed because no independent 3DGS-derived collision boundary extraction exists.
 - No completed Rhino-Grasshopper/CityLBM end-to-end run is claimed; the current positioning remains FluidX3D-native with a CityLBM-compatible geometry package.
 

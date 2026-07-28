@@ -134,7 +134,7 @@ For baseline `S0` and interventions `S1...Sn`:
 - Wind Benefit per Modeling Cost: `Delta A_comfort / modeling_hours`
 - Digital Twin Scenario Turnaround Time: `t_case_ready - t_download_start`
 
-These are not yet reported numerically because no design intervention scenario has been simulated. The current `S0` baseline is executed; the documented `S1` ventilation-relief candidate is a blocked protocol placeholder. See `manifests/design_scenario_manifest.csv`.
+`S1` ventilation relief has now been simulated numerically as a design-sensitivity scenario. The comparison is reported in `reports/s1_ventilation_relief_fluidx3d_comparison_report.md` and `figures/fluidx3d_s0_s1_ventilation_relief_metric_comparison.csv`. The current S1 result is near-null/negative and should be used to discuss intervention insufficiency, not design optimization success. Additional `S2...Sn` alternatives remain future work.
 
 ## 7. Evidence Boundary
 

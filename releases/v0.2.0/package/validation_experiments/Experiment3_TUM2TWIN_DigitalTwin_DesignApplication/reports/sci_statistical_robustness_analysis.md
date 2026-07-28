@@ -64,7 +64,7 @@ The strengthened result is not merely that the campus core is slow at pedestrian
 
 ## Claim Boundary
 
-This is a component-level statistical robustness analysis derived from simulation outputs. It is not causal identification, field validation, annual comfort/safety compliance, pollutant dispersion, or a simulated S1 intervention comparison.
+This is a component-level statistical robustness analysis derived from S0 simulation outputs. It is not causal identification, field validation, annual comfort/safety compliance, pollutant dispersion, or proof of intervention optimization. The later S1 ventilation-relief comparison is reported separately as a near-null/negative design-sensitivity result.
 
 ## Output Tables
 

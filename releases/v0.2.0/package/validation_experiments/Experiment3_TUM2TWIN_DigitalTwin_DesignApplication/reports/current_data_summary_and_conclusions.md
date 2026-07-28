@@ -10,7 +10,7 @@ evidence_type: newly_run + preexisting_artifact + user_claim + blocked
 |---|---|---:|---|---|
 | Download/source manifest | `manifests/data_manifest.csv` | 21 rows | newly_run + preexisting_artifact | Records source URL, size, checksum, download time, license/citation information |
 | Geometry manifest | `manifests/geometry_manifest.csv` | 13 rows | newly_run | Records Rhino/OBJ/STL geometry files, roles, sizes and checksums |
-| Evidence inventory | `manifests/evidence_inventory.csv` | 88 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
+| Evidence inventory | `manifests/evidence_inventory.csv` | 92 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
 | Wind-climate proxy weights | `manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv` | 8 sectors | newly_run + preexisting_artifact | Converts 2024 hourly 10 m wind data into 8 FluidX3D velocity-direction weights |
 
 ### 1.2 Visual and Rhino Data
@@ -143,4 +143,8 @@ Claim readiness: `paper_ready` for evidence boundary.
 
 The current data support the following central conclusion:
 
-> In the TUM2TWIN Downtown case, photogrammetry/Rhino data reliably define and visualize the real urban study scene, but cannot be directly used as a rigorous LBM collision boundary. A LoD3-derived closed semantic-prism reconstruction over the same visual extent enables FluidX3D simulation and produces reproducible preliminary pedestrian-height wind-speed-ratio maps. The results indicate extensive low-speed zones at pedestrian height in the current pilot, while higher layers recover substantially. These findings validate the digital-twin-to-CFD application workflow and its evidence boundary, rather than providing final field-validated comfort or safety compliance results.
+> In the TUM2TWIN Downtown case, photogrammetry/Rhino data reliably define and visualize the real urban study scene, but cannot be directly used as a rigorous LBM collision boundary. A LoD3-derived closed semantic-prism reconstruction over the same visual extent enables FluidX3D simulation and produces reproducible preliminary pedestrian-height wind-speed-ratio maps. The results indicate extensive low-speed zones at pedestrian height in the current pilot, while higher layers recover substantially. These findings support and document the digital-twin-to-CFD application workflow and its evidence boundary, rather than providing final field-validated comfort or safety compliance results.
+
+### 7.1 S1 Design-Sensitivity Addendum
+
+S1 ventilation relief was simulated after the baseline synthesis. It removes 66 heightfield collision cells along a least-removal east-west corridor and reruns the same FluidX3D dx=2 m, eight-direction, three-sample protocol. The comparison shows a near-null/negative outcome: at z~2 m, equal-weighted mean VR changes by only `-0.000213`, while newly opened cells remain low-speed. The design implication is that this campus-core stagnation is not resolved by a single light corridor opening.

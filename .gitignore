@@ -9,3 +9,5 @@
 /rhino/
 /scripts/
 /archive/
+__pycache__/
+*.py[cod]

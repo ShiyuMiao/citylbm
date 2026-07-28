@@ -25,6 +25,8 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - A wind-climate-proxy weighted z~2 m VR map and metrics table have been generated from the local time-sampled FluidX3D results.
 - Matplotlib audit figures and CSV metrics were generated directly from FluidX3D VTK outputs.
 - A ParaView no-render pipeline state was generated with pvpython for manual GUI review.
+- An S1 ventilation-relief design-sensitivity geometry has been generated, voxelized, simulated for 8 wind directions, and compared against S0 with the same dx=2 m time-sampled FluidX3D protocol.
+- The S1 comparison supports a near-null/negative design-sensitivity conclusion: the tested single relief corridor does not materially improve global z~2 m VR or stagnation metrics.
 
 ## Claims Not Yet Supported
 
@@ -40,7 +42,8 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - The user-provided photogrammetry FluidX3D pilot should not be used as a final wind comfort/safety result; it is evidence for geometry readiness limits only.
 - The CityLBM-Grasshopper chain is optional and not executed; manuscript wording should be FluidX3D-native simulation with a CityLBM-compatible geometry package unless GH run evidence is added.
 - GCRI has been scored as a paper-internal geometry-readiness metric, but it does not validate wind-result accuracy.
-- GCBTE, pollutant dispersion, and S1-Sn design-intervention comparisons are not completed and must remain blocked/future-work items.
+- S1 should not be written as a successful design optimization; it is a sensitivity result showing that the tested light corridor is insufficient in this morphology.
+- GCBTE, pollutant dispersion, and additional S2-Sn design-intervention comparisons are not completed and must remain blocked/future-work items.
 
 ## Remaining Work Before Final SCI-Level Claims
 
@@ -48,5 +51,6 @@ evidence_type: newly_run + preexisting_artifact + blocked
 2. Complete Lawson/NEN/AIJ comfort/safety classification only after a site-appropriate wind rose, threshold velocities, and exceedance-probability method are fixed.
 3. Consider a longer sampling window or dx=1 m local refinement if detailed 1.5 m pedestrian-height classification is required.
 4. Add pollutant dispersion only after source terms and scalar transport setup are explicitly defined.
-5. Use ParaView GUI or install a software-rendering runtime for final publication screenshots.
-6. If the paper title or method foregrounds CityLBM-GH, add Grasshopper definition files, plugin-run screenshots, solver logs, and output artifacts; otherwise keep the current FluidX3D-native positioning.
+5. Develop S2-Sn network-scale porosity alternatives if the paper wants to make positive intervention-design claims rather than a negative S1 sensitivity claim.
+6. Use ParaView GUI or install a software-rendering runtime for final publication screenshots.
+7. If the paper title or method foregrounds CityLBM-GH, add Grasshopper definition files, plugin-run screenshots, solver logs, and output artifacts; otherwise keep the current FluidX3D-native positioning.

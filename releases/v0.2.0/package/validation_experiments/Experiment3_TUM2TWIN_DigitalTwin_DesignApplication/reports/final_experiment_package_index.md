@@ -122,3 +122,13 @@ New literature-grounded synthesis files:
 - English paper text: `paper_text/literature_grounded_discussion_sci_en.md`
 
 These files should be read after `reports/sci_statistical_robustness_analysis.md` and before final manuscript polishing.
+
+## Executed S1 Design Sensitivity Scenario
+
+The design-application layer now includes an executed S1 ventilation-relief sensitivity scenario. S1 was simulated with the same FluidX3D dx=2 m, 8-direction, three-sample protocol as S0. The result is a near-null/negative design sensitivity outcome rather than a successful optimization.
+
+- `reports/s1_ventilation_relief_fluidx3d_comparison_report.md`
+- `paper_text/design_intervention_s1_discussion_zh.md`
+- `paper_text/design_intervention_s1_discussion_en.md`
+- `manifests/s1_design_intervention_claims.csv`
+- `figures/fluidx3d_s0_s1_ventilation_relief_equal_weighted_vr_delta_z2m.png`

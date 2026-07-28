@@ -95,7 +95,7 @@ The later SCI robustness pass adds bootstrap confidence intervals and repeated c
 - No field-measured or wind-tunnel validation is available.
 - No formal Lawson/NEN/AIJ comfort-safety exceedance assessment is supported.
 - No pollutant dispersion result is available.
-- No S1 design intervention has been simulated.
+- S1 ventilation-relief has now been simulated as a near-null/negative design-sensitivity scenario; it should not be written as a successful intervention or optimization.
 - No GCBTE value is computed because no independent 3DGS-derived collision boundary extraction exists.
 - No completed Rhino-Grasshopper/CityLBM end-to-end run is claimed; the current positioning remains FluidX3D-native with a CityLBM-compatible geometry package.
 

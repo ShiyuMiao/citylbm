@@ -344,7 +344,7 @@ def write_markdown(numbers: dict[str, str]) -> None:
 
         ## 5. Claim Boundary
 
-        These conclusions are paper-ready as simulation-based design-screening and morphology-interpretation claims. They are not field validation, wind-tunnel validation, formal annual wind-comfort/safety compliance, pollutant dispersion prediction, S1-Sn intervention proof, CityLBM-GH end-to-end execution, or a computed 3DGS-to-collision transfer-error result.
+        These conclusions are paper-ready as simulation-based design-screening and morphology-interpretation claims. They are not field validation, wind-tunnel validation, formal annual wind-comfort/safety compliance, pollutant dispersion prediction, successful intervention optimization, S2-Sn intervention proof, CityLBM-GH end-to-end execution, or a computed 3DGS-to-collision transfer-error result.
         """
     )
 
@@ -360,7 +360,7 @@ def write_markdown(numbers: dict[str, str]) -> None:
 
         建筑形态与风环境之间的关系也可以比“建筑越密风越小”写得更细。在 0-20 m 近立面带，低速几乎是整体背景，因此它更适合表征遮蔽强度；而 20-50 m 局地背景带更能揭示形态差异。该带内，50 m 扇区围合度与 mean VR 的相关系数为 {numbers["sector_rho"]}；综合围合度在 bootstrap 后仍保持负相关（rho={numbers["boot_rho"]}，95% CI [{numbers["boot_low"]}, {numbers["boot_high"]}]）；仅包含局地建成比例和扇区围合度的 context-only 模型交叉验证 R2 为 {numbers["context_r2"]}，高于单体尺度与形状模型的 R2={numbers["size_r2"]}。因此，本实验在传统街谷与建筑体量结论之上获得的新认知是：对于真实校园街区，解释行人层通风恢复的关键并非单栋建筑面积、长宽比或轮廓紧凑度，而是 20-50 m 范围内的围合连续性、通道连通性和局地孔隙度。
 
-        该结论仍需保持证据边界。Open-Meteo 2024 只能作为气候代理权重，不能替代正式年度风玫瑰；当前结果也没有污染物扩散、S1-Sn 设计干预、实测风速或风洞闭环。因此，最稳妥的论文表述是：本实验展示并复核了 TUM2TWIN 数字孪生数据在校园风环境筛查中的落地路径，并显示核心校园街区存在跨风向稳定的低通风风险；建筑形态层面的可操作解释应优先关注局地围合与通道开敞，而不是只讨论单体高度或平面形状。
+        该结论仍需保持证据边界。Open-Meteo 2024 只能作为气候代理权重，不能替代正式年度风玫瑰；当前结果没有污染物扩散、实测风速或风洞闭环。S1 设计敏感性场景已经实跑，但结果为近零/负向，不能写成成功优化。因此，最稳妥的论文表述是：本实验展示并复核了 TUM2TWIN 数字孪生数据在校园风环境筛查中的落地路径，并显示核心校园街区存在跨风向稳定的低通风风险；建筑形态层面的可操作解释应优先关注局地围合与通道开敞，而不是只讨论单体高度或平面形状。
         """
     )
 
@@ -376,7 +376,7 @@ def write_markdown(numbers: dict[str, str]) -> None:
 
         The morphology-wind relationship can therefore be stated more precisely than a generic density effect. The 0-20 m facade-adjacent band is almost uniformly sheltered, whereas the 20-50 m local-context band better reveals morphology-dependent wind recovery. In that band, sector enclosure within 50 m correlates negatively with mean VR (rho={numbers["sector_rho"]}), the combined enclosure score remains negative under bootstrap resampling (rho={numbers["boot_rho"]}, 95% CI [{numbers["boot_low"]}, {numbers["boot_high"]}]), and a context-only model using local built fraction and sector enclosure reaches cross-validated R2={numbers["context_r2"]}, compared with R2={numbers["size_r2"]} for the size-height-shape-only model. The added insight is that, within this real campus block, local enclosure continuity, passage connectivity and neighborhood porosity carry more explanatory value for pedestrian wind recovery than isolated footprint size, elongation or compactness descriptors.
 
-        These findings remain bounded by the available evidence. The Open-Meteo 2024 weighting is a climate proxy rather than a formal measured wind rose, and the archive does not yet include pollutant dispersion, S1-Sn intervention simulations, field measurements, wind-tunnel closure, or a completed CityLBM-Grasshopper end-to-end run. The defensible conclusion is therefore that TUM2TWIN supports a reproducible digital-twin-to-FluidX3D screening workflow for campus wind applications, and that the most actionable architectural interpretation is to evaluate local enclosure and passage openness before relying on single-building height or plan-form descriptors.
+        These findings remain bounded by the available evidence. The Open-Meteo 2024 weighting is a climate proxy rather than a formal measured wind rose, and the archive does not yet include pollutant dispersion, field measurements, wind-tunnel closure, or a completed CityLBM-Grasshopper end-to-end run. S1 has been simulated as a design-sensitivity scenario, but its near-null/negative result cannot be written as a successful optimization. The defensible conclusion is therefore that TUM2TWIN supports a reproducible digital-twin-to-FluidX3D screening workflow for campus wind applications, and that the most actionable architectural interpretation is to evaluate local enclosure and passage openness before relying on single-building height or plan-form descriptors.
         """
     )
 
