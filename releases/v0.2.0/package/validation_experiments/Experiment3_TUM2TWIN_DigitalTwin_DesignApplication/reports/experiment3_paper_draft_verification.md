@@ -5,7 +5,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
 ## Verification Summary
 
 - Draft status: generic SCI section draft generated from archived Experiment 3 evidence.
-- Evidence inventory rows: `112`
+- Evidence inventory rows: `114`
 - References used: `12`
 - Key result matrix rows: `14`
 - Figure/table callouts: `12`

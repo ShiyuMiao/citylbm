@@ -29,6 +29,7 @@ Invoke-PythonStep "scripts\analyze_morphology_directional_fingerprint.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_manuscript_module.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_submission_assets.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_section_paper_draft.py"
+Invoke-PythonStep "scripts\synthesize_experiment3_reviewer_reproducibility_pack.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_final_completeness_audit.py"
 
 Write-Host "Experiment 3 paper-facing assets rebuilt."

@@ -1,0 +1,11 @@
+# Reviewer-Ready Response Paragraphs for Experiment 3
+
+evidence_type: newly_run + preexisting_artifact + blocked
+
+If a reviewer asks whether Experiment 3 validates FluidX3D or CityLBM accuracy, the safe response is that Cases A and E provide the preceding benchmark layer, whereas Experiment 3 evaluates real digital-twin application transfer. The completed evidence concerns TUM2TWIN data-layer separation, CFD-ready collision-geometry preparation, FluidX3D-native eight-direction screening, ParaView/manual visual audit assets and morphology-based interpretation. The archive does not claim field-measured accuracy, wind-tunnel closure or CityLBM-Grasshopper end-to-end execution.
+
+If a reviewer asks whether the wind-environment conclusion is a comfort-code result, the safe response is no. The reported metrics are velocity-ratio screening metrics under an archived FluidX3D protocol. Open-Meteo 2024 is used only as a proxy directional weighting layer. Formal Lawson/NEN/AIJ annual comfort or safety classification would require calibrated wind climate, threshold exceedance probabilities and additional validation evidence.
+
+If a reviewer asks what is new beyond traditional canyon/enclosure knowledge, the safe response is that the digital-twin workflow localizes the traditional insight inside a real campus block and separates three morphology-response layers. The 0-20 m facade-adjacent band is nearly saturated by sheltering; the 20-50 m local-context band exposes mean recovery; and the directional-fingerprint addendum shows whether local recovery is coupled to wind-sector response. This moves the design interpretation from single morphology variables or LCZ labels toward relative vertical massing, plan continuity, local enclosure, momentum-exchange paths and wind-sector reactivity.
+
+If a reviewer asks why S1/S2 matter despite being negative, the safe response is that they are design-sensitivity tests rather than optimized proposals. Their near-null or negative global pedestrian-layer results show that added porosity alone is insufficient when not aligned with effective inflow sectors and pressure-exchange paths. This negative evidence narrows the design hypothesis for future interventions.

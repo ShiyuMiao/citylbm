@@ -341,6 +341,21 @@ reactive components show stronger wind-sector fingerprints. This is
 sample-internal screening evidence, not a field-validated causal mechanism or
 annual wind-rose compliance result.
 
+## Reviewer Reproducibility and Claim-Risk Layer
+
+New reviewer-facing files:
+
+- `scripts/synthesize_experiment3_reviewer_reproducibility_pack.py`
+- `reports/experiment3_reviewer_reproducibility_and_claim_audit.md`
+- `manifests/experiment3_reviewer_claim_risk_matrix.csv`
+- `paper_text/experiment3_reviewer_response_paragraphs_en.md`
+- `paper_text/experiment3_reviewer_response_paragraphs_zh.md`
+
+Paper-safe interpretation: the reviewer audit maps each Experiment 3
+paper-facing claim to its evidence type, source artifact, likely reviewer
+question, and required boundary language. It is a claim-control and response
+layer, not a new CFD result.
+
 ## Final Completeness and Gap Audit Layer
 
 New final-audit files:
@@ -354,4 +369,4 @@ New final-audit files:
 - `paper_text/experiment3_final_contribution_and_conclusion_en.md`
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
-Paper-safe interpretation: the archive is now internally reconciled for a standalone Experiment 3 manuscript section framed as FluidX3D-native digital-twin-to-CFD wind screening with CityLBM-compatible geometry preparation. The final audit records 14 key result rows, 12 reviewer-facing figure/table callouts, 12 ready submission assets, and 112 evidence-inventory entries. The same audit explicitly blocks unsupported claims about field validation, annual comfort/safety compliance, pollutant dispersion, GCBTE completion, CityLBM-Grasshopper end-to-end execution, and successful design optimization.
+Paper-safe interpretation: the archive is now internally reconciled for a standalone Experiment 3 manuscript section framed as FluidX3D-native digital-twin-to-CFD wind screening with CityLBM-compatible geometry preparation. The final audit records 14 key result rows, 12 reviewer-facing figure/table callouts, 12 ready submission assets, and 114 evidence-inventory entries. The same audit explicitly blocks unsupported claims about field validation, annual comfort/safety compliance, pollutant dispersion, GCBTE completion, CityLBM-Grasshopper end-to-end execution, and successful design optimization.

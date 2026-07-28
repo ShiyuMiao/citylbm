@@ -11,7 +11,7 @@ This audit reflects the current archive after the morphology-response archetype,
 - Submission-readiness assets: `12`
 - Ready for manual review: `12`
 - Missing figure/table assets: `0`
-- Evidence inventory rows: `112`
+- Evidence inventory rows: `114`
 - Verified references used in Experiment 3 section draft: `12`
 - Claim verification rows: `36`
 

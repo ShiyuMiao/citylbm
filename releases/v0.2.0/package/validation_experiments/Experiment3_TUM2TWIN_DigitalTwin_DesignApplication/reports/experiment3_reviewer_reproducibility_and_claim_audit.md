@@ -1,0 +1,69 @@
+# Experiment 3 Reviewer Reproducibility and Claim-Risk Audit
+
+evidence_type: newly_run + preexisting_artifact + blocked
+
+## Purpose
+
+This reviewer-facing audit turns the Experiment 3 archive into an explicit
+claim-control layer. It is intended for paper revision, reviewer response, and
+manual pre-submission checks. It does not add CFD results; it verifies that
+each paper-facing claim has an evidence type, source artifact and boundary.
+
+## Reproducibility Anchor
+
+- Canonical rebuild command from the release package root: `& .\scripts\rebuild_experiment3_paper_assets.ps1`
+- Key result matrix rows: `14`
+- Reviewer-facing figure/table assets: `12`
+- Ready-for-manual-review assets: `12`
+- Evidence inventory rows before this audit upsert: `114`
+- GitHub archive manifest rows before this audit file is hashed: `452`
+
+## Paper-Ready Claim Layers
+
+| item                               | evidence_type                              | claim_readiness           | reviewer_risk   | reviewer_question_or_response                                                                                                                                                              |
+|:-----------------------------------|:-------------------------------------------|:--------------------------|:----------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| S0 baseline pedestrian screening   | newly_run                                  | paper_ready_as_screening  | low             | Is the main wind problem strong wind or insufficient pedestrian ventilation? Frame as a completed screening result under the archived FluidX3D protocol.                                   |
+| Vertical recovery                  | newly_run                                  | paper_ready_as_screening  | low             | Does upper-layer recovery justify omitting pedestrian-height assessment? Frame as a completed screening result under the archived FluidX3D protocol.                                       |
+| Climate-proxy sensitivity          | newly_run + preexisting_artifact           | paper_ready_as_screening  | medium          | Is the Open-Meteo layer a measured wind rose or only a proxy sensitivity test? Frame as a completed screening result under the archived FluidX3D protocol.                                 |
+| S1 design sensitivity              | newly_run                                  | paper_ready_as_screening  | low             | Do the design openings improve the pedestrian wind field? Frame as a completed screening result under the archived FluidX3D protocol.                                                      |
+| S2 design sensitivity              | newly_run                                  | paper_ready_as_screening  | low             | Does stronger porosity solve the low-speed condition? Frame as a completed screening result under the archived FluidX3D protocol.                                                          |
+| Directional local trade-off        | newly_run                                  | paper_ready_as_screening  | low             | Are design effects global or only local and directional? Frame as a completed screening result under the archived FluidX3D protocol.                                                       |
+| Morphology robustness              | newly_run                                  | paper_ready_as_screening  | low             | Can morphology variables be used as a predictive surrogate? Frame as a completed screening result under the archived FluidX3D protocol.                                                    |
+| Morphology threshold design rule   | newly_run                                  | paper_ready_as_screening  | low             | Are the threshold rules universal design criteria? Frame as a completed screening result under the archived FluidX3D protocol.                                                             |
+| Geometry-to-CFD readiness          | newly_run                                  | paper_ready_as_screening  | low             | Why not use photogrammetry/3DGS-like mesh directly as the collision boundary? Frame as a completed screening result under the archived FluidX3D protocol.                                  |
+| Effect-size uncertainty            | newly_run + blocked                        | paper_ready_with_boundary | medium          | Are the numerical patterns stable across archived directions/samples? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.          |
+| Directional anisotropy             | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Is the result controlled by one exceptional inflow direction? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                  |
+| Building-form response archetypes  | newly_run + blocked                        | paper_ready_with_boundary | medium          | Do morphology groups support design interpretation beyond single variables? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.    |
+| Morphology stage transition        | newly_run + blocked                        | paper_ready_with_boundary | medium          | Where does the building-form signal become visible? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                            |
+| Morphology directional fingerprint | newly_run + blocked                        | paper_ready_with_boundary | medium          | Does useful recovery require wind-sector response as well as mean VR recovery? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible. |
+
+## Blocked Claims That Must Not Be Overstated
+
+| item                                            | evidence_type   | claim_readiness      | reviewer_risk       | reviewer_question_or_response                                                                                         |
+|:------------------------------------------------|:----------------|:---------------------|:--------------------|:----------------------------------------------------------------------------------------------------------------------|
+| CityLBM-Grasshopper end-to-end execution        | blocked         | blocked_do_not_claim | high_if_overclaimed | Frame as FluidX3D-native simulation with a CityLBM-compatible geometry package unless GH execution evidence is added. |
+| Measured or wind-tunnel validation              | blocked         | blocked_do_not_claim | high_if_overclaimed | Do not claim field-validated predictive accuracy.                                                                     |
+| Formal Lawson/NEN/AIJ annual comfort compliance | blocked         | blocked_do_not_claim | high_if_overclaimed | Do not claim annual threshold-exceedance comfort or safety classes.                                                   |
+| Pollutant dispersion                            | blocked         | blocked_do_not_claim | high_if_overclaimed | Pollutant metrics remain templates only.                                                                              |
+| GCBTE 3DGS collision-transfer error             | blocked         | blocked_do_not_claim | high_if_overclaimed | GCBTE is defined but not computed because no independent 3DGS-derived collision extraction exists.                    |
+
+## Claims Requiring Boundary Language
+
+| item                               | evidence_type                              | source_artifact                                                                                                                                                                                | reviewer_question_or_response                                                                                                                                                              |
+|:-----------------------------------|:-------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Effect-size uncertainty            | newly_run + blocked                        | figures/experiment3_effect_size_uncertainty_summary.csv                                                                                                                                        | Are the numerical patterns stable across archived directions/samples? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.          |
+| Directional anisotropy             | newly_run + preexisting_artifact + blocked | figures/experiment3_directional_anisotropy_summary.csv; figures/experiment3_directional_response_by_wind.csv                                                                                   | Is the result controlled by one exceptional inflow direction? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                  |
+| Building-form response archetypes  | newly_run + blocked                        | figures/morphology_form_response_archetype_summary.csv; reports/morphology_form_response_archetype_analysis.md                                                                                 | Do morphology groups support design interpretation beyond single variables? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.    |
+| Morphology stage transition        | newly_run + blocked                        | figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_rule_table.csv; figures/morphology_stage_transition_feature_contrasts.csv                                 | Where does the building-form signal become visible? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                            |
+| Morphology directional fingerprint | newly_run + blocked                        | figures/morphology_directional_fingerprint_by_component.csv; figures/morphology_directional_fingerprint_feature_correlations.csv; figures/morphology_directional_fingerprint_stage_summary.csv | Does useful recovery require wind-sector response as well as mean VR recovery? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible. |
+
+## Reviewer-Safe Summary
+
+The archive is internally reproducible for a FluidX3D-native digital-twin wind
+screening experiment with CityLBM-compatible geometry preparation. Its strongest
+claims are data-layer separation, geometry-to-CFD readiness, eight-direction
+pedestrian low-speed screening, upper-layer recovery, morphology-based local
+context interpretation, negative S1/S2 design sensitivity and wind-sector
+directional fingerprints. Claims about field validation, annual comfort or
+safety compliance, pollutant dispersion, GCBTE closure and CityLBM-Grasshopper
+end-to-end execution remain blocked.

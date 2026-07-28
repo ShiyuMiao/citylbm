@@ -299,6 +299,23 @@ wind-sector fingerprints. This remains sample-internal digital-twin screening
 evidence, not field validation, annual wind-rose compliance or a universal
 directional morphology threshold.
 
+## Reviewer Reproducibility and Claim-Risk Layer
+
+The archive now includes a reviewer-facing reproducibility and claim-risk audit
+that maps each paper-facing claim to evidence type, source artifact, likely
+reviewer question, and required boundary language.
+
+- `scripts/synthesize_experiment3_reviewer_reproducibility_pack.py`
+- `reports/experiment3_reviewer_reproducibility_and_claim_audit.md`
+- `manifests/experiment3_reviewer_claim_risk_matrix.csv`
+- `paper_text/experiment3_reviewer_response_paragraphs_en.md`
+- `paper_text/experiment3_reviewer_response_paragraphs_zh.md`
+
+Paper-safe interpretation: this layer is for pre-submission checking and
+reviewer response. It does not add new CFD results; it prevents overclaiming by
+separating paper-ready screening claims from blocked validation, compliance,
+pollutant, GCBTE and CityLBM-GH claims.
+
 ## Final Completeness and Gap Audit Layer
 
 The archive now includes a final reconciliation layer that checks whether the
@@ -315,7 +332,7 @@ verification, and remaining blockers are mutually consistent.
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
 Audit result: the final archive currently contains 14 key result rows, 12
-reviewer-facing figure/table callouts, 12 ready submission assets, and 112
+reviewer-facing figure/table callouts, 12 ready submission assets, and 114
 evidence-inventory entries. It is complete for a standalone Experiment 3
 section if framed as FluidX3D-native digital-twin-to-CFD wind screening with
 CityLBM-compatible geometry preparation. It remains incomplete for field
