@@ -1,4 +1,4 @@
-﻿analysis_zone,parameter,parameter_label,tertile,wind_deg,component_count,sample_open_cells,evidence_type,mean_vr,p95_vr,stagnation_ratio_vr_lt_0p2,acceleration_ratio_vr_gt_0p6
+analysis_zone,parameter,parameter_label,tertile,wind_deg,component_count,sample_open_cells,evidence_type,mean_vr,p95_vr,stagnation_ratio_vr_lt_0p2,acceleration_ratio_vr_gt_0p6
 local_context_20_50m,footprint_area_m2,footprint area,high,0,34,70344,newly_run,0.009067529317457487,0.03452071915216713,1.0,0.0
 local_context_20_50m,footprint_area_m2,footprint area,high,45,34,70344,newly_run,0.0061056155074646,0.023573438898746718,1.0,0.0
 local_context_20_50m,footprint_area_m2,footprint area,high,90,34,70344,newly_run,0.004692255266403003,0.018990271060787354,1.0,0.0

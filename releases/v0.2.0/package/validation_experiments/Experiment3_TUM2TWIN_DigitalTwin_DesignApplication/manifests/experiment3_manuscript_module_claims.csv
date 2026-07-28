@@ -1,4 +1,4 @@
-﻿claim_id,section,claim,evidence_type,source,claim_readiness
+claim_id,section,claim,evidence_type,source,claim_readiness
 M1,Method,"TUM2TWIN layers are separated into visual reference, semantic/collision geometry and CFD/LBM simulation inputs.",newly_run + preexisting_artifact,reports/data_source_and_download_manifest.md; reports/cfd_ready_geometry_qa.md; manifests/gcri_scoring_table.csv,paper_ready
 R1,Results,"S0 baseline pedestrian layer is dominated by low speed, while the upper layer recovers.",newly_run,figures/final_integrated_key_result_matrix.csv,paper_ready_as_screening
 R2,Results,"Open-Meteo 2024 weighting is a climate-proxy sensitivity layer, not an annual comfort assessment.",newly_run + preexisting_artifact,figures/fluidx3d_core_prism_open_meteo_2024_weighted_metrics.csv,paper_ready_with_boundary

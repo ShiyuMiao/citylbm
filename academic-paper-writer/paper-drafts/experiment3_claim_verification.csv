@@ -1,4 +1,4 @@
-﻿claim_or_asset,evidence_type,source,value_or_status,paper_use,verification_status
+claim_or_asset,evidence_type,source,value_or_status,paper_use,verification_status
 S0 baseline pedestrian screening,newly_run,figures/fluidx3d_core_prism_timesampled_8dir_dx2m_metrics.csv,0.076 / 0.934,The baseline campus core is dominated by low pedestrian-height speed ratios.,usable_in_generic_sci_section
 Vertical recovery,newly_run,figures/fluidx3d_core_prism_timesampled_8dir_dx2m_metrics.csv,1.049 / 0.000,Upper-layer flow recovers while pedestrian-layer flow remains sheltered.,usable_in_generic_sci_section
 Climate-proxy sensitivity,newly_run + preexisting_artifact,figures/fluidx3d_core_prism_open_meteo_2024_weighted_metrics.csv,0.077 / 0.931,"The low-speed conclusion is stable under the proxy direction weighting, but this is not annual comfort compliance.",usable_in_generic_sci_section
@@ -35,3 +35,4 @@ Fig. E3-S5,newly_run + preexisting_artifact,figures/morphology_directional_finge
 Table E3-1,newly_run + preexisting_artifact,figures/final_integrated_key_result_matrix.csv,figure_or_table_callout,One-page paper-facing result matrix with evidence sources.,available_for_manual_review
 Table E3-2,newly_run + preexisting_artifact,figures/experiment3_completion_audit_matrix.csv,figure_or_table_callout,Paper-readiness and blocked-claim audit.,available_for_manual_review
 Table E3-3,newly_run + preexisting_artifact,manifests/gcri_scoring_table.csv,figure_or_table_callout,Geometry-to-CFD readiness scoring for visual and collision geometries.,available_for_manual_review
+,newly_run + preexisting_artifact + blocked,manifests/fluidx3d_numerical_protocol_audit.csv; reports/fluidx3d_numerical_protocol_and_stability_audit.md,,,

@@ -1,4 +1,4 @@
-﻿analysis_zone,enclosure_class,wind_deg,component_count,sample_open_cells,mean_vr,p95_vr,stagnation_ratio_vr_lt_0p2,acceleration_ratio_vr_gt_0p6
+analysis_zone,enclosure_class,wind_deg,component_count,sample_open_cells,mean_vr,p95_vr,stagnation_ratio_vr_lt_0p2,acceleration_ratio_vr_gt_0p6
 local_context_20_50m,high_enclosure,0,34,54912,0.006087146472899717,0.02679804066646642,1.0,0.0
 local_context_20_50m,high_enclosure,45,34,54912,0.0035043350921069804,0.014170709467100837,1.0,0.0
 local_context_20_50m,high_enclosure,90,34,54912,0.0032484079215676595,0.013814203837428318,1.0,0.0

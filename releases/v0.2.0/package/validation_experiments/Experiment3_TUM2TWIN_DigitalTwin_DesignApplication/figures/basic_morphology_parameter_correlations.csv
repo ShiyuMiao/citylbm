@@ -1,4 +1,4 @@
-﻿analysis_zone,parameter,parameter_label,response_metric,spearman_rho,p_value,n_components,evidence_type
+analysis_zone,parameter,parameter_label,response_metric,spearman_rho,p_value,n_components,evidence_type
 local_context_20_50m,footprint_area_m2,footprint area,directional_mean_vr,0.08105173438564456,0.4203883631894376,101,newly_run
 local_context_20_50m,footprint_area_m2,footprint area,directional_p95_vr,0.10107127375702507,0.3145654546436884,101,newly_run
 local_context_20_50m,footprint_area_m2,footprint area,directional_stagnation_ratio,,,101,newly_run

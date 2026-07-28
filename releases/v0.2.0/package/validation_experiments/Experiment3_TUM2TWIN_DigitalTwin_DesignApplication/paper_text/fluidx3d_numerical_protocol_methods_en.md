@@ -1,0 +1,5 @@
+# FluidX3D Numerical Protocol Methods Paragraph
+
+evidence_type: newly_run + preexisting_artifact + blocked
+
+For Experiment 3, the TUM2TWIN core campus block was simulated as a FluidX3D-native screening case rather than as a solver-validation or annual comfort-compliance study. The accepted collision boundary was the closed z0-aligned core-prism geometry, not the textured photogrammetry shell. The archived protocol records a 320 x 390 x 60 lattice with dx = 2 m, Uref = 5 m/s, air kinematic viscosity = 1.5e-5 m2/s, dt = 0.02 s, LBM nu = 0.01000 and tau = 0.52999996. Eight velocity-to wind directions (0-315 deg at 45 deg intervals) were run with 6000 spin-up steps and three post-spin-up samples at 8000, 10000 and 12000 steps. Post-processing reports velocity-ratio metrics on z~2, 4, 10, 20 and 40 m planes. These parameters support reproducible screening-level interpretation of pedestrian low-speed regions and vertical recovery, but they do not constitute formal residual convergence, field validation, complete grid independence or annual Lawson/NEN/AIJ comfort assessment.

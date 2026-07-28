@@ -1,4 +1,4 @@
-﻿case,evidence_type,wind_deg,model_height_m,distance_to_building_bin,open_cells,mean_vr,p50_vr,p75_vr,p90_vr,p95_vr,max_vr,stagnation_ratio_vr_lt_0p2,acceleration_ratio_vr_gt_0p6,strong_acceleration_ratio_vr_gt_1p0
+case,evidence_type,wind_deg,model_height_m,distance_to_building_bin,open_cells,mean_vr,p50_vr,p75_vr,p90_vr,p95_vr,max_vr,stagnation_ratio_vr_lt_0p2,acceleration_ratio_vr_gt_0p6,strong_acceleration_ratio_vr_gt_1p0
 core_prism_avg_8dir_dx2m_sample2_vtk,newly_run,0,2.0,0-4m,14720,0.002169692888855934,0.00032387430837843567,0.0015572195698041469,0.005623077834025026,0.010564486123621456,0.10258249193429947,1.0,0.0,0.0
 core_prism_avg_8dir_dx2m_sample2_vtk,newly_run,0,2.0,4-10m,13680,0.009679457172751427,0.0024499200517311692,0.009753593010827899,0.028391206450760365,0.04401394091546529,0.1479497253894806,1.0,0.0,0.0
 core_prism_avg_8dir_dx2m_sample2_vtk,newly_run,0,2.0,10-20m,11218,0.02581685408949852,0.018724752590060234,0.041111744940280914,0.06397283002734185,0.07849592529237269,0.12337138503789902,1.0,0.0,0.0

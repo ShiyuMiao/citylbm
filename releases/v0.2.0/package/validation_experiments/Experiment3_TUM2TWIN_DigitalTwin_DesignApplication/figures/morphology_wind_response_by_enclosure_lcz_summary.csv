@@ -1,4 +1,4 @@
-﻿analysis_zone,enclosure_class,lcz_like_class,component_count,sample_open_cells,mean_vr,p95_vr,stagnation_ratio_vr_lt_0p2,acceleration_ratio_vr_gt_0p6
+analysis_zone,enclosure_class,lcz_like_class,component_count,sample_open_cells,mean_vr,p95_vr,stagnation_ratio_vr_lt_0p2,acceleration_ratio_vr_gt_0p6
 local_context_20_50m,high_enclosure,LCZ1_compact_highrise_like,5,51896,0.0025603345228947263,0.009934780163690152,1.0,0.0
 local_context_20_50m,high_enclosure,LCZ2_compact_midrise_like,29,387400,0.004714062256273604,0.019789108766499967,1.0,0.0
 local_context_20_50m,low_enclosure,LCZ1_compact_highrise_like,2,21416,0.0018667565777827255,0.010016830401171174,1.0,0.0

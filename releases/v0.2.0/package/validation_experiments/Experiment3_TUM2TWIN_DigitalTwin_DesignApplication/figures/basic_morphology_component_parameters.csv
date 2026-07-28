@@ -1,4 +1,4 @@
-﻿component_id,footprint_area_m2,perimeter_m,compactness_p2_over_a,mean_height_m,max_height_m,bbox_width_m,bbox_depth_m,elongation_ratio,height_to_sqrt_area,local_built_fraction_r30m,sector_enclosure_ratio_r50m,relative_enclosure_score
+component_id,footprint_area_m2,perimeter_m,compactness_p2_over_a,mean_height_m,max_height_m,bbox_width_m,bbox_depth_m,elongation_ratio,height_to_sqrt_area,local_built_fraction_r30m,sector_enclosure_ratio_r50m,relative_enclosure_score
 9,5256.0,1494.0,424.66438356164383,20.940639269406397,32.0,54.0,410.0,7.592592592592593,0.2888432728409787,0.078984485190409,0.875,0.3177891396332863
 11,2796.0,430.0,66.13018597997139,22.54935622317597,30.0,18.0,186.0,10.333333333333334,0.426447491295828,0.5954738330975955,1.0,0.7168316831683168
 12,2112.0,662.0,207.50189393939397,20.420454545454547,26.0,28.0,260.0,9.285714285714286,0.44434310760282536,0.4164305949008499,0.875,0.5540014164305949

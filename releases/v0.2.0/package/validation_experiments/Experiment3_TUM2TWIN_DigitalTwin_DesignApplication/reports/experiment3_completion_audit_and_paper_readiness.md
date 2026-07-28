@@ -6,14 +6,14 @@ This audit reflects the current archive after the morphology-response archetype,
 
 ## Evidence Counts
 
-- Key result matrix rows: `14`
+- Key result matrix rows: `15`
 - Figure/table callouts: `12`
 - Submission-readiness assets: `12`
 - Ready for manual review: `12`
 - Missing figure/table assets: `0`
-- Evidence inventory rows: `114`
+- Evidence inventory rows: `116`
 - Verified references used in Experiment 3 section draft: `12`
-- Claim verification rows: `36`
+- Claim verification rows: `37`
 
 ## Key Result Matrix
 
@@ -33,6 +33,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | newly_run + blocked | Building-form response archetypes | strongest archetype / weakest archetype / Kruskal p / recovery delta contrast | R1_A1_linear_low_relative_height_recovery / R4_A5_open_or_mixed_low_response / 0.0001682 / 0.0080 vs 0.0007 | figures/morphology_form_response_archetype_summary.csv; reports/morphology_form_response_archetype_analysis.md | The campus-core wind-response differences are better framed as combined morphology archetypes involving relative vertical massing, elongation and local enclosure than as a single footprint, height or porosity effect. |
 | newly_run + blocked | Morphology stage transition | near-to-context stage response / best subgroup rule / relative vertical-scale contrast | near/local/recovery mean VR 0.003182 / 0.005560 / 0.002378; best rule mean_height_m_tertile=low + elongation_ratio_tertile=high + relative_enclosure_score_tertile=high / n=5 / mean recovery 0.0065 / top share 1.000; height/sqrt(area) Cliff delta -0.577 | figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_rule_table.csv; figures/morphology_stage_transition_feature_contrasts.csv | The 20-50 m local-context band converts a saturated near-facade low-speed signal into a morphology-differentiated recovery signal; the rule is sample-internal and not a universal design threshold. |
 | newly_run + blocked | Morphology directional fingerprint | 20-50 m directional range / stage-class separation / enclosure-height correlations | range mean 0.008655; stage ranges persistent/recovery/reactive 0.001579 / 0.018941 / 0.021421; stage Kruskal p 1.02e-15; rho mean_height -0.363, sector_enclosure -0.362 | figures/morphology_directional_fingerprint_by_component.csv; figures/morphology_directional_fingerprint_feature_correlations.csv; figures/morphology_directional_fingerprint_stage_summary.csv | Wind recovery is better interpreted as local-context mean recovery plus wind-sector directional reactivity; persistent shelter suppresses both. This is sample-internal screening evidence, not a field-validated causal rule. |
+| newly_run + preexisting_artifact + blocked | FluidX3D numerical protocol transparency | dx / grid / Uref / nu_air / tau / samples / blocked convergence | 2 m / 320x390x60 / 5 m s-1 / 1.5e-5 m2 s-1 / 0.52999996 / 8000-10000-12000 / residual not recorded | manifests/fluidx3d_numerical_protocol_audit.csv; manifests/fluidx3d_core_prism_boundary_condition_table.csv | The FluidX3D case is transparent enough for screening-level reproduction, while formal convergence, field validation and annual compliance remain blocked. |
 
 ## Requirement Coverage
 
@@ -42,6 +43,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | Rhino/OBJ visual-object consistency | complete | newly_run + user_claim | reports/model_result_object_consistency_audit.md; reports/current_data_summary_and_conclusions.md | The simulated core geometry matches the user's TUM Downtown visual block at study-scale, while using a repaired semantic collision boundary. |
 | CFD-ready collision geometry | complete | newly_run | cfd_ready/core_photogrammetry_extent_prism_collision_z0.stl; manifests/geometry_qa_core_photogrammetry_extent_prism.json; manifests/gcri_scoring_table.csv | Closed z0-aligned geometry, QA records and GCRI contrast support the data-to-CFD method claim. |
 | FluidX3D baseline simulation | complete | newly_run | figures/fluidx3d_core_prism_timesampled_8dir_dx2m_metrics.csv | Eight directions and three post-spin-up samples support a screening-level pedestrian wind result. |
+| FluidX3D numerical protocol and stability boundary | complete_with_boundary | newly_run + preexisting_artifact + blocked | manifests/fluidx3d_numerical_protocol_audit.csv; reports/fluidx3d_numerical_protocol_and_stability_audit.md | Grid, reference values, LBM conversion, sampling and output metrics are auditable; residual convergence, complete grid independence, field validation and annual comfort compliance remain blocked. |
 | ParaView and manual visual audit assets | complete_with_environment_boundary | newly_run + blocked | paraview_states/; reports/paraview_visualization_package.md; reports/paraview_vtk_core_wind_statistics_and_building_analysis.md | ParaView states and Python-rendered audit maps exist; headless ParaView screenshots remain blocked by Windows OpenGL/OSMesa. |
 | Climate-direction proxy sensitivity | complete_with_boundary | newly_run + preexisting_artifact | figures/fluidx3d_core_prism_open_meteo_2024_weighted_metrics.csv; manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv | Open-Meteo is a proxy directional weighting layer, not measured annual comfort compliance. |
 | Basic morphology and multivariate robustness | complete_with_boundary | newly_run | reports/basic_morphology_wind_response_analysis.md; reports/basic_morphology_multivariate_robustness.md | Local enclosure and height context are interpretable screening descriptors, not a high-accuracy predictor. |

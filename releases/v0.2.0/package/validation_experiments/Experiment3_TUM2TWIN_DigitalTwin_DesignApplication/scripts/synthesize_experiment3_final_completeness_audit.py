@@ -108,6 +108,13 @@ def main() -> None:
             "paper_safe_interpretation": "Eight directions and three post-spin-up samples support a screening-level pedestrian wind result.",
         },
         {
+            "requirement": "FluidX3D numerical protocol and stability boundary",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/fluidx3d_numerical_protocol_audit.csv; reports/fluidx3d_numerical_protocol_and_stability_audit.md",
+            "paper_safe_interpretation": "Grid, reference values, LBM conversion, sampling and output metrics are auditable; residual convergence, complete grid independence, field validation and annual comfort compliance remain blocked.",
+        },
+        {
             "requirement": "ParaView and manual visual audit assets",
             "status": "complete_with_environment_boundary",
             "evidence_type": "newly_run + blocked",
