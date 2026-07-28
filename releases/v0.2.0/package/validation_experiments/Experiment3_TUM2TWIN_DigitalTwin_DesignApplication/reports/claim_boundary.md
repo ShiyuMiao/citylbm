@@ -68,3 +68,10 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Supported claim: S2 creates slightly more localized common-open-cell response than S1, but the affected area is sparse and newly opened cells remain low-speed.
 - Unsupported claim: the directional trade-off analysis proves a positive design solution or annual wind comfort improvement.
 - Paper-safe interpretation: S3-Sn should be framed around wind-sector-coupled gateway placement and pressure-exchange continuity rather than arbitrary porosity area.
+
+## Multivariate Morphology Robustness Claim Boundary Addendum
+
+- `newly_run`: bootstrap Spearman, partial Spearman, and rank-regression robustness checks were computed from existing FluidX3D morphology-response CSVs.
+- Supported claim: local enclosure and mean-height context are stronger ordered descriptors of the 20-50 m local-context mean VR than footprint area, elongation, or perimeter-area compactness.
+- Unsupported claim: morphology parameters form a high-accuracy predictive model or establish causal design effects without additional intervention experiments and measured validation.
+- Paper-safe interpretation: use the multivariate result as an interpretable campus wind-screening diagnosis with limited explanatory power (`R2 = 0.122 +/- 0.166`).

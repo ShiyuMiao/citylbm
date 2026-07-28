@@ -1,0 +1,7 @@
+﻿evidence_type,analysis_zone,analysis_zone_label,target,target_label,n_components,ridge_alpha,ridge_cv_r2_mean,ridge_cv_r2_std
+newly_run,near_facade_0_20m,0-20 m facade-adjacent band,directional_mean_vr,mean VR,101,10.0,0.20099403512114677,0.22324672774018586
+newly_run,near_facade_0_20m,0-20 m facade-adjacent band,directional_p95_vr,P95 VR,101,10.0,0.16258649463166233,0.15769108643860552
+newly_run,near_facade_0_20m,0-20 m facade-adjacent band,directional_range_mean_vr,directional range of mean VR,101,10.0,0.20965539458353072,0.18745777925095114
+newly_run,local_context_20_50m,20-50 m local-context band,directional_mean_vr,mean VR,101,100.0,0.12212734589299896,0.16568874342244685
+newly_run,local_context_20_50m,20-50 m local-context band,directional_p95_vr,P95 VR,101,100.0,0.09414988299702623,0.13937130506000045
+newly_run,local_context_20_50m,20-50 m local-context band,directional_range_mean_vr,directional range of mean VR,101,10.0,0.11880091462932112,0.17925622145195683

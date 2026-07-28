@@ -54,12 +54,16 @@ Core distinction:
 11. `paper_text/detailed_paper_conclusions_zh.md`
 12. `paper_text/method_section_zh.md`
 13. `paper_text/basic_morphology_wind_response_conclusion_zh.md`
+14. `reports/basic_morphology_multivariate_robustness.md`
+15. `paper_text/basic_morphology_multivariate_robustness_conclusion_zh.md`
 
 ## Current Main Conclusion
 
 The most manuscript-ready interpretation no longer uses LCZ classification. It uses basic and transferable building-morphology parameters: footprint area, mean height, height/sqrt(area), perimeter-area compactness, elongation ratio, local built fraction, sector enclosure, and combined enclosure score.
 
 The key new finding is that the immediate 0-20 m facade-adjacent band is uniformly sheltered, while the 20-50 m local-context band better reveals morphology-dependent wind recovery. In that band, 50 m sector enclosure is the clearest suppressor of mean VR, whereas footprint area, elongation ratio, and perimeter-area compactness are weak predictors in this screened campus core.
+
+A multivariate robustness addendum strengthens this wording but also narrows it: the rank-transformed ridge model for 20-50 m mean VR has limited explanatory power (`R2 = 0.122 +/- 0.166`), so the morphology parameters should be used as interpretable screening variables rather than deterministic predictors. Sector enclosure, mean height, and combined enclosure remain the strongest ordered signals.
 
 ## Evidence Boundary
 
@@ -109,3 +113,13 @@ The archive now includes a deterministic post-processing analysis of S1/S2 direc
 - `figures/fluidx3d_design_sensitivity_directional_tradeoff_summary_z2m.csv`
 - `figures/fluidx3d_design_sensitivity_directional_tradeoff_heatmap_z2m.png`
 - `figures/fluidx3d_s2_minus_s0_directional_delta_panel_z2m.png`
+
+## Multivariate Morphology Robustness Addendum
+
+The archive now includes a lightweight bootstrap/partial-correlation/rank-regression robustness check for the basic morphology interpretation. It confirms that the 20-50 m local-context band is better treated as a local enclosure and momentum-exchange diagnostic than as a single-building size or shape effect.
+
+- `reports/basic_morphology_multivariate_robustness.md`
+- `paper_text/basic_morphology_multivariate_robustness_conclusion_zh.md`
+- `figures/basic_morphology_multivariate_robustness.csv`
+- `figures/basic_morphology_rank_model_cv_summary.csv`
+- `figures/basic_morphology_multivariate_rank_model_importance.png`

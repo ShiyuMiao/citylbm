@@ -10,7 +10,7 @@ evidence_type: newly_run + preexisting_artifact + user_claim + blocked
 |---|---|---:|---|---|
 | Download/source manifest | `manifests/data_manifest.csv` | 21 rows | newly_run + preexisting_artifact | Records source URL, size, checksum, download time, license/citation information |
 | Geometry manifest | `manifests/geometry_manifest.csv` | 13 rows | newly_run | Records Rhino/OBJ/STL geometry files, roles, sizes and checksums |
-| Evidence inventory | `manifests/evidence_inventory.csv` | 96 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
+| Evidence inventory | `manifests/evidence_inventory.csv` | 97 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
 | Wind-climate proxy weights | `manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv` | 8 sectors | newly_run + preexisting_artifact | Converts 2024 hourly 10 m wind data into 8 FluidX3D velocity-direction weights |
 
 ### 1.2 Visual and Rhino Data
@@ -156,3 +156,7 @@ S2 network porosity was simulated as a stronger follow-up to S1. It removes `201
 ### 7.3 Directional Trade-Off Addendum
 
 Directional post-processing of S1/S2 confirms that the interventions are not simply blank null results. S2-S0 has its best common-open response at 315 deg, with mean common-open delta VR `0.000368`, but the mean share of common-open cells with delta VR>0.02 is only `0.002374`. Newly opened S2 cells still have maximum direction-wise mean VR only `0.006646` and remain fully stagnant at z~2 m. The paper-safe interpretation is that local aerodynamic response exists but is too sparse and too weak to generate pedestrian-layer ventilation recovery.
+
+### 7.4 Multivariate Morphology Robustness Addendum
+
+The basic morphology interpretation was rechecked using bootstrap Spearman intervals, partial Spearman, and repeated 5-fold rank-transformed ridge regression on 101 retained building components. For the 20-50 m local-context band, the mean-VR model has limited cross-validated explanatory power (`R2 = 0.122 +/- 0.166`), but the ordered signal remains useful: 50 m sector enclosure has the strongest negative coefficient (`-0.147`) and largest permutation importance (`0.083`), followed by mean height and combined enclosure. The paper-safe conclusion is that this experiment identifies local enclosure and pressure/momentum exchange context as stronger screening descriptors than single-building footprint or elongation, not that morphology parameters can precisely predict real wind speed.

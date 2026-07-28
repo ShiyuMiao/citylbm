@@ -292,7 +292,7 @@ Open-Meteo 2024 方向权重仅作为气候代理使用。虽然 90°、45° 和
 
 数字孪生底层模型的表现可概括为“视觉一致性”和“CFD 就绪性”的分离。用户 photogrammetry STL 能较好对应 TUM Downtown 街区视觉范围，但 GCRI 仅为 {num(photo_gcri, 3)}；经语义/棱柱化处理后的 core collision 和 district collision 分别达到 {num(core_gcri, 3)} 和 {num(district_gcri, 3)}。这说明无人机摄影测量或 3DGS 类视觉资产适合用于场景核验、贴图浏览和空间范围审查，但若要进入 FluidX3D/CityLBM 作为刚性碰撞边界，必须经过语义分层、闭合修复、z0 对齐和体素化检查。该发现构成本实验相对于传统理想化街谷模拟的主要增量：真实数字孪生数据的风环境应用价值不仅来自“更真实的外观”，而来自可追踪地把视觉资产、语义城市模型和 CFD-ready 几何分工组合起来。
 
-上述结论仍属于数字孪生到 CFD 的应用筛查证据。本文不应宣称已完成实测验证、风洞闭环、正式风舒适安全合规评价、污染物扩散预测、S1 设计干预性能提升或 3DGS 边界传递误差实测。当前最稳妥的论文定位是：基于 TUM2TWIN 的 FluidX3D-native 校园风环境筛查与建筑形态解释，并附带 CityLBM-compatible 几何准备包。
+上述结论仍属于数字孪生到 CFD 的应用筛查证据。本文不应宣称已完成实测验证、风洞闭环、正式风舒适安全合规评价、污染物扩散预测、S1/S2 设计干预性能提升或 3DGS 边界传递误差实测；S1/S2 已完成数值敏感性比较，但结果均为近零/负向，只能用于说明单条轻量开廊和简单网络孔隙均不足以解决核心区滞风。当前最稳妥的论文定位是：基于 TUM2TWIN 的 FluidX3D-native 校园风环境筛查、建筑形态解释与设计敏感性分析，并附带 CityLBM-compatible 几何准备包。
 """
     (PAPER / "detailed_paper_conclusions_zh.md").write_text(paper.rstrip() + "\n", encoding="utf-8", newline="\n")
 
