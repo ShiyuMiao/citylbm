@@ -1,0 +1,88 @@
+{
+  "created_at_local": "2026-07-28 12:40:56",
+  "scenario_id": "S2_network_porosity",
+  "evidence_type": "newly_run",
+  "purpose": "network-scale morphology sensitivity geometry that opens multiple least-removal porosity corridors through the accepted core prism collision field",
+  "baseline_geometry": "cfd_ready/core_photogrammetry_extent_prism_collision_z0.stl",
+  "source_obj": "D:\\citylbm_tum2twin_heavy_store\\raw\\tum2twin_gitlab_selected\\obj\\lod3_merged_city_model\\TUM_CentralCampus.obj",
+  "selection_method": "three Dijkstra least-removal paths over the baseline 5 m heightfield: two east-west context links and one north-south central link; solid cells have height-weighted removal cost; a two-cell corridor is removed around the path union",
+  "parameters": {
+    "baseline_raster_resolution_m": 5.0,
+    "corridor_radius_cells": 2,
+    "corridor_nominal_width_m": 25.0,
+    "band_half_fraction": 0.12,
+    "path_specs": [
+      {
+        "name": "east_west_south_context",
+        "axis": "ew",
+        "fraction": 0.38
+      },
+      {
+        "name": "east_west_north_context",
+        "axis": "ew",
+        "fraction": 0.62
+      },
+      {
+        "name": "north_south_central_link",
+        "axis": "ns",
+        "fraction": 0.5
+      }
+    ]
+  },
+  "obj_vertices": 776439,
+  "obj_total_faces": 1664042,
+  "selected_defaultmat_faces": 1234040,
+  "crop_intersecting_faces": 1139278,
+  "selected_crop_high_points": 3384733,
+  "crop_source_xy": {
+    "xmin": -190.0,
+    "xmax": 235.0,
+    "ymin": -215.0,
+    "ymax": 345.0
+  },
+  "local_origin_source_xy": [
+    -190.0,
+    -215.0
+  ],
+  "raster_resolution_m": 5.0,
+  "raster_shape_ny_nx": [
+    113,
+    86
+  ],
+  "raw_occupied_cells": 1766,
+  "footprint_cells": 2365,
+  "component_count": 46,
+  "baseline_footprint_cells": 2365,
+  "removed_cells": 201,
+  "removed_area_m2": 5025.0,
+  "removed_fraction_of_baseline_footprint": 0.08498942917547568,
+  "removed_height_min_max_mean_m": [
+    12.378992080688477,
+    32.430015563964844,
+    21.706506729125977
+  ],
+  "path_lengths_cells": [
+    86,
+    87,
+    114
+  ],
+  "s2_footprint_cells": 2164,
+  "s2_triangles": 14612,
+  "s2_bbox": {
+    "min": [
+      5.0,
+      5.0,
+      0.0
+    ],
+    "max": [
+      425.0,
+      560.0,
+      32.430015563964844
+    ]
+  },
+  "stl_path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\releases\\v0.2.0\\package\\validation_experiments\\Experiment3_TUM2TWIN_DigitalTwin_DesignApplication\\cfd_ready\\core_prism_s2_network_porosity_collision_z0.stl",
+  "stl_size_bytes": 730684,
+  "stl_sha256": "4dfab46dd5ecb78e065624200e1eefa7df6fd0a5b0973413c8fcc0a710b6d652",
+  "audit_figure": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\releases\\v0.2.0\\package\\validation_experiments\\Experiment3_TUM2TWIN_DigitalTwin_DesignApplication\\figures\\core_prism_s2_network_porosity_geometry_audit.png",
+  "claim_boundary": "S2 is a morphology sensitivity scenario, not a constructability-verified architectural proposal or optimized design."
+}

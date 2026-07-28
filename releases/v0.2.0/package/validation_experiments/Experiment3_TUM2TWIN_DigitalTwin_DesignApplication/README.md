@@ -63,7 +63,7 @@ The key new finding is that the immediate 0-20 m facade-adjacent band is uniform
 
 ## Evidence Boundary
 
-This archive supports a reproducible digital-twin-to-CFD design-application workflow, preliminary FluidX3D pedestrian-height wind-response screening, and one executed S1 design-sensitivity comparison. It does not provide field-validated prediction accuracy, formal annual comfort/safety compliance, pollutant-dispersion results, S2-Sn design-intervention proof or successful optimization, 3DGS boundary-transfer error results, or a completed CityLBM-GH end-to-end run.
+This archive supports a reproducible digital-twin-to-CFD design-application workflow, preliminary FluidX3D pedestrian-height wind-response screening, and two executed design-sensitivity comparisons (`S1` and `S2`). It does not provide field-validated prediction accuracy, formal annual comfort/safety compliance, pollutant-dispersion results, successful design optimization, S3-Sn design-intervention proof, 3DGS boundary-transfer error results, or a completed CityLBM-GH end-to-end run.
 
 Large raw assets and full VTK outputs are not fully embedded in this GitHub archive. Their local paths and source boundaries are recorded in `EXTERNAL_ARTIFACTS.md` and `manifests/evidence_inventory.csv`.
 
@@ -88,3 +88,14 @@ The design-application layer now includes an executed S1 ventilation-relief sens
 - `paper_text/design_intervention_s1_discussion_en.md`
 - `manifests/s1_design_intervention_claims.csv`
 - `figures/fluidx3d_s0_s1_ventilation_relief_equal_weighted_vr_delta_z2m.png`
+
+## Executed S2 Network-Porosity Sensitivity Scenario
+
+The design-application layer now includes a second executed sensitivity case, `S2_network_porosity`. S2 tests two east-west plus one north-south least-removal porosity corridors. It was simulated with the same FluidX3D dx=2 m, 8-direction, three-sample protocol as S0/S1. The result remains near-null/negative at the global pedestrian layer, refining the conclusion from "single corridor is insufficient" to "geometric porosity alone is insufficient unless coupled to effective wind-entry positions".
+
+- `reports/s2_network_porosity_fluidx3d_comparison_report.md`
+- `paper_text/design_intervention_s2_discussion_zh.md`
+- `paper_text/design_intervention_s2_discussion_en.md`
+- `manifests/s2_design_intervention_claims.csv`
+- `figures/fluidx3d_s0_s2_network_porosity_equal_weighted_vr_delta_z2m.png`
+- `figures/fluidx3d_s0_s1_s2_design_sensitivity_height_metric_comparison.png`

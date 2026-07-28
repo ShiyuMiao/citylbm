@@ -615,7 +615,7 @@ evidence_type: user_claim + preexisting_artifact + blocked
 | 舒适安全 | Lawson/NEN/AIJ 思路 | 阈值风速 + 超越概率 + 活动类型 | comfortable/tolerable/uncomfortable/unsafe 面积比例 | blocked |
 | 通风不足 | stagnation area ratio | A(U/Uref < 阈值)/A_total | 污染滞留与热舒适风险区 | blocked |
 | 污染扩散 | C/C0 | 道路/点/面源无量纲浓度 | hotspot 面积、路径暴露积分 | blocked |
-| 方案比较 | ΔA, Δhotspot | S0 baseline vs S1, S2-Sn | S1 已作为近零/负向敏感性实跑；S2-Sn 与成功优化仍为后续工作 | newly_run + blocked |
+| 方案比较 | ΔA, Δhotspot | S0 baseline vs S1, S2, S3-Sn | S1/S2 已作为近零/负向敏感性实跑；S3-Sn 与成功优化仍为后续工作 | newly_run + blocked |
 | Geometry-to-CFD Readiness Index | GCRI | 0.25W + 0.15(1-NM) + 0.15S + 0.15C + 0.15E + 0.15V | 0-1，越高越可进入 CFD | newly_run + blocked |
 | 3DGS-to-Collision Boundary Transfer Error | GCBTE | IoU, Chamfer/Hausdorff, roof/wall boundary error, solid mask agreement | 用 CityGML LoD2/LoD3 作 GT | blocked |
 | 工程效率 | Wind Benefit per Modeling Cost | Δ舒适面积 / 建模修复小时 | 方案工程收益 | blocked |

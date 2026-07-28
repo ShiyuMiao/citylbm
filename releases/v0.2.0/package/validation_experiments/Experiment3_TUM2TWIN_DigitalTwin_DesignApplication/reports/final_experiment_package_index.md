@@ -132,3 +132,14 @@ The design-application layer now includes an executed S1 ventilation-relief sens
 - `paper_text/design_intervention_s1_discussion_en.md`
 - `manifests/s1_design_intervention_claims.csv`
 - `figures/fluidx3d_s0_s1_ventilation_relief_equal_weighted_vr_delta_z2m.png`
+
+## Executed S2 Network-Porosity Sensitivity Scenario
+
+The design-application layer now includes a second executed sensitivity case, `S2_network_porosity`. S2 tests two east-west plus one north-south least-removal porosity corridors. It was simulated with the same FluidX3D dx=2 m, 8-direction, three-sample protocol as S0/S1. The result remains near-null/negative at the global pedestrian layer, refining the conclusion from "single corridor is insufficient" to "geometric porosity alone is insufficient unless coupled to effective wind-entry positions".
+
+- `reports/s2_network_porosity_fluidx3d_comparison_report.md`
+- `paper_text/design_intervention_s2_discussion_zh.md`
+- `paper_text/design_intervention_s2_discussion_en.md`
+- `manifests/s2_design_intervention_claims.csv`
+- `figures/fluidx3d_s0_s2_network_porosity_equal_weighted_vr_delta_z2m.png`
+- `figures/fluidx3d_s0_s1_s2_design_sensitivity_height_metric_comparison.png`

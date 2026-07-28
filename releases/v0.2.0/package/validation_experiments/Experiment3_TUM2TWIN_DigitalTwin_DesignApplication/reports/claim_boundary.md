@@ -43,7 +43,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - The CityLBM-Grasshopper chain is optional and not executed; manuscript wording should be FluidX3D-native simulation with a CityLBM-compatible geometry package unless GH run evidence is added.
 - GCRI has been scored as a paper-internal geometry-readiness metric, but it does not validate wind-result accuracy.
 - S1 should not be written as a successful design optimization; it is a sensitivity result showing that the tested light corridor is insufficient in this morphology.
-- GCBTE, pollutant dispersion, and additional S2-Sn design-intervention comparisons are not completed and must remain blocked/future-work items.
+- GCBTE, pollutant dispersion, and additional S3-Sn design-intervention comparisons are not completed and must remain blocked/future-work items.
 
 ## Remaining Work Before Final SCI-Level Claims
 
@@ -51,6 +51,13 @@ evidence_type: newly_run + preexisting_artifact + blocked
 2. Complete Lawson/NEN/AIJ comfort/safety classification only after a site-appropriate wind rose, threshold velocities, and exceedance-probability method are fixed.
 3. Consider a longer sampling window or dx=1 m local refinement if detailed 1.5 m pedestrian-height classification is required.
 4. Add pollutant dispersion only after source terms and scalar transport setup are explicitly defined.
-5. Develop S2-Sn network-scale porosity alternatives if the paper wants to make positive intervention-design claims rather than a negative S1 sensitivity claim.
+5. Develop S3-Sn wind-sector-coupled gateway and enclosure-reduction alternatives if the paper wants to make positive intervention-design claims rather than the current negative S1/S2 sensitivity claims.
 6. Use ParaView GUI or install a software-rendering runtime for final publication screenshots.
 7. If the paper title or method foregrounds CityLBM-GH, add Grasshopper definition files, plugin-run screenshots, solver logs, and output artifacts; otherwise keep the current FluidX3D-native positioning.
+
+## S2 Claim Boundary Addendum
+
+- `newly_run`: S2 geometry was generated, voxelized, simulated in FluidX3D for eight wind directions, and compared with S0/S1 using the same postprocessing protocol.
+- Supported claim: S2 does not produce meaningful global pedestrian-layer ventilation recovery under the current dx=2 m, 8-direction protocol.
+- Unsupported claim: S2 proves that all porosity interventions fail, or that the tested geometry is a constructable campus design.
+- Paper-safe interpretation: S1 and S2 jointly suggest that effective ventilation improvement in this campus core requires wind-sector-coupled porosity and momentum-entry positioning rather than simple geometric opening area.
