@@ -110,3 +110,15 @@ Photogrammetry counterexample:
 ## Current Claim Boundary in One Sentence
 
 The package supports a reproducible TUM2TWIN digital-twin-to-FluidX3D workflow and preliminary time-mean pedestrian-height VR/stagnation screening, but not field-validated prediction accuracy, formal annual comfort/safety exceedance classification, or pollutant dispersion.
+
+## Literature-Grounded SCI Discussion Addendum
+
+New literature-grounded synthesis files:
+
+- Literature-grounded SCI discussion: `reports/literature_grounded_sci_discussion.md`
+- Verified references: `manifests/verified_references_for_sci_discussion.csv`
+- Citation-to-claim map: `manifests/citation_to_claim_map_sci_discussion.csv`
+- Chinese paper text: `paper_text/literature_grounded_discussion_sci_zh.md`
+- English paper text: `paper_text/literature_grounded_discussion_sci_en.md`
+
+These files should be read after `reports/sci_statistical_robustness_analysis.md` and before final manuscript polishing.

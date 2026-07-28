@@ -66,3 +66,15 @@ The key new finding is that the immediate 0-20 m facade-adjacent band is uniform
 This archive supports a reproducible digital-twin-to-CFD design-application workflow and preliminary FluidX3D pedestrian-height wind-response screening. It does not provide field-validated prediction accuracy, formal annual comfort/safety compliance, pollutant-dispersion results, simulated S1-Sn design-intervention comparisons, 3DGS boundary-transfer error results, or a completed CityLBM-GH end-to-end run.
 
 Large raw assets and full VTK outputs are not fully embedded in this GitHub archive. Their local paths and source boundaries are recorded in `EXTERNAL_ARTIFACTS.md` and `manifests/evidence_inventory.csv`.
+
+## Latest Literature-Grounded Synthesis
+
+The latest addendum links the FluidX3D/ParaView outputs to verified pedestrian-wind, campus-CFD, climate-context and digital-twin geometry literature. It adds:
+
+- `reports/literature_grounded_sci_discussion.md`
+- `manifests/verified_references_for_sci_discussion.csv`
+- `manifests/citation_to_claim_map_sci_discussion.csv`
+- `paper_text/literature_grounded_discussion_sci_zh.md`
+- `paper_text/literature_grounded_discussion_sci_en.md`
+
+Use these files when writing the final SCI discussion because they explicitly separate paper-ready claims from blocked claims.
