@@ -147,7 +147,7 @@ def main() -> None:
             "status": "complete_as_generic_section",
             "evidence_type": "newly_run + preexisting_artifact + blocked",
             "evidence_artifact": "academic-paper-writer/paper-drafts/paper_draft.md; academic-paper-writer/paper-drafts/paper_draft_en.md; paper_text/experiment3_sci_figure_captions_en.md",
-            "paper_safe_interpretation": "A generic SCI section and 10 traceable figure/table assets are available, pending target-journal formatting.",
+            "paper_safe_interpretation": "A generic SCI section and traceable figure/table assets are available, pending target-journal formatting.",
         },
         {
             "requirement": "CityLBM-Grasshopper end-to-end execution",

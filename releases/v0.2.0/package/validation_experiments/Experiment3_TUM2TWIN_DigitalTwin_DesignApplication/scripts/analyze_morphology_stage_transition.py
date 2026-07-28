@@ -275,12 +275,17 @@ def upsert_evidence_inventory() -> None:
         {
             "claim": "The near-to-context recovery contrast supports a sample-internal design insight: relative vertical scale and plan-continuity combinations are more informative than any single absolute building size variable.",
             "evidence_type": "newly_run + blocked",
-            "source": "figures/morphology_stage_transition_rule_table.csv; paper_text/morphology_stage_transition_conclusion_zh.md",
+            "source": "figures/morphology_stage_transition_rule_table.csv; paper_text/morphology_stage_transition_conclusion_zh.md; paper_text/morphology_stage_transition_conclusion_en.md",
         },
     ]
-    existing = {row["claim"] for row in rows}
     for item in additions:
-        if item["claim"] not in existing:
+        matched = False
+        for row in rows:
+            if row["claim"] == item["claim"]:
+                row.update(item)
+                matched = True
+                break
+        if not matched:
             rows.append(item)
     pd.DataFrame(rows).to_csv(path, index=False, encoding="utf-8", lineterminator="\n")
 
@@ -372,6 +377,7 @@ def build_report(
         "- `figures/morphology_stage_transition_by_component.csv`",
         "- `figures/morphology_stage_transition_panel.png`",
         "- `paper_text/morphology_stage_transition_conclusion_zh.md`",
+        "- `paper_text/morphology_stage_transition_conclusion_en.md`",
         "- `manifests/morphology_stage_transition_claims.csv`",
         "",
         "## Boundaries",
@@ -401,6 +407,24 @@ def build_paper_text(best_rule: dict[str, object], summary: pd.DataFrame, contra
         "因此，本实验能够在传统街谷遮蔽和局部加速认识之外补充一个更适合数字孪生设计筛查的认识：校园核心区行人层通风改善并不取决于单一开口面积或单体高度，"
         "而取决于相对竖向尺度、平面连续性、局地围合度与主导风向入口之间是否形成有效的动量交换路径。"
         "该结论只应表述为 FluidX3D 数字孪生样本内的筛查性发现，不能写成实测验证的因果设计准则或通用规范阈值。\n"
+    )
+
+
+def build_paper_text_en(best_rule: dict[str, object], summary: pd.DataFrame, contrast: pd.DataFrame) -> str:
+    near = summary.loc[summary["metric"] == "near_facade_0_20m_mean_vr"].iloc[0]
+    local = summary.loc[summary["metric"] == "local_context_20_50m_mean_vr"].iloc[0]
+    rec = summary.loc[summary["metric"] == "local_minus_near_recovery_delta_vr"].iloc[0]
+    hrel = contrast.set_index("feature").loc["height_to_sqrt_area"]
+    return (
+        "# Building-Form Stage-Transition Conclusion\n\n"
+        "evidence_type: newly_run + blocked\n\n"
+        "The stage-transition analysis indicates that the building-form effect in this experiment should not be reduced to a linear effect of absolute building height, footprint area or opening ratio. "
+        f"Across the 101 retained components, the mean velocity ratio is `{near['mean']:.6f}` in the 0-20 m facade-adjacent band and `{local['mean']:.6f}` in the 20-50 m local-context band, with a mean recovery delta of `{rec['mean']:.6f}`. "
+        "The facade-adjacent zone therefore behaves first as a low-speed saturated stage produced by block enclosure and building sheltering; the 20-50 m local-context band is the stage at which different building-form contexts become distinguishable through wind-speed recovery and directional response. "
+        f"Top-recovery and bottom-recovery quartiles show a strong contrast in `height_to_sqrt_area`, with Cliff's delta `{hrel['cliffs_delta_top_vs_bottom']:.3f}`. "
+        f"The best sample-internal subgroup rule is `{best_rule['rule']}`, with mean recovery delta `{best_rule['mean_recovery_delta_vr']:.6f}` and top-recovery share `{best_rule['top_recovery_share']:.3f}`. "
+        "This supports a design-screening insight beyond the traditional canyon-shelter/local-acceleration dichotomy: in the campus core, pedestrian-layer ventilation recovery depends less on a single opening area or single-building height than on whether relative vertical scale, plan continuity, local enclosure and inflow-sector access form an effective momentum-exchange path. "
+        "The conclusion must remain framed as a FluidX3D digital-twin screening finding, not as a field-validated causal rule or universal morphology threshold.\n"
     )
 
 
@@ -443,6 +467,7 @@ def main() -> None:
 
     write_text(REPORTS / "morphology_stage_transition_analysis.md", build_report(summary, contrast, rules, class_counts, best_rule))
     write_text(PAPER / "morphology_stage_transition_conclusion_zh.md", build_paper_text(best_rule, summary, contrast))
+    write_text(PAPER / "morphology_stage_transition_conclusion_en.md", build_paper_text_en(best_rule, summary, contrast))
     upsert_evidence_inventory()
     upsert_key_result_matrix(best_rule, summary, contrast)
 

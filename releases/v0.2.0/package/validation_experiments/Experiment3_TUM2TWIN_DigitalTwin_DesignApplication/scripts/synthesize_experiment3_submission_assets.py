@@ -74,6 +74,26 @@ FIGURE_CAPTIONS = [
         "paper_safe_use": "directional mechanism and wind-sector design interpretation",
         "boundary": "not measured wind rose; not annual comfort compliance; not successful optimization",
     },
+    {
+        "id": "Fig. E3-S3",
+        "path": "figures/morphology_form_response_archetype_panel.png",
+        "evidence_type": "newly_run + blocked",
+        "source_data": "figures/morphology_form_response_archetype_summary.csv; figures/morphology_form_response_archetype_by_component.csv",
+        "caption_zh": "图 E3-S3. 101 个保留中心区建筑构件的建筑形式风响应类型学补充图。左图在 50 m 扇区围合度和相对高度空间中显示形态聚类，点大小表示建筑足迹面积；右图比较不同类型的 20-50 m 平均恢复量。类型间恢复量差异显著（Kruskal-Wallis p=0.0001682），支持筛查层结论：本校园核心区的行人层风速恢复更适合解释为相对竖向体量、平面延展性和局地围合共同作用的结果，而不是单一建筑形态变量的结果。",
+        "caption_en": "Fig. E3-S3. Supplementary building-form wind-response archetype analysis for the 101 retained central components. The left panel maps morphology clusters in sector-enclosure and relative-height space, with point size proportional to footprint area; the right panel compares the mean 20-50 m recovery delta by archetype. The groups differ significantly in recovery delta (Kruskal-Wallis p=0.0001682), supporting a screening-level conclusion that wind recovery is associated with combinations of relative vertical massing, elongation and local enclosure rather than any single building-form variable.",
+        "paper_safe_use": "building-form response archetype screening",
+        "boundary": "not causal typology; not field validation; not universal design class",
+    },
+    {
+        "id": "Fig. E3-S4",
+        "path": "figures/morphology_stage_transition_panel.png",
+        "evidence_type": "newly_run + blocked",
+        "source_data": "figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_feature_contrasts.csv; figures/morphology_stage_transition_rule_table.csv",
+        "caption_zh": "图 E3-S4. 建筑形态阶段转化分析补充图。图中把 101 个保留建筑构件的风响应分解为 0-20 m 近立面低速阶段、20-50 m 局地环境恢复阶段和方向性响应阶段。结果显示，近立面带几乎为低速饱和区，而 20-50 m 带揭示了与相对竖向尺度、平面延展性和局地围合相关的恢复差异。该图用于数字孪生设计筛查，不代表实测验证的因果阈值或通用设计规范。",
+        "caption_en": "Fig. E3-S4. Supplementary morphology stage-transition analysis. The panel decomposes the wind response of the 101 retained building components into the 0-20 m facade-adjacent sheltered stage, the 20-50 m local-context recovery stage and directional reactivity. The facade-adjacent band is nearly saturated by low-speed conditions, whereas the 20-50 m band reveals recovery contrasts linked to relative vertical scale, plan elongation and local enclosure. The figure is intended for digital-twin design screening, not for a field-validated causal threshold or universal design code.",
+        "paper_safe_use": "near-to-context building-form stage-transition screening",
+        "boundary": "not field validation; not universal morphology threshold; not annual comfort compliance",
+    },
 ]
 
 
@@ -84,7 +104,7 @@ TABLE_CAPTIONS = [
         "evidence_type": "newly_run + preexisting_artifact + blocked",
         "source_data": "compiled from FluidX3D metrics, Open-Meteo proxy weights, morphology CSVs, design-sensitivity comparisons and GCRI",
         "caption_zh": "表 E3-1. 实验3面向论文的一页式关键结果矩阵。表格把 S0 基准、竖向恢复、Open-Meteo 方向代理敏感性、S1/S2 设计敏感性、方向性 trade-off、形态稳健性、阈值筛查和 GCRI 几何就绪度整合到同一证据框架，并逐行给出 evidence_type、来源文件和论文安全表述。",
-        "caption_en": "Table E3-1. Paper-facing one-page key-result matrix for Experiment 3. The table consolidates S0 baseline, vertical recovery, Open-Meteo proxy sensitivity, S1/S2 design sensitivity, directional trade-off, morphology robustness, threshold screening and GCRI into one evidence framework with evidence type, source artifact and paper-safe claim for each row.",
+        "caption_en": "Table E3-1. Paper-facing one-page key-result matrix for Experiment 3. The table consolidates S0 baseline, vertical recovery, Open-Meteo proxy sensitivity, S1/S2 design sensitivity, directional trade-off, morphology robustness, threshold screening, stage-transition analysis and GCRI into one evidence framework with evidence type, source artifact and paper-safe claim for each row.",
         "paper_safe_use": "main result table and evidence anchor",
         "boundary": "rows with blocked components must retain boundary wording",
     },

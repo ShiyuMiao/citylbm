@@ -66,3 +66,12 @@ These captions are tied to archived source artifacts. They should be edited only
 - Source data: `figures/morphology_form_response_archetype_summary.csv; figures/morphology_form_response_archetype_by_component.csv`
 - Evidence type: `newly_run + blocked`
 - Boundary: not causal typology; not field validation; not universal design class
+
+## Fig. E3-S4
+
+图 E3-S4. 建筑形态阶段转化分析补充图。图中把 101 个保留建筑构件的风响应分解为 0-20 m 近立面低速阶段、20-50 m 局地环境恢复阶段和方向性响应阶段。结果显示，近立面带几乎为低速饱和区，而 20-50 m 带揭示了与相对竖向尺度、平面延展性和局地围合相关的恢复差异。该图用于数字孪生设计筛查，不代表实测验证的因果阈值或通用设计规范。
+
+- Asset: `figures/morphology_stage_transition_panel.png`
+- Source data: `figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_feature_contrasts.csv; figures/morphology_stage_transition_rule_table.csv`
+- Evidence type: `newly_run + blocked`
+- Boundary: not field validation; not universal morphology threshold; not annual comfort compliance

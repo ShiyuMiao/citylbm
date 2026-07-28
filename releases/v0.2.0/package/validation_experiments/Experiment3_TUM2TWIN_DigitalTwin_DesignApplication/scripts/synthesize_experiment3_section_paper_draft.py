@@ -103,6 +103,8 @@ def main() -> None:
     climate = read_matrix_value(matrix, "Climate-proxy sensitivity")
     morph = read_matrix_value(matrix, "Morphology robustness")
     threshold = read_matrix_value(matrix, "Morphology threshold design rule")
+    archetype = read_matrix_value(matrix, "Building-form response archetypes")
+    stage = read_matrix_value(matrix, "Morphology stage transition")
     s1 = read_matrix_value(matrix, "S1 design sensitivity")
     s2 = read_matrix_value(matrix, "S2 design sensitivity")
     trade = read_matrix_value(matrix, "Directional local trade-off")
@@ -120,7 +122,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Required move 1: distinguish visual digital-twin assets from CFD collision geometry.
 - Required move 2: state FluidX3D setup, aggregation level, directions, samples and metrics before reporting values.
 - Required move 3: report baseline low-speed pattern, vertical recovery and climate-proxy sensitivity without claiming annual comfort compliance.
-- Required move 4: connect building form to wind response using basic morphology descriptors and the near-to-context threshold rule.
+- Required move 4: connect building form to wind response using basic morphology descriptors, the near-to-context threshold rule and the stage-transition addendum.
 - Required move 5: interpret S1/S2 as negative design-sensitivity evidence, not successful optimization.
 - Required move 6: close with digital-twin application value and explicit blockers.
 
@@ -131,6 +133,8 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Climate proxy: `{climate}`
 - Morphology robustness: `{morph}`
 - Threshold screening: `{threshold}`
+- Building-form response archetypes: `{archetype}`
+- Stage transition: `{stage}`
 - S1/S2: `{s1}`; `{s2}`; `{trade}`
 - GCRI: `{gcri}`
 
@@ -141,7 +145,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
 ## Failure Checks
 
 - Do not write field validation, wind-tunnel closure, annual Lawson/NEN/AIJ compliance, pollutant dispersion, GCBTE closure or CityLBM-GH end-to-end execution as completed.
-- Do not write the morphology threshold rule as a universal design threshold.
+- Do not write the morphology threshold rule or stage-transition subgroup rule as a universal design threshold.
 - Do not use Open-Meteo 2024 as a measured site wind rose.
 """
 
@@ -167,7 +171,7 @@ S0 基准结果显示，该校园核心区的主导问题不是强风危险，�
 
 ## 建筑形态与风速恢复机制
 
-建筑形态分析将传统“围合街谷削弱通风”的认识推进到可定位的校园尺度诊断 {ref_marker('R2','R3','R4')}。0-20 m 近立面带几乎普遍滞风，难以区分不同建筑形式的影响；20-50 m 局地环境带更能反映风速恢复差异。多变量稳健性结果为 `{morph}`，说明基础形态参数具有解释价值，但不能被写成高精度预测模型。进一步的阈值规则分析将同一批 101 个建筑单元的 0-20 m 与 20-50 m 响应配对，结果为 `{threshold}`。因此，本实验在传统结论基础上提供的新认知是：在校园型连续街区中，风环境改善不宜只看单体建筑面积、伸长率或孔隙面积，而应在 20-50 m 尺度上同时识别局地暴露度、相对竖向尺度、平面连续性和外部动量进入条件。该规则是样本内数字孪生筛查证据，不是可直接外推的通用设计阈值。
+建筑形态分析将传统“围合街谷削弱通风”的认识推进到可定位的校园尺度诊断 {ref_marker('R2','R3','R4')}。0-20 m 近立面带几乎普遍滞风，难以区分不同建筑形式的影响；20-50 m 局地环境带更能反映风速恢复差异。多变量稳健性结果为 `{morph}`，说明基础形态参数具有解释价值，但不能被写成高精度预测模型。进一步的阈值规则分析将同一批 101 个建筑单元的 0-20 m 与 20-50 m 响应配对，结果为 `{threshold}`。阶段转化分析进一步给出 `{stage}`，说明形态差异不是直接发生在近立面低速饱和带，而是在建筑外侧 20-50 m 局地环境中表现为恢复量和方向性响应差异。因此，本实验在传统结论基础上提供的新认知是：在校园型连续街区中，风环境改善不宜只看单体建筑面积、伸长率或孔隙面积，而应在 20-50 m 尺度上同时识别局地暴露度、相对竖向尺度、平面连续性和外部动量进入条件。该规则是样本内数字孪生筛查证据，不是可直接外推的通用设计阈值。
 
 ## S1/S2 设计敏感性与负结果价值
 
@@ -214,7 +218,9 @@ The FluidX3D core-domain simulation uses dx=2 m, eight inflow directions and thr
 
 The S0 baseline indicates persistent pedestrian-layer ventilation insufficiency rather than a strong-wind hazard. At z~2 m, mean VR / low-speed ratio is `{baseline}`; at z~40 m it becomes `{vertical}`. Thus, above-roof recovery cannot substitute for pedestrian-space assessment in campus courtyards, entrances and connecting streets. The Open-Meteo proxy-weighted z~2 m mean VR / low-speed ratio is `{climate}`, close to the equal-weighted result, supporting the stability of the low-speed screening conclusion but not formal Lawson/NEN/AIJ compliance {ref_marker('R5','R7','R10')}.
 
-Morphology analysis converts traditional canopy and canyon reasoning into a local digital-twin diagnosis {ref_marker('R2','R3','R4')}. The 0-20 m facade-adjacent band is almost uniformly sheltered, whereas the 20-50 m local-context band reveals morphology-dependent recovery. The multivariate robustness result is `{morph}`, so morphology variables should be treated as interpretable screening descriptors rather than a high-accuracy surrogate model. The threshold-rule addendum gives `{threshold}`, moving the design interpretation from isolated building size or opening area toward combined local exposure, relative vertical scale and plan continuity. The rule remains sample-internal and should not be generalized as a field-validated design threshold.
+Morphology analysis converts traditional canopy and canyon reasoning into a local digital-twin diagnosis {ref_marker('R2','R3','R4')}. The 0-20 m facade-adjacent band is almost uniformly sheltered, whereas the 20-50 m local-context band reveals morphology-dependent recovery. The multivariate robustness result is `{morph}`, so morphology variables should be treated as interpretable screening descriptors rather than a high-accuracy surrogate model. The threshold-rule addendum gives `{threshold}`, moving the design interpretation from isolated building size or opening area toward combined local exposure, relative vertical scale and plan continuity.
+
+The building-form response archetype addendum gives `{archetype}`. Because the clusters are formed from basic morphology descriptors and interpreted only afterward with FluidX3D-derived wind response, this result supports a combined-form screening typology rather than a causal typology. The stage-transition addendum further reports `{stage}`, showing that the morphology signal is not a direct near-facade speed effect but a near-to-context recovery pattern outside the immediate sheltered band. These rules remain sample-internal and should not be generalized as field-validated design thresholds.
 
 The S1/S2 design-sensitivity sequence tests whether additional porosity can relieve the low-speed condition. S1 changes z~2 m mean VR / low-speed ratio by `{s1}`, and S2 changes them by `{s2}`. Directional local response is `{trade}`. S1/S2 therefore provide negative design evidence: geometric porosity alone is insufficient unless coupled to effective inflow sectors, momentum entry and pressure-exchange paths.
 
@@ -249,7 +255,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Quantitative claims in the draft come from `figures/final_integrated_key_result_matrix.csv`.
 - References are drawn from `manifests/verified_references_for_sci_discussion.csv`.
 - Blocked claims remain explicit: field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution.
-- The morphology threshold rule is framed as sample-internal screening evidence.
+- The morphology threshold rule and stage-transition subgroup rule are framed as sample-internal screening evidence.
 - The draft contains a single References section and a synchronized pending-debt list.
 
 ## Remaining Publication Debts

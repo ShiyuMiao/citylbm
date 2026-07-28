@@ -66,3 +66,12 @@ Fig. E3-S3. Supplementary building-form wind-response archetype analysis for the
 - Source data: `figures/morphology_form_response_archetype_summary.csv; figures/morphology_form_response_archetype_by_component.csv`
 - Evidence type: `newly_run + blocked`
 - Boundary: not causal typology; not field validation; not universal design class
+
+## Fig. E3-S4
+
+Fig. E3-S4. Supplementary morphology stage-transition analysis. The panel decomposes the wind response of the 101 retained building components into the 0-20 m facade-adjacent sheltered stage, the 20-50 m local-context recovery stage and directional reactivity. The facade-adjacent band is nearly saturated by low-speed conditions, whereas the 20-50 m band reveals recovery contrasts linked to relative vertical scale, plan elongation and local enclosure. The figure is intended for digital-twin design screening, not for a field-validated causal threshold or universal design code.
+
+- Asset: `figures/morphology_stage_transition_panel.png`
+- Source data: `figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_feature_contrasts.csv; figures/morphology_stage_transition_rule_table.csv`
+- Evidence type: `newly_run + blocked`
+- Boundary: not field validation; not universal morphology threshold; not annual comfort compliance

@@ -38,6 +38,7 @@ The additional stage-transition analysis supports a more precise conclusion than
 - `figures/morphology_stage_transition_by_component.csv`
 - `figures/morphology_stage_transition_panel.png`
 - `paper_text/morphology_stage_transition_conclusion_zh.md`
+- `paper_text/morphology_stage_transition_conclusion_en.md`
 - `manifests/morphology_stage_transition_claims.csv`
 
 ## Boundaries

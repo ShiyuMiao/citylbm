@@ -48,11 +48,17 @@ Fig. E3-S3. Supplementary building-form wind-response archetype analysis for the
 
 图 E3-S3. 101 个保留中心区建筑构件的建筑形式风响应类型学补充图。左图在 50 m 扇区围合度和相对高度空间中显示形态聚类，点大小表示建筑足迹面积；右图比较不同类型的 20-50 m 平均恢复量。类型间恢复量差异显著（Kruskal-Wallis p=0.0001682），支持筛查层结论：本校园核心区的行人层风速恢复更适合解释为相对竖向体量、平面延展性和局地围合共同作用的结果，而不是单一建筑形态变量的结果。
 
+### Fig. E3-S4
+
+Fig. E3-S4. Supplementary morphology stage-transition analysis. The panel decomposes the wind response of the 101 retained building components into the 0-20 m facade-adjacent sheltered stage, the 20-50 m local-context recovery stage and directional reactivity. The facade-adjacent band is nearly saturated by low-speed conditions, whereas the 20-50 m band reveals recovery contrasts linked to relative vertical scale, plan elongation and local enclosure. The figure is intended for digital-twin design screening, not for a field-validated causal threshold or universal design code.
+
+图 E3-S4. 建筑形态阶段转化分析补充图。图中把 101 个保留建筑构件的风响应分解为 0-20 m 近立面低速阶段、20-50 m 局地环境恢复阶段和方向性响应阶段。结果显示，近立面带几乎为低速饱和区，而 20-50 m 带揭示了与相对竖向尺度、平面延展性和局地围合相关的恢复差异。该图用于数字孪生设计筛查，不代表实测验证的因果阈值或通用设计规范。
+
 ## Tables
 
 ### Table E3-1
 
-Table E3-1. Paper-facing one-page key-result matrix for Experiment 3. The table consolidates S0 baseline, vertical recovery, Open-Meteo proxy sensitivity, S1/S2 design sensitivity, directional trade-off, morphology robustness, threshold screening and GCRI into one evidence framework with evidence type, source artifact and paper-safe claim for each row.
+Table E3-1. Paper-facing one-page key-result matrix for Experiment 3. The table consolidates S0 baseline, vertical recovery, Open-Meteo proxy sensitivity, S1/S2 design sensitivity, directional trade-off, morphology robustness, threshold screening, stage-transition analysis and GCRI into one evidence framework with evidence type, source artifact and paper-safe claim for each row.
 
 表 E3-1. 实验3面向论文的一页式关键结果矩阵。表格把 S0 基准、竖向恢复、Open-Meteo 方向代理敏感性、S1/S2 设计敏感性、方向性 trade-off、形态稳健性、阈值筛查和 GCRI 几何就绪度整合到同一证据框架，并逐行给出 evidence_type、来源文件和论文安全表述。
 

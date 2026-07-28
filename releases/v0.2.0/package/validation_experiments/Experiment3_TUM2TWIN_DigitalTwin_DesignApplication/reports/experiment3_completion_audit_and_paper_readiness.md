@@ -7,13 +7,13 @@ This audit reflects the current archive after the morphology-response archetype 
 ## Evidence Counts
 
 - Key result matrix rows: `13`
-- Figure/table callouts: `10`
-- Submission-readiness assets: `10`
-- Ready for manual review: `10`
+- Figure/table callouts: `11`
+- Submission-readiness assets: `11`
+- Ready for manual review: `11`
 - Missing figure/table assets: `0`
 - Evidence inventory rows: `110`
 - Verified references used in Experiment 3 section draft: `12`
-- Claim verification rows: `27`
+- Claim verification rows: `33`
 
 ## Key Result Matrix
 
@@ -47,7 +47,7 @@ This audit reflects the current archive after the morphology-response archetype 
 | Morphology threshold, archetype and stage-transition interpretation | complete_with_boundary | newly_run + blocked | reports/morphology_threshold_design_rule_analysis.md; reports/morphology_form_response_archetype_analysis.md; reports/morphology_stage_transition_analysis.md | The 20-50 m band, response archetypes and near-to-context transition metrics support sample-internal design screening, not universal causal thresholds. |
 | S1/S2 design sensitivity | complete_negative_result | newly_run | figures/fluidx3d_s0_s1_ventilation_relief_metric_comparison.csv; figures/fluidx3d_s0_s2_network_porosity_metric_comparison.csv | S1/S2 are near-null or negative; they support design-boundary reasoning rather than optimization success. |
 | Directional anisotropy and wind-sector design logic | complete_with_boundary | newly_run + preexisting_artifact + blocked | reports/experiment3_directional_anisotropy_analysis.md; figures/experiment3_directional_anisotropy_summary.csv | Low-speed sheltering is quasi-omnidirectional; local intervention response is sector-sensitive but not globally restorative. |
-| SCI section draft and figure/table captions | complete_as_generic_section | newly_run + preexisting_artifact + blocked | academic-paper-writer/paper-drafts/paper_draft.md; academic-paper-writer/paper-drafts/paper_draft_en.md; paper_text/experiment3_sci_figure_captions_en.md | A generic SCI section and 10 traceable figure/table assets are available, pending target-journal formatting. |
+| SCI section draft and figure/table captions | complete_as_generic_section | newly_run + preexisting_artifact + blocked | academic-paper-writer/paper-drafts/paper_draft.md; academic-paper-writer/paper-drafts/paper_draft_en.md; paper_text/experiment3_sci_figure_captions_en.md | A generic SCI section and traceable figure/table assets are available, pending target-journal formatting. |
 | CityLBM-Grasshopper end-to-end execution | blocked | blocked | cfd_ready/CityLBM_GH_input_template/README.md; reports/claim_boundary.md | Frame as FluidX3D-native simulation with a CityLBM-compatible geometry package unless GH execution evidence is added. |
 | Measured or wind-tunnel validation | blocked | blocked | reports/claim_boundary.md | Do not claim field-validated predictive accuracy. |
 | Formal Lawson/NEN/AIJ annual comfort compliance | blocked | blocked | reports/claim_boundary.md | Do not claim annual threshold-exceedance comfort or safety classes. |

@@ -41,6 +41,8 @@ def main() -> None:
     trade = read_value(matrix, "Directional local trade-off")
     morph = read_value(matrix, "Morphology robustness")
     threshold = read_value(matrix, "Morphology threshold design rule")
+    archetype = read_value(matrix, "Building-form response archetypes")
+    stage = read_value(matrix, "Morphology stage transition")
     gcri = read_value(matrix, "Geometry-to-CFD readiness")
 
     claims = [
@@ -82,6 +84,22 @@ def main() -> None:
             "claim": "Near-to-context recovery analysis extracts sample-internal morphology threshold rules for design screening, not externally validated design thresholds.",
             "evidence_type": "newly_run + blocked",
             "source": "figures/morphology_threshold_rule_screening.csv; reports/morphology_threshold_design_rule_analysis.md; paper_text/morphology_threshold_design_rule_conclusion_zh.md",
+            "claim_readiness": "paper_ready_with_boundary",
+        },
+        {
+            "claim_id": "R3c",
+            "section": "Results",
+            "claim": "Building-form response archetypes distinguish stronger and weaker local-context wind recovery as combined morphology screening types.",
+            "evidence_type": "newly_run + blocked",
+            "source": "figures/morphology_form_response_archetype_summary.csv; figures/morphology_form_response_archetype_by_component.csv; reports/morphology_form_response_archetype_analysis.md; paper_text/morphology_form_response_archetype_conclusion_zh.md",
+            "claim_readiness": "paper_ready_with_boundary",
+        },
+        {
+            "claim_id": "R3d",
+            "section": "Results",
+            "claim": "Morphology stage-transition analysis separates near-facade shelter from 20-50 m local-context recovery and directional reactivity.",
+            "evidence_type": "newly_run + blocked",
+            "source": "figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_feature_contrasts.csv; reports/morphology_stage_transition_analysis.md; paper_text/morphology_stage_transition_conclusion_zh.md",
             "claim_readiness": "paper_ready_with_boundary",
         },
         {
@@ -128,6 +146,26 @@ def main() -> None:
             "callout_id": "Fig. E3-4",
             "recommended_file": "figures/morphology_threshold_recovery_rule_summary.png",
             "purpose": f"Near-to-context morphology threshold design-rule screening: {threshold}.",
+        },
+        {
+            "callout_id": "Fig. E3-S1",
+            "recommended_file": "figures/experiment3_effect_size_uncertainty_forest.png",
+            "purpose": "Supplementary effect-size and uncertainty audit for S0 low-speed baseline, vertical recovery, S1/S2 negative sensitivity and morphology recovery.",
+        },
+        {
+            "callout_id": "Fig. E3-S2",
+            "recommended_file": "figures/experiment3_directional_anisotropy_panel.png",
+            "purpose": "Supplementary eight-direction anisotropy and design-sector response for S0 baseline, vertical recovery and S1/S2 design sensitivity.",
+        },
+        {
+            "callout_id": "Fig. E3-S3",
+            "recommended_file": "figures/morphology_form_response_archetype_panel.png",
+            "purpose": "Supplementary building-form response archetype analysis for 101 retained components and 20-50 m recovery contrast.",
+        },
+        {
+            "callout_id": "Fig. E3-S4",
+            "recommended_file": "figures/morphology_stage_transition_panel.png",
+            "purpose": "Supplementary near-to-context morphology stage-transition analysis separating facade-adjacent shelter, 20-50 m recovery and directional reactivity.",
         },
         {
             "callout_id": "Table E3-1",
@@ -223,6 +261,8 @@ The study object is the TUM Downtown campus core corresponding to the photogramm
 The S0 baseline shows pedestrian-layer ventilation insufficiency rather than a strong-wind hazard. At z~2 m, mean VR / low-speed ratio is {baseline}; at z~40 m it becomes {vertical}. The vertical contrast shows that above-roof recovery cannot be used as a surrogate for campus pedestrian-space ventilation. Open-Meteo 2024 proxy weighting gives z~2 m mean VR / low-speed ratio of {climate}, close to the equal-weighted result. The low-speed conclusion is therefore stable under this proxy weighting, but this does not support annual Lawson/NEN/AIJ compliance [R5,R8-R10].
 
 The morphology analysis translates traditional canyon/canopy reasoning into a local digital-twin diagnosis. The 0-20 m facade-adjacent band is almost uniformly sheltered, while the 20-50 m local-context band better distinguishes wind recovery. The multivariate robustness result is {morph}; thus morphology variables are useful as interpretable screening descriptors but not as a high-accuracy surrogate model. Sector enclosure and mean height rank above individual footprint, elongation and perimeter-area compactness, indicating that local enclosure, wind-entry opportunity and pressure-exchange continuity are more informative than isolated building shape [R2-R4].
+
+The building-form response archetype addendum gives {archetype}. Because the clusters are formed from basic morphology descriptors and interpreted afterward with FluidX3D-derived wind response, this result supports a combined-form screening typology rather than a causal typology. The stage-transition addendum further separates the near-facade shelter stage from the local-context recovery stage: {stage}. This result refines the building-form conclusion. The key contrast is not absolute building size by itself, but whether relative vertical scale, plan continuity and local enclosure allow momentum exchange outside the immediate facade-adjacent sheltered band. The subgroup rule remains sample-internal and must be written as a digital-twin screening descriptor rather than a field-validated morphology threshold.
 
 The S1/S2 design-sensitivity sequence further narrows the design claim. S1 changes z~2 m mean VR / low-speed ratio by {s1}; S2 changes them by {s2}. Directional trade-off analysis gives {trade}. S1/S2 should therefore be interpreted as negative design evidence: geometric opening area alone does not recover pedestrian ventilation unless aligned with effective inflow sectors, momentum entry and pressure-exchange paths.
 

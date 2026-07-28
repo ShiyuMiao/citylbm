@@ -30,7 +30,7 @@ It is not complete enough for:
 ## Current Paper Assets
 
 - Main result rows: `13`
-- Reviewer-facing figures/tables: `10` with `10` ready for manual review.
+- Reviewer-facing figures/tables: `11` with `11` ready for manual review.
 - Evidence inventory rows: `110`
 - Archive manifest status should be checked through `manifests/github_archive_manifest.csv` after every commit.
 

@@ -8,10 +8,10 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Evidence inventory rows: `110`
 - References used: `12`
 - Key result matrix rows: `13`
-- Figure/table callouts: `10`
-- Submission-readiness assets: `10`
-- Ready for manual review: `10`
-- Claim inventory rows: `27`
+- Figure/table callouts: `11`
+- Submission-readiness assets: `11`
+- Ready for manual review: `11`
+- Claim inventory rows: `33`
 
 ## Passed Checks
 
