@@ -171,6 +171,13 @@ def main() -> None:
             "paper_safe_interpretation": "A generic SCI section and traceable figure/table assets are available, pending target-journal formatting.",
         },
         {
+            "requirement": "Final SCI discussion and conclusion evidence map",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/experiment3_final_discussion_paragraph_evidence_map.csv; reports/experiment3_final_sci_discussion_evidence_map.md; paper_text/experiment3_final_sci_discussion_conclusion_zh.md",
+            "paper_safe_interpretation": "The final discussion/conclusion module is paragraph-mapped to evidence and blocked wording; target-journal formatting and paper-level integration remain separate tasks.",
+        },
+        {
             "requirement": "CityLBM-Grasshopper end-to-end execution",
             "status": "blocked",
             "evidence_type": "blocked",

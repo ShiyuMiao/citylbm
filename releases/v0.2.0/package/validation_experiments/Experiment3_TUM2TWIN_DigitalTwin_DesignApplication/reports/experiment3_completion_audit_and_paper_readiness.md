@@ -6,14 +6,14 @@ This audit reflects the current archive after the morphology-response archetype,
 
 ## Evidence Counts
 
-- Key result matrix rows: `16`
+- Key result matrix rows: `17`
 - Figure/table callouts: `12`
 - Submission-readiness assets: `12`
 - Ready for manual review: `12`
 - Missing figure/table assets: `0`
-- Evidence inventory rows: `118`
+- Evidence inventory rows: `120`
 - Verified references used in Experiment 3 section draft: `12`
-- Claim verification rows: `38`
+- Claim verification rows: `39`
 
 ## Key Result Matrix
 
@@ -35,6 +35,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | newly_run + blocked | Morphology directional fingerprint | 20-50 m directional range / stage-class separation / enclosure-height correlations | range mean 0.008655; stage ranges persistent/recovery/reactive 0.001579 / 0.018941 / 0.021421; stage Kruskal p 1.02e-15; rho mean_height -0.363, sector_enclosure -0.362 | figures/morphology_directional_fingerprint_by_component.csv; figures/morphology_directional_fingerprint_feature_correlations.csv; figures/morphology_directional_fingerprint_stage_summary.csv | Wind recovery is better interpreted as local-context mean recovery plus wind-sector directional reactivity; persistent shelter suppresses both. This is sample-internal screening evidence, not a field-validated causal rule. |
 | newly_run + preexisting_artifact + blocked | FluidX3D numerical protocol transparency | dx / grid / Uref / nu_air / tau / samples / blocked convergence | 2 m / 320x390x60 / 5 m s-1 / 1.5e-5 m2 s-1 / 0.52999996 / 8000-10000-12000 / residual not recorded | manifests/fluidx3d_numerical_protocol_audit.csv; manifests/fluidx3d_core_prism_boundary_condition_table.csv | The FluidX3D case is transparent enough for screening-level reproduction, while formal convergence, field validation and annual compliance remain blocked. |
 | newly_run + preexisting_artifact + blocked | Building-form wind mechanism synthesis | near/local VR / enclosure-height correlations / stage directional range / best subgroup rule | 0.0032/0.0056; rho sector=-0.396, height=-0.351; persistent/recovery/reactive range=0.0016/0.0189/0.0214; best rule n=5 recovery=0.0065 | figures/building_form_wind_mechanism_parameter_matrix.csv; reports/building_form_wind_mechanism_synthesis.md | The campus wind response is best interpreted as a staged morphology mechanism: near-facade low-speed saturation, 20-50 m local-context recovery, and wind-sector directional reactivity. |
+| newly_run + preexisting_artifact + blocked | Final SCI discussion synthesis | paragraph evidence map / final bilingual discussion-conclusion module / blocked wording control | 8 mapped paragraphs / 16 source key-result rows before final upsert / blocked validation-compliance-pollutant-GCBTE-CityLBM claims retained | manifests/experiment3_final_discussion_paragraph_evidence_map.csv; paper_text/experiment3_final_sci_discussion_conclusion_zh.md | Experiment 3 is ready as a manuscript discussion module when framed as digital-twin-to-CFD wind screening with explicit evidence boundaries. |
 
 ## Requirement Coverage
 
@@ -53,6 +54,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | S1/S2 design sensitivity | complete_negative_result | newly_run | figures/fluidx3d_s0_s1_ventilation_relief_metric_comparison.csv; figures/fluidx3d_s0_s2_network_porosity_metric_comparison.csv | S1/S2 are near-null or negative; they support design-boundary reasoning rather than optimization success. |
 | Directional anisotropy and wind-sector design logic | complete_with_boundary | newly_run + preexisting_artifact + blocked | reports/experiment3_directional_anisotropy_analysis.md; figures/experiment3_directional_anisotropy_summary.csv | Low-speed sheltering is quasi-omnidirectional; local intervention response is sector-sensitive but not globally restorative. |
 | SCI section draft and figure/table captions | complete_as_generic_section | newly_run + preexisting_artifact + blocked | academic-paper-writer/paper-drafts/paper_draft.md; academic-paper-writer/paper-drafts/paper_draft_en.md; paper_text/experiment3_sci_figure_captions_en.md | A generic SCI section and traceable figure/table assets are available, pending target-journal formatting. |
+| Final SCI discussion and conclusion evidence map | complete_with_boundary | newly_run + preexisting_artifact + blocked | manifests/experiment3_final_discussion_paragraph_evidence_map.csv; reports/experiment3_final_sci_discussion_evidence_map.md; paper_text/experiment3_final_sci_discussion_conclusion_zh.md | The final discussion/conclusion module is paragraph-mapped to evidence and blocked wording; target-journal formatting and paper-level integration remain separate tasks. |
 | CityLBM-Grasshopper end-to-end execution | blocked | blocked | cfd_ready/CityLBM_GH_input_template/README.md; reports/claim_boundary.md | Frame as FluidX3D-native simulation with a CityLBM-compatible geometry package unless GH execution evidence is added. |
 | Measured or wind-tunnel validation | blocked | blocked | reports/claim_boundary.md | Do not claim field-validated predictive accuracy. |
 | Formal Lawson/NEN/AIJ annual comfort compliance | blocked | blocked | reports/claim_boundary.md | Do not claim annual threshold-exceedance comfort or safety classes. |

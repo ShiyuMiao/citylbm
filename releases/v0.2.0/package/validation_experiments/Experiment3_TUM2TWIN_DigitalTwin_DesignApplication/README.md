@@ -78,6 +78,8 @@ Core distinction:
 35. `paper_text/building_form_wind_mechanism_conclusion_zh.md`
 36. `reports/fluidx3d_numerical_protocol_and_stability_audit.md`
 37. `paper_text/fluidx3d_numerical_protocol_methods_zh.md`
+38. `reports/experiment3_final_sci_discussion_evidence_map.md`
+39. `paper_text/experiment3_final_sci_discussion_conclusion_zh.md`
 
 ## Current Main Conclusion
 
@@ -345,6 +347,23 @@ screening-level reproduction and manuscript review, while residual
 convergence, complete grid independence, field validation and annual
 comfort/safety compliance remain outside the supported claim boundary.
 
+## Final SCI Discussion and Conclusion Package
+
+The archive now includes a final discussion-level synthesis for manuscript
+integration. Each paragraph in the discussion/conclusion module is mapped to
+source artifacts, allowed wording and blocked wording.
+
+- `scripts/synthesize_experiment3_final_sci_discussion_package.py`
+- `manifests/experiment3_final_discussion_paragraph_evidence_map.csv`
+- `reports/experiment3_final_sci_discussion_evidence_map.md`
+- `paper_text/experiment3_final_sci_discussion_conclusion_zh.md`
+- `paper_text/experiment3_final_sci_discussion_conclusion_en.md`
+
+Paper-safe interpretation: this is the current most direct text layer for the
+Experiment 3 Discussion/Conclusion. It is ready for manuscript integration
+when the case is framed as digital-twin-to-CFD wind screening and all blocked
+claims remain excluded.
+
 ## Reviewer Reproducibility and Claim-Risk Layer
 
 The archive now includes a reviewer-facing reproducibility and claim-risk audit
@@ -377,8 +396,8 @@ verification, and remaining blockers are mutually consistent.
 - `paper_text/experiment3_final_contribution_and_conclusion_en.md`
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
-Audit result: the final archive currently contains 16 key result rows, 12
-reviewer-facing figure/table callouts, 12 ready submission assets, and 118
+Audit result: the final archive currently contains 17 key result rows, 12
+reviewer-facing figure/table callouts, 12 ready submission assets, and 120
 evidence-inventory entries. It is complete for a standalone Experiment 3
 section if framed as FluidX3D-native digital-twin-to-CFD wind screening with
 CityLBM-compatible geometry preparation. It remains incomplete for field
