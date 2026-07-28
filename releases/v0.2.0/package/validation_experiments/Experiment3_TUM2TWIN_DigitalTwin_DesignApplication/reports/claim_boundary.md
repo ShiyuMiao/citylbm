@@ -76,6 +76,13 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Unsupported claim: morphology parameters form a high-accuracy predictive model or establish causal design effects without additional intervention experiments and measured validation.
 - Paper-safe interpretation: use the multivariate result as an interpretable campus wind-screening diagnosis with limited explanatory power (`R2 = 0.122 +/- 0.166`).
 
+## Morphology Threshold Design-Rule Claim Boundary Addendum
+
+- `newly_run`: near-to-context recovery and tertile-rule screening were computed from existing component-level morphology and FluidX3D wind-response CSVs.
+- Supported claim: the 20-50 m local-context band reveals sample-internal morphology threshold signals that are hidden in the uniformly sheltered 0-20 m facade-adjacent band.
+- Unsupported claim: the extracted rules are universal design thresholds, causal laws, or field-validated criteria for other campus blocks.
+- Paper-safe interpretation: use the threshold result as a digital-twin screening layer for prioritizing candidate design mechanisms, with explicit single-case and no-field-validation boundaries.
+
 ## Final Integrated Paper-Readiness Claim Boundary Addendum
 
 - `newly_run + preexisting_artifact + blocked`: final integrated paper-readiness files consolidate existing evidence and blockers without adding new CFD fields.

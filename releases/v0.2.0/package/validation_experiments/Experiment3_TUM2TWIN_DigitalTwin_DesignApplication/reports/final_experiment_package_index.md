@@ -90,6 +90,8 @@ Photogrammetry counterexample:
 - Climate-campus-digital-twin conclusion: `paper_text/conclusion_climate_campus_digital_twin_wind_zh.md`
 - Basic morphology wind-response conclusion: `paper_text/basic_morphology_wind_response_conclusion_zh.md`
 - Basic morphology multivariate robustness conclusion: `paper_text/basic_morphology_multivariate_robustness_conclusion_zh.md`
+- Morphology threshold design-rule analysis: `reports/morphology_threshold_design_rule_analysis.md`
+- Morphology threshold design-rule conclusion: `paper_text/morphology_threshold_design_rule_conclusion_zh.md`
 - Final integrated results/discussion, Chinese: `paper_text/final_integrated_results_discussion_zh.md`
 - Final integrated results/discussion, English: `paper_text/final_integrated_results_discussion_en.md`
 - Experiment 3 SCI manuscript module, Chinese: `paper_text/experiment3_sci_manuscript_module_zh.md`
@@ -116,6 +118,7 @@ Photogrammetry counterexample:
 - Nature-style figure manifest: `manifests/nature_style_figure_manifest.csv`
 - Experiment 3 manuscript module claims: `manifests/experiment3_manuscript_module_claims.csv`
 - Experiment 3 manuscript figure/table plan: `manifests/experiment3_manuscript_figure_table_plan.csv`
+- Morphology threshold design-rule claims: `manifests/morphology_threshold_design_rule_claims.csv`
 
 ## Current Claim Boundary in One Sentence
 
@@ -175,6 +178,20 @@ New multivariate robustness files:
 - `figures/basic_morphology_multivariate_rank_model_importance.png`
 
 Paper-safe interpretation: the 20-50 m local-context morphology response is better described by local enclosure and momentum-exchange context than by single-building footprint or elongation alone. The rank-regression explanatory power is limited, so this is an interpretable screening conclusion rather than a predictive urban-wind model.
+
+## Morphology Threshold Design-Rule Addendum
+
+New threshold-screening files:
+
+- `reports/morphology_threshold_design_rule_analysis.md`
+- `paper_text/morphology_threshold_design_rule_conclusion_zh.md`
+- `figures/morphology_near_to_context_recovery_by_component.csv`
+- `figures/morphology_recovery_top_bottom_contrast.csv`
+- `figures/morphology_threshold_rule_screening.csv`
+- `figures/morphology_threshold_recovery_rule_summary.png`
+- `manifests/morphology_threshold_design_rule_claims.csv`
+
+Paper-safe interpretation: the 0-20 m facade-adjacent band remains uniformly sheltered, while the 20-50 m local-context band reveals sample-internal morphology threshold signals. The best simple subgroup rule is useful for design screening inside this modeled case, but it is not a universal or field-validated design threshold.
 
 ## Final Integrated Paper-Readiness Layer
 

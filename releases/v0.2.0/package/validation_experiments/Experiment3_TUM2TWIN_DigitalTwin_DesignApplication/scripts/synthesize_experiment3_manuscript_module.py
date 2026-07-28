@@ -40,6 +40,7 @@ def main() -> None:
     s2 = read_value(matrix, "S2 design sensitivity")
     trade = read_value(matrix, "Directional local trade-off")
     morph = read_value(matrix, "Morphology robustness")
+    threshold = read_value(matrix, "Morphology threshold design rule")
     gcri = read_value(matrix, "Geometry-to-CFD readiness")
 
     claims = [
@@ -73,6 +74,14 @@ def main() -> None:
             "claim": "Basic morphology variables are interpretable screening descriptors; sector enclosure ranks above single-building footprint/elongation.",
             "evidence_type": "newly_run",
             "source": "figures/basic_morphology_multivariate_robustness.csv; reports/basic_morphology_multivariate_robustness.md",
+            "claim_readiness": "paper_ready_with_boundary",
+        },
+        {
+            "claim_id": "R3b",
+            "section": "Results",
+            "claim": "Near-to-context recovery analysis extracts sample-internal morphology threshold rules for design screening, not externally validated design thresholds.",
+            "evidence_type": "newly_run + blocked",
+            "source": "figures/morphology_threshold_rule_screening.csv; reports/morphology_threshold_design_rule_analysis.md; paper_text/morphology_threshold_design_rule_conclusion_zh.md",
             "claim_readiness": "paper_ready_with_boundary",
         },
         {
@@ -114,6 +123,11 @@ def main() -> None:
             "callout_id": "Fig. E3-3",
             "recommended_file": "figures/fluidx3d_design_sensitivity_directional_tradeoff_heatmap_z2m.png",
             "purpose": "S1/S2 directional local trade-off summary.",
+        },
+        {
+            "callout_id": "Fig. E3-4",
+            "recommended_file": "figures/morphology_threshold_recovery_rule_summary.png",
+            "purpose": f"Near-to-context morphology threshold design-rule screening: {threshold}.",
         },
         {
             "callout_id": "Table E3-1",

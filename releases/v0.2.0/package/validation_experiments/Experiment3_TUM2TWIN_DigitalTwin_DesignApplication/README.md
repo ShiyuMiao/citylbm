@@ -56,12 +56,14 @@ Core distinction:
 13. `paper_text/basic_morphology_wind_response_conclusion_zh.md`
 14. `reports/basic_morphology_multivariate_robustness.md`
 15. `paper_text/basic_morphology_multivariate_robustness_conclusion_zh.md`
-16. `reports/experiment3_completion_audit_and_paper_readiness.md`
-17. `paper_text/final_integrated_results_discussion_zh.md`
-18. `paper_text/final_integrated_results_discussion_en.md`
-19. `paper_text/experiment3_sci_manuscript_module_zh.md`
-20. `paper_text/experiment3_sci_manuscript_module_en.md`
-21. `paper_text/experiment3_figure_table_callouts_zh.md`
+16. `reports/morphology_threshold_design_rule_analysis.md`
+17. `paper_text/morphology_threshold_design_rule_conclusion_zh.md`
+18. `reports/experiment3_completion_audit_and_paper_readiness.md`
+19. `paper_text/final_integrated_results_discussion_zh.md`
+20. `paper_text/final_integrated_results_discussion_en.md`
+21. `paper_text/experiment3_sci_manuscript_module_zh.md`
+22. `paper_text/experiment3_sci_manuscript_module_en.md`
+23. `paper_text/experiment3_figure_table_callouts_zh.md`
 
 ## Current Main Conclusion
 
@@ -130,9 +132,23 @@ The archive now includes a lightweight bootstrap/partial-correlation/rank-regres
 - `figures/basic_morphology_rank_model_cv_summary.csv`
 - `figures/basic_morphology_multivariate_rank_model_importance.png`
 
+## Morphology Threshold Design-Rule Addendum
+
+The archive now includes a near-to-context recovery analysis that compares the same 101 retained building components in the 0-20 m facade-adjacent band and the 20-50 m local-context band. It extracts sample-internal morphology threshold rules for design screening.
+
+- `reports/morphology_threshold_design_rule_analysis.md`
+- `paper_text/morphology_threshold_design_rule_conclusion_zh.md`
+- `figures/morphology_near_to_context_recovery_by_component.csv`
+- `figures/morphology_recovery_top_bottom_contrast.csv`
+- `figures/morphology_threshold_rule_screening.csv`
+- `figures/morphology_threshold_recovery_rule_summary.png`
+- `manifests/morphology_threshold_design_rule_claims.csv`
+
+Paper-safe interpretation: the 20-50 m band exposes morphology-sensitive wind recovery that is hidden in the uniformly sheltered 0-20 m facade-adjacent band. The best simple subgroup rule is sample-internal and should not be written as a universal or field-validated design threshold.
+
 ## Final Integrated Paper-Readiness Layer
 
-The archive now includes a final integrated result matrix, completion audit, and manuscript-ready Chinese/English results-discussion sections. This layer binds the baseline, climate-proxy weighting, S1/S2 sensitivity, directional trade-off, morphology robustness, GCRI geometry readiness, and claim boundary into a single paper-facing package.
+The archive now includes a final integrated result matrix, completion audit, and manuscript-ready Chinese/English results-discussion sections. This layer binds the baseline, climate-proxy weighting, S1/S2 sensitivity, directional trade-off, morphology robustness, morphology threshold screening, GCRI geometry readiness, and claim boundary into a single paper-facing package.
 
 - `figures/final_integrated_key_result_matrix.csv`
 - `figures/experiment3_completion_audit_matrix.csv`

@@ -10,7 +10,7 @@ evidence_type: newly_run + preexisting_artifact + user_claim + blocked
 |---|---|---:|---|---|
 | Download/source manifest | `manifests/data_manifest.csv` | 21 rows | newly_run + preexisting_artifact | Records source URL, size, checksum, download time, license/citation information |
 | Geometry manifest | `manifests/geometry_manifest.csv` | 13 rows | newly_run | Records Rhino/OBJ/STL geometry files, roles, sizes and checksums |
-| Evidence inventory | `manifests/evidence_inventory.csv` | 99 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
+| Evidence inventory | `manifests/evidence_inventory.csv` | 100 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
 | Wind-climate proxy weights | `manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv` | 8 sectors | newly_run + preexisting_artifact | Converts 2024 hourly 10 m wind data into 8 FluidX3D velocity-direction weights |
 
 ### 1.2 Visual and Rhino Data
@@ -165,7 +165,13 @@ The basic morphology interpretation was rechecked using bootstrap Spearman inter
 
 The final integrated layer consolidates the main evidence into `figures/final_integrated_key_result_matrix.csv` and `reports/experiment3_completion_audit_and_paper_readiness.md`. The paper-ready position is now explicit: Experiment 3 is complete as a FluidX3D-native digital-twin wind screening, morphology interpretation, and negative S1/S2 design-sensitivity case. It remains bounded against field validation, annual comfort/safety compliance, pollutant dispersion, GCBTE closure, successful S3-Sn optimization, and CityLBM-GH end-to-end execution.
 
-### 7.6 SCI Manuscript Module Addendum
+### 7.6 Morphology Threshold Design-Rule Addendum
+
+The threshold design-rule layer compares the same 101 retained central building components between the facade-adjacent 0-20 m band and the 20-50 m local-context band. The mean near-facade VR is `0.0032`, while the mean local-context VR is `0.0056`, giving a mean recovery delta of `0.0024`. The strongest monotonic descriptor of this recovery delta is `height/sqrt(area)` with Spearman rho `-0.416`, and the best simple sample-internal rule is `mean_height_m=low_tertile + elongation_ratio=high_tertile`, with mean recovery delta `0.0057` and top-recovery share `0.857`.
+
+This strengthens the paper's design conclusion in a careful way. It suggests that the 20-50 m local-context band is the useful diagnostic scale for morphology-sensitive wind recovery, while the 0-20 m facade-adjacent band is too uniformly sheltered to distinguish design mechanisms. The rule should be written as digital-twin screening evidence within this modeled campus case, not as a generalizable or field-validated design threshold.
+
+### 7.7 SCI Manuscript Module Addendum
 
 The manuscript module consolidates the completed evidence into `paper_text/experiment3_sci_manuscript_module_zh.md`, `paper_text/experiment3_sci_manuscript_module_en.md`, `paper_text/experiment3_figure_table_callouts_zh.md`, `reports/experiment3_manuscript_module_audit.md`, and `manifests/experiment3_manuscript_module_claims.csv`. It is the most complete paper-facing layer for Experiment 3 because it links the digital-twin data hierarchy, FluidX3D baseline, ParaView/statistical review, Open-Meteo proxy sensitivity, building-morphology robustness analysis, S1/S2 negative design sensitivity, GCRI geometry-readiness contrast, and blocked claim boundary into one Results/Discussion/Limitations package.
 

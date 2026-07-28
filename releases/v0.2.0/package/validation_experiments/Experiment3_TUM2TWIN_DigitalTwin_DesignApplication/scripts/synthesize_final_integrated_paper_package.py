@@ -53,6 +53,8 @@ def main() -> None:
     trade = read_csv("fluidx3d_design_sensitivity_directional_tradeoff_summary_z2m.csv")
     morph = read_csv("basic_morphology_multivariate_robustness.csv")
     morph_cv = read_csv("basic_morphology_rank_model_cv_summary.csv")
+    threshold_rules = read_csv("morphology_threshold_rule_screening.csv")
+    threshold_contrast = read_csv("morphology_recovery_top_bottom_contrast.csv")
     gcri = pd.read_csv(ROOT / "manifests" / "gcri_scoring_table.csv")
 
     b2 = find_row(baseline, case="equal_weighted_8dir", z_height_m_approx="2.0")
@@ -74,6 +76,8 @@ def main() -> None:
         target="directional_mean_vr",
         feature="mean_height_m",
     )
+    best_threshold_rule = threshold_rules.iloc[0]
+    threshold_height_scale = find_row(threshold_contrast, feature="height_to_sqrt_area")
     photo_gcri = find_row(gcri, geometry_id="user_photogrammetry_fullres_stl")
     core_gcri = find_row(gcri, geometry_id="core_photogrammetry_extent_prism_collision_z0")
     district_gcri = find_row(gcri, geometry_id="district_prism_collision_z0")
@@ -134,6 +138,14 @@ def main() -> None:
             "value": f"{f(morph_cv_mean['ridge_cv_r2_mean'])}+/-{f(morph_cv_mean['ridge_cv_r2_std'])} / {f(sector['ridge_standardized_coef'])} / {f(sector['permutation_r2_drop'])}",
             "source_artifact": "figures/basic_morphology_rank_model_cv_summary.csv; figures/basic_morphology_multivariate_robustness.csv",
             "paper_safe_claim": "Morphology variables are interpretable screening descriptors, not high-accuracy predictors.",
+        },
+        {
+            "evidence_type": "newly_run",
+            "claim_layer": "Morphology threshold design rule",
+            "metric": "best rule / mean recovery delta / top-recovery share / height-scale rho",
+            "value": f"{best_threshold_rule['rule']} / {f(best_threshold_rule['mean_recovery_delta_vr'], 4)} / {f(best_threshold_rule['top_recovery_component_share'], 3)} / {f(threshold_height_scale['spearman_rho_with_recovery_delta'], 3)}",
+            "source_artifact": "figures/morphology_threshold_rule_screening.csv; figures/morphology_recovery_top_bottom_contrast.csv",
+            "paper_safe_claim": "The 20-50 m band exposes sample-internal design-rule signals, especially lower relative vertical scale and small subgroups with higher recovery.",
         },
         {
             "evidence_type": "newly_run",
@@ -198,6 +210,8 @@ Open-Meteo 2024 方向权重只作为气候代理，而非正式实测风玫瑰�
 
 建筑形式分析进一步把传统“高密度、围合街谷削弱通风”的认识推进到可定位的校园尺度诊断 [R2-R4]。0-20 m 近立面带几乎普遍滞风，难以区分不同形态的设计机制；20-50 m 局地环境带更能体现风速恢复差异。在 101 个建筑单元的多变量稳健性复核中，20-50 m mean VR 的 rank-regression 交叉验证 R2 仅为 {f(morph_cv_mean['ridge_cv_r2_mean'])}±{f(morph_cv_mean['ridge_cv_r2_std'])}，说明形态参数不能被写成强预测模型；但变量排序仍有解释价值，50 m 扇区围合度的标准化系数为 {f(sector['ridge_standardized_coef'])}，置换重要性为 {f(sector['permutation_r2_drop'])}，平均高度的标准化系数为 {f(mean_height['ridge_standardized_coef'])}。因此，本文的形态结论应写为局地围合、动量入口和院落-街道压力交换的筛查诊断，而不是由单体 footprint、elongation 或 perimeter-area compactness 单独决定风环境。
 
+进一步的阈值规则分析将同一批 101 个建筑单元的 0-20 m 与 20-50 m 响应配对，定义 `context_recovery_delta_vr = mean_VR_20-50m - mean_VR_0-20m`。结果显示，近立面带平均 VR 为 0.0032，20-50 m 局地环境带平均 VR 为 0.0056，平均恢复量为 0.0024；恢复量与 `height/sqrt(area)` 的单调相关最强且为负（rho=-0.416）。样本内最佳简单组合规则为 `mean_height_m=low_tertile + elongation_ratio=high_tertile`，平均恢复量为 0.0057，top-recovery 构件占比为 0.857。该结果把设计讨论从“单体大小或孔隙面积”推进到“局地暴露度、相对竖向尺度和平面连续性”的组合筛查，但它仍是单案例数字孪生筛查规则，不是可外推的通用设计阈值。
+
 S1/S2 设计敏感性实验把这一解释进一步收敛。S1 单条 light relief corridor 在 z≈2 m 使 mean VR 变化 {f(s1_2['delta_vr_mean'], 6)}，低速比例变化 {f(s1_2['delta_stagnation_ratio_vr_lt_0p2'], 6)}；S2 三通道 network porosity 使 mean VR 变化 {f(s2_2['delta_vr_mean'], 6)}，低速比例变化 {f(s2_2['delta_stagnation_ratio_vr_lt_0p2'], 6)}。方向性 trade-off 显示 S2 在 315° 共同开放单元中有最佳局部响应，mean ΔVR 为 {f(tr_s2['best_common_delta_vr_mean'], 6)}，但 ΔVR>0.02 的共同开放单元比例均值仅 {f(tr_s2['mean_common_improved_ratio_delta_gt_0p02'], 6)}，新增开放单元最高 mean VR 仅 {f(tr_s2['max_newly_open_target_vr_mean'], 6)} 且低速比例仍为 {f(tr_s2['min_newly_open_stagnation_ratio'])}。因此，S1/S2 不能作为成功优化方案，而应作为负向设计证据：几何孔隙如果没有与有效来流扇区、动量入口和压力交换路径耦合，就可能只是低速背景中的新增开敞空间。
 
 数字孪生底层模型的主要方法贡献在于揭示“视觉真实”和“CFD 就绪”并不等同。photogrammetry visual STL 的 GCRI 为 {f(photo_gcri['GCRI'])}，而 core closed-prism collision 和 district prism collision 分别达到 {f(core_gcri['GCRI'])} 与 {f(district_gcri['GCRI'])}。这支持本文的核心技术路线：UAS/photogrammetry/3DGS-like 资产适合视觉审查和场景一致性核验，但最终 FluidX3D/CityLBM 碰撞边界应由语义 LoD/CAD-derived 闭合几何生成 [R11,R12]。
@@ -217,6 +231,8 @@ The baseline result indicates persistent pedestrian-layer ventilation insufficie
 The Open-Meteo 2024 direction weighting is used only as a climate proxy. It gives a z~2 m mean VR of {f(c2['vr_mean'])} and a low-speed ratio of {f(c2['stagnation_ratio_vr_lt_0p2'])}, close to the equal-weighted result. Therefore, the paper can claim sensitivity of the low-speed conclusion to a proxy directional weighting, but not annual Lawson/NEN/AIJ comfort or safety compliance [R5,R8-R10].
 
 The morphology analysis translates traditional canopy and canyon reasoning into a local digital-twin diagnosis [R2-R4]. The 0-20 m facade-adjacent band is almost uniformly sheltered, whereas the 20-50 m local-context band better reveals morphology-dependent recovery. In the conservative multivariate robustness check over 101 building components, the rank-regression CV R2 for 20-50 m mean VR is only {f(morph_cv_mean['ridge_cv_r2_mean'])}+/-{f(morph_cv_mean['ridge_cv_r2_std'])}, so morphology variables should not be treated as a high-accuracy surrogate model. Nevertheless, their ordering is interpretable: the 50 m sector-enclosure coefficient is {f(sector['ridge_standardized_coef'])} with permutation importance {f(sector['permutation_r2_drop'])}, stronger than footprint area, elongation and perimeter-area compactness. The paper-safe interpretation is that local enclosure, wind-entry opportunity and pressure-exchange continuity are more useful screening descriptors than isolated building size or shape.
+
+The threshold-rule addendum further pairs the 0-20 m and 20-50 m responses for the same 101 components through `context_recovery_delta_vr = mean_VR_20-50m - mean_VR_0-20m`. The mean VR increases from 0.0032 in the facade-adjacent band to 0.0056 in the local-context band, with a mean recovery delta of 0.0024. The strongest monotonic descriptor is `height/sqrt(area)` with rho=-0.416, and the best simple sample-internal rule is `mean_height_m=low_tertile + elongation_ratio=high_tertile`, with mean recovery delta 0.0057 and top-recovery share 0.857. This moves the design interpretation from single-building size or opening area toward combined local exposure, relative vertical scale and plan continuity, while remaining a single-case screening rule rather than a transferable design threshold.
 
 The S1/S2 design-sensitivity sequence further narrows the design claim. S1 changes z~2 m mean VR by {f(s1_2['delta_vr_mean'], 6)} and the low-speed ratio by {f(s1_2['delta_stagnation_ratio_vr_lt_0p2'], 6)}. S2 changes z~2 m mean VR by {f(s2_2['delta_vr_mean'], 6)} and the low-speed ratio by {f(s2_2['delta_stagnation_ratio_vr_lt_0p2'], 6)}. Directional trade-off analysis shows that S2 has its best common-open response at 315 deg, but the mean share of common-open cells with Delta VR>0.02 is only {f(tr_s2['mean_common_improved_ratio_delta_gt_0p02'], 6)}, and newly opened cells reach a maximum direction-wise mean VR of only {f(tr_s2['max_newly_open_target_vr_mean'], 6)}. S1/S2 are therefore negative design evidence: geometric porosity alone does not recover pedestrian ventilation unless coupled to effective inflow sectors, momentum entry and pressure-exchange paths.
 
