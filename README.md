@@ -26,6 +26,10 @@ urban data can be transformed into CFD-ready geometry, simulated with FluidX3D,
 reviewed with ParaView/Rhino, and interpreted through basic building-morphology
 parameters.
 
+The current Experiment 3 SCI section draft and verification package are stored
+under `academic-paper-writer/paper-drafts/`, with release copies under
+`releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/paper_text/`.
+
 ## License
 License information will be provided upon the first public release.
 The project is intended for non-commercial academic use.

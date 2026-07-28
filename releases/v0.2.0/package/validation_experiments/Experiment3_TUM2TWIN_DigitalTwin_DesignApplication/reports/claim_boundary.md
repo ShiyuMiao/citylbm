@@ -96,3 +96,10 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Supported claim: the module can be used as paper-facing text for Experiment 3 methods, results, discussion, limitations, and figure/table callouts.
 - Unsupported claim: the existence of manuscript-ready prose does not add new CFD fields, field measurements, pollutant transport, annual comfort exceedance statistics, GCBTE results, or a completed CityLBM-GH plugin run.
 - Paper-safe interpretation: use `paper_text/experiment3_sci_manuscript_module_zh.md`, `paper_text/experiment3_sci_manuscript_module_en.md`, and `paper_text/experiment3_figure_table_callouts_zh.md` as the current top-level writing layer, while preserving all blocker statements in `reports/experiment3_manuscript_module_audit.md` and `manifests/experiment3_manuscript_module_claims.csv`.
+
+## SCI Section Paper Draft Claim Boundary Addendum
+
+- `newly_run + preexisting_artifact + blocked`: the section paper draft is generated from archived Experiment 3 evidence, verified references, key result matrix, figure/table callouts, and blocker inventories.
+- Supported claim: `academic-paper-writer/paper-drafts/paper_draft.md` and `paper_text/experiment3_sci_section_paper_draft_zh.md` are continuous section-level drafts suitable for integration into the broader SCI manuscript.
+- Unsupported claim: the draft is not a venue-formatted final article, does not complete paper-level introduction/related-work framing, and does not close field validation, annual comfort compliance, pollutant dispersion, GCBTE, or CityLBM-GH execution.
+- Paper-safe interpretation: treat the paper draft as the current Experiment 3 section manuscript, with target-journal formatting and optional CityLBM-GH foregrounding left as author-input decisions.

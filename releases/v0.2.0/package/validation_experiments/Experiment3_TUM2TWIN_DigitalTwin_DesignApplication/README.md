@@ -64,6 +64,9 @@ Core distinction:
 21. `paper_text/experiment3_sci_manuscript_module_zh.md`
 22. `paper_text/experiment3_sci_manuscript_module_en.md`
 23. `paper_text/experiment3_figure_table_callouts_zh.md`
+24. `paper_text/experiment3_sci_section_paper_draft_zh.md`
+25. `paper_text/experiment3_sci_section_paper_draft_en.md`
+26. `reports/experiment3_paper_draft_verification.md`
 
 ## Current Main Conclusion
 
@@ -168,3 +171,18 @@ The archive now includes a section-level SCI manuscript module. It consolidates 
 - `manifests/experiment3_manuscript_figure_table_plan.csv`
 
 Paper-safe interpretation: this is the highest-level writing layer for Experiment 3. It strengthens the conclusion that the digital-twin model is most valuable as a geometry-to-CFD translation and campus wind-screening workflow, while explicitly preserving the evidence boundary around field validation, formal annual comfort compliance, pollutant dispersion, GCBTE, and CityLBM-GH execution.
+
+## SCI Section Paper Draft Package
+
+The archive now includes a continuous section-level paper draft generated from the verified Experiment 3 evidence. The canonical working copy is under `academic-paper-writer/paper-drafts/`, with release copies kept in `paper_text/`.
+
+- `academic-paper-writer/paper-drafts/paper_draft.md`
+- `academic-paper-writer/paper-drafts/paper_draft_en.md`
+- `academic-paper-writer/paper-drafts/section_blueprint.md`
+- `academic-paper-writer/paper-drafts/experiment3_claim_verification.csv`
+- `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
+- `paper_text/experiment3_sci_section_paper_draft_zh.md`
+- `paper_text/experiment3_sci_section_paper_draft_en.md`
+- `reports/experiment3_paper_draft_verification.md`
+
+Paper-safe interpretation: this is a generic SCI section draft, not a venue-formatted final manuscript. It is ready for integration into the wider paper after the target journal, final citation style, and paper-level introduction/related-work framing are fixed.

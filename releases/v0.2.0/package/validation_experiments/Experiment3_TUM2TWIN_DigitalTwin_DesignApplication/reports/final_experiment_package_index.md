@@ -97,6 +97,8 @@ Photogrammetry counterexample:
 - Experiment 3 SCI manuscript module, Chinese: `paper_text/experiment3_sci_manuscript_module_zh.md`
 - Experiment 3 SCI manuscript module, English: `paper_text/experiment3_sci_manuscript_module_en.md`
 - Experiment 3 figure/table callouts: `paper_text/experiment3_figure_table_callouts_zh.md`
+- Experiment 3 section paper draft, Chinese: `paper_text/experiment3_sci_section_paper_draft_zh.md`
+- Experiment 3 section paper draft, English: `paper_text/experiment3_sci_section_paper_draft_en.md`
 - Detailed paper conclusions: `paper_text/detailed_paper_conclusions_zh.md`
 - Strengthened SCI results/discussion, Chinese: `paper_text/sci_results_discussion_strengthened_zh.md`
 - Strengthened SCI results/discussion, English: `paper_text/sci_results_discussion_strengthened_en.md`
@@ -217,3 +219,18 @@ New manuscript-module files:
 - `manifests/experiment3_manuscript_figure_table_plan.csv`
 
 Paper-safe interpretation: this is now the highest-level Experiment 3 writing source. It turns the validated data hierarchy, FluidX3D baseline, Open-Meteo proxy sensitivity, morphology robustness, S1/S2 negative design sensitivity, GCRI contrast, and explicit blockers into a manuscript-ready Results/Discussion/Limitations module.
+
+## SCI Section Paper Draft Package
+
+New paper-draft files:
+
+- `academic-paper-writer/paper-drafts/paper_draft.md`
+- `academic-paper-writer/paper-drafts/paper_draft_en.md`
+- `academic-paper-writer/paper-drafts/section_blueprint.md`
+- `academic-paper-writer/paper-drafts/experiment3_claim_verification.csv`
+- `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
+- `paper_text/experiment3_sci_section_paper_draft_zh.md`
+- `paper_text/experiment3_sci_section_paper_draft_en.md`
+- `reports/experiment3_paper_draft_verification.md`
+
+Paper-safe interpretation: this is the continuous section-level draft for integrating Experiment 3 into the broader SCI paper. It is generic rather than venue-formatted and keeps unresolved publication debts explicit.
