@@ -59,6 +59,9 @@ Core distinction:
 16. `reports/experiment3_completion_audit_and_paper_readiness.md`
 17. `paper_text/final_integrated_results_discussion_zh.md`
 18. `paper_text/final_integrated_results_discussion_en.md`
+19. `paper_text/experiment3_sci_manuscript_module_zh.md`
+20. `paper_text/experiment3_sci_manuscript_module_en.md`
+21. `paper_text/experiment3_figure_table_callouts_zh.md`
 
 ## Current Main Conclusion
 
@@ -136,3 +139,16 @@ The archive now includes a final integrated result matrix, completion audit, and
 - `reports/experiment3_completion_audit_and_paper_readiness.md`
 - `paper_text/final_integrated_results_discussion_zh.md`
 - `paper_text/final_integrated_results_discussion_en.md`
+
+## SCI Manuscript Module
+
+The archive now includes a section-level SCI manuscript module. It consolidates the method positioning, experimental setup, result interpretation, design-application discussion, limitations, figure/table callouts, and claim inventory into paper-facing Chinese and English text.
+
+- `paper_text/experiment3_sci_manuscript_module_zh.md`
+- `paper_text/experiment3_sci_manuscript_module_en.md`
+- `paper_text/experiment3_figure_table_callouts_zh.md`
+- `reports/experiment3_manuscript_module_audit.md`
+- `manifests/experiment3_manuscript_module_claims.csv`
+- `manifests/experiment3_manuscript_figure_table_plan.csv`
+
+Paper-safe interpretation: this is the highest-level writing layer for Experiment 3. It strengthens the conclusion that the digital-twin model is most valuable as a geometry-to-CFD translation and campus wind-screening workflow, while explicitly preserving the evidence boundary around field validation, formal annual comfort compliance, pollutant dispersion, GCBTE, and CityLBM-GH execution.

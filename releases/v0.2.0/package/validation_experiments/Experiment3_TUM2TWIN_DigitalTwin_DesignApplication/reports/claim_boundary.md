@@ -82,3 +82,10 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Supported claim: the archive is manuscript-ready for a FluidX3D-native digital-twin-to-CFD screening workflow and morphology/design-sensitivity interpretation.
 - Unsupported claim: the final integrated layer completes field validation, pollutant dispersion, annual comfort/safety compliance, GCBTE closure, successful design optimization, or CityLBM-GH end-to-end execution.
 - Paper-safe interpretation: use `paper_text/final_integrated_results_discussion_zh.md` or `paper_text/final_integrated_results_discussion_en.md` as the highest-level Results/Discussion source.
+
+## SCI Manuscript Module Claim Boundary Addendum
+
+- `newly_run + preexisting_artifact + blocked`: the SCI manuscript module is a synthesis artifact generated from existing simulation outputs, verified references, audit matrices, and claim-boundary files.
+- Supported claim: the module can be used as paper-facing text for Experiment 3 methods, results, discussion, limitations, and figure/table callouts.
+- Unsupported claim: the existence of manuscript-ready prose does not add new CFD fields, field measurements, pollutant transport, annual comfort exceedance statistics, GCBTE results, or a completed CityLBM-GH plugin run.
+- Paper-safe interpretation: use `paper_text/experiment3_sci_manuscript_module_zh.md`, `paper_text/experiment3_sci_manuscript_module_en.md`, and `paper_text/experiment3_figure_table_callouts_zh.md` as the current top-level writing layer, while preserving all blocker statements in `reports/experiment3_manuscript_module_audit.md` and `manifests/experiment3_manuscript_module_claims.csv`.

@@ -92,6 +92,9 @@ Photogrammetry counterexample:
 - Basic morphology multivariate robustness conclusion: `paper_text/basic_morphology_multivariate_robustness_conclusion_zh.md`
 - Final integrated results/discussion, Chinese: `paper_text/final_integrated_results_discussion_zh.md`
 - Final integrated results/discussion, English: `paper_text/final_integrated_results_discussion_en.md`
+- Experiment 3 SCI manuscript module, Chinese: `paper_text/experiment3_sci_manuscript_module_zh.md`
+- Experiment 3 SCI manuscript module, English: `paper_text/experiment3_sci_manuscript_module_en.md`
+- Experiment 3 figure/table callouts: `paper_text/experiment3_figure_table_callouts_zh.md`
 - Detailed paper conclusions: `paper_text/detailed_paper_conclusions_zh.md`
 - Strengthened SCI results/discussion, Chinese: `paper_text/sci_results_discussion_strengthened_zh.md`
 - Strengthened SCI results/discussion, English: `paper_text/sci_results_discussion_strengthened_en.md`
@@ -111,6 +114,8 @@ Photogrammetry counterexample:
 - SCI statistical robustness claims: `manifests/sci_statistical_robustness_claims.csv`
 - Wind rose weights: `manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv`
 - Nature-style figure manifest: `manifests/nature_style_figure_manifest.csv`
+- Experiment 3 manuscript module claims: `manifests/experiment3_manuscript_module_claims.csv`
+- Experiment 3 manuscript figure/table plan: `manifests/experiment3_manuscript_figure_table_plan.csv`
 
 ## Current Claim Boundary in One Sentence
 
@@ -182,3 +187,16 @@ New paper-readiness files:
 - `paper_text/final_integrated_results_discussion_en.md`
 
 Paper-safe interpretation: Experiment 3 is complete as a FluidX3D-native digital-twin wind screening, morphology interpretation, and negative S1/S2 design-sensitivity case. It remains bounded against field validation, annual comfort/safety compliance, pollutant dispersion, GCBTE closure, successful S3-Sn optimization, and CityLBM-GH end-to-end execution.
+
+## SCI Manuscript Module
+
+New manuscript-module files:
+
+- `paper_text/experiment3_sci_manuscript_module_zh.md`
+- `paper_text/experiment3_sci_manuscript_module_en.md`
+- `paper_text/experiment3_figure_table_callouts_zh.md`
+- `reports/experiment3_manuscript_module_audit.md`
+- `manifests/experiment3_manuscript_module_claims.csv`
+- `manifests/experiment3_manuscript_figure_table_plan.csv`
+
+Paper-safe interpretation: this is now the highest-level Experiment 3 writing source. It turns the validated data hierarchy, FluidX3D baseline, Open-Meteo proxy sensitivity, morphology robustness, S1/S2 negative design sensitivity, GCRI contrast, and explicit blockers into a manuscript-ready Results/Discussion/Limitations module.

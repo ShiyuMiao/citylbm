@@ -10,7 +10,7 @@ evidence_type: newly_run + preexisting_artifact + user_claim + blocked
 |---|---|---:|---|---|
 | Download/source manifest | `manifests/data_manifest.csv` | 21 rows | newly_run + preexisting_artifact | Records source URL, size, checksum, download time, license/citation information |
 | Geometry manifest | `manifests/geometry_manifest.csv` | 13 rows | newly_run | Records Rhino/OBJ/STL geometry files, roles, sizes and checksums |
-| Evidence inventory | `manifests/evidence_inventory.csv` | 98 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
+| Evidence inventory | `manifests/evidence_inventory.csv` | 99 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
 | Wind-climate proxy weights | `manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv` | 8 sectors | newly_run + preexisting_artifact | Converts 2024 hourly 10 m wind data into 8 FluidX3D velocity-direction weights |
 
 ### 1.2 Visual and Rhino Data
@@ -164,3 +164,9 @@ The basic morphology interpretation was rechecked using bootstrap Spearman inter
 ### 7.5 Final Integrated Paper-Readiness Addendum
 
 The final integrated layer consolidates the main evidence into `figures/final_integrated_key_result_matrix.csv` and `reports/experiment3_completion_audit_and_paper_readiness.md`. The paper-ready position is now explicit: Experiment 3 is complete as a FluidX3D-native digital-twin wind screening, morphology interpretation, and negative S1/S2 design-sensitivity case. It remains bounded against field validation, annual comfort/safety compliance, pollutant dispersion, GCBTE closure, successful S3-Sn optimization, and CityLBM-GH end-to-end execution.
+
+### 7.6 SCI Manuscript Module Addendum
+
+The manuscript module consolidates the completed evidence into `paper_text/experiment3_sci_manuscript_module_zh.md`, `paper_text/experiment3_sci_manuscript_module_en.md`, `paper_text/experiment3_figure_table_callouts_zh.md`, `reports/experiment3_manuscript_module_audit.md`, and `manifests/experiment3_manuscript_module_claims.csv`. It is the most complete paper-facing layer for Experiment 3 because it links the digital-twin data hierarchy, FluidX3D baseline, ParaView/statistical review, Open-Meteo proxy sensitivity, building-morphology robustness analysis, S1/S2 negative design sensitivity, GCRI geometry-readiness contrast, and blocked claim boundary into one Results/Discussion/Limitations package.
+
+The strongest paper-safe conclusion is no longer that a specific intervention improves wind comfort. Instead, the experiment shows that a campus-scale digital twin can be converted from visually realistic but CFD-fragile photogrammetry/Rhino data into closed semantic collision geometry, then used to diagnose a sheltered urban-block wind environment. In this TUM Downtown core, low pedestrian-layer VR is robust across equal-weighted and proxy-weighted wind directions, while 20-50 m local enclosure explains wind recovery more usefully than single-building footprint or elongation. S1/S2 then sharpen the design implication: porosity area alone is not enough; ventilation interventions must be aligned with wind-sector entry, pressure exchange, and local enclosure continuity.
