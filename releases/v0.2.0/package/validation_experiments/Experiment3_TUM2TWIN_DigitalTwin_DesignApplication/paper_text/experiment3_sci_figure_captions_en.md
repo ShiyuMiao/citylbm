@@ -39,3 +39,12 @@ Fig. E3-4. Threshold-rule screening for wind-speed recovery from the 0-20 m faca
 - Source data: `figures/morphology_threshold_rule_screening.csv; figures/morphology_recovery_top_bottom_contrast.csv`
 - Evidence type: `newly_run + blocked`
 - Boundary: not universal threshold; not field-validated design rule
+
+## Fig. E3-S1
+
+Fig. E3-S1. Supplementary forest plot of Experiment 3 effect sizes and uncertainty. The figure summarizes S0 pedestrian and upper-layer velocity ratios, 40 m minus 2 m vertical recovery, S1/S2 pedestrian-layer global changes and morphology near-to-context recovery. It shows that the low-speed baseline, vertical decoupling and S1/S2 negative results are stable within the available direction-sample or directional ranges, but it represents uncertainty in archived simulation outputs only, not measurement uncertainty, grid-convergence proof or annual comfort exceedance probability.
+
+- Asset: `figures/experiment3_effect_size_uncertainty_forest.png`
+- Source data: `figures/experiment3_effect_size_uncertainty_summary.csv`
+- Evidence type: `newly_run + blocked`
+- Boundary: not measurement uncertainty; not grid convergence; not annual comfort exceedance probability

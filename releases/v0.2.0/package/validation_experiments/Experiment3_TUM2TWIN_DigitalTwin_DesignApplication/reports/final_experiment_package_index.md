@@ -61,6 +61,7 @@ Photogrammetry counterexample:
 - Claim boundary: `reports/claim_boundary.md`
 - ParaView package: `reports/paraview_visualization_package.md`
 - ParaView VTK core statistics and building analysis: `reports/paraview_vtk_core_wind_statistics_and_building_analysis.md`
+- Experiment 3 effect-size and uncertainty analysis: `reports/experiment3_effect_size_uncertainty_analysis.md`
 - Wind-climate weighting: `reports/wind_climate_weighted_core_prism_report.md`
 - Model-result object consistency audit: `reports/model_result_object_consistency_audit.md`
 - Current data summary and conclusions: `reports/current_data_summary_and_conclusions.md`
@@ -103,6 +104,7 @@ Photogrammetry counterexample:
 - Experiment 3 SCI figure captions, English: `paper_text/experiment3_sci_figure_captions_en.md`
 - Experiment 3 SCI table captions, Chinese: `paper_text/experiment3_sci_table_captions_zh.md`
 - Experiment 3 SCI table captions, English: `paper_text/experiment3_sci_table_captions_en.md`
+- Experiment 3 effect-size and uncertainty results: `paper_text/experiment3_effect_size_uncertainty_results_zh.md`
 - Detailed paper conclusions: `paper_text/detailed_paper_conclusions_zh.md`
 - Strengthened SCI results/discussion, Chinese: `paper_text/sci_results_discussion_strengthened_zh.md`
 - Strengthened SCI results/discussion, English: `paper_text/sci_results_discussion_strengthened_en.md`
@@ -125,6 +127,7 @@ Photogrammetry counterexample:
 - Experiment 3 manuscript module claims: `manifests/experiment3_manuscript_module_claims.csv`
 - Experiment 3 manuscript figure/table plan: `manifests/experiment3_manuscript_figure_table_plan.csv`
 - Experiment 3 submission-readiness checklist: `manifests/experiment3_submission_readiness_checklist.csv`
+- Experiment 3 effect-size uncertainty claims: `manifests/experiment3_effect_size_uncertainty_claims.csv`
 - Morphology threshold design-rule claims: `manifests/morphology_threshold_design_rule_claims.csv`
 
 ## Current Claim Boundary in One Sentence
@@ -252,4 +255,17 @@ New submission-readiness files:
 - `reports/experiment3_submission_readiness_audit.md`
 - `manifests/experiment3_submission_readiness_checklist.csv`
 
-Paper-safe interpretation: all seven planned reviewer-facing figure/table assets are present and traceable to source data. Captions explicitly separate screening-level wind and morphology findings from blocked field validation, annual comfort compliance, pollutant transport, GCBTE, and CityLBM-GH claims.
+Paper-safe interpretation: all eight planned reviewer-facing figure/table assets are present and traceable to source data. Captions explicitly separate screening-level wind and morphology findings from blocked field validation, annual comfort compliance, pollutant transport, GCBTE, and CityLBM-GH claims.
+
+## Effect-Size and Uncertainty Addendum
+
+New uncertainty-analysis files:
+
+- `scripts/analyze_experiment3_effect_size_uncertainty.py`
+- `figures/experiment3_effect_size_uncertainty_summary.csv`
+- `figures/experiment3_effect_size_uncertainty_forest.png`
+- `reports/experiment3_effect_size_uncertainty_analysis.md`
+- `paper_text/experiment3_effect_size_uncertainty_results_zh.md`
+- `manifests/experiment3_effect_size_uncertainty_claims.csv`
+
+Paper-safe interpretation: the uncertainty layer supports the low-speed baseline, strong vertical recovery, S1/S2 negative sensitivity, and sample-internal morphology recovery as robust screening findings within the archived simulation outputs. It is not field measurement uncertainty, grid-convergence proof, annual comfort/safety probability, or a causal design threshold.

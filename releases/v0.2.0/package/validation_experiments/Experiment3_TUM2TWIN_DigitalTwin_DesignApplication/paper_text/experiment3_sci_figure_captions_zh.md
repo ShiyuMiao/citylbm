@@ -39,3 +39,12 @@ These captions are tied to archived source artifacts. They should be edited only
 - Source data: `figures/morphology_threshold_rule_screening.csv; figures/morphology_recovery_top_bottom_contrast.csv`
 - Evidence type: `newly_run + blocked`
 - Boundary: not universal threshold; not field-validated design rule
+
+## Fig. E3-S1
+
+图 E3-S1. 实验3效应量与不确定性补充森林图。图中汇总 S0 行人层与上层风速比、40 m-2 m 竖向恢复、S1/S2 行人层全局变化以及建筑形态近立面到局地环境的恢复增量。该图用于说明核心低速、竖向脱耦和 S1/S2 负结果在方向-采样或方向范围内保持一致，但它只表示已归档模拟输出的统计不确定性，不代表实测不确定性、网格收敛证明或年度舒适度超越概率。
+
+- Asset: `figures/experiment3_effect_size_uncertainty_forest.png`
+- Source data: `figures/experiment3_effect_size_uncertainty_summary.csv`
+- Evidence type: `newly_run + blocked`
+- Boundary: not measurement uncertainty; not grid convergence; not annual comfort exceedance probability

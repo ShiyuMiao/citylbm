@@ -54,6 +54,16 @@ FIGURE_CAPTIONS = [
         "paper_safe_use": "sample-internal design-rule screening",
         "boundary": "not universal threshold; not field-validated design rule",
     },
+    {
+        "id": "Fig. E3-S1",
+        "path": "figures/experiment3_effect_size_uncertainty_forest.png",
+        "evidence_type": "newly_run + blocked",
+        "source_data": "figures/experiment3_effect_size_uncertainty_summary.csv",
+        "caption_zh": "图 E3-S1. 实验3效应量与不确定性补充森林图。图中汇总 S0 行人层与上层风速比、40 m-2 m 竖向恢复、S1/S2 行人层全局变化以及建筑形态近立面到局地环境的恢复增量。该图用于说明核心低速、竖向脱耦和 S1/S2 负结果在方向-采样或方向范围内保持一致，但它只表示已归档模拟输出的统计不确定性，不代表实测不确定性、网格收敛证明或年度舒适度超越概率。",
+        "caption_en": "Fig. E3-S1. Supplementary forest plot of Experiment 3 effect sizes and uncertainty. The figure summarizes S0 pedestrian and upper-layer velocity ratios, 40 m minus 2 m vertical recovery, S1/S2 pedestrian-layer global changes and morphology near-to-context recovery. It shows that the low-speed baseline, vertical decoupling and S1/S2 negative results are stable within the available direction-sample or directional ranges, but it represents uncertainty in archived simulation outputs only, not measurement uncertainty, grid-convergence proof or annual comfort exceedance probability.",
+        "paper_safe_use": "supplementary uncertainty and effect-size audit",
+        "boundary": "not measurement uncertainty; not grid convergence; not annual comfort exceedance probability",
+    },
 ]
 
 

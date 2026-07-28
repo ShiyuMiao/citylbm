@@ -30,6 +30,12 @@ Fig. E3-4. Threshold-rule screening for wind-speed recovery from the 0-20 m faca
 
 图 E3-4. 0-20 m 近立面带到 20-50 m 局地环境带的风速恢复阈值规则筛查。分析在同一组 101 个保留建筑单元上比较近立面与局地环境响应，提取样本内 tertile 组合规则。最佳简单规则提示较低相对竖向尺度和特定平面形态组合更易出现局地恢复，但该阈值仅用于数字孪生样本内设计筛查，不能外推为通用规范或实测验证结论。
 
+### Fig. E3-S1
+
+Fig. E3-S1. Supplementary forest plot of Experiment 3 effect sizes and uncertainty. The figure summarizes S0 pedestrian and upper-layer velocity ratios, 40 m minus 2 m vertical recovery, S1/S2 pedestrian-layer global changes and morphology near-to-context recovery. It shows that the low-speed baseline, vertical decoupling and S1/S2 negative results are stable within the available direction-sample or directional ranges, but it represents uncertainty in archived simulation outputs only, not measurement uncertainty, grid-convergence proof or annual comfort exceedance probability.
+
+图 E3-S1. 实验3效应量与不确定性补充森林图。图中汇总 S0 行人层与上层风速比、40 m-2 m 竖向恢复、S1/S2 行人层全局变化以及建筑形态近立面到局地环境的恢复增量。该图用于说明核心低速、竖向脱耦和 S1/S2 负结果在方向-采样或方向范围内保持一致，但它只表示已归档模拟输出的统计不确定性，不代表实测不确定性、网格收敛证明或年度舒适度超越概率。
+
 ## Tables
 
 ### Table E3-1

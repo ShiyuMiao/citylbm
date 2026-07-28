@@ -107,6 +107,13 @@ evidence_type: newly_run + preexisting_artifact + blocked
 ## SCI Figure/Table Caption and Submission-Readiness Claim Boundary Addendum
 
 - `newly_run + preexisting_artifact + blocked`: figure/table captions and the submission-readiness audit were generated from the existing figure plan, key result matrix, GCRI table, and claim inventory.
-- Supported claim: the four planned figures and three planned tables exist, are traceable to source data, and are ready for manual review as reviewer-facing paper assets.
+- Supported claim: the four planned main figures, one supplementary uncertainty figure, and three planned tables exist, are traceable to source data, and are ready for manual review as reviewer-facing paper assets.
 - Unsupported claim: captions and readiness auditing do not add new CFD fields, field validation, pollutant transport, annual comfort/safety exceedance statistics, GCBTE results, or CityLBM-Grasshopper execution evidence.
 - Paper-safe interpretation: use `paper_text/experiment3_sci_figure_captions_zh.md`, `paper_text/experiment3_sci_table_captions_zh.md`, and `reports/experiment3_submission_readiness_audit.md` to present the visual evidence while retaining all blocked-claim language.
+
+## Effect-Size and Uncertainty Claim Boundary Addendum
+
+- `newly_run + blocked`: effect-size and uncertainty statistics were recomputed from archived FluidX3D direction/sample metrics, S1/S2 directional trade-off tables, and 101-component morphology recovery data.
+- Supported claim: the pedestrian-height low-speed baseline, z~40 m versus z~2 m vertical recovery, S1/S2 near-null or negative global sensitivity, and morphology near-to-context recovery are stable within the available archived direction-sample or directional uncertainty layer.
+- Unsupported claim: this addendum does not provide field measurement uncertainty, wind-tunnel validation, grid-convergence proof, annual comfort/safety exceedance probabilities, pollutant transport, GCBTE closure, or causal universal design thresholds.
+- Paper-safe interpretation: use `reports/experiment3_effect_size_uncertainty_analysis.md`, `figures/experiment3_effect_size_uncertainty_summary.csv`, and `paper_text/experiment3_effect_size_uncertainty_results_zh.md` to support stronger but still screening-level SCI wording.

@@ -1,0 +1,5 @@
+claim_id,claim,evidence_type,source,claim_readiness
+EU1,S0 pedestrian-height low-speed conclusion remains stable under direction-sample bootstrap resampling.,newly_run,figures/experiment3_effect_size_uncertainty_summary.csv,paper_ready_as_screening
+EU2,The modeled upper layer shows strong paired VR recovery relative to the pedestrian layer.,newly_run,figures/experiment3_effect_size_uncertainty_summary.csv,paper_ready_as_screening
+EU3,S1/S2 are globally near-null or negative across the tested z~2 m directions.,newly_run,figures/experiment3_effect_size_uncertainty_summary.csv; figures/fluidx3d_design_sensitivity_directional_tradeoffs_z2m.csv,paper_ready_negative_result
+EU4,"The 20-50 m local-context band shows sample-internal near-to-context recovery, but not a universal design threshold.",newly_run + blocked,figures/experiment3_effect_size_uncertainty_summary.csv; figures/morphology_near_to_context_recovery_by_component.csv,paper_ready_with_boundary

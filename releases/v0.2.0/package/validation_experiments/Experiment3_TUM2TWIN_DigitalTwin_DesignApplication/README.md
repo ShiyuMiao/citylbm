@@ -70,6 +70,8 @@ Core distinction:
 27. `paper_text/experiment3_sci_figure_captions_zh.md`
 28. `paper_text/experiment3_sci_table_captions_zh.md`
 29. `reports/experiment3_submission_readiness_audit.md`
+30. `reports/experiment3_effect_size_uncertainty_analysis.md`
+31. `paper_text/experiment3_effect_size_uncertainty_results_zh.md`
 
 ## Current Main Conclusion
 
@@ -202,4 +204,17 @@ The archive now includes bilingual SCI-style captions for the four recommended f
 - `reports/experiment3_submission_readiness_audit.md`
 - `manifests/experiment3_submission_readiness_checklist.csv`
 
-Audit result: all seven planned figure/table assets exist and are ready for manual review. Remaining blockers are unchanged: field/wind-tunnel validation, annual comfort/safety compliance, pollutant transport, GCBTE computation, and CityLBM-Grasshopper end-to-end execution.
+Audit result: all eight planned figure/table assets exist and are ready for manual review. Remaining blockers are unchanged: field/wind-tunnel validation, annual comfort/safety compliance, pollutant transport, GCBTE computation, and CityLBM-Grasshopper end-to-end execution.
+
+## Effect-Size and Uncertainty Addendum
+
+The archive now includes a supplementary statistical layer that recomputes effect sizes and uncertainty intervals from existing archived CSV outputs. It uses S0's 8 directions x 3 post-spin-up samples, paired z~40 m minus z~2 m vertical differences, S1/S2 eight-direction z~2 m ranges, and the 101-component morphology recovery table.
+
+- `scripts/analyze_experiment3_effect_size_uncertainty.py`
+- `figures/experiment3_effect_size_uncertainty_summary.csv`
+- `figures/experiment3_effect_size_uncertainty_forest.png`
+- `reports/experiment3_effect_size_uncertainty_analysis.md`
+- `paper_text/experiment3_effect_size_uncertainty_results_zh.md`
+- `manifests/experiment3_effect_size_uncertainty_claims.csv`
+
+Paper-safe interpretation: the pedestrian-layer low-speed result, the z~40 m versus z~2 m vertical recovery, and the S1/S2 near-null or negative global effects are stable within the archived direction-sample or directional uncertainty layer. This is not measurement uncertainty, grid-convergence proof, annual comfort exceedance probability, or a universal morphology threshold.
