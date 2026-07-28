@@ -1,0 +1,9 @@
+evidence_type,best_wind_deg,component_count,component_share
+newly_run + blocked,0,10,0.09900990099009901
+newly_run + blocked,45,17,0.16831683168316833
+newly_run + blocked,90,8,0.07920792079207921
+newly_run + blocked,135,20,0.19801980198019803
+newly_run + blocked,180,18,0.1782178217821782
+newly_run + blocked,225,8,0.07920792079207921
+newly_run + blocked,270,3,0.0297029702970297
+newly_run + blocked,315,17,0.16831683168316833

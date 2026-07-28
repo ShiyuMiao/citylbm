@@ -5,13 +5,13 @@ evidence_type: newly_run + preexisting_artifact + blocked
 ## Verification Summary
 
 - Draft status: generic SCI section draft generated from archived Experiment 3 evidence.
-- Evidence inventory rows: `110`
+- Evidence inventory rows: `112`
 - References used: `12`
-- Key result matrix rows: `13`
-- Figure/table callouts: `11`
-- Submission-readiness assets: `11`
-- Ready for manual review: `11`
-- Claim inventory rows: `33`
+- Key result matrix rows: `14`
+- Figure/table callouts: `12`
+- Submission-readiness assets: `12`
+- Ready for manual review: `12`
+- Claim inventory rows: `36`
 
 ## Passed Checks
 
@@ -19,7 +19,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - References are drawn from `manifests/verified_references_for_sci_discussion.csv`.
 - Figure/table assets are tracked in `manifests/experiment3_submission_readiness_checklist.csv`.
 - Blocked claims remain explicit: field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution.
-- The morphology threshold rule, morphology-response archetypes and stage-transition subgroup rules are framed as sample-internal screening evidence.
+- The morphology threshold rule, morphology-response archetypes, stage-transition subgroup rules and directional-fingerprint rules are framed as sample-internal screening evidence.
 - The draft contains a single References section and a synchronized pending-debt list.
 
 ## Remaining Publication Debts

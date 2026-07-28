@@ -6,7 +6,7 @@ These captions are tied to archived source artifacts. They should be edited only
 
 ## Table E3-1
 
-Table E3-1. Paper-facing one-page key-result matrix for Experiment 3. The table consolidates S0 baseline, vertical recovery, Open-Meteo proxy sensitivity, S1/S2 design sensitivity, directional trade-off, morphology robustness, threshold screening, stage-transition analysis and GCRI into one evidence framework with evidence type, source artifact and paper-safe claim for each row.
+Table E3-1. Paper-facing one-page key-result matrix for Experiment 3. The table consolidates S0 baseline, vertical recovery, Open-Meteo proxy sensitivity, S1/S2 design sensitivity, directional trade-off, morphology robustness, threshold screening, stage-transition analysis, morphology directional fingerprinting and GCRI into one evidence framework with evidence type, source artifact and paper-safe claim for each row.
 
 - Asset: `figures/final_integrated_key_result_matrix.csv`
 - Source data: `compiled from FluidX3D metrics, Open-Meteo proxy weights, morphology CSVs, design-sensitivity comparisons and GCRI`

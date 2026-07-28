@@ -1,0 +1,9 @@
+# Morphology Directional Fingerprint Conclusion
+
+evidence_type: newly_run + blocked
+
+To move the building-form interpretation beyond mean wind-speed differences, this addendum computes a directional fingerprint for the 101 retained building components in the 20-50 m local-context band. The fingerprint includes the max-minus-min range of the eight-direction mean VR, a directional reactivity ratio and the best/worst response directions. The mean directional range is `0.008655`, and the mean directional reactivity ratio is `1.339`. The directional range is negatively associated with mean height (Spearman rho `-0.363`), 50 m sector enclosure (rho `-0.362`) and the relative enclosure score (rho `-0.328`). In this campus-core sample, stronger enclosure and vertical massing therefore suppress not only the local mean VR, but also the directional spread through which wind-sector access can appear.
+
+The separation across stage-transition classes is stronger than a single-variable correlation. Persistent-shelter components have mean directional range `0.001579`, near-to-context recovery components reach `0.018941`, and directionally reactive components reach `0.021421`; the Kruskal-Wallis p-value across classes is `1.018e-15`. This supports a refined insight beyond the traditional canyon-shelter interpretation: useful campus-scale pedestrian ventilation recovery is visible not only as a higher 20-50 m mean VR, but also as the ability of the local context to respond differently to inflow sectors. Openings or porosity without this directional fingerprint may remain formal openness inside a low-speed background, which helps explain the negative S1/S2 design-sensitivity results.
+
+This conclusion is a FluidX3D digital-twin screening finding. It must not be written as a field-validated causal mechanism, universal morphology threshold, wind-rose compliance result or formal annual comfort/safety assessment.

@@ -43,6 +43,7 @@ def main() -> None:
     threshold = read_value(matrix, "Morphology threshold design rule")
     archetype = read_value(matrix, "Building-form response archetypes")
     stage = read_value(matrix, "Morphology stage transition")
+    directional_fingerprint = read_value(matrix, "Morphology directional fingerprint")
     gcri = read_value(matrix, "Geometry-to-CFD readiness")
 
     claims = [
@@ -100,6 +101,14 @@ def main() -> None:
             "claim": "Morphology stage-transition analysis separates near-facade shelter from 20-50 m local-context recovery and directional reactivity.",
             "evidence_type": "newly_run + blocked",
             "source": "figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_feature_contrasts.csv; reports/morphology_stage_transition_analysis.md; paper_text/morphology_stage_transition_conclusion_zh.md",
+            "claim_readiness": "paper_ready_with_boundary",
+        },
+        {
+            "claim_id": "R3e",
+            "section": "Results",
+            "claim": "Morphology directional fingerprinting shows that useful local recovery also requires wind-sector reactivity, not only higher mean VR.",
+            "evidence_type": "newly_run + blocked",
+            "source": "figures/morphology_directional_fingerprint_by_component.csv; figures/morphology_directional_fingerprint_feature_correlations.csv; figures/morphology_directional_fingerprint_stage_summary.csv; reports/morphology_directional_fingerprint_analysis.md",
             "claim_readiness": "paper_ready_with_boundary",
         },
         {
@@ -166,6 +175,11 @@ def main() -> None:
             "callout_id": "Fig. E3-S4",
             "recommended_file": "figures/morphology_stage_transition_panel.png",
             "purpose": "Supplementary near-to-context morphology stage-transition analysis separating facade-adjacent shelter, 20-50 m recovery and directional reactivity.",
+        },
+        {
+            "callout_id": "Fig. E3-S5",
+            "recommended_file": "figures/morphology_directional_fingerprint_panel.png",
+            "purpose": "Supplementary morphology directional fingerprint analysis linking 20-50 m wind-sector response to enclosure, height and stage-transition class.",
         },
         {
             "callout_id": "Table E3-1",
@@ -262,7 +276,7 @@ The S0 baseline shows pedestrian-layer ventilation insufficiency rather than a s
 
 The morphology analysis translates traditional canyon/canopy reasoning into a local digital-twin diagnosis. The 0-20 m facade-adjacent band is almost uniformly sheltered, while the 20-50 m local-context band better distinguishes wind recovery. The multivariate robustness result is {morph}; thus morphology variables are useful as interpretable screening descriptors but not as a high-accuracy surrogate model. Sector enclosure and mean height rank above individual footprint, elongation and perimeter-area compactness, indicating that local enclosure, wind-entry opportunity and pressure-exchange continuity are more informative than isolated building shape [R2-R4].
 
-The building-form response archetype addendum gives {archetype}. Because the clusters are formed from basic morphology descriptors and interpreted afterward with FluidX3D-derived wind response, this result supports a combined-form screening typology rather than a causal typology. The stage-transition addendum further separates the near-facade shelter stage from the local-context recovery stage: {stage}. This result refines the building-form conclusion. The key contrast is not absolute building size by itself, but whether relative vertical scale, plan continuity and local enclosure allow momentum exchange outside the immediate facade-adjacent sheltered band. The subgroup rule remains sample-internal and must be written as a digital-twin screening descriptor rather than a field-validated morphology threshold.
+The building-form response archetype addendum gives {archetype}. Because the clusters are formed from basic morphology descriptors and interpreted afterward with FluidX3D-derived wind response, this result supports a combined-form screening typology rather than a causal typology. The stage-transition addendum further separates the near-facade shelter stage from the local-context recovery stage: {stage}. The directional-fingerprint addendum gives {directional_fingerprint}. Together, these results refine the building-form conclusion: the key contrast is not absolute building size by itself, but whether relative vertical scale, plan continuity and local enclosure allow both mean recovery and wind-sector response outside the immediate facade-adjacent sheltered band. The subgroup rules remain sample-internal and must be written as digital-twin screening descriptors rather than field-validated morphology thresholds.
 
 The S1/S2 design-sensitivity sequence further narrows the design claim. S1 changes z~2 m mean VR / low-speed ratio by {s1}; S2 changes them by {s2}. Directional trade-off analysis gives {trade}. S1/S2 should therefore be interpreted as negative design evidence: geometric opening area alone does not recover pedestrian ventilation unless aligned with effective inflow sectors, momentum entry and pressure-exchange paths.
 

@@ -75,3 +75,12 @@ Fig. E3-S4. Supplementary morphology stage-transition analysis. The panel decomp
 - Source data: `figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_feature_contrasts.csv; figures/morphology_stage_transition_rule_table.csv`
 - Evidence type: `newly_run + blocked`
 - Boundary: not field validation; not universal morphology threshold; not annual comfort compliance
+
+## Fig. E3-S5
+
+Fig. E3-S5. Supplementary morphology directional-fingerprint analysis in the 20-50 m local-context band. The panel links the eight-direction range of component mean VR, directional reactivity ratio and best-response direction to basic morphology descriptors and stage-transition classes for the 101 retained components. Persistent-shelter components suppress both mean VR and directional range, whereas near-to-context recovery and directionally reactive components show stronger wind-sector response. The figure supports digital-twin design screening, not field-validated causal thresholds or annual wind-rose compliance.
+
+- Asset: `figures/morphology_directional_fingerprint_panel.png`
+- Source data: `figures/morphology_directional_fingerprint_by_component.csv; figures/morphology_directional_fingerprint_feature_correlations.csv; figures/morphology_directional_fingerprint_stage_summary.csv`
+- Evidence type: `newly_run + blocked`
+- Boundary: not field validation; not universal directional threshold; not annual wind-rose compliance

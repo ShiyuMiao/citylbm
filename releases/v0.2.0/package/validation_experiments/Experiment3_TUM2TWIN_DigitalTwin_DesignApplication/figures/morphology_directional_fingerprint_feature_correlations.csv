@@ -1,0 +1,25 @@
+evidence_type,target,feature,spearman_rho,p_value,n_components,claim_boundary
+newly_run + blocked,local_context_mean_vr,footprint_area_m2,0.08105173438564456,0.4203883631894376,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_mean_vr,mean_height_m,-0.350715792147012,0.0003235277457071607,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_mean_vr,height_to_sqrt_area,-0.20831404070409554,0.036576208668298874,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_mean_vr,compactness_p2_over_a,0.05092123785120505,0.6130599241050844,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_mean_vr,elongation_ratio,0.08320266858138234,0.40812146790423454,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_mean_vr,local_built_fraction_r30m,-0.2259871869539895,0.02306508337975777,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_mean_vr,sector_enclosure_ratio_r50m,-0.3956395964919726,4.2211798074151896e-05,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_mean_vr,relative_enclosure_score,-0.3019219569015725,0.002151700426598409,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_range_vr,footprint_area_m2,0.02650227896980077,0.7924923520720523,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_range_vr,mean_height_m,-0.36304924499657754,0.00019046694992390866,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_range_vr,height_to_sqrt_area,-0.15616418411940933,0.11888287770221273,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_range_vr,compactness_p2_over_a,0.0071262929273399455,0.9436144012676828,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_range_vr,elongation_ratio,0.045338576913921035,0.6525611021793414,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_range_vr,local_built_fraction_r30m,-0.26264414676761794,0.007967566857899067,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_range_vr,sector_enclosure_ratio_r50m,-0.36208767848820744,0.00019865294480928109,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,local_context_range_vr,relative_enclosure_score,-0.32754804892253925,0.0008270431351357946,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,directional_reactivity_ratio,footprint_area_m2,-0.06405203234518282,0.5245441589624202,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,directional_reactivity_ratio,mean_height_m,-0.28660984138493717,0.003663609688731558,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,directional_reactivity_ratio,height_to_sqrt_area,-0.04149740095665504,0.6803172735014362,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,directional_reactivity_ratio,compactness_p2_over_a,-0.05159133080839565,0.6083891913424999,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,directional_reactivity_ratio,elongation_ratio,-0.005601474064887998,0.9556653740300751,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,directional_reactivity_ratio,local_built_fraction_r30m,-0.2075713453698311,0.0372655231348488,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,directional_reactivity_ratio,sector_enclosure_ratio_r50m,-0.08429985032088415,0.4019459323017439,101,sample-internal morphology screening; not field-validated causality
+newly_run + blocked,directional_reactivity_ratio,relative_enclosure_score,-0.2138031450203844,0.031806051895821655,101,sample-internal morphology screening; not field-validated causality

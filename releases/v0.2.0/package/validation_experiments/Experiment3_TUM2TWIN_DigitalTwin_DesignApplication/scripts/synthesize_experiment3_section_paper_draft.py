@@ -105,6 +105,7 @@ def main() -> None:
     threshold = read_matrix_value(matrix, "Morphology threshold design rule")
     archetype = read_matrix_value(matrix, "Building-form response archetypes")
     stage = read_matrix_value(matrix, "Morphology stage transition")
+    directional_fingerprint = read_matrix_value(matrix, "Morphology directional fingerprint")
     s1 = read_matrix_value(matrix, "S1 design sensitivity")
     s2 = read_matrix_value(matrix, "S2 design sensitivity")
     trade = read_matrix_value(matrix, "Directional local trade-off")
@@ -135,6 +136,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Threshold screening: `{threshold}`
 - Building-form response archetypes: `{archetype}`
 - Stage transition: `{stage}`
+- Directional fingerprint: `{directional_fingerprint}`
 - S1/S2: `{s1}`; `{s2}`; `{trade}`
 - GCRI: `{gcri}`
 
@@ -145,7 +147,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
 ## Failure Checks
 
 - Do not write field validation, wind-tunnel closure, annual Lawson/NEN/AIJ compliance, pollutant dispersion, GCBTE closure or CityLBM-GH end-to-end execution as completed.
-- Do not write the morphology threshold rule or stage-transition subgroup rule as a universal design threshold.
+- Do not write the morphology threshold, stage-transition or directional-fingerprint subgroup rules as universal design thresholds.
 - Do not use Open-Meteo 2024 as a measured site wind rose.
 """
 
@@ -220,9 +222,9 @@ The S0 baseline indicates persistent pedestrian-layer ventilation insufficiency 
 
 Morphology analysis converts traditional canopy and canyon reasoning into a local digital-twin diagnosis {ref_marker('R2','R3','R4')}. The 0-20 m facade-adjacent band is almost uniformly sheltered, whereas the 20-50 m local-context band reveals morphology-dependent recovery. The multivariate robustness result is `{morph}`, so morphology variables should be treated as interpretable screening descriptors rather than a high-accuracy surrogate model. The threshold-rule addendum gives `{threshold}`, moving the design interpretation from isolated building size or opening area toward combined local exposure, relative vertical scale and plan continuity.
 
-The building-form response archetype addendum gives `{archetype}`. Because the clusters are formed from basic morphology descriptors and interpreted only afterward with FluidX3D-derived wind response, this result supports a combined-form screening typology rather than a causal typology. The stage-transition addendum further reports `{stage}`, showing that the morphology signal is not a direct near-facade speed effect but a near-to-context recovery pattern outside the immediate sheltered band. These rules remain sample-internal and should not be generalized as field-validated design thresholds.
+The building-form response archetype addendum gives `{archetype}`. Because the clusters are formed from basic morphology descriptors and interpreted only afterward with FluidX3D-derived wind response, this result supports a combined-form screening typology rather than a causal typology. The stage-transition addendum further reports `{stage}`, showing that the morphology signal is not a direct near-facade speed effect but a near-to-context recovery pattern outside the immediate sheltered band. The directional-fingerprint addendum gives `{directional_fingerprint}`, indicating that useful local-context recovery also appears as wind-sector reactivity rather than only a higher eight-direction mean. These rules remain sample-internal and should not be generalized as field-validated design thresholds.
 
-The S1/S2 design-sensitivity sequence tests whether additional porosity can relieve the low-speed condition. S1 changes z~2 m mean VR / low-speed ratio by `{s1}`, and S2 changes them by `{s2}`. Directional local response is `{trade}`. S1/S2 therefore provide negative design evidence: geometric porosity alone is insufficient unless coupled to effective inflow sectors, momentum entry and pressure-exchange paths.
+The S1/S2 design-sensitivity sequence tests whether additional porosity can relieve the low-speed condition. S1 changes z~2 m mean VR / low-speed ratio by `{s1}`, and S2 changes them by `{s2}`. Directional local response is `{trade}`. Read together with the directional fingerprint, S1/S2 provide negative design evidence: geometric porosity alone is insufficient unless coupled to effective inflow sectors, momentum entry and pressure-exchange paths that create measurable local wind-sector response.
 
 ## Discussion and Evidence Boundary
 
@@ -255,7 +257,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Quantitative claims in the draft come from `figures/final_integrated_key_result_matrix.csv`.
 - References are drawn from `manifests/verified_references_for_sci_discussion.csv`.
 - Blocked claims remain explicit: field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution.
-- The morphology threshold rule and stage-transition subgroup rule are framed as sample-internal screening evidence.
+- The morphology threshold rule, stage-transition subgroup rule and directional-fingerprint rule are framed as sample-internal screening evidence.
 - The draft contains a single References section and a synchronized pending-debt list.
 
 ## Remaining Publication Debts

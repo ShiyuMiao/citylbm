@@ -258,7 +258,7 @@ New submission-readiness files:
 - `reports/experiment3_submission_readiness_audit.md`
 - `manifests/experiment3_submission_readiness_checklist.csv`
 
-Paper-safe interpretation: all eleven planned reviewer-facing figure/table assets are present and traceable to source data. Captions explicitly separate screening-level wind and morphology findings from blocked field validation, annual comfort compliance, pollutant transport, GCBTE, and CityLBM-GH claims.
+Paper-safe interpretation: all twelve planned reviewer-facing figure/table assets are present and traceable to source data. Captions explicitly separate screening-level wind and morphology findings from blocked field validation, annual comfort compliance, pollutant transport, GCBTE, and CityLBM-GH claims.
 
 ## Effect-Size and Uncertainty Addendum
 
@@ -318,6 +318,29 @@ New stage-transition files:
 
 Paper-safe interpretation: the 0-20 m facade-adjacent band is a low-speed saturated stage, while the 20-50 m local-context band reveals morphology-differentiated recovery. The strongest sample-internal subgroup combines low height, high elongation, and high relative enclosure, but this is a screening descriptor rather than a field-validated or universal design threshold.
 
+## Morphology Directional Fingerprint Addendum
+
+New directional-fingerprint files:
+
+- `scripts/analyze_morphology_directional_fingerprint.py`
+- `figures/morphology_directional_fingerprint_by_component.csv`
+- `figures/morphology_directional_fingerprint_feature_correlations.csv`
+- `figures/morphology_directional_fingerprint_stage_summary.csv`
+- `figures/morphology_directional_fingerprint_best_wind_summary.csv`
+- `figures/morphology_directional_fingerprint_panel.png`
+- `reports/morphology_directional_fingerprint_analysis.md`
+- `paper_text/morphology_directional_fingerprint_conclusion_zh.md`
+- `paper_text/morphology_directional_fingerprint_conclusion_en.md`
+- `manifests/morphology_directional_fingerprint_claims.csv`
+
+Paper-safe interpretation: the directional-fingerprint addendum shows that
+useful 20-50 m recovery is not only a higher local mean VR, but also a stronger
+response to inflow sectors. Persistent-shelter components suppress both mean
+VR and directional range, while near-to-context recovery and directionally
+reactive components show stronger wind-sector fingerprints. This is
+sample-internal screening evidence, not a field-validated causal mechanism or
+annual wind-rose compliance result.
+
 ## Final Completeness and Gap Audit Layer
 
 New final-audit files:
@@ -331,4 +354,4 @@ New final-audit files:
 - `paper_text/experiment3_final_contribution_and_conclusion_en.md`
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
-Paper-safe interpretation: the archive is now internally reconciled for a standalone Experiment 3 manuscript section framed as FluidX3D-native digital-twin-to-CFD wind screening with CityLBM-compatible geometry preparation. The final audit records 13 key result rows, 11 reviewer-facing figure/table callouts, 11 ready submission assets, and 110 evidence-inventory entries. The same audit explicitly blocks unsupported claims about field validation, annual comfort/safety compliance, pollutant dispersion, GCBTE completion, CityLBM-Grasshopper end-to-end execution, and successful design optimization.
+Paper-safe interpretation: the archive is now internally reconciled for a standalone Experiment 3 manuscript section framed as FluidX3D-native digital-twin-to-CFD wind screening with CityLBM-compatible geometry preparation. The final audit records 14 key result rows, 12 reviewer-facing figure/table callouts, 12 ready submission assets, and 112 evidence-inventory entries. The same audit explicitly blocks unsupported claims about field validation, annual comfort/safety compliance, pollutant dispersion, GCBTE completion, CityLBM-Grasshopper end-to-end execution, and successful design optimization.

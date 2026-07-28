@@ -6,8 +6,8 @@ Generated at: 2026-07-28
 
 ## Summary
 
-- Figure/table assets checked: `11`
-- Ready for manual review: `11`
+- Figure/table assets checked: `12`
+- Ready for manual review: `12`
 - Missing assets: `0`
 - Canonical paper position: FluidX3D-native simulation with a CityLBM-compatible geometry package.
 - Claim strength: screening-level wind-environment application and morphology interpretation, not field-validated prediction.
@@ -24,6 +24,7 @@ Generated at: 2026-07-28
 | Fig. E3-S2 | figure | yes | newly_run + preexisting_artifact + blocked | directional mechanism and wind-sector design interpretation | not measured wind rose; not annual comfort compliance; not successful optimization |
 | Fig. E3-S3 | figure | yes | newly_run + blocked | building-form response archetype screening | not causal typology; not field validation; not universal design class |
 | Fig. E3-S4 | figure | yes | newly_run + blocked | near-to-context building-form stage-transition screening | not field validation; not universal morphology threshold; not annual comfort compliance |
+| Fig. E3-S5 | figure | yes | newly_run + blocked | wind-sector morphology screening and S1/S2 negative-result interpretation | not field validation; not universal directional threshold; not annual wind-rose compliance |
 | Table E3-1 | table | yes | newly_run + preexisting_artifact + blocked | main result table and evidence anchor | rows with blocked components must retain boundary wording |
 | Table E3-2 | table | yes | newly_run + blocked | limitations table and claim boundary | blocked rows must not be converted into completed results |
 | Table E3-3 | table | yes | newly_run | digital-twin geometry readiness metric | GCRI is a paper-internal readiness score, not an external standard |

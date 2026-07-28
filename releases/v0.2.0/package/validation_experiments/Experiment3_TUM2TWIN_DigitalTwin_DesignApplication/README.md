@@ -196,7 +196,7 @@ Paper-safe interpretation: this is a generic SCI section draft, not a venue-form
 
 ## SCI Figure/Table Caption and Submission-Readiness Layer
 
-The archive now includes bilingual SCI-style captions for four main figures, four supplementary figures and three recommended tables, plus an asset-level submission-readiness audit. This layer does not add new CFD results; it binds each reviewer-facing figure/table to its evidence type, source data, safe paper use, and claim boundary.
+The archive now includes bilingual SCI-style captions for four main figures, five supplementary figures and three recommended tables, plus an asset-level submission-readiness audit. This layer does not add new CFD results; it binds each reviewer-facing figure/table to its evidence type, source data, safe paper use, and claim boundary.
 
 - `academic-paper-writer/paper-drafts/figure_table_captions.md`
 - `paper_text/experiment3_sci_figure_captions_zh.md`
@@ -206,7 +206,7 @@ The archive now includes bilingual SCI-style captions for four main figures, fou
 - `reports/experiment3_submission_readiness_audit.md`
 - `manifests/experiment3_submission_readiness_checklist.csv`
 
-Audit result: all eleven planned figure/table assets exist and are ready for manual review. Remaining blockers are unchanged: field/wind-tunnel validation, annual comfort/safety compliance, pollutant transport, GCBTE computation, and CityLBM-Grasshopper end-to-end execution.
+Audit result: all twelve planned figure/table assets exist and are ready for manual review. Remaining blockers are unchanged: field/wind-tunnel validation, annual comfort/safety compliance, pollutant transport, GCBTE computation, and CityLBM-Grasshopper end-to-end execution.
 
 ## Effect-Size and Uncertainty Addendum
 
@@ -274,6 +274,31 @@ sample-internal subgroup combines low height, high elongation, and high
 relative enclosure. This remains a digital-twin screening result, not a
 field-validated or universal design threshold.
 
+## Morphology Directional Fingerprint Addendum
+
+The archive now includes a directional-fingerprint analysis that links the
+eight-direction 20-50 m local-context response of the same 101 retained
+components to basic morphology descriptors and stage-transition classes.
+
+- `scripts/analyze_morphology_directional_fingerprint.py`
+- `figures/morphology_directional_fingerprint_by_component.csv`
+- `figures/morphology_directional_fingerprint_feature_correlations.csv`
+- `figures/morphology_directional_fingerprint_stage_summary.csv`
+- `figures/morphology_directional_fingerprint_best_wind_summary.csv`
+- `figures/morphology_directional_fingerprint_panel.png`
+- `reports/morphology_directional_fingerprint_analysis.md`
+- `paper_text/morphology_directional_fingerprint_conclusion_zh.md`
+- `paper_text/morphology_directional_fingerprint_conclusion_en.md`
+- `manifests/morphology_directional_fingerprint_claims.csv`
+
+Paper-safe interpretation: useful campus-scale ventilation recovery appears
+not only as a higher 20-50 m mean VR, but also as stronger wind-sector
+directional response. Persistent-shelter components suppress both mean VR and
+directional range, while recovery/reactive components show stronger local
+wind-sector fingerprints. This remains sample-internal digital-twin screening
+evidence, not field validation, annual wind-rose compliance or a universal
+directional morphology threshold.
+
 ## Final Completeness and Gap Audit Layer
 
 The archive now includes a final reconciliation layer that checks whether the
@@ -289,8 +314,8 @@ verification, and remaining blockers are mutually consistent.
 - `paper_text/experiment3_final_contribution_and_conclusion_en.md`
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
-Audit result: the final archive currently contains 13 key result rows, 11
-reviewer-facing figure/table callouts, 11 ready submission assets, and 110
+Audit result: the final archive currently contains 14 key result rows, 12
+reviewer-facing figure/table callouts, 12 ready submission assets, and 112
 evidence-inventory entries. It is complete for a standalone Experiment 3
 section if framed as FluidX3D-native digital-twin-to-CFD wind screening with
 CityLBM-compatible geometry preparation. It remains incomplete for field

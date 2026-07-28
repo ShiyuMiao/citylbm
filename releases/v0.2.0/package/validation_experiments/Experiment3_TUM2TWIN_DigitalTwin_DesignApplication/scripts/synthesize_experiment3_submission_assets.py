@@ -94,6 +94,16 @@ FIGURE_CAPTIONS = [
         "paper_safe_use": "near-to-context building-form stage-transition screening",
         "boundary": "not field validation; not universal morphology threshold; not annual comfort compliance",
     },
+    {
+        "id": "Fig. E3-S5",
+        "path": "figures/morphology_directional_fingerprint_panel.png",
+        "evidence_type": "newly_run + blocked",
+        "source_data": "figures/morphology_directional_fingerprint_by_component.csv; figures/morphology_directional_fingerprint_feature_correlations.csv; figures/morphology_directional_fingerprint_stage_summary.csv",
+        "caption_zh": "鍥?E3-S5. 20-50 m 灞€鍦扮幆澧冨甫鐨勫缓绛戝舰鎬佹柟鍚戞€ф寚绾瑰垎鏋愩€傚浘涓皢 101 涓繚鐣欏缓绛戞瀯浠剁殑鍏鍚?mean VR 鑼冨洿銆佹柟鍚戝搷搴旀瘮鍊笺€佹渶浣冲搷搴旈鍚戜笌鍩虹褰㈡€佸弬鏁板拰闃舵杞寲绫诲瀷鑱旂郴璧锋潵銆傜粨鏋滄樉绀猴紝persistent shelter 鏋勪欢鍚屾椂鍏锋湁浣庡钩鍧?VR 鍜屼綆鏂瑰悜鑼冨洿锛岃€宯ear-to-context recovery 鍜宒irectionally reactive 鏋勪欢鏇磋兘琛ㄧ幇鍑烘潵娴佹墖鍖哄搷搴旂殑宸紓銆傝鍥炬敮鎸佹暟瀛楀鐢熻璁＄瓫鏌ワ紝涓嶆敮鎸佸疄娴嬮獙璇佺殑鍥犳灉闃堝€兼垨骞村害椋庣帿鐟板悎瑙勮瘎浠枫€?",
+        "caption_en": "Fig. E3-S5. Supplementary morphology directional-fingerprint analysis in the 20-50 m local-context band. The panel links the eight-direction range of component mean VR, directional reactivity ratio and best-response direction to basic morphology descriptors and stage-transition classes for the 101 retained components. Persistent-shelter components suppress both mean VR and directional range, whereas near-to-context recovery and directionally reactive components show stronger wind-sector response. The figure supports digital-twin design screening, not field-validated causal thresholds or annual wind-rose compliance.",
+        "paper_safe_use": "wind-sector morphology screening and S1/S2 negative-result interpretation",
+        "boundary": "not field validation; not universal directional threshold; not annual wind-rose compliance",
+    },
 ]
 
 
@@ -104,7 +114,7 @@ TABLE_CAPTIONS = [
         "evidence_type": "newly_run + preexisting_artifact + blocked",
         "source_data": "compiled from FluidX3D metrics, Open-Meteo proxy weights, morphology CSVs, design-sensitivity comparisons and GCRI",
         "caption_zh": "表 E3-1. 实验3面向论文的一页式关键结果矩阵。表格把 S0 基准、竖向恢复、Open-Meteo 方向代理敏感性、S1/S2 设计敏感性、方向性 trade-off、形态稳健性、阈值筛查和 GCRI 几何就绪度整合到同一证据框架，并逐行给出 evidence_type、来源文件和论文安全表述。",
-        "caption_en": "Table E3-1. Paper-facing one-page key-result matrix for Experiment 3. The table consolidates S0 baseline, vertical recovery, Open-Meteo proxy sensitivity, S1/S2 design sensitivity, directional trade-off, morphology robustness, threshold screening, stage-transition analysis and GCRI into one evidence framework with evidence type, source artifact and paper-safe claim for each row.",
+        "caption_en": "Table E3-1. Paper-facing one-page key-result matrix for Experiment 3. The table consolidates S0 baseline, vertical recovery, Open-Meteo proxy sensitivity, S1/S2 design sensitivity, directional trade-off, morphology robustness, threshold screening, stage-transition analysis, morphology directional fingerprinting and GCRI into one evidence framework with evidence type, source artifact and paper-safe claim for each row.",
         "paper_safe_use": "main result table and evidence anchor",
         "boundary": "rows with blocked components must retain boundary wording",
     },

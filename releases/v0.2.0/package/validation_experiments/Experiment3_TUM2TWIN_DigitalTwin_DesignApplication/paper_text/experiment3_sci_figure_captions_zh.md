@@ -75,3 +75,12 @@ These captions are tied to archived source artifacts. They should be edited only
 - Source data: `figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_feature_contrasts.csv; figures/morphology_stage_transition_rule_table.csv`
 - Evidence type: `newly_run + blocked`
 - Boundary: not field validation; not universal morphology threshold; not annual comfort compliance
+
+## Fig. E3-S5
+
+鍥?E3-S5. 20-50 m 灞€鍦扮幆澧冨甫鐨勫缓绛戝舰鎬佹柟鍚戞€ф寚绾瑰垎鏋愩€傚浘涓皢 101 涓繚鐣欏缓绛戞瀯浠剁殑鍏鍚?mean VR 鑼冨洿銆佹柟鍚戝搷搴旀瘮鍊笺€佹渶浣冲搷搴旈鍚戜笌鍩虹褰㈡€佸弬鏁板拰闃舵杞寲绫诲瀷鑱旂郴璧锋潵銆傜粨鏋滄樉绀猴紝persistent shelter 鏋勪欢鍚屾椂鍏锋湁浣庡钩鍧?VR 鍜屼綆鏂瑰悜鑼冨洿锛岃€宯ear-to-context recovery 鍜宒irectionally reactive 鏋勪欢鏇磋兘琛ㄧ幇鍑烘潵娴佹墖鍖哄搷搴旂殑宸紓銆傝鍥炬敮鎸佹暟瀛楀鐢熻璁＄瓫鏌ワ紝涓嶆敮鎸佸疄娴嬮獙璇佺殑鍥犳灉闃堝€兼垨骞村害椋庣帿鐟板悎瑙勮瘎浠枫€?
+
+- Asset: `figures/morphology_directional_fingerprint_panel.png`
+- Source data: `figures/morphology_directional_fingerprint_by_component.csv; figures/morphology_directional_fingerprint_feature_correlations.csv; figures/morphology_directional_fingerprint_stage_summary.csv`
+- Evidence type: `newly_run + blocked`
+- Boundary: not field validation; not universal directional threshold; not annual wind-rose compliance

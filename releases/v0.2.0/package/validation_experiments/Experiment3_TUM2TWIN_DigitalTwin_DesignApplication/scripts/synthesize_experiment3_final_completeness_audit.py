@@ -40,6 +40,13 @@ def exists_status(path: str) -> str:
     return "exists" if p.exists() else "missing"
 
 
+def matrix_value(rows: list[dict[str, str]], claim_layer: str) -> str:
+    for row in rows:
+        if row.get("claim_layer") == claim_layer:
+            return row.get("value", "")
+    return "[RESULT_NEEDED: missing matrix row]"
+
+
 def main() -> None:
     key_matrix = read_csv(FIG / "final_integrated_key_result_matrix.csv")
     figure_plan = read_csv(MAN / "experiment3_manuscript_figure_table_plan.csv")
@@ -122,11 +129,11 @@ def main() -> None:
             "paper_safe_interpretation": "Local enclosure and height context are interpretable screening descriptors, not a high-accuracy predictor.",
         },
         {
-            "requirement": "Morphology threshold, archetype and stage-transition interpretation",
+            "requirement": "Morphology threshold, archetype, stage-transition and directional-fingerprint interpretation",
             "status": "complete_with_boundary",
             "evidence_type": "newly_run + blocked",
-            "evidence_artifact": "reports/morphology_threshold_design_rule_analysis.md; reports/morphology_form_response_archetype_analysis.md; reports/morphology_stage_transition_analysis.md",
-            "paper_safe_interpretation": "The 20-50 m band, response archetypes and near-to-context transition metrics support sample-internal design screening, not universal causal thresholds.",
+            "evidence_artifact": "reports/morphology_threshold_design_rule_analysis.md; reports/morphology_form_response_archetype_analysis.md; reports/morphology_stage_transition_analysis.md; reports/morphology_directional_fingerprint_analysis.md",
+            "paper_safe_interpretation": "The 20-50 m band, response archetypes, near-to-context transition metrics and directional fingerprints support sample-internal design screening, not universal causal thresholds.",
         },
         {
             "requirement": "S1/S2 design sensitivity",
@@ -217,7 +224,7 @@ def main() -> None:
 
 evidence_type: newly_run + preexisting_artifact + blocked
 
-This audit reflects the current archive after the morphology-response archetype and stage-transition addenda. It checks whether the TUM2TWIN Experiment 3 package is ready for manuscript use and where claim boundaries must remain explicit.
+This audit reflects the current archive after the morphology-response archetype, stage-transition and directional-fingerprint addenda. It checks whether the TUM2TWIN Experiment 3 package is ready for manuscript use and where claim boundaries must remain explicit.
 
 ## Evidence Counts
 
@@ -240,7 +247,7 @@ This audit reflects the current archive after the morphology-response archetype 
 
 ## Paper-Ready Positioning
 
-Experiment 3 is paper-ready as a FluidX3D-native digital-twin wind-environment screening and design-interpretation case. Its strongest claims concern data-layer separation, CFD-ready geometry construction, pedestrian-layer low-speed screening, local morphology diagnosis, morphology-response archetypes, near-to-context stage transition, directional anisotropy and negative S1/S2 design-sensitivity evidence.
+Experiment 3 is paper-ready as a FluidX3D-native digital-twin wind-environment screening and design-interpretation case. Its strongest claims concern data-layer separation, CFD-ready geometry construction, pedestrian-layer low-speed screening, local morphology diagnosis, morphology-response archetypes, near-to-context stage transition, morphology directional fingerprints, directional anisotropy and negative S1/S2 design-sensitivity evidence.
 
 It is not ready for claims of field-validated accuracy, formal annual comfort/safety compliance, pollutant dispersion, successful design optimization, GCBTE closure, or CityLBM-Grasshopper end-to-end execution. These blockers should remain visible in the manuscript rather than being hidden as limitations after the fact.
 """
@@ -274,7 +281,7 @@ It is not complete enough for:
 3. Closed LoD/OBJ-derived collision geometries are QA-recorded and FluidX3D-ready.
 4. Eight-direction, three-sample FluidX3D outputs show robust pedestrian-layer low-speed conditions.
 5. Open-Meteo weighting confirms proxy-direction robustness without claiming annual compliance.
-6. Morphology statistics, archetypes and stage-transition analysis identify local enclosure, relative vertical massing, plan continuity and near-to-context recovery as screening descriptors.
+6. Morphology statistics, archetypes, stage-transition and directional-fingerprint analysis identify local enclosure, relative vertical massing, plan continuity, near-to-context recovery and wind-sector reactivity as screening descriptors.
 7. S1/S2 negative sensitivity shows that porosity area alone is not a sufficient intervention mechanism.
 
 ## Current Paper Assets
@@ -286,7 +293,7 @@ It is not complete enough for:
 
 ## Manuscript-Safe Central Claim
 
-In the TUM2TWIN campus-core case, digital-twin wind-environment value comes from the traceable conversion of visually realistic but CFD-fragile data into closed semantic collision geometry and from the ability to diagnose persistent pedestrian-layer ventilation insufficiency in relation to local building form. The morphology-response archetype and stage-transition layers show that wind recovery is better discussed as a near-to-context response of relative vertical massing, elongation, plan continuity and local enclosure than as a single footprint, height or porosity effect.
+In the TUM2TWIN campus-core case, digital-twin wind-environment value comes from the traceable conversion of visually realistic but CFD-fragile data into closed semantic collision geometry and from the ability to diagnose persistent pedestrian-layer ventilation insufficiency in relation to local building form. The morphology-response archetype, stage-transition and directional-fingerprint layers show that wind recovery is better discussed as a near-to-context response of relative vertical massing, elongation, plan continuity, local enclosure and wind-sector reactivity than as a single footprint, height or porosity effect.
 
 ## Required Remaining Evidence for Stronger Claims
 
@@ -317,7 +324,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - References are drawn from `manifests/verified_references_for_sci_discussion.csv`.
 - Figure/table assets are tracked in `manifests/experiment3_submission_readiness_checklist.csv`.
 - Blocked claims remain explicit: field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution.
-- The morphology threshold rule, morphology-response archetypes and stage-transition subgroup rules are framed as sample-internal screening evidence.
+- The morphology threshold rule, morphology-response archetypes, stage-transition subgroup rules and directional-fingerprint rules are framed as sample-internal screening evidence.
 - The draft contains a single References section and a synchronized pending-debt list.
 
 ## Remaining Publication Debts
@@ -367,13 +374,36 @@ evidence_type: newly_run + preexisting_artifact + blocked
 
 This experiment shows that the wind-environment value of real urban digital-twin data lies not merely in visually realistic geometry, but in a traceable transformation from visual assets to semantic and CFD-ready collision geometry. In the TUM2TWIN Downtown campus core, photogrammetry, Rhino and 3DGS-like assets support scene audit, texture-based review and communication of the real urban context, but their watertightness, semantic separation and voxelization stability are insufficient for direct use as rigid FluidX3D/CityLBM collision boundaries. Closed LoD/OBJ/CAD-derived prism geometry, by contrast, can be QA-recorded, voxelized and used for an eight-direction, three-sample FluidX3D pedestrian-wind screening workflow.
 
-The wind result extends traditional building-form wind-environment knowledge into a real digital-twin block. The S0 baseline indicates persistent pedestrian-layer low-speed conditions rather than a strong-wind hazard, and above-roof recovery cannot substitute for independent assessment of entrances, courtyards, streets and pedestrian routes. Morphology correlations, threshold screening, building-form response archetypes and the stage-transition analysis show that the 20-50 m local-context band is more diagnostic than the uniformly sheltered 0-20 m facade-adjacent band. Pedestrian-layer wind recovery is therefore better interpreted as a near-to-context response of relative vertical massing, plan elongation, local enclosure and momentum-exchange opportunity than as a single effect of footprint area, building height or porosity.
+The wind result extends traditional building-form wind-environment knowledge into a real digital-twin block. The S0 baseline indicates persistent pedestrian-layer low-speed conditions rather than a strong-wind hazard, and above-roof recovery cannot substitute for independent assessment of entrances, courtyards, streets and pedestrian routes. Morphology correlations, threshold screening, building-form response archetypes, stage-transition analysis and directional fingerprinting show that the 20-50 m local-context band is more diagnostic than the uniformly sheltered 0-20 m facade-adjacent band. Pedestrian-layer wind recovery is therefore better interpreted as a near-to-context response of relative vertical massing, plan elongation, local enclosure, momentum-exchange opportunity and wind-sector reactivity than as a single effect of footprint area, building height or porosity.
 
 The S1/S2 design-sensitivity experiments provide negative design evidence rather than successful optimization. Neither a single relief corridor nor a three-corridor network-porosity intervention improves global pedestrian-layer mean VR, and newly opened cells remain embedded in a low-speed background. This negative result is useful for design application: campus-core ventilation improvement should not be reduced to adding geometric opening area, but should couple openings to effective inflow sectors, momentum entry, pressure-exchange paths and local enclosure continuity. The safest manuscript positioning is therefore a FluidX3D-native digital-twin-to-CFD screening and building-form interpretation study, not field validation, regulatory comfort certification, pollutant dispersion prediction or a completed CityLBM-Grasshopper end-to-end workflow.
 """
     (PAPER / "experiment3_final_contribution_and_conclusion_en.md").write_text(
         paper_en, encoding="utf-8"
     )
+
+    final_discussion = PAPER / "final_integrated_results_discussion_en.md"
+    if final_discussion.exists():
+        marker = "## Directional-Fingerprint Addendum"
+        directional_value = matrix_value(key_matrix, "Morphology directional fingerprint")
+        text = final_discussion.read_text(encoding="utf-8")
+        if marker in text:
+            text = text.split(marker, 1)[0].rstrip()
+        addendum = f"""
+
+{marker}
+
+The directional-fingerprint addendum refines the integrated interpretation of
+building form and wind environment. The final matrix reports `{directional_value}`.
+This supports a paper-safe conclusion that useful campus-scale local recovery
+is not only a higher 20-50 m mean VR, but also a stronger response to inflow
+sectors. Persistent shelter suppresses both mean speed ratio and directional
+range, while recovery/reactive components show stronger wind-sector
+fingerprints. This remains sample-internal FluidX3D digital-twin screening
+evidence, not field validation, annual wind-rose compliance or a universal
+directional morphology threshold.
+"""
+        final_discussion.write_text(text + addendum, encoding="utf-8")
 
     print("key_result_rows", len(key_matrix))
     print("figure_table_callouts", len(figure_plan))

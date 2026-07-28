@@ -54,11 +54,17 @@ Fig. E3-S4. Supplementary morphology stage-transition analysis. The panel decomp
 
 图 E3-S4. 建筑形态阶段转化分析补充图。图中把 101 个保留建筑构件的风响应分解为 0-20 m 近立面低速阶段、20-50 m 局地环境恢复阶段和方向性响应阶段。结果显示，近立面带几乎为低速饱和区，而 20-50 m 带揭示了与相对竖向尺度、平面延展性和局地围合相关的恢复差异。该图用于数字孪生设计筛查，不代表实测验证的因果阈值或通用设计规范。
 
+### Fig. E3-S5
+
+Fig. E3-S5. Supplementary morphology directional-fingerprint analysis in the 20-50 m local-context band. The panel links the eight-direction range of component mean VR, directional reactivity ratio and best-response direction to basic morphology descriptors and stage-transition classes for the 101 retained components. Persistent-shelter components suppress both mean VR and directional range, whereas near-to-context recovery and directionally reactive components show stronger wind-sector response. The figure supports digital-twin design screening, not field-validated causal thresholds or annual wind-rose compliance.
+
+鍥?E3-S5. 20-50 m 灞€鍦扮幆澧冨甫鐨勫缓绛戝舰鎬佹柟鍚戞€ф寚绾瑰垎鏋愩€傚浘涓皢 101 涓繚鐣欏缓绛戞瀯浠剁殑鍏鍚?mean VR 鑼冨洿銆佹柟鍚戝搷搴旀瘮鍊笺€佹渶浣冲搷搴旈鍚戜笌鍩虹褰㈡€佸弬鏁板拰闃舵杞寲绫诲瀷鑱旂郴璧锋潵銆傜粨鏋滄樉绀猴紝persistent shelter 鏋勪欢鍚屾椂鍏锋湁浣庡钩鍧?VR 鍜屼綆鏂瑰悜鑼冨洿锛岃€宯ear-to-context recovery 鍜宒irectionally reactive 鏋勪欢鏇磋兘琛ㄧ幇鍑烘潵娴佹墖鍖哄搷搴旂殑宸紓銆傝鍥炬敮鎸佹暟瀛楀鐢熻璁＄瓫鏌ワ紝涓嶆敮鎸佸疄娴嬮獙璇佺殑鍥犳灉闃堝€兼垨骞村害椋庣帿鐟板悎瑙勮瘎浠枫€?
+
 ## Tables
 
 ### Table E3-1
 
-Table E3-1. Paper-facing one-page key-result matrix for Experiment 3. The table consolidates S0 baseline, vertical recovery, Open-Meteo proxy sensitivity, S1/S2 design sensitivity, directional trade-off, morphology robustness, threshold screening, stage-transition analysis and GCRI into one evidence framework with evidence type, source artifact and paper-safe claim for each row.
+Table E3-1. Paper-facing one-page key-result matrix for Experiment 3. The table consolidates S0 baseline, vertical recovery, Open-Meteo proxy sensitivity, S1/S2 design sensitivity, directional trade-off, morphology robustness, threshold screening, stage-transition analysis, morphology directional fingerprinting and GCRI into one evidence framework with evidence type, source artifact and paper-safe claim for each row.
 
 表 E3-1. 实验3面向论文的一页式关键结果矩阵。表格把 S0 基准、竖向恢复、Open-Meteo 方向代理敏感性、S1/S2 设计敏感性、方向性 trade-off、形态稳健性、阈值筛查和 GCRI 几何就绪度整合到同一证据框架，并逐行给出 evidence_type、来源文件和论文安全表述。
 

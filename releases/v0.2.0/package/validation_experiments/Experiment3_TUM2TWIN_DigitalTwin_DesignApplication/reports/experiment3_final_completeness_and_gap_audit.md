@@ -24,19 +24,19 @@ It is not complete enough for:
 3. Closed LoD/OBJ-derived collision geometries are QA-recorded and FluidX3D-ready.
 4. Eight-direction, three-sample FluidX3D outputs show robust pedestrian-layer low-speed conditions.
 5. Open-Meteo weighting confirms proxy-direction robustness without claiming annual compliance.
-6. Morphology statistics, archetypes and stage-transition analysis identify local enclosure, relative vertical massing, plan continuity and near-to-context recovery as screening descriptors.
+6. Morphology statistics, archetypes, stage-transition and directional-fingerprint analysis identify local enclosure, relative vertical massing, plan continuity, near-to-context recovery and wind-sector reactivity as screening descriptors.
 7. S1/S2 negative sensitivity shows that porosity area alone is not a sufficient intervention mechanism.
 
 ## Current Paper Assets
 
-- Main result rows: `13`
-- Reviewer-facing figures/tables: `11` with `11` ready for manual review.
-- Evidence inventory rows: `110`
+- Main result rows: `14`
+- Reviewer-facing figures/tables: `12` with `12` ready for manual review.
+- Evidence inventory rows: `112`
 - Archive manifest status should be checked through `manifests/github_archive_manifest.csv` after every commit.
 
 ## Manuscript-Safe Central Claim
 
-In the TUM2TWIN campus-core case, digital-twin wind-environment value comes from the traceable conversion of visually realistic but CFD-fragile data into closed semantic collision geometry and from the ability to diagnose persistent pedestrian-layer ventilation insufficiency in relation to local building form. The morphology-response archetype and stage-transition layers show that wind recovery is better discussed as a near-to-context response of relative vertical massing, elongation, plan continuity and local enclosure than as a single footprint, height or porosity effect.
+In the TUM2TWIN campus-core case, digital-twin wind-environment value comes from the traceable conversion of visually realistic but CFD-fragile data into closed semantic collision geometry and from the ability to diagnose persistent pedestrian-layer ventilation insufficiency in relation to local building form. The morphology-response archetype, stage-transition and directional-fingerprint layers show that wind recovery is better discussed as a near-to-context response of relative vertical massing, elongation, plan continuity, local enclosure and wind-sector reactivity than as a single footprint, height or porosity effect.
 
 ## Required Remaining Evidence for Stronger Claims
 
