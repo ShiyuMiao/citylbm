@@ -48,3 +48,12 @@ Fig. E3-S1. Supplementary forest plot of Experiment 3 effect sizes and uncertain
 - Source data: `figures/experiment3_effect_size_uncertainty_summary.csv`
 - Evidence type: `newly_run + blocked`
 - Boundary: not measurement uncertainty; not grid convergence; not annual comfort exceedance probability
+
+## Fig. E3-S2
+
+Fig. E3-S2. Supplementary eight-direction anisotropy and design-sector response for Experiment 3. The panel compares S0 pedestrian-layer mean VR, pedestrian-layer stagnation ratio, 40 m minus 2 m vertical recovery and S2 common-open-cell local response. The low-speed and high-stagnation state is quasi-omnidirectional across the eight inflow directions, whereas S2 local response is directional and strongest at 315 deg; nevertheless, S1/S2 global pedestrian-layer mean-VR deltas remain negative in all directions. The figure supports wind-sector-coupled design interpretation, not annual wind-rose compliance or successful optimization claims.
+
+- Asset: `figures/experiment3_directional_anisotropy_panel.png`
+- Source data: `figures/experiment3_directional_anisotropy_summary.csv; figures/experiment3_directional_response_by_wind.csv`
+- Evidence type: `newly_run + preexisting_artifact + blocked`
+- Boundary: not measured wind rose; not annual comfort compliance; not successful optimization

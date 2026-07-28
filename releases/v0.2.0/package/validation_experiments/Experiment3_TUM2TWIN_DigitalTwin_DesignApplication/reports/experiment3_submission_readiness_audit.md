@@ -6,8 +6,8 @@ Generated at: 2026-07-28
 
 ## Summary
 
-- Figure/table assets checked: `8`
-- Ready for manual review: `8`
+- Figure/table assets checked: `9`
+- Ready for manual review: `9`
 - Missing assets: `0`
 - Canonical paper position: FluidX3D-native simulation with a CityLBM-compatible geometry package.
 - Claim strength: screening-level wind-environment application and morphology interpretation, not field-validated prediction.
@@ -21,6 +21,7 @@ Generated at: 2026-07-28
 | Fig. E3-3 | figure | yes | newly_run | negative design-sensitivity evidence | not successful optimization; not final design recommendation |
 | Fig. E3-4 | figure | yes | newly_run + blocked | sample-internal design-rule screening | not universal threshold; not field-validated design rule |
 | Fig. E3-S1 | figure | yes | newly_run + blocked | supplementary uncertainty and effect-size audit | not measurement uncertainty; not grid convergence; not annual comfort exceedance probability |
+| Fig. E3-S2 | figure | yes | newly_run + preexisting_artifact + blocked | directional mechanism and wind-sector design interpretation | not measured wind rose; not annual comfort compliance; not successful optimization |
 | Table E3-1 | table | yes | newly_run + preexisting_artifact + blocked | main result table and evidence anchor | rows with blocked components must retain boundary wording |
 | Table E3-2 | table | yes | newly_run + blocked | limitations table and claim boundary | blocked rows must not be converted into completed results |
 | Table E3-3 | table | yes | newly_run | digital-twin geometry readiness metric | GCRI is a paper-internal readiness score, not an external standard |

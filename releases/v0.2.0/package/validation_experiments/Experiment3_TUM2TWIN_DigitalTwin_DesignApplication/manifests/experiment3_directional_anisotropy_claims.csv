@@ -1,0 +1,5 @@
+claim_id,claim,evidence_type,source,claim_readiness
+DA1,S0 pedestrian-height low-speed condition is quasi-omnidirectional across the eight simulated directions.,newly_run,figures/experiment3_directional_anisotropy_summary.csv; figures/experiment3_directional_response_by_wind.csv,paper_ready_as_screening
+DA2,Vertical mean-VR recovery from z~2 m to z~40 m is positive in every simulated direction.,newly_run,figures/experiment3_directional_anisotropy_summary.csv,paper_ready_as_screening
+DA3,S1/S2 global z~2 m mean-VR deltas remain negative in all eight simulated directions.,newly_run,figures/experiment3_directional_anisotropy_summary.csv; figures/fluidx3d_design_sensitivity_directional_tradeoffs_z2m.csv,paper_ready_negative_result
+DA4,"S2 has localized directionally sensitive common-open-cell response, strongest at 315 deg, but this does not produce global pedestrian-layer recovery.",newly_run + blocked,figures/experiment3_directional_response_by_wind.csv; reports/experiment3_directional_anisotropy_analysis.md,paper_ready_with_boundary

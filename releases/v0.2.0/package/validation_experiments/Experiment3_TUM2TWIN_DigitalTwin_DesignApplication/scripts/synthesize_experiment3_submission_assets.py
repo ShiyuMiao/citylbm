@@ -64,6 +64,16 @@ FIGURE_CAPTIONS = [
         "paper_safe_use": "supplementary uncertainty and effect-size audit",
         "boundary": "not measurement uncertainty; not grid convergence; not annual comfort exceedance probability",
     },
+    {
+        "id": "Fig. E3-S2",
+        "path": "figures/experiment3_directional_anisotropy_panel.png",
+        "evidence_type": "newly_run + preexisting_artifact + blocked",
+        "source_data": "figures/experiment3_directional_anisotropy_summary.csv; figures/experiment3_directional_response_by_wind.csv",
+        "caption_zh": "图 E3-S2. 实验3八风向各向异性与设计扇区响应补充图。图中比较 S0 行人层 mean VR、行人层滞风比例、40 m-2 m 竖向恢复以及 S2 common-open-cell 局地响应。结果显示行人层低速和高滞风在八个来流方向中近似全向存在，而 S2 的局部响应具有方向性，最强响应出现在 315 deg；但S1/S2全局行人层 mean-VR delta 在全部方向上仍为负。该图支持风扇区耦合的设计解释，不支持年度风玫瑰合规或成功优化宣称。",
+        "caption_en": "Fig. E3-S2. Supplementary eight-direction anisotropy and design-sector response for Experiment 3. The panel compares S0 pedestrian-layer mean VR, pedestrian-layer stagnation ratio, 40 m minus 2 m vertical recovery and S2 common-open-cell local response. The low-speed and high-stagnation state is quasi-omnidirectional across the eight inflow directions, whereas S2 local response is directional and strongest at 315 deg; nevertheless, S1/S2 global pedestrian-layer mean-VR deltas remain negative in all directions. The figure supports wind-sector-coupled design interpretation, not annual wind-rose compliance or successful optimization claims.",
+        "paper_safe_use": "directional mechanism and wind-sector design interpretation",
+        "boundary": "not measured wind rose; not annual comfort compliance; not successful optimization",
+    },
 ]
 
 

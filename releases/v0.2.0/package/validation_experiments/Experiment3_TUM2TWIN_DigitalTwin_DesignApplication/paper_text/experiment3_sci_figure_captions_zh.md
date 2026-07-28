@@ -48,3 +48,12 @@ These captions are tied to archived source artifacts. They should be edited only
 - Source data: `figures/experiment3_effect_size_uncertainty_summary.csv`
 - Evidence type: `newly_run + blocked`
 - Boundary: not measurement uncertainty; not grid convergence; not annual comfort exceedance probability
+
+## Fig. E3-S2
+
+图 E3-S2. 实验3八风向各向异性与设计扇区响应补充图。图中比较 S0 行人层 mean VR、行人层滞风比例、40 m-2 m 竖向恢复以及 S2 common-open-cell 局地响应。结果显示行人层低速和高滞风在八个来流方向中近似全向存在，而 S2 的局部响应具有方向性，最强响应出现在 315 deg；但S1/S2全局行人层 mean-VR delta 在全部方向上仍为负。该图支持风扇区耦合的设计解释，不支持年度风玫瑰合规或成功优化宣称。
+
+- Asset: `figures/experiment3_directional_anisotropy_panel.png`
+- Source data: `figures/experiment3_directional_anisotropy_summary.csv; figures/experiment3_directional_response_by_wind.csv`
+- Evidence type: `newly_run + preexisting_artifact + blocked`
+- Boundary: not measured wind rose; not annual comfort compliance; not successful optimization

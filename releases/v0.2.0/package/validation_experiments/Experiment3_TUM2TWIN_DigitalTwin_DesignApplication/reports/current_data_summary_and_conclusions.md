@@ -10,7 +10,7 @@ evidence_type: newly_run + preexisting_artifact + user_claim + blocked
 |---|---|---:|---|---|
 | Download/source manifest | `manifests/data_manifest.csv` | 21 rows | newly_run + preexisting_artifact | Records source URL, size, checksum, download time, license/citation information |
 | Geometry manifest | `manifests/geometry_manifest.csv` | 13 rows | newly_run | Records Rhino/OBJ/STL geometry files, roles, sizes and checksums |
-| Evidence inventory | `manifests/evidence_inventory.csv` | 103 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
+| Evidence inventory | `manifests/evidence_inventory.csv` | 104 rows | newly_run + preexisting_artifact + user_claim + blocked | Maps claims to evidence type and source artifact |
 | Wind-climate proxy weights | `manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv` | 8 sectors | newly_run + preexisting_artifact | Converts 2024 hourly 10 m wind data into 8 FluidX3D velocity-direction weights |
 
 ### 1.2 Visual and Rhino Data
@@ -179,15 +179,15 @@ The strongest paper-safe conclusion is no longer that a specific intervention im
 
 ### 7.8 SCI Section Paper Draft Addendum
 
-The paper-draft package creates a continuous section-level draft in `academic-paper-writer/paper-drafts/paper_draft.md`, an English companion draft in `academic-paper-writer/paper-drafts/paper_draft_en.md`, and release copies in `paper_text/experiment3_sci_section_paper_draft_zh.md` and `paper_text/experiment3_sci_section_paper_draft_en.md`. The draft uses `12` verified references, `10` key result rows, `8` figure/table callouts, and `25` claim/asset verification rows.
+The paper-draft package creates a continuous section-level draft in `academic-paper-writer/paper-drafts/paper_draft.md`, an English companion draft in `academic-paper-writer/paper-drafts/paper_draft_en.md`, and release copies in `paper_text/experiment3_sci_section_paper_draft_zh.md` and `paper_text/experiment3_sci_section_paper_draft_en.md`. The draft uses `12` verified references, `11` key result rows, `9` figure/table callouts, and `27` claim/asset verification rows.
 
 This is the most complete prose artifact for integrating Experiment 3 into the broader SCI paper. It is not yet a venue-formatted full paper because target journal, citation style, paper-level introduction/related work, and any optional CityLBM-GH foregrounding decision remain author-input items.
 
 ### 7.9 SCI Figure/Table Caption and Submission-Readiness Addendum
 
-The submission-readiness layer adds bilingual captions for the four planned main figures, one supplementary figure, and three planned tables, plus an asset-level audit in `reports/experiment3_submission_readiness_audit.md` and `manifests/experiment3_submission_readiness_checklist.csv`. All eight assets exist and are ready for manual review. This layer improves paper usability because each figure/table is tied to its evidence type, source data, safe manuscript role, and boundary condition.
+The submission-readiness layer adds bilingual captions for the four planned main figures, two supplementary figures, and three planned tables, plus an asset-level audit in `reports/experiment3_submission_readiness_audit.md` and `manifests/experiment3_submission_readiness_checklist.csv`. All nine assets exist and are ready for manual review. This layer improves paper usability because each figure/table is tied to its evidence type, source data, safe manuscript role, and boundary condition.
 
-The strongest supported use is reviewer-facing presentation of the completed FluidX3D-native digital-twin screening workflow: baseline pedestrian-layer low-speed mapping, morphology ranking, S1/S2 negative design-sensitivity trade-off, morphology threshold screening, effect-size uncertainty audit, integrated result matrix, completion audit, and GCRI geometry-readiness scoring. The captions retain the same limits as the evidence archive: no field/wind-tunnel validation, no annual comfort/safety compliance, no pollutant transport, no GCBTE computation, and no completed CityLBM-Grasshopper end-to-end execution.
+The strongest supported use is reviewer-facing presentation of the completed FluidX3D-native digital-twin screening workflow: baseline pedestrian-layer low-speed mapping, morphology ranking, S1/S2 negative design-sensitivity trade-off, morphology threshold screening, effect-size uncertainty audit, directional anisotropy analysis, integrated result matrix, completion audit, and GCRI geometry-readiness scoring. The captions retain the same limits as the evidence archive: no field/wind-tunnel validation, no annual comfort/safety compliance, no pollutant transport, no GCBTE computation, and no completed CityLBM-Grasshopper end-to-end execution.
 
 ### 7.10 Effect-Size and Uncertainty Addendum
 
@@ -196,3 +196,9 @@ The effect-size layer recomputes uncertainty intervals from already archived sim
 The main numerical reinforcement is that z~2 m mean VR remains `0.076338` with bootstrap 95% CI `0.075529`-`0.077110`, while the z~2 m VR<0.2 ratio remains `0.929184` with bootstrap 95% CI `0.926430`-`0.932069`. The paired z~40 m minus z~2 m mean-VR recovery is `0.972170` with bootstrap 95% CI `0.967413`-`0.977473`. S1 and S2 remain globally near-null/negative in all tested z~2 m directions, with S2 global mean-VR delta ranging from `-0.000532` to `-0.000336`. The 20-50 m local-context morphology recovery delta is `0.002378` with bootstrap 95% CI `0.001742`-`0.003062`.
 
 This addendum strengthens the SCI conclusion without overclaiming. It shows that the low-speed baseline, upper-layer recovery, negative S1/S2 sensitivity, and local-context morphology recovery are not single-row artifacts. It remains bounded as simulation-output uncertainty, not field measurement uncertainty, grid-convergence proof, annual comfort/safety exceedance probability, or a causal design threshold.
+
+### 7.11 Directional Anisotropy and Design-Sector Addendum
+
+The directional addendum analyzes the same eight time-mean FluidX3D directions used in the core-prism case. At z~2 m, S0 mean VR ranges from `0.073210` at 180 deg to `0.079211` at 45 deg, giving a directional anisotropy index of `0.078610`. The z~2 m stagnation ratio ranges from `0.922676` to `0.940074`, with anisotropy index `0.018724`. Thus, the pedestrian-layer low-speed problem is quasi-omnidirectional rather than controlled by a single exceptional wind direction.
+
+The vertical and design-sensitivity results add a more useful mechanism. The z~40 m minus z~2 m mean-VR recovery is positive for every direction, ranging from `0.953365` to `0.998616`. S1 and S2 global z~2 m mean-VR deltas are negative in all eight directions. However, S2's common-open-cell local response is directionally localized and strongest at 315 deg, with common-open delta VR `0.000368`. The design conclusion is therefore sharper: the campus core can respond locally to wind-sector-aligned openings, but porosity area alone does not recover the global pedestrian layer unless it is coupled with wind-sector entry and pressure-exchange paths.

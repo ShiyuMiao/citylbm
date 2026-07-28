@@ -72,6 +72,8 @@ Core distinction:
 29. `reports/experiment3_submission_readiness_audit.md`
 30. `reports/experiment3_effect_size_uncertainty_analysis.md`
 31. `paper_text/experiment3_effect_size_uncertainty_results_zh.md`
+32. `reports/experiment3_directional_anisotropy_analysis.md`
+33. `paper_text/experiment3_directional_anisotropy_results_zh.md`
 
 ## Current Main Conclusion
 
@@ -204,7 +206,7 @@ The archive now includes bilingual SCI-style captions for the four recommended f
 - `reports/experiment3_submission_readiness_audit.md`
 - `manifests/experiment3_submission_readiness_checklist.csv`
 
-Audit result: all eight planned figure/table assets exist and are ready for manual review. Remaining blockers are unchanged: field/wind-tunnel validation, annual comfort/safety compliance, pollutant transport, GCBTE computation, and CityLBM-Grasshopper end-to-end execution.
+Audit result: all nine planned figure/table assets exist and are ready for manual review. Remaining blockers are unchanged: field/wind-tunnel validation, annual comfort/safety compliance, pollutant transport, GCBTE computation, and CityLBM-Grasshopper end-to-end execution.
 
 ## Effect-Size and Uncertainty Addendum
 
@@ -218,3 +220,17 @@ The archive now includes a supplementary statistical layer that recomputes effec
 - `manifests/experiment3_effect_size_uncertainty_claims.csv`
 
 Paper-safe interpretation: the pedestrian-layer low-speed result, the z~40 m versus z~2 m vertical recovery, and the S1/S2 near-null or negative global effects are stable within the archived direction-sample or directional uncertainty layer. This is not measurement uncertainty, grid-convergence proof, annual comfort exceedance probability, or a universal morphology threshold.
+
+## Directional Anisotropy and Design-Sector Addendum
+
+The archive now includes an eight-direction mechanism analysis that distinguishes quasi-omnidirectional campus sheltering from directionally localized design response.
+
+- `scripts/analyze_experiment3_directional_anisotropy.py`
+- `figures/experiment3_directional_response_by_wind.csv`
+- `figures/experiment3_directional_anisotropy_summary.csv`
+- `figures/experiment3_directional_anisotropy_panel.png`
+- `reports/experiment3_directional_anisotropy_analysis.md`
+- `paper_text/experiment3_directional_anisotropy_results_zh.md`
+- `manifests/experiment3_directional_anisotropy_claims.csv`
+
+Paper-safe interpretation: pedestrian-layer mean VR remains low and stagnation remains high across all eight simulated directions, so the main problem is not a single exceptional inflow direction. S2 has a localized directional response, strongest at 315 deg, but S1/S2 global pedestrian-layer mean-VR deltas remain negative in every tested direction. This supports wind-sector-coupled design reasoning, not annual wind-climate compliance or successful optimization.

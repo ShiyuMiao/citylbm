@@ -117,3 +117,10 @@ evidence_type: newly_run + preexisting_artifact + blocked
 - Supported claim: the pedestrian-height low-speed baseline, z~40 m versus z~2 m vertical recovery, S1/S2 near-null or negative global sensitivity, and morphology near-to-context recovery are stable within the available archived direction-sample or directional uncertainty layer.
 - Unsupported claim: this addendum does not provide field measurement uncertainty, wind-tunnel validation, grid-convergence proof, annual comfort/safety exceedance probabilities, pollutant transport, GCBTE closure, or causal universal design thresholds.
 - Paper-safe interpretation: use `reports/experiment3_effect_size_uncertainty_analysis.md`, `figures/experiment3_effect_size_uncertainty_summary.csv`, and `paper_text/experiment3_effect_size_uncertainty_results_zh.md` to support stronger but still screening-level SCI wording.
+
+## Directional Anisotropy Claim Boundary Addendum
+
+- `newly_run + preexisting_artifact + blocked`: directional anisotropy statistics were computed from archived eight-direction FluidX3D time-mean metrics, S1/S2 directional trade-off tables, and Open-Meteo proxy weights.
+- Supported claim: S0 pedestrian-layer low-speed and high-stagnation patterns are quasi-omnidirectional across the eight simulated directions; S1/S2 global z~2 m mean-VR deltas remain negative in all tested directions; S2 has localized response strongest at 315 deg.
+- Unsupported claim: this addendum is not a measured annual wind rose, formal annual comfort/safety compliance, field validation, wind-tunnel closure, pollutant dispersion result, or successful optimization proof.
+- Paper-safe interpretation: use `reports/experiment3_directional_anisotropy_analysis.md`, `figures/experiment3_directional_anisotropy_summary.csv`, and `paper_text/experiment3_directional_anisotropy_results_zh.md` to discuss wind-sector-coupled design implications.
