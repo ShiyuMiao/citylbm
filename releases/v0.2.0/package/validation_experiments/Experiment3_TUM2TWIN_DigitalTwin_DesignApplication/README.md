@@ -248,3 +248,27 @@ The archive now includes a compact morphology-response typology for the 101 reta
 - `manifests/morphology_form_response_archetype_claims.csv`
 
 Paper-safe interpretation: the type separation supports a more detailed building-form conclusion for Experiment 3. Pedestrian-layer recovery is associated with combinations of relative vertical massing, elongation and local enclosure, not with a single footprint, height or porosity variable alone. The typology is a FluidX3D/digital-twin screening result, not a field-validated causal taxonomy.
+
+## Final Completeness and Gap Audit Layer
+
+The archive now includes a final reconciliation layer that checks whether the
+paper-facing result matrix, figure/table assets, evidence inventory, claim
+verification, and remaining blockers are mutually consistent.
+
+- `scripts/synthesize_experiment3_final_completeness_audit.py`
+- `manifests/experiment3_final_requirement_coverage.csv`
+- `reports/experiment3_final_completeness_and_gap_audit.md`
+- `reports/experiment3_completion_audit_and_paper_readiness.md`
+- `reports/experiment3_paper_draft_verification.md`
+- `paper_text/experiment3_final_contribution_and_conclusion_zh.md`
+- `paper_text/experiment3_final_contribution_and_conclusion_en.md`
+- `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
+
+Audit result: the final archive currently contains 12 key result rows, 10
+reviewer-facing figure/table callouts, 10 ready submission assets, and 108
+evidence-inventory entries. It is complete for a standalone Experiment 3
+section if framed as FluidX3D-native digital-twin-to-CFD wind screening with
+CityLBM-compatible geometry preparation. It remains incomplete for field
+validation, annual comfort/safety compliance, pollutant dispersion, GCBTE,
+CityLBM-Grasshopper end-to-end execution, and successful design optimization
+claims.

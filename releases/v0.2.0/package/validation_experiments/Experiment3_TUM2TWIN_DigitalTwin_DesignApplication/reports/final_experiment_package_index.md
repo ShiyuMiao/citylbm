@@ -258,7 +258,7 @@ New submission-readiness files:
 - `reports/experiment3_submission_readiness_audit.md`
 - `manifests/experiment3_submission_readiness_checklist.csv`
 
-Paper-safe interpretation: all nine planned reviewer-facing figure/table assets are present and traceable to source data. Captions explicitly separate screening-level wind and morphology findings from blocked field validation, annual comfort compliance, pollutant transport, GCBTE, and CityLBM-GH claims.
+Paper-safe interpretation: all ten planned reviewer-facing figure/table assets are present and traceable to source data. Captions explicitly separate screening-level wind and morphology findings from blocked field validation, annual comfort compliance, pollutant transport, GCBTE, and CityLBM-GH claims.
 
 ## Effect-Size and Uncertainty Addendum
 
@@ -300,3 +300,18 @@ New archetype-analysis files:
 - `manifests/morphology_form_response_archetype_claims.csv`
 
 Paper-safe interpretation: 101 retained building components can be separated into morphology-response archetypes with statistically different 20-50 m recovery deltas. The strongest group is `R1_A1_linear_low_relative_height_recovery`, while the weakest is `R4_A5_open_or_mixed_low_response`; Kruskal-Wallis `p=0.0001682`. This is useful for digital-twin design screening, but it is not a causal typology, field validation, or general design code.
+
+## Final Completeness and Gap Audit Layer
+
+New final-audit files:
+
+- `scripts/synthesize_experiment3_final_completeness_audit.py`
+- `manifests/experiment3_final_requirement_coverage.csv`
+- `reports/experiment3_final_completeness_and_gap_audit.md`
+- `reports/experiment3_completion_audit_and_paper_readiness.md`
+- `reports/experiment3_paper_draft_verification.md`
+- `paper_text/experiment3_final_contribution_and_conclusion_zh.md`
+- `paper_text/experiment3_final_contribution_and_conclusion_en.md`
+- `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
+
+Paper-safe interpretation: the archive is now internally reconciled for a standalone Experiment 3 manuscript section framed as FluidX3D-native digital-twin-to-CFD wind screening with CityLBM-compatible geometry preparation. The final audit records 12 key result rows, 10 reviewer-facing figure/table callouts, 10 ready submission assets, and 108 evidence-inventory entries. The same audit explicitly blocks unsupported claims about field validation, annual comfort/safety compliance, pollutant dispersion, GCBTE completion, CityLBM-Grasshopper end-to-end execution, and successful design optimization.
