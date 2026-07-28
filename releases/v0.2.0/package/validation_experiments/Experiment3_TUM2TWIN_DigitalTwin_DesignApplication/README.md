@@ -82,7 +82,9 @@ Core distinction:
 39. `paper_text/experiment3_final_sci_discussion_conclusion_zh.md`
 40. `reports/experiment3_sci_abstract_highlights_audit.md`
 41. `paper_text/experiment3_sci_abstract_highlights_keywords_zh.md`
-42. `reports/github_archive_manifest_validation.md`
+42. `reports/experiment3_research_question_synthesis.md`
+43. `paper_text/experiment3_research_question_answer_paragraphs_zh.md`
+44. `reports/github_archive_manifest_validation.md`
 
 ## Current Main Conclusion
 
@@ -386,6 +388,25 @@ field validation, formal annual comfort/safety compliance, pollutant
 dispersion, GCBTE closure, CityLBM-Grasshopper end-to-end execution or
 successful design optimization.
 
+## Research-Question-to-Evidence Synthesis
+
+The archive now includes a research-question-level synthesis that converts the
+completed Experiment 3 evidence into direct manuscript answers. It links data
+transfer, wind-distribution screening, building-form mechanism, design
+sensitivity, campus-application potential and claim boundaries.
+
+- `scripts/synthesize_experiment3_research_question_synthesis.py`
+- `manifests/experiment3_research_question_evidence_matrix.csv`
+- `reports/experiment3_research_question_synthesis.md`
+- `paper_text/experiment3_research_question_answer_paragraphs_zh.md`
+- `paper_text/experiment3_research_question_answer_paragraphs_en.md`
+
+Paper-safe interpretation: Experiment 3 answers six manuscript-facing research
+questions while preserving blocked claims. The strongest answer is that the
+TUM2TWIN case supports a FluidX3D-native digital-twin-to-CFD screening and
+building-form interpretation workflow, not field validation, annual compliance,
+pollutant prediction, GCBTE closure or CityLBM-Grasshopper end-to-end execution.
+
 ## Reviewer Reproducibility and Claim-Risk Layer
 
 The archive now includes a reviewer-facing reproducibility and claim-risk audit
@@ -435,8 +456,8 @@ verification, and remaining blockers are mutually consistent.
 - `paper_text/experiment3_final_contribution_and_conclusion_en.md`
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
-Audit result: the final archive currently contains 18 key result rows, 12
-reviewer-facing figure/table callouts, 12 ready submission assets, and 123
+Audit result: the final archive currently contains 19 key result rows, 12
+reviewer-facing figure/table callouts, 12 ready submission assets, and 125
 evidence-inventory entries. It is complete for a standalone Experiment 3
 section if framed as FluidX3D-native digital-twin-to-CFD wind screening with
 CityLBM-compatible geometry preparation. It remains incomplete for field

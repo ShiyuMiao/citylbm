@@ -185,6 +185,13 @@ def main() -> None:
             "paper_safe_interpretation": "The abstract/highlights package is sentence-mapped to evidence and excludes validation, compliance, pollutant, GCBTE, CityLBM-GH and optimization claims.",
         },
         {
+            "requirement": "Research-question-to-evidence synthesis",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/experiment3_research_question_evidence_matrix.csv; reports/experiment3_research_question_synthesis.md; paper_text/experiment3_research_question_answer_paragraphs_en.md",
+            "paper_safe_interpretation": "The RQ synthesis converts geometry-transfer, wind-distribution, building-form, design-sensitivity and campus-application findings into manuscript answers while preserving blocked claims.",
+        },
+        {
             "requirement": "Checkout-stable GitHub archive manifest",
             "status": "complete",
             "evidence_type": "newly_run",
