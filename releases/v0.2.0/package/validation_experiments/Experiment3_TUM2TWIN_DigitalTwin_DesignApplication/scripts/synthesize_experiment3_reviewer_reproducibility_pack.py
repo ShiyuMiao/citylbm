@@ -140,8 +140,6 @@ def main() -> None:
     readiness = pd.read_csv(MAN / "experiment3_submission_readiness_checklist.csv")
     requirements = pd.read_csv(MAN / "experiment3_final_requirement_coverage.csv")
     evidence = pd.read_csv(MAN / "evidence_inventory.csv")
-    manifest = pd.read_csv(MAN / "github_archive_manifest.csv")
-
     risk = build_risk_matrix(matrix, requirements)
     risk_path = MAN / "experiment3_reviewer_claim_risk_matrix.csv"
     risk.to_csv(risk_path, index=False, encoding="utf-8", lineterminator="\n")
@@ -168,7 +166,7 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 - Reviewer-facing figure/table assets: `{len(readiness)}`
 - Ready-for-manual-review assets: `{ready_count}`
 - Evidence inventory rows before this audit upsert: `{len(evidence)}`
-- GitHub archive manifest rows before this audit file is hashed: `{len(manifest)}`
+- GitHub archive manifest refresh: performed at the end of `rebuild_experiment3_paper_assets.ps1`
 
 ## Paper-Ready Claim Layers
 

@@ -16,7 +16,7 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 - Reviewer-facing figure/table assets: `12`
 - Ready-for-manual-review assets: `12`
 - Evidence inventory rows before this audit upsert: `122`
-- GitHub archive manifest rows before this audit file is hashed: `475`
+- GitHub archive manifest refresh: performed at the end of `rebuild_experiment3_paper_assets.ps1`
 
 ## Paper-Ready Claim Layers
 

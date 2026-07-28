@@ -11,7 +11,7 @@ This audit reflects the current archive after the morphology-response archetype,
 - Submission-readiness assets: `12`
 - Ready for manual review: `12`
 - Missing figure/table assets: `0`
-- Evidence inventory rows: `122`
+- Evidence inventory rows: `123`
 - Verified references used in Experiment 3 section draft: `12`
 - Claim verification rows: `40`
 
@@ -57,6 +57,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | SCI section draft and figure/table captions | complete_as_generic_section | newly_run + preexisting_artifact + blocked | academic-paper-writer/paper-drafts/paper_draft.md; academic-paper-writer/paper-drafts/paper_draft_en.md; paper_text/experiment3_sci_figure_captions_en.md | A generic SCI section and traceable figure/table assets are available, pending target-journal formatting. |
 | Final SCI discussion and conclusion evidence map | complete_with_boundary | newly_run + preexisting_artifact + blocked | manifests/experiment3_final_discussion_paragraph_evidence_map.csv; reports/experiment3_final_sci_discussion_evidence_map.md; paper_text/experiment3_final_sci_discussion_conclusion_zh.md | The final discussion/conclusion module is paragraph-mapped to evidence and blocked wording; target-journal formatting and paper-level integration remain separate tasks. |
 | SCI abstract, highlights and graphical-abstract caption | complete_with_boundary | newly_run + preexisting_artifact + blocked | manifests/experiment3_abstract_highlights_evidence_map.csv; reports/experiment3_sci_abstract_highlights_audit.md; paper_text/experiment3_sci_abstract_highlights_keywords_en.md | The abstract/highlights package is sentence-mapped to evidence and excludes validation, compliance, pollutant, GCBTE, CityLBM-GH and optimization claims. |
+| Checkout-stable GitHub archive manifest | complete | newly_run | scripts/refresh_github_archive_manifest.py; manifests/github_archive_manifest.csv; reports/github_archive_manifest_validation.md | The release package has a checkout-stable manifest using LF-normalized text hashes and raw binary hashes; large external assets remain governed by EXTERNAL_ARTIFACTS.md. |
 | CityLBM-Grasshopper end-to-end execution | blocked | blocked | cfd_ready/CityLBM_GH_input_template/README.md; reports/claim_boundary.md | Frame as FluidX3D-native simulation with a CityLBM-compatible geometry package unless GH execution evidence is added. |
 | Measured or wind-tunnel validation | blocked | blocked | reports/claim_boundary.md | Do not claim field-validated predictive accuracy. |
 | Formal Lawson/NEN/AIJ annual comfort compliance | blocked | blocked | reports/claim_boundary.md | Do not claim annual threshold-exceedance comfort or safety classes. |

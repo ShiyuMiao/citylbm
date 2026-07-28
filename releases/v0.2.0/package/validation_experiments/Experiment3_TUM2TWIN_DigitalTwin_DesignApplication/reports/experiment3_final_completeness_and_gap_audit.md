@@ -31,7 +31,7 @@ It is not complete enough for:
 
 - Main result rows: `18`
 - Reviewer-facing figures/tables: `12` with `12` ready for manual review.
-- Evidence inventory rows: `122`
+- Evidence inventory rows: `123`
 - Archive manifest status should be checked through `manifests/github_archive_manifest.csv` after every commit.
 
 ## Manuscript-Safe Central Claim

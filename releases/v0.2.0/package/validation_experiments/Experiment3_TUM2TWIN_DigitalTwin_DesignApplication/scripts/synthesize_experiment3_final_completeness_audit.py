@@ -185,6 +185,13 @@ def main() -> None:
             "paper_safe_interpretation": "The abstract/highlights package is sentence-mapped to evidence and excludes validation, compliance, pollutant, GCBTE, CityLBM-GH and optimization claims.",
         },
         {
+            "requirement": "Checkout-stable GitHub archive manifest",
+            "status": "complete",
+            "evidence_type": "newly_run",
+            "evidence_artifact": "scripts/refresh_github_archive_manifest.py; manifests/github_archive_manifest.csv; reports/github_archive_manifest_validation.md",
+            "paper_safe_interpretation": "The release package has a checkout-stable manifest using LF-normalized text hashes and raw binary hashes; large external assets remain governed by EXTERNAL_ARTIFACTS.md.",
+        },
+        {
             "requirement": "CityLBM-Grasshopper end-to-end execution",
             "status": "blocked",
             "evidence_type": "blocked",

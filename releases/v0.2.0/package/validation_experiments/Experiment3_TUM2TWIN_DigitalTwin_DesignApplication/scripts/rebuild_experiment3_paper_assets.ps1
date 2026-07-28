@@ -34,6 +34,8 @@ Invoke-PythonStep "scripts\synthesize_building_form_wind_mechanism.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_final_sci_discussion_package.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_sci_abstract_highlights.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_reviewer_reproducibility_pack.py"
+Invoke-PythonStep "scripts\refresh_github_archive_manifest.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_final_completeness_audit.py"
+Invoke-PythonStep "scripts\refresh_github_archive_manifest.py"
 
 Write-Host "Experiment 3 paper-facing assets rebuilt."
