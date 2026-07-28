@@ -48,9 +48,12 @@ Core distinction:
 5. `reports/paraview_vtk_core_wind_statistics_and_building_analysis.md`
 6. `reports/basic_morphology_wind_response_analysis.md`
 7. `reports/detailed_data_synthesis_for_paper_conclusions.md`
-8. `paper_text/detailed_paper_conclusions_zh.md`
-9. `paper_text/method_section_zh.md`
-10. `paper_text/basic_morphology_wind_response_conclusion_zh.md`
+8. `reports/sci_statistical_robustness_analysis.md`
+9. `paper_text/sci_results_discussion_strengthened_zh.md`
+10. `paper_text/sci_results_discussion_strengthened_en.md`
+11. `paper_text/detailed_paper_conclusions_zh.md`
+12. `paper_text/method_section_zh.md`
+13. `paper_text/basic_morphology_wind_response_conclusion_zh.md`
 
 ## Current Main Conclusion
 

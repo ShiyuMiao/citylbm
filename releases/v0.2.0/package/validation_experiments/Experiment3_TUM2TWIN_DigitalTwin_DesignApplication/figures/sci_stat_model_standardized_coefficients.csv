@@ -1,0 +1,51 @@
+analysis_zone,model,parameter,parameter_label,standardized_beta_full_sample,evidence_type
+near_facade_0_20m,size_height_shape,footprint_area_m2,footprint area,-0.000681,newly_run
+near_facade_0_20m,size_height_shape,mean_height_m,mean height,-0.000500,newly_run
+near_facade_0_20m,size_height_shape,height_to_sqrt_area,height / sqrt(area),0.001141,newly_run
+near_facade_0_20m,size_height_shape,compactness_p2_over_a,perimeter^2 / area,0.001247,newly_run
+near_facade_0_20m,size_height_shape,elongation_ratio,elongation ratio,0.000526,newly_run
+near_facade_0_20m,context_only,local_built_fraction_r30m,"local built fraction, r=30 m",-0.001066,newly_run
+near_facade_0_20m,context_only,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",-0.002853,newly_run
+near_facade_0_20m,context_plus_height,local_built_fraction_r30m,"local built fraction, r=30 m",-0.001065,newly_run
+near_facade_0_20m,context_plus_height,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",-0.002853,newly_run
+near_facade_0_20m,context_plus_height,mean_height_m,mean height,-0.000013,newly_run
+near_facade_0_20m,all_without_composite,footprint_area_m2,footprint area,0.000891,newly_run
+near_facade_0_20m,all_without_composite,mean_height_m,mean height,-0.000276,newly_run
+near_facade_0_20m,all_without_composite,height_to_sqrt_area,height / sqrt(area),0.000702,newly_run
+near_facade_0_20m,all_without_composite,compactness_p2_over_a,perimeter^2 / area,-0.002284,newly_run
+near_facade_0_20m,all_without_composite,elongation_ratio,elongation ratio,0.001162,newly_run
+near_facade_0_20m,all_without_composite,local_built_fraction_r30m,"local built fraction, r=30 m",-0.001278,newly_run
+near_facade_0_20m,all_without_composite,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",-0.003571,newly_run
+near_facade_0_20m,all_with_composite,footprint_area_m2,footprint area,0.000891,newly_run
+near_facade_0_20m,all_with_composite,mean_height_m,mean height,-0.000276,newly_run
+near_facade_0_20m,all_with_composite,height_to_sqrt_area,height / sqrt(area),0.000702,newly_run
+near_facade_0_20m,all_with_composite,compactness_p2_over_a,perimeter^2 / area,-0.002284,newly_run
+near_facade_0_20m,all_with_composite,elongation_ratio,elongation ratio,0.001162,newly_run
+near_facade_0_20m,all_with_composite,local_built_fraction_r30m,"local built fraction, r=30 m",-0.000269,newly_run
+near_facade_0_20m,all_with_composite,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",-0.003284,newly_run
+near_facade_0_20m,all_with_composite,relative_enclosure_score,combined enclosure score,-0.001102,newly_run
+local_context_20_50m,size_height_shape,footprint_area_m2,footprint area,-0.000406,newly_run
+local_context_20_50m,size_height_shape,mean_height_m,mean height,-0.000965,newly_run
+local_context_20_50m,size_height_shape,height_to_sqrt_area,height / sqrt(area),0.000038,newly_run
+local_context_20_50m,size_height_shape,compactness_p2_over_a,perimeter^2 / area,0.000905,newly_run
+local_context_20_50m,size_height_shape,elongation_ratio,elongation ratio,0.000075,newly_run
+local_context_20_50m,context_only,local_built_fraction_r30m,"local built fraction, r=30 m",-0.000812,newly_run
+local_context_20_50m,context_only,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",-0.004111,newly_run
+local_context_20_50m,context_plus_height,local_built_fraction_r30m,"local built fraction, r=30 m",-0.000717,newly_run
+local_context_20_50m,context_plus_height,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",-0.004150,newly_run
+local_context_20_50m,context_plus_height,mean_height_m,mean height,-0.000955,newly_run
+local_context_20_50m,all_without_composite,footprint_area_m2,footprint area,0.002025,newly_run
+local_context_20_50m,all_without_composite,mean_height_m,mean height,-0.000756,newly_run
+local_context_20_50m,all_without_composite,height_to_sqrt_area,height / sqrt(area),-0.000423,newly_run
+local_context_20_50m,all_without_composite,compactness_p2_over_a,perimeter^2 / area,-0.004198,newly_run
+local_context_20_50m,all_without_composite,elongation_ratio,elongation ratio,0.000675,newly_run
+local_context_20_50m,all_without_composite,local_built_fraction_r30m,"local built fraction, r=30 m",-0.001157,newly_run
+local_context_20_50m,all_without_composite,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",-0.005215,newly_run
+local_context_20_50m,all_with_composite,footprint_area_m2,footprint area,0.002025,newly_run
+local_context_20_50m,all_with_composite,mean_height_m,mean height,-0.000756,newly_run
+local_context_20_50m,all_with_composite,height_to_sqrt_area,height / sqrt(area),-0.000423,newly_run
+local_context_20_50m,all_with_composite,compactness_p2_over_a,perimeter^2 / area,-0.004198,newly_run
+local_context_20_50m,all_with_composite,elongation_ratio,elongation ratio,0.000675,newly_run
+local_context_20_50m,all_with_composite,local_built_fraction_r30m,"local built fraction, r=30 m",0.000004,newly_run
+local_context_20_50m,all_with_composite,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",-0.004884,newly_run
+local_context_20_50m,all_with_composite,relative_enclosure_score,combined enclosure score,-0.001269,newly_run

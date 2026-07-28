@@ -1,0 +1,17 @@
+analysis_zone,parameter,parameter_label,response_metric,spearman_rho,bootstrap_ci95_low,bootstrap_ci95_high,bootstrap_median,n_components,n_bootstrap,evidence_type
+near_facade_0_20m,footprint_area_m2,footprint area,directional_mean_vr,-0.131445,-0.325014,0.070388,-0.128372,101,2000,newly_run
+near_facade_0_20m,mean_height_m,mean height,directional_mean_vr,-0.286248,-0.475908,-0.091943,-0.295068,101,2000,newly_run
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),directional_mean_vr,0.024520,-0.166427,0.219406,0.023089,101,2000,newly_run
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,directional_mean_vr,-0.122907,-0.321582,0.077759,-0.120916,101,2000,newly_run
+near_facade_0_20m,elongation_ratio,elongation ratio,directional_mean_vr,-0.111918,-0.305046,0.087125,-0.106118,101,2000,newly_run
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",directional_mean_vr,-0.464310,-0.609636,-0.289132,-0.466301,101,2000,newly_run
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",directional_mean_vr,-0.408346,-0.564973,-0.211589,-0.407725,101,2000,newly_run
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,directional_mean_vr,-0.534374,-0.676174,-0.359424,-0.534573,101,2000,newly_run
+local_context_20_50m,footprint_area_m2,footprint area,directional_mean_vr,0.081052,-0.105535,0.273757,0.080876,101,2000,newly_run
+local_context_20_50m,mean_height_m,mean height,directional_mean_vr,-0.350716,-0.531987,-0.147065,-0.350052,101,2000,newly_run
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),directional_mean_vr,-0.208314,-0.375843,-0.024649,-0.207351,101,2000,newly_run
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,directional_mean_vr,0.050921,-0.131161,0.233633,0.051142,101,2000,newly_run
+local_context_20_50m,elongation_ratio,elongation ratio,directional_mean_vr,0.083203,-0.109261,0.262129,0.080092,101,2000,newly_run
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",directional_mean_vr,-0.225987,-0.411014,-0.039141,-0.224558,101,2000,newly_run
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",directional_mean_vr,-0.395640,-0.574086,-0.157587,-0.404229,101,2000,newly_run
+local_context_20_50m,relative_enclosure_score,combined enclosure score,directional_mean_vr,-0.301922,-0.483395,-0.096889,-0.302107,101,2000,newly_run

@@ -1,0 +1,17 @@
+analysis_zone,parameter,parameter_label,low_n,high_n,low_mean,high_mean,delta_high_minus_low,relative_change_high_vs_low,bootstrap_ci95_low,bootstrap_ci95_high,n_bootstrap,evidence_type
+near_facade_0_20m,footprint_area_m2,footprint area,36,34,0.004251,0.003101,-0.001150,-0.270488,-0.003376,0.001061,2000,newly_run
+near_facade_0_20m,mean_height_m,mean height,34,34,0.004055,0.003073,-0.000982,-0.242137,-0.003207,0.001504,2000,newly_run
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),34,34,0.002947,0.004031,0.001084,0.367814,-0.000724,0.003216,2000,newly_run
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,37,35,0.003434,0.002898,-0.000536,-0.156162,-0.002367,0.001385,2000,newly_run
+near_facade_0_20m,elongation_ratio,elongation ratio,44,34,0.003773,0.003009,-0.000764,-0.202495,-0.002702,0.001381,2000,newly_run
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",34,34,0.005676,0.001743,-0.003934,-0.693022,-0.006181,-0.002003,2000,newly_run
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",101,83,0.003182,0.002170,-0.001012,-0.317933,-0.002044,-0.000084,2000,newly_run
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,34,34,0.005994,0.001685,-0.004309,-0.718919,-0.006613,-0.002360,2000,newly_run
+local_context_20_50m,footprint_area_m2,footprint area,36,34,0.005880,0.005940,0.000060,0.010227,-0.003006,0.003532,2000,newly_run
+local_context_20_50m,mean_height_m,mean height,34,34,0.007916,0.004764,-0.003152,-0.398163,-0.006035,0.000226,2000,newly_run
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),34,34,0.006421,0.005079,-0.001342,-0.209065,-0.003918,0.001652,2000,newly_run
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,37,35,0.005061,0.005826,0.000766,0.151282,-0.001692,0.003620,2000,newly_run
+local_context_20_50m,elongation_ratio,elongation ratio,44,34,0.005927,0.005750,-0.000176,-0.029740,-0.003056,0.002970,2000,newly_run
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",34,34,0.008225,0.004330,-0.003895,-0.473575,-0.007223,-0.000870,2000,newly_run
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",101,83,0.005560,0.004032,-0.001528,-0.274825,-0.003155,-0.000167,2000,newly_run
+local_context_20_50m,relative_enclosure_score,combined enclosure score,34,34,0.008579,0.004230,-0.004349,-0.506918,-0.007550,-0.001404,2000,newly_run

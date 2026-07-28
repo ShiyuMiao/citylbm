@@ -1,0 +1,11 @@
+analysis_zone,model,predictor_count,predictors,cv_r2_mean,cv_r2_sd,cv_rmse_mean,cv_rmse_sd,n_repeats,folds,n_components,evidence_type
+near_facade_0_20m,size_height_shape,5,footprint_area_m2; mean_height_m; height_to_sqrt_area; compactness_p2_over_a; elongation_ratio,-0.147556,0.163247,0.004610,0.000274,200,5,101,newly_run
+near_facade_0_20m,context_only,2,local_built_fraction_r30m; sector_enclosure_ratio_r50m,0.446083,0.065933,0.003203,0.000185,200,5,101,newly_run
+near_facade_0_20m,context_plus_height,3,local_built_fraction_r30m; sector_enclosure_ratio_r50m; mean_height_m,0.432705,0.081556,0.003239,0.000223,200,5,101,newly_run
+near_facade_0_20m,all_without_composite,7,footprint_area_m2; mean_height_m; height_to_sqrt_area; compactness_p2_over_a; elongation_ratio; local_built_fraction_r30m; sector_enclosure_ratio_r50m,0.459318,0.213097,0.003121,0.000557,200,5,101,newly_run
+near_facade_0_20m,all_with_composite,8,footprint_area_m2; mean_height_m; height_to_sqrt_area; compactness_p2_over_a; elongation_ratio; local_built_fraction_r30m; sector_enclosure_ratio_r50m; relative_enclosure_score,0.433404,0.274371,0.003179,0.000652,200,5,101,newly_run
+local_context_20_50m,size_height_shape,5,footprint_area_m2; mean_height_m; height_to_sqrt_area; compactness_p2_over_a; elongation_ratio,-0.129601,0.184827,0.006841,0.000424,200,5,101,newly_run
+local_context_20_50m,context_only,2,local_built_fraction_r30m; sector_enclosure_ratio_r50m,0.325252,0.072239,0.005290,0.000278,200,5,101,newly_run
+local_context_20_50m,context_plus_height,3,local_built_fraction_r30m; sector_enclosure_ratio_r50m; mean_height_m,0.309019,0.097808,0.005348,0.000369,200,5,101,newly_run
+local_context_20_50m,all_without_composite,7,footprint_area_m2; mean_height_m; height_to_sqrt_area; compactness_p2_over_a; elongation_ratio; local_built_fraction_r30m; sector_enclosure_ratio_r50m,0.373372,0.145830,0.005075,0.000546,200,5,101,newly_run
+local_context_20_50m,all_with_composite,8,footprint_area_m2; mean_height_m; height_to_sqrt_area; compactness_p2_over_a; elongation_ratio; local_built_fraction_r30m; sector_enclosure_ratio_r50m; relative_enclosure_score,0.382529,0.261715,0.005016,0.000719,200,5,101,newly_run

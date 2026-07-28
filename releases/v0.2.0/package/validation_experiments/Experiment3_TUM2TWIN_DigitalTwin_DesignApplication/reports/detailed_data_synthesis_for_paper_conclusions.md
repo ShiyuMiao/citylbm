@@ -77,6 +77,10 @@ The high-vs-low tertile table gives the most intuitive design reading: high comb
 
 The GCRI table supports a separate digital-twin conclusion. The visual photogrammetry STL scores `0.455`, while the accepted core and district prism collision geometries score `0.925` and `0.918`. The direct LoD3 OBJ candidate scores `0.528` before repair. This shows that visual fidelity and CFD readiness are not equivalent: a digital twin can be visually consistent with the study block but still fail as a closed, voxelizable collision boundary.
 
+## 6.1 Statistical Robustness Addendum
+
+The later SCI robustness pass adds bootstrap confidence intervals and repeated cross-validated model comparison. In the 20-50 m local-context band, combined enclosure remains negatively correlated with mean VR (Spearman rho `-0.302`, 95% bootstrap CI `[-0.483, -0.097]`), and high combined enclosure reduces mean VR by `-0.0043` relative to the low-enclosure tertile (95% bootstrap CI `[-0.0076, -0.0014]`). A context-only model using local built fraction and sector enclosure reaches mean cross-validated R2 `0.325`, whereas the size-height-shape-only model is negative (`-0.130`). See `reports/sci_statistical_robustness_analysis.md`.
+
 ## 7. Detailed Paper Conclusions
 
 1. The current TUM2TWIN campus-core result should be framed as a robust low-ventilation screening result: z≈2 m low-speed dominance persists across all eight wind directions.

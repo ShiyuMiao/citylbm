@@ -1,0 +1,5 @@
+claim_id,claim,key_numbers,evidence_type,source_files,claim_readiness
+SR1,Bootstrap confidence intervals preserve the negative association between local-context enclosure and mean pedestrian VR.,"relative enclosure rho=-0.302, 95% CI [-0.483, -0.097]",newly_run,figures/sci_stat_bootstrap_spearman_ci.csv,paper_ready_as_screening
+SR2,High local-context enclosure remains a negative effect in bootstrap tertile comparison.,"delta mean VR=-0.0043, 95% CI [-0.0076, -0.0014]",newly_run,figures/sci_stat_tertile_effect_bootstrap_ci.csv,paper_ready_as_screening
+SR3,Cross-validated model comparison favors local-context predictors over object-size/shape-only predictors.,local context_only CV R2=0.325; size_height_shape CV R2=-0.130; best local model=all_with_composite CV R2=0.383,newly_run,figures/sci_stat_model_comparison_cv.csv,paper_ready_as_screening
+SR4,"The statistical robustness analysis remains a component-level screening analysis, not causal proof or field validation.",n=101 components per zone; no measured wind field; no intervention counterfactual,blocked + newly_run,reports/sci_statistical_robustness_analysis.md; reports/claim_boundary.md,weaken_claim
