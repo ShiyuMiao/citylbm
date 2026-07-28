@@ -12,11 +12,11 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 ## Reproducibility Anchor
 
 - Canonical rebuild command from the release package root: `& .\scripts\rebuild_experiment3_paper_assets.ps1`
-- Key result matrix rows: `15`
+- Key result matrix rows: `16`
 - Reviewer-facing figure/table assets: `12`
 - Ready-for-manual-review assets: `12`
-- Evidence inventory rows before this audit upsert: `116`
-- GitHub archive manifest rows before this audit file is hashed: `457`
+- Evidence inventory rows before this audit upsert: `118`
+- GitHub archive manifest rows before this audit file is hashed: `462`
 
 ## Paper-Ready Claim Layers
 
@@ -37,6 +37,7 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 | Morphology stage transition              | newly_run + blocked                        | paper_ready_with_boundary | medium          | Where does the building-form signal become visible? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                                     |
 | Morphology directional fingerprint       | newly_run + blocked                        | paper_ready_with_boundary | medium          | Does useful recovery require wind-sector response as well as mean VR recovery? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                          |
 | FluidX3D numerical protocol transparency | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Are the boundary conditions, viscosity, Reynolds descriptors, sampling and convergence limits recorded? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible. |
+| Building-form wind mechanism synthesis   | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | What is the architectural mechanism linking building form and the wind-environment pattern? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.             |
 
 ## Blocked Claims That Must Not Be Overstated
 
@@ -58,6 +59,7 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 | Morphology stage transition              | newly_run + blocked                        | figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_rule_table.csv; figures/morphology_stage_transition_feature_contrasts.csv                                 | Where does the building-form signal become visible? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                                     |
 | Morphology directional fingerprint       | newly_run + blocked                        | figures/morphology_directional_fingerprint_by_component.csv; figures/morphology_directional_fingerprint_feature_correlations.csv; figures/morphology_directional_fingerprint_stage_summary.csv | Does useful recovery require wind-sector response as well as mean VR recovery? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                          |
 | FluidX3D numerical protocol transparency | newly_run + preexisting_artifact + blocked | manifests/fluidx3d_numerical_protocol_audit.csv; manifests/fluidx3d_core_prism_boundary_condition_table.csv                                                                                    | Are the boundary conditions, viscosity, Reynolds descriptors, sampling and convergence limits recorded? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible. |
+| Building-form wind mechanism synthesis   | newly_run + preexisting_artifact + blocked | figures/building_form_wind_mechanism_parameter_matrix.csv; reports/building_form_wind_mechanism_synthesis.md                                                                                   | What is the architectural mechanism linking building form and the wind-environment pattern? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.             |
 
 ## Reviewer-Safe Summary
 

@@ -74,8 +74,10 @@ Core distinction:
 31. `paper_text/experiment3_effect_size_uncertainty_results_zh.md`
 32. `reports/experiment3_directional_anisotropy_analysis.md`
 33. `paper_text/experiment3_directional_anisotropy_results_zh.md`
-34. `reports/fluidx3d_numerical_protocol_and_stability_audit.md`
-35. `paper_text/fluidx3d_numerical_protocol_methods_zh.md`
+34. `reports/building_form_wind_mechanism_synthesis.md`
+35. `paper_text/building_form_wind_mechanism_conclusion_zh.md`
+36. `reports/fluidx3d_numerical_protocol_and_stability_audit.md`
+37. `paper_text/fluidx3d_numerical_protocol_methods_zh.md`
 
 ## Current Main Conclusion
 
@@ -301,6 +303,29 @@ wind-sector fingerprints. This remains sample-internal digital-twin screening
 evidence, not field validation, annual wind-rose compliance or a universal
 directional morphology threshold.
 
+## Building-Form Wind-Environment Mechanism Synthesis
+
+The archive now includes a mechanism synthesis that consolidates the basic
+morphology statistics, stage-transition classes, directional fingerprints and
+archetype contrasts into one paper-facing architectural interpretation.
+
+- `scripts/synthesize_building_form_wind_mechanism.py`
+- `figures/building_form_wind_mechanism_parameter_matrix.csv`
+- `figures/building_form_wind_mechanism_stage_matrix.csv`
+- `figures/building_form_wind_mechanism_synthesis_panel.png`
+- `reports/building_form_wind_mechanism_synthesis.md`
+- `paper_text/building_form_wind_mechanism_conclusion_zh.md`
+- `paper_text/building_form_wind_mechanism_conclusion_en.md`
+- `manifests/building_form_wind_mechanism_claims.csv`
+
+Paper-safe interpretation: the strongest architectural conclusion is a staged
+mechanism rather than a single-variable rule. The 0-20 m near-facade band is
+low-speed saturated, the 20-50 m local-context band reveals morphology-dependent
+recovery, and useful recovery must also show wind-sector directional response.
+Mean height, sector enclosure and combined enclosure are the clearest
+suppressors; footprint, elongation and compactness are conditional descriptors,
+not standalone predictors.
+
 ## FluidX3D Numerical Protocol and Stability Boundary Layer
 
 The archive now includes a numerical-protocol audit that binds the core
@@ -352,8 +377,8 @@ verification, and remaining blockers are mutually consistent.
 - `paper_text/experiment3_final_contribution_and_conclusion_en.md`
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
-Audit result: the final archive currently contains 15 key result rows, 12
-reviewer-facing figure/table callouts, 12 ready submission assets, and 116
+Audit result: the final archive currently contains 16 key result rows, 12
+reviewer-facing figure/table callouts, 12 ready submission assets, and 118
 evidence-inventory entries. It is complete for a standalone Experiment 3
 section if framed as FluidX3D-native digital-twin-to-CFD wind screening with
 CityLBM-compatible geometry preparation. It remains incomplete for field

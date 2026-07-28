@@ -36,3 +36,4 @@ Table E3-1,newly_run + preexisting_artifact,figures/final_integrated_key_result_
 Table E3-2,newly_run + preexisting_artifact,figures/experiment3_completion_audit_matrix.csv,figure_or_table_callout,Paper-readiness and blocked-claim audit.,available_for_manual_review
 Table E3-3,newly_run + preexisting_artifact,manifests/gcri_scoring_table.csv,figure_or_table_callout,Geometry-to-CFD readiness scoring for visual and collision geometries.,available_for_manual_review
 ,newly_run + preexisting_artifact + blocked,manifests/fluidx3d_numerical_protocol_audit.csv; reports/fluidx3d_numerical_protocol_and_stability_audit.md,,,
+,newly_run + preexisting_artifact + blocked,figures/building_form_wind_mechanism_parameter_matrix.csv; reports/building_form_wind_mechanism_synthesis.md,,,

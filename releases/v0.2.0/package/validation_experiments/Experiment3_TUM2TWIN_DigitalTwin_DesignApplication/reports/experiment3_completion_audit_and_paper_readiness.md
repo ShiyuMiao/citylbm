@@ -6,14 +6,14 @@ This audit reflects the current archive after the morphology-response archetype,
 
 ## Evidence Counts
 
-- Key result matrix rows: `15`
+- Key result matrix rows: `16`
 - Figure/table callouts: `12`
 - Submission-readiness assets: `12`
 - Ready for manual review: `12`
 - Missing figure/table assets: `0`
-- Evidence inventory rows: `116`
+- Evidence inventory rows: `118`
 - Verified references used in Experiment 3 section draft: `12`
-- Claim verification rows: `37`
+- Claim verification rows: `38`
 
 ## Key Result Matrix
 
@@ -34,6 +34,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | newly_run + blocked | Morphology stage transition | near-to-context stage response / best subgroup rule / relative vertical-scale contrast | near/local/recovery mean VR 0.003182 / 0.005560 / 0.002378; best rule mean_height_m_tertile=low + elongation_ratio_tertile=high + relative_enclosure_score_tertile=high / n=5 / mean recovery 0.0065 / top share 1.000; height/sqrt(area) Cliff delta -0.577 | figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_rule_table.csv; figures/morphology_stage_transition_feature_contrasts.csv | The 20-50 m local-context band converts a saturated near-facade low-speed signal into a morphology-differentiated recovery signal; the rule is sample-internal and not a universal design threshold. |
 | newly_run + blocked | Morphology directional fingerprint | 20-50 m directional range / stage-class separation / enclosure-height correlations | range mean 0.008655; stage ranges persistent/recovery/reactive 0.001579 / 0.018941 / 0.021421; stage Kruskal p 1.02e-15; rho mean_height -0.363, sector_enclosure -0.362 | figures/morphology_directional_fingerprint_by_component.csv; figures/morphology_directional_fingerprint_feature_correlations.csv; figures/morphology_directional_fingerprint_stage_summary.csv | Wind recovery is better interpreted as local-context mean recovery plus wind-sector directional reactivity; persistent shelter suppresses both. This is sample-internal screening evidence, not a field-validated causal rule. |
 | newly_run + preexisting_artifact + blocked | FluidX3D numerical protocol transparency | dx / grid / Uref / nu_air / tau / samples / blocked convergence | 2 m / 320x390x60 / 5 m s-1 / 1.5e-5 m2 s-1 / 0.52999996 / 8000-10000-12000 / residual not recorded | manifests/fluidx3d_numerical_protocol_audit.csv; manifests/fluidx3d_core_prism_boundary_condition_table.csv | The FluidX3D case is transparent enough for screening-level reproduction, while formal convergence, field validation and annual compliance remain blocked. |
+| newly_run + preexisting_artifact + blocked | Building-form wind mechanism synthesis | near/local VR / enclosure-height correlations / stage directional range / best subgroup rule | 0.0032/0.0056; rho sector=-0.396, height=-0.351; persistent/recovery/reactive range=0.0016/0.0189/0.0214; best rule n=5 recovery=0.0065 | figures/building_form_wind_mechanism_parameter_matrix.csv; reports/building_form_wind_mechanism_synthesis.md | The campus wind response is best interpreted as a staged morphology mechanism: near-facade low-speed saturation, 20-50 m local-context recovery, and wind-sector directional reactivity. |
 
 ## Requirement Coverage
 
@@ -48,6 +49,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | Climate-direction proxy sensitivity | complete_with_boundary | newly_run + preexisting_artifact | figures/fluidx3d_core_prism_open_meteo_2024_weighted_metrics.csv; manifests/open_meteo_tum_city_campus_2024_windrose_8dir_weights.csv | Open-Meteo is a proxy directional weighting layer, not measured annual comfort compliance. |
 | Basic morphology and multivariate robustness | complete_with_boundary | newly_run | reports/basic_morphology_wind_response_analysis.md; reports/basic_morphology_multivariate_robustness.md | Local enclosure and height context are interpretable screening descriptors, not a high-accuracy predictor. |
 | Morphology threshold, archetype, stage-transition and directional-fingerprint interpretation | complete_with_boundary | newly_run + blocked | reports/morphology_threshold_design_rule_analysis.md; reports/morphology_form_response_archetype_analysis.md; reports/morphology_stage_transition_analysis.md; reports/morphology_directional_fingerprint_analysis.md | The 20-50 m band, response archetypes, near-to-context transition metrics and directional fingerprints support sample-internal design screening, not universal causal thresholds. |
+| Building-form wind-environment mechanism synthesis | complete_with_boundary | newly_run + preexisting_artifact + blocked | reports/building_form_wind_mechanism_synthesis.md; figures/building_form_wind_mechanism_parameter_matrix.csv; figures/building_form_wind_mechanism_synthesis_panel.png | Near-facade low-speed saturation, 20-50 m local-context recovery and wind-sector reactivity form the paper-facing architectural mechanism; it remains sample-internal screening evidence. |
 | S1/S2 design sensitivity | complete_negative_result | newly_run | figures/fluidx3d_s0_s1_ventilation_relief_metric_comparison.csv; figures/fluidx3d_s0_s2_network_porosity_metric_comparison.csv | S1/S2 are near-null or negative; they support design-boundary reasoning rather than optimization success. |
 | Directional anisotropy and wind-sector design logic | complete_with_boundary | newly_run + preexisting_artifact + blocked | reports/experiment3_directional_anisotropy_analysis.md; figures/experiment3_directional_anisotropy_summary.csv | Low-speed sheltering is quasi-omnidirectional; local intervention response is sector-sensitive but not globally restorative. |
 | SCI section draft and figure/table captions | complete_as_generic_section | newly_run + preexisting_artifact + blocked | academic-paper-writer/paper-drafts/paper_draft.md; academic-paper-writer/paper-drafts/paper_draft_en.md; paper_text/experiment3_sci_figure_captions_en.md | A generic SCI section and traceable figure/table assets are available, pending target-journal formatting. |

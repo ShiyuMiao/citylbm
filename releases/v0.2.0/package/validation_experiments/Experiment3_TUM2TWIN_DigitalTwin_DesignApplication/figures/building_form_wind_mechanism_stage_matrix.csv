@@ -1,0 +1,5 @@
+evidence_type,mechanism_layer,indicator,value,interpretation
+newly_run,stage_saturation,near_facade_0_20m_mean_vr / stagnation,0.0032 / 1.0000,the immediate facade-adjacent band is almost fully low-speed and is a weak discriminator of form differences
+newly_run,local_context_recovery,local_context_20_50m_mean_vr / local_minus_near_delta,0.0056 / 0.0024,the 20-50 m band exposes morphology-differentiated recovery that is hidden near the facade
+newly_run + blocked,directional_reactivity,persistent/recovery/reactive local-context directional range,0.0016 / 0.0189 / 0.0214,"useful recovery includes wind-sector response, not only higher mean VR"
+newly_run + blocked,archetype_contrast,best/worst archetype recovery delta,R1_A1_linear_low_relative_height_recovery 0.0080 / R4_A5_open_or_mixed_low_response 0.0007,combined morphology groups explain wind response better than single size or shape variables

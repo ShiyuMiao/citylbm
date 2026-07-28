@@ -82,6 +82,7 @@ def classify_claim(row: pd.Series) -> tuple[str, str, str]:
         "Morphology stage transition": "Where does the building-form signal become visible?",
         "Morphology directional fingerprint": "Does useful recovery require wind-sector response as well as mean VR recovery?",
         "FluidX3D numerical protocol transparency": "Are the boundary conditions, viscosity, Reynolds descriptors, sampling and convergence limits recorded?",
+        "Building-form wind mechanism synthesis": "What is the architectural mechanism linking building form and the wind-environment pattern?",
     }.get(claim_layer, "What evidence supports this claim and where is the boundary?")
     required_wording = (
         "Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible."

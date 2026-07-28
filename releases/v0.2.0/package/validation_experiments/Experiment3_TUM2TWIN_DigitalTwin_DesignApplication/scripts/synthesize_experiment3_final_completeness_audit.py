@@ -143,6 +143,13 @@ def main() -> None:
             "paper_safe_interpretation": "The 20-50 m band, response archetypes, near-to-context transition metrics and directional fingerprints support sample-internal design screening, not universal causal thresholds.",
         },
         {
+            "requirement": "Building-form wind-environment mechanism synthesis",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "reports/building_form_wind_mechanism_synthesis.md; figures/building_form_wind_mechanism_parameter_matrix.csv; figures/building_form_wind_mechanism_synthesis_panel.png",
+            "paper_safe_interpretation": "Near-facade low-speed saturation, 20-50 m local-context recovery and wind-sector reactivity form the paper-facing architectural mechanism; it remains sample-internal screening evidence.",
+        },
+        {
             "requirement": "S1/S2 design sensitivity",
             "status": "complete_negative_result",
             "evidence_type": "newly_run",
