@@ -248,6 +248,13 @@ def main() -> None:
             "paper_safe_interpretation": "Remaining manuscript debts are classified as author input or claim-upgrade evidence, and unresolved citation/figure/table placeholders are checked before submission-facing use.",
         },
         {
+            "requirement": "Master manuscript assembly map",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/experiment3_master_manuscript_assembly_map.csv; reports/experiment3_master_manuscript_assembly_map.md; paper_text/experiment3_master_manuscript_assembly_guide_zh.md; paper_text/experiment3_master_manuscript_assembly_guide_en.md",
+            "paper_safe_interpretation": "Experiment 3 conclusions are organized into a section-by-section manuscript assembly map linking source text, evidence artifacts, figure/table callouts, claim boundaries and remaining author actions.",
+        },
+        {
             "requirement": "Deep data conclusion synthesis",
             "status": "complete_with_boundary",
             "evidence_type": "newly_run + preexisting_artifact + blocked",
