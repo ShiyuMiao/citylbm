@@ -12,10 +12,10 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 ## Reproducibility Anchor
 
 - Canonical rebuild command from the release package root: `& .\scripts\rebuild_experiment3_paper_assets.ps1`
-- Key result matrix rows: `27`
+- Key result matrix rows: `28`
 - Reviewer-facing figure/table assets: `12`
 - Ready-for-manual-review assets: `12`
-- Evidence inventory rows before this audit upsert: `136`
+- Evidence inventory rows before this audit upsert: `137`
 - GitHub archive manifest refresh: performed at the end of `rebuild_experiment3_paper_assets.ps1`
 
 ## Paper-Ready Claim Layers
@@ -49,6 +49,7 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 | Clean Chinese manuscript readiness           | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Is there a readable non-mojibake Chinese manuscript layer tied to the evidence matrix? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                               |
 | Chinese text quality readiness               | newly_run                                  | paper_ready_as_screening  | low             | What evidence supports this claim and where is the boundary? Frame as a completed screening result under the archived FluidX3D protocol.                                                                                         |
 | Original request fulfillment readiness       | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | What evidence supports this claim and where is the boundary? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                                         |
+| Submission debt register                     | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | What evidence supports this claim and where is the boundary? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                                         |
 
 ## Blocked Claims That Must Not Be Overstated
 
@@ -80,6 +81,7 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 | Submission statements readiness              | newly_run + preexisting_artifact + blocked | manifests/experiment3_submission_statement_evidence_map.csv; reports/experiment3_submission_statement_package.md                                                                                                                | Do the data, code and reproducibility statements distinguish archived files, external assets and blocked claims? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.     |
 | Clean Chinese manuscript readiness           | newly_run + preexisting_artifact + blocked | paper_text/experiment3_clean_chinese_sci_package_zh.md; manifests/experiment3_clean_chinese_manuscript_evidence_map.csv                                                                                                         | Is there a readable non-mojibake Chinese manuscript layer tied to the evidence matrix? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                               |
 | Original request fulfillment readiness       | newly_run + preexisting_artifact + blocked | manifests/experiment3_original_request_fulfillment_audit.csv; reports/experiment3_original_request_fulfillment_audit.md                                                                                                         | What evidence supports this claim and where is the boundary? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                                         |
+| Submission debt register                     | newly_run + preexisting_artifact + blocked | manifests/experiment3_submission_debt_register.csv; reports/experiment3_submission_debt_register.md; paper_text/experiment3_submission_debt_closure_note_zh.md                                                                  | What evidence supports this claim and where is the boundary? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                                         |
 
 ## Reviewer-Safe Summary
 

@@ -51,6 +51,7 @@ Core distinction:
 8. `reports/experiment3_deep_data_conclusion_package.md`
 9. `paper_text/experiment3_deep_data_conclusion_module_zh.md`
 10. `paper_text/experiment3_deep_data_conclusion_module_en.md`
+11. `reports/experiment3_submission_debt_register.md`
 8. `reports/sci_statistical_robustness_analysis.md`
 9. `paper_text/sci_results_discussion_strengthened_zh.md`
 10. `paper_text/sci_results_discussion_strengthened_en.md`
@@ -122,6 +123,17 @@ The archive now includes a deeper conclusion package that reorganizes the FluidX
 - `paper_text/experiment3_deep_data_conclusion_module_en.md`
 
 Paper-safe interpretation: Experiment 3 supports a detailed campus-core wind-screening conclusion. Low-speed dominance is quasi-omnidirectional, extends beyond the immediate facade band, and is best explained through local enclosure, local built fraction and digital-twin model-readiness evidence rather than through LCZ classes or isolated single-building dimensions.
+
+## Submission Debt Register
+
+The archive now includes a submission debt register that scans paper-facing Markdown for explicit placeholders and classifies remaining debts as author input, blocked external validation, missing simulation evidence, conditional method claims or closed placeholder checks. This layer is meant for pre-submission hygiene: it keeps target-journal choices, administrative statements and claim-upgrade evidence separate from the completed Experiment 3 screening evidence.
+
+- `scripts/audit_experiment3_submission_debt_register.py`
+- `manifests/experiment3_submission_debt_register.csv`
+- `reports/experiment3_submission_debt_register.md`
+- `paper_text/experiment3_submission_debt_closure_note_zh.md`
+
+Paper-safe interpretation: remaining debts are not package failures. They are either author decisions or evidence required only if the manuscript upgrades its claims to field validation, annual comfort/safety compliance, pollutant dispersion, GCBTE, CityLBM-Grasshopper end-to-end execution or successful optimization.
 
 ## Evidence Boundary
 
@@ -589,7 +601,7 @@ conversion.
 - `manifests/github_archive_manifest.csv`
 - `reports/github_archive_manifest_validation.md`
 
-Audit result: the current manifest contains 531 archived files, 0 missing
+Audit result: the current manifest contains 536 archived files, 0 missing
 files, and 0 SHA256 mismatches. Large raw datasets and external VTK assets
 remain recorded through `EXTERNAL_ARTIFACTS.md` rather than embedded in the
 GitHub release package.
@@ -609,8 +621,8 @@ verification, and remaining blockers are mutually consistent.
 - `paper_text/experiment3_final_contribution_and_conclusion_en.md`
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
-Audit result: the final archive currently contains 27 key result rows, 12
-reviewer-facing figure/table callouts, 12 ready submission assets, and 136
+Audit result: the final archive currently contains 28 key result rows, 12
+reviewer-facing figure/table callouts, 12 ready submission assets, and 137
 evidence-inventory entries. It is complete for a standalone Experiment 3
 section if framed as FluidX3D-native digital-twin-to-CFD wind screening with
 CityLBM-compatible geometry preparation. It remains incomplete for field

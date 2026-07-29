@@ -241,6 +241,13 @@ def main() -> None:
             "paper_safe_interpretation": "The original experiment-preparation request is mapped to current files, evidence types and claim boundaries; blocked scientific claims remain explicitly excluded.",
         },
         {
+            "requirement": "Submission debt register and placeholder audit",
+            "status": "complete_with_author_input_and_blocked_boundaries",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/experiment3_submission_debt_register.csv; reports/experiment3_submission_debt_register.md; paper_text/experiment3_submission_debt_closure_note_zh.md",
+            "paper_safe_interpretation": "Remaining manuscript debts are classified as author input or claim-upgrade evidence, and unresolved citation/figure/table placeholders are checked before submission-facing use.",
+        },
+        {
             "requirement": "Deep data conclusion synthesis",
             "status": "complete_with_boundary",
             "evidence_type": "newly_run + preexisting_artifact + blocked",
