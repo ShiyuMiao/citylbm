@@ -30,7 +30,7 @@ This audit does not add CFD results. It removes a table-hygiene problem in the p
 | 12 | Building-form response archetypes | Building-form response archetypes | unchanged | figures/morphology_form_response_archetype_summary.csv; reports/morphology_form_response_archetype_analysis.md |
 | 13 | Morphology stage transition | Morphology stage transition | unchanged | figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_rule_table.csv; figures/morphology_stage_transition_feature_contrasts.csv |
 | 14 | Morphology directional fingerprint | Morphology directional fingerprint | unchanged | figures/morphology_directional_fingerprint_by_component.csv; figures/morphology_directional_fingerprint_feature_correlations.csv; figures/morphology_directional_fingerprint_stage_summary.csv |
-| 15 | Deep data conclusion synthesis | Deep data conclusion synthesis | unchanged | manifests/experiment3_deep_data_conclusion_matrix.csv; reports/experiment3_deep_data_conclusion_package.md |
+| 15 | Deep data conclusion synthesis | Deep data conclusion synthesis | unchanged | manifests/experiment3_deep_data_conclusion_matrix.csv; manifests/experiment3_deep_data_sentence_evidence_map.csv; reports/experiment3_deep_data_conclusion_package.md; paper_text/experiment3_deep_data_conclusion_module_en.md |
 | 16 | module_claim_M1 | module_claim_M1 | unchanged | reports/data_source_and_download_manifest.md; reports/cfd_ready_geometry_qa.md; manifests/gcri_scoring_table.csv |
 | 17 | module_claim_R1 | module_claim_R1 | unchanged | figures/final_integrated_key_result_matrix.csv |
 | 18 | module_claim_R2 | module_claim_R2 | unchanged | figures/fluidx3d_core_prism_open_meteo_2024_weighted_metrics.csv |

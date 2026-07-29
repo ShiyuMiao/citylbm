@@ -244,8 +244,8 @@ def main() -> None:
             "requirement": "Deep data conclusion synthesis",
             "status": "complete_with_boundary",
             "evidence_type": "newly_run + preexisting_artifact + blocked",
-            "evidence_artifact": "manifests/experiment3_deep_data_conclusion_matrix.csv; reports/experiment3_deep_data_conclusion_package.md; paper_text/experiment3_deep_data_conclusion_module_zh.md",
-            "paper_safe_interpretation": "FluidX3D, ParaView, morphology, design-sensitivity, climate-proxy and GCRI artifacts are reorganized into detailed paper-facing conclusions while retaining blocked validation, compliance, pollutant, GCBTE and CityLBM-GH boundaries.",
+            "evidence_artifact": "manifests/experiment3_deep_data_conclusion_matrix.csv; manifests/experiment3_deep_data_sentence_evidence_map.csv; reports/experiment3_deep_data_conclusion_package.md; paper_text/experiment3_deep_data_conclusion_module_zh.md; paper_text/experiment3_deep_data_conclusion_module_en.md",
+            "paper_safe_interpretation": "FluidX3D, ParaView, morphology, design-sensitivity, climate-proxy and GCRI artifacts are reorganized into bilingual paper-facing conclusions with sentence-level evidence mapping while retaining blocked validation, compliance, pollutant, GCBTE and CityLBM-GH boundaries.",
         },
         {
             "requirement": "Checkout-stable GitHub archive manifest",

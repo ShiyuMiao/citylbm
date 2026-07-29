@@ -50,6 +50,7 @@ Core distinction:
 7. `reports/detailed_data_synthesis_for_paper_conclusions.md`
 8. `reports/experiment3_deep_data_conclusion_package.md`
 9. `paper_text/experiment3_deep_data_conclusion_module_zh.md`
+10. `paper_text/experiment3_deep_data_conclusion_module_en.md`
 8. `reports/sci_statistical_robustness_analysis.md`
 9. `paper_text/sci_results_discussion_strengthened_zh.md`
 10. `paper_text/sci_results_discussion_strengthened_en.md`
@@ -109,14 +110,16 @@ A multivariate robustness addendum strengthens this wording but also narrows it:
 
 ## Deep Data Conclusion Layer
 
-The archive now includes a deeper conclusion package that reorganizes the FluidX3D, ParaView, morphology, design-sensitivity, Open-Meteo-proxy and GCRI evidence into eight paper-facing findings. This layer is the recommended source for writing the final Experiment 3 conclusion because each finding includes quantitative support, architectural interpretation, novelty over traditional wind-environment statements, evidence type, source artifact and claim boundary.
+The archive now includes a deeper conclusion package that reorganizes the FluidX3D, ParaView, morphology, design-sensitivity, Open-Meteo-proxy and GCRI evidence into eight paper-facing findings. This layer is the recommended source for writing the final Experiment 3 conclusion because each finding includes quantitative support, architectural interpretation, novelty over traditional wind-environment statements, evidence type, source artifact and claim boundary. A bilingual sentence-level evidence map is included so Chinese and English paper paragraphs can be audited back to the same data artifacts.
 
 - `scripts/synthesize_experiment3_deep_data_conclusion_package.py`
 - `manifests/experiment3_deep_data_conclusion_matrix.csv`
+- `manifests/experiment3_deep_data_sentence_evidence_map.csv`
 - `figures/experiment3_deep_conclusion_vertical_and_distance_support.csv`
 - `figures/experiment3_deep_conclusion_morphology_support.csv`
 - `reports/experiment3_deep_data_conclusion_package.md`
 - `paper_text/experiment3_deep_data_conclusion_module_zh.md`
+- `paper_text/experiment3_deep_data_conclusion_module_en.md`
 
 Paper-safe interpretation: Experiment 3 supports a detailed campus-core wind-screening conclusion. Low-speed dominance is quasi-omnidirectional, extends beyond the immediate facade band, and is best explained through local enclosure, local built fraction and digital-twin model-readiness evidence rather than through LCZ classes or isolated single-building dimensions.
 
@@ -586,7 +589,7 @@ conversion.
 - `manifests/github_archive_manifest.csv`
 - `reports/github_archive_manifest_validation.md`
 
-Audit result: the current manifest contains 527 archived files, 0 missing
+Audit result: the current manifest contains 531 archived files, 0 missing
 files, and 0 SHA256 mismatches. Large raw datasets and external VTK assets
 remain recorded through `EXTERNAL_ARTIFACTS.md` rather than embedded in the
 GitHub release package.

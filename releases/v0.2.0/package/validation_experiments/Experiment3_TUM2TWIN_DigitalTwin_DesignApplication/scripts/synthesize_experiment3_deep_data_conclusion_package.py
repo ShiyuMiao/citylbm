@@ -34,6 +34,18 @@ CONCLUSION_FIELDS = [
     "paper_ready_wording_zh",
 ]
 
+SENTENCE_FIELDS = [
+    "sentence_id",
+    "conclusion_id",
+    "language",
+    "manuscript_use",
+    "sentence_text",
+    "evidence_type",
+    "source_artifacts",
+    "claim_boundary",
+    "blocked_wording_to_avoid",
+]
+
 
 def fmt(value: object, digits: int = 3) -> str:
     return f"{float(value):.{digits}f}"
@@ -384,8 +396,86 @@ def make_conclusion_rows(n: dict[str, object]) -> list[dict[str, object]]:
     ]
 
 
+def make_english_sentence_rows(rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    english_text = {
+        "DC1": {
+            "manuscript_use": "Results: vertical wind structure",
+            "sentence_text": "The TUM Downtown campus core is strongly sheltered at pedestrian height: the z=2 m plane has a mean velocity ratio of 0.076 and 93.4% of open cells below VR=0.2, whereas the mean velocity ratio increases to 0.602 at 20 m and 1.049 at 40 m.",
+            "blocked": "field-validated pedestrian comfort; annual exceedance; full grid-independence proof",
+        },
+        "DC2": {
+            "manuscript_use": "Results: directional robustness",
+            "sentence_text": "The low-speed pedestrian layer is not a single-wind-direction artefact: across the eight simulated wind directions, the z=2 m mean velocity ratio varies by only 0.0060, the stagnation-area ratio varies by 1.74 percentage points, and 87.2% of open pedestrian cells remain stagnant for all directions.",
+            "blocked": "measured dominant-wind validation; formal wind-climate exceedance probability",
+        },
+        "DC3": {
+            "manuscript_use": "Results: building-distance gradient",
+            "sentence_text": "The distance-to-building analysis shows that low ventilation extends beyond the immediate facade band: the 0-4 m band has a mean VR of 0.0021, and even cells more than 20 m from buildings retain a mean VR of only 0.095 with 90.8% of cells below VR=0.2.",
+            "blocked": "tree-canopy effects; buoyancy; observed pedestrian-route exposure",
+        },
+        "DC4": {
+            "manuscript_use": "Discussion: morphology explanation",
+            "sentence_text": "Component-level morphology statistics indicate that local enclosure and local built fraction are more informative screening descriptors than isolated footprint size or elongation, with the strongest observed correlation being between the near-facade combined enclosure score and directional mean VR (Spearman rho=-0.534).",
+            "blocked": "universal causal threshold; transferable predictor without external blocks",
+        },
+        "DC5": {
+            "manuscript_use": "Discussion: response archetypes",
+            "sentence_text": "The building-component response is better described as a set of local-context regimes than as a monotonic distance gradient: 23 components fall into persistent shelter, 26 into near-to-context recovery, and 9 into directionally reactive behaviour.",
+            "blocked": "universal archetype taxonomy; causal typology beyond the sampled campus core",
+        },
+        "DC6": {
+            "manuscript_use": "Discussion: design sensitivity",
+            "sentence_text": "The two design-sensitivity tests provide a useful negative result: S1 and S2 slightly increase the number of open cells but do not improve the global z=2 m mean VR, which changes by -0.000213 for S1 and -0.000466 for S2.",
+            "blocked": "successful optimization; general claim that porosity never improves wind conditions",
+        },
+        "DC7": {
+            "manuscript_use": "Limitations: climate proxy and uncertainty",
+            "sentence_text": "Open-Meteo weighting is retained only as a climate-proxy sensitivity layer: the three largest proxy direction sectors account for 60.5% of the weight, but this does not replace measured wind-rose data or annual comfort assessment.",
+            "blocked": "formal Lawson/NEN/AIJ annual compliance; measured local wind climate",
+        },
+        "DC8": {
+            "manuscript_use": "Methods/Discussion: digital-twin model performance",
+            "sentence_text": "The GCRI results demonstrate the modelling gap between visual digital-twin assets and CFD collision geometry: the photogrammetry STL scores 0.455, whereas the repaired core and district prism collision geometries score 0.925 and 0.918.",
+            "blocked": "3DGS boundary-transfer accuracy; direct use of visual meshes as final collision boundaries",
+        },
+    }
+    by_id = {str(row["conclusion_id"]): row for row in rows}
+    sentence_rows: list[dict[str, object]] = []
+    for cid, text in english_text.items():
+        source = by_id[cid]
+        sentence_rows.append(
+            {
+                "sentence_id": f"{cid}_EN",
+                "conclusion_id": cid,
+                "language": "en",
+                "manuscript_use": text["manuscript_use"],
+                "sentence_text": text["sentence_text"],
+                "evidence_type": source["evidence_type"],
+                "source_artifacts": source["source_artifacts"],
+                "claim_boundary": source["claim_boundary"],
+                "blocked_wording_to_avoid": text["blocked"],
+            }
+        )
+        sentence_rows.append(
+            {
+                "sentence_id": f"{cid}_ZH",
+                "conclusion_id": cid,
+                "language": "zh",
+                "manuscript_use": text["manuscript_use"],
+                "sentence_text": source["paper_ready_wording_zh"],
+                "evidence_type": source["evidence_type"],
+                "source_artifacts": source["source_artifacts"],
+                "claim_boundary": source["claim_boundary"],
+                "blocked_wording_to_avoid": text["blocked"],
+            }
+        )
+    return sentence_rows
+
+
 def write_outputs(rows: list[dict[str, object]], n: dict[str, object]) -> None:
     write_dict_csv(MAN / "experiment3_deep_data_conclusion_matrix.csv", rows, CONCLUSION_FIELDS)
+    sentence_rows = make_english_sentence_rows(rows)
+    write_dict_csv(MAN / "experiment3_deep_data_sentence_evidence_map.csv", sentence_rows, SENTENCE_FIELDS)
 
     report = f"""# Experiment 3 Deep Data Conclusion Package
 
@@ -396,6 +486,10 @@ This file reorganizes the archived Experiment 3 data into paper-facing conclusio
 ## Conclusion Matrix
 
 {md_table(rows, ["conclusion_id", "conclusion_layer", "main_finding_zh", "key_numbers", "evidence_type", "claim_boundary"])}
+
+## Sentence-Level Evidence Map
+
+{md_table(sentence_rows, ["sentence_id", "language", "manuscript_use", "sentence_text", "evidence_type", "blocked_wording_to_avoid"])}
 
 ## Paper-Level Interpretation
 
@@ -425,6 +519,23 @@ evidence_type: newly_run + preexisting_artifact + blocked
 """
     (PAPER / "experiment3_deep_data_conclusion_module_zh.md").write_text(paper_text, encoding="utf-8")
 
+    english_paragraphs = "\n\n".join(
+        f"{row['sentence_id']}. {row['sentence_text']}"
+        for row in sentence_rows
+        if row["language"] == "en"
+    )
+    english_text = f"""# Experiment 3 Deep Data Conclusion Module
+
+evidence_type: newly_run + preexisting_artifact + blocked
+
+{english_paragraphs}
+
+Taken together, these results move the interpretation beyond the broad statement that dense urban fabric reduces near-ground wind speed. In the TUM Downtown campus core, low pedestrian-level ventilation is quasi-omnidirectional, extends beyond the immediate facade band, and is differentiated most clearly by local enclosure, local built fraction and the 20-50 m morphological context. The design implication is not that every local opening improves wind conditions, but that digital-twin-based screening can identify whether an intervention actually creates a connected ventilation pathway at block scale.
+
+The claim boundary is intentionally narrow. This module supports a FluidX3D-native, digital-twin-to-CFD screening and building-form interpretation experiment. It does not claim field-validated prediction accuracy, wind-tunnel validation, annual Lawson/NEN/AIJ comfort or safety compliance, pollutant dispersion, GCBTE computation, CityLBM-Grasshopper end-to-end execution, or successful design optimization.
+"""
+    (PAPER / "experiment3_deep_data_conclusion_module_en.md").write_text(english_text, encoding="utf-8")
+
     key_value = "; ".join(
         [
             "z2 mean VR 0.076, stagnation 93.4%",
@@ -442,7 +553,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
             "claim_layer": "Deep data conclusion synthesis",
             "metric": "vertical decoupling / directional robustness / building-distance gradient / morphology signal / design sensitivity / GCRI",
             "value": key_value,
-            "source_artifact": "manifests/experiment3_deep_data_conclusion_matrix.csv; reports/experiment3_deep_data_conclusion_package.md",
+            "source_artifact": "manifests/experiment3_deep_data_conclusion_matrix.csv; manifests/experiment3_deep_data_sentence_evidence_map.csv; reports/experiment3_deep_data_conclusion_package.md; paper_text/experiment3_deep_data_conclusion_module_en.md",
             "paper_safe_claim": "The experiment supports a detailed campus-core wind-screening conclusion: low-speed dominance is quasi-omnidirectional, extends beyond the immediate facade band, and is best interpreted through local enclosure and model-readiness evidence rather than through LCZ classes or single-building dimensions.",
         },
         KEY_FIELDS,
@@ -453,7 +564,7 @@ evidence_type: newly_run + preexisting_artifact + blocked
         {
             "claim": "Deep data conclusion synthesis reorganizes Experiment 3 FluidX3D, ParaView, morphology, design-sensitivity, climate-proxy and GCRI artifacts into paper-facing conclusions.",
             "evidence_type": "newly_run + preexisting_artifact + blocked",
-            "source": "manifests/experiment3_deep_data_conclusion_matrix.csv; reports/experiment3_deep_data_conclusion_package.md; paper_text/experiment3_deep_data_conclusion_module_zh.md",
+            "source": "manifests/experiment3_deep_data_conclusion_matrix.csv; manifests/experiment3_deep_data_sentence_evidence_map.csv; reports/experiment3_deep_data_conclusion_package.md; paper_text/experiment3_deep_data_conclusion_module_zh.md; paper_text/experiment3_deep_data_conclusion_module_en.md",
         },
         ["claim", "evidence_type", "source"],
         "claim",
