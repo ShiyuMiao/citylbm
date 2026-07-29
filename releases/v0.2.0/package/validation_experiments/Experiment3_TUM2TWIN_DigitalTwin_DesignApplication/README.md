@@ -54,55 +54,58 @@ Core distinction:
 11. `reports/experiment3_master_manuscript_assembly_map.md`
 12. `paper_text/experiment3_master_manuscript_assembly_guide_zh.md`
 13. `paper_text/experiment3_master_manuscript_assembly_guide_en.md`
-14. `reports/experiment3_submission_debt_register.md`
-15. `reports/sci_statistical_robustness_analysis.md`
-16. `paper_text/sci_results_discussion_strengthened_zh.md`
-17. `paper_text/sci_results_discussion_strengthened_en.md`
-18. `paper_text/detailed_paper_conclusions_zh.md`
-19. `paper_text/method_section_zh.md`
-20. `paper_text/basic_morphology_wind_response_conclusion_zh.md`
-21. `reports/basic_morphology_multivariate_robustness.md`
-22. `paper_text/basic_morphology_multivariate_robustness_conclusion_zh.md`
-23. `reports/morphology_threshold_design_rule_analysis.md`
-24. `paper_text/morphology_threshold_design_rule_conclusion_zh.md`
-25. `reports/experiment3_completion_audit_and_paper_readiness.md`
-26. `paper_text/final_integrated_results_discussion_zh.md`
-27. `paper_text/final_integrated_results_discussion_en.md`
-28. `paper_text/experiment3_sci_manuscript_module_zh.md`
-29. `paper_text/experiment3_sci_manuscript_module_en.md`
-30. `paper_text/experiment3_figure_table_callouts_zh.md`
-31. `paper_text/experiment3_sci_section_paper_draft_zh.md`
-32. `paper_text/experiment3_sci_section_paper_draft_en.md`
-33. `reports/experiment3_paper_draft_verification.md`
-34. `paper_text/experiment3_sci_figure_captions_zh.md`
-35. `paper_text/experiment3_sci_table_captions_zh.md`
-36. `reports/experiment3_submission_readiness_audit.md`
-37. `reports/experiment3_effect_size_uncertainty_analysis.md`
-38. `paper_text/experiment3_effect_size_uncertainty_results_zh.md`
-39. `reports/experiment3_directional_anisotropy_analysis.md`
-40. `paper_text/experiment3_directional_anisotropy_results_zh.md`
-41. `reports/building_form_wind_mechanism_synthesis.md`
-42. `paper_text/building_form_wind_mechanism_conclusion_zh.md`
-43. `reports/fluidx3d_numerical_protocol_and_stability_audit.md`
-44. `paper_text/fluidx3d_numerical_protocol_methods_zh.md`
-45. `reports/experiment3_final_sci_discussion_evidence_map.md`
-46. `paper_text/experiment3_final_sci_discussion_conclusion_zh.md`
-47. `reports/experiment3_sci_abstract_highlights_audit.md`
-48. `paper_text/experiment3_sci_abstract_highlights_keywords_zh.md`
-49. `reports/experiment3_research_question_synthesis.md`
-50. `paper_text/experiment3_research_question_answer_paragraphs_zh.md`
-51. `reports/experiment3_limitations_future_validation_roadmap.md`
-52. `paper_text/experiment3_limitations_future_validation_roadmap_zh.md`
-53. `reports/experiment3_figure_table_narrative_chain.md`
-54. `paper_text/experiment3_figure_table_narrative_chain_zh.md`
-55. `reports/experiment3_submission_statement_package.md`
-56. `paper_text/experiment3_submission_statements_zh.md`
-57. `reports/experiment3_claim_verification_hygiene.md`
-58. `paper_text/experiment3_clean_chinese_sci_package_zh.md`
-59. `reports/experiment3_clean_chinese_manuscript_pack_audit.md`
-60. `reports/experiment3_chinese_text_quality_audit.md`
-61. `reports/experiment3_original_request_fulfillment_audit.md`
-62. `reports/github_archive_manifest_validation.md`
+14. `reports/experiment3_conclusion_figure_plan.md`
+15. `figures/nature_style/experiment3_conclusion_figure_nature.png`
+16. `figures/nature_style/source_data/experiment3_conclusion_figure_source_data.csv`
+17. `reports/experiment3_submission_debt_register.md`
+18. `reports/sci_statistical_robustness_analysis.md`
+19. `paper_text/sci_results_discussion_strengthened_zh.md`
+20. `paper_text/sci_results_discussion_strengthened_en.md`
+21. `paper_text/detailed_paper_conclusions_zh.md`
+22. `paper_text/method_section_zh.md`
+23. `paper_text/basic_morphology_wind_response_conclusion_zh.md`
+24. `reports/basic_morphology_multivariate_robustness.md`
+25. `paper_text/basic_morphology_multivariate_robustness_conclusion_zh.md`
+26. `reports/morphology_threshold_design_rule_analysis.md`
+27. `paper_text/morphology_threshold_design_rule_conclusion_zh.md`
+28. `reports/experiment3_completion_audit_and_paper_readiness.md`
+29. `paper_text/final_integrated_results_discussion_zh.md`
+30. `paper_text/final_integrated_results_discussion_en.md`
+31. `paper_text/experiment3_sci_manuscript_module_zh.md`
+32. `paper_text/experiment3_sci_manuscript_module_en.md`
+33. `paper_text/experiment3_figure_table_callouts_zh.md`
+34. `paper_text/experiment3_sci_section_paper_draft_zh.md`
+35. `paper_text/experiment3_sci_section_paper_draft_en.md`
+36. `reports/experiment3_paper_draft_verification.md`
+37. `paper_text/experiment3_sci_figure_captions_zh.md`
+38. `paper_text/experiment3_sci_table_captions_zh.md`
+39. `reports/experiment3_submission_readiness_audit.md`
+40. `reports/experiment3_effect_size_uncertainty_analysis.md`
+41. `paper_text/experiment3_effect_size_uncertainty_results_zh.md`
+42. `reports/experiment3_directional_anisotropy_analysis.md`
+43. `paper_text/experiment3_directional_anisotropy_results_zh.md`
+44. `reports/building_form_wind_mechanism_synthesis.md`
+45. `paper_text/building_form_wind_mechanism_conclusion_zh.md`
+46. `reports/fluidx3d_numerical_protocol_and_stability_audit.md`
+47. `paper_text/fluidx3d_numerical_protocol_methods_zh.md`
+48. `reports/experiment3_final_sci_discussion_evidence_map.md`
+49. `paper_text/experiment3_final_sci_discussion_conclusion_zh.md`
+50. `reports/experiment3_sci_abstract_highlights_audit.md`
+51. `paper_text/experiment3_sci_abstract_highlights_keywords_zh.md`
+52. `reports/experiment3_research_question_synthesis.md`
+53. `paper_text/experiment3_research_question_answer_paragraphs_zh.md`
+54. `reports/experiment3_limitations_future_validation_roadmap.md`
+55. `paper_text/experiment3_limitations_future_validation_roadmap_zh.md`
+56. `reports/experiment3_figure_table_narrative_chain.md`
+57. `paper_text/experiment3_figure_table_narrative_chain_zh.md`
+58. `reports/experiment3_submission_statement_package.md`
+59. `paper_text/experiment3_submission_statements_zh.md`
+60. `reports/experiment3_claim_verification_hygiene.md`
+61. `paper_text/experiment3_clean_chinese_sci_package_zh.md`
+62. `reports/experiment3_clean_chinese_manuscript_pack_audit.md`
+63. `reports/experiment3_chinese_text_quality_audit.md`
+64. `reports/experiment3_original_request_fulfillment_audit.md`
+65. `reports/github_archive_manifest_validation.md`
 
 ## Current Main Conclusion
 
@@ -138,6 +141,23 @@ The archive now includes a master manuscript assembly map that tells the author 
 - `paper_text/experiment3_master_manuscript_assembly_guide_en.md`
 
 Paper-safe interpretation: this is the highest-level navigation layer for writing the final SCI manuscript. It does not add unsupported conclusions; it organizes the completed data-layer, baseline-wind, building-form, design-sensitivity, campus-application and limitation evidence into a defensible manuscript order.
+
+## Nature-Style Conclusion Figure Package
+
+The archive now includes a reproducible conclusion figure package for Experiment 3. It first records what the conclusion figure must express, then maps each panel to a suitable visual form and source dataset, and finally exports a Nature-style multi-panel figure.
+
+- `scripts/synthesize_experiment3_conclusion_figure_package.py`
+- `manifests/experiment3_conclusion_figure_panel_map.csv`
+- `reports/experiment3_conclusion_figure_plan.md`
+- `figures/nature_style/experiment3_conclusion_figure_nature.svg`
+- `figures/nature_style/experiment3_conclusion_figure_nature.pdf`
+- `figures/nature_style/experiment3_conclusion_figure_nature.png`
+- `figures/nature_style/experiment3_conclusion_figure_nature.tiff`
+- `figures/nature_style/source_data/experiment3_conclusion_figure_source_data.csv`
+- `paper_text/experiment3_conclusion_figure_legend_zh.md`
+- `paper_text/experiment3_conclusion_figure_legend_en.md`
+
+Paper-safe interpretation: the conclusion figure is a visual synthesis, not new CFD evidence. It links digital-twin geometry readiness, baseline pedestrian wind screening, building-distance response, morphology signals, near-to-context classes, S1/S2 design sensitivity and explicit claim boundaries using archived quantitative source data.
 
 ## Submission Debt Register
 

@@ -255,6 +255,13 @@ def main() -> None:
             "paper_safe_interpretation": "Experiment 3 conclusions are organized into a section-by-section manuscript assembly map linking source text, evidence artifacts, figure/table callouts, claim boundaries and remaining author actions.",
         },
         {
+            "requirement": "Nature-style conclusion figure package",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/experiment3_conclusion_figure_panel_map.csv; reports/experiment3_conclusion_figure_plan.md; figures/nature_style/experiment3_conclusion_figure_nature.svg; figures/nature_style/source_data/experiment3_conclusion_figure_source_data.csv; paper_text/experiment3_conclusion_figure_legend_zh.md; paper_text/experiment3_conclusion_figure_legend_en.md",
+            "paper_safe_interpretation": "The Experiment 3 conclusion figure links each panel to reproducible source data, manuscript claim and evidence boundary, with SVG/PDF/PNG/TIFF exports for manual Nature-style review.",
+        },
+        {
             "requirement": "Deep data conclusion synthesis",
             "status": "complete_with_boundary",
             "evidence_type": "newly_run + preexisting_artifact + blocked",
