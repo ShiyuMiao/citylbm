@@ -241,6 +241,13 @@ def main() -> None:
             "paper_safe_interpretation": "The original experiment-preparation request is mapped to current files, evidence types and claim boundaries; blocked scientific claims remain explicitly excluded.",
         },
         {
+            "requirement": "Deep data conclusion synthesis",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/experiment3_deep_data_conclusion_matrix.csv; reports/experiment3_deep_data_conclusion_package.md; paper_text/experiment3_deep_data_conclusion_module_zh.md",
+            "paper_safe_interpretation": "FluidX3D, ParaView, morphology, design-sensitivity, climate-proxy and GCRI artifacts are reorganized into detailed paper-facing conclusions while retaining blocked validation, compliance, pollutant, GCBTE and CityLBM-GH boundaries.",
+        },
+        {
             "requirement": "Checkout-stable GitHub archive manifest",
             "status": "complete",
             "evidence_type": "newly_run",

@@ -48,6 +48,8 @@ Core distinction:
 5. `reports/paraview_vtk_core_wind_statistics_and_building_analysis.md`
 6. `reports/basic_morphology_wind_response_analysis.md`
 7. `reports/detailed_data_synthesis_for_paper_conclusions.md`
+8. `reports/experiment3_deep_data_conclusion_package.md`
+9. `paper_text/experiment3_deep_data_conclusion_module_zh.md`
 8. `reports/sci_statistical_robustness_analysis.md`
 9. `paper_text/sci_results_discussion_strengthened_zh.md`
 10. `paper_text/sci_results_discussion_strengthened_en.md`
@@ -104,6 +106,19 @@ The most manuscript-ready interpretation no longer uses LCZ classification. It u
 The key new finding is that the immediate 0-20 m facade-adjacent band is uniformly sheltered, while the 20-50 m local-context band better reveals morphology-dependent wind recovery. In that band, 50 m sector enclosure is the clearest suppressor of mean VR, whereas footprint area, elongation ratio, and perimeter-area compactness are weak predictors in this screened campus core.
 
 A multivariate robustness addendum strengthens this wording but also narrows it: the rank-transformed ridge model for 20-50 m mean VR has limited explanatory power (`R2 = 0.122 +/- 0.166`), so the morphology parameters should be used as interpretable screening variables rather than deterministic predictors. Sector enclosure, mean height, and combined enclosure remain the strongest ordered signals.
+
+## Deep Data Conclusion Layer
+
+The archive now includes a deeper conclusion package that reorganizes the FluidX3D, ParaView, morphology, design-sensitivity, Open-Meteo-proxy and GCRI evidence into eight paper-facing findings. This layer is the recommended source for writing the final Experiment 3 conclusion because each finding includes quantitative support, architectural interpretation, novelty over traditional wind-environment statements, evidence type, source artifact and claim boundary.
+
+- `scripts/synthesize_experiment3_deep_data_conclusion_package.py`
+- `manifests/experiment3_deep_data_conclusion_matrix.csv`
+- `figures/experiment3_deep_conclusion_vertical_and_distance_support.csv`
+- `figures/experiment3_deep_conclusion_morphology_support.csv`
+- `reports/experiment3_deep_data_conclusion_package.md`
+- `paper_text/experiment3_deep_data_conclusion_module_zh.md`
+
+Paper-safe interpretation: Experiment 3 supports a detailed campus-core wind-screening conclusion. Low-speed dominance is quasi-omnidirectional, extends beyond the immediate facade band, and is best explained through local enclosure, local built fraction and digital-twin model-readiness evidence rather than through LCZ classes or isolated single-building dimensions.
 
 ## Evidence Boundary
 
@@ -571,7 +586,7 @@ conversion.
 - `manifests/github_archive_manifest.csv`
 - `reports/github_archive_manifest_validation.md`
 
-Audit result: the current manifest contains 521 archived files, 0 missing
+Audit result: the current manifest contains 527 archived files, 0 missing
 files, and 0 SHA256 mismatches. Large raw datasets and external VTK assets
 remain recorded through `EXTERNAL_ARTIFACTS.md` rather than embedded in the
 GitHub release package.
@@ -591,8 +606,8 @@ verification, and remaining blockers are mutually consistent.
 - `paper_text/experiment3_final_contribution_and_conclusion_en.md`
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
-Audit result: the final archive currently contains 26 key result rows, 12
-reviewer-facing figure/table callouts, 12 ready submission assets, and 135
+Audit result: the final archive currently contains 27 key result rows, 12
+reviewer-facing figure/table callouts, 12 ready submission assets, and 136
 evidence-inventory entries. It is complete for a standalone Experiment 3
 section if framed as FluidX3D-native digital-twin-to-CFD wind screening with
 CityLBM-compatible geometry preparation. It remains incomplete for field

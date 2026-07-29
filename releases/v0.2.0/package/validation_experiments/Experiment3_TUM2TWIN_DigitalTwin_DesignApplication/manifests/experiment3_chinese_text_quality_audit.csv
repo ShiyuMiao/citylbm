@@ -13,6 +13,7 @@ paper_text/discussion_limitations_zh.md,supporting_or_legacy_text,3195,0,0,not_a
 paper_text/experiment3_clean_chinese_core_paragraphs_zh.md,canonical_direct_use,5782,0,0,not_applicable_or_none,pass,newly_run,UTF-8 markdown text; heuristic mojibake pattern scan; not a semantic peer review
 paper_text/experiment3_clean_chinese_figure_table_captions_zh.md,canonical_direct_use,3060,0,0,not_applicable_or_none,pass,newly_run,UTF-8 markdown text; heuristic mojibake pattern scan; not a semantic peer review
 paper_text/experiment3_clean_chinese_sci_package_zh.md,canonical_direct_use,7939,0,0,not_applicable_or_none,pass,newly_run,UTF-8 markdown text; heuristic mojibake pattern scan; not a semantic peer review
+paper_text/experiment3_deep_data_conclusion_module_zh.md,supporting_or_legacy_text,4086,0,0,not_applicable_or_none,pass,newly_run,UTF-8 markdown text; heuristic mojibake pattern scan; not a semantic peer review
 paper_text/experiment3_directional_anisotropy_results_zh.md,supporting_or_legacy_text,1947,0,0,not_applicable_or_none,pass,newly_run,UTF-8 markdown text; heuristic mojibake pattern scan; not a semantic peer review
 paper_text/experiment3_effect_size_uncertainty_results_zh.md,supporting_or_legacy_text,1987,0,0,not_applicable_or_none,pass,newly_run,UTF-8 markdown text; heuristic mojibake pattern scan; not a semantic peer review
 paper_text/experiment3_figure_table_callouts_zh.md,supporting_or_legacy_text,3630,0,0,not_applicable_or_none,pass,newly_run,UTF-8 markdown text; heuristic mojibake pattern scan; not a semantic peer review

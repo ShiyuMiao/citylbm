@@ -25,6 +25,7 @@ Invoke-PythonStep "scripts\synthesize_experiment3_addendum_key_result_rows.py"
 Invoke-PythonStep "scripts\analyze_morphology_stage_transition.py"
 Invoke-PythonStep "scripts\analyze_morphology_directional_fingerprint.py"
 Invoke-PythonStep "scripts\synthesize_detailed_paper_conclusions.py"
+Invoke-PythonStep "scripts\synthesize_experiment3_deep_data_conclusion_package.py"
 
 # Manuscript-facing synthesis layers.
 Invoke-PythonStep "scripts\synthesize_experiment3_manuscript_module.py"
