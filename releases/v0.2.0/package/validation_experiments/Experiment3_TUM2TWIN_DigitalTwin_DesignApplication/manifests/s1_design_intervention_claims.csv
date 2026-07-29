@@ -1,0 +1,4 @@
+claim_id,claim,evidence_type,source,claim_readiness,boundary
+S1_C1,"S1 was executed as a design sensitivity scenario with the same FluidX3D dx=2 m, 8-direction, 3-sample protocol as S0.",newly_run,figures/fluidx3d_core_prism_s1_ventilation_relief_8dir_dx2m_run_summary.csv,paper_ready,"This is a numerical sensitivity scenario, not a constructability-verified architectural design."
+S1_C2,"At z=2 m, S1 changes equal-weighted mean VR from 0.076338 to 0.076124, with delta -0.000213.",newly_run,figures/fluidx3d_s0_s1_ventilation_relief_metric_comparison.csv,paper_ready,Near-null global difference; do not report as improvement.
+S1_C3,"At z=2 m, common-open cells have mean delta VR 0.000043, while newly opened cells remain low-speed with mean VR 0.002697 and stagnation ratio 1.000.",newly_run,figures/fluidx3d_s0_s1_ventilation_relief_common_open_delta_summary.csv,paper_ready,Supports local sensitivity interpretation only.

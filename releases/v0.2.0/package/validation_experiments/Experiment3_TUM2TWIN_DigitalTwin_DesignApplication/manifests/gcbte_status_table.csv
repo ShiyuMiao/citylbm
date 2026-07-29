@@ -1,0 +1,6 @@
+metric,required_input,current_status,evidence_type,paper_boundary
+2D footprint IoU,3DGS/photogrammetry-derived building footprint and LoD2/LoD3 ground truth footprint,not computed,blocked,future validation metric only
+Chamfer distance,extracted visual-reconstruction boundary and semantic collision boundary,not computed,blocked,future validation metric only
+Hausdorff distance,extracted visual-reconstruction boundary and semantic collision boundary,not computed,blocked,future validation metric only
+roof/wall boundary error,roof/wall-labeled 3DGS or photogrammetry boundary and LoD3 semantic surfaces,not computed,blocked,future validation metric only
+solid voxel mask agreement,voxelized visual-reconstruction collision and accepted semantic/prism collision,not computed as GCBTE; qualitative counterexample only,blocked + newly_run,current archive only shows raw photogrammetry is unsuitable as final collision without semantic repair

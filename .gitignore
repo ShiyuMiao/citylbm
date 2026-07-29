@@ -1,0 +1,13 @@
+/raw/
+/converted/
+/artifacts/
+/cfd_ready/
+/figures/
+/manifests/
+/paper_text/
+/reports/
+/rhino/
+/scripts/
+/archive/
+__pycache__/
+*.py[cod]

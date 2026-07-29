@@ -1,0 +1,4 @@
+level,dx_m,Nx,Ny,Nz,cells,rough_vram_GB_120B_cell,rough_vram_GB_200B_cell
+district_prism_coarse,6.0,373,346,49,6323842,0.71,1.18
+district_prism_medium,4.0,560,518,73,21175840,2.37,3.94
+district_prism_fine_candidate,2.0,1119,1036,146,169255464,18.92,31.53

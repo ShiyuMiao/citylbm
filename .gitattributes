@@ -1,3 +1,5 @@
+/.gitattributes text eol=lf
+
 *.3dm binary
 *.3dmbak binary
 *.gha binary
@@ -12,3 +14,13 @@
 *.xlsx binary
 *.xls binary
 *.zip binary
+
+# Experiment 3 archive text files use LF so github_archive_manifest.csv hashes
+# are reproducible after checkout across Windows/macOS/Linux.
+releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/**/*.md text eol=lf
+releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/**/*.csv text eol=lf
+releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/**/*.json text eol=lf
+releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/**/*.pvsm text eol=lf
+releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/**/*.cpp text eol=lf
+releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/**/*.py text eol=lf
+releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication/**/*.ps1 text eol=lf

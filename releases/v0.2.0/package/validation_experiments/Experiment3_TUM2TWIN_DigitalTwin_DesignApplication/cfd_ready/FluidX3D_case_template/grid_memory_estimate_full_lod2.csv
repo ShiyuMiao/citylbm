@@ -1,0 +1,4 @@
+level,dx_m,Nx,Ny,Nz,cells,rough_vram_GB_120B_cell,rough_vram_GB_200B_cell
+coarse_full,4.0,306,306,64,5992704,0.67,1.12
+medium_full,2.0,611,611,128,47785088,5.34,8.9
+fine_full,1.0,1222,1222,255,380787420,42.56,70.93

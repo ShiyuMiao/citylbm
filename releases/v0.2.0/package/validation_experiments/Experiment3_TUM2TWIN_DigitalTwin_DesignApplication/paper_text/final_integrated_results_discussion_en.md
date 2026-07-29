@@ -1,0 +1,32 @@
+# Final Integrated Results and Discussion for Experiment 3
+
+evidence_type: newly_run + preexisting_artifact + blocked
+
+Experiment 3 should be positioned as a FluidX3D-native digital-twin wind screening and design-interpretation case for the TUM2TWIN campus block, not as field validation or formal comfort-code compliance. Within this boundary, the experiment establishes a complete application chain from visual/semantic/geometric TUM2TWIN layers to CFD-ready collision geometry, eight-direction FluidX3D simulation, ParaView inspection and morphology-based interpretation [R1,R5-R7].
+
+The baseline result indicates persistent pedestrian-layer ventilation insufficiency rather than a strong-wind hazard. Under the dx=2 m, eight-direction, three-sample post-spin-up protocol, the z~2 m mean VR is 0.076, the P95 VR is 0.241, and the VR<0.2 low-speed ratio is 0.934. At z~40 m, the mean VR recovers to 1.049, while the low-speed ratio falls to 0.000. The vertical contrast shows that above-roof flow recovery cannot be used as a surrogate for pedestrian-space ventilation in courtyards, entrances and campus pedestrian routes.
+
+The Open-Meteo 2024 direction weighting is used only as a climate proxy. It gives a z~2 m mean VR of 0.077 and a low-speed ratio of 0.931, close to the equal-weighted result. Therefore, the paper can claim sensitivity of the low-speed conclusion to a proxy directional weighting, but not annual Lawson/NEN/AIJ comfort or safety compliance [R5,R8-R10].
+
+The morphology analysis translates traditional canopy and canyon reasoning into a local digital-twin diagnosis [R2-R4]. The 0-20 m facade-adjacent band is almost uniformly sheltered, whereas the 20-50 m local-context band better reveals morphology-dependent recovery. In the conservative multivariate robustness check over 101 building components, the rank-regression CV R2 for 20-50 m mean VR is only 0.122+/-0.166, so morphology variables should not be treated as a high-accuracy surrogate model. Nevertheless, their ordering is interpretable: the 50 m sector-enclosure coefficient is -0.147 with permutation importance 0.083, stronger than footprint area, elongation and perimeter-area compactness. The paper-safe interpretation is that local enclosure, wind-entry opportunity and pressure-exchange continuity are more useful screening descriptors than isolated building size or shape.
+
+The threshold-rule addendum further pairs the 0-20 m and 20-50 m responses for the same 101 components through `context_recovery_delta_vr = mean_VR_20-50m - mean_VR_0-20m`. The mean VR increases from 0.0032 in the facade-adjacent band to 0.0056 in the local-context band, with a mean recovery delta of 0.0024. The strongest monotonic descriptor is `height/sqrt(area)` with rho=-0.416, and the best simple sample-internal rule is `mean_height_m=low_tertile + elongation_ratio=high_tertile`, with mean recovery delta 0.0057 and top-recovery share 0.857. This moves the design interpretation from single-building size or opening area toward combined local exposure, relative vertical scale and plan continuity, while remaining a single-case screening rule rather than a transferable design threshold.
+
+The S1/S2 design-sensitivity sequence further narrows the design claim. S1 changes z~2 m mean VR by -0.000213 and the low-speed ratio by 0.000233. S2 changes z~2 m mean VR by -0.000466 and the low-speed ratio by 0.000633. Directional trade-off analysis shows that S2 has its best common-open response at 315 deg, but the mean share of common-open cells with Delta VR>0.02 is only 0.002374, and newly opened cells reach a maximum direction-wise mean VR of only 0.006646. S1/S2 are therefore negative design evidence: geometric porosity alone does not recover pedestrian ventilation unless coupled to effective inflow sectors, momentum entry and pressure-exchange paths.
+
+The digital-twin modelling contribution is the separation between visual realism and CFD readiness. The photogrammetry visual STL has GCRI=0.455, while the accepted core and district closed-prism collision geometries reach GCRI=0.925 and 0.918. This supports the workflow claim that UAS/photogrammetry/3DGS-like assets are valuable for visual audit and scene consistency, whereas FluidX3D/CityLBM collision boundaries require semantic LoD/CAD-derived closed geometry [R11,R12].
+
+Overall, Experiment 3 supports a digital-twin-to-CFD application workflow and a morphology-informed campus wind-screening conclusion. It does not support field-validated accuracy, pollutant dispersion, annual comfort/safety compliance, successful S3-Sn optimization, GCBTE closure or a CityLBM-GH end-to-end execution claim.
+
+
+## Directional-Fingerprint Addendum
+
+The directional-fingerprint addendum refines the integrated interpretation of
+building form and wind environment. The final matrix reports `range mean 0.008655; stage ranges persistent/recovery/reactive 0.001579 / 0.018941 / 0.021421; stage Kruskal p 1.02e-15; rho mean_height -0.363, sector_enclosure -0.362`.
+This supports a paper-safe conclusion that useful campus-scale local recovery
+is not only a higher 20-50 m mean VR, but also a stronger response to inflow
+sectors. Persistent shelter suppresses both mean speed ratio and directional
+range, while recovery/reactive components show stronger wind-sector
+fingerprints. This remains sample-internal FluidX3D digital-twin screening
+evidence, not field validation, annual wind-rose compliance or a universal
+directional morphology threshold.

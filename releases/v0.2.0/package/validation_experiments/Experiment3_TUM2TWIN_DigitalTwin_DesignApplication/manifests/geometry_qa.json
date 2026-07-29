@@ -1,0 +1,199 @@
+{
+  "created_at_local": "2026-07-26 18:08:58",
+  "coordinate_reference_system": "EPSG:25832 in source CityGML; exported STLs use local z0 coordinates in meters",
+  "origin_world_easting_northing_z": [
+    690921.808,
+    5335907.262,
+    514.82
+  ],
+  "lod2_source_envelopes": [
+    [
+      [
+        690921.808,
+        5335934.309,
+        514.82
+      ],
+      [
+        690938.275,
+        5335950.21,
+        535.81
+      ]
+    ],
+    [
+      [
+        690933.222,
+        5335923.574,
+        515.0
+      ],
+      [
+        690964.542,
+        5335948.062,
+        535.16
+      ]
+    ],
+    [
+      [
+        690960.686,
+        5335914.805,
+        515.08
+      ],
+      [
+        690989.3,
+        5335934.247,
+        535.11
+      ]
+    ],
+    [
+      [
+        690985.324,
+        5335907.262,
+        514.93
+      ],
+      [
+        691027.291,
+        5335975.275,
+        537.87
+      ]
+    ]
+  ],
+  "lod3_source_envelopes": [
+    [
+      [
+        690921.672,
+        5335933.953,
+        514.82
+      ],
+      [
+        690938.275,
+        5335950.174,
+        535.964
+      ]
+    ],
+    [
+      [
+        690933.049,
+        5335923.121,
+        515.0
+      ],
+      [
+        690964.504,
+        5335947.965,
+        535.16
+      ]
+    ],
+    [
+      [
+        690960.55,
+        5335914.447,
+        515.08
+      ],
+      [
+        690989.3,
+        5335934.247,
+        535.342
+      ]
+    ],
+    [
+      [
+        690983.701,
+        5335905.639,
+        514.93
+      ],
+      [
+        691028.914,
+        5335976.896,
+        537.87
+      ]
+    ]
+  ],
+  "building_collision_z0": {
+    "triangles": 340,
+    "bbox": {
+      "min": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "max": [
+        105.48300000000745,
+        68.01300000026822,
+        23.049999999999955
+      ]
+    },
+    "signed_volume": 40933.43922003909,
+    "unique_edges": 510,
+    "boundary_edges": 0,
+    "nonmanifold_edges": 0,
+    "degenerate_triangles": 0,
+    "watertight": true
+  },
+  "lod3_reference_z0": {
+    "triangles": 308279,
+    "bbox": {
+      "min": [
+        -0.13599999994039536,
+        -1.6229999996721745,
+        0.0
+      ],
+      "max": [
+        107.10600000002887,
+        69.63399999961257,
+        23.049999999999955
+      ]
+    },
+    "signed_volume": 44339.55105502263,
+    "unique_edges": 400113,
+    "boundary_edges": 6287,
+    "nonmanifold_edges": 82230,
+    "degenerate_triangles": 29467,
+    "watertight": false
+  },
+  "ground_domain_z0": {
+    "triangles": 2,
+    "bbox": {
+      "min": [
+        -80.0,
+        -80.0,
+        0.0
+      ],
+      "max": [
+        185.48300000000745,
+        148.01300000026822,
+        0.0
+      ]
+    },
+    "signed_volume": 0.0,
+    "unique_edges": 5,
+    "boundary_edges": 4,
+    "nonmanifold_edges": 0,
+    "degenerate_triangles": 0,
+    "watertight": false
+  },
+  "visual_reference_uas_mesh_decimated": {
+    "triangles": 111111,
+    "bbox": {
+      "min": [
+        -182.14,
+        -205.805,
+        -49.0553
+      ],
+      "max": [
+        226.916,
+        336.739,
+        -2.16956
+      ]
+    },
+    "signed_volume": -186167.25157353838,
+    "unique_edges": 319315,
+    "boundary_edges": 305297,
+    "nonmanifold_edges": 0,
+    "degenerate_triangles": 0,
+    "watertight": false,
+    "source_total_faces": 999999,
+    "sampling_step": 9
+  },
+  "rhino_3dm": {
+    "created": true,
+    "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\rhino\\TUM2TWIN_wind_pilot_layers.3dm"
+  }
+}

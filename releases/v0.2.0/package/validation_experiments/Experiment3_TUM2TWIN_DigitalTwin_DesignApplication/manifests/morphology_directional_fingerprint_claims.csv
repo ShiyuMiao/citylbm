@@ -1,0 +1,4 @@
+claim,evidence_type,source,claim_readiness
+20-50 m local-context directional range is negatively associated with mean height and sector enclosure in the retained component sample.,newly_run + blocked,figures/morphology_directional_fingerprint_feature_correlations.csv; reports/morphology_directional_fingerprint_analysis.md,paper_ready_with_boundary
+Stage-transition classes differ strongly in directional range and directional reactivity.,newly_run + blocked,figures/morphology_directional_fingerprint_stage_summary.csv; figures/morphology_directional_fingerprint_panel.png,paper_ready_with_boundary
+Directional fingerprinting refines the S1/S2 negative design interpretation: porosity without wind-sector response can remain low-speed openness.,newly_run + blocked,paper_text/morphology_directional_fingerprint_conclusion_zh.md; paper_text/morphology_directional_fingerprint_conclusion_en.md,paper_ready_with_boundary

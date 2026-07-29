@@ -1,0 +1,385 @@
+analysis_zone,parameter,parameter_label,tertile,wind_deg,component_count,sample_open_cells,evidence_type,mean_vr,p95_vr,stagnation_ratio_vr_lt_0p2,acceleration_ratio_vr_gt_0p6
+local_context_20_50m,footprint_area_m2,footprint area,high,0,34,70344,newly_run,0.009067529317457487,0.03452071915216713,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,high,45,34,70344,newly_run,0.0061056155074646,0.023573438898746718,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,high,90,34,70344,newly_run,0.004692255266403003,0.018990271060787354,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,high,135,34,70344,newly_run,0.004822979947518819,0.01924081296420708,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,high,180,34,70344,newly_run,0.005311252414406129,0.020209567503743683,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,high,225,34,70344,newly_run,0.006731508470433074,0.02322561719290575,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,high,270,34,70344,newly_run,0.007170904668095117,0.03003019416182978,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,high,315,34,70344,newly_run,0.009217233555127676,0.034821450638241346,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,low,0,34,44415,newly_run,0.006821289718354893,0.01955880715288104,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,low,45,34,44415,newly_run,0.005726491538544551,0.017062759334205188,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,low,90,34,44415,newly_run,0.0056890416691153895,0.019422433707801393,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,low,135,34,44415,newly_run,0.006212331190637941,0.021593906253702142,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,low,180,34,44415,newly_run,0.007227178449394573,0.02666918587035684,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,low,225,34,44415,newly_run,0.007651274881611862,0.02497747594370204,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,low,270,34,44415,newly_run,0.006236063716031175,0.018438935174534758,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,low,315,34,44415,newly_run,0.0067810525425952405,0.018483835213719213,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,medium,0,33,48172,newly_run,0.0030557128175704644,0.01202044398357595,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,medium,45,33,48172,newly_run,0.004811297570660157,0.018255887447214167,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,medium,90,33,48172,newly_run,0.00578076451209748,0.021706096035856947,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,medium,135,33,48172,newly_run,0.008747892778219708,0.030090162675729427,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,medium,180,33,48172,newly_run,0.008840439050928909,0.03250500758936855,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,medium,225,33,48172,newly_run,0.0060351121967218,0.022725492650663533,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,medium,270,33,48172,newly_run,0.003230596457155099,0.012713024929791034,1.0,0.0
+local_context_20_50m,footprint_area_m2,footprint area,medium,315,33,48172,newly_run,0.0020538837781556353,0.006442637061954105,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,high,0,34,52314,newly_run,0.007744038202141205,0.02234531759893715,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,high,45,34,52314,newly_run,0.007330779182702282,0.0220436729779487,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,high,90,34,52314,newly_run,0.005059093912657868,0.016602758380496005,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,high,135,34,52314,newly_run,0.00451046275314076,0.01713262134826875,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,high,180,34,52314,newly_run,0.00513231655132926,0.01882053627955514,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,high,225,34,52314,newly_run,0.0066326764445415526,0.02075698987235074,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,high,270,34,52314,newly_run,0.006952362882279047,0.02010985392325688,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,high,315,34,52314,newly_run,0.006990614033673039,0.01860034114697277,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,low,0,34,57277,newly_run,0.007455102024227436,0.027153799921954422,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,low,45,34,57277,newly_run,0.0060720053648922944,0.02448436074564642,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,low,90,34,57277,newly_run,0.007165403842862828,0.028395243206300543,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,low,135,34,57277,newly_run,0.009021690638426103,0.03022255465322976,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,low,180,34,57277,newly_run,0.010098647958097642,0.036505076635493613,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,low,225,34,57277,newly_run,0.009842030382977346,0.034203228048140445,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,low,270,34,57277,newly_run,0.006685574102336976,0.027979636298752598,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,low,315,34,57277,newly_run,0.0076074739526856595,0.02682788644353675,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,medium,0,33,53340,newly_run,0.004797266026386888,0.02159388024580981,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,medium,45,33,53340,newly_run,0.0034555067878995903,0.013871983750141823,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,medium,90,33,53340,newly_run,0.0034898294603662324,0.0140452574395722,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,medium,135,33,53340,newly_run,0.005322387682937947,0.02127370067006429,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,medium,180,33,53340,newly_run,0.005128594553205743,0.020556545240541645,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,medium,225,33,53340,newly_run,0.0036252759783629036,0.01486596139350497,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,medium,270,33,53340,newly_run,0.0035694345851327693,0.016670502332015287,1.0,0.0
+local_context_20_50m,mean_height_m,mean height,medium,315,33,53340,newly_run,0.004631738790720551,0.02008090136244944,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),high,0,34,43896,newly_run,0.005757853888437165,0.017280989468629285,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),high,45,34,43896,newly_run,0.0052815190905810125,0.01658335327275934,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),high,90,34,43896,newly_run,0.00544698477822773,0.01938281957178344,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),high,135,34,43896,newly_run,0.006182497358248402,0.02297718240738115,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),high,180,34,43896,newly_run,0.006842727494240989,0.026299739214706363,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),high,225,34,43896,newly_run,0.006353431390406277,0.02379031323415205,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),high,270,34,43896,newly_run,0.0055353902331700885,0.017028580269204837,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),high,315,34,43896,newly_run,0.0054351222655614,0.015749159248130393,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),low,0,34,69285,newly_run,0.008066445345425041,0.03403868981462378,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),low,45,34,69285,newly_run,0.005618959880736899,0.02483174989057522,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),low,90,34,69285,newly_run,0.005331212935012187,0.022693238853927666,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),low,135,34,69285,newly_run,0.006304203416701343,0.022985172804050175,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),low,180,34,69285,newly_run,0.006504078079492503,0.02408774752863041,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),low,225,34,69285,newly_run,0.006787426558962577,0.025483683610313827,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),low,270,34,69285,newly_run,0.006262440950852799,0.029247553067144938,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),low,315,34,69285,newly_run,0.008175372294429122,0.033524021884470644,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),medium,0,33,49750,newly_run,0.005555442069373961,0.015259131211877731,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),medium,45,33,49750,newly_run,0.005918757149314312,0.017027223827131965,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),medium,90,33,49750,newly_run,0.005080358718451636,0.01650242767746615,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),medium,135,33,49750,newly_run,0.00660137174691504,0.02333544348029311,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),medium,180,33,49750,newly_run,0.007426494166941739,0.0271073767320683,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),medium,225,33,49750,newly_run,0.007134049386943144,0.020662376545891863,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),medium,270,33,49750,newly_run,0.005229235567819349,0.015475735619305651,1.0,0.0
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),medium,315,33,49750,newly_run,0.004894199373949292,0.011392109078206248,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,high,0,34,69622,newly_run,0.008664970317131095,0.03383074200736271,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,high,45,34,69622,newly_run,0.0063793195432125934,0.02439996247785711,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,high,90,34,69622,newly_run,0.00467612485675205,0.01886352853728625,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,high,135,34,69622,newly_run,0.004827084746002237,0.018809691297258527,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,high,180,34,69622,newly_run,0.005271753935621472,0.02045045392470728,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,high,225,34,69622,newly_run,0.006446774273061546,0.02216755733919834,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,high,270,34,69622,newly_run,0.006781634719315796,0.028318469652306364,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,high,315,34,69622,newly_run,0.008604193502408698,0.03313875272112293,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,low,0,34,44147,newly_run,0.00404615701906469,0.014156183408910374,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,low,45,34,44147,newly_run,0.004185263016389488,0.01571818730632304,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,low,90,34,44147,newly_run,0.005289046631952598,0.020315950906965696,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,low,135,34,44147,newly_run,0.007239772974424123,0.025730704007991673,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,low,180,34,44147,newly_run,0.007982487736445686,0.03084072653757133,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,low,225,34,44147,newly_run,0.006092334719574366,0.023362467607728636,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,low,270,34,44147,newly_run,0.0034353479407596343,0.012512465308149619,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,low,315,34,44147,newly_run,0.003751849807687121,0.011790171868865591,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,medium,0,33,49162,newly_run,0.006226667052927393,0.018220612796922497,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,medium,45,33,49162,newly_run,0.005831690612531902,0.01836438812871227,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,medium,90,33,49162,newly_run,0.006146313653487861,0.021030881785903087,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,medium,135,33,49162,newly_run,0.007747982801447831,0.02678025085409585,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,medium,180,33,49162,newly_run,0.008157490786043818,0.0282054813658959,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,medium,225,33,49162,newly_run,0.007857296512494956,0.025693773794332794,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,medium,270,33,49162,newly_run,0.006371138328081915,0.0207445754998343,1.0,0.0
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,medium,315,33,49162,newly_run,0.00577322203648998,0.015318893003079832,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,high,0,34,69942,newly_run,0.009097290994189976,0.034672980586087344,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,high,45,34,69942,newly_run,0.0061268879766240465,0.02363570249440317,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,high,90,34,69942,newly_run,0.004603133781459391,0.018463425751609697,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,high,135,34,69942,newly_run,0.004590469020830986,0.01847899184661035,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,high,180,34,69942,newly_run,0.004999866042571615,0.019328287469844406,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,high,225,34,69942,newly_run,0.006465524179993823,0.02204664697663441,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,high,270,34,69942,newly_run,0.00710393233308407,0.029521193536550694,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,high,315,34,69942,newly_run,0.009230416482162065,0.03490557423218038,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,low,0,34,45167,newly_run,0.006792540409094573,0.019464519183488977,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,low,45,34,45167,newly_run,0.005779720838713045,0.017433673643870874,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,low,90,34,45167,newly_run,0.005922783273195773,0.020499222448472267,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,low,135,34,45167,newly_run,0.006695766518760655,0.023598538581868573,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,low,180,34,45167,newly_run,0.007625870140787664,0.028235847830963924,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,low,225,34,45167,newly_run,0.007895832235602925,0.026329320630939082,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,low,270,34,45167,newly_run,0.0062965609488381145,0.01900958531569518,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,low,315,34,45167,newly_run,0.006755615175223521,0.018371494359936593,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,medium,0,33,47822,newly_run,0.00303066085949472,0.01195740807994874,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,medium,45,33,47822,newly_run,0.00472640030806315,0.01787796433635359,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,medium,90,33,47822,newly_run,0.005682636510959527,0.021472706591570686,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,medium,135,33,47822,newly_run,0.008638233690875002,0.02935342666481374,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,medium,180,33,47822,newly_run,0.00891500132223018,0.032302649644793215,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,medium,225,33,47822,newly_run,0.006173587128702527,0.023141793192414842,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,medium,270,33,47822,newly_run,0.003257270227873068,0.01297402581504696,1.0,0.0
+local_context_20_50m,elongation_ratio,elongation ratio,medium,315,33,47822,newly_run,0.0020445099541608947,0.006474915699046985,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",high,0,34,57112,newly_run,0.006325890510725891,0.028824822775829817,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",high,45,34,57112,newly_run,0.0035900470536836563,0.015078045738755593,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",high,90,34,57112,newly_run,0.0032981102202009585,0.01398213582399339,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",high,135,34,57112,newly_run,0.004167848984776427,0.016350289356974163,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",high,180,34,57112,newly_run,0.003994309296783647,0.015818011726161877,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",high,225,34,57112,newly_run,0.004271934545048023,0.015968701118290324,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",high,270,34,57112,newly_run,0.004454901697309731,0.021806275157689268,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",high,315,34,57112,newly_run,0.006401799243452523,0.028481192510361342,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",low,0,34,56398,newly_run,0.00857862488601207,0.023994670807639007,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",low,45,34,56398,newly_run,0.008589607062123411,0.027097765389338082,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",low,90,34,56398,newly_run,0.00838103607734102,0.029321894808350794,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",low,135,34,56398,newly_run,0.009134412641758878,0.0322778120591222,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",low,180,34,56398,newly_run,0.011082571467140312,0.04060264223337423,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",low,225,34,56398,newly_run,0.010960336827172432,0.03708716528029374,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",low,270,34,56398,newly_run,0.008651399613442495,0.027570143183256412,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",low,315,34,56398,newly_run,0.008319094476323913,0.022606309216375287,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,0,33,49421,newly_run,0.004915159908259253,0.01773707518523825,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,45,33,49421,newly_run,0.00457566498241173,0.018334674150050887,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,90,33,49421,newly_run,0.0040506350475380225,0.01602317060136474,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,135,33,49421,newly_run,0.005734304987442164,0.020393570335722047,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,180,33,49421,newly_run,0.005408908004057083,0.01980248943015943,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,225,33,49421,newly_run,0.0048958181407855765,0.016880343094620682,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,270,33,49421,newly_run,0.003939199921458485,0.015044620682692864,1.0,0.0
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,315,33,49421,newly_run,0.004324019477040236,0.013743669359692245,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,0,34,49847,newly_run,0.003388878096201299,0.012859891559355208,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,45,34,49847,newly_run,0.0043789618285238405,0.015954744941054283,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,90,34,49847,newly_run,0.005543312242145613,0.023247025478603085,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,135,34,49847,newly_run,0.010900110231283178,0.03994081732865285,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,180,34,49847,newly_run,0.012278753906675169,0.04857931011922989,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,225,34,49847,newly_run,0.007985938226273172,0.03329893321476785,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,270,34,49847,newly_run,0.003370807951783453,0.014456903854823408,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,315,34,49847,newly_run,0.0028626836490242137,0.009766811863125535,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,0,34,62583,newly_run,0.01192953791797475,0.03928087694006182,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,45,34,62583,newly_run,0.009328099359559947,0.032637310680425295,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,90,34,62583,newly_run,0.007730847423124926,0.02679957836835153,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,135,34,62583,newly_run,0.006064619020807928,0.02053924454159162,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,180,34,62583,newly_run,0.0065825392329358174,0.02139134997782151,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,225,34,62583,newly_run,0.00928932879008122,0.02820062770507104,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,270,34,62583,newly_run,0.010467077779854868,0.03718705802169316,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,315,34,62583,newly_run,0.011738562552903654,0.03792888381997868,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,0,33,50501,newly_run,0.0034158132515000987,0.01538061779396466,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,45,33,50501,newly_run,0.00224840722024552,0.00906275254825794,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,90,33,50501,newly_run,0.002001636970648365,0.008081673369098713,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,135,33,50501,newly_run,0.002251678883484535,0.009618323346068682,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,180,33,50501,newly_run,0.0019100097390018522,0.008152258476763836,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,225,33,50501,newly_run,0.0024682066497044774,0.008181185208254445,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,270,33,50501,newly_run,0.002256260030194967,0.009819809156088068,1.0,0.0
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,315,33,50501,newly_run,0.0033893697776539618,0.014261990261881892,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,high,0,34,54912,newly_run,0.006087146472899668,0.02679804066646636,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,high,45,34,54912,newly_run,0.0035043350921069322,0.014170709467100782,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,high,90,34,54912,newly_run,0.0032484079215676117,0.013814203837428271,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,high,135,34,54912,newly_run,0.004217288322029334,0.01647342251579631,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,high,180,34,54912,newly_run,0.004076229983268248,0.016190857726196762,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,high,225,34,54912,newly_run,0.004269997636741752,0.015773744439224267,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,high,270,34,54912,newly_run,0.004176496482519915,0.019659214219542937,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,high,315,34,54912,newly_run,0.006097160269820003,0.02611959019054268,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,low,0,34,59990,newly_run,0.010092900845664176,0.029667003759614372,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,low,45,34,59990,newly_run,0.009081447525978167,0.030085469362651,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,low,90,34,59990,newly_run,0.00816854466862788,0.028733123637117757,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,low,135,34,59990,newly_run,0.008685087626874408,0.030297779699055914,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,low,180,34,59990,newly_run,0.010673483029765913,0.03908030559493021,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,low,225,34,59990,newly_run,0.011246835733764213,0.03822559212750936,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,low,270,34,59990,newly_run,0.009325937436842936,0.030296294514026614,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,low,315,34,59990,newly_run,0.009830707300313227,0.027616171259688748,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,medium,0,33,48029,newly_run,0.003087367093728913,0.013009247552433097,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,medium,45,33,48029,newly_run,0.0037139911273226817,0.014835739792760455,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,medium,90,33,48029,newly_run,0.004014537213147589,0.01586248788772971,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,medium,135,33,48029,newly_run,0.00591296381555679,0.021651919225755906,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,medium,180,33,48029,newly_run,0.0053370945227531035,0.019539549447407326,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,medium,225,33,48029,newly_run,0.00405805335430967,0.014128312383124413,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,medium,270,33,48029,newly_run,0.0030861858204364397,0.013467272724699872,1.0,0.0
+local_context_20_50m,relative_enclosure_score,combined enclosure score,medium,315,33,48029,newly_run,0.002580645434225896,0.010198449412863759,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,high,0,34,30603,newly_run,0.0058312258168955085,0.030354555494622164,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,high,45,34,30603,newly_run,0.0038853711470416058,0.018653129326712363,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,high,90,34,30603,newly_run,0.002817397968224348,0.01205697080254198,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,high,135,34,30603,newly_run,0.002838933232815945,0.011310585098403162,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,high,180,34,30603,newly_run,0.002409812861811692,0.01075487244305875,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,high,225,34,30603,newly_run,0.003802656411941366,0.016182416109113057,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,high,270,34,30603,newly_run,0.004086562585290479,0.018143535624679505,0.9999673234650198,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,high,315,34,30603,newly_run,0.0062244391292050625,0.029884015907669696,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,low,0,34,11657,newly_run,0.003571180366767877,0.010377081178132339,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,low,45,34,11657,newly_run,0.003554132003590953,0.011793852833125909,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,low,90,34,11657,newly_run,0.00465670559275549,0.013283354835937242,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,low,135,34,11657,newly_run,0.006142398051029902,0.017067423996000322,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,low,180,34,11657,newly_run,0.005440282726388553,0.014885965538415752,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,low,225,34,11657,newly_run,0.003876553735707968,0.012944635335985756,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,low,270,34,11657,newly_run,0.004117763662237404,0.015522742060482058,0.9999142146349833,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,low,315,34,11657,newly_run,0.004407721024667205,0.013359692217605924,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,medium,0,33,14220,newly_run,0.0013596349637974559,0.0045692173360061105,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,medium,45,33,14220,newly_run,0.001808883918509168,0.006225150768923724,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,medium,90,33,14220,newly_run,0.0020544011241041336,0.007690380046915417,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,medium,135,33,14220,newly_run,0.0040253286514734974,0.014002069889946128,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,medium,180,33,14220,newly_run,0.004232905738074853,0.015395928767162833,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,medium,225,33,14220,newly_run,0.003118142589012863,0.011010417458926253,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,medium,270,33,14220,newly_run,0.001248983922449217,0.00435728306950929,1.0,0.0
+near_facade_0_20m,footprint_area_m2,footprint area,medium,315,33,14220,newly_run,0.001423995843095194,0.004587191170591972,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,high,0,34,18200,newly_run,0.006447088965923145,0.027085445859234038,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,high,45,34,18200,newly_run,0.005152282056618994,0.020254749328396257,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,high,90,34,18200,newly_run,0.003499165216250005,0.012040972435445179,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,high,135,34,18200,newly_run,0.0031468652684501913,0.010890878216531666,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,high,180,34,18200,newly_run,0.0033702090060694296,0.014467630233805082,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,high,225,34,18200,newly_run,0.005057555042787033,0.02110728905270906,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,high,270,34,18200,newly_run,0.004818578071250655,0.019037278488636226,0.9998901098901098,0.0
+near_facade_0_20m,mean_height_m,mean height,high,315,34,18200,newly_run,0.0073760998550861665,0.028491676274415793,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,low,0,34,21111,newly_run,0.003115331415650697,0.01715102362541483,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,low,45,34,21111,newly_run,0.0028266996894505837,0.014452007400917063,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,low,90,34,21111,newly_run,0.0034040959662805905,0.013024689654779488,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,low,135,34,21111,newly_run,0.004973708281009039,0.016152437683509147,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,low,180,34,21111,newly_run,0.004482252953454031,0.015294691935968982,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,low,225,34,21111,newly_run,0.003671568228585229,0.014050473818064811,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,low,270,34,21111,newly_run,0.0029305999637404636,0.012796262871433333,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,low,315,34,21111,newly_run,0.003382990052221369,0.01656049356953027,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,medium,0,33,17169,newly_run,0.003279834684574703,0.015134835646760192,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,medium,45,33,17169,newly_run,0.0018994040844264317,0.007170571214261192,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,medium,90,33,17169,newly_run,0.0019901540113682567,0.008100112262373912,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,medium,135,33,17169,newly_run,0.0031131153720367973,0.011939783076789777,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,medium,180,33,17169,newly_run,0.002410982138512863,0.007885727590995468,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,medium,225,33,17169,newly_run,0.0021168204342224693,0.007101288195715131,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,medium,270,33,17169,newly_run,0.00240295768270062,0.01057344144664918,1.0,0.0
+near_facade_0_20m,mean_height_m,mean height,medium,315,33,17169,newly_run,0.0032880898823116236,0.015571509203107054,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),high,0,34,11863,newly_run,0.003593498216239564,0.010044328902103697,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),high,45,34,11863,newly_run,0.0035611544085401015,0.011557198743063678,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),high,90,34,11863,newly_run,0.00440569140424545,0.012428285659198039,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),high,135,34,11863,newly_run,0.006383568659333723,0.017565116303491248,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),high,180,34,11863,newly_run,0.005913671979302038,0.015813901003686043,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),high,225,34,11863,newly_run,0.003704055390836705,0.011678017492801385,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),high,270,34,11863,newly_run,0.0034344193328334867,0.01203557950556082,0.9999157042906516,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),high,315,34,11863,newly_run,0.003976835006099455,0.01167732707647264,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),low,0,34,30075,newly_run,0.0053496031510428055,0.029079537653826364,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),low,45,34,30075,newly_run,0.0031704007492352622,0.01626977585183479,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),low,90,34,30075,newly_run,0.0025392108753997246,0.01124239452451839,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),low,135,34,30075,newly_run,0.0031253295655855906,0.01172473945267415,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),low,180,34,30075,newly_run,0.0028563403664511864,0.012197019353359291,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),low,225,34,30075,newly_run,0.0038350318468962042,0.0162858042589811,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),low,270,34,30075,newly_run,0.0031777294307429056,0.015154507455084622,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),low,315,34,30075,newly_run,0.005638703138891449,0.027759085464610964,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),medium,0,33,14542,newly_run,0.0024685241568012553,0.00833154991809474,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),medium,45,33,14542,newly_run,0.0033324908553302598,0.011719690947760058,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),medium,90,33,14542,newly_run,0.00282534361813167,0.01015190351807818,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),medium,135,33,14542,newly_run,0.003163211355935395,0.012598385186036992,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),medium,180,33,14542,newly_run,0.0028399443773538388,0.01149508348688534,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),medium,225,33,14542,newly_run,0.0032060154580286866,0.011990258971169346,1.0,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),medium,270,33,14542,newly_run,0.003748429927835046,0.013726165505665668,0.9999312336679962,0.0
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),medium,315,33,14542,newly_run,0.003118920710005752,0.011148514853011703,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,high,0,34,30611,newly_run,0.005554342358450418,0.02937225949988419,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,high,45,34,30611,newly_run,0.003847153055421927,0.01846590091514115,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,high,90,34,30611,newly_run,0.00268708293581933,0.01160766992017705,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,high,135,34,30611,newly_run,0.002636939941580156,0.010422865374888199,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,high,180,34,30611,newly_run,0.0022939956357201246,0.010235311098168153,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,high,225,34,30611,newly_run,0.003627574604828192,0.015366227741609242,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,high,270,34,30611,newly_run,0.0037836699335035188,0.016961898197062047,0.9999673320048349,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,high,315,34,30611,newly_run,0.005892958313058827,0.028718942863945468,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,low,0,34,11938,newly_run,0.002174007136347341,0.00667337600410924,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,low,45,34,11938,newly_run,0.0022436411156107425,0.007219175281345974,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,low,90,34,11938,newly_run,0.0039646496280238116,0.012170309394752696,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,low,135,34,11938,newly_run,0.006416460729699088,0.019065155669662583,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,low,180,34,11938,newly_run,0.005885396186373058,0.016977947834224728,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,low,225,34,11938,newly_run,0.0037803629498285923,0.01138190265202747,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,low,270,34,11938,newly_run,0.002463114610476219,0.007541495294487564,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,low,315,34,11938,newly_run,0.002537013113753618,0.0071490481007132805,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,medium,0,33,13931,newly_run,0.0031181531309185206,0.00976953336626276,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,medium,45,33,13931,newly_run,0.0029794752338161462,0.01043730498694484,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,medium,90,33,13931,newly_run,0.0028808662761731023,0.00951613032652017,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,medium,135,33,13931,newly_run,0.004192298075214789,0.014180465921161952,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,medium,180,33,13931,newly_run,0.004082652951619319,0.014757829262385665,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,medium,225,33,13931,newly_run,0.003569593680575896,0.014101032180489526,1.0,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,medium,270,33,13931,newly_run,0.003272974993269146,0.013560028255952141,0.9999282176441031,0.0
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,medium,315,33,13931,newly_run,0.003692507793509966,0.012277900596821184,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,high,0,34,30832,newly_run,0.00580867148075808,0.030196101236700534,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,high,45,34,30832,newly_run,0.003898909169070753,0.018600817522810675,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,high,90,34,30832,newly_run,0.0027521198063402332,0.011782923248519582,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,high,135,34,30832,newly_run,0.0026845783874464434,0.010708797359953597,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,high,180,34,30832,newly_run,0.0023134166299922823,0.010299434759474932,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,high,225,34,30832,newly_run,0.003644232960368838,0.015343612095835561,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,high,270,34,30832,newly_run,0.0040287077760860065,0.017839142027432007,0.9999675661650234,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,high,315,34,30832,newly_run,0.006170950903802813,0.02960800045587956,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,low,0,34,11985,newly_run,0.003559342218640325,0.01042419613457602,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,low,45,34,11985,newly_run,0.003419921356572845,0.011506854630593854,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,low,90,34,11985,newly_run,0.0042569908256192114,0.012890366321177203,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,low,135,34,11985,newly_run,0.005892963942951268,0.017794742054515922,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,low,180,34,11985,newly_run,0.005160564759762266,0.015365105067903468,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,low,225,34,11985,newly_run,0.0040814400912069825,0.014418910931224445,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,low,270,34,11985,newly_run,0.0040770589119853715,0.01569523351916171,0.9999165623696287,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,low,315,34,11985,newly_run,0.004403766572429143,0.013371601374838279,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,medium,0,33,13663,newly_run,0.0012928776117930754,0.004313853737142145,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,medium,45,33,13663,newly_run,0.001819361365780528,0.0062529638135297135,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,medium,90,33,13663,newly_run,0.0024770722525765143,0.00844606741580804,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,medium,135,33,13663,newly_run,0.00456150827275528,0.014693596384203981,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,medium,180,33,13663,newly_run,0.004697370135789081,0.016093406424821828,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,medium,225,33,13663,newly_run,0.0032662386416119895,0.011476932951414557,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,medium,270,33,13663,newly_run,0.001298816363400817,0.004393763408665113,1.0,0.0
+near_facade_0_20m,elongation_ratio,elongation ratio,medium,315,33,13663,newly_run,0.001396079551182771,0.0045650162420954625,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",high,0,34,18541,newly_run,0.0031130683731567894,0.016799889553371167,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",high,45,34,18541,newly_run,0.0014984605324196206,0.0061406365522169905,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",high,90,34,18541,newly_run,0.0017539796890326336,0.007560287285175523,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",high,135,34,18541,newly_run,0.0021337409993036427,0.008886524345038938,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",high,180,34,18541,newly_run,0.0013381656532998015,0.005392575161141642,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",high,225,34,18541,newly_run,0.0017622101938897935,0.007515927414221981,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",high,270,34,18541,newly_run,0.0020923940411970558,0.010932628850993433,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",high,315,34,18541,newly_run,0.0032614207252038958,0.01912569407038236,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",low,0,34,20439,newly_run,0.0044572977649355895,0.01873346975910964,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",low,45,34,20439,newly_run,0.005017037394421801,0.021947567673050547,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",low,90,34,20439,newly_run,0.004801477149782535,0.016724385343825827,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",low,135,34,20439,newly_run,0.006192886018637057,0.019747754296096383,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",low,180,34,20439,newly_run,0.0057702446236747645,0.018382354572867906,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",low,225,34,20439,newly_run,0.00463522478316613,0.01655862632196995,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",low,270,34,20439,newly_run,0.005042885808627951,0.0194174431588522,0.9999021478545917,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",low,315,34,20439,newly_run,0.004929906482441739,0.018673559026634493,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,0,33,17500,newly_run,0.005176808724048437,0.024028584399881193,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,45,33,17500,newly_run,0.003184610015074,0.013394538583490689,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,90,33,17500,newly_run,0.0022319829841326833,0.008638614312168827,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,135,33,17500,newly_run,0.0028333652586093397,0.010046447610489178,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,180,33,17500,newly_run,0.0031204479489050805,0.014050656431298316,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,225,33,17500,newly_run,0.004485095436543379,0.018565694684735456,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,270,33,17500,newly_run,0.0027974729271538585,0.011347474166827362,1.0,0.0
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",medium,315,33,17500,newly_run,0.005764810016216552,0.022812912156829953,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,0,34,14545,newly_run,0.00169347178341573,0.005413636146318116,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,45,34,14545,newly_run,0.0021893677882180245,0.007141585074462414,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,90,34,14545,newly_run,0.0032656802986277414,0.0112362236691161,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,135,34,14545,newly_run,0.006774990078070259,0.023112049187684305,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,180,34,14545,newly_run,0.006476234933116446,0.021720824931433128,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,225,34,14545,newly_run,0.003790284692676806,0.013593123252956533,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,270,34,14545,newly_run,0.0016607616949179554,0.005406165097506485,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",high,315,34,14545,newly_run,0.0018197194116175888,0.005637065219590708,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,0,34,27004,newly_run,0.00682532467307065,0.03324585313433509,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,45,34,27004,newly_run,0.0050116394545994345,0.023147088561327106,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,90,34,27004,newly_run,0.003865989559458054,0.014769191203551503,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,135,34,27004,newly_run,0.003453868347127283,0.011584835668882068,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,180,34,27004,newly_run,0.003293253439190495,0.012973962351233556,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,225,34,27004,newly_run,0.0049371755830918945,0.020115772388645006,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,270,34,27004,newly_run,0.005410051828629059,0.02354622126196485,0.9999259368982373,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",low,315,34,27004,newly_run,0.00768300434334269,0.03427247241383248,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,0,33,14931,newly_run,0.002040964961066541,0.00926716307183951,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,45,33,14931,newly_run,0.0012643622656446376,0.00454798531760026,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,90,33,14931,newly_run,0.0011935656750341889,0.004750025887874311,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,135,33,14931,newly_run,0.001601466057016812,0.006376034645066107,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,180,33,14931,newly_run,0.0009529800664979033,0.0037042991604640725,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,225,33,14931,newly_run,0.0011686081566375103,0.004137427852620823,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,270,33,14931,newly_run,0.001377910304245731,0.005604511410367525,1.0,0.0
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",medium,315,33,14931,newly_run,0.0018871386655159067,0.00857406541871185,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,high,0,34,16370,newly_run,0.002949215146357614,0.014890267896715808,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,high,45,34,16370,newly_run,0.001391836546501709,0.005877694570035245,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,high,90,34,16370,newly_run,0.0017418351571458887,0.007569521370929945,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,high,135,34,16370,newly_run,0.002151635657128921,0.00892717561641803,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,high,180,34,16370,newly_run,0.0013397355677273327,0.005423177386997661,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,high,225,34,16370,newly_run,0.0017730520442941315,0.0075706561411371725,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,high,270,34,16370,newly_run,0.001991455772126466,0.009824045079801237,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,high,315,34,16370,newly_run,0.0029261997986436326,0.015348623043504886,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,low,0,34,24547,newly_run,0.006674136801013599,0.03016553032700911,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,low,45,34,24547,newly_run,0.005602681105736897,0.024796795403419867,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,low,90,34,24547,newly_run,0.004773760933614983,0.016882084889444694,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,low,135,34,24547,newly_run,0.005725220802687458,0.017993984870242015,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,low,180,34,24547,newly_run,0.005689607037188404,0.01988107307339887,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,low,225,34,24547,newly_run,0.005869484148786201,0.02278411623846501,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,low,270,34,24547,newly_run,0.005624128264457418,0.022208921874873253,0.999918523648511,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,low,315,34,24547,newly_run,0.00749338278796145,0.029396672225244783,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,medium,0,33,15563,newly_run,0.0017546472013565,0.008395130065352916,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,medium,45,33,15563,newly_run,0.0016541464968976292,0.005907569640557602,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,medium,90,33,15563,newly_run,0.0015435507255128229,0.006095428030362253,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,medium,135,33,15563,newly_run,0.0025678025109494075,0.010047292917319777,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,medium,180,33,15563,newly_run,0.0022979209125103674,0.009303415419097936,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,medium,225,33,15563,newly_run,0.0021074715236267124,0.0076772401354936745,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,medium,270,33,15563,newly_run,0.0012958163392808152,0.005922622049133729,1.0,0.0
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,medium,315,33,15563,newly_run,0.0019452918810342352,0.010450893601079947,1.0,0.0

@@ -1,0 +1,65 @@
+analysis_zone,parameter,parameter_label,response_metric,spearman_rho,p_value,n_components,evidence_type
+local_context_20_50m,footprint_area_m2,footprint area,directional_mean_vr,0.08105173438564456,0.4203883631894376,101,newly_run
+local_context_20_50m,footprint_area_m2,footprint area,directional_p95_vr,0.10107127375702507,0.3145654546436884,101,newly_run
+local_context_20_50m,footprint_area_m2,footprint area,directional_stagnation_ratio,,,101,newly_run
+local_context_20_50m,footprint_area_m2,footprint area,directional_range_mean_vr,0.02650227896980077,0.7924923520720523,101,newly_run
+local_context_20_50m,mean_height_m,mean height,directional_mean_vr,-0.350715792147012,0.0003235277457071607,101,newly_run
+local_context_20_50m,mean_height_m,mean height,directional_p95_vr,-0.3037623254803594,0.0020144752226071492,101,newly_run
+local_context_20_50m,mean_height_m,mean height,directional_stagnation_ratio,,,101,newly_run
+local_context_20_50m,mean_height_m,mean height,directional_range_mean_vr,-0.36304924499657754,0.00019046694992390866,101,newly_run
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),directional_mean_vr,-0.20831404070409554,0.036576208668298874,101,newly_run
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),directional_p95_vr,-0.20547765694747924,0.03926758659136078,101,newly_run
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),directional_stagnation_ratio,,,101,newly_run
+local_context_20_50m,height_to_sqrt_area,height / sqrt(area),directional_range_mean_vr,-0.15616418411940933,0.11888287770221273,101,newly_run
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,directional_mean_vr,0.05092123785120505,0.6130599241050844,101,newly_run
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,directional_p95_vr,0.0744852023631942,0.45913096399463005,101,newly_run
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,directional_stagnation_ratio,,,101,newly_run
+local_context_20_50m,compactness_p2_over_a,perimeter^2 / area,directional_range_mean_vr,0.0071262929273399455,0.9436144012676828,101,newly_run
+local_context_20_50m,elongation_ratio,elongation ratio,directional_mean_vr,0.08320266858138234,0.40812146790423454,101,newly_run
+local_context_20_50m,elongation_ratio,elongation ratio,directional_p95_vr,0.08996306831486785,0.3709582922408964,101,newly_run
+local_context_20_50m,elongation_ratio,elongation ratio,directional_stagnation_ratio,,,101,newly_run
+local_context_20_50m,elongation_ratio,elongation ratio,directional_range_mean_vr,0.045338576913921035,0.6525611021793414,101,newly_run
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",directional_mean_vr,-0.2259871869539895,0.02306508337975777,101,newly_run
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",directional_p95_vr,-0.2288875946418171,0.02131750248379262,101,newly_run
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",directional_stagnation_ratio,,,101,newly_run
+local_context_20_50m,local_built_fraction_r30m,"local built fraction, r=30 m",directional_range_mean_vr,-0.26264414676761794,0.007967566857899067,101,newly_run
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",directional_mean_vr,-0.3956395964919726,4.2211798074151896e-05,101,newly_run
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",directional_p95_vr,-0.34888218963383044,0.00034940453017598324,101,newly_run
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",directional_stagnation_ratio,,,101,newly_run
+local_context_20_50m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",directional_range_mean_vr,-0.36208767848820744,0.00019865294480928109,101,newly_run
+local_context_20_50m,relative_enclosure_score,combined enclosure score,directional_mean_vr,-0.3019219569015725,0.002151700426598409,101,newly_run
+local_context_20_50m,relative_enclosure_score,combined enclosure score,directional_p95_vr,-0.29749563191613276,0.002516933461355204,101,newly_run
+local_context_20_50m,relative_enclosure_score,combined enclosure score,directional_stagnation_ratio,,,101,newly_run
+local_context_20_50m,relative_enclosure_score,combined enclosure score,directional_range_mean_vr,-0.32754804892253925,0.0008270431351357946,101,newly_run
+near_facade_0_20m,footprint_area_m2,footprint area,directional_mean_vr,-0.13144454112012716,0.19011082202821356,101,newly_run
+near_facade_0_20m,footprint_area_m2,footprint area,directional_p95_vr,0.013262799088494667,0.8952720793745431,101,newly_run
+near_facade_0_20m,footprint_area_m2,footprint area,directional_stagnation_ratio,-0.031524590149383365,0.7543167649781459,101,newly_run
+near_facade_0_20m,footprint_area_m2,footprint area,directional_range_mean_vr,-0.1321732663447697,0.18764441665177614,101,newly_run
+near_facade_0_20m,mean_height_m,mean height,directional_mean_vr,-0.28624812233258473,0.003708686234401196,101,newly_run
+near_facade_0_20m,mean_height_m,mean height,directional_p95_vr,-0.2619079306162236,0.008151437127657328,101,newly_run
+near_facade_0_20m,mean_height_m,mean height,directional_stagnation_ratio,-0.21728407933859448,0.029061975697472524,101,newly_run
+near_facade_0_20m,mean_height_m,mean height,directional_range_mean_vr,-0.3135637449634579,0.0014081158676992373,101,newly_run
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),directional_mean_vr,0.024519867793335818,0.8077025713871735,101,newly_run
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),directional_p95_vr,-0.10475982470278654,0.2971380297638687,101,newly_run
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),directional_stagnation_ratio,-0.06911848170101287,0.4922037994026417,101,newly_run
+near_facade_0_20m,height_to_sqrt_area,height / sqrt(area),directional_range_mean_vr,0.011036852605313865,0.9127728656775272,101,newly_run
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,directional_mean_vr,-0.12290670213931436,0.2207746956294837,101,newly_run
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,directional_p95_vr,-0.004346863878818968,0.9655884396948391,101,newly_run
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,directional_stagnation_ratio,-0.11647417951224649,0.24607581128972153,101,newly_run
+near_facade_0_20m,compactness_p2_over_a,perimeter^2 / area,directional_range_mean_vr,-0.10377117804006303,0.3017455072967798,101,newly_run
+near_facade_0_20m,elongation_ratio,elongation ratio,directional_mean_vr,-0.11191827125885413,0.26516366159947036,101,newly_run
+near_facade_0_20m,elongation_ratio,elongation ratio,directional_p95_vr,0.019128126691801438,0.8494189606756564,101,newly_run
+near_facade_0_20m,elongation_ratio,elongation ratio,directional_stagnation_ratio,-0.05743243600860364,0.5683551655820767,101,newly_run
+near_facade_0_20m,elongation_ratio,elongation ratio,directional_range_mean_vr,-0.09317645312325186,0.35404378235262834,101,newly_run
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",directional_mean_vr,-0.46430984274898074,1.0041929776943535e-06,101,newly_run
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",directional_p95_vr,-0.34627839254513687,0.00038943537972912373,101,newly_run
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",directional_stagnation_ratio,0.15377672928445127,0.12469833813124782,101,newly_run
+near_facade_0_20m,local_built_fraction_r30m,"local built fraction, r=30 m",directional_range_mean_vr,-0.42708211997670353,8.429138875549119e-06,101,newly_run
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",directional_mean_vr,-0.4083462696639776,2.2444368162222473e-05,101,newly_run
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",directional_p95_vr,-0.3923841678280705,4.942394944866549e-05,101,newly_run
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",directional_stagnation_ratio,0.35714331732852855,0.00024612932389517944,101,newly_run
+near_facade_0_20m,sector_enclosure_ratio_r50m,"sector enclosure, r=50 m",directional_range_mean_vr,-0.4054058824836789,2.6036501042687326e-05,101,newly_run
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,directional_mean_vr,-0.5343739079790332,8.638708144518684e-09,101,newly_run
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,directional_p95_vr,-0.4227140361094933,1.0646845424342945e-05,101,newly_run
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,directional_stagnation_ratio,0.2365053275247367,0.017258709348118295,101,newly_run
+near_facade_0_20m,relative_enclosure_score,combined enclosure score,directional_range_mean_vr,-0.49832265579499124,1.1397657011795309e-07,101,newly_run

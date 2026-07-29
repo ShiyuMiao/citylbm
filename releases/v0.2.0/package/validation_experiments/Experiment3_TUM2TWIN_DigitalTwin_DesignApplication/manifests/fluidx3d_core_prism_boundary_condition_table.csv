@@ -1,0 +1,26 @@
+field,value,unit_or_convention,evidence_type,source
+case_id,core_prism_avg_8dir_dx2m_spin6k_s3,,newly_run,scripts/run_fluidx3d_core_prism_timesampled_8dir_dx2m.ps1; logs/run_core_prism_avg_wd000_dx2m_spin6k_s3.log
+solver_path,FluidX3D local Windows build,,newly_run,reports/fluidx3d_core_prism_timesampled_8dir_dx2m_report.md
+collision_geometry,cfd_ready/core_photogrammetry_extent_prism_collision_z0.stl,,newly_run,reports/cfd_ready_geometry_qa.md
+grid_Nx_Ny_Nz,320 x 390 x 60,lattice cells,newly_run,logs/run_core_prism_avg_wd000_dx2m_spin6k_s3.log
+dx,2.0,m/cell,newly_run,scripts/run_fluidx3d_core_prism_timesampled_8dir_dx2m.ps1
+domain_size,640 x 780 x 120,m,newly_run,computed from grid and dx
+reference_speed_Uref,5.0,m/s,newly_run,cfd_ready/FluidX3D_case_template/setup_tum2twin_wind_pilot.cpp
+air_kinematic_viscosity,1.5e-5,m2/s,newly_run,cfd_ready/FluidX3D_case_template/setup_tum2twin_wind_pilot.cpp
+air_density,1.225,kg/m3,newly_run,cfd_ready/FluidX3D_case_template/setup_tum2twin_wind_pilot.cpp
+time_conversion,50,time steps/s,newly_run,logs/run_core_prism_avg_wd000_dx2m_spin6k_s3.log
+dt,0.02,s/time step,newly_run,computed from log time conversion
+run_steps,12000,time steps,newly_run,scripts/run_fluidx3d_core_prism_timesampled_8dir_dx2m.ps1
+physical_duration,240,s,newly_run,run_steps / 50
+spinup_steps,6000,time steps,newly_run,scripts/run_fluidx3d_core_prism_timesampled_8dir_dx2m.ps1
+spinup_duration,120,s,newly_run,spinup_steps / 50
+sample_steps,8000;10000;12000,time steps,newly_run,script parameters: spinup=6000 interval=2000 count=3
+sample_times,160;200;240,s,newly_run,sample_steps / 50
+wind_directions,0;45;90;135;180;225;270;315,velocity-to degrees,newly_run,scripts/run_fluidx3d_core_prism_timesampled_8dir_dx2m.ps1
+physical_Re_dx,666667,Uref*dx/nu_air,newly_run,logs/run_core_prism_avg_wd000_dx2m_spin6k_s3.log
+lbm_nu_smoke,0.01000,lattice units,newly_run,logs/run_core_prism_avg_wd000_dx2m_spin6k_s3.log
+relaxation_time_tau,0.52999996,lattice units,newly_run,logs/run_core_prism_avg_wd000_dx2m_spin6k_s3.log
+FluidX3D_reported_Re,< 29331,solver report,newly_run,logs/run_core_prism_avg_wd000_dx2m_spin6k_s3.log
+solid_boundary,buildings and ground voxelized as no-slip solids,TYPE_S solid mask,newly_run,scripts and VTK/solid-mask audit reports
+inflow_model,directional pilot forcing/velocity setup; not a measured atmospheric boundary layer profile,evidence boundary,blocked,full validated ABL inflow not established
+convergence_status,time-sampled screening only; no residual-convergence or grid-independent annual assessment claimed,,blocked,reports/claim_boundary.md

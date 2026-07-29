@@ -1,0 +1,17 @@
+analysis_zone,parameter_label,low_mean_vr,high_mean_vr,delta_high_minus_low,relative_change_high_vs_low,low_p95_vr,high_p95_vr
+local_context_20_50m,combined enclosure score,0.009638,0.004460,-0.005178,-0.5373,0.031750,0.018625
+local_context_20_50m,"local built fraction, r=30 m",0.009212,0.004563,-0.004649,-0.5047,0.030070,0.019539
+near_facade_0_20m,combined enclosure score,0.005932,0.002033,-0.003898,-0.6572,0.023014,0.009429
+near_facade_0_20m,"local built fraction, r=30 m",0.005106,0.002119,-0.002987,-0.5850,0.018773,0.010294
+local_context_20_50m,"sector enclosure, r=50 m",0.009141,0.006339,-0.002803,-0.3066,0.030496,0.024763
+local_context_20_50m,mean height,0.007993,0.006294,-0.001699,-0.2126,0.029471,0.019552
+near_facade_0_20m,"sector enclosure, r=50 m",0.005060,0.003459,-0.001601,-0.3164,0.021707,0.011658
+near_facade_0_20m,mean height,0.003598,0.004858,0.001260,0.3502,0.014935,0.019172
+local_context_20_50m,perimeter^2 / area,0.005253,0.006456,0.001204,0.2292,0.019303,0.024997
+local_context_20_50m,height / sqrt(area),0.006631,0.005854,-0.000777,-0.1171,0.027111,0.019887
+near_facade_0_20m,height / sqrt(area),0.003712,0.004372,0.000660,0.1778,0.017464,0.012850
+near_facade_0_20m,footprint area,0.004471,0.003987,-0.000484,-0.1082,0.013654,0.018418
+near_facade_0_20m,elongation ratio,0.004357,0.003913,-0.000444,-0.1019,0.013933,0.018047
+local_context_20_50m,elongation ratio,0.006721,0.006527,-0.000193,-0.0288,0.021618,0.025132
+near_facade_0_20m,perimeter^2 / area,0.003683,0.003790,0.000107,0.0292,0.011022,0.017644
+local_context_20_50m,footprint area,0.006543,0.006640,0.000097,0.0148,0.020776,0.025577

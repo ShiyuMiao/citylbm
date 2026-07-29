@@ -1,0 +1,17 @@
+analysis_zone,parameter_label,response_metric,spearman_rho,p_value,n_components
+near_facade_0_20m,combined enclosure score,directional_mean_vr,-0.534374,8.639e-09,101
+near_facade_0_20m,combined enclosure score,directional_range_mean_vr,-0.498323,1.140e-07,101
+near_facade_0_20m,"local built fraction, r=30 m",directional_mean_vr,-0.464310,1.004e-06,101
+near_facade_0_20m,"local built fraction, r=30 m",directional_range_mean_vr,-0.427082,8.429e-06,101
+near_facade_0_20m,combined enclosure score,directional_p95_vr,-0.422714,1.065e-05,101
+near_facade_0_20m,"sector enclosure, r=50 m",directional_mean_vr,-0.408346,2.244e-05,101
+near_facade_0_20m,"sector enclosure, r=50 m",directional_range_mean_vr,-0.405406,2.604e-05,101
+local_context_20_50m,"sector enclosure, r=50 m",directional_mean_vr,-0.395640,4.221e-05,101
+near_facade_0_20m,"sector enclosure, r=50 m",directional_p95_vr,-0.392384,4.942e-05,101
+local_context_20_50m,mean height,directional_range_mean_vr,-0.363049,1.905e-04,101
+local_context_20_50m,"sector enclosure, r=50 m",directional_range_mean_vr,-0.362088,1.987e-04,101
+near_facade_0_20m,"sector enclosure, r=50 m",directional_stagnation_ratio,0.357143,2.461e-04,101
+local_context_20_50m,mean height,directional_mean_vr,-0.350716,3.235e-04,101
+local_context_20_50m,"sector enclosure, r=50 m",directional_p95_vr,-0.348882,3.494e-04,101
+near_facade_0_20m,"local built fraction, r=30 m",directional_p95_vr,-0.346278,3.894e-04,101
+local_context_20_50m,combined enclosure score,directional_range_mean_vr,-0.327548,8.270e-04,101

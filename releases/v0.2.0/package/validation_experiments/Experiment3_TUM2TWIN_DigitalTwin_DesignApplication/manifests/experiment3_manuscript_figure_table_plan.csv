@@ -1,0 +1,13 @@
+﻿callout_id,recommended_file,purpose
+Fig. E3-1,figures/paraview_vtk_core_dx2m_statistical_maps_z2m.png,Baseline pedestrian-layer spatial VR/stagnation pattern for manual review.
+Fig. E3-2,figures/basic_morphology_multivariate_rank_model_importance.png,Morphology ranking: rank-regression coefficients and permutation importance.
+Fig. E3-3,figures/fluidx3d_design_sensitivity_directional_tradeoff_heatmap_z2m.png,S1/S2 directional local trade-off summary.
+Fig. E3-4,figures/morphology_threshold_recovery_rule_summary.png,Near-to-context morphology threshold design-rule screening: mean_height_m=low_tertile + elongation_ratio=high_tertile / 0.0057 / 0.857 / -0.416.
+Fig. E3-S1,figures/experiment3_effect_size_uncertainty_forest.png,"Supplementary effect-size and uncertainty audit for S0 low-speed baseline, vertical recovery, S1/S2 negative sensitivity and morphology recovery."
+Fig. E3-S2,figures/experiment3_directional_anisotropy_panel.png,"Supplementary eight-direction anisotropy and design-sector response for S0 baseline, vertical recovery and S1/S2 design sensitivity."
+Fig. E3-S3,figures/morphology_form_response_archetype_panel.png,Supplementary building-form response archetype analysis for 101 retained components and 20-50 m recovery contrast.
+Fig. E3-S4,figures/morphology_stage_transition_panel.png,"Supplementary near-to-context morphology stage-transition analysis separating facade-adjacent shelter, 20-50 m recovery and directional reactivity."
+Fig. E3-S5,figures/morphology_directional_fingerprint_panel.png,"Supplementary morphology directional fingerprint analysis linking 20-50 m wind-sector response to enclosure, height and stage-transition class."
+Table E3-1,figures/final_integrated_key_result_matrix.csv,One-page paper-facing result matrix with evidence sources.
+Table E3-2,figures/experiment3_completion_audit_matrix.csv,Paper-readiness and blocked-claim audit.
+Table E3-3,manifests/gcri_scoring_table.csv,Geometry-to-CFD readiness scoring for visual and collision geometries.
