@@ -6,14 +6,14 @@ This audit reflects the current archive after the morphology-response archetype,
 
 ## Evidence Counts
 
-- Key result matrix rows: `19`
+- Key result matrix rows: `20`
 - Figure/table callouts: `12`
 - Submission-readiness assets: `12`
 - Ready for manual review: `12`
 - Missing figure/table assets: `0`
-- Evidence inventory rows: `125`
+- Evidence inventory rows: `127`
 - Verified references used in Experiment 3 section draft: `12`
-- Claim verification rows: `41`
+- Claim verification rows: `42`
 
 ## Key Result Matrix
 
@@ -38,6 +38,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | newly_run + preexisting_artifact + blocked | Final SCI discussion synthesis | paragraph evidence map / final bilingual discussion-conclusion module / blocked wording control | 8 mapped paragraphs / 16 source key-result rows before final upsert / blocked validation-compliance-pollutant-GCBTE-CityLBM claims retained | manifests/experiment3_final_discussion_paragraph_evidence_map.csv; paper_text/experiment3_final_sci_discussion_conclusion_zh.md | Experiment 3 is ready as a manuscript discussion module when framed as digital-twin-to-CFD wind screening with explicit evidence boundaries. |
 | newly_run + preexisting_artifact + blocked | SCI abstract and highlights readiness | abstract evidence map / bilingual abstract-highlights-keywords / graphical abstract caption | 10 mapped abstract-highlight units / 17 source key-result rows before abstract upsert | manifests/experiment3_abstract_highlights_evidence_map.csv; paper_text/experiment3_sci_abstract_highlights_keywords_en.md | Experiment 3 has a claim-controlled abstract/highlights package for manuscript submission. |
 | newly_run + preexisting_artifact + blocked | Research-question synthesis readiness | RQ-to-evidence matrix / bilingual RQ answer paragraphs / blocked-claim control | 6 research questions / 18 source key-result rows before RQ upsert | manifests/experiment3_research_question_evidence_matrix.csv; paper_text/experiment3_research_question_answer_paragraphs_en.md | Experiment 3 has a research-question-level synthesis that converts the evidence archive into manuscript-ready answers without overclaiming. |
+| newly_run + preexisting_artifact + blocked | Limitations and validation roadmap readiness | limitation-to-validation matrix / bilingual limitation paragraphs / claim-upgrade conditions | 8 limitations / 19 source key-result rows before roadmap upsert | manifests/experiment3_limitations_future_validation_roadmap.csv; reports/experiment3_limitations_future_validation_roadmap.md | Experiment 3 has a reviewer-facing limitation and validation roadmap that keeps stronger claims conditional on future evidence. |
 
 ## Requirement Coverage
 
@@ -59,6 +60,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | Final SCI discussion and conclusion evidence map | complete_with_boundary | newly_run + preexisting_artifact + blocked | manifests/experiment3_final_discussion_paragraph_evidence_map.csv; reports/experiment3_final_sci_discussion_evidence_map.md; paper_text/experiment3_final_sci_discussion_conclusion_zh.md | The final discussion/conclusion module is paragraph-mapped to evidence and blocked wording; target-journal formatting and paper-level integration remain separate tasks. |
 | SCI abstract, highlights and graphical-abstract caption | complete_with_boundary | newly_run + preexisting_artifact + blocked | manifests/experiment3_abstract_highlights_evidence_map.csv; reports/experiment3_sci_abstract_highlights_audit.md; paper_text/experiment3_sci_abstract_highlights_keywords_en.md | The abstract/highlights package is sentence-mapped to evidence and excludes validation, compliance, pollutant, GCBTE, CityLBM-GH and optimization claims. |
 | Research-question-to-evidence synthesis | complete_with_boundary | newly_run + preexisting_artifact + blocked | manifests/experiment3_research_question_evidence_matrix.csv; reports/experiment3_research_question_synthesis.md; paper_text/experiment3_research_question_answer_paragraphs_en.md | The RQ synthesis converts geometry-transfer, wind-distribution, building-form, design-sensitivity and campus-application findings into manuscript answers while preserving blocked claims. |
+| Limitations and future validation roadmap | complete_with_boundary | newly_run + preexisting_artifact + blocked | manifests/experiment3_limitations_future_validation_roadmap.csv; reports/experiment3_limitations_future_validation_roadmap.md; paper_text/experiment3_limitations_future_validation_roadmap_en.md | The roadmap turns blocked claims into conditional validation tasks and prevents future-work items from being described as completed evidence. |
 | Checkout-stable GitHub archive manifest | complete | newly_run | scripts/refresh_github_archive_manifest.py; manifests/github_archive_manifest.csv; reports/github_archive_manifest_validation.md | The release package has a checkout-stable manifest using LF-normalized text hashes and raw binary hashes; large external assets remain governed by EXTERNAL_ARTIFACTS.md. |
 | CityLBM-Grasshopper end-to-end execution | blocked | blocked | cfd_ready/CityLBM_GH_input_template/README.md; reports/claim_boundary.md | Frame as FluidX3D-native simulation with a CityLBM-compatible geometry package unless GH execution evidence is added. |
 | Measured or wind-tunnel validation | blocked | blocked | reports/claim_boundary.md | Do not claim field-validated predictive accuracy. |

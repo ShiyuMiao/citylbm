@@ -192,6 +192,13 @@ def main() -> None:
             "paper_safe_interpretation": "The RQ synthesis converts geometry-transfer, wind-distribution, building-form, design-sensitivity and campus-application findings into manuscript answers while preserving blocked claims.",
         },
         {
+            "requirement": "Limitations and future validation roadmap",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/experiment3_limitations_future_validation_roadmap.csv; reports/experiment3_limitations_future_validation_roadmap.md; paper_text/experiment3_limitations_future_validation_roadmap_en.md",
+            "paper_safe_interpretation": "The roadmap turns blocked claims into conditional validation tasks and prevents future-work items from being described as completed evidence.",
+        },
+        {
             "requirement": "Checkout-stable GitHub archive manifest",
             "status": "complete",
             "evidence_type": "newly_run",

@@ -29,9 +29,9 @@ It is not complete enough for:
 
 ## Current Paper Assets
 
-- Main result rows: `19`
+- Main result rows: `20`
 - Reviewer-facing figures/tables: `12` with `12` ready for manual review.
-- Evidence inventory rows: `125`
+- Evidence inventory rows: `127`
 - Archive manifest status should be checked through `manifests/github_archive_manifest.csv` after every commit.
 
 ## Manuscript-Safe Central Claim

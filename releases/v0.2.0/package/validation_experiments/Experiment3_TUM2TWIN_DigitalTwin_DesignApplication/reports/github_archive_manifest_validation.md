@@ -5,10 +5,10 @@ evidence_type: newly_run
 ## Status
 
 - Validation status: `passed`
-- Manifest rows: `487`
+- Manifest rows: `492`
 - Missing files: `0`
 - SHA256 mismatches: `0`
-- LF-normalized text hashes: `338`
+- LF-normalized text hashes: `343`
 - Raw-byte hashes: `149`
 
 ## Hash Policy

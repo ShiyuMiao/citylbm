@@ -86,6 +86,7 @@ def classify_claim(row: pd.Series) -> tuple[str, str, str]:
         "Final SCI discussion synthesis": "Can each final discussion paragraph be traced to evidence and blocked wording?",
         "SCI abstract and highlights readiness": "Does the abstract remain no stronger than the verified discussion evidence?",
         "Research-question synthesis readiness": "Do the research-question answers convert evidence into claims without expanding beyond the archive?",
+        "Limitations and validation roadmap readiness": "Does the limitations section define evidence needed for stronger claims without implying those claims are completed?",
     }.get(claim_layer, "What evidence supports this claim and where is the boundary?")
     required_wording = (
         "Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible."

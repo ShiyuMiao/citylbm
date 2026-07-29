@@ -84,7 +84,9 @@ Core distinction:
 41. `paper_text/experiment3_sci_abstract_highlights_keywords_zh.md`
 42. `reports/experiment3_research_question_synthesis.md`
 43. `paper_text/experiment3_research_question_answer_paragraphs_zh.md`
-44. `reports/github_archive_manifest_validation.md`
+44. `reports/experiment3_limitations_future_validation_roadmap.md`
+45. `paper_text/experiment3_limitations_future_validation_roadmap_zh.md`
+46. `reports/github_archive_manifest_validation.md`
 
 ## Current Main Conclusion
 
@@ -407,6 +409,25 @@ TUM2TWIN case supports a FluidX3D-native digital-twin-to-CFD screening and
 building-form interpretation workflow, not field validation, annual compliance,
 pollutant prediction, GCBTE closure or CityLBM-Grasshopper end-to-end execution.
 
+## Limitations and Future Validation Roadmap
+
+The archive now includes a reviewer-facing limitations and future-validation
+roadmap. It turns the remaining blocked claims into specific next evidence
+requirements rather than letting them appear as vague caveats.
+
+- `scripts/synthesize_experiment3_limitations_validation_roadmap.py`
+- `manifests/experiment3_limitations_future_validation_roadmap.csv`
+- `reports/experiment3_limitations_future_validation_roadmap.md`
+- `paper_text/experiment3_limitations_future_validation_roadmap_zh.md`
+- `paper_text/experiment3_limitations_future_validation_roadmap_en.md`
+
+Paper-safe interpretation: the current study is complete as a screening and
+design-interpretation experiment. Stronger claims require specific future
+evidence: field or wind-tunnel validation, calibrated wind-climate coupling,
+residual/grid-convergence records, CityLBM-Grasshopper execution, pollutant
+transport, GCBTE computation, S3-Sn positive design interventions, and
+cross-site morphology replication.
+
 ## Reviewer Reproducibility and Claim-Risk Layer
 
 The archive now includes a reviewer-facing reproducibility and claim-risk audit
@@ -436,7 +457,7 @@ conversion.
 - `manifests/github_archive_manifest.csv`
 - `reports/github_archive_manifest_validation.md`
 
-Audit result: the current manifest contains 482 archived files, 0 missing
+Audit result: the current manifest contains 492 archived files, 0 missing
 files, and 0 SHA256 mismatches. Large raw datasets and external VTK assets
 remain recorded through `EXTERNAL_ARTIFACTS.md` rather than embedded in the
 GitHub release package.
@@ -456,8 +477,8 @@ verification, and remaining blockers are mutually consistent.
 - `paper_text/experiment3_final_contribution_and_conclusion_en.md`
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
-Audit result: the final archive currently contains 19 key result rows, 12
-reviewer-facing figure/table callouts, 12 ready submission assets, and 125
+Audit result: the final archive currently contains 20 key result rows, 12
+reviewer-facing figure/table callouts, 12 ready submission assets, and 127
 evidence-inventory entries. It is complete for a standalone Experiment 3
 section if framed as FluidX3D-native digital-twin-to-CFD wind screening with
 CityLBM-compatible geometry preparation. It remains incomplete for field

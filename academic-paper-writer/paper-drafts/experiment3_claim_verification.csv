@@ -40,3 +40,4 @@ Table E3-3,newly_run + preexisting_artifact,manifests/gcri_scoring_table.csv,fig
 ,newly_run + preexisting_artifact + blocked,manifests/experiment3_final_discussion_paragraph_evidence_map.csv; reports/experiment3_final_sci_discussion_evidence_map.md,,,
 ,newly_run + preexisting_artifact + blocked,manifests/experiment3_abstract_highlights_evidence_map.csv; reports/experiment3_sci_abstract_highlights_audit.md,,,
 ,newly_run + preexisting_artifact + blocked,manifests/experiment3_research_question_evidence_matrix.csv; reports/experiment3_research_question_synthesis.md,,,
+,newly_run + preexisting_artifact + blocked,manifests/experiment3_limitations_future_validation_roadmap.csv; reports/experiment3_limitations_future_validation_roadmap.md,,,
