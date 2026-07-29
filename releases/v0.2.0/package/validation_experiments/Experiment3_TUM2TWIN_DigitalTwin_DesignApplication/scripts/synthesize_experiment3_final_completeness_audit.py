@@ -213,6 +213,13 @@ def main() -> None:
             "paper_safe_interpretation": "Data, code, reproducibility, computational-resource and evidence-boundary statements are evidence-mapped; funding, conflicts, acknowledgements and author-contribution fields require author input.",
         },
         {
+            "requirement": "Claim-verification table hygiene",
+            "status": "complete",
+            "evidence_type": "newly_run + preexisting_artifact",
+            "evidence_artifact": "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv; manifests/experiment3_claim_verification_hygiene.csv; reports/experiment3_claim_verification_hygiene.md",
+            "paper_safe_interpretation": "Every claim-verification row has a named claim or asset identifier; synthesis rows no longer appear as blank reviewer-facing evidence entries.",
+        },
+        {
             "requirement": "Checkout-stable GitHub archive manifest",
             "status": "complete",
             "evidence_type": "newly_run",

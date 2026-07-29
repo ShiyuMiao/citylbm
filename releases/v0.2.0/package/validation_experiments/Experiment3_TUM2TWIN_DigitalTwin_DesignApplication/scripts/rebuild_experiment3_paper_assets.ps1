@@ -24,6 +24,7 @@ Invoke-PythonStep "scripts\analyze_morphology_form_response_archetypes.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_addendum_key_result_rows.py"
 Invoke-PythonStep "scripts\analyze_morphology_stage_transition.py"
 Invoke-PythonStep "scripts\analyze_morphology_directional_fingerprint.py"
+Invoke-PythonStep "scripts\synthesize_detailed_paper_conclusions.py"
 
 # Manuscript-facing synthesis layers.
 Invoke-PythonStep "scripts\synthesize_experiment3_manuscript_module.py"
@@ -37,6 +38,7 @@ Invoke-PythonStep "scripts\synthesize_experiment3_research_question_synthesis.py
 Invoke-PythonStep "scripts\synthesize_experiment3_limitations_validation_roadmap.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_figure_narrative_chain.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_submission_statements.py"
+Invoke-PythonStep "scripts\normalize_experiment3_claim_verification.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_reviewer_reproducibility_pack.py"
 Invoke-PythonStep "scripts\refresh_github_archive_manifest.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_final_completeness_audit.py"

@@ -89,6 +89,7 @@ def classify_claim(row: pd.Series) -> tuple[str, str, str]:
         "Limitations and validation roadmap readiness": "Does the limitations section define evidence needed for stronger claims without implying those claims are completed?",
         "Figure-table narrative readiness": "Does each figure or table support only the manuscript claim it is allowed to support?",
         "Submission statements readiness": "Do the data, code and reproducibility statements distinguish archived files, external assets and blocked claims?",
+        "Claim-verification hygiene": "Does every reviewer-facing claim-verification row have a named claim or asset identifier?",
     }.get(claim_layer, "What evidence supports this claim and where is the boundary?")
     required_wording = (
         "Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible."

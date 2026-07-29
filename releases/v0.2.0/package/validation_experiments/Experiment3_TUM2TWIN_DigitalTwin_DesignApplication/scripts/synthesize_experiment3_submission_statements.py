@@ -85,7 +85,7 @@ def build_statement_rows(
             "statement_unit": "Reproducibility statement",
             "evidence_type": "newly_run + preexisting_artifact + blocked",
             "source_artifact": "scripts/rebuild_experiment3_paper_assets.ps1; reports/github_archive_manifest_validation.md; manifests/evidence_inventory.csv",
-            "paper_ready_statement": f"The canonical lightweight rebuild command is `& .\\scripts\\rebuild_experiment3_paper_assets.ps1`, which regenerates paper-facing CSV, report, paper-text and manifest assets from the archived processed evidence. Before this statement upsert the archive contained {len(key_matrix)} key-result rows and {len(evidence_rows)} evidence-inventory rows.",
+            "paper_ready_statement": "The canonical lightweight rebuild command is `& .\\scripts\\rebuild_experiment3_paper_assets.ps1`, which regenerates paper-facing CSV, report, paper-text and manifest assets from the archived processed evidence. Final synchronized row counts are reported in the final completeness audit and GitHub manifest validation report.",
             "boundary_or_author_input": "The GitHub package alone does not rerun full FluidX3D simulations unless external raw geometry, VTK outputs, FluidX3D binaries and the local solver environment are restored.",
         },
         {
