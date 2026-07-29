@@ -6,12 +6,12 @@ This audit reflects the current archive after the morphology-response archetype,
 
 ## Evidence Counts
 
-- Key result matrix rows: `23`
+- Key result matrix rows: `24`
 - Figure/table callouts: `12`
 - Submission-readiness assets: `12`
 - Ready for manual review: `12`
 - Missing figure/table assets: `0`
-- Evidence inventory rows: `132`
+- Evidence inventory rows: `133`
 - Verified references used in Experiment 3 section draft: `12`
 - Claim verification rows: `44`
 
@@ -42,6 +42,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | newly_run + preexisting_artifact + blocked | Figure-table narrative readiness | figure/table narrative matrix / bilingual figure-order paragraphs / manual-review actions | 12 figure-table assets / 20 source key-result rows before figure-narrative upsert | manifests/experiment3_figure_table_narrative_chain.csv; reports/experiment3_figure_table_narrative_chain.md | Experiment 3 has a figure/table narrative chain that ties each visual asset to a specific manuscript claim and boundary. |
 | newly_run + preexisting_artifact + blocked | Submission statements readiness | data/code availability / reproducibility / computational-resource / evidence-boundary statements | 6 statement units / evidence-mapped journal-neutral package | manifests/experiment3_submission_statement_evidence_map.csv; reports/experiment3_submission_statement_package.md | Experiment 3 has journal-neutral submission statements that distinguish archived GitHub files from external raw/VTK assets, solver-environment dependencies and blocked validation claims. |
 | newly_run + preexisting_artifact | Claim-verification hygiene | claim verification rows / blank claim rows after normalization | 44 rows / 0 blank claim_or_asset rows / 7 rows normalized | academic-paper-writer/paper-drafts/experiment3_claim_verification.csv; manifests/experiment3_claim_verification_hygiene.csv | The Experiment 3 claim-verification table has named claim or asset identifiers for every row, so reviewer-facing evidence checks no longer contain blank claim entries. |
+| newly_run + preexisting_artifact + blocked | Clean Chinese manuscript readiness | clean UTF-8 Chinese paper package / evidence-mapped paragraphs / clean figure-table captions | 3 clean Chinese text files / 7 evidence-mapped paragraph units | paper_text/experiment3_clean_chinese_sci_package_zh.md; manifests/experiment3_clean_chinese_manuscript_evidence_map.csv | Experiment 3 has a readable clean-Chinese SCI manuscript layer that preserves evidence boundaries and avoids mojibake in the canonical Chinese discussion/module files. |
 
 ## Requirement Coverage
 
@@ -67,6 +68,7 @@ This audit reflects the current archive after the morphology-response archetype,
 | Figure/table narrative chain | complete_with_boundary | newly_run + preexisting_artifact + blocked | manifests/experiment3_figure_table_narrative_chain.csv; reports/experiment3_figure_table_narrative_chain.md; paper_text/experiment3_figure_table_narrative_chain_en.md | The figure/table narrative chain maps each visual or tabular asset to a manuscript claim, placement, boundary and manual-review action. |
 | Journal-neutral submission statements | complete_with_author_input_placeholders | newly_run + preexisting_artifact + blocked | manifests/experiment3_submission_statement_evidence_map.csv; reports/experiment3_submission_statement_package.md; paper_text/experiment3_submission_statements_en.md | Data, code, reproducibility, computational-resource and evidence-boundary statements are evidence-mapped; funding, conflicts, acknowledgements and author-contribution fields require author input. |
 | Claim-verification table hygiene | complete | newly_run + preexisting_artifact | academic-paper-writer/paper-drafts/experiment3_claim_verification.csv; manifests/experiment3_claim_verification_hygiene.csv; reports/experiment3_claim_verification_hygiene.md | Every claim-verification row has a named claim or asset identifier; synthesis rows no longer appear as blank reviewer-facing evidence entries. |
+| Clean Chinese SCI manuscript layer | complete_with_boundary | newly_run + preexisting_artifact + blocked | paper_text/experiment3_clean_chinese_sci_package_zh.md; paper_text/experiment3_clean_chinese_figure_table_captions_zh.md; reports/experiment3_clean_chinese_manuscript_pack_audit.md | A readable UTF-8 Chinese manuscript layer is available for method/result/discussion/conclusion and figure-table wording; it translates existing evidence and does not add new CFD validation. |
 | Checkout-stable GitHub archive manifest | complete | newly_run | scripts/refresh_github_archive_manifest.py; manifests/github_archive_manifest.csv; reports/github_archive_manifest_validation.md | The release package has a checkout-stable manifest using LF-normalized text hashes and raw binary hashes; large external assets remain governed by EXTERNAL_ARTIFACTS.md. |
 | CityLBM-Grasshopper end-to-end execution | blocked | blocked | cfd_ready/CityLBM_GH_input_template/README.md; reports/claim_boundary.md | Frame as FluidX3D-native simulation with a CityLBM-compatible geometry package unless GH execution evidence is added. |
 | Measured or wind-tunnel validation | blocked | blocked | reports/claim_boundary.md | Do not claim field-validated predictive accuracy. |

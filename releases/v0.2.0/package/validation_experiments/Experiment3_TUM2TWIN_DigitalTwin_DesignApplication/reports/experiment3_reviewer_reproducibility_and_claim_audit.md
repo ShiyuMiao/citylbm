@@ -12,10 +12,10 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 ## Reproducibility Anchor
 
 - Canonical rebuild command from the release package root: `& .\scripts\rebuild_experiment3_paper_assets.ps1`
-- Key result matrix rows: `23`
+- Key result matrix rows: `24`
 - Reviewer-facing figure/table assets: `12`
 - Ready-for-manual-review assets: `12`
-- Evidence inventory rows before this audit upsert: `132`
+- Evidence inventory rows before this audit upsert: `133`
 - GitHub archive manifest refresh: performed at the end of `rebuild_experiment3_paper_assets.ps1`
 
 ## Paper-Ready Claim Layers
@@ -45,6 +45,7 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 | Figure-table narrative readiness             | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Does each figure or table support only the manuscript claim it is allowed to support? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                |
 | Submission statements readiness              | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Do the data, code and reproducibility statements distinguish archived files, external assets and blocked claims? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.     |
 | Claim-verification hygiene                   | newly_run + preexisting_artifact           | paper_ready_as_screening  | low             | Does every reviewer-facing claim-verification row have a named claim or asset identifier? Frame as a completed screening result under the archived FluidX3D protocol.                                                            |
+| Clean Chinese manuscript readiness           | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Is there a readable non-mojibake Chinese manuscript layer tied to the evidence matrix? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                               |
 
 ## Blocked Claims That Must Not Be Overstated
 
@@ -73,6 +74,7 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 | Limitations and validation roadmap readiness | newly_run + preexisting_artifact + blocked | manifests/experiment3_limitations_future_validation_roadmap.csv; reports/experiment3_limitations_future_validation_roadmap.md                                                                  | Does the limitations section define evidence needed for stronger claims without implying those claims are completed? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible. |
 | Figure-table narrative readiness             | newly_run + preexisting_artifact + blocked | manifests/experiment3_figure_table_narrative_chain.csv; reports/experiment3_figure_table_narrative_chain.md                                                                                    | Does each figure or table support only the manuscript claim it is allowed to support? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                |
 | Submission statements readiness              | newly_run + preexisting_artifact + blocked | manifests/experiment3_submission_statement_evidence_map.csv; reports/experiment3_submission_statement_package.md                                                                               | Do the data, code and reproducibility statements distinguish archived files, external assets and blocked claims? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.     |
+| Clean Chinese manuscript readiness           | newly_run + preexisting_artifact + blocked | paper_text/experiment3_clean_chinese_sci_package_zh.md; manifests/experiment3_clean_chinese_manuscript_evidence_map.csv                                                                        | Is there a readable non-mojibake Chinese manuscript layer tied to the evidence matrix? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                               |
 
 ## Reviewer-Safe Summary
 

@@ -220,6 +220,13 @@ def main() -> None:
             "paper_safe_interpretation": "Every claim-verification row has a named claim or asset identifier; synthesis rows no longer appear as blank reviewer-facing evidence entries.",
         },
         {
+            "requirement": "Clean Chinese SCI manuscript layer",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "paper_text/experiment3_clean_chinese_sci_package_zh.md; paper_text/experiment3_clean_chinese_figure_table_captions_zh.md; reports/experiment3_clean_chinese_manuscript_pack_audit.md",
+            "paper_safe_interpretation": "A readable UTF-8 Chinese manuscript layer is available for method/result/discussion/conclusion and figure-table wording; it translates existing evidence and does not add new CFD validation.",
+        },
+        {
             "requirement": "Checkout-stable GitHub archive manifest",
             "status": "complete",
             "evidence_type": "newly_run",
