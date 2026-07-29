@@ -227,6 +227,13 @@ def main() -> None:
             "paper_safe_interpretation": "A readable UTF-8 Chinese manuscript layer is available for method/result/discussion/conclusion and figure-table wording; it translates existing evidence and does not add new CFD validation.",
         },
         {
+            "requirement": "Chinese manuscript text quality audit",
+            "status": "complete",
+            "evidence_type": "newly_run",
+            "evidence_artifact": "manifests/experiment3_chinese_text_quality_audit.csv; reports/experiment3_chinese_text_quality_audit.md",
+            "paper_safe_interpretation": "Manuscript-facing Chinese Markdown files are checked for mojibake and replacement-character corruption after regeneration; this is text-integrity evidence, not additional CFD validation.",
+        },
+        {
             "requirement": "Checkout-stable GitHub archive manifest",
             "status": "complete",
             "evidence_type": "newly_run",

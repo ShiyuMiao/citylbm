@@ -5,11 +5,11 @@ evidence_type: newly_run
 ## Status
 
 - Validation status: `passed`
-- Manifest rows: `511`
+- Manifest rows: `516`
 - Missing files: `0`
 - SHA256 mismatches: `0`
-- LF-normalized text hashes: `362`
-- Raw-byte hashes: `149`
+- LF-normalized text hashes: `365`
+- Raw-byte hashes: `151`
 
 ## Hash Policy
 

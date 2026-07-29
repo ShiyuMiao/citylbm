@@ -10,13 +10,13 @@ Use these captions with the section draft after final journal style is fixed. Th
 
 Fig. E3-1. Pedestrian-height FluidX3D/VTK velocity-ratio screening map for the TUM Downtown core campus block. The panel is derived from the dx=2 m, eight-direction, three-sample core closed-prism collision setup and is intended for manual review of low-speed regions, directional consistency and building-adjacent stagnation. It supports a screening-level low-ventilation interpretation, not annual comfort compliance, field validation or pollutant dispersion.
 
-图 E3-1. TUM Downtown 核心校园街区在行人高度的 FluidX3D/VTK 风速比筛查图。图中结果来自 dx=2 m、8 个来流方向、三时刻采样后的核心闭合棱柱碰撞几何，用于人工审核低风速区、方向一致性和建筑周边滞风格局。该图支持“行人层以低速和通风不足为主”的筛查性结论，但不支持年度舒适度合规、实测验证或污染物扩散结论。
+图 E3-1. TUM Downtown 核心校园街区行人高度 FluidX3D/VTK 风速比筛查图。结果来自 dx=2 m、八个来流方向、三个采样时刻的核心闭合棱柱碰撞几何，用于人工审核低风速区、方向一致性和建筑周边滞风格局。该图支持“行人层以低速和通风不足为主”的筛查性结论，但不支持年度舒适度合规、实测验证或污染物扩散结论。
 
 ### Fig. E3-2
 
 Fig. E3-2. Multivariate robustness analysis linking basic building-form parameters to wind response in the 20-50 m local-context band. Rank-regression coefficients and permutation importance indicate that local enclosure, mean height and combined enclosure are more informative than footprint area, elongation or compactness in this screened sample. Because cross-validated explanatory power is limited, the figure should be used as interpretable screening evidence rather than as a high-accuracy predictor.
 
-图 E3-2. 基础建筑形态参数与 20-50 m 局地环境风速响应的多变量稳健性分析。图中排序回归系数和置换重要度显示，局地围合度、平均高度和综合围合指标比单体占地面积、平面伸长率或紧凑度更能解释样本内风速差异。由于交叉验证解释力有限，该图应写成可解释筛查证据，而不是高精度预测模型。
+图 E3-2. 基础建筑形态参数与 20-50 m 局地环境带风速响应的多变量稳健性分析。排序回归系数和置换重要度显示，在本样本中局地围合度、平均高度和综合围合指标比单体占地面积、平面伸长率或紧凑度更能解释风速差异。由于交叉验证解释力有限，该图应写成可解释筛查证据，而不是高精度预测模型。
 
 ### Fig. E3-3
 
@@ -28,7 +28,7 @@ Fig. E3-3. Directional local trade-off of S1/S2 design-sensitivity scenarios at 
 
 Fig. E3-4. Threshold-rule screening for wind-speed recovery from the 0-20 m facade-adjacent band to the 20-50 m local-context band. The analysis pairs the same 101 retained building components and extracts sample-internal tertile rules. The best simple rule suggests that lower relative vertical scale combined with selected plan-form conditions is associated with higher local recovery, but the threshold is only a digital-twin screening rule, not a universal or field-validated design criterion.
 
-图 E3-4. 0-20 m 近立面带到 20-50 m 局地环境带的风速恢复阈值规则筛查。分析在同一组 101 个保留建筑单元上比较近立面与局地环境响应，提取样本内 tertile 组合规则。最佳简单规则提示较低相对竖向尺度和特定平面形态组合更易出现局地恢复，但该阈值仅用于数字孪生样本内设计筛查，不能外推为通用规范或实测验证结论。
+图 E3-4. 0-20 m 近立面带到 20-50 m 局地环境带的风速恢复阈值规则筛查。分析在同一组 101 个保留建筑构件上比较近立面与局地环境响应，并提取样本内 tertile 组合规则。最佳简单规则提示较低相对竖向尺度和特定平面形态组合更易出现局地恢复，但该阈值仅用于数字孪生样本内设计筛查，不能外推为通用规范或实测验证结论。
 
 ### Fig. E3-S1
 
@@ -40,7 +40,7 @@ Fig. E3-S1. Supplementary forest plot of Experiment 3 effect sizes and uncertain
 
 Fig. E3-S2. Supplementary eight-direction anisotropy and design-sector response for Experiment 3. The panel compares S0 pedestrian-layer mean VR, pedestrian-layer stagnation ratio, 40 m minus 2 m vertical recovery and S2 common-open-cell local response. The low-speed and high-stagnation state is quasi-omnidirectional across the eight inflow directions, whereas S2 local response is directional and strongest at 315 deg; nevertheless, S1/S2 global pedestrian-layer mean-VR deltas remain negative in all directions. The figure supports wind-sector-coupled design interpretation, not annual wind-rose compliance or successful optimization claims.
 
-图 E3-S2. 实验3八风向各向异性与设计扇区响应补充图。图中比较 S0 行人层 mean VR、行人层滞风比例、40 m-2 m 竖向恢复以及 S2 common-open-cell 局地响应。结果显示行人层低速和高滞风在八个来流方向中近似全向存在，而 S2 的局部响应具有方向性，最强响应出现在 315 deg；但S1/S2全局行人层 mean-VR delta 在全部方向上仍为负。该图支持风扇区耦合的设计解释，不支持年度风玫瑰合规或成功优化宣称。
+图 E3-S2. 实验3八风向各向异性与设计扇区响应补充图。图中比较 S0 行人层 mean VR、行人层滞风比例、40 m-2 m 竖向恢复以及 S2 common-open-cell 局地响应。结果显示行人层低速和高滞风在八个来流方向中近似全向存在，而 S2 的局部响应具有方向性，最强响应出现在 315 deg；但 S1/S2 全局行人层 mean-VR delta 在全部方向上仍为负。该图支持风扇区耦合的设计解释，不支持年度风玫瑰合规或成功优化宣称。
 
 ### Fig. E3-S3
 
@@ -52,13 +52,13 @@ Fig. E3-S3. Supplementary building-form wind-response archetype analysis for the
 
 Fig. E3-S4. Supplementary morphology stage-transition analysis. The panel decomposes the wind response of the 101 retained building components into the 0-20 m facade-adjacent sheltered stage, the 20-50 m local-context recovery stage and directional reactivity. The facade-adjacent band is nearly saturated by low-speed conditions, whereas the 20-50 m band reveals recovery contrasts linked to relative vertical scale, plan elongation and local enclosure. The figure is intended for digital-twin design screening, not for a field-validated causal threshold or universal design code.
 
-图 E3-S4. 建筑形态阶段转化分析补充图。图中把 101 个保留建筑构件的风响应分解为 0-20 m 近立面低速阶段、20-50 m 局地环境恢复阶段和方向性响应阶段。结果显示，近立面带几乎为低速饱和区，而 20-50 m 带揭示了与相对竖向尺度、平面延展性和局地围合相关的恢复差异。该图用于数字孪生设计筛查，不代表实测验证的因果阈值或通用设计规范。
+图 E3-S4. 建筑形态阶段转换分析补充图。图中把 101 个保留建筑构件的风响应分解为 0-20 m 近立面低速阶段、20-50 m 局地环境恢复阶段和方向性响应阶段。结果显示近立面带几乎为低速饱和区，而 20-50 m 带揭示了与相对竖向尺度、平面延展性和局地围合相关的恢复差异。该图用于数字孪生设计筛查，不代表实测验证的因果阈值或通用设计规范。
 
 ### Fig. E3-S5
 
 Fig. E3-S5. Supplementary morphology directional-fingerprint analysis in the 20-50 m local-context band. The panel links the eight-direction range of component mean VR, directional reactivity ratio and best-response direction to basic morphology descriptors and stage-transition classes for the 101 retained components. Persistent-shelter components suppress both mean VR and directional range, whereas near-to-context recovery and directionally reactive components show stronger wind-sector response. The figure supports digital-twin design screening, not field-validated causal thresholds or annual wind-rose compliance.
 
-鍥?E3-S5. 20-50 m 灞€鍦扮幆澧冨甫鐨勫缓绛戝舰鎬佹柟鍚戞€ф寚绾瑰垎鏋愩€傚浘涓皢 101 涓繚鐣欏缓绛戞瀯浠剁殑鍏鍚?mean VR 鑼冨洿銆佹柟鍚戝搷搴旀瘮鍊笺€佹渶浣冲搷搴旈鍚戜笌鍩虹褰㈡€佸弬鏁板拰闃舵杞寲绫诲瀷鑱旂郴璧锋潵銆傜粨鏋滄樉绀猴紝persistent shelter 鏋勪欢鍚屾椂鍏锋湁浣庡钩鍧?VR 鍜屼綆鏂瑰悜鑼冨洿锛岃€宯ear-to-context recovery 鍜宒irectionally reactive 鏋勪欢鏇磋兘琛ㄧ幇鍑烘潵娴佹墖鍖哄搷搴旂殑宸紓銆傝鍥炬敮鎸佹暟瀛楀鐢熻璁＄瓫鏌ワ紝涓嶆敮鎸佸疄娴嬮獙璇佺殑鍥犳灉闃堝€兼垨骞村害椋庣帿鐟板悎瑙勮瘎浠枫€?
+图 E3-S5. 20-50 m 局地环境带的建筑形态方向性指纹分析。图中将 101 个保留建筑构件的八风向 mean VR 范围、方向响应比、最佳响应风向与基础形态参数和阶段转换类型联系起来。persistent shelter 构件同时具有低平均 VR 和低方向范围，而 near-to-context recovery 和 directionally reactive 构件更能表现出来流扇区响应的差异。该图支持数字孪生设计筛查，不支持实测验证的因果阈值或年度风玫瑰合规评价。
 
 ## Tables
 

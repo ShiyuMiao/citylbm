@@ -93,7 +93,8 @@ Core distinction:
 50. `reports/experiment3_claim_verification_hygiene.md`
 51. `paper_text/experiment3_clean_chinese_sci_package_zh.md`
 52. `reports/experiment3_clean_chinese_manuscript_pack_audit.md`
-53. `reports/github_archive_manifest_validation.md`
+53. `reports/experiment3_chinese_text_quality_audit.md`
+54. `reports/github_archive_manifest_validation.md`
 
 ## Current Main Conclusion
 
@@ -520,6 +521,21 @@ evidence boundaries as the English/reviewer-facing files.
 
 Paper-safe interpretation: use this as the canonical Chinese writing surface
 for Experiment 3. It does not add new CFD evidence or upgrade blocked claims.
+
+## Chinese Text Quality Audit Layer
+
+The archive now includes a reproducible Chinese text-integrity check for
+manuscript-facing Markdown files. It scans the regenerated Chinese writing and
+caption files for common mojibake patterns and replacement characters, then
+records the result in a manifest and report.
+
+- `scripts/audit_experiment3_chinese_text_quality.py`
+- `manifests/experiment3_chinese_text_quality_audit.csv`
+- `reports/experiment3_chinese_text_quality_audit.md`
+
+Paper-safe interpretation: this layer is a manuscript hygiene gate. It confirms
+that the Chinese writing surface is readable after regeneration, but it does
+not add CFD evidence or strengthen blocked scientific claims.
 
 ## Archive Manifest Validation Layer
 

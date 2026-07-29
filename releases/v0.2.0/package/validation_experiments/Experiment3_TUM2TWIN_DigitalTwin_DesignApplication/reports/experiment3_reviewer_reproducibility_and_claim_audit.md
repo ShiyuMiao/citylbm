@@ -12,10 +12,10 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 ## Reproducibility Anchor
 
 - Canonical rebuild command from the release package root: `& .\scripts\rebuild_experiment3_paper_assets.ps1`
-- Key result matrix rows: `24`
+- Key result matrix rows: `25`
 - Reviewer-facing figure/table assets: `12`
 - Ready-for-manual-review assets: `12`
-- Evidence inventory rows before this audit upsert: `133`
+- Evidence inventory rows before this audit upsert: `134`
 - GitHub archive manifest refresh: performed at the end of `rebuild_experiment3_paper_assets.ps1`
 
 ## Paper-Ready Claim Layers
@@ -46,6 +46,7 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 | Submission statements readiness              | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Do the data, code and reproducibility statements distinguish archived files, external assets and blocked claims? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.     |
 | Claim-verification hygiene                   | newly_run + preexisting_artifact           | paper_ready_as_screening  | low             | Does every reviewer-facing claim-verification row have a named claim or asset identifier? Frame as a completed screening result under the archived FluidX3D protocol.                                                            |
 | Clean Chinese manuscript readiness           | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Is there a readable non-mojibake Chinese manuscript layer tied to the evidence matrix? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                               |
+| Chinese text quality readiness               | newly_run                                  | paper_ready_as_screening  | low             | What evidence supports this claim and where is the boundary? Frame as a completed screening result under the archived FluidX3D protocol.                                                                                         |
 
 ## Blocked Claims That Must Not Be Overstated
 

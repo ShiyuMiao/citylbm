@@ -6,7 +6,7 @@ These captions are tied to archived source artifacts. They should be edited only
 
 ## Fig. E3-1
 
-图 E3-1. TUM Downtown 核心校园街区在行人高度的 FluidX3D/VTK 风速比筛查图。图中结果来自 dx=2 m、8 个来流方向、三时刻采样后的核心闭合棱柱碰撞几何，用于人工审核低风速区、方向一致性和建筑周边滞风格局。该图支持“行人层以低速和通风不足为主”的筛查性结论，但不支持年度舒适度合规、实测验证或污染物扩散结论。
+图 E3-1. TUM Downtown 核心校园街区行人高度 FluidX3D/VTK 风速比筛查图。结果来自 dx=2 m、八个来流方向、三个采样时刻的核心闭合棱柱碰撞几何，用于人工审核低风速区、方向一致性和建筑周边滞风格局。该图支持“行人层以低速和通风不足为主”的筛查性结论，但不支持年度舒适度合规、实测验证或污染物扩散结论。
 
 - Asset: `figures/paraview_vtk_core_dx2m_statistical_maps_z2m.png`
 - Source data: `figures/paraview_vtk_core_dx2m_robustness_stats.csv; figures/fluidx3d_core_prism_timesampled_8dir_dx2m_metrics.csv`
@@ -15,7 +15,7 @@ These captions are tied to archived source artifacts. They should be edited only
 
 ## Fig. E3-2
 
-图 E3-2. 基础建筑形态参数与 20-50 m 局地环境风速响应的多变量稳健性分析。图中排序回归系数和置换重要度显示，局地围合度、平均高度和综合围合指标比单体占地面积、平面伸长率或紧凑度更能解释样本内风速差异。由于交叉验证解释力有限，该图应写成可解释筛查证据，而不是高精度预测模型。
+图 E3-2. 基础建筑形态参数与 20-50 m 局地环境带风速响应的多变量稳健性分析。排序回归系数和置换重要度显示，在本样本中局地围合度、平均高度和综合围合指标比单体占地面积、平面伸长率或紧凑度更能解释风速差异。由于交叉验证解释力有限，该图应写成可解释筛查证据，而不是高精度预测模型。
 
 - Asset: `figures/basic_morphology_multivariate_rank_model_importance.png`
 - Source data: `figures/basic_morphology_multivariate_robustness.csv; figures/basic_morphology_rank_model_cv_summary.csv`
@@ -33,7 +33,7 @@ These captions are tied to archived source artifacts. They should be edited only
 
 ## Fig. E3-4
 
-图 E3-4. 0-20 m 近立面带到 20-50 m 局地环境带的风速恢复阈值规则筛查。分析在同一组 101 个保留建筑单元上比较近立面与局地环境响应，提取样本内 tertile 组合规则。最佳简单规则提示较低相对竖向尺度和特定平面形态组合更易出现局地恢复，但该阈值仅用于数字孪生样本内设计筛查，不能外推为通用规范或实测验证结论。
+图 E3-4. 0-20 m 近立面带到 20-50 m 局地环境带的风速恢复阈值规则筛查。分析在同一组 101 个保留建筑构件上比较近立面与局地环境响应，并提取样本内 tertile 组合规则。最佳简单规则提示较低相对竖向尺度和特定平面形态组合更易出现局地恢复，但该阈值仅用于数字孪生样本内设计筛查，不能外推为通用规范或实测验证结论。
 
 - Asset: `figures/morphology_threshold_recovery_rule_summary.png`
 - Source data: `figures/morphology_threshold_rule_screening.csv; figures/morphology_recovery_top_bottom_contrast.csv`
@@ -51,7 +51,7 @@ These captions are tied to archived source artifacts. They should be edited only
 
 ## Fig. E3-S2
 
-图 E3-S2. 实验3八风向各向异性与设计扇区响应补充图。图中比较 S0 行人层 mean VR、行人层滞风比例、40 m-2 m 竖向恢复以及 S2 common-open-cell 局地响应。结果显示行人层低速和高滞风在八个来流方向中近似全向存在，而 S2 的局部响应具有方向性，最强响应出现在 315 deg；但S1/S2全局行人层 mean-VR delta 在全部方向上仍为负。该图支持风扇区耦合的设计解释，不支持年度风玫瑰合规或成功优化宣称。
+图 E3-S2. 实验3八风向各向异性与设计扇区响应补充图。图中比较 S0 行人层 mean VR、行人层滞风比例、40 m-2 m 竖向恢复以及 S2 common-open-cell 局地响应。结果显示行人层低速和高滞风在八个来流方向中近似全向存在，而 S2 的局部响应具有方向性，最强响应出现在 315 deg；但 S1/S2 全局行人层 mean-VR delta 在全部方向上仍为负。该图支持风扇区耦合的设计解释，不支持年度风玫瑰合规或成功优化宣称。
 
 - Asset: `figures/experiment3_directional_anisotropy_panel.png`
 - Source data: `figures/experiment3_directional_anisotropy_summary.csv; figures/experiment3_directional_response_by_wind.csv`
@@ -69,7 +69,7 @@ These captions are tied to archived source artifacts. They should be edited only
 
 ## Fig. E3-S4
 
-图 E3-S4. 建筑形态阶段转化分析补充图。图中把 101 个保留建筑构件的风响应分解为 0-20 m 近立面低速阶段、20-50 m 局地环境恢复阶段和方向性响应阶段。结果显示，近立面带几乎为低速饱和区，而 20-50 m 带揭示了与相对竖向尺度、平面延展性和局地围合相关的恢复差异。该图用于数字孪生设计筛查，不代表实测验证的因果阈值或通用设计规范。
+图 E3-S4. 建筑形态阶段转换分析补充图。图中把 101 个保留建筑构件的风响应分解为 0-20 m 近立面低速阶段、20-50 m 局地环境恢复阶段和方向性响应阶段。结果显示近立面带几乎为低速饱和区，而 20-50 m 带揭示了与相对竖向尺度、平面延展性和局地围合相关的恢复差异。该图用于数字孪生设计筛查，不代表实测验证的因果阈值或通用设计规范。
 
 - Asset: `figures/morphology_stage_transition_panel.png`
 - Source data: `figures/morphology_stage_transition_summary.csv; figures/morphology_stage_transition_feature_contrasts.csv; figures/morphology_stage_transition_rule_table.csv`
@@ -78,7 +78,7 @@ These captions are tied to archived source artifacts. They should be edited only
 
 ## Fig. E3-S5
 
-鍥?E3-S5. 20-50 m 灞€鍦扮幆澧冨甫鐨勫缓绛戝舰鎬佹柟鍚戞€ф寚绾瑰垎鏋愩€傚浘涓皢 101 涓繚鐣欏缓绛戞瀯浠剁殑鍏鍚?mean VR 鑼冨洿銆佹柟鍚戝搷搴旀瘮鍊笺€佹渶浣冲搷搴旈鍚戜笌鍩虹褰㈡€佸弬鏁板拰闃舵杞寲绫诲瀷鑱旂郴璧锋潵銆傜粨鏋滄樉绀猴紝persistent shelter 鏋勪欢鍚屾椂鍏锋湁浣庡钩鍧?VR 鍜屼綆鏂瑰悜鑼冨洿锛岃€宯ear-to-context recovery 鍜宒irectionally reactive 鏋勪欢鏇磋兘琛ㄧ幇鍑烘潵娴佹墖鍖哄搷搴旂殑宸紓銆傝鍥炬敮鎸佹暟瀛楀鐢熻璁＄瓫鏌ワ紝涓嶆敮鎸佸疄娴嬮獙璇佺殑鍥犳灉闃堝€兼垨骞村害椋庣帿鐟板悎瑙勮瘎浠枫€?
+图 E3-S5. 20-50 m 局地环境带的建筑形态方向性指纹分析。图中将 101 个保留建筑构件的八风向 mean VR 范围、方向响应比、最佳响应风向与基础形态参数和阶段转换类型联系起来。persistent shelter 构件同时具有低平均 VR 和低方向范围，而 near-to-context recovery 和 directionally reactive 构件更能表现出来流扇区响应的差异。该图支持数字孪生设计筛查，不支持实测验证的因果阈值或年度风玫瑰合规评价。
 
 - Asset: `figures/morphology_directional_fingerprint_panel.png`
 - Source data: `figures/morphology_directional_fingerprint_by_component.csv; figures/morphology_directional_fingerprint_feature_correlations.csv; figures/morphology_directional_fingerprint_stage_summary.csv`
