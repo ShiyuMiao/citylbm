@@ -8,8 +8,8 @@ This audit checks paper-facing Chinese Markdown files for common mojibake patter
 
 ## Summary
 
-- Chinese/draft Markdown files scanned: `49`
-- Passed files: `49`
+- Chinese/draft Markdown files scanned: `50`
+- Passed files: `50`
 - Files requiring review: `0`
 - Canonical direct-use files scanned: `8`
 - Canonical direct-use files requiring review: `0`

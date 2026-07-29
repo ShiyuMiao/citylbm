@@ -234,6 +234,13 @@ def main() -> None:
             "paper_safe_interpretation": "Manuscript-facing Chinese Markdown files are checked for mojibake and replacement-character corruption after regeneration; this is text-integrity evidence, not additional CFD validation.",
         },
         {
+            "requirement": "Original user-request fulfillment audit",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/experiment3_original_request_fulfillment_audit.csv; reports/experiment3_original_request_fulfillment_audit.md; paper_text/experiment3_original_request_fulfillment_summary_zh.md",
+            "paper_safe_interpretation": "The original experiment-preparation request is mapped to current files, evidence types and claim boundaries; blocked scientific claims remain explicitly excluded.",
+        },
+        {
             "requirement": "Checkout-stable GitHub archive manifest",
             "status": "complete",
             "evidence_type": "newly_run",
