@@ -206,6 +206,13 @@ def main() -> None:
             "paper_safe_interpretation": "The figure/table narrative chain maps each visual or tabular asset to a manuscript claim, placement, boundary and manual-review action.",
         },
         {
+            "requirement": "Journal-neutral submission statements",
+            "status": "complete_with_author_input_placeholders",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/experiment3_submission_statement_evidence_map.csv; reports/experiment3_submission_statement_package.md; paper_text/experiment3_submission_statements_en.md",
+            "paper_safe_interpretation": "Data, code, reproducibility, computational-resource and evidence-boundary statements are evidence-mapped; funding, conflicts, acknowledgements and author-contribution fields require author input.",
+        },
+        {
             "requirement": "Checkout-stable GitHub archive manifest",
             "status": "complete",
             "evidence_type": "newly_run",

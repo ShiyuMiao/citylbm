@@ -42,3 +42,4 @@ Table E3-3,newly_run + preexisting_artifact,manifests/gcri_scoring_table.csv,fig
 ,newly_run + preexisting_artifact + blocked,manifests/experiment3_research_question_evidence_matrix.csv; reports/experiment3_research_question_synthesis.md,,,
 ,newly_run + preexisting_artifact + blocked,manifests/experiment3_limitations_future_validation_roadmap.csv; reports/experiment3_limitations_future_validation_roadmap.md,,,
 ,newly_run + preexisting_artifact + blocked,manifests/experiment3_figure_table_narrative_chain.csv; reports/experiment3_figure_table_narrative_chain.md,,,
+module_claim_SUBMISSION_STATEMENTS,newly_run + preexisting_artifact + blocked,manifests/experiment3_submission_statement_evidence_map.csv; reports/experiment3_submission_statement_package.md,data/code/reproducibility/computational-resource statements complete with author-input placeholders,Use as manuscript submission statements and reviewer-facing reproducibility boundary.,paper_ready_with_boundary
