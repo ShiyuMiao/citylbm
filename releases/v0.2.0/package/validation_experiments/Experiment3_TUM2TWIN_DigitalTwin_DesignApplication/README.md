@@ -86,7 +86,9 @@ Core distinction:
 43. `paper_text/experiment3_research_question_answer_paragraphs_zh.md`
 44. `reports/experiment3_limitations_future_validation_roadmap.md`
 45. `paper_text/experiment3_limitations_future_validation_roadmap_zh.md`
-46. `reports/github_archive_manifest_validation.md`
+46. `reports/experiment3_figure_table_narrative_chain.md`
+47. `paper_text/experiment3_figure_table_narrative_chain_zh.md`
+48. `reports/github_archive_manifest_validation.md`
 
 ## Current Main Conclusion
 
@@ -428,6 +430,24 @@ residual/grid-convergence records, CityLBM-Grasshopper execution, pollutant
 transport, GCBTE computation, S3-Sn positive design interventions, and
 cross-site morphology replication.
 
+## Figure and Table Narrative Chain
+
+The archive now includes a figure/table narrative chain that maps each planned
+main or supplementary asset to its manuscript role, supported claim, claim
+boundary and manual-review action.
+
+- `scripts/synthesize_experiment3_figure_narrative_chain.py`
+- `manifests/experiment3_figure_table_narrative_chain.csv`
+- `reports/experiment3_figure_table_narrative_chain.md`
+- `paper_text/experiment3_figure_table_narrative_chain_zh.md`
+- `paper_text/experiment3_figure_table_narrative_chain_en.md`
+
+Paper-safe interpretation: figures should be used in a claim-building sequence:
+baseline low-speed screening, geometry-to-CFD evidence, building-form mechanism,
+negative design sensitivity, and claim-boundary closure. No figure should be
+used to imply field validation, annual compliance, pollutant results, GCBTE
+closure, CityLBM-Grasshopper execution or successful optimization.
+
 ## Reviewer Reproducibility and Claim-Risk Layer
 
 The archive now includes a reviewer-facing reproducibility and claim-risk audit
@@ -457,7 +477,7 @@ conversion.
 - `manifests/github_archive_manifest.csv`
 - `reports/github_archive_manifest_validation.md`
 
-Audit result: the current manifest contains 492 archived files, 0 missing
+Audit result: the current manifest contains 497 archived files, 0 missing
 files, and 0 SHA256 mismatches. Large raw datasets and external VTK assets
 remain recorded through `EXTERNAL_ARTIFACTS.md` rather than embedded in the
 GitHub release package.
@@ -477,8 +497,8 @@ verification, and remaining blockers are mutually consistent.
 - `paper_text/experiment3_final_contribution_and_conclusion_en.md`
 - `academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md`
 
-Audit result: the final archive currently contains 20 key result rows, 12
-reviewer-facing figure/table callouts, 12 ready submission assets, and 127
+Audit result: the final archive currently contains 21 key result rows, 12
+reviewer-facing figure/table callouts, 12 ready submission assets, and 129
 evidence-inventory entries. It is complete for a standalone Experiment 3
 section if framed as FluidX3D-native digital-twin-to-CFD wind screening with
 CityLBM-compatible geometry preparation. It remains incomplete for field

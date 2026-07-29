@@ -1,0 +1,9 @@
+# Experiment 3 Figure and Table Narrative Paragraphs
+
+evidence_type: newly_run + preexisting_artifact + blocked
+
+The figures and tables should follow a claim-building sequence rather than a simple list of post-processing outputs. Fig. E3-1 should open the Results section by showing the pedestrian-layer low-speed and stagnation pattern in the TUM Downtown core, thereby framing the problem as ventilation-insufficiency screening rather than strong-wind hazard or compliance assessment. Table E3-3 and Table E3-1 should then establish how the digital-twin source data are transferred from visual audit layers to CFD-ready collision geometry and how the main GCRI, FluidX3D protocol, result metrics and evidence types are made auditable.
+
+The building-form analysis should be supported by Fig. E3-2 and Fig. E3-4 in the main text. Fig. E3-2 emphasizes the interpretability of basic morphology descriptors rather than predictive accuracy, while Fig. E3-4 connects 0-20 m facade-adjacent low-speed saturation with 20-50 m local-context recovery. Supplementary Figs. E3-S3, E3-S4 and E3-S5 then provide the detailed morphology-response archetype, stage-transition and directional-fingerprint evidence behind the conclusion that building-form influence is staged, contextual and wind-sector dependent.
+
+The design-application section should use Fig. E3-3 and Fig. E3-S2 without presenting S1/S2 as successful optimizations. Their role is to show negative sensitivity evidence: increasing porosity area or corridor count alone does not restore global pedestrian-layer ventilation. Finally, Table E3-2 and the limitations roadmap should close the Discussion by clarifying that Experiment 3 supports screening and design interpretation, but not field validation, annual comfort/safety compliance, pollutant dispersion, GCBTE closure or CityLBM-Grasshopper end-to-end execution.

@@ -199,6 +199,13 @@ def main() -> None:
             "paper_safe_interpretation": "The roadmap turns blocked claims into conditional validation tasks and prevents future-work items from being described as completed evidence.",
         },
         {
+            "requirement": "Figure/table narrative chain",
+            "status": "complete_with_boundary",
+            "evidence_type": "newly_run + preexisting_artifact + blocked",
+            "evidence_artifact": "manifests/experiment3_figure_table_narrative_chain.csv; reports/experiment3_figure_table_narrative_chain.md; paper_text/experiment3_figure_table_narrative_chain_en.md",
+            "paper_safe_interpretation": "The figure/table narrative chain maps each visual or tabular asset to a manuscript claim, placement, boundary and manual-review action.",
+        },
+        {
             "requirement": "Checkout-stable GitHub archive manifest",
             "status": "complete",
             "evidence_type": "newly_run",

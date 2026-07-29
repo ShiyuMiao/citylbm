@@ -12,10 +12,10 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 ## Reproducibility Anchor
 
 - Canonical rebuild command from the release package root: `& .\scripts\rebuild_experiment3_paper_assets.ps1`
-- Key result matrix rows: `20`
+- Key result matrix rows: `21`
 - Reviewer-facing figure/table assets: `12`
 - Ready-for-manual-review assets: `12`
-- Evidence inventory rows before this audit upsert: `127`
+- Evidence inventory rows before this audit upsert: `129`
 - GitHub archive manifest refresh: performed at the end of `rebuild_experiment3_paper_assets.ps1`
 
 ## Paper-Ready Claim Layers
@@ -42,6 +42,7 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 | SCI abstract and highlights readiness        | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Does the abstract remain no stronger than the verified discussion evidence? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                          |
 | Research-question synthesis readiness        | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Do the research-question answers convert evidence into claims without expanding beyond the archive? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                  |
 | Limitations and validation roadmap readiness | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Does the limitations section define evidence needed for stronger claims without implying those claims are completed? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible. |
+| Figure-table narrative readiness             | newly_run + preexisting_artifact + blocked | paper_ready_with_boundary | medium          | Does each figure or table support only the manuscript claim it is allowed to support? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                |
 
 ## Blocked Claims That Must Not Be Overstated
 
@@ -68,6 +69,7 @@ each paper-facing claim has an evidence type, source artifact and boundary.
 | SCI abstract and highlights readiness        | newly_run + preexisting_artifact + blocked | manifests/experiment3_abstract_highlights_evidence_map.csv; paper_text/experiment3_sci_abstract_highlights_keywords_en.md                                                                      | Does the abstract remain no stronger than the verified discussion evidence? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                          |
 | Research-question synthesis readiness        | newly_run + preexisting_artifact + blocked | manifests/experiment3_research_question_evidence_matrix.csv; paper_text/experiment3_research_question_answer_paragraphs_en.md                                                                  | Do the research-question answers convert evidence into claims without expanding beyond the archive? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                  |
 | Limitations and validation roadmap readiness | newly_run + preexisting_artifact + blocked | manifests/experiment3_limitations_future_validation_roadmap.csv; reports/experiment3_limitations_future_validation_roadmap.md                                                                  | Does the limitations section define evidence needed for stronger claims without implying those claims are completed? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible. |
+| Figure-table narrative readiness             | newly_run + preexisting_artifact + blocked | manifests/experiment3_figure_table_narrative_chain.csv; reports/experiment3_figure_table_narrative_chain.md                                                                                    | Does each figure or table support only the manuscript claim it is allowed to support? Frame as screening-level FluidX3D/digital-twin evidence; keep source artifact and blocked boundary visible.                                |
 
 ## Reviewer-Safe Summary
 

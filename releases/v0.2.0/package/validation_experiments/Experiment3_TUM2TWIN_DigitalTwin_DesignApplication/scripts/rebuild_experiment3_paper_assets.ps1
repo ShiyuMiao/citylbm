@@ -35,6 +35,7 @@ Invoke-PythonStep "scripts\synthesize_experiment3_final_sci_discussion_package.p
 Invoke-PythonStep "scripts\synthesize_experiment3_sci_abstract_highlights.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_research_question_synthesis.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_limitations_validation_roadmap.py"
+Invoke-PythonStep "scripts\synthesize_experiment3_figure_narrative_chain.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_reviewer_reproducibility_pack.py"
 Invoke-PythonStep "scripts\refresh_github_archive_manifest.py"
 Invoke-PythonStep "scripts\synthesize_experiment3_final_completeness_audit.py"
