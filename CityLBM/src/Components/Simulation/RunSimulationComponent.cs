@@ -82,9 +82,12 @@ namespace CityLBM.Components.Simulation
             // 触发 / 取消
             pManager.AddBooleanParameter("Run", "Run", "True = 开始；若已运行中则重新启动", GH_ParamAccess.item, false);
             pManager.AddBooleanParameter("Cancel", "Stop", "True = 取消当前后台运行", GH_ParamAccess.item, false);
+            pManager.AddBooleanParameter("AIJ Case E Preset", "CaseE",
+                "True = apply the official AIJ Case E ac+N z=2m validation preset. This is an accuracy protocol preset, not a success claim.",
+                GH_ParamAccess.item, false);
 
             // 全部可选（除 Scene 和 Grid）
-            for (int i = 2; i <= 9; i++) pManager[i].Optional = true;
+            for (int i = 2; i <= 10; i++) pManager[i].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
@@ -110,6 +113,7 @@ namespace CityLBM.Components.Simulation
             int saveInterval = 500;
             bool run = false;
             bool cancel = false;
+            bool useCaseEPreset = false;
 
             if (!DA.GetData(0, ref ghScene)) return;
             if (!DA.GetData(1, ref ghGrid)) return;
@@ -121,6 +125,7 @@ namespace CityLBM.Components.Simulation
             DA.GetData(7, ref saveInterval);
             DA.GetData(8, ref run);
             DA.GetData(9, ref cancel);
+            DA.GetData(10, ref useCaseEPreset);
 
             // ── GH 加载期保护 ────────────────────────────────────────────
             // 使用宽限期策略：组件创建后 3 秒内认为 GH 可能还在加载
@@ -217,7 +222,8 @@ namespace CityLBM.Components.Simulation
             {
                 Viscosity = viscosity,
                 TimeSteps = timeSteps,
-                SaveInterval = saveInterval
+                SaveInterval = saveInterval,
+                UseAijCaseEPreset = useCaseEPreset
             };
             settings.SetInletVelocity(scene.WindDirection, scene.WindSpeed);
 
