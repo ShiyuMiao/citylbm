@@ -1,0 +1,4 @@
+dx_m,geometry_bbox_full_scale_m,bbox_cells_nx_ny_nz,bbox_cell_count,illustrative_domain_m,illustrative_domain_cells_nx_ny_nz,illustrative_domain_cell_count,evidence_type,claim_boundary
+3,395.317x395.151x60.000,132x132x21,365904,995.317x1595.152x360.000,332x532x121,21371504,newly_run_feasibility_estimate,memory/grid sizing only; not solver execution or mesh-independence evidence
+2,395.317x395.151x60.000,198x198x31,1215324,995.317x1595.152x360.000,498x798x181,71930124,newly_run_feasibility_estimate,memory/grid sizing only; not solver execution or mesh-independence evidence
+1,395.317x395.151x60.000,396x396x61,9565776,995.317x1595.152x360.000,996x1596x361,573851376,newly_run_feasibility_estimate,memory/grid sizing only; not solver execution or mesh-independence evidence
