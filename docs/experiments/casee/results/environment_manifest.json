@@ -1,0 +1,25 @@
+{
+  "python": "3.12.7",
+  "platform": "Windows-2022Server-10.0.26100-SP0",
+  "dotnet": {
+    "command": "dotnet --info",
+    "found": false,
+    "returncode": null,
+    "stdout": "",
+    "stderr": "not found"
+  },
+  "nvidia_smi": {
+    "command": "nvidia-smi",
+    "found": false,
+    "returncode": null,
+    "stdout": "",
+    "stderr": "not found"
+  },
+  "fluidx3d": {
+    "command": "FluidX3D --help",
+    "found": false,
+    "returncode": null,
+    "stdout": "",
+    "stderr": "not found"
+  }
+}

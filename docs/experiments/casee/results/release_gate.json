@@ -1,0 +1,43 @@
+{
+  "generated_at": "2026-07-30T11:06:52.927144+00:00",
+  "release_target": "v0.3.0",
+  "formal_v0_3_0_allowed": false,
+  "recommended_tag": "v0.3.0-rc1",
+  "checks": {
+    "citylbm_build_passed": false,
+    "rhino_loaded_new_gha": false,
+    "native_fluidx3d_dx3_completed": false,
+    "native_fluidx3d_dx2_completed": false,
+    "official_z2m_metric_gate": false,
+    "casea_smoke_regression_passed": false,
+    "readme_changelog_release_notes_updated": true,
+    "evidence_trace_complete_for_available_artifacts": true
+  },
+  "metrics": null,
+  "environment_summary": {
+    "python": "3.12.7",
+    "platform": "Windows-2022Server-10.0.26100-SP0",
+    "dotnet": {
+      "command": "dotnet --info",
+      "found": false,
+      "returncode": null,
+      "stdout": "",
+      "stderr": "not found"
+    },
+    "nvidia_smi": {
+      "command": "nvidia-smi",
+      "found": false,
+      "returncode": null,
+      "stdout": "",
+      "stderr": "not found"
+    },
+    "fluidx3d": {
+      "command": "FluidX3D --help",
+      "found": false,
+      "returncode": null,
+      "stdout": "",
+      "stderr": "not found"
+    }
+  },
+  "blocking_reason": "Build/runtime/native FluidX3D evidence is incomplete; do not create formal v0.3.0 tag."
+}

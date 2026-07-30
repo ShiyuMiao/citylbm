@@ -1,0 +1,6 @@
+﻿timestamp=2026-07-30T19:07:29.3279886+08:00
+nvidia-smi:
+The term 'nvidia-smi' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+FluidX3D command:
+The term 'FluidX3D' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+FluidX3D.exe recursive search under C:\ returned none in prior check.

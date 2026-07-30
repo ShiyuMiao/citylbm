@@ -10,6 +10,42 @@ CityLBM is under active academic development.
 The repository currently serves as a reference point for the project
 and will be progressively updated.
 
+## AIJ Case E v0.3.0 Release Gate
+
+The active Experiment 2 branch is preparing CityLBM v0.3.0 around AIJ Case E
+`ac+N` validation. Formal validation is locked to the official z=2 m probe
+set: `RS_caseE.csv` filtered by `case=ac` and `Wind_direction=N` gives 80
+probes. Diagnostic height offsets such as `z_plus_half` or `z+4.5 m` are not
+accepted as formal validation results.
+
+Current Case E materials:
+
+- `docs/experiments/casee/data_manifest.csv`
+- `docs/experiments/casee/casee_preset.json`
+- `docs/experiments/casee/casee_protocol.md`
+- `docs/experiments/casee/tools/casee_audit.py`
+- `docs/experiments/casee/tools/release_gate.py`
+- `docs/releases/v0.3.0-rc1.md`
+
+Run the audit after official data are present:
+
+```powershell
+python docs/experiments/casee/tools/casee_audit.py
+python docs/experiments/casee/tools/release_gate.py
+```
+
+If a complete solver output exists, provide a CSV with 80 probe predictions:
+
+```powershell
+python docs/experiments/casee/tools/casee_audit.py --predicted path\to\casee_probe_time_mean.csv
+```
+
+The release gate fails closed unless CityLBM builds, the new GHA is loaded in
+Rhino/Grasshopper, native FluidX3D dx=3 m and dx=2 m official z=2 m runs
+complete, MAE improves clearly below the previous ~20 percentage-point level,
+R2 and Pearson are positive, Case A smoke regression passes, and all metrics
+trace to command/log/CSV/figure artifacts.
+
 ## Research Experiment Archive
 
 The v0.2.0 package includes a validation/application evidence archive under
