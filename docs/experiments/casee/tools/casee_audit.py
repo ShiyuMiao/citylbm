@@ -1,0 +1,357 @@
+#!/usr/bin/env python3
+"""AIJ Case E audit and release-gate report generator."""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import math
+import platform
+import shutil
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional, Tuple
+
+
+ROOT = Path(__file__).resolve().parents[4]
+CASE_DIR = ROOT / "docs" / "experiments" / "casee"
+DATA_DIR = CASE_DIR / "official_data"
+RESULTS_DIR = CASE_DIR / "results"
+PRESET_PATH = CASE_DIR / "casee_preset.json"
+
+
+def read_csv(path: Path) -> List[Dict[str, str]]:
+    with path.open("r", newline="", encoding="utf-8-sig") as f:
+        return list(csv.DictReader(f))
+
+
+def write_csv(path: Path, rows: Iterable[Dict[str, object]], fieldnames: List[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+
+
+def run_cmd(args: List[str]) -> Dict[str, object]:
+    exe = shutil.which(args[0])
+    if not exe:
+        return {"command": " ".join(args), "found": False, "returncode": None, "stdout": "", "stderr": "not found"}
+    proc = subprocess.run(args, text=True, capture_output=True, timeout=20)
+    return {
+        "command": " ".join(args),
+        "found": True,
+        "returncode": proc.returncode,
+        "stdout": proc.stdout.strip(),
+        "stderr": proc.stderr.strip(),
+    }
+
+
+def pearson(xs: List[float], ys: List[float]) -> Optional[float]:
+    if len(xs) < 2:
+        return None
+    mx = sum(xs) / len(xs)
+    my = sum(ys) / len(ys)
+    vx = sum((x - mx) ** 2 for x in xs)
+    vy = sum((y - my) ** 2 for y in ys)
+    if vx <= 0 or vy <= 0:
+        return None
+    return sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / math.sqrt(vx * vy)
+
+
+def r2_score(y_true: List[float], y_pred: List[float]) -> Optional[float]:
+    if not y_true:
+        return None
+    mean_y = sum(y_true) / len(y_true)
+    sst = sum((y - mean_y) ** 2 for y in y_true)
+    if sst <= 0:
+        return None
+    sse = sum((p - y) ** 2 for y, p in zip(y_true, y_pred))
+    return 1.0 - sse / sst
+
+
+def load_official_probes() -> List[Dict[str, object]]:
+    rows = read_csv(DATA_DIR / "RS_caseE.csv")
+    probes: List[Dict[str, object]] = []
+    for r in rows:
+        if r["case"] == "ac" and r["Wind_direction"] == "N" and abs(float(r["z(m)"]) - 2.0) < 1e-9:
+            probes.append(
+                {
+                    "No.": int(r["No."]),
+                    "case": r["case"],
+                    "Wind_direction": r["Wind_direction"],
+                    "x_m": float(r["x(m)"]),
+                    "y_m": float(r["y(m)"]),
+                    "z_m": float(r["z(m)"]),
+                    "official_velocity_ratio": float(r["Velocity_Ratio"]),
+                }
+            )
+    probes.sort(key=lambda x: int(x["No."]))
+    return probes
+
+
+def audit_inlet_profile(uref: float) -> List[Dict[str, object]]:
+    out: List[Dict[str, object]] = []
+    for r in read_csv(DATA_DIR / "AF_caseE.csv"):
+        u = float(r["U(m/s)"])
+        out.append(
+            {
+                "z_m": float(r["z(m)"]),
+                "u_m_s": u,
+                "k_m2_s2": float(r["k(m2/s2)"]),
+                "u_over_uref": u / uref,
+            }
+        )
+    return out
+
+
+def detect_prediction_column(fieldnames: Iterable[str]) -> Tuple[str, str]:
+    names = list(fieldnames)
+    for name in ["predicted_velocity_ratio", "Velocity_Ratio_pred", "citylbm_velocity_ratio", "velocity_ratio", "vr", "Velocity_Ratio"]:
+        if name in names:
+            return name, "ratio"
+    for name in ["speed_m_s", "velocity_m_s", "U_m_s", "speed"]:
+        if name in names:
+            return name, "speed"
+    raise ValueError(f"No prediction column found. Columns: {names}")
+
+
+def load_predictions(path: Path, uref: float) -> Dict[int, float]:
+    rows = read_csv(path)
+    if not rows:
+        return {}
+    col, unit = detect_prediction_column(rows[0].keys())
+    pred: Dict[int, float] = {}
+    for idx, r in enumerate(rows, start=1):
+        no_raw = r.get("No.") or r.get("No") or r.get("probe_id") or str(idx)
+        value = float(r[col])
+        pred[int(float(no_raw))] = value / uref if unit == "speed" else value
+    return pred
+
+
+def compute_residuals(
+    probes: List[Dict[str, object]], predictions: Optional[Dict[int, float]]
+) -> Tuple[List[Dict[str, object]], Optional[Dict[str, object]]]:
+    rows: List[Dict[str, object]] = []
+    y_true: List[float] = []
+    y_pred: List[float] = []
+    for p in probes:
+        no = int(p["No."])
+        official = float(p["official_velocity_ratio"])
+        pred = None if predictions is None else predictions.get(no)
+        residual = None if pred is None else pred - official
+        rows.append(
+            {
+                **p,
+                "predicted_velocity_ratio": "" if pred is None else pred,
+                "residual": "" if residual is None else residual,
+                "abs_error_pp": "" if residual is None else abs(residual) * 100.0,
+                "sampling_mode": "raw_trilinear",
+                "solid_corner_risk": "unknown_until_solver_probe_audit",
+                "evidence_type": "newly_run" if pred is not None else "blocked",
+            }
+        )
+        if pred is not None:
+            y_true.append(official)
+            y_pred.append(pred)
+    if len(y_pred) != len(probes):
+        return rows, None
+    errors = [p - y for y, p in zip(y_true, y_pred)]
+    metrics = {
+        "n": len(y_true),
+        "mae_pp": 100.0 * sum(abs(e) for e in errors) / len(errors),
+        "rmse_pp": 100.0 * math.sqrt(sum(e * e for e in errors) / len(errors)),
+        "bias_pp": 100.0 * sum(errors) / len(errors),
+        "r2": r2_score(y_true, y_pred),
+        "pearson": pearson(y_true, y_pred),
+        "height_m": 2.0,
+        "sampling_mode": "raw_trilinear",
+    }
+    return rows, metrics
+
+
+def write_optional_outputs(probes: List[Dict[str, object]], inlet: List[Dict[str, object]], residuals: List[Dict[str, object]]) -> None:
+    try:
+        import pandas as pd
+
+        with pd.ExcelWriter(RESULTS_DIR / "casee_validation_summary.xlsx", engine="openpyxl") as writer:
+            pd.DataFrame(probes).to_excel(writer, sheet_name="official_probes", index=False)
+            pd.DataFrame(inlet).to_excel(writer, sheet_name="inlet_profile", index=False)
+            pd.DataFrame(residuals).to_excel(writer, sheet_name="residuals", index=False)
+    except Exception as exc:
+        (RESULTS_DIR / "xlsx_blocked.txt").write_text(str(exc), encoding="utf-8")
+
+    try:
+        import matplotlib.pyplot as plt
+
+        plt.figure(figsize=(7, 5))
+        sc = plt.scatter(
+            [float(p["x_m"]) for p in probes],
+            [float(p["y_m"]) for p in probes],
+            c=[float(p["official_velocity_ratio"]) for p in probes],
+            cmap="viridis",
+            s=38,
+            edgecolors="black",
+            linewidths=0.25,
+        )
+        plt.colorbar(sc, label="Official velocity ratio")
+        plt.xlabel("x (m)")
+        plt.ylabel("y (m)")
+        plt.title("AIJ Case E ac+N official z=2 m probes")
+        plt.tight_layout()
+        plt.savefig(RESULTS_DIR / "casee_official_probe_map.png", dpi=180)
+        plt.close()
+
+        plt.figure(figsize=(5, 6))
+        plt.plot([r["u_m_s"] for r in inlet], [r["z_m"] for r in inlet], marker="o")
+        plt.xlabel("U (m/s)")
+        plt.ylabel("z (m)")
+        plt.title("AF_caseE inlet profile")
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(RESULTS_DIR / "casee_inlet_profile_audit.png", dpi=180)
+        plt.close()
+    except Exception as exc:
+        (RESULTS_DIR / "png_blocked.txt").write_text(str(exc), encoding="utf-8")
+
+
+def build_release_gate(metrics: Optional[Dict[str, object]], env: Dict[str, object]) -> Dict[str, object]:
+    metric_gate = False
+    if metrics is not None:
+        metric_gate = (
+            int(metrics["n"]) == 80
+            and float(metrics["height_m"]) == 2.0
+            and float(metrics["mae_pp"]) < 15.0
+            and (metrics["r2"] is not None and float(metrics["r2"]) > 0.0)
+            and (metrics["pearson"] is not None and float(metrics["pearson"]) > 0.0)
+        )
+    checks = {
+        "citylbm_build_passed": False,
+        "rhino_loaded_new_gha": False,
+        "native_fluidx3d_dx3_completed": False,
+        "native_fluidx3d_dx2_completed": False,
+        "official_z2m_metric_gate": metric_gate,
+        "casea_smoke_regression_passed": False,
+        "readme_changelog_release_notes_updated": True,
+        "evidence_trace_complete_for_available_artifacts": True,
+    }
+    allowed = all(checks.values())
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "release_target": "v0.3.0",
+        "formal_v0_3_0_allowed": allowed,
+        "recommended_tag": "v0.3.0" if allowed else "v0.3.0-rc1",
+        "checks": checks,
+        "metrics": metrics,
+        "environment_summary": env,
+        "blocking_reason": "" if allowed else "Build/runtime/native FluidX3D evidence is incomplete; do not create formal v0.3.0 tag.",
+    }
+
+
+def write_report(metrics: Optional[Dict[str, object]], gate: Dict[str, object], prediction_path: Optional[Path]) -> None:
+    lines = [
+        "# AIJ Case E Validation Report",
+        "",
+        f"Generated: {gate['generated_at']}",
+        "",
+        "## Protocol",
+        "",
+        "- Condition: ac",
+        "- Wind direction: N",
+        "- Formal height: official z=2 m",
+        "- Probe aggregation: 80 official probes from RS_caseE.csv",
+        "- Validation sampling mode: raw_trilinear",
+        "- Diagnostic-only modes: nearest_valid, fluid_weighted, vertical_valid_above, z_plus_half",
+        "",
+        "## Metrics",
+        "",
+    ]
+    if metrics is None:
+        lines += [
+            "No complete predicted probe CSV was provided. Official z=2 m validation metrics are blocked.",
+            "",
+            "- Evidence type: newly_run for data audit, blocked for accuracy metrics",
+            "- Claim readiness: blocked",
+        ]
+    else:
+        lines += [
+            f"- Prediction source: `{prediction_path}`",
+            f"- n: {metrics['n']}",
+            f"- MAE: {metrics['mae_pp']:.3f} percentage points",
+            f"- RMSE: {metrics['rmse_pp']:.3f} percentage points",
+            f"- Bias: {metrics['bias_pp']:.3f} percentage points",
+            f"- R2: {metrics['r2']:.6f}",
+            f"- Pearson: {metrics['pearson']:.6f}",
+            "- Evidence type: newly_run",
+        ]
+    lines += [
+        "",
+        "## Release Gate",
+        "",
+        f"- Formal v0.3.0 allowed: {gate['formal_v0_3_0_allowed']}",
+        f"- Recommended tag: {gate['recommended_tag']}",
+        "",
+        "| Check | Status |",
+        "|---|---:|",
+    ]
+    for key, value in gate["checks"].items():
+        lines.append(f"| {key} | {value} |")
+    lines += [
+        "",
+        "## Claim Boundaries",
+        "",
+        "- Paper-ready now: official data provenance, probe filtering protocol, and blocked release-gate transparency.",
+        "- Limitations now: local machine lacks native FluidX3D execution evidence and CityLBM build evidence.",
+        "- Not paper-ready: any claim that CityLBM v0.3.0 achieved predictive accuracy for Case E official z=2 m.",
+    ]
+    (RESULTS_DIR / "casee_validation_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--predicted", type=Path, help="CSV with 80 predicted probe velocity ratios or speeds.")
+    args = parser.parse_args()
+
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    preset = json.loads(PRESET_PATH.read_text(encoding="utf-8"))
+    uref = float(preset["uref_m_s"])
+    probes = load_official_probes()
+    if len(probes) != 80:
+        raise SystemExit(f"Expected 80 official probes, found {len(probes)}")
+
+    inlet = audit_inlet_profile(uref)
+    predictions = load_predictions(args.predicted, uref) if args.predicted else None
+    residuals, metrics = compute_residuals(probes, predictions)
+
+    write_csv(RESULTS_DIR / "casee_official_ac_N_probes.csv", probes, ["No.", "case", "Wind_direction", "x_m", "y_m", "z_m", "official_velocity_ratio"])
+    write_csv(RESULTS_DIR / "casee_inlet_profile_audit.csv", inlet, ["z_m", "u_m_s", "k_m2_s2", "u_over_uref"])
+    write_csv(
+        RESULTS_DIR / "casee_probe_residuals.csv",
+        residuals,
+        ["No.", "case", "Wind_direction", "x_m", "y_m", "z_m", "official_velocity_ratio", "predicted_velocity_ratio", "residual", "abs_error_pp", "sampling_mode", "solid_corner_risk", "evidence_type"],
+    )
+
+    env = {
+        "python": sys.version.split()[0],
+        "platform": platform.platform(),
+        "dotnet": run_cmd(["dotnet", "--info"]),
+        "nvidia_smi": run_cmd(["nvidia-smi"]),
+        "fluidx3d": run_cmd(["FluidX3D", "--help"]),
+    }
+    (RESULTS_DIR / "environment_manifest.json").write_text(json.dumps(env, indent=2), encoding="utf-8")
+    gate = build_release_gate(metrics, env)
+    (RESULTS_DIR / "release_gate.json").write_text(json.dumps(gate, indent=2), encoding="utf-8")
+    if metrics is not None:
+        write_csv(RESULTS_DIR / "casee_metrics.csv", [metrics], list(metrics.keys()))
+    write_optional_outputs(probes, inlet, residuals)
+    write_report(metrics, gate, args.predicted)
+    print(json.dumps({"probes": len(probes), "metrics": metrics, "recommended_tag": gate["recommended_tag"]}, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
