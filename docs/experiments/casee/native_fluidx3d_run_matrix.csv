@@ -1,0 +1,4 @@
+run_id,evidence_type,status,dx_m,steps,spinup,condition,wind_direction,validation_height_m,inlet,probe_output,notes
+casee_native_dx3_fullplane,newly_run_required,blocked_environment,3,48000,12000,ac,N,2,full_plane_digital_filter_AF_caseE,casee_probe_time_mean.csv,Requires FluidX3D source/build toolchain and GPU runtime.
+casee_native_dx2_fullplane,newly_run_required,blocked_environment,2,48000,12000,ac,N,2,full_plane_digital_filter_AF_caseE,casee_probe_time_mean.csv,Requires FluidX3D source/build toolchain and GPU runtime.
+casee_native_dx1_feasibility,diagnostic_required,not_started,1,tbd,tbd,ac,N,2,tbd,tbd,Feasibility and memory estimate only unless explicitly scheduled.

@@ -1,0 +1,42 @@
+{
+  "preset_id": "AIJ_CaseE_ac_N_official_z2m",
+  "case": "AIJ Case E",
+  "condition": "ac",
+  "wind_direction": "N",
+  "wind_vector": [0.0, -1.0, 0.0],
+  "wind_vector_note": "Assumes CityLBM world +Y points south-to-north on the AIJ map; if a solver uses a different axis convention, record the transform in the run manifest.",
+  "geometry_file": "docs/experiments/casee/official_data/BD_caseE.stl",
+  "scale_factor": 250.0,
+  "uref_m_s": 3.928296,
+  "zref_m": 15.9,
+  "validation_height_m": 2.0,
+  "reference_probe_file": "docs/experiments/casee/official_data/RS_caseE.csv",
+  "reference_probe_filter": {
+    "case": "ac",
+    "Wind_direction": "N",
+    "z(m)": 2.0,
+    "expected_count": 80
+  },
+  "approach_flow_file": "docs/experiments/casee/official_data/AF_caseE.csv",
+  "landform_file": "docs/experiments/casee/official_data/LF_caseE.xls",
+  "map_file": "docs/experiments/casee/official_data/MP_caseE.png",
+  "sampling_modes": {
+    "default_for_validation": "raw_trilinear",
+    "diagnostic_only": [
+      "nearest_valid",
+      "fluid_weighted",
+      "vertical_valid_above",
+      "z_plus_half"
+    ]
+  },
+  "release_gate": {
+    "official_z2m_only": true,
+    "minimum_probe_count": 80,
+    "mae_pp_target": 15.0,
+    "r2_must_be_positive": true,
+    "pearson_must_be_positive": true,
+    "casea_smoke_regression_required": true,
+    "citylbm_build_required": true,
+    "rhino_new_gha_load_required": true
+  }
+}
