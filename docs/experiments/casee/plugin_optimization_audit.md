@@ -34,6 +34,7 @@ Implemented in source:
 - Added profile-aware lattice velocity scaling so the highest AF velocity does not exceed the configured lattice velocity cap.
 - Added `citylbm_run_manifest.json` generation in every case folder.
 - Applied the Case E wind override to a generation-only `Scene` clone, so Grasshopper input scenes are not silently mutated.
+- Kept the generic CityLBM lattice velocity default at 0.1; the 0.08 cap is Case E preset-only.
 
 ### Experiment 3 / TUM2TWIN
 

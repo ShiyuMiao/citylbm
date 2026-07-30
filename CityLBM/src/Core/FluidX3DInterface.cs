@@ -2086,7 +2086,7 @@ namespace CityLBM.Solver
         public string DiagnosticSamplingModes { get; set; } = "";
         public string ApproachFlowCsvPath { get; set; } = "";
         public string ReferenceProbeCsvPath { get; set; } = "";
-        public double MaxLatticeVelocity { get; set; } = 0.08;
+        public double MaxLatticeVelocity { get; set; } = 0.1;
         public List<InletProfilePoint> InletProfile { get; set; } = new List<InletProfilePoint>();
 
         public double InletVelocityX { get; set; }
@@ -2137,6 +2137,7 @@ namespace CityLBM.Solver
             settings.TimeSteps = Math.Max(settings.TimeSteps, 48000);
             settings.SpinupSteps = Math.Max(settings.SpinupSteps, 12000);
             settings.SaveInterval = Math.Max(settings.SaveInterval, 4000);
+            settings.MaxLatticeVelocity = Math.Min(settings.MaxLatticeVelocity, 0.08);
             settings.FormalSamplingMode = "raw_trilinear";
             settings.DiagnosticSamplingModes = "nearest_valid,fluid_weighted,vertical_valid_above,z_plus_half";
             settings.ApproachFlowCsvPath = ResolveRepoPath("docs", "experiments", "casee", "official_data", "AF_caseE.csv");
