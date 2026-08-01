@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-01T12:07:11.275493+00:00
+Generated: 2026-08-01T12:15:41.634840+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc12`
+- Recommended tag: `v0.4.0-rc13`
 
 ## Official z=2 m Metric
 

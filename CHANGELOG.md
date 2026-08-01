@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.4.0-rc13 - Plugin identity and paper-gate alignment
+
+- Updated the Grasshopper plugin metadata from the old `0.1.0` WIP identity to the `0.4.0-rc` accuracy-diagnostic line.
+- Kept `AssemblyVersion` numeric as `0.4.0.0` while the public plugin `Version` reports `0.4.0-rc`; this avoids implying that the formal `v0.4.0` gate has passed.
+- Added a release note for the current rc line and updated README pointers to the paper evidence gate.
+
+Status remains unchanged:
+
+- Official z=2 m metrics: MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+- Formal `v0.4.0` is still blocked by the official metric gate and unverified Rhino/Grasshopper loading of the new GHA.
+- Paper-ready claims remain limited to protocol reproducibility, build/workflow evidence, negative validation, and limitations diagnostics.
+
+## v0.4.0-rc12 - Paper evidence gate and claim-safe manifests
+
+- Added `paper_evidence_gate.py` to audit the release gate, Case E claim matrix, and manuscript draft text for overstated success claims.
+- Generated `casee_paper_evidence_gate.json` and `casee_paper_evidence_gate.md`.
+- Added claim-boundary fields to `citylbm_run_manifest.json` generation so diagnostic settings are explicitly marked as non-formal accuracy evidence.
+
+The paper evidence gate passes because the manuscript materials stay within the current negative-validation evidence boundary. This is not an accuracy pass.
+
+## v0.4.0-rc11 - Paper-facing Case E text
+
+- Added Chinese and English Case E Results/Limitations draft sections under `academic-paper-writer/paper-drafts/`.
+- Added a Case E claim-control sheet separating paper-ready, limitations-ready, weakened diagnostic, and blocked claims.
+- Kept diagnostic sampling modes and z-origin changes out of the formal official z=2 m result.
+
 ## v0.4.0-rc10 - Manuscript claim readiness matrix
 
 - Added `manuscript_evidence_summary.py` to convert Case E outputs into a manuscript-facing claim matrix.

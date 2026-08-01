@@ -1,6 +1,16 @@
 # CityLBM - 城市风环境模拟 Grasshopper 插件
 
-**版本:** v0.1.0wip (Work In Progress)  
+# CityLBM v0.4.0-rc Status
+
+**Version:** v0.4.0-rc (accuracy-diagnostic release candidate)
+**Last updated:** 2026-08-01
+
+Formal v0.4.0 is not released until the AIJ Case E official z=2 m release gate
+passes. The current Case E official z=2 m result remains a negative
+validation/limitations result: MAE = 21.111 pp, R2 = -2.006330, Pearson =
+0.115756.
+
+**Legacy version note:** v0.1.0wip (Work In Progress)
 **最后更新:** 2026-04-04
 
 > **注意：** 这是 CityLBM 的早期内测版本（WIP），已达到最小可用状态。功能可能不完善，使用过程中遇到问题欢迎反馈。

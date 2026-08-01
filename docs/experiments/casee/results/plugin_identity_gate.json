@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-08-01T12:15:41.702637+00:00",
+  "plugin_public_version": "0.4.0-rc",
+  "plugin_assembly_version": "0.4.0.0",
+  "tracked_gha_sha256": "61da11cf4c917f0668f7935adc241b455c7a19945e4381ca005f39c13cb00ff8",
+  "release_gha_sha256": "61da11cf4c917f0668f7935adc241b455c7a19945e4381ca005f39c13cb00ff8",
+  "plugin_identity_gate_passed": true,
+  "checks": {
+    "plugin_public_version_is_rc": true,
+    "plugin_assembly_version_is_numeric_v040": true,
+    "plugin_no_old_public_version": true,
+    "tracked_gha_exists": true,
+    "release_gha_exists": true,
+    "tracked_gha_matches_release_build": true,
+    "root_readme_mentions_paper_gate": true,
+    "root_readme_mentions_rc13_release_notes": true,
+    "citylbm_readme_mentions_rc_status": true,
+    "changelog_has_rc13": true,
+    "release_notes_exist": true,
+    "release_notes_blocks_formal_v040": true
+  },
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready for software identity; not accuracy evidence"
+}

@@ -26,7 +26,7 @@ points, R2 -2.006330, Pearson 0.115756. These results show directional
 improvement but support a limitations/diagnostic discussion only, not a
 predictive-accuracy claim or a formal `v0.4.0` release.
 
-Current Case E and release-gate materials:
+Current Case E, release-gate, and manuscript-boundary materials:
 
 - `docs/experiments/casee/data_manifest.csv`
 - `docs/experiments/casee/casee_preset.json`
@@ -34,6 +34,7 @@ Current Case E and release-gate materials:
 - `docs/experiments/casee/tools/casee_audit.py`
 - `docs/experiments/casee/tools/generate_native_casee.py`
 - `docs/experiments/casee/tools/release_gate.py`
+- `docs/experiments/casee/tools/paper_evidence_gate.py`
 - `docs/experiments/casee/results/casee_native_metric_comparison.csv`
 - `docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv`
 - `docs/experiments/casee/results/casee_solid_corner_group_metrics.csv`
@@ -49,9 +50,11 @@ Current Case E and release-gate materials:
 - `docs/experiments/casee/results/build_chain_manifest.json`
 - `docs/experiments/casee/results/casee_manuscript_claim_matrix.csv`
 - `docs/experiments/casee/results/casee_manuscript_evidence_summary.md`
+- `docs/experiments/casee/results/casee_paper_evidence_gate.json`
+- `docs/experiments/casee/results/casee_paper_evidence_gate.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc10.md`
+- `docs/releases/v0.4.0-rc13.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -103,11 +106,22 @@ official z=2 m result as a negative validation/limitations result, and blocks
 formal predictive-accuracy or `v0.4.0` release claims until the metric gate
 passes.
 
+The Grasshopper plugin identity is now aligned to the `0.4.0-rc` line while the
+release gate remains fail-closed. This prevents the in-app plugin metadata from
+appearing as the old `0.1.0` WIP line, but it is still an accuracy-diagnostic
+release candidate rather than a formal `v0.4.0` release.
+
+The paper evidence gate scans the release gate, manuscript claim matrix, and
+Case E draft text for overstated success claims. Passing this gate means the
+paper text is claim-safe under the current negative validation evidence; it does
+not mean the CFD accuracy gate passed.
+
 Run the audit after official data are present:
 
 ```powershell
 python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0
 python docs/experiments/casee/tools/release_gate.py
+python docs/experiments/casee/tools/paper_evidence_gate.py
 ```
 
 If a complete solver output exists, provide a CSV with 80 probe predictions:

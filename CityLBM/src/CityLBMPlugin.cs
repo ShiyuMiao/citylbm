@@ -1,16 +1,17 @@
 using System;
 using System.Drawing;
-using System.Reflection;
 using Grasshopper.Kernel;
 
 namespace CityLBM
 {
     /// <summary>
-    /// CityLBM 插件主类
-    /// 负责插件的加载和初始化
+    /// Grasshopper assembly metadata for the CityLBM plugin.
     /// </summary>
     public class CityLBMPlugin : GH_AssemblyInfo
     {
+        private const string PluginVersion = "0.4.0-rc";
+        private const string PluginAssemblyVersion = "0.4.0.0";
+
         public override string Name
         {
             get { return "CityLBM"; }
@@ -23,7 +24,7 @@ namespace CityLBM
 
         public override string Description
         {
-            get { return "CityLBM城市风场模拟Grasshopper插件"; }
+            get { return "CityLBM urban wind simulation Grasshopper plugin (v0.4.0-rc accuracy-diagnostic line)"; }
         }
 
         public override Guid Id
@@ -43,24 +44,12 @@ namespace CityLBM
 
         public override string Version
         {
-            get
-            {
-                Assembly? asm = Assembly.GetExecutingAssembly();
-                if (asm != null)
-                {
-                    Version? ver = asm.GetName().Version;
-                    if (ver != null)
-                    {
-                        return string.Format("{0}.{1}.{2}", ver.Major, ver.Minor, ver.Build);
-                    }
-                }
-                return "0.1.0";
-            }
+            get { return PluginVersion; }
         }
 
         public override string AssemblyVersion
         {
-            get { return "0.1.0.0"; }
+            get { return PluginAssemblyVersion; }
         }
     }
 }

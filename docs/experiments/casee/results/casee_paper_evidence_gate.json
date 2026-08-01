@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T12:07:11.275493+00:00",
+  "generated_at": "2026-08-01T12:15:41.634840+00:00",
   "paper_evidence_gate_passed": true,
   "metric_gate": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc12",
+    "recommended_tag": "v0.4.0-rc13",
     "official_z2m_r2": -2.006330362229977,
     "official_z2m_mae_pp": 21.111408125,
     "official_z2m_pearson": 0.11575649438573923,
