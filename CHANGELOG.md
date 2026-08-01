@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc18 - Next experiment runbook
+
+- Added `casee_next_experiment_runbook.py` to generate a command matrix for the next official z=2 m Case E follow-up cycle.
+- Generated `casee_next_experiment_runbook.json`, `casee_next_experiment_runbook.csv`, and `casee_next_experiment_runbook.md`.
+- Integrated the runbook into the one-command reproducibility suite.
+- Extended the artifact index and paper evidence gate so the runbook and rc18 release notes are required traceability artifacts.
+
+This release candidate makes the next accuracy-improvement attempts auditable before execution. It does not add a solver result or change the official metric.
+
 ## v0.4.0-rc17 - Blocker remediation plan
 
 - Added `casee_blocker_remediation_plan.py` to convert the current release-gate, build-chain, and run-matrix state into machine-readable blocker actions.

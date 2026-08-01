@@ -26,10 +26,12 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_paper_appendix_manifest.json",
     "docs/experiments/casee/results/casee_remaining_blockers.json",
     "docs/experiments/casee/results/casee_remaining_blockers.md",
+    "docs/experiments/casee/results/casee_next_experiment_runbook.json",
+    "docs/experiments/casee/results/casee_next_experiment_runbook.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc17.md",
+    "docs/releases/v0.4.0-rc18.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [

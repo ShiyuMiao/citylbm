@@ -177,6 +177,7 @@ def main() -> int:
         ("artifact_index_pre_appendix", "artifact_index.py"),
         ("paper_appendix_generator", "paper_appendix_generator.py"),
         ("casee_blocker_remediation_plan", "casee_blocker_remediation_plan.py"),
+        ("casee_next_experiment_runbook", "casee_next_experiment_runbook.py"),
         ("artifact_index", "artifact_index.py"),
         ("paper_evidence_gate", "paper_evidence_gate.py"),
     ]:

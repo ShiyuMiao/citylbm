@@ -55,11 +55,13 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_paper_appendix_manifest.json`
 - `docs/experiments/casee/results/casee_remaining_blockers.json`
 - `docs/experiments/casee/results/casee_remaining_blockers.md`
+- `docs/experiments/casee/results/casee_next_experiment_runbook.json`
+- `docs/experiments/casee/results/casee_next_experiment_runbook.md`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc17.md`
+- `docs/releases/v0.4.0-rc18.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -132,6 +134,11 @@ build-chain audit, and run matrix into concrete pass conditions for the next
 work cycle. It records the official metric gate failure, Rhino new-GHA loading
 gap, GPU-lost runtime blocker, incomplete Visual Studio C++ build chain, and
 dx=1 m follow-up status as operational blockers rather than accuracy evidence.
+
+The next-experiment runbook turns those blockers into a future command matrix
+for preflight checks, dx=2 replication, wall-model and inlet-turbulence
+follow-ups, dx=1 feasibility/generation, and post-run official auditing. It is
+a run policy and traceability artifact only; it does not add a solver result.
 
 Run the audit after official data are present:
 
