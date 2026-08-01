@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc20 - Official follow-up preflight gate
+
+- Added `casee_official_run_preflight.py` to combine official-data, 80-probe protocol, CityLBM build, plugin identity, Rhino/GHA loading, .NET, FluidX3D, GPU runtime, VS C++ and Case A smoke-regression checks.
+- Generated `casee_official_run_preflight.json`, `casee_official_run_preflight.csv`, and `casee_official_run_preflight.md`.
+- Integrated the preflight gate into the one-command reproducibility suite.
+- Extended the artifact index and paper evidence gate so the preflight gate and rc20 release note are required traceability artifacts.
+
+This release candidate makes the next long official z=2 m run schedulable only after the real runtime blockers are cleared. It does not change the official Case E metric or permit formal `v0.4.0`.
+
 ## v0.4.0-rc19 - Rhino/GHA load gate
 
 - Added `rhino_gha_load_gate.py` to audit whether Rhino/Grasshopper has loaded the tracked `CityLBM/bin/CityLBM.gha` rather than an older installed copy.

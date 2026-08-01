@@ -1,0 +1,11 @@
+gate_id,status,severity,evidence_type,source,required_action,paper_policy
+official_data_manifest,pass,critical,newly_run,docs/experiments/casee/data_manifest.csv,Re-download and hash-check Zenodo Case E files if this fails.,Protocol input evidence only.
+official_probe_protocol,pass,critical,newly_run,docs/experiments/casee/official_data/RS_caseE.csv,Keep formal validation locked to ac+N z=2 m with 80 raw_trilinear probes.,Required for any official metric claim.
+citylbm_build,pass,critical,preexisting_artifact,docs/experiments/casee/results/release_gate.json,Run reproducibility_suite.py or dotnet build until the Release build passes.,Build evidence only.
+plugin_identity,pass,major,preexisting_artifact,docs/experiments/casee/results/plugin_identity_gate.json,Regenerate plugin_identity_gate.py after rebuilding CityLBM.gha.,Software identity evidence only.
+rhino_gha_load,blocked,major,preexisting_artifact,docs/experiments/casee/results/rhino_gha_load_gate.json,Create a real Rhino/Grasshopper load manifest with version/hash screenshot or log evidence.,Required for formal plugin-load claims; not required for native-only CFD preflight.
+dotnet_sdk,pass,major,newly_run,E:\citylbm_buildchain\dotnet\dotnet.exe --version,Restore the local .NET SDK path or install .NET SDK before rebuilding CityLBM.,Build-chain evidence only.
+fluidx3d_binary,pass,critical,newly_run,E:\citylbm_buildchain\FluidX3D\bin\FluidX3D.exe,Restore or rebuild FluidX3D.exe before scheduling native Case E.,Runtime availability evidence only.
+gpu_runtime,blocked,critical,newly_run,nvidia-smi,Recover/reboot the NVIDIA device until nvidia-smi returns 0 without GPU-lost errors.,Blocks new long FluidX3D runs; not accuracy evidence.
+vs_cpp_build_tools,blocked,major,preexisting_artifact,docs/experiments/casee/results/build_chain_manifest.json,"Free C: space, approve UAC, and install Visual Studio Build Tools 2022 C++ workload.",Native build-chain limitation unless ready.
+casea_smoke_regression,pass,major,preexisting_artifact,docs/experiments/casea/results/casea_smoke_regression.json,Rerun Case A smoke regression after any default solver change.,"Regression guard only, not Case E accuracy evidence."

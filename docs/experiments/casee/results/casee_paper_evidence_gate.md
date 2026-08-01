@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-01T13:02:16.015722+00:00
+Generated: 2026-08-01T13:09:19.421805+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc19`
+- Recommended tag: `v0.4.0-rc20`
 
 ## Official z=2 m Metric
 
@@ -27,14 +27,14 @@ Generated: 2026-08-01T13:02:16.015722+00:00
 ## Draft Scan
 
 - Checked files: 5
-- Checked nonblank lines: 245
+- Checked nonblank lines: 247
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 127
-- Lightweight release assets: 95
+- Artifact count: 131
+- Lightweight release assets: 99
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -43,6 +43,14 @@ Generated: 2026-08-01T13:02:16.015722+00:00
 - Gate found: True
 - Rhino loaded new GHA: False
 - Claim readiness: `blocked_manual_rhino_load`
+- Claim boundary safe: True
+
+## Official Run Preflight
+
+- Preflight found: True
+- Official follow-up run allowed: False
+- Formal release allowed: False
+- Claim readiness: `blocked_official_followup_preflight`
 - Claim boundary safe: True
 
 No forbidden success-claim violations were found outside negated or forbidden-claim sections.

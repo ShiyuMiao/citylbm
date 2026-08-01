@@ -30,10 +30,12 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_next_experiment_runbook.md",
     "docs/experiments/casee/results/rhino_gha_load_gate.json",
     "docs/experiments/casee/results/rhino_gha_load_gate.md",
+    "docs/experiments/casee/results/casee_official_run_preflight.json",
+    "docs/experiments/casee/results/casee_official_run_preflight.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc19.md",
+    "docs/releases/v0.4.0-rc20.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -227,12 +229,34 @@ def rhino_gate_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def preflight_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "preflight_found": False,
+            "official_followup_run_allowed": None,
+            "formal_release_allowed": None,
+            "claim_readiness": "missing",
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    readiness = str(data.get("claim_readiness", ""))
+    return {
+        "preflight_found": True,
+        "official_followup_run_allowed": data.get("official_followup_run_allowed"),
+        "formal_release_allowed": data.get("formal_release_allowed"),
+        "claim_readiness": readiness,
+        "blocked_gates": data.get("blocked_gates", []),
+        "claim_boundary_safe": readiness in {"blocked_official_followup_preflight", "ready_for_next_official_followup_run"},
+    }
+
+
 def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     metric = payload["metric_gate"]
     claim = payload["claim_matrix"]
     draft = payload["draft_scan"]
     artifact = payload["artifact_index"]
     rhino = payload["rhino_gha_load_gate"]
+    preflight = payload["casee_official_run_preflight"]
     lines = [
         "# Case E Paper Evidence Gate",
         "",
@@ -280,6 +304,14 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Rhino loaded new GHA: {rhino['rhino_loaded_new_gha']}",
         f"- Claim readiness: `{rhino['claim_readiness']}`",
         f"- Claim boundary safe: {rhino['claim_boundary_safe']}",
+        "",
+        "## Official Run Preflight",
+        "",
+        f"- Preflight found: {preflight['preflight_found']}",
+        f"- Official follow-up run allowed: {preflight['official_followup_run_allowed']}",
+        f"- Formal release allowed: {preflight['formal_release_allowed']}",
+        f"- Claim readiness: `{preflight['claim_readiness']}`",
+        f"- Claim boundary safe: {preflight['claim_boundary_safe']}",
     ]
     if artifact["missing_required_artifacts"]:
         lines += ["", "Missing required artifacts:"]
@@ -300,6 +332,7 @@ def main() -> int:
     parser.add_argument("--claim-matrix", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.csv")
     parser.add_argument("--artifact-index", type=Path, default=RESULTS_DIR / "casee_artifact_index.json")
     parser.add_argument("--rhino-gate", type=Path, default=RESULTS_DIR / "rhino_gha_load_gate.json")
+    parser.add_argument("--preflight", type=Path, default=RESULTS_DIR / "casee_official_run_preflight.json")
     parser.add_argument("--draft-glob", default="casee_v04_*.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.json")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.md")
@@ -311,6 +344,7 @@ def main() -> int:
     draft = draft_status(sorted(PAPER_DRAFTS_DIR.glob(args.draft_glob)))
     artifact = artifact_index_status(args.artifact_index)
     rhino = rhino_gate_status(args.rhino_gate)
+    preflight = preflight_status(args.preflight)
     passed = (
         metric["formal_metric_is_negative_validation"]
         and claim["blocked_release_claim_present"]
@@ -323,6 +357,9 @@ def main() -> int:
         and artifact["formal_accuracy_claim_supported"] is False
         and rhino["rhino_gate_found"]
         and rhino["claim_boundary_safe"]
+        and preflight["preflight_found"]
+        and preflight["claim_boundary_safe"]
+        and preflight["formal_release_allowed"] is False
     )
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -332,6 +369,7 @@ def main() -> int:
         "draft_scan": draft,
         "artifact_index": artifact,
         "rhino_gha_load_gate": rhino,
+        "casee_official_run_preflight": preflight,
     }
     args.out_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     write_markdown(args.out_md, payload)
