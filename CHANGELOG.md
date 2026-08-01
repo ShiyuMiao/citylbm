@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc22 - Failure-mode atlas
+
+- Added `casee_failure_mode_atlas.py` to synthesize audited Case E diagnostics into failure-mode rows for metric gate failure, underprediction bias, probe sampling sensitivity, near-wall/solid-corner risk, spatial-alignment audit, and runtime preflight blockers.
+- Generated `casee_failure_mode_atlas.json`, `casee_failure_mode_atlas.csv`, `casee_failure_mode_atlas.md`, and `casee_failure_mode_atlas.png`.
+- Integrated the atlas into the one-command reproducibility suite, artifact index, paper evidence gate, and reproducibility appendix.
+- Kept all atlas claims in the limitations/software-feedback boundary; no diagnostic sampling mode is promoted to the formal official z=2 m result.
+
+This release candidate improves manuscript-ready limitations evidence and software-feedback traceability only. It does not change the official Case E metric or permit formal `v0.4.0`.
+
 ## v0.4.0-rc21 - Environment recovery runbook
 
 - Added `casee_environment_recovery_runbook.py` to turn the current GPU, VS C++ and Rhino/GHA load blockers into ordered recovery steps with verification commands.

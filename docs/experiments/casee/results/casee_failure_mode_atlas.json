@@ -1,0 +1,158 @@
+{
+  "generated_at": "2026-08-01T13:22:28.270121+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "limitations_ready_failure_mode_atlas",
+  "release_gate": {
+    "generated_at": "2026-08-01T13:22:21.742382+00:00",
+    "release_target": "v0.4.0",
+    "formal_release_allowed": false,
+    "formal_v0_3_0_allowed": false,
+    "recommended_tag": "v0.4.0-rc22",
+    "checks": {
+      "citylbm_build_passed": true,
+      "rhino_loaded_new_gha": false,
+      "native_fluidx3d_dx3_completed": true,
+      "native_fluidx3d_dx2_completed": true,
+      "official_z2m_metric_gate": false,
+      "casea_smoke_regression_passed": true,
+      "readme_changelog_release_notes_updated": true,
+      "evidence_trace_complete_for_available_artifacts": true
+    },
+    "metrics": {
+      "n": 80,
+      "mae_pp": 21.111408125,
+      "rmse_pp": 27.72103208243715,
+      "bias_pp": -16.409216,
+      "r2": -2.006330362229977,
+      "pearson": 0.11575649438573923,
+      "height_m": 2.0,
+      "sampling_mode": "raw_trilinear"
+    },
+    "environment_summary": {
+      "python": "3.12.7",
+      "platform": "Windows-2022Server-10.0.26100-SP0",
+      "dotnet": {
+        "command": "E:\\citylbm_buildchain\\dotnet\\dotnet.exe --info",
+        "found": true,
+        "returncode": 0,
+        "stdout": ".NET SDK:\n Version:           8.0.423\n Commit:            62e3aa2c1f\n Workload version:  8.0.400-manifests.a04bdf47\n MSBuild version:   17.11.48+02bf66295\n\n运行时环境:\n OS Name:     Windows\n OS Version:  10.0.26100\n OS Platform: Windows\n RID:         win-x64\n Base Path:   E:\\citylbm_buildchain\\dotnet\\sdk\\8.0.423\\\n\n已安装 .NET 工作负载:\n配置为在安装新清单时使用 loose manifests。\n没有要显示的已安装工作负载。\n\nHost:\n  Version:      8.0.29\n  Architecture: x64\n  Commit:       18fd75c847\n\n.NET SDKs installed:\n  8.0.423 [E:\\citylbm_buildchain\\dotnet\\sdk]\n\n.NET runtimes installed:\n  Microsoft.AspNetCore.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.NETCore.App]\n  Microsoft.WindowsDesktop.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\n\nOther architectures found:\n  None\n\nEnvironment variables:\n  Not set\n\nglobal.json file:\n  Not found\n\nLearn more:\n  https://aka.ms/dotnet/info\n\nDownload .NET:\n  https://aka.ms/dotnet/download",
+        "stderr": ""
+      },
+      "nvidia_smi": {
+        "command": "nvidia-smi",
+        "found": true,
+        "returncode": 15,
+        "stdout": "Unable to determine the device handle for GPU0000:C3:00.0: GPU is lost.  Reboot the system to recover this GPU",
+        "stderr": ""
+      },
+      "fluidx3d_executable": {
+        "found": true,
+        "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
+        "sha256": "2fee1e6c7e59d6c5ac238d9aa1623cb6138e9ba5bc278bcfcf74532b443c5a1e",
+        "size_bytes": 1062291,
+        "mtime": "2026-08-01T11:25:49.607732+00:00"
+      },
+      "citylbm_gha": {
+        "found": true,
+        "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\CityLBM\\bin\\Release\\CityLBM.gha",
+        "sha256": "e26ab4432480a2eddc9573c885aabf01ab93c5167b61b775ce3e4aa202c23973",
+        "size_bytes": 1789952,
+        "mtime": "2026-08-01T13:22:20.233161+00:00"
+      },
+      "citylbm_build_log": {
+        "found": true,
+        "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
+        "sha256": "e544dc2f4300b7f90b8d8c8b404e8185f5c263705fc6de768a1cc702d42889f0",
+        "size_bytes": 68874,
+        "mtime": "2026-08-01T13:22:20.461723+00:00"
+      },
+      "run_matrix": {
+        "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",
+        "dx3_completed": true,
+        "dx2_completed": true,
+        "casea_smoke_regression_passed": true,
+        "rhino_loaded_new_gha": false
+      }
+    },
+    "blocking_reason": "Release evidence is incomplete; do not create formal v0.4.0 tag."
+  },
+  "failure_modes": [
+    {
+      "failure_mode_id": "FM001_official_metric_gate",
+      "status": "blocked",
+      "severity": "critical",
+      "primary_evidence": "docs/experiments/casee/results/release_gate.json",
+      "quantitative_signal": "official raw_trilinear z=2 m n=80; MAE=21.111 pp; R2=-2.006330; Pearson=0.115756",
+      "paper_use": "Use as negative validation and release-boundary evidence.",
+      "software_feedback": "Do not promote diagnostic settings to defaults until this gate improves on official raw_trilinear output.",
+      "default_policy": "No formal v0.4.0 default accuracy model.",
+      "next_verification": "casee_audit.py on a completed official z=2 m 80-probe CSV.",
+      "forbidden_claim": "Do not claim predictive accuracy or formal v0.4.0 readiness."
+    },
+    {
+      "failure_mode_id": "FM002_underprediction_bias",
+      "status": "active_limitation",
+      "severity": "critical",
+      "primary_evidence": "docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv",
+      "quantitative_signal": "dx2 base bias=-31.233 pp and best gshift/nu diagnostic bias=-20.833 pp; z-center official bias=-16.409 pp",
+      "paper_use": "Use to explain systematic low-speed prediction at official pedestrian probes.",
+      "software_feedback": "Prioritize near-ground velocity recovery, wall treatment, and inlet turbulence diagnostics.",
+      "default_policy": "Keep nu_lbm and z-origin changes default-off.",
+      "next_verification": "Repeat official raw_trilinear metrics after a physically justified wall/inlet change.",
+      "forbidden_claim": "Do not treat reduced bias alone as accuracy validation."
+    },
+    {
+      "failure_mode_id": "FM003_probe_sampling_sensitivity",
+      "status": "diagnostic_only",
+      "severity": "major",
+      "primary_evidence": "docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv",
+      "quantitative_signal": "raw MAE=21.111 pp, R2=-2.006330; vertical_valid_above MAE=16.041 pp, R2=-0.554717; z_plus_half MAE=18.761 pp, R2=-1.222132",
+      "paper_use": "Use only as a probe-protocol sensitivity limitation.",
+      "software_feedback": "Expose sampling modes as diagnostics while preserving raw_trilinear as the formal metric.",
+      "default_policy": "Diagnostic modes remain non-default and non-formal.",
+      "next_verification": "Only raw_trilinear z=2 m can update release_gate.json.",
+      "forbidden_claim": "Do not substitute z_plus_half or vertical_valid_above for official z=2 m."
+    },
+    {
+      "failure_mode_id": "FM004_near_wall_solid_corner_risk",
+      "status": "active_limitation",
+      "severity": "critical",
+      "primary_evidence": "docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv",
+      "quantitative_signal": "low-risk raw MAE=12.435 pp (n=47); high-risk raw MAE=34.589 pp (n=14); solid0 MAE=12.435 pp; solid4 MAE=35.845 pp",
+      "paper_use": "Use as the main limitations evidence for near-wall and solid-corner protocol risk.",
+      "software_feedback": "Add default-off wall/roughness/voxelization follow-up switches and retain per-probe risk metadata.",
+      "default_policy": "No promotion without official raw_trilinear improvement and Case A smoke regression.",
+      "next_verification": "Compare low/moderate/high risk residuals after the next completed official run.",
+      "forbidden_claim": "Do not claim the solver is validated for pedestrian-height corner probes."
+    },
+    {
+      "failure_mode_id": "FM005_spatial_alignment_unlikely",
+      "status": "diagnostic_checked",
+      "severity": "moderate",
+      "primary_evidence": "docs/experiments/casee/results/casee_spatial_alignment_diagnostic.csv",
+      "quantitative_signal": "identity Pearson=0.071789, R2=-2.311768; best available transform `flip_y` still has R2=-2.111059",
+      "paper_use": "Use to narrow the error explanation away from a simple x/y convention mistake.",
+      "software_feedback": "Keep wind-direction and lattice-convention audits in the Case E preset.",
+      "default_policy": "No coordinate transform becomes default from this diagnostic.",
+      "next_verification": "Rerun spatial audit only if coordinate mapping code changes.",
+      "forbidden_claim": "Do not claim all coordinate conventions are exhausted beyond the tested transforms."
+    },
+    {
+      "failure_mode_id": "FM006_runtime_preflight_blocked",
+      "status": "blocked",
+      "severity": "critical",
+      "primary_evidence": "docs/experiments/casee/results/casee_official_run_preflight.json",
+      "quantitative_signal": "official_followup_run_allowed=False; blocked=rhino_gha_load,gpu_runtime,vs_cpp_build_tools",
+      "paper_use": "Use to explain why no new long-run result was added in this release candidate.",
+      "software_feedback": "Keep launch preflight gates before scheduling long official runs.",
+      "default_policy": "Do not run or publish new official results while preflight is blocked.",
+      "next_verification": "Clear GPU, VS C++ and Rhino/GHA evidence, then rerun preflight.",
+      "forbidden_claim": "Do not describe the current environment as ready for more long native validation."
+    }
+  ],
+  "plot": {
+    "created": true,
+    "path": "docs/experiments/casee/results/casee_failure_mode_atlas.png"
+  },
+  "boundary": "This atlas organizes existing negative-validation and diagnostic evidence. It does not add a new CFD run, does not change official z=2 m metrics, and does not allow formal v0.4.0."
+}

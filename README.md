@@ -38,6 +38,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/rhino_gha_load_gate.py`
 - `docs/experiments/casee/tools/casee_official_run_preflight.py`
 - `docs/experiments/casee/tools/casee_environment_recovery_runbook.py`
+- `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
 - `docs/experiments/casee/results/casee_native_metric_comparison.csv`
 - `docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv`
 - `docs/experiments/casee/results/casee_solid_corner_group_metrics.csv`
@@ -66,11 +67,14 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_official_run_preflight.md`
 - `docs/experiments/casee/results/casee_environment_recovery_runbook.json`
 - `docs/experiments/casee/results/casee_environment_recovery_runbook.md`
+- `docs/experiments/casee/results/casee_failure_mode_atlas.json`
+- `docs/experiments/casee/results/casee_failure_mode_atlas.md`
+- `docs/experiments/casee/results/casee_failure_mode_atlas.png`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc21.md`
+- `docs/releases/v0.4.0-rc22.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -157,6 +161,7 @@ python docs/experiments/casee/tools/release_gate.py
 python docs/experiments/casee/tools/rhino_gha_load_gate.py
 python docs/experiments/casee/tools/casee_official_run_preflight.py
 python docs/experiments/casee/tools/casee_environment_recovery_runbook.py
+python docs/experiments/casee/tools/casee_failure_mode_atlas.py
 python docs/experiments/casee/tools/paper_evidence_gate.py
 ```
 

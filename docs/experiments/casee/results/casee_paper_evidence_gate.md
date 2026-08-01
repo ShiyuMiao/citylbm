@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-01T13:16:31.985094+00:00
+Generated: 2026-08-01T13:22:30.630889+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc21`
+- Recommended tag: `v0.4.0-rc22`
 
 ## Official z=2 m Metric
 
@@ -33,8 +33,8 @@ Generated: 2026-08-01T13:16:31.985094+00:00
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 135
-- Lightweight release assets: 103
+- Artifact count: 140
+- Lightweight release assets: 108
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -59,6 +59,13 @@ Generated: 2026-08-01T13:16:31.985094+00:00
 - Formal release allowed: False
 - Claim readiness: `blocked_environment_recovery_runbook`
 - Recovery steps: 7
+- Claim boundary safe: True
+
+## Failure-Mode Atlas
+
+- Atlas found: True
+- Failure modes: 6
+- Claim readiness: `limitations_ready_failure_mode_atlas`
 - Claim boundary safe: True
 
 No forbidden success-claim violations were found outside negated or forbidden-claim sections.
