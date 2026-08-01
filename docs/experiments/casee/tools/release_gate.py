@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail closed unless the Case E release gate allows formal v0.3.0."""
+"""Fail closed unless the Case E release gate allows the formal target release."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ def main() -> int:
         print(f"Missing release gate: {GATE}")
         return 2
     data = json.loads(GATE.read_text(encoding="utf-8"))
-    allowed = bool(data.get("formal_v0_3_0_allowed"))
+    allowed = bool(data.get("formal_release_allowed", data.get("formal_v0_3_0_allowed")))
     print(f"release_target={data.get('release_target')}")
     print(f"formal_release_allowed={allowed}")
     print(f"recommended_tag={data.get('recommended_tag')}")

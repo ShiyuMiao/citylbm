@@ -4,21 +4,23 @@
 
 - Added a native FluidX3D Case E generator for official `ac+N`, scale factor 250, AF_caseE profile ingestion, binary STL conversion, and direct `casee_probe_time_mean.csv` output for the 80 official z=2 m probes.
 - Completed newly-run native FluidX3D dx=3 m and dx=2 m Case E runs on this machine.
+- Added diagnostic effective-ground offset and `nu_lbm` controls to the native Case E generator; these are not CityLBM defaults.
+- Added a default-off Grasshopper input, `Diagnostic LBM Nu Override`, so native `nu_lbm` sensitivity can be reproduced from CityLBM case generation without changing generic defaults.
 - Added MinGW/g++ fallback compilation in `FluidX3DInterface` so CityLBM can build FluidX3D when MSBuild is unavailable.
-- Rebuilt CityLBM successfully with local .NET SDK 8.0.423; the generated GHA and build log are recorded in the Case E environment manifest.
+- Rebuilt CityLBM successfully with local .NET SDK 8.0.423; the generated GHA and build log are recorded in the Case E environment manifest. The build has 0 errors and existing nullable warnings.
 
 Case E official z=2 m metrics remain below the formal accuracy gate:
 
-- Best newly-run result so far: dx=2 m, 48000 steps, spinup 12000, raw_trilinear, n=80.
-- MAE = 31.436 percentage points, RMSE = 35.774 percentage points, bias = -31.233 percentage points.
-- R2 = -4.006626 and Pearson = -0.001683.
+- Best newly-run result so far: diagnostic dx=2 m, one effective-ground offset cell, `nu_lbm=0.001`, 48000 steps, spinup 12000, raw_trilinear, n=80.
+- MAE = 23.972 percentage points, RMSE = 29.095 percentage points, bias = -20.833 percentage points.
+- R2 = -2.311768 and Pearson = 0.071789.
 
 Known blockers:
 
 - Do not create the formal `v0.4.0` tag: the official z=2 m metric gate fails.
 - Rhino/Grasshopper loading of the new GHA and Case A smoke regression are still not verified in this run.
 - The dx=2 implementation currently reads full velocity fields for probe sampling; a true GPU-side probe-only reducer is needed before scaling to longer/high-resolution sweeps.
-- Remaining accuracy risks are near-wall treatment, rough/effective ground modeling, inlet turbulence/digital-filter fidelity, voxelization alignment, and official probe sampling at solid corners.
+- Remaining accuracy risks are near-wall treatment, rough/effective ground modeling, inlet turbulence/digital-filter fidelity, LBM viscosity/Reynolds matching, voxelization alignment, and official probe sampling at solid corners.
 
 ## v0.3.0-rc1 - AIJ Case E accuracy diagnostic candidate
 

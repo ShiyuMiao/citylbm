@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-01T09:48:38.826857+00:00
+Generated: 2026-08-01T10:22:17.081920+00:00
 
 ## Protocol
 
@@ -13,13 +13,13 @@ Generated: 2026-08-01T09:48:38.826857+00:00
 
 ## Metrics
 
-- Prediction source: `docs\experiments\casee\results\casee_native_dx2_sampledt2000_probe_time_mean.csv`
+- Prediction source: `docs\experiments\casee\results\casee_native_dx2_gshift1_nu001_probe_time_mean.csv`
 - n: 80
-- MAE: 31.436 percentage points
-- RMSE: 35.774 percentage points
-- Bias: -31.233 percentage points
-- R2: -4.006626
-- Pearson: -0.001683
+- MAE: 23.972 percentage points
+- RMSE: 29.095 percentage points
+- Bias: -20.833 percentage points
+- R2: -2.311768
+- Pearson: 0.071789
 - Evidence type: newly_run
 
 ## Release Gate
@@ -42,5 +42,5 @@ Generated: 2026-08-01T09:48:38.826857+00:00
 ## Claim Boundaries
 
 - Paper-ready now: official data provenance, probe filtering protocol, and blocked release-gate transparency.
-- Limitations now: formal accuracy remains blocked until native FluidX3D dx=3 m and dx=2 m official z=2 m runs produce complete probe CSVs.
+- Limitations now: native FluidX3D dx=3 m and dx=2 m official z=2 m runs are complete, but the metric gate still fails.
 - Not paper-ready: any claim that CityLBM v0.4.0 achieved predictive accuracy for Case E official z=2 m before the metric gate passes.

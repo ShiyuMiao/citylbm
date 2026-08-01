@@ -1,6 +1,7 @@
 {
-  "generated_at": "2026-08-01T09:48:38.826857+00:00",
+  "generated_at": "2026-08-01T10:22:17.081920+00:00",
   "release_target": "v0.4.0",
+  "formal_release_allowed": false,
   "formal_v0_3_0_allowed": false,
   "recommended_tag": "v0.4.0-rc1",
   "checks": {
@@ -15,11 +16,11 @@
   },
   "metrics": {
     "n": 80,
-    "mae_pp": 31.4357327,
-    "rmse_pp": 35.77367879310287,
-    "bias_pp": -31.233373800000003,
-    "r2": -4.006625632127136,
-    "pearson": -0.0016833261692126619,
+    "mae_pp": 23.971843712499997,
+    "rmse_pp": 29.09517811414642,
+    "bias_pp": -20.8333859625,
+    "r2": -2.3117683583310877,
+    "pearson": 0.07178905303473038,
     "height_m": 2.0,
     "sampling_mode": "raw_trilinear"
   },
@@ -30,7 +31,7 @@
       "command": "E:\\citylbm_buildchain\\dotnet\\dotnet.exe --info",
       "found": true,
       "returncode": 0,
-      "stdout": ".NET SDK:\n Version:           8.0.423\n Commit:            62e3aa2c1f\n Workload version:  8.0.400-manifests.a04bdf47\n MSBuild version:   17.11.48+02bf66295\n\n\u8fd0\u884c\u65f6\u73af\u5883:\n OS Name:     Windows\n OS Version:  10.0.26100\n OS Platform: Windows\n RID:         win-x64\n Base Path:   E:\\citylbm_buildchain\\dotnet\\sdk\\8.0.423\\\n\n\u5df2\u5b89\u88c5 .NET \u5de5\u4f5c\u8d1f\u8f7d:\n\u914d\u7f6e\u4e3a\u5728\u5b89\u88c5\u65b0\u6e05\u5355\u65f6\u4f7f\u7528 loose manifests\u3002\n\u6ca1\u6709\u8981\u663e\u793a\u7684\u5df2\u5b89\u88c5\u5de5\u4f5c\u8d1f\u8f7d\u3002\n\nHost:\n  Version:      8.0.29\n  Architecture: x64\n  Commit:       18fd75c847\n\n.NET SDKs installed:\n  8.0.423 [E:\\citylbm_buildchain\\dotnet\\sdk]\n\n.NET runtimes installed:\n  Microsoft.AspNetCore.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.NETCore.App]\n  Microsoft.WindowsDesktop.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\n\nOther architectures found:\n  None\n\nEnvironment variables:\n  DOTNET_ROOT       [E:\\citylbm_buildchain\\dotnet]\n\nglobal.json file:\n  Not found\n\nLearn more:\n  https://aka.ms/dotnet/info\n\nDownload .NET:\n  https://aka.ms/dotnet/download",
+      "stdout": ".NET SDK:\n Version:           8.0.423\n Commit:            62e3aa2c1f\n Workload version:  8.0.400-manifests.a04bdf47\n MSBuild version:   17.11.48+02bf66295\n\n\u8fd0\u884c\u65f6\u73af\u5883:\n OS Name:     Windows\n OS Version:  10.0.26100\n OS Platform: Windows\n RID:         win-x64\n Base Path:   E:\\citylbm_buildchain\\dotnet\\sdk\\8.0.423\\\n\n\u5df2\u5b89\u88c5 .NET \u5de5\u4f5c\u8d1f\u8f7d:\n\u914d\u7f6e\u4e3a\u5728\u5b89\u88c5\u65b0\u6e05\u5355\u65f6\u4f7f\u7528 loose manifests\u3002\n\u6ca1\u6709\u8981\u663e\u793a\u7684\u5df2\u5b89\u88c5\u5de5\u4f5c\u8d1f\u8f7d\u3002\n\nHost:\n  Version:      8.0.29\n  Architecture: x64\n  Commit:       18fd75c847\n\n.NET SDKs installed:\n  8.0.423 [E:\\citylbm_buildchain\\dotnet\\sdk]\n\n.NET runtimes installed:\n  Microsoft.AspNetCore.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.NETCore.App]\n  Microsoft.WindowsDesktop.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\n\nOther architectures found:\n  None\n\nEnvironment variables:\n  Not set\n\nglobal.json file:\n  Not found\n\nLearn more:\n  https://aka.ms/dotnet/info\n\nDownload .NET:\n  https://aka.ms/dotnet/download",
       "stderr": ""
     },
     "nvidia_smi": {
@@ -43,23 +44,23 @@
     "fluidx3d_executable": {
       "found": true,
       "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
-      "sha256": "5c19aa6367513eaaf57f495551c1774ebbca5f167659fc0f38d5527656a812f3",
+      "sha256": "31c0db49267d496cb7c50c01c74b0662335b86fb2742a2cc0247536f74d72f90",
       "size_bytes": 1050351,
-      "mtime": "2026-08-01T09:36:16.805441+00:00"
+      "mtime": "2026-08-01T10:05:50.970647+00:00"
     },
     "citylbm_gha": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.gha",
-      "sha256": "273e5cb873c4c06bcc13b0e5e8c1a2b861135ae4c658d3ca5528e4e8d180b3e5",
-      "size_bytes": 1785344,
-      "mtime": "2026-08-01T09:48:37.350209+00:00"
+      "sha256": "1a4359c9fac0f42930afdff1c78e3d42ce28d8a1d7a334ede9a5c84be709e41f",
+      "size_bytes": 1785856,
+      "mtime": "2026-08-01T10:22:05.547915+00:00"
     },
     "citylbm_build_log": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-      "sha256": "f99f98cbad53a20ff1ba68191e7b184279657bf874de0e6530aa6f7c08242c85",
-      "size_bytes": 1604,
-      "mtime": "2026-08-01T09:48:37.502877+00:00"
+      "sha256": "b8331478e0caa98beedd5dcde292c9cb33bb0211d4f805617810ae0481b59435",
+      "size_bytes": 101558,
+      "mtime": "2026-08-01T10:22:05.693236+00:00"
     },
     "run_matrix": {
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",

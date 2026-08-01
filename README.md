@@ -19,10 +19,11 @@ probes. Diagnostic height offsets such as `z_plus_half` or `z+4.5 m` are not
 accepted as formal validation results.
 
 Current newly-run native results do not satisfy the formal accuracy gate. The
-best run so far is dx=2 m, 48000 steps, spinup 12000, raw_trilinear sampling:
-MAE 31.436 percentage points, R2 -4.006626, Pearson -0.001683. These results
-support a limitations/diagnostic discussion only, not a predictive-accuracy
-claim or a formal `v0.4.0` release.
+best run so far is a diagnostic dx=2 m run with one effective-ground offset
+cell and `nu_lbm=0.001`, 48000 steps, spinup 12000, raw_trilinear sampling:
+MAE 23.972 percentage points, R2 -2.311768, Pearson 0.071789. These results
+show directional improvement but support a limitations/diagnostic discussion
+only, not a predictive-accuracy claim or a formal `v0.4.0` release.
 
 Current Case E materials:
 
@@ -33,7 +34,13 @@ Current Case E materials:
 - `docs/experiments/casee/tools/generate_native_casee.py`
 - `docs/experiments/casee/tools/release_gate.py`
 - `docs/experiments/casee/results/casee_native_metric_comparison.csv`
+- `docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv`
 - `docs/releases/v0.4.0-rc1.md`
+
+CityLBM includes one experiment-derived default-off solver switch in this branch:
+`Diagnostic LBM Nu Override` (`nuLBM`) on the Grasshopper `Run Simulation`
+component. It is for reproducing `nu_lbm` sensitivity diagnostics only; leaving
+it at 0 keeps the standard physical-viscosity mapping.
 
 Run the audit after official data are present:
 

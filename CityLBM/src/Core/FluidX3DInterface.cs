@@ -1632,8 +1632,12 @@ namespace CityLBM.Solver
             double dx = grid.Dx;                // 格子物理尺寸（m，对应 CartesianGrid.Dx）
             double dt = dx / 1.0;               // 时间步长（使用格子单位，u_max≈0.1c）
             double nu_lbm = settings.Viscosity * dt / (dx * dx); // LBM 无量纲粘度
+            bool hasDiagnosticNuOverride = settings.DiagnosticNuLbmOverride > 0.0;
+            if (hasDiagnosticNuOverride)
+                nu_lbm = settings.DiagnosticNuLbmOverride;
             double tau = 3.0 * nu_lbm + 0.5;   // 松弛时间
-            tau = Math.Max(0.55, Math.Min(tau, 2.0)); // 限定在稳定范围
+            if (!hasDiagnosticNuOverride)
+                tau = Math.Max(0.55, Math.Min(tau, 2.0)); // 限定在稳定范围
 
             sb.AppendLine("// ---- 松弛时间（由粘度自动计算）----");
             sb.AppendLine($"// nu_physical = {settings.Viscosity:E3} m²/s");
@@ -1691,10 +1695,14 @@ namespace CityLBM.Solver
 
             // LBM 运动粘度（格子单位）：从 TAU 反算，nu = (TAU-0.5)/3
             // 实际上 defines.hpp 已经定义了 TAU，这里只是注释用
+            bool hasDiagnosticNuOverride = settings.DiagnosticNuLbmOverride > 0.0;
             double nu_lbm_val = (3.0 * settings.Viscosity * 1.0 / (grid.Dx * grid.Dx));
+            if (hasDiagnosticNuOverride)
+                nu_lbm_val = settings.DiagnosticNuLbmOverride;
             double tau_val = 3.0 * nu_lbm_val + 0.5;
-            tau_val = Math.Max(0.55, Math.Min(tau_val, 2.0));
-            double nu_final = (tau_val - 0.5) / 3.0;
+            if (!hasDiagnosticNuOverride)
+                tau_val = Math.Max(0.55, Math.Min(tau_val, 2.0));
+            double nu_final = hasDiagnosticNuOverride ? nu_lbm_val : (tau_val - 0.5) / 3.0;
 
             sb.AppendLine("void main_setup() {");
             sb.AppendLine($"    // LBM 物理参数 (u_max = {uMax}, tau = {tau_val:F4}, nu = {nu_final:E4})");
@@ -1953,7 +1961,8 @@ namespace CityLBM.Solver
             sb.AppendLine($"    \"spinup_steps\": {settings.SpinupSteps},");
             sb.AppendLine($"    \"save_interval\": {settings.SaveInterval},");
             sb.AppendLine($"    \"viscosity_m2_s\": {settings.Viscosity.ToString("E8", System.Globalization.CultureInfo.InvariantCulture)},");
-            sb.AppendLine($"    \"max_lattice_velocity\": {settings.MaxLatticeVelocity.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}");
+            sb.AppendLine($"    \"max_lattice_velocity\": {settings.MaxLatticeVelocity.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"    \"diagnostic_nu_lbm_override\": {settings.DiagnosticNuLbmOverride.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}");
             sb.AppendLine("  },");
             sb.AppendLine("  \"validation\": {");
             sb.AppendLine($"    \"case_condition\": \"{EscapeJson(settings.CaseCondition)}\",");
@@ -2222,6 +2231,7 @@ namespace CityLBM.Solver
         public string ApproachFlowCsvPath { get; set; } = "";
         public string ReferenceProbeCsvPath { get; set; } = "";
         public double MaxLatticeVelocity { get; set; } = 0.1;
+        public double DiagnosticNuLbmOverride { get; set; } = 0.0;
         public List<InletProfilePoint> InletProfile { get; set; } = new List<InletProfilePoint>();
 
         public double InletVelocityX { get; set; }
@@ -2319,6 +2329,7 @@ namespace CityLBM.Solver
                 ApproachFlowCsvPath = source.ApproachFlowCsvPath,
                 ReferenceProbeCsvPath = source.ReferenceProbeCsvPath,
                 MaxLatticeVelocity = source.MaxLatticeVelocity,
+                DiagnosticNuLbmOverride = source.DiagnosticNuLbmOverride,
                 InletVelocityX = source.InletVelocityX,
                 InletVelocityY = source.InletVelocityY,
                 InletVelocityZ = source.InletVelocityZ,

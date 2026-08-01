@@ -130,12 +130,23 @@ def convert_ascii_stl_to_binary(src: Path, dst: Path) -> int:
     return len(triangles)
 
 
-def generate_setup(dx: float, steps: int, spinup: int, sample_dt: int, lattice_umax: float, wind_y: float) -> str:
+def generate_setup(
+    dx: float,
+    steps: int,
+    spinup: int,
+    sample_dt: int,
+    lattice_umax: float,
+    wind_y: float,
+    ground_offset_cells: int,
+    domain_decomp: tuple[int, int, int],
+    nu_lbm: float,
+) -> str:
     probes = official_probes()
     af = approach_flow()
+    origin_z = DOMAIN["origin_z"] - ground_offset_cells * dx
     nx = math.ceil(DOMAIN["size_x"] / dx)
     ny = math.ceil(DOMAIN["size_y"] / dx)
-    nz = math.ceil(DOMAIN["size_z"] / dx)
+    nz = math.ceil((DOMAIN["size_z"] - origin_z) / dx)
     max_ratio = max(p["u"] / UREF for p in af)
     uref_lbm = lattice_umax / max_ratio
 
@@ -150,7 +161,12 @@ def generate_setup(dx: float, steps: int, spinup: int, sample_dt: int, lattice_u
         f"static const float CASEE_DX = {dx:.8f}f;",
         f"static const float CASEE_ORIGIN_X = {DOMAIN['origin_x']:.8f}f;",
         f"static const float CASEE_ORIGIN_Y = {DOMAIN['origin_y']:.8f}f;",
-        f"static const float CASEE_ORIGIN_Z = {DOMAIN['origin_z']:.8f}f;",
+        f"static const float CASEE_ORIGIN_Z = {origin_z:.8f}f;",
+        f"static const int CASEE_GROUND_OFFSET_CELLS = {ground_offset_cells};",
+        f"static const uint CASEE_DX_DOMAINS = {domain_decomp[0]}u;",
+        f"static const uint CASEE_DY_DOMAINS = {domain_decomp[1]}u;",
+        f"static const uint CASEE_DZ_DOMAINS = {domain_decomp[2]}u;",
+        f"static const float CASEE_NU_LBM = {nu_lbm:.10f}f;",
         f"static const uint CASEE_STEPS = {steps}u;",
         f"static const uint CASEE_SPINUP = {spinup}u;",
         f"static const uint CASEE_SAMPLE_DT = {sample_dt}u;",
@@ -208,7 +224,7 @@ def generate_setup(dx: float, steps: int, spinup: int, sample_dt: int, lattice_u
         "}",
         "",
         "void main_setup() {",
-        "    LBM lbm(CASEE_NX, CASEE_NY, CASEE_NZ, 2u, 2u, 1u, 0.01666667f);",
+        "    LBM lbm(CASEE_NX, CASEE_NY, CASEE_NZ, CASEE_DX_DOMAINS, CASEE_DY_DOMAINS, CASEE_DZ_DOMAINS, CASEE_NU_LBM);",
         "    const uint Nx=lbm.get_Nx(), Ny=lbm.get_Ny(), Nz=lbm.get_Nz();",
         "    parallel_for(lbm.get_N(), [&](ulong n) {",
         "        uint x=0u, y=0u, z=0u;",
@@ -272,16 +288,39 @@ def main() -> int:
     parser.add_argument("--lattice-umax", type=float, default=0.08)
     parser.add_argument("--wind-y", type=float, choices=(-1.0, 1.0), default=-1.0)
     parser.add_argument("--no-subgrid", action="store_true")
+    parser.add_argument(
+        "--ground-offset-cells",
+        type=int,
+        default=0,
+        help="Diagnostic effective-ground shift. 1 adds one sub-ground solid layer so z=0 falls at the solid-fluid interface.",
+    )
+    parser.add_argument("--domain-x", type=int, default=2)
+    parser.add_argument("--domain-y", type=int, default=2)
+    parser.add_argument("--domain-z", type=int, default=1)
+    parser.add_argument("--nu-lbm", type=float, default=0.01666667)
     parser.add_argument("--fluidx3d-root", type=Path)
     parser.add_argument("--deploy", action="store_true")
     args = parser.parse_args()
 
     wind_label = "yn" if args.wind_y < 0 else "yp"
     sgs_label = "nosgs" if args.no_subgrid else "sgs"
-    run_id = f"casee_native_dx{args.dx:g}_{wind_label}_{sgs_label}_steps{args.steps}_spin{args.spinup}"
+    ground_label = f"gshift{args.ground_offset_cells}"
+    nu_label = f"nu{args.nu_lbm:g}".replace(".", "p")
+    run_id = f"casee_native_dx{args.dx:g}_{wind_label}_{sgs_label}_{ground_label}_{nu_label}_steps{args.steps}_spin{args.spinup}"
     case_dir = NATIVE_DIR / run_id
     case_dir.mkdir(parents=True, exist_ok=True)
-    setup = generate_setup(args.dx, args.steps, args.spinup, args.sample_dt, args.lattice_umax, args.wind_y)
+    domain_decomp = (args.domain_x, args.domain_y, args.domain_z)
+    setup = generate_setup(
+        args.dx,
+        args.steps,
+        args.spinup,
+        args.sample_dt,
+        args.lattice_umax,
+        args.wind_y,
+        args.ground_offset_cells,
+        domain_decomp,
+        args.nu_lbm,
+    )
     defines = generate_defines(not args.no_subgrid)
     (case_dir / "setup.cpp").write_text(setup, encoding="utf-8")
     (case_dir / "defines.hpp").write_text(defines, encoding="utf-8")
@@ -298,6 +337,9 @@ def main() -> int:
         "wind_direction": "N",
         "solver_wind_y": args.wind_y,
         "subgrid_enabled": not args.no_subgrid,
+        "ground_offset_cells": args.ground_offset_cells,
+        "domain_decomposition": list(domain_decomp),
+        "nu_lbm": args.nu_lbm,
         "validation_height_m": 2.0,
         "probe_count": 80,
         "geometry_scale_factor": SCALE_FACTOR,

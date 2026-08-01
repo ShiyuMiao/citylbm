@@ -85,6 +85,10 @@ namespace CityLBM.Components.Simulation
             pManager.AddBooleanParameter("AIJ Case E Preset", "CaseE",
                 "True = apply the official AIJ Case E ac+N z=2m validation preset. This is an accuracy protocol preset, not a success claim.",
                 GH_ParamAccess.item, false);
+            pManager.AddNumberParameter("Diagnostic LBM Nu Override", "nuLBM",
+                "Experimental only. >0 overrides the generated FluidX3D LBM lattice viscosity; default 0 keeps the standard physical-viscosity mapping.",
+                GH_ParamAccess.item, 0.0);
+            pManager[11].Optional = true;
 
             // 全部可选（除 Scene 和 Grid）
             for (int i = 2; i <= 10; i++) pManager[i].Optional = true;
@@ -114,6 +118,7 @@ namespace CityLBM.Components.Simulation
             bool run = false;
             bool cancel = false;
             bool useCaseEPreset = false;
+            double diagnosticNuLbmOverride = 0.0;
 
             if (!DA.GetData(0, ref ghScene)) return;
             if (!DA.GetData(1, ref ghGrid)) return;
@@ -126,6 +131,7 @@ namespace CityLBM.Components.Simulation
             DA.GetData(8, ref run);
             DA.GetData(9, ref cancel);
             DA.GetData(10, ref useCaseEPreset);
+            DA.GetData(11, ref diagnosticNuLbmOverride);
 
             // ── GH 加载期保护 ────────────────────────────────────────────
             // 使用宽限期策略：组件创建后 3 秒内认为 GH 可能还在加载
@@ -223,7 +229,8 @@ namespace CityLBM.Components.Simulation
                 Viscosity = viscosity,
                 TimeSteps = timeSteps,
                 SaveInterval = saveInterval,
-                UseAijCaseEPreset = useCaseEPreset
+                UseAijCaseEPreset = useCaseEPreset,
+                DiagnosticNuLbmOverride = diagnosticNuLbmOverride
             };
             settings.SetInletVelocity(scene.WindDirection, scene.WindSpeed);
 

@@ -1,0 +1,7 @@
+diagnostic,n,mae_pp,rmse_pp,bias_pp,r2,pearson,notes
+raw_official_z2m,80,23.971843712499997,29.09517811414642,-20.8333859625,-2.3117683583310877,0.07178905303473038,Formal official z=2 m raw_trilinear metric for dx2_gshift1_nu001.
+affine_calibrated_prediction,80,13.342,15.947,,0.005154,,Diagnostic only; even optimal affine rescaling leaves near-zero explanatory power.
+solid_neighbors_max_0,25,12.932,,-7.095,,,Diagnostic group from native probe CSV.
+solid_neighbors_max_2,37,27.110,,-24.421,,,Diagnostic group from native probe CSV.
+solid_neighbors_max_3,2,13.338,,-10.507,,,Diagnostic group from native probe CSV.
+solid_neighbors_max_4,16,35.294,,-35.294,,,Diagnostic group from native probe CSV.

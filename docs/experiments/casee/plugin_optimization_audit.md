@@ -35,6 +35,7 @@ Implemented in source:
 - Added `citylbm_run_manifest.json` generation in every case folder.
 - Applied the Case E wind override to a generation-only `Scene` clone, so Grasshopper input scenes are not silently mutated.
 - Kept the generic CityLBM lattice velocity default at 0.1; the 0.08 cap is Case E preset-only.
+- Added a default-off `Diagnostic LBM Nu Override` Grasshopper input and run-manifest field. It exists to reproduce native `nu_lbm` sensitivity diagnostics and is not a default solver accuracy model.
 - Added a MinGW/g++ fallback path for FluidX3D builds when MSBuild is unavailable or fails. This is a build-chain reliability improvement, not a solver accuracy model.
 
 ### Experiment 3 / TUM2TWIN
@@ -57,12 +58,16 @@ Experimental only:
 
 - `nearest_valid`, `fluid_weighted`, `vertical_valid_above`, `z_plus_half`.
 - near-wall, rough-wall, and effective-ground switches.
+- `nu_lbm` sweeps below the generic stable default.
 - claims about full-plane digital-filter turbulence improvement until native FluidX3D logs and z=2 m metrics prove it.
 
 ## Current Verification Status
 
 - Source was edited, rebuilt, and inspected.
 - Official data and 80-probe filtering are verified.
-- CityLBM builds on the local .NET SDK 8.0.423 toolchain; the generated GHA is recorded in `docs/experiments/casee/results/environment_manifest.json`.
+- CityLBM builds on the local .NET SDK 8.0.423 toolchain with 0 errors and existing nullable warnings; the generated GHA is recorded in `docs/experiments/casee/results/environment_manifest.json`.
 - Native FluidX3D dx=3 m and dx=2 m runs completed at official z=2 m, but the metrics remain below the release threshold.
+- Effective-ground plus lower `nu_lbm` diagnostics improved the best newly-run official z=2 m result to MAE 23.972 pp, R2 -2.311768, Pearson 0.071789. This is directional improvement only; R2 remains negative and the release gate still fails.
+- Error grouping for the best diagnostic run shows MAE 12.932 pp at probes with zero solid interpolation neighbors, but 35.294 pp at probes with four solid neighbors. An affine calibration of the predictions still gives only R2 0.005154, so the main blocker is spatial/protocol fidelity near walls and solid corners, not just a global velocity scale.
+- Because effective-ground shifting depends on native Case E's explicit STL physical-origin mapping and CityLBM's generic generator currently voxelizes around `lbm.center()`, the effective-ground switch was not migrated into the plugin defaults or GH UI in this continuation.
 - Therefore, this is still an accuracy-diagnostic optimization, not a validated accuracy success.
