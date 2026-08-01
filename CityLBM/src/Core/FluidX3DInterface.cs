@@ -1938,12 +1938,24 @@ namespace CityLBM.Solver
 
         private void WriteRunManifest(Scene scene, CartesianGrid grid, SimulationSettings settings, string caseDir, int clearedOutputFiles)
         {
+            bool hasDiagnosticNuOverride = settings.DiagnosticNuLbmOverride > 0.0;
+            bool hasDiagnosticZOriginOffset = Math.Abs(settings.DiagnosticZOriginOffsetM) > 1e-12;
+            bool diagnosticSettingsAreDefaultSafe = !hasDiagnosticNuOverride && !hasDiagnosticZOriginOffset;
+
             var sb = new StringBuilder();
             sb.AppendLine("{");
             sb.AppendLine($"  \"generated_at\": \"{DateTime.Now:yyyy-MM-ddTHH:mm:sszzz}\",");
             sb.AppendLine($"  \"scene_name\": \"{EscapeJson(scene.Name)}\",");
             sb.AppendLine($"  \"protocol_name\": \"{EscapeJson(settings.ProtocolName)}\",");
             sb.AppendLine($"  \"evidence_boundary\": \"case generation only; solver accuracy requires completed FluidX3D logs and probe CSV\",");
+            sb.AppendLine($"  \"diagnostic_settings_are_default_safe\": {BoolJson(diagnosticSettingsAreDefaultSafe)},");
+            sb.AppendLine("  \"release_claim_boundary\": {");
+            sb.AppendLine($"    \"formal_sampling_mode\": \"{EscapeJson(settings.FormalSamplingMode)}\",");
+            sb.AppendLine("    \"formal_result_height_must_equal_official_z2m\": true,");
+            sb.AppendLine("    \"diagnostic_modes_allowed_as_formal_result\": false,");
+            sb.AppendLine("    \"diagnostic_z_origin_offset_allowed_as_default_accuracy_model\": false,");
+            sb.AppendLine("    \"requires_external_release_gate_pass\": true");
+            sb.AppendLine("  },");
             sb.AppendLine("  \"grid\": {");
             sb.AppendLine($"    \"nx\": {grid.Nx}, \"ny\": {grid.Ny}, \"nz\": {grid.Nz}, \"dx_m\": {grid.Dx.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"    \"origin_x_m\": {grid.Origin.X.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");

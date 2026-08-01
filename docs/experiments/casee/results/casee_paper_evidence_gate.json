@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-08-01T12:07:11.275493+00:00",
+  "paper_evidence_gate_passed": true,
+  "metric_gate": {
+    "formal_release_allowed": false,
+    "recommended_tag": "v0.4.0-rc12",
+    "official_z2m_r2": -2.006330362229977,
+    "official_z2m_mae_pp": 21.111408125,
+    "official_z2m_pearson": 0.11575649438573923,
+    "formal_metric_is_negative_validation": true
+  },
+  "claim_matrix": {
+    "claim_count": 8,
+    "readiness_counts": {
+      "paper_ready": 2,
+      "limitations_ready": 3,
+      "weaken_claim": 1,
+      "blocked": 2
+    },
+    "blocked_release_claim_present": true,
+    "negative_validation_claim_present": true,
+    "recommended_tag_present": true,
+    "no_overstated_paper_ready_claims": true,
+    "overstated_paper_ready_claim_ids": []
+  },
+  "draft_scan": {
+    "checked_files": [
+      "academic-paper-writer/paper-drafts/casee_v04_claim_control.md",
+      "academic-paper-writer/paper-drafts/casee_v04_results_limitations_en.md",
+      "academic-paper-writer/paper-drafts/casee_v04_results_limitations_zh.md"
+    ],
+    "checked_nonblank_lines": 93,
+    "forbidden_success_claim_violations": [],
+    "draft_claim_boundary_passed": true
+  }
+}
