@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-01T11:02:01.042819+00:00
+Generated: 2026-08-01T11:12:08.894869+00:00
 
 ## Protocol
 
@@ -13,7 +13,7 @@ Generated: 2026-08-01T11:02:01.042819+00:00
 
 ## Metrics
 
-- Prediction source: `docs\experiments\casee\results\casee_native_dx2_gshift1_nu001_probe_time_mean.csv`
+- Prediction source: `docs\experiments\casee\results\casee_native_dx2_gshift1_nu001_pmodes_probe_time_mean.csv`
 - n: 80
 - MAE: 23.972 percentage points
 - RMSE: 29.095 percentage points
@@ -41,17 +41,26 @@ Generated: 2026-08-01T11:02:01.042819+00:00
 
 ## Probe Sampling Modes Runner
 
-- Status: passed
+- Status: passed_full_run
 - Evidence type: newly_run
-- Claim readiness: compile_only_no_accuracy_metric
+- Claim readiness: diagnostic_metrics_available
 - Case: `docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_nu0p001_pmodes_steps48000_spin12000`
-- Scope: compile-only diagnostic runner; no probe-mode accuracy metric is claimed until a full FluidX3D run completes.
+- Full run completed: True
+- Scope: diagnostic runner; formal release still uses raw_trilinear official z=2 m metrics.
+
+## Probe Sampling Mode Metrics
+
+- Evidence: `docs/experiments/casee/results/casee_probe_mode_metrics.csv`
+- Formal raw_trilinear MAE: 23.972 pp; R2: -2.311768; Pearson: 0.071789
+- Best diagnostic MAE: `z_plus_half` with MAE 21.217 pp and R2 -1.626431
+- Best diagnostic Pearson: `z_plus_half` with Pearson 0.187068
+- Interpretation: diagnostic sampling reduces error but all mode R2 values remain negative.
 
 ## Release Gate
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc5
+- Recommended tag: v0.4.0-rc6
 
 | Check | Status |
 |---|---:|

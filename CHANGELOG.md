@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.4.0-rc6 - Completed probe-mode diagnostic run
+
+- Completed the native dx=2 m, effective-ground one-cell, `nu_lbm=0.001` probe-mode diagnostic run for 48000 steps.
+- Recorded the full run log, probe CSV, audit manifest, mode metrics, solid-corner group metrics, and probe-mode figure.
+- The formal `raw_trilinear` official z=2 m metric remains unchanged and below the release gate.
+
+Probe-mode diagnostic results:
+
+- `raw_trilinear` formal: MAE = 23.972 pp, R2 = -2.311768, Pearson = 0.071789.
+- `vertical_valid_above`: MAE = 21.356 pp, R2 = -1.637050, Pearson = 0.118127.
+- `z_plus_half`: MAE = 21.217 pp, R2 = -1.626431, Pearson = 0.187068.
+
+These results strengthen the near-wall/probe-protocol limitation, but they still do not support a predictive-accuracy claim or formal `v0.4.0`.
+
 ## v0.4.0-rc5 - Probe-mode runner and spatial alignment diagnostic
 
 - Added a native Case E probe-mode diagnostic runner that preserves formal `raw_trilinear` output while also writing `nearest_valid`, `fluid_weighted`, `vertical_valid_above`, and `z_plus_half` diagnostic columns for future full runs.

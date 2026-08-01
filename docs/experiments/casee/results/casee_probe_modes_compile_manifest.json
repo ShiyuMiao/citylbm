@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-01T10:59:54.056495+00:00",
-  "status": "passed",
+  "generated_at": "2026-08-01T11:09:37.688809+00:00",
+  "status": "passed_full_run",
   "evidence_type": "newly_run",
-  "claim_readiness": "compile_only_no_accuracy_metric",
+  "claim_readiness": "diagnostic_metrics_available",
   "case_dir": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_nu0p001_pmodes_steps48000_spin12000",
   "setup": {
     "found": true,
@@ -25,6 +25,20 @@
     "size_bytes": 0,
     "mtime_utc": "2026-08-01T10:56:19.335380+00:00"
   },
+  "run_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_dx2_pmodes_run_20260801_190445.log",
+    "sha256": "830048c58e5edaed88d08335ea72969d60a33a76f411162a3d1fa9cec4bd4b14",
+    "size_bytes": 199709,
+    "mtime_utc": "2026-08-01T11:07:19.711203+00:00"
+  },
+  "probe_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_native_dx2_gshift1_nu001_pmodes_probe_time_mean.csv",
+    "sha256": "b2d2a0302f056ee1c1ce91ee52a9d92576161152108b3e1adecc855b8e0d59f4",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-01T11:07:19.609009+00:00"
+  },
   "fluidx3d_executable": {
     "found": true,
     "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
@@ -33,6 +47,7 @@
     "mtime_utc": "2026-08-01T10:57:23.774236+00:00"
   },
   "executable_mtime_after_setup": true,
+  "full_run_completed": true,
   "required_setup_markers": {
     "sample_u_raw_trilinear": true,
     "sample_u_nearest_valid": true,
@@ -44,5 +59,5 @@
     "vertical_valid_above_velocity_ratio": true
   },
   "blocking_reason": "",
-  "accuracy_boundary": "No probe-mode accuracy metrics are claimed until a full FluidX3D run writes casee_probe_time_mean.csv with diagnostic columns."
+  "accuracy_boundary": "Diagnostic probe-mode metrics are limitations evidence; formal release still uses raw_trilinear official z=2 m metrics."
 }

@@ -38,9 +38,11 @@ Current Case E and release-gate materials:
 - `docs/experiments/casee/results/casee_solid_corner_group_metrics.csv`
 - `docs/experiments/casee/results/casee_spatial_alignment_diagnostic.csv`
 - `docs/experiments/casee/results/casee_probe_modes_compile_manifest.json`
+- `docs/experiments/casee/results/casee_probe_mode_metrics.csv`
+- `docs/experiments/casee/results/casee_native_dx2_gshift1_nu001_pmodes_probe_time_mean.csv`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc5.md`
+- `docs/releases/v0.4.0-rc6.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -58,6 +60,11 @@ diagnostic runner. It keeps `predicted_velocity_ratio` as the formal
 `raw_trilinear` z=2 m result and adds diagnostic columns for `nearest_valid`,
 `fluid_weighted`, `vertical_valid_above`, and `z_plus_half`. These columns are
 experimental only until a full run is completed and audited.
+
+The completed probe-mode diagnostic run reduced the best diagnostic MAE to
+21.217 percentage points with `z_plus_half` and raised Pearson to 0.187068, but
+R2 remained negative. This is limitations evidence for near-wall/probe-protocol
+sensitivity, not formal validation.
 
 Run the audit after official data are present:
 

@@ -25,6 +25,7 @@ RESULTS_DIR = CASE_DIR / "results"
 PRESET_PATH = CASE_DIR / "casee_preset.json"
 SPATIAL_ALIGNMENT_CSV = RESULTS_DIR / "casee_spatial_alignment_diagnostic.csv"
 PROBE_MODES_COMPILE_MANIFEST = RESULTS_DIR / "casee_probe_modes_compile_manifest.json"
+PROBE_MODE_METRICS_CSV = RESULTS_DIR / "casee_probe_mode_metrics.csv"
 
 
 def read_csv(path: Path) -> List[Dict[str, str]]:
@@ -511,10 +512,30 @@ def write_report(
                 f"- Evidence type: {pmodes.get('evidence_type')}",
                 f"- Claim readiness: {pmodes.get('claim_readiness')}",
                 f"- Case: `{pmodes.get('case_dir')}`",
-                "- Scope: compile-only diagnostic runner; no probe-mode accuracy metric is claimed until a full FluidX3D run completes.",
+                f"- Full run completed: {pmodes.get('full_run_completed', False)}",
+                "- Scope: diagnostic runner; formal release still uses raw_trilinear official z=2 m metrics.",
             ]
         except Exception as exc:
             lines += ["", "## Probe Sampling Modes Runner", "", f"- Blocked: {exc}"]
+    if PROBE_MODE_METRICS_CSV.exists():
+        try:
+            mode_rows = read_csv(PROBE_MODE_METRICS_CSV)
+            formal = next((row for row in mode_rows if row.get("sampling_mode") == "raw_trilinear"), None)
+            diagnostics = [row for row in mode_rows if row.get("claim_boundary") == "diagnostic"]
+            best_mae = min(diagnostics, key=lambda row: float(row["mae_pp"])) if diagnostics else None
+            best_pearson = max(diagnostics, key=lambda row: float(row["pearson"])) if diagnostics else None
+            lines += [
+                "",
+                "## Probe Sampling Mode Metrics",
+                "",
+                f"- Evidence: `{display_path(PROBE_MODE_METRICS_CSV)}`",
+                f"- Formal raw_trilinear MAE: {float(formal['mae_pp']):.3f} pp; R2: {float(formal['r2']):.6f}; Pearson: {float(formal['pearson']):.6f}" if formal else "- Formal raw_trilinear row unavailable.",
+                f"- Best diagnostic MAE: `{best_mae['sampling_mode']}` with MAE {float(best_mae['mae_pp']):.3f} pp and R2 {float(best_mae['r2']):.6f}" if best_mae else "- Diagnostic mode rows unavailable.",
+                f"- Best diagnostic Pearson: `{best_pearson['sampling_mode']}` with Pearson {float(best_pearson['pearson']):.6f}" if best_pearson else "- Diagnostic mode rows unavailable.",
+                "- Interpretation: diagnostic sampling reduces error but all mode R2 values remain negative.",
+            ]
+        except Exception as exc:
+            lines += ["", "## Probe Sampling Mode Metrics", "", f"- Blocked: {exc}"]
     lines += [
         "",
         "## Release Gate",

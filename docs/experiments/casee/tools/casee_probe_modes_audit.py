@@ -63,6 +63,8 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--case-dir", type=Path, default=PMODES_CASE_DIR)
     parser.add_argument("--compile-log", type=Path, default=RESULTS_DIR / "fluidx3d_dx2_pmodes_compile.log")
+    parser.add_argument("--run-log", type=Path)
+    parser.add_argument("--probe-csv", type=Path)
     parser.add_argument("--fluidx3d-exe", type=Path, default=Path(r"E:\citylbm_buildchain\FluidX3D\bin\FluidX3D.exe"))
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_probe_modes_compile_manifest.json")
     args = parser.parse_args()
@@ -75,6 +77,8 @@ def main() -> int:
     setup_info = file_status(setup_path)
     manifest_info = file_status(manifest_path)
     compile_log_info = file_status(args.compile_log)
+    run_log_info = file_status(args.run_log)
+    probe_csv_info = file_status(args.probe_csv)
     exe_info = file_status(args.fluidx3d_exe)
 
     exe_after_setup = False
@@ -89,21 +93,27 @@ def main() -> int:
         and exe_after_setup
         and all(marker_status.values())
     )
+    run_text = args.run_log.read_text(encoding="utf-8", errors="ignore") if args.run_log and args.run_log.exists() else ""
+    full_run_completed = "CaseE step 48000 / 48000" in run_text and bool(probe_csv_info["found"])
+    status = "passed_full_run" if passed and full_run_completed else ("passed_compile_only" if passed else "blocked")
 
     result = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "status": "passed" if passed else "blocked",
+        "status": status,
         "evidence_type": "newly_run" if passed else "blocked",
-        "claim_readiness": "compile_only_no_accuracy_metric" if passed else "blocked_probe_modes_compile_audit",
+        "claim_readiness": "diagnostic_metrics_available" if full_run_completed else ("compile_only_no_accuracy_metric" if passed else "blocked_probe_modes_compile_audit"),
         "case_dir": display_path(args.case_dir),
         "setup": setup_info,
         "case_manifest": manifest_info,
         "compile_log": compile_log_info,
+        "run_log": run_log_info,
+        "probe_csv": probe_csv_info,
         "fluidx3d_executable": exe_info,
         "executable_mtime_after_setup": exe_after_setup,
+        "full_run_completed": full_run_completed,
         "required_setup_markers": marker_status,
         "blocking_reason": "" if passed else "Probe-mode runner requires generated setup, manifest, compile log, executable, and all diagnostic output markers.",
-        "accuracy_boundary": "No probe-mode accuracy metrics are claimed until a full FluidX3D run writes casee_probe_time_mean.csv with diagnostic columns.",
+        "accuracy_boundary": "Diagnostic probe-mode metrics are limitations evidence; formal release still uses raw_trilinear official z=2 m metrics.",
     }
 
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
