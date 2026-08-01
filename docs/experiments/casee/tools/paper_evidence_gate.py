@@ -41,10 +41,12 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_default_policy_gate.md",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.md",
+    "docs/experiments/casee/results/citylbm_software_feedback_matrix.json",
+    "docs/experiments/casee/results/citylbm_software_feedback_matrix.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc24.md",
+    "docs/releases/v0.4.0-rc25.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -352,6 +354,31 @@ def paper_results_packet_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def software_feedback_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "software_feedback_matrix_found": False,
+            "software_feedback_matrix_passed": False,
+            "claim_boundary_safe": False,
+            "feedback_count": 0,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    summary = data.get("summary", {})
+    return {
+        "software_feedback_matrix_found": True,
+        "software_feedback_matrix_passed": summary.get("software_feedback_matrix_passed"),
+        "feedback_count": summary.get("feedback_count"),
+        "all_source_paths_exist": summary.get("all_source_paths_exist"),
+        "no_forbidden_default_promotion": summary.get("no_forbidden_default_promotion"),
+        "formal_accuracy_claim_supported": summary.get("formal_accuracy_claim_supported"),
+        "formal_v0_4_0_allowed": summary.get("formal_v0_4_0_allowed"),
+        "claim_boundary_safe": summary.get("software_feedback_matrix_passed") is True
+        and summary.get("no_forbidden_default_promotion") is True
+        and summary.get("formal_accuracy_claim_supported") is False
+        and summary.get("formal_v0_4_0_allowed") is False,
+    }
+
+
 def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     metric = payload["metric_gate"]
     claim = payload["claim_matrix"]
@@ -363,6 +390,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     atlas = payload["casee_failure_mode_atlas"]
     default_policy = payload["casee_default_policy_gate"]
     paper_packet = payload["citylbm_paper_results_packet"]
+    software_feedback = payload["citylbm_software_feedback_matrix"]
     lines = [
         "# Case E Paper Evidence Gate",
         "",
@@ -450,6 +478,17 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Formal accuracy claim supported: {paper_packet['formal_accuracy_claim_supported']}",
         f"- Formal v0.4.0 allowed: {paper_packet['formal_v0_4_0_allowed']}",
         f"- Claim boundary safe: {paper_packet['claim_boundary_safe']}",
+        "",
+        "## Software Feedback Matrix",
+        "",
+        f"- Matrix found: {software_feedback['software_feedback_matrix_found']}",
+        f"- Matrix passed: {software_feedback['software_feedback_matrix_passed']}",
+        f"- Feedback rows: {software_feedback['feedback_count']}",
+        f"- All source paths exist: {software_feedback['all_source_paths_exist']}",
+        f"- No forbidden default promotion: {software_feedback['no_forbidden_default_promotion']}",
+        f"- Formal accuracy claim supported: {software_feedback['formal_accuracy_claim_supported']}",
+        f"- Formal v0.4.0 allowed: {software_feedback['formal_v0_4_0_allowed']}",
+        f"- Claim boundary safe: {software_feedback['claim_boundary_safe']}",
     ]
     if artifact["missing_required_artifacts"]:
         lines += ["", "Missing required artifacts:"]
@@ -475,6 +514,7 @@ def main() -> int:
     parser.add_argument("--failure-atlas", type=Path, default=RESULTS_DIR / "casee_failure_mode_atlas.json")
     parser.add_argument("--default-policy", type=Path, default=RESULTS_DIR / "casee_default_policy_gate.json")
     parser.add_argument("--paper-results-packet", type=Path, default=RESULTS_DIR / "citylbm_paper_results_packet.json")
+    parser.add_argument("--software-feedback", type=Path, default=RESULTS_DIR / "citylbm_software_feedback_matrix.json")
     parser.add_argument("--draft-glob", default="casee_v04_*.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.json")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.md")
@@ -491,6 +531,7 @@ def main() -> int:
     atlas = failure_atlas_status(args.failure_atlas)
     default_policy = default_policy_status(args.default_policy)
     paper_packet = paper_results_packet_status(args.paper_results_packet)
+    software_feedback = software_feedback_status(args.software_feedback)
     passed = (
         metric["formal_metric_is_negative_validation"]
         and claim["blocked_release_claim_present"]
@@ -515,6 +556,8 @@ def main() -> int:
         and default_policy["claim_boundary_safe"]
         and paper_packet["paper_results_packet_found"]
         and paper_packet["claim_boundary_safe"]
+        and software_feedback["software_feedback_matrix_found"]
+        and software_feedback["claim_boundary_safe"]
     )
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -529,6 +572,7 @@ def main() -> int:
         "casee_failure_mode_atlas": atlas,
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_packet,
+        "citylbm_software_feedback_matrix": software_feedback,
     }
     args.out_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     write_markdown(args.out_md, payload)

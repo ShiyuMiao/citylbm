@@ -41,6 +41,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
 - `docs/experiments/casee/tools/citylbm_paper_results_packet.py`
+- `docs/experiments/casee/tools/citylbm_software_feedback_matrix.py`
 - `docs/experiments/casee/results/casee_native_metric_comparison.csv`
 - `docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv`
 - `docs/experiments/casee/results/casee_solid_corner_group_metrics.csv`
@@ -78,11 +79,14 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_paper_results_packet.json`
 - `docs/experiments/casee/results/citylbm_paper_results_packet.md`
 - `docs/experiments/casee/results/citylbm_paper_results_packet.csv`
+- `docs/experiments/casee/results/citylbm_software_feedback_matrix.json`
+- `docs/experiments/casee/results/citylbm_software_feedback_matrix.md`
+- `docs/experiments/casee/results/citylbm_software_feedback_matrix.csv`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc24.md`
+- `docs/releases/v0.4.0-rc25.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -175,6 +179,14 @@ limitations-ready, and blocked rows. It is intended for paper organization and
 claim control; it does not add new CFD output or turn Case E into a successful
 accuracy validation.
 
+The software-feedback matrix converts Experiments 1-3 into CityLBM decisions:
+Case A remains a default release-quality guard; Case E protocol constants remain
+the formal validation default; `nuLBM`, `zOff`, and non-raw probe sampling remain
+diagnostic switches; GPU/Rhino/VS C++ readiness remains a blocked follow-up
+condition; Experiment 3 stays in the digital-twin screening/application layer.
+This matrix is the current basis for software optimization claims, not a formal
+accuracy-upgrade claim.
+
 Run the audit after official data are present:
 
 ```powershell
@@ -186,6 +198,7 @@ python docs/experiments/casee/tools/casee_environment_recovery_runbook.py
 python docs/experiments/casee/tools/casee_failure_mode_atlas.py
 python docs/experiments/casee/tools/casee_default_policy_gate.py
 python docs/experiments/casee/tools/citylbm_paper_results_packet.py
+python docs/experiments/casee/tools/citylbm_software_feedback_matrix.py
 python docs/experiments/casee/tools/paper_evidence_gate.py
 ```
 

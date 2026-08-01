@@ -26,7 +26,7 @@ EXPLICIT_ARTIFACTS = [
     "CHANGELOG.md",
     "CityLBM/README.md",
     "CityLBM/bin/CityLBM.gha",
-    "docs/releases/v0.4.0-rc24.md",
+    "docs/releases/v0.4.0-rc25.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/data_manifest.csv",
@@ -48,6 +48,7 @@ RESULT_PATTERNS = [
     "environment_manifest.json",
     "release_gate.json",
     "citylbm_paper_results_packet.*",
+    "citylbm_software_feedback_matrix.*",
     "build_chain_manifest.json",
     "plugin_identity_gate.json",
     "rhino_gha_load_gate.*",
@@ -84,6 +85,7 @@ TOOL_SCRIPTS = [
     "casee_failure_mode_atlas.py",
     "casee_default_policy_gate.py",
     "citylbm_paper_results_packet.py",
+    "citylbm_software_feedback_matrix.py",
     "casee_audit.py",
     "casee_probe_modes_audit.py",
     "casee_probe_mode_metrics.py",
@@ -245,6 +247,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "paper_ready_default_policy_boundary"
     if "citylbm_paper_results_packet" in path:
         return "paper_ready_cross_experiment_results_packet"
+    if "citylbm_software_feedback_matrix" in path:
+        return "paper_ready_software_feedback_boundary"
     if "paper_evidence_gate" in path or "plugin_identity_gate" in path or "reproducibility_suite" in path:
         return "paper_ready_traceability"
     if "reproducibility_appendix" in path or "paper_appendix_manifest" in path or "paper_appendix_generator" in path:
@@ -281,6 +285,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to distinguish formal defaults from diagnostic-only software switches."
     if readiness == "paper_ready_cross_experiment_results_packet":
         return "Use to organize Experiments 1, 2, and 3 results into manuscript-ready and limitations-only rows."
+    if readiness == "paper_ready_software_feedback_boundary":
+        return "Use to trace how experiment findings are converted into defaults, diagnostic switches, and blockers."
     if "negative_validation" in readiness:
         return "Use as official z=2 m negative validation evidence."
     if "diagnostic" in readiness:
@@ -321,6 +327,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Default-policy boundary only; does not improve or replace official z=2 m metrics."
     if readiness == "paper_ready_cross_experiment_results_packet":
         return "Manuscript organization evidence only; does not add new CFD results or formal validation."
+    if readiness == "paper_ready_software_feedback_boundary":
+        return "Software-feedback boundary only; does not add solver output or justify formal accuracy."
     if path.endswith("BD_caseE.stl"):
         return "Official raw geometry should be referenced by hash; avoid duplicating large source data in manuscript."
     return ""
@@ -424,6 +432,9 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "citylbm_paper_results_packet.json",
                 "citylbm_paper_results_packet.md",
                 "citylbm_paper_results_packet.csv",
+                "citylbm_software_feedback_matrix.json",
+                "citylbm_software_feedback_matrix.md",
+                "citylbm_software_feedback_matrix.csv",
                 "casee_remaining_blockers.json",
                 "casee_remaining_blockers.md",
                 "casee_next_experiment_runbook.json",
@@ -436,7 +447,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_manuscript_claim_matrix.csv",
                 "casee_zcenter_probe_mode_metrics.csv",
                 "casee_zcenter_voxel_probe_audit_groups.csv",
-                "v0.4.0-rc24.md",
+                "v0.4.0-rc25.md",
             )
         )
     ]

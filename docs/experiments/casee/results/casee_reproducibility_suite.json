@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T13:40:07.641741+00:00",
+  "generated_at": "2026-08-01T13:48:00.040892+00:00",
   "suite_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready reproducibility chain; blocked formal accuracy release",
@@ -7,11 +7,11 @@
     {
       "name": "citylbm_release_build",
       "command": "E:\\citylbm_buildchain\\dotnet\\dotnet.exe build C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj -c Release",
-      "started_at": "2026-08-01T13:39:52.070039+00:00",
-      "ended_at": "2026-08-01T13:39:58.211013+00:00",
+      "started_at": "2026-08-01T13:47:44.820636+00:00",
+      "ended_at": "2026-08-01T13:47:50.431327+00:00",
       "returncode": 0,
       "passed": true,
-      "stdout_tail": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1017,60): warning CS8604: \u201cList<int> VTKCloudVisualizationComponent.GenerateStructuredPoints(VTKResultData result, int[] dims, float[] org, float[] spc, int step)\u201d\u4e2d\u7684\u5f62\u53c2\u201corg\u201d\u53ef\u80fd\u4f20\u5165 null \u5f15\u7528\u5b9e\u53c2\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1017,65): warning CS8604: \u201cList<int> VTKCloudVisualizationComponent.GenerateStructuredPoints(VTKResultData result, int[] dims, float[] org, float[] spc, int step)\u201d\u4e2d\u7684\u5f62\u53c2\u201cspc\u201d\u53ef\u80fd\u4f20\u5165 null \u5f15\u7528\u5b9e\u53c2\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1134,40): warning CS8600: \u5c06 null \u6587\u672c\u6216\u53ef\u80fd\u7684 null \u503c\u8f6c\u6362\u4e3a\u4e0d\u53ef\u4e3a null \u7c7b\u578b\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1280,52): warning CS8603: \u53ef\u80fd\u8fd4\u56de null \u5f15\u7528\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1282,30): warning CS8600: \u5c06 null \u6587\u672c\u6216\u53ef\u80fd\u7684 null \u503c\u8f6c\u6362\u4e3a\u4e0d\u53ef\u4e3a null \u7c7b\u578b\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1308,20): warning CS8603: \u53ef\u80fd\u8fd4\u56de null \u5f15\u7528\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1492,43): warning CS8603: \u53ef\u80fd\u8fd4\u56de null \u5f15\u7528\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Core\\FluidX3DInterface.cs(2172,45): warning CS8600: \u5c06 null \u6587\u672c\u6216\u53ef\u80fd\u7684 null \u503c\u8f6c\u6362\u4e3a\u4e0d\u53ef\u4e3a null \u7c7b\u578b\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\n    97 \u4e2a\u8b66\u544a\n    0 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:05.60",
+      "stdout_tail": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1134,40): warning CS8600: \u5c06 null \u6587\u672c\u6216\u53ef\u80fd\u7684 null \u503c\u8f6c\u6362\u4e3a\u4e0d\u53ef\u4e3a null \u7c7b\u578b\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Core\\FluidX3DInterface.cs(1419,20): warning CS8603: \u53ef\u80fd\u8fd4\u56de null \u5f15\u7528\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Core\\FluidX3DInterface.cs(1448,20): warning CS8603: \u53ef\u80fd\u8fd4\u56de null \u5f15\u7528\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1280,52): warning CS8603: \u53ef\u80fd\u8fd4\u56de null \u5f15\u7528\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1282,30): warning CS8600: \u5c06 null \u6587\u672c\u6216\u53ef\u80fd\u7684 null \u503c\u8f6c\u6362\u4e3a\u4e0d\u53ef\u4e3a null \u7c7b\u578b\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1308,20): warning CS8603: \u53ef\u80fd\u8fd4\u56de null \u5f15\u7528\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Components\\Results\\VTKCloudVisualizationComponent.cs(1492,43): warning CS8603: \u53ef\u80fd\u8fd4\u56de null \u5f15\u7528\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\nC:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\src\\Core\\FluidX3DInterface.cs(2172,45): warning CS8600: \u5c06 null \u6587\u672c\u6216\u53ef\u80fd\u7684 null \u503c\u8f6c\u6362\u4e3a\u4e0d\u53ef\u4e3a null \u7c7b\u578b\u3002 [C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\CityLBM.csproj]\n    97 \u4e2a\u8b66\u544a\n    0 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:05.08",
       "stderr_tail": "",
       "stdout_path": "docs/experiments/casee/results/citylbm_build_check.log",
       "expected_release_gate_block": false
@@ -25,11 +25,11 @@
     {
       "name": "casee_audit",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\casee_audit.py --predicted C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv --release-target v0.4.0 --dotnet-command E:\\citylbm_buildchain\\dotnet\\dotnet.exe --fluidx3d-exe E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
-      "started_at": "2026-08-01T13:39:58.227917+00:00",
-      "ended_at": "2026-08-01T13:40:02.452709+00:00",
+      "started_at": "2026-08-01T13:47:50.439216+00:00",
+      "ended_at": "2026-08-01T13:47:54.648616+00:00",
       "returncode": 0,
       "passed": true,
-      "stdout_tail": "  \"metrics\": {\n    \"n\": 80,\n    \"mae_pp\": 21.111408125,\n    \"rmse_pp\": 27.72103208243715,\n    \"bias_pp\": -16.409216,\n    \"r2\": -2.006330362229977,\n    \"pearson\": 0.11575649438573923,\n    \"height_m\": 2.0,\n    \"sampling_mode\": \"raw_trilinear\"\n  },\n  \"recommended_tag\": \"v0.4.0-rc24\"\n}",
+      "stdout_tail": "  \"metrics\": {\n    \"n\": 80,\n    \"mae_pp\": 21.111408125,\n    \"rmse_pp\": 27.72103208243715,\n    \"bias_pp\": -16.409216,\n    \"r2\": -2.006330362229977,\n    \"pearson\": 0.11575649438573923,\n    \"height_m\": 2.0,\n    \"sampling_mode\": \"raw_trilinear\"\n  },\n  \"recommended_tag\": \"v0.4.0-rc25\"\n}",
       "stderr_tail": "",
       "stdout_path": "",
       "expected_release_gate_block": false
@@ -37,8 +37,8 @@
     {
       "name": "manuscript_evidence_summary",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\manuscript_evidence_summary.py",
-      "started_at": "2026-08-01T13:40:02.453067+00:00",
-      "ended_at": "2026-08-01T13:40:02.584868+00:00",
+      "started_at": "2026-08-01T13:47:54.648764+00:00",
+      "ended_at": "2026-08-01T13:47:54.786938+00:00",
       "returncode": 0,
       "passed": true,
       "stdout_tail": "{\n  \"claims\": 8,\n  \"out_csv\": \"C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\\u3010citylbm\\u3011\\u5b9e\\u9a8c3\\uff1a\\u6570\\u5b57\\u5b6a\\u751f\\u5e94\\u7528\\u7814\\u7a76\\\\docs\\\\experiments\\\\casee\\\\results\\\\casee_manuscript_claim_matrix.csv\",\n  \"out_md\": \"C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\\u3010citylbm\\u3011\\u5b9e\\u9a8c3\\uff1a\\u6570\\u5b57\\u5b6a\\u751f\\u5e94\\u7528\\u7814\\u7a76\\\\docs\\\\experiments\\\\casee\\\\results\\\\casee_manuscript_evidence_summary.md\"\n}",
@@ -49,11 +49,11 @@
     {
       "name": "plugin_identity_gate",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\plugin_identity_gate.py",
-      "started_at": "2026-08-01T13:40:02.584868+00:00",
-      "ended_at": "2026-08-01T13:40:02.725227+00:00",
+      "started_at": "2026-08-01T13:47:54.787527+00:00",
+      "ended_at": "2026-08-01T13:47:54.912636+00:00",
       "returncode": 0,
       "passed": true,
-      "stdout_tail": "    \"release_gha_exists\": true,\n    \"tracked_gha_matches_release_build\": true,\n    \"root_readme_mentions_paper_gate\": true,\n    \"root_readme_mentions_rc24_release_notes\": true,\n    \"citylbm_readme_mentions_rc_status\": true,\n    \"changelog_has_rc24\": true,\n    \"release_notes_exist\": true,\n    \"release_notes_blocks_formal_v040\": true\n  },\n  \"evidence_type\": \"newly_run\",\n  \"claim_readiness\": \"paper_ready for software identity; not accuracy evidence\"\n}",
+      "stdout_tail": "    \"release_gha_exists\": true,\n    \"tracked_gha_matches_release_build\": true,\n    \"root_readme_mentions_paper_gate\": true,\n    \"root_readme_mentions_rc25_release_notes\": true,\n    \"citylbm_readme_mentions_rc_status\": true,\n    \"changelog_has_rc25\": true,\n    \"release_notes_exist\": true,\n    \"release_notes_blocks_formal_v040\": true\n  },\n  \"evidence_type\": \"newly_run\",\n  \"claim_readiness\": \"paper_ready for software identity; not accuracy evidence\"\n}",
       "stderr_tail": "",
       "stdout_path": "",
       "expected_release_gate_block": false
@@ -61,8 +61,8 @@
     {
       "name": "rhino_gha_load_gate",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\rhino_gha_load_gate.py",
-      "started_at": "2026-08-01T13:40:02.725520+00:00",
-      "ended_at": "2026-08-01T13:40:02.872006+00:00",
+      "started_at": "2026-08-01T13:47:54.912636+00:00",
+      "ended_at": "2026-08-01T13:47:55.046455+00:00",
       "returncode": 0,
       "passed": true,
       "stdout_tail": "{\n  \"rhino_loaded_new_gha\": false,\n  \"out_json\": \"C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\\u3010citylbm\\u3011\\u5b9e\\u9a8c3\\uff1a\\u6570\\u5b57\\u5b6a\\u751f\\u5e94\\u7528\\u7814\\u7a76\\\\docs\\\\experiments\\\\casee\\\\results\\\\rhino_gha_load_gate.json\"\n}",
@@ -73,8 +73,8 @@
     {
       "name": "casee_official_run_preflight",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\casee_official_run_preflight.py",
-      "started_at": "2026-08-01T13:40:02.872144+00:00",
-      "ended_at": "2026-08-01T13:40:03.457402+00:00",
+      "started_at": "2026-08-01T13:47:55.046455+00:00",
+      "ended_at": "2026-08-01T13:47:55.554473+00:00",
       "returncode": 0,
       "passed": true,
       "stdout_tail": "{\n  \"official_followup_run_allowed\": false,\n  \"formal_release_allowed\": false,\n  \"blocked_gates\": [\n    \"rhino_gha_load\",\n    \"gpu_runtime\",\n    \"vs_cpp_build_tools\"\n  ],\n  \"out_json\": \"C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\\u3010citylbm\\u3011\\u5b9e\\u9a8c3\\uff1a\\u6570\\u5b57\\u5b6a\\u751f\\u5e94\\u7528\\u7814\\u7a76\\\\docs\\\\experiments\\\\casee\\\\results\\\\casee_official_run_preflight.json\"\n}",
@@ -85,8 +85,8 @@
     {
       "name": "casee_environment_recovery_runbook",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\casee_environment_recovery_runbook.py",
-      "started_at": "2026-08-01T13:40:03.457402+00:00",
-      "ended_at": "2026-08-01T13:40:03.644799+00:00",
+      "started_at": "2026-08-01T13:47:55.554626+00:00",
+      "ended_at": "2026-08-01T13:47:55.743796+00:00",
       "returncode": 0,
       "passed": true,
       "stdout_tail": "{\n  \"steps\": 7,\n  \"blocked_gates\": [\n    \"rhino_gha_load\",\n    \"gpu_runtime\",\n    \"vs_cpp_build_tools\"\n  ],\n  \"out_json\": \"C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\\u3010citylbm\\u3011\\u5b9e\\u9a8c3\\uff1a\\u6570\\u5b57\\u5b6a\\u751f\\u5e94\\u7528\\u7814\\u7a76\\\\docs\\\\experiments\\\\casee\\\\results\\\\casee_environment_recovery_runbook.json\"\n}",
@@ -97,8 +97,8 @@
     {
       "name": "casee_failure_mode_atlas",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\casee_failure_mode_atlas.py",
-      "started_at": "2026-08-01T13:40:03.644973+00:00",
-      "ended_at": "2026-08-01T13:40:05.251482+00:00",
+      "started_at": "2026-08-01T13:47:55.744030+00:00",
+      "ended_at": "2026-08-01T13:47:57.271529+00:00",
       "returncode": 0,
       "passed": true,
       "stdout_tail": "{\n  \"failure_modes\": 6,\n  \"plot_created\": true,\n  \"out_json\": \"C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\\u3010citylbm\\u3011\\u5b9e\\u9a8c3\\uff1a\\u6570\\u5b57\\u5b6a\\u751f\\u5e94\\u7528\\u7814\\u7a76\\\\docs\\\\experiments\\\\casee\\\\results\\\\casee_failure_mode_atlas.json\"\n}",
@@ -109,8 +109,8 @@
     {
       "name": "casee_default_policy_gate",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\casee_default_policy_gate.py",
-      "started_at": "2026-08-01T13:40:05.251663+00:00",
-      "ended_at": "2026-08-01T13:40:05.390674+00:00",
+      "started_at": "2026-08-01T13:47:57.271717+00:00",
+      "ended_at": "2026-08-01T13:47:57.445938+00:00",
       "returncode": 0,
       "passed": true,
       "stdout_tail": "{\n  \"default_policy_gate_passed\": true,\n  \"out_json\": \"docs/experiments/casee/results/casee_default_policy_gate.json\"\n}",
@@ -121,8 +121,8 @@
     {
       "name": "citylbm_paper_results_packet",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\citylbm_paper_results_packet.py",
-      "started_at": "2026-08-01T13:40:05.390955+00:00",
-      "ended_at": "2026-08-01T13:40:05.517273+00:00",
+      "started_at": "2026-08-01T13:47:57.446204+00:00",
+      "ended_at": "2026-08-01T13:47:57.610809+00:00",
       "returncode": 0,
       "passed": true,
       "stdout_tail": "{\n  \"paper_results_packet_passed\": true,\n  \"out_json\": \"docs/experiments/casee/results/citylbm_paper_results_packet.json\"\n}",
@@ -131,13 +131,25 @@
       "expected_release_gate_block": false
     },
     {
-      "name": "artifact_index_pre_appendix",
-      "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\artifact_index.py",
-      "started_at": "2026-08-01T13:40:05.517273+00:00",
-      "ended_at": "2026-08-01T13:40:06.139845+00:00",
+      "name": "citylbm_software_feedback_matrix",
+      "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\citylbm_software_feedback_matrix.py",
+      "started_at": "2026-08-01T13:47:57.610809+00:00",
+      "ended_at": "2026-08-01T13:47:57.765666+00:00",
       "returncode": 0,
       "passed": true,
-      "stdout_tail": "{\n  \"generated_at\": \"2026-08-01T13:40:06.115027+00:00\",\n  \"artifact_count\": 148,\n  \"total_size_bytes\": 20026492,\n  \"lightweight_release_asset_count\": 116,\n  \"optional_log_asset_count\": 7,\n  \"external_reference_hash_only_count\": 2,\n  \"formal_accuracy_claim_supported\": false,\n  \"formal_accuracy_claim_blocker\": \"official z=2 m metric gate fails; use release_gate.json for current metrics\"\n}",
+      "stdout_tail": "{\n  \"software_feedback_matrix_passed\": true,\n  \"out_json\": \"docs/experiments/casee/results/citylbm_software_feedback_matrix.json\"\n}",
+      "stderr_tail": "",
+      "stdout_path": "",
+      "expected_release_gate_block": false
+    },
+    {
+      "name": "artifact_index_pre_appendix",
+      "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\artifact_index.py",
+      "started_at": "2026-08-01T13:47:57.765719+00:00",
+      "ended_at": "2026-08-01T13:47:58.476995+00:00",
+      "returncode": 0,
+      "passed": true,
+      "stdout_tail": "{\n  \"generated_at\": \"2026-08-01T13:47:58.432913+00:00\",\n  \"artifact_count\": 152,\n  \"total_size_bytes\": 20087464,\n  \"lightweight_release_asset_count\": 120,\n  \"optional_log_asset_count\": 7,\n  \"external_reference_hash_only_count\": 2,\n  \"formal_accuracy_claim_supported\": false,\n  \"formal_accuracy_claim_blocker\": \"official z=2 m metric gate fails; use release_gate.json for current metrics\"\n}",
       "stderr_tail": "",
       "stdout_path": "",
       "expected_release_gate_block": false
@@ -145,8 +157,8 @@
     {
       "name": "paper_appendix_generator",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\paper_appendix_generator.py",
-      "started_at": "2026-08-01T13:40:06.140513+00:00",
-      "ended_at": "2026-08-01T13:40:06.304260+00:00",
+      "started_at": "2026-08-01T13:47:58.476995+00:00",
+      "ended_at": "2026-08-01T13:47:58.634438+00:00",
       "returncode": 0,
       "passed": true,
       "stdout_tail": "{\n  \"out_en\": \"academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md\",\n  \"out_zh\": \"academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md\"\n}",
@@ -157,8 +169,8 @@
     {
       "name": "casee_blocker_remediation_plan",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\casee_blocker_remediation_plan.py",
-      "started_at": "2026-08-01T13:40:06.304323+00:00",
-      "ended_at": "2026-08-01T13:40:06.476447+00:00",
+      "started_at": "2026-08-01T13:47:58.634438+00:00",
+      "ended_at": "2026-08-01T13:47:58.794172+00:00",
       "returncode": 0,
       "passed": true,
       "stdout_tail": "{\n  \"blockers\": 5,\n  \"out_json\": \"C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\\u3010citylbm\\u3011\\u5b9e\\u9a8c3\\uff1a\\u6570\\u5b57\\u5b6a\\u751f\\u5e94\\u7528\\u7814\\u7a76\\\\docs\\\\experiments\\\\casee\\\\results\\\\casee_remaining_blockers.json\"\n}",
@@ -169,8 +181,8 @@
     {
       "name": "casee_next_experiment_runbook",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\casee_next_experiment_runbook.py",
-      "started_at": "2026-08-01T13:40:06.476447+00:00",
-      "ended_at": "2026-08-01T13:40:06.648642+00:00",
+      "started_at": "2026-08-01T13:47:58.794449+00:00",
+      "ended_at": "2026-08-01T13:47:58.954041+00:00",
       "returncode": 0,
       "passed": true,
       "stdout_tail": "{\n  \"commands\": 9,\n  \"blocked_command_count\": 6,\n  \"out_json\": \"C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\\u3010citylbm\\u3011\\u5b9e\\u9a8c3\\uff1a\\u6570\\u5b57\\u5b6a\\u751f\\u5e94\\u7528\\u7814\\u7a76\\\\docs\\\\experiments\\\\casee\\\\results\\\\casee_next_experiment_runbook.json\"\n}",
@@ -181,11 +193,11 @@
     {
       "name": "artifact_index",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\artifact_index.py",
-      "started_at": "2026-08-01T13:40:06.648896+00:00",
-      "ended_at": "2026-08-01T13:40:07.357751+00:00",
+      "started_at": "2026-08-01T13:47:58.954225+00:00",
+      "ended_at": "2026-08-01T13:47:59.793054+00:00",
       "returncode": 0,
       "passed": true,
-      "stdout_tail": "{\n  \"generated_at\": \"2026-08-01T13:40:07.316927+00:00\",\n  \"artifact_count\": 148,\n  \"total_size_bytes\": 20026790,\n  \"lightweight_release_asset_count\": 116,\n  \"optional_log_asset_count\": 7,\n  \"external_reference_hash_only_count\": 2,\n  \"formal_accuracy_claim_supported\": false,\n  \"formal_accuracy_claim_blocker\": \"official z=2 m metric gate fails; use release_gate.json for current metrics\"\n}",
+      "stdout_tail": "{\n  \"generated_at\": \"2026-08-01T13:47:59.765250+00:00\",\n  \"artifact_count\": 152,\n  \"total_size_bytes\": 20087720,\n  \"lightweight_release_asset_count\": 120,\n  \"optional_log_asset_count\": 7,\n  \"external_reference_hash_only_count\": 2,\n  \"formal_accuracy_claim_supported\": false,\n  \"formal_accuracy_claim_blocker\": \"official z=2 m metric gate fails; use release_gate.json for current metrics\"\n}",
       "stderr_tail": "",
       "stdout_path": "",
       "expected_release_gate_block": false
@@ -193,8 +205,8 @@
     {
       "name": "paper_evidence_gate",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\paper_evidence_gate.py",
-      "started_at": "2026-08-01T13:40:07.357830+00:00",
-      "ended_at": "2026-08-01T13:40:07.517239+00:00",
+      "started_at": "2026-08-01T13:47:59.793253+00:00",
+      "ended_at": "2026-08-01T13:47:59.935319+00:00",
       "returncode": 0,
       "passed": true,
       "stdout_tail": "{\n  \"paper_evidence_gate_passed\": true,\n  \"out_json\": \"C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\\u3010citylbm\\u3011\\u5b9e\\u9a8c3\\uff1a\\u6570\\u5b57\\u5b6a\\u751f\\u5e94\\u7528\\u7814\\u7a76\\\\docs\\\\experiments\\\\casee\\\\results\\\\casee_paper_evidence_gate.json\"\n}",
@@ -205,22 +217,22 @@
     {
       "name": "formal_release_gate_expected_block",
       "command": "python C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\release_gate.py",
-      "started_at": "2026-08-01T13:40:07.517440+00:00",
-      "ended_at": "2026-08-01T13:40:07.630248+00:00",
+      "started_at": "2026-08-01T13:47:59.935502+00:00",
+      "ended_at": "2026-08-01T13:48:00.029812+00:00",
       "returncode": 1,
       "passed": true,
-      "stdout_tail": "release_target=v0.4.0\nformal_release_allowed=False\nrecommended_tag=v0.4.0-rc24\nRelease evidence is incomplete; do not create formal v0.4.0 tag.",
+      "stdout_tail": "release_target=v0.4.0\nformal_release_allowed=False\nrecommended_tag=v0.4.0-rc25\nRelease evidence is incomplete; do not create formal v0.4.0 tag.",
       "stderr_tail": "",
       "stdout_path": "",
       "expected_release_gate_block": true
     }
   ],
   "release_gate": {
-    "generated_at": "2026-08-01T13:39:59.462742+00:00",
+    "generated_at": "2026-08-01T13:47:51.705041+00:00",
     "release_target": "v0.4.0",
     "formal_release_allowed": false,
     "formal_v0_3_0_allowed": false,
-    "recommended_tag": "v0.4.0-rc24",
+    "recommended_tag": "v0.4.0-rc25",
     "checks": {
       "citylbm_build_passed": true,
       "rhino_loaded_new_gha": false,
@@ -268,16 +280,16 @@
       "citylbm_gha": {
         "found": true,
         "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.gha",
-        "sha256": "9e0d25e0d27e1beafd13a2f498cfcd284ab6c3c80153fe877e6e475ea514c811",
+        "sha256": "d21c7b9a066d5fd21e16f3a95e0c1888f902f2b093c3d5236bb9566741381ba8",
         "size_bytes": 1789952,
-        "mtime": "2026-08-01T13:39:57.898199+00:00"
+        "mtime": "2026-08-01T13:47:50.236882+00:00"
       },
       "citylbm_build_log": {
         "found": true,
         "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-        "sha256": "e2f13016822d76a7fd72c7d9f8b489ea4bceb5679d6c3ad32636428bd9dc6636",
+        "sha256": "edc7259b26c0638c6d7369d82ff950a780bc4cc643fe1148a0264229ea2c7ce2",
         "size_bytes": 68874,
-        "mtime": "2026-08-01T13:39:58.213717+00:00"
+        "mtime": "2026-08-01T13:47:50.432773+00:00"
       },
       "run_matrix": {
         "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",
@@ -290,11 +302,11 @@
     "blocking_reason": "Release evidence is incomplete; do not create formal v0.4.0 tag."
   },
   "paper_evidence_gate": {
-    "generated_at": "2026-08-01T13:40:07.492290+00:00",
+    "generated_at": "2026-08-01T13:47:59.918254+00:00",
     "paper_evidence_gate_passed": true,
     "metric_gate": {
       "formal_release_allowed": false,
-      "recommended_tag": "v0.4.0-rc24",
+      "recommended_tag": "v0.4.0-rc25",
       "official_z2m_r2": -2.006330362229977,
       "official_z2m_mae_pp": 21.111408125,
       "official_z2m_pearson": 0.11575649438573923,
@@ -322,14 +334,14 @@
         "academic-paper-writer/paper-drafts/casee_v04_results_limitations_en.md",
         "academic-paper-writer/paper-drafts/casee_v04_results_limitations_zh.md"
       ],
-      "checked_nonblank_lines": 255,
+      "checked_nonblank_lines": 257,
       "forbidden_success_claim_violations": [],
       "draft_claim_boundary_passed": true
     },
     "artifact_index": {
       "artifact_index_found": true,
-      "artifact_count": 148,
-      "lightweight_release_asset_count": 116,
+      "artifact_count": 152,
+      "lightweight_release_asset_count": 120,
       "formal_accuracy_claim_supported": false,
       "required_artifacts_present": true,
       "missing_required_artifacts": []
@@ -393,14 +405,24 @@
         "formal_release_block": true
       },
       "claim_boundary_safe": true
+    },
+    "citylbm_software_feedback_matrix": {
+      "software_feedback_matrix_found": true,
+      "software_feedback_matrix_passed": true,
+      "feedback_count": 8,
+      "all_source_paths_exist": true,
+      "no_forbidden_default_promotion": true,
+      "formal_accuracy_claim_supported": false,
+      "formal_v0_4_0_allowed": false,
+      "claim_boundary_safe": true
     }
   },
   "plugin_identity_gate": {
-    "generated_at": "2026-08-01T13:40:02.701602+00:00",
+    "generated_at": "2026-08-01T13:47:54.896730+00:00",
     "plugin_public_version": "0.4.0-rc",
     "plugin_assembly_version": "0.4.0.0",
-    "tracked_gha_sha256": "9e0d25e0d27e1beafd13a2f498cfcd284ab6c3c80153fe877e6e475ea514c811",
-    "release_gha_sha256": "9e0d25e0d27e1beafd13a2f498cfcd284ab6c3c80153fe877e6e475ea514c811",
+    "tracked_gha_sha256": "d21c7b9a066d5fd21e16f3a95e0c1888f902f2b093c3d5236bb9566741381ba8",
+    "release_gha_sha256": "d21c7b9a066d5fd21e16f3a95e0c1888f902f2b093c3d5236bb9566741381ba8",
     "plugin_identity_gate_passed": true,
     "checks": {
       "plugin_public_version_is_rc": true,
@@ -410,9 +432,9 @@
       "release_gha_exists": true,
       "tracked_gha_matches_release_build": true,
       "root_readme_mentions_paper_gate": true,
-      "root_readme_mentions_rc24_release_notes": true,
+      "root_readme_mentions_rc25_release_notes": true,
       "citylbm_readme_mentions_rc_status": true,
-      "changelog_has_rc24": true,
+      "changelog_has_rc25": true,
       "release_notes_exist": true,
       "release_notes_blocks_formal_v040": true
     },
@@ -420,12 +442,12 @@
     "claim_readiness": "paper_ready for software identity; not accuracy evidence"
   },
   "rhino_gha_load_gate": {
-    "generated_at": "2026-08-01T13:40:02.848223+00:00",
+    "generated_at": "2026-08-01T13:47:55.028666+00:00",
     "evidence_type": "newly_run",
     "rhino_loaded_new_gha": false,
     "claim_readiness": "blocked_manual_rhino_load",
     "expected_plugin_public_version": "0.4.0-rc",
-    "expected_tracked_gha_sha256": "9e0d25e0d27e1beafd13a2f498cfcd284ab6c3c80153fe877e6e475ea514c811",
+    "expected_tracked_gha_sha256": "d21c7b9a066d5fd21e16f3a95e0c1888f902f2b093c3d5236bb9566741381ba8",
     "tracked_gha_path": "CityLBM/bin/CityLBM.gha",
     "plugin_identity_gate_path": "docs/experiments/casee/results/plugin_identity_gate.json",
     "manual_manifest_path": "docs/experiments/casee/results/rhino_gha_load_manifest.json",
@@ -457,7 +479,7 @@
       "grasshopper_version": "Grasshopper version string",
       "observed_plugin_version": "0.4.0-rc",
       "observed_assembly_version": "0.4.0.0",
-      "observed_gha_sha256": "9e0d25e0d27e1beafd13a2f498cfcd284ab6c3c80153fe877e6e475ea514c811",
+      "observed_gha_sha256": "d21c7b9a066d5fd21e16f3a95e0c1888f902f2b093c3d5236bb9566741381ba8",
       "evidence_artifacts": [
         "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
         "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"
@@ -467,7 +489,7 @@
     "boundary": "This gate proves only Rhino/Grasshopper loaded the tracked CityLBM GHA identity. It is not CFD accuracy evidence and must not change official z=2 m metrics."
   },
   "casee_official_run_preflight": {
-    "generated_at": "2026-08-01T13:40:03.430423+00:00",
+    "generated_at": "2026-08-01T13:47:55.531156+00:00",
     "evidence_type": "newly_run",
     "claim_readiness": "blocked_official_followup_preflight",
     "official_followup_run_allowed": false,
@@ -655,12 +677,12 @@
       "disk": [
         {
           "drive": "C:\\",
-          "free_gb": 0.495,
+          "free_gb": 0.494,
           "total_gb": 194.47
         },
         {
           "drive": "D:\\",
-          "free_gb": 229.05,
+          "free_gb": 229.047,
           "total_gb": 281.627
         },
         {
@@ -688,7 +710,7 @@
     "boundary": "This preflight controls whether another official native Case E follow-up can be scheduled. It is not solver-output evidence, does not change official z=2 m metrics, and does not allow formal v0.4.0."
   },
   "casee_environment_recovery_runbook": {
-    "generated_at": "2026-08-01T13:40:03.619919+00:00",
+    "generated_at": "2026-08-01T13:47:55.721331+00:00",
     "evidence_type": "newly_run",
     "claim_readiness": "blocked_environment_recovery_runbook",
     "official_followup_run_allowed": false,
@@ -701,12 +723,12 @@
     "disk": [
       {
         "drive": "C:\\",
-        "free_gb": 0.495,
+        "free_gb": 0.494,
         "total_gb": 194.47
       },
       {
         "drive": "D:\\",
-        "free_gb": 229.05,
+        "free_gb": 229.047,
         "total_gb": 281.627
       },
       {
@@ -771,7 +793,7 @@
         "enabled": true,
         "priority": 2,
         "blocking_gate": "vs_cpp_build_tools",
-        "action": "Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 0.495 GB. Workspace build-cache candidates total only 2.250 MB.",
+        "action": "Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 0.494 GB. Workspace build-cache candidates total only 2.250 MB.",
         "verification_command": "Get-PSDrive C",
         "pass_condition": "C: free space >= 8 GB; workspace cache cleanup alone is not enough if the current value remains near 0.5 GB.",
         "risk_boundary": "Do not delete user data; record any cleanup outside the repo separately."
@@ -830,15 +852,15 @@
     "boundary": "This runbook records recovery actions for environment and build-chain blockers. It does not delete files, install tools, run CFD, improve official z=2 m metrics, or allow formal v0.4.0."
   },
   "casee_failure_mode_atlas": {
-    "generated_at": "2026-08-01T13:40:05.070262+00:00",
+    "generated_at": "2026-08-01T13:47:57.131891+00:00",
     "evidence_type": "newly_run",
     "claim_readiness": "limitations_ready_failure_mode_atlas",
     "release_gate": {
-      "generated_at": "2026-08-01T13:39:59.462742+00:00",
+      "generated_at": "2026-08-01T13:47:51.705041+00:00",
       "release_target": "v0.4.0",
       "formal_release_allowed": false,
       "formal_v0_3_0_allowed": false,
-      "recommended_tag": "v0.4.0-rc24",
+      "recommended_tag": "v0.4.0-rc25",
       "checks": {
         "citylbm_build_passed": true,
         "rhino_loaded_new_gha": false,
@@ -886,16 +908,16 @@
         "citylbm_gha": {
           "found": true,
           "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.gha",
-          "sha256": "9e0d25e0d27e1beafd13a2f498cfcd284ab6c3c80153fe877e6e475ea514c811",
+          "sha256": "d21c7b9a066d5fd21e16f3a95e0c1888f902f2b093c3d5236bb9566741381ba8",
           "size_bytes": 1789952,
-          "mtime": "2026-08-01T13:39:57.898199+00:00"
+          "mtime": "2026-08-01T13:47:50.236882+00:00"
         },
         "citylbm_build_log": {
           "found": true,
           "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-          "sha256": "e2f13016822d76a7fd72c7d9f8b489ea4bceb5679d6c3ad32636428bd9dc6636",
+          "sha256": "edc7259b26c0638c6d7369d82ff950a780bc4cc643fe1148a0264229ea2c7ce2",
           "size_bytes": 68874,
-          "mtime": "2026-08-01T13:39:58.213717+00:00"
+          "mtime": "2026-08-01T13:47:50.432773+00:00"
         },
         "run_matrix": {
           "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",
@@ -988,7 +1010,7 @@
     "boundary": "This atlas organizes existing negative-validation and diagnostic evidence. It does not add a new CFD run, does not change official z=2 m metrics, and does not allow formal v0.4.0."
   },
   "casee_default_policy_gate": {
-    "generated_at": "2026-08-01T13:40:05.373223+00:00",
+    "generated_at": "2026-08-01T13:47:57.415592+00:00",
     "default_policy_gate_passed": true,
     "evidence_type": "newly_run",
     "claim_readiness": "paper_ready_default_policy_boundary",
@@ -1146,7 +1168,7 @@
   },
   "citylbm_paper_results_packet": {
     "summary": {
-      "generated_at": "2026-08-01T13:40:05.493775+00:00",
+      "generated_at": "2026-08-01T13:47:57.586540+00:00",
       "result_count": 14,
       "readiness_counts": {
         "paper_ready_workflow_guard": 1,
@@ -1322,7 +1344,7 @@
         "claim_readiness": "blocked_formal_release_gate",
         "evidence_type": "newly_run",
         "source_paths": "docs/experiments/casee/results/release_gate.json",
-        "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc24",
+        "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc25",
         "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
         "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
         "software_feedback": "Version software as release candidates until the formal gate passes."
@@ -1339,12 +1361,167 @@
       "releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication"
     ]
   },
+  "citylbm_software_feedback_matrix": {
+    "summary": {
+      "generated_at": "2026-08-01T13:47:57.740453+00:00",
+      "feedback_count": 8,
+      "decision_class_counts": {
+        "default_quality_gate": 1,
+        "blocked_default_accuracy_upgrade": 1,
+        "formal_protocol_default": 1,
+        "diagnostic_switch": 2,
+        "blocked_followup_run": 1,
+        "application_workflow_policy": 1,
+        "paper_interpretation_layer": 1
+      },
+      "citylbm_status_counts": {
+        "implemented_as_release_gate_requirement": 1,
+        "formal_release_blocked": 1,
+        "implemented": 1,
+        "implemented_default_off": 2,
+        "blocked_until_external_recovery": 1,
+        "paper_ready_workflow_guidance": 1,
+        "paper_ready_with_boundary": 1
+      },
+      "required_feedback_rows_present": true,
+      "all_source_paths_exist": true,
+      "no_forbidden_default_promotion": true,
+      "software_feedback_matrix_passed": true,
+      "formal_accuracy_claim_supported": false,
+      "formal_v0_4_0_allowed": false,
+      "boundary": "This matrix converts audited experiment findings into software policy, diagnostic switch, and blocker decisions. It does not add CFD results or upgrade the official Case E metric."
+    },
+    "rows": [
+      {
+        "feedback_id": "SF001",
+        "experiment": "Experiment 1 / AIJ Case A",
+        "finding": "Case A smoke regression guards the Rhino/GH -> FluidX3D -> VTK workflow but is not accuracy validation.",
+        "evidence_type": "newly_run",
+        "source_paths": "docs/experiments/casea/results/casea_smoke_regression.json; docs/experiments/casea/results/casea_vtk_manifest.csv; docs/experiments/casee/tools/reproducibility_suite.py",
+        "source_paths_exist": true,
+        "decision_class": "default_quality_gate",
+        "citylbm_status": "implemented_as_release_gate_requirement",
+        "implementation_evidence": "release_gate and reproducibility_suite require Case A smoke regression before formal release.",
+        "default_setting_allowed": true,
+        "paper_use": "Use as workflow non-regression evidence.",
+        "limitations": "Do not use as wind-field accuracy validation."
+      },
+      {
+        "feedback_id": "SF002",
+        "experiment": "Experiment 2 / AIJ Case E",
+        "finding": "Official z=2 m validation remains negative: MAE=21.111408125 pp, R2=-2.006330362229977, Pearson=0.11575649438573923.",
+        "evidence_type": "newly_run",
+        "source_paths": "docs/experiments/casee/results/release_gate.json; docs/experiments/casee/results/casee_metrics.csv; docs/experiments/casee/results/casee_validation_report.md",
+        "source_paths_exist": true,
+        "decision_class": "blocked_default_accuracy_upgrade",
+        "citylbm_status": "formal_release_blocked",
+        "implementation_evidence": "release_gate.json and paper_evidence_gate keep formal v0.4.0 blocked.",
+        "default_setting_allowed": false,
+        "paper_use": "Use as negative validation and motivation for limitations.",
+        "limitations": "Cannot claim predictive accuracy, mesh independence, LES improvement, or formal v0.4.0."
+      },
+      {
+        "feedback_id": "SF003",
+        "experiment": "Experiment 2 / AIJ Case E",
+        "finding": "The formal Case E protocol must remain z=2 m, 80 ac+N probes, and raw_trilinear sampling.",
+        "evidence_type": "newly_run",
+        "source_paths": "docs/experiments/casee/casee_preset.json; docs/experiments/casee/results/casee_default_policy_gate.json; CityLBM/src/Core/FluidX3DInterface.cs",
+        "source_paths_exist": true,
+        "decision_class": "formal_protocol_default",
+        "citylbm_status": "implemented",
+        "implementation_evidence": "SimulationSettings.FormalSamplingMode defaults to raw_trilinear and manifests block diagnostic substitutes.",
+        "default_setting_allowed": true,
+        "paper_use": "Use as method/protocol policy.",
+        "limitations": "Protocol correctness alone is not accuracy evidence."
+      },
+      {
+        "feedback_id": "SF004",
+        "experiment": "Experiment 2 / AIJ Case E",
+        "finding": "Diagnostic nu_lbm sensitivity is useful for investigation but has not produced a formal official z=2 m pass.",
+        "evidence_type": "newly_run",
+        "source_paths": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs; CityLBM/src/Core/FluidX3DInterface.cs; docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv",
+        "source_paths_exist": true,
+        "decision_class": "diagnostic_switch",
+        "citylbm_status": "implemented_default_off",
+        "implementation_evidence": "Grasshopper nuLBM input defaults to 0 and SimulationSettings defaults to 0.0.",
+        "default_setting_allowed": false,
+        "paper_use": "Use as sensitivity diagnostic evidence.",
+        "limitations": "Do not promote tuned nu_lbm as a default accuracy model."
+      },
+      {
+        "feedback_id": "SF005",
+        "experiment": "Experiment 2 / AIJ Case E",
+        "finding": "Vertical-origin and probe sampling diagnostics expose near-wall/protocol sensitivity but remain non-formal.",
+        "evidence_type": "newly_run",
+        "source_paths": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs; CityLBM/src/Core/FluidX3DInterface.cs; docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv; docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv",
+        "source_paths_exist": true,
+        "decision_class": "diagnostic_switch",
+        "citylbm_status": "implemented_default_off",
+        "implementation_evidence": "Grasshopper zOff defaults to 0 and run manifests forbid z_plus_half as formal output.",
+        "default_setting_allowed": false,
+        "paper_use": "Use for near-wall/probe-protocol limitations.",
+        "limitations": "Do not report z_plus_half, vertical_valid_above, or z-offset results as official validation."
+      },
+      {
+        "feedback_id": "SF006",
+        "experiment": "Experiment 2 / AIJ Case E",
+        "finding": "The next official Case E run is blocked by runtime and load-identity gates.",
+        "evidence_type": "newly_run",
+        "source_paths": "docs/experiments/casee/results/casee_official_run_preflight.json; docs/experiments/casee/results/casee_environment_recovery_runbook.json; docs/experiments/casee/results/rhino_gha_load_gate.json",
+        "source_paths_exist": true,
+        "decision_class": "blocked_followup_run",
+        "citylbm_status": "blocked_until_external_recovery",
+        "implementation_evidence": "blocked_gates=rhino_gha_load,gpu_runtime,vs_cpp_build_tools",
+        "default_setting_allowed": false,
+        "paper_use": "Use to explain why no new official long run is reported in this rc.",
+        "limitations": "Operational readiness evidence only; not solver-output evidence."
+      },
+      {
+        "feedback_id": "SF007",
+        "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
+        "finding": "TUM2TWIN layers are separated into visual reference, semantic/collision geometry and CFD/LBM simulation inputs.",
+        "evidence_type": "newly_run + preexisting_artifact",
+        "source_paths": "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv; releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication",
+        "source_paths_exist": true,
+        "decision_class": "application_workflow_policy",
+        "citylbm_status": "paper_ready_workflow_guidance",
+        "implementation_evidence": "Experiment 3 archive and claim verification document the layer separation policy.",
+        "default_setting_allowed": true,
+        "paper_use": "Use as CityLBM-compatible digital-twin workflow evidence.",
+        "limitations": "Does not prove Case E benchmark accuracy or CityLBM-GH end-to-end execution for Experiment 3."
+      },
+      {
+        "feedback_id": "SF008",
+        "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
+        "finding": "Basic morphology variables are interpretable screening descriptors; sector enclosure ranks above single-building footprint/elongation.",
+        "evidence_type": "newly_run",
+        "source_paths": "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv; docs/experiments/casee/results/citylbm_paper_results_packet.json",
+        "source_paths_exist": true,
+        "decision_class": "paper_interpretation_layer",
+        "citylbm_status": "paper_ready_with_boundary",
+        "implementation_evidence": "citylbm_paper_results_packet keeps Experiment 3 screening evidence separate from Case E accuracy evidence.",
+        "default_setting_allowed": false,
+        "paper_use": "Use as design-screening interpretation evidence.",
+        "limitations": "Sample-internal screening only; no field validation or annual comfort compliance."
+      }
+    ],
+    "source_artifacts": [
+      "docs/experiments/casea/results/casea_smoke_regression.json",
+      "docs/experiments/casee/results/release_gate.json",
+      "docs/experiments/casee/results/casee_default_policy_gate.json",
+      "docs/experiments/casee/results/casee_official_run_preflight.json",
+      "docs/experiments/casee/results/citylbm_paper_results_packet.json",
+      "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv",
+      "CityLBM/src/Core/FluidX3DInterface.cs",
+      "CityLBM/src/Components/Simulation/RunSimulationComponent.cs"
+    ]
+  },
   "artifact_index": {
     "summary": {
-      "generated_at": "2026-08-01T13:40:07.316927+00:00",
-      "artifact_count": 148,
-      "total_size_bytes": 20026790,
-      "lightweight_release_asset_count": 116,
+      "generated_at": "2026-08-01T13:47:59.765250+00:00",
+      "artifact_count": 152,
+      "total_size_bytes": 20087720,
+      "lightweight_release_asset_count": 120,
       "optional_log_asset_count": 7,
       "external_reference_hash_only_count": 2,
       "formal_accuracy_claim_supported": false,
@@ -1358,9 +1535,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_reproducibility",
         "git_tracked": "true",
-        "size_bytes": 21257,
-        "sha256": "10a25218ea9d70740010d2185a0c63a326634ff3203e59cc84b1684d021ca126",
-        "mtime_utc": "2026-08-01T13:39:02.051370+00:00",
+        "size_bytes": 22041,
+        "sha256": "9a94bd7bf34566000f7f563b058d38c2f7f91c6cf4c3a452ef20d72e71de687b",
+        "mtime_utc": "2026-08-01T13:46:54.188905+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -1385,8 +1562,8 @@
         "claim_readiness": "paper_ready_software_identity",
         "git_tracked": "true",
         "size_bytes": 1789952,
-        "sha256": "9e0d25e0d27e1beafd13a2f498cfcd284ab6c3c80153fe877e6e475ea514c811",
-        "mtime_utc": "2026-08-01T13:39:57.898199+00:00",
+        "sha256": "d21c7b9a066d5fd21e16f3a95e0c1888f902f2b093c3d5236bb9566741381ba8",
+        "mtime_utc": "2026-08-01T13:47:50.236882+00:00",
         "paper_use": "Use to identify the built rc plugin artifact, not CFD accuracy.",
         "limitations": "Rhino/Grasshopper loading remains independently unverified."
       },
@@ -1397,9 +1574,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_reproducibility",
         "git_tracked": "true",
-        "size_bytes": 18574,
-        "sha256": "118a6084b7b6973206e79ccf83ff8b774dfcf851d0e99de851af870908f6d5cd",
-        "mtime_utc": "2026-08-01T13:38:48.752880+00:00",
+        "size_bytes": 19432,
+        "sha256": "d74665aaed5b54ee520055fa29dea210e9adad15e9ca7996467283170de690e9",
+        "mtime_utc": "2026-08-01T13:46:45.184920+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -1410,9 +1587,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_reproducibility_appendix",
         "git_tracked": "true",
-        "size_bytes": 8551,
-        "sha256": "41982b213917faf43d0a1c70e9170f72f9a1bb3142ceb4d13c6e246a498708b7",
-        "mtime_utc": "2026-08-01T13:40:06.275023+00:00",
+        "size_bytes": 8679,
+        "sha256": "5ea3f368a9fff3f75d0885045245b33361731e95ac0f12df6418957040d60168",
+        "mtime_utc": "2026-08-01T13:47:58.611735+00:00",
         "paper_use": "Use as a paper-facing reproducibility appendix, not as accuracy proof.",
         "limitations": ""
       },
@@ -1423,9 +1600,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_reproducibility_appendix",
         "git_tracked": "true",
-        "size_bytes": 8081,
-        "sha256": "52f6422cf7a0f3b3c04f7baa5b5449328b38641ba7678e16603f8a422c52614f",
-        "mtime_utc": "2026-08-01T13:40:06.276150+00:00",
+        "size_bytes": 8209,
+        "sha256": "a0945c8008e582183ddaf9b07cd3187ad6c13d12307e3395cb4439c3eca6f6b3",
+        "mtime_utc": "2026-08-01T13:47:58.613252+00:00",
         "paper_use": "Use as a paper-facing reproducibility appendix, not as accuracy proof.",
         "limitations": ""
       },
@@ -1501,9 +1678,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_reproducibility",
         "git_tracked": "true",
-        "size_bytes": 11366,
-        "sha256": "00f2966b7dd247d2e04a91f53e4928603b987bf450b265132b391ce6d446e594",
-        "mtime_utc": "2026-08-01T13:39:23.841945+00:00",
+        "size_bytes": 11772,
+        "sha256": "a71a4040d84f958bacbd877dd748a856a6146cf7339dd2c008cd641258a056dc",
+        "mtime_utc": "2026-08-01T13:47:15.001072+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -1620,7 +1797,7 @@
         "git_tracked": "true",
         "size_bytes": 4424,
         "sha256": "53623ec2e50698ec36da316d9c5d3f100c4b0339100f1411c37598daed3489ec",
-        "mtime_utc": "2026-08-01T13:40:05.375305+00:00",
+        "mtime_utc": "2026-08-01T13:47:57.418044+00:00",
         "paper_use": "Use to distinguish formal defaults from diagnostic-only software switches.",
         "limitations": "Default-policy boundary only; does not improve or replace official z=2 m metrics."
       },
@@ -1632,8 +1809,8 @@
         "claim_readiness": "paper_ready_default_policy_boundary",
         "git_tracked": "true",
         "size_bytes": 8454,
-        "sha256": "47dec016639f98f5224b6703729d4a6e6a7e957d6a0de9c94efb103398d013d7",
-        "mtime_utc": "2026-08-01T13:40:05.374233+00:00",
+        "sha256": "4e3f5178d51f7166e56503e16b0989ded978ba3acba517ef613218721210cad0",
+        "mtime_utc": "2026-08-01T13:47:57.416859+00:00",
         "paper_use": "Use to distinguish formal defaults from diagnostic-only software switches.",
         "limitations": "Default-policy boundary only; does not improve or replace official z=2 m metrics."
       },
@@ -1645,8 +1822,8 @@
         "claim_readiness": "paper_ready_default_policy_boundary",
         "git_tracked": "true",
         "size_bytes": 4049,
-        "sha256": "c67a014f03b17b93460eb18f905773861d429f60e7c04ba6c7297cdb7d09e503",
-        "mtime_utc": "2026-08-01T13:40:05.375515+00:00",
+        "sha256": "c0a6d9a6632a2a9f4b82297b28526572881b37040faffc4f2e10f81438c0c746",
+        "mtime_utc": "2026-08-01T13:47:57.418886+00:00",
         "paper_use": "Use to distinguish formal defaults from diagnostic-only software switches.",
         "limitations": "Default-policy boundary only; does not improve or replace official z=2 m metrics."
       },
@@ -1671,8 +1848,8 @@
         "claim_readiness": "blocked_environment_recovery_runbook",
         "git_tracked": "true",
         "size_bytes": 2643,
-        "sha256": "1027f6d1f12de9d3b30bd177b9f062bd3367c164c002bdb327fa9ad4d9caa7be",
-        "mtime_utc": "2026-08-01T13:40:03.622985+00:00",
+        "sha256": "f04c8eaa3ee85b959888b54c4f5c58ad439211c01c761c1888335f691890bef5",
+        "mtime_utc": "2026-08-01T13:47:55.724645+00:00",
         "paper_use": "Use to document the environment recovery actions needed before more official long runs.",
         "limitations": "Operational recovery guidance only; does not install tools, run CFD, or improve metrics."
       },
@@ -1683,9 +1860,9 @@
         "source_evidence_type": "newly_run",
         "claim_readiness": "blocked_environment_recovery_runbook",
         "git_tracked": "true",
-        "size_bytes": 5647,
-        "sha256": "688cb4e2b7b739868e5fa58a1462d9a669f822dbb8cffa1a8183233d7e538213",
-        "mtime_utc": "2026-08-01T13:40:03.621944+00:00",
+        "size_bytes": 5648,
+        "sha256": "eb85baef2a48dfe0c5bed7129ccfbf51801b3c161c3281b6e065a1c0eaef15e5",
+        "mtime_utc": "2026-08-01T13:47:55.722895+00:00",
         "paper_use": "Use to document the environment recovery actions needed before more official long runs.",
         "limitations": "Operational recovery guidance only; does not install tools, run CFD, or improve metrics."
       },
@@ -1697,8 +1874,8 @@
         "claim_readiness": "blocked_environment_recovery_runbook",
         "git_tracked": "true",
         "size_bytes": 4022,
-        "sha256": "5bc3b7c0525ca0c5c332e74ffca767b23307fa2cb387c84e089f9c7d1f4e5a03",
-        "mtime_utc": "2026-08-01T13:40:03.623841+00:00",
+        "sha256": "39ccc65ca450050052c26011cfa396e01ba6a7c4b53a93d286fb04d537bedc96",
+        "mtime_utc": "2026-08-01T13:47:55.725081+00:00",
         "paper_use": "Use to document the environment recovery actions needed before more official long runs.",
         "limitations": "Operational recovery guidance only; does not install tools, run CFD, or improve metrics."
       },
@@ -1711,7 +1888,7 @@
         "git_tracked": "true",
         "size_bytes": 3647,
         "sha256": "50b7392175b1657654804c444f05a19f3b519f26fb305e4765b808afafda93f3",
-        "mtime_utc": "2026-08-01T13:40:05.072112+00:00",
+        "mtime_utc": "2026-08-01T13:47:57.133666+00:00",
         "paper_use": "Use to structure limitations and software-feedback discussion without claiming formal accuracy.",
         "limitations": "Synthesis of existing diagnostics only; does not add a new solver result."
       },
@@ -1723,8 +1900,8 @@
         "claim_readiness": "limitations_ready_failure_mode_atlas",
         "git_tracked": "true",
         "size_bytes": 9884,
-        "sha256": "1e93afdadf5ed8c2a58f1ce1e1d1bb4d3b3d1e4edf648b78c816e62516f0cd57",
-        "mtime_utc": "2026-08-01T13:40:05.071153+00:00",
+        "sha256": "df45ccd26b3ffc622041790ab1cfe8c3de85d4b65ffbfe93eb87489de2694d8b",
+        "mtime_utc": "2026-08-01T13:47:57.132954+00:00",
         "paper_use": "Use to structure limitations and software-feedback discussion without claiming formal accuracy.",
         "limitations": "Synthesis of existing diagnostics only; does not add a new solver result."
       },
@@ -1736,8 +1913,8 @@
         "claim_readiness": "limitations_ready_failure_mode_atlas",
         "git_tracked": "true",
         "size_bytes": 5097,
-        "sha256": "bd19277055e83b45ff7385a5387d82d4a00ae7e15822a82928d85a38fd8b68bb",
-        "mtime_utc": "2026-08-01T13:40:05.073110+00:00",
+        "sha256": "17c99aec5e4c2038c13be832f84364298b1bc3590cc8e9395f03eb33c759cde1",
+        "mtime_utc": "2026-08-01T13:47:57.134665+00:00",
         "paper_use": "Use to structure limitations and software-feedback discussion without claiming formal accuracy.",
         "limitations": "Synthesis of existing diagnostics only; does not add a new solver result."
       },
@@ -1750,7 +1927,7 @@
         "git_tracked": "true",
         "size_bytes": 52484,
         "sha256": "7695799e7e89662adeb86c1322ff0c3aa029413ab6a5350dca9b582966284602",
-        "mtime_utc": "2026-08-01T13:40:05.068452+00:00",
+        "mtime_utc": "2026-08-01T13:47:57.130189+00:00",
         "paper_use": "Use to structure limitations and software-feedback discussion without claiming formal accuracy.",
         "limitations": "Synthesis of existing diagnostics only; does not add a new solver result."
       },
@@ -1776,7 +1953,7 @@
         "git_tracked": "true",
         "size_bytes": 469,
         "sha256": "4e77a958c351be3282074e258668965b63512f15553ed3ae2215fdd3fe88ae96",
-        "mtime_utc": "2026-08-01T13:39:58.425678+00:00",
+        "mtime_utc": "2026-08-01T13:47:50.608934+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -1789,7 +1966,7 @@
         "git_tracked": "true",
         "size_bytes": 44552,
         "sha256": "83babde6356a3a240555c06931f619c17250470b19f3a38cee9b924d6a8450a0",
-        "mtime_utc": "2026-08-01T13:40:02.054502+00:00",
+        "mtime_utc": "2026-08-01T13:47:54.334613+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -1801,8 +1978,8 @@
         "claim_readiness": "paper_ready_reproducibility",
         "git_tracked": "true",
         "size_bytes": 4225,
-        "sha256": "e7b29bf3409505d5871b6b2f00b157fcaee884ebecbc0c9f02823c5e969d4561",
-        "mtime_utc": "2026-08-01T13:40:02.565041+00:00",
+        "sha256": "fe3fc2e272cec63bc32e6d98441e4b73283f416f4fbe65fc72c2383b0ccaf3a7",
+        "mtime_utc": "2026-08-01T13:47:54.770573+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -1814,8 +1991,8 @@
         "claim_readiness": "paper_ready_reproducibility",
         "git_tracked": "true",
         "size_bytes": 6314,
-        "sha256": "c9d3fe0e8271c2b3e7260490b66cd147b9b34aa3f3633d138675fe6d54b7f5a4",
-        "mtime_utc": "2026-08-01T13:40:02.566114+00:00",
+        "sha256": "29002da2c4c2c75d648f1874f2df04ef3c90f9267dae7df67707b289c359cc4a",
+        "mtime_utc": "2026-08-01T13:47:54.771387+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -1827,8 +2004,8 @@
         "claim_readiness": "paper_ready_reproducibility",
         "git_tracked": "true",
         "size_bytes": 4077,
-        "sha256": "53cfdd562b7ec9dc0ed7045b861ed59f09c40dc1165b0aa91822cb348b1038cf",
-        "mtime_utc": "2026-08-01T13:40:02.566524+00:00",
+        "sha256": "3dac978d204e23cc1a42130d50bacebb44e526c9926ba122247bd0b69812483a",
+        "mtime_utc": "2026-08-01T13:47:54.772188+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -1841,7 +2018,7 @@
         "git_tracked": "true",
         "size_bytes": 163,
         "sha256": "a19e0f80d2c68afa7cc1e3fe59dd1e773f5c4e7930b381799d6bdb56e828051b",
-        "mtime_utc": "2026-08-01T13:39:59.464298+00:00",
+        "mtime_utc": "2026-08-01T13:47:51.707161+00:00",
         "paper_use": "Use as official z=2 m negative validation evidence.",
         "limitations": "Formal metric fails; do not claim predictive accuracy."
       },
@@ -1984,7 +2161,7 @@
         "git_tracked": "true",
         "size_bytes": 5762,
         "sha256": "a18145c203af3de019bedefb273ba14b2ad1d4b191887b2118e0cb637df01aaf",
-        "mtime_utc": "2026-08-01T13:40:06.627019+00:00",
+        "mtime_utc": "2026-08-01T13:47:58.933497+00:00",
         "paper_use": "Use to document future commands and formal-result policy.",
         "limitations": "Future-run command matrix only; not solver-output evidence."
       },
@@ -1996,8 +2173,8 @@
         "claim_readiness": "blocked_followup_runbook",
         "git_tracked": "true",
         "size_bytes": 9385,
-        "sha256": "d3194079f8966a9ecf518fe93b26a6a5c649b1f2d0cedaa94e3a57c3e64c274a",
-        "mtime_utc": "2026-08-01T13:40:06.625809+00:00",
+        "sha256": "a86dd43dad140690ed3b86b323e85dea50c49166e6c46e9f1a18812f17c17dfd",
+        "mtime_utc": "2026-08-01T13:47:58.932200+00:00",
         "paper_use": "Use to document future commands and formal-result policy.",
         "limitations": "Future-run command matrix only; not solver-output evidence."
       },
@@ -2009,8 +2186,8 @@
         "claim_readiness": "blocked_followup_runbook",
         "git_tracked": "true",
         "size_bytes": 7388,
-        "sha256": "b73eb4475b2bc2da459460a8e6c14966a751c4a7682401d9172ca28784f36bd0",
-        "mtime_utc": "2026-08-01T13:40:06.627847+00:00",
+        "sha256": "bfa650fdfd66001dc7e3c29ee3d69a9ecb05141cc6e9a876c2e1e4549dcf63c0",
+        "mtime_utc": "2026-08-01T13:47:58.934489+00:00",
         "paper_use": "Use to document future commands and formal-result policy.",
         "limitations": "Future-run command matrix only; not solver-output evidence."
       },
@@ -2036,7 +2213,7 @@
         "git_tracked": "true",
         "size_bytes": 2347,
         "sha256": "a3c95ffe21e0dc3beaa7bc1c7f47d655f6a7bc1d736c024b7f2aa4e84ca55752",
-        "mtime_utc": "2026-08-01T13:39:58.422903+00:00",
+        "mtime_utc": "2026-08-01T13:47:50.608429+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -2049,7 +2226,7 @@
         "git_tracked": "true",
         "size_bytes": 85507,
         "sha256": "2ab8f0d4f609e39cf5700a8af29db30c99afbb9ff0cf8623f375e7bb5986f8d5",
-        "mtime_utc": "2026-08-01T13:40:01.837444+00:00",
+        "mtime_utc": "2026-08-01T13:47:54.123865+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -2062,7 +2239,7 @@
         "git_tracked": "true",
         "size_bytes": 2198,
         "sha256": "7459827589782ab4097394a42b4a10a16d1f97b60227c3ab0f429db85a6299a9",
-        "mtime_utc": "2026-08-01T13:40:03.433388+00:00",
+        "mtime_utc": "2026-08-01T13:47:55.533636+00:00",
         "paper_use": "Use to document why another official native Case E follow-up run is or is not currently allowed.",
         "limitations": "Preflight evidence only; does not add solver output or improve the official metric."
       },
@@ -2073,9 +2250,9 @@
         "source_evidence_type": "newly_run",
         "claim_readiness": "blocked_official_followup_preflight",
         "git_tracked": "true",
-        "size_bytes": 7966,
-        "sha256": "7a6a6f6de1fb3ef867c7f5526e60b53f02b0c2ef88062b9ef4f571aba0ca5aa0",
-        "mtime_utc": "2026-08-01T13:40:03.432584+00:00",
+        "size_bytes": 7967,
+        "sha256": "bbbee1f286eeac413a6d660cd078b9655dcbd3f4ffa3e5e11653e91477372850",
+        "mtime_utc": "2026-08-01T13:47:55.532853+00:00",
         "paper_use": "Use to document why another official native Case E follow-up run is or is not currently allowed.",
         "limitations": "Preflight evidence only; does not add solver output or improve the official metric."
       },
@@ -2087,8 +2264,8 @@
         "claim_readiness": "blocked_official_followup_preflight",
         "git_tracked": "true",
         "size_bytes": 1842,
-        "sha256": "f87d94712cab9787c6e9f643d714f81c02022cfbcb4967e3e5de16adfeb722a3",
-        "mtime_utc": "2026-08-01T13:40:03.435651+00:00",
+        "sha256": "302eead0da15cf2da25412f0f0f7ad250999ba7a0a0d68e836fa989cec0abe70",
+        "mtime_utc": "2026-08-01T13:47:55.533984+00:00",
         "paper_use": "Use to document why another official native Case E follow-up run is or is not currently allowed.",
         "limitations": "Preflight evidence only; does not add solver output or improve the official metric."
       },
@@ -2100,8 +2277,8 @@
         "claim_readiness": "paper_ready_reproducibility_appendix",
         "git_tracked": "true",
         "size_bytes": 1282,
-        "sha256": "6783abd231e9607000eb982d2b10108b7e373687ee4b10f3525a7924a3a9434c",
-        "mtime_utc": "2026-08-01T13:40:06.280459+00:00",
+        "sha256": "aa47435ae965b22f56fcbaf10d4e6ad5bd443dfa9c59dde67efb19674618bfa0",
+        "mtime_utc": "2026-08-01T13:47:58.617602+00:00",
         "paper_use": "Use as a paper-facing reproducibility appendix, not as accuracy proof.",
         "limitations": ""
       },
@@ -2112,9 +2289,9 @@
         "source_evidence_type": "newly_run",
         "claim_readiness": "paper_ready_traceability",
         "git_tracked": "true",
-        "size_bytes": 3079,
-        "sha256": "e5a32d50c085958e88e795f6f1e925d22f6b96544863871aed58abb20ca4bd65",
-        "mtime_utc": "2026-08-01T13:31:51.991312+00:00",
+        "size_bytes": 3556,
+        "sha256": "3891e2c027051878affe36e21a74ab3fd6cc0118e5c4fc8f59df856f662eee4c",
+        "mtime_utc": "2026-08-01T13:40:07.492667+00:00",
         "paper_use": "Use to prove claim-boundary and artifact traceability checks.",
         "limitations": ""
       },
@@ -2125,9 +2302,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_traceability",
         "git_tracked": "true",
-        "size_bytes": 1968,
-        "sha256": "ac62bfe1d8857f0a0763a3c90a644cdf01e9d5a94f7276397ad56c854a143bab",
-        "mtime_utc": "2026-08-01T13:31:51.992993+00:00",
+        "size_bytes": 2181,
+        "sha256": "267ceafc757b968d989db0f597c090f58a72bc5e3f58f43cd1ca21ad1b052d2a",
+        "mtime_utc": "2026-08-01T13:40:07.493706+00:00",
         "paper_use": "Use to prove claim-boundary and artifact traceability checks.",
         "limitations": ""
       },
@@ -2205,7 +2382,7 @@
         "git_tracked": "true",
         "size_bytes": 8439,
         "sha256": "0299f49a631240007962fe318e983dd34be3fb9fb8cfd019e779064157b04405",
-        "mtime_utc": "2026-08-01T13:39:58.427692+00:00",
+        "mtime_utc": "2026-08-01T13:47:50.610744+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -2218,7 +2395,7 @@
         "git_tracked": "true",
         "size_bytes": 3679,
         "sha256": "4474eeced80f249245d85a6ab4b8cf5791f572ea9fbc6275f985ef7beaa49155",
-        "mtime_utc": "2026-08-01T13:40:06.454853+00:00",
+        "mtime_utc": "2026-08-01T13:47:58.773467+00:00",
         "paper_use": "Use to document the concrete blockers and next validation actions.",
         "limitations": "Planning evidence only; does not improve or replace official z=2 m metrics."
       },
@@ -2230,8 +2407,8 @@
         "claim_readiness": "blocked_followup_plan",
         "git_tracked": "true",
         "size_bytes": 7779,
-        "sha256": "a9a6e7b15be75aba76654d942d6fbdd617f4fd33c07243515e6cfdb3fbf31625",
-        "mtime_utc": "2026-08-01T13:40:06.453732+00:00",
+        "sha256": "2b2ef0f2050e06c5362a20fc97df1231609e8aced0a166650a8b79d38280773a",
+        "mtime_utc": "2026-08-01T13:47:58.772447+00:00",
         "paper_use": "Use to document the concrete blockers and next validation actions.",
         "limitations": "Planning evidence only; does not improve or replace official z=2 m metrics."
       },
@@ -2243,8 +2420,8 @@
         "claim_readiness": "blocked_followup_plan",
         "git_tracked": "true",
         "size_bytes": 5170,
-        "sha256": "942b325e9db822fc0ec9c72978f58f998a38b917fa342dc32ed93b3c616d5dbc",
-        "mtime_utc": "2026-08-01T13:40:06.455681+00:00",
+        "sha256": "17555db51ce9a0b67957c50f32af120489b094fa5713948c6659a2e9d31bfa6c",
+        "mtime_utc": "2026-08-01T13:47:58.774517+00:00",
         "paper_use": "Use to document the concrete blockers and next validation actions.",
         "limitations": "Planning evidence only; does not improve or replace official z=2 m metrics."
       },
@@ -2255,9 +2432,9 @@
         "source_evidence_type": "newly_run",
         "claim_readiness": "paper_ready_traceability",
         "git_tracked": "true",
-        "size_bytes": 159713,
-        "sha256": "f7c0e9a32d92bcf51e745764729b212c887b1c6d151c74ec3a6540fff2fc5584",
-        "mtime_utc": "2026-08-01T13:31:52.156628+00:00",
+        "size_bytes": 177889,
+        "sha256": "cbcf89183283eb4f036a916db93ea361bcd72df00959d43585e5fef1901c4bb2",
+        "mtime_utc": "2026-08-01T13:40:07.655647+00:00",
         "paper_use": "Use to prove claim-boundary and artifact traceability checks.",
         "limitations": ""
       },
@@ -2268,9 +2445,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_traceability",
         "git_tracked": "true",
-        "size_bytes": 1378,
-        "sha256": "c02e59829be365c2be5a913b36b493d448c75a0a2205db7edf8d4f3c35a778f5",
-        "mtime_utc": "2026-08-01T13:31:52.157507+00:00",
+        "size_bytes": 1423,
+        "sha256": "51eda3937a2660bcb326a1ff762bbede2331579f40b0bb897af701a325d5cc14",
+        "mtime_utc": "2026-08-01T13:40:07.657073+00:00",
         "paper_use": "Use to prove claim-boundary and artifact traceability checks.",
         "limitations": ""
       },
@@ -2283,7 +2460,7 @@
         "git_tracked": "true",
         "size_bytes": 373,
         "sha256": "21959a146b0718a3b705d5caded167a65b18772163133fa939cc3f5b21d3677b",
-        "mtime_utc": "2026-08-01T13:39:58.429011+00:00",
+        "mtime_utc": "2026-08-01T13:47:50.611739+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -2334,8 +2511,8 @@
         "claim_readiness": "limitations_ready_negative_validation",
         "git_tracked": "true",
         "size_bytes": 5813,
-        "sha256": "2eee0eebb466b809791d015d89a12df1053c8e1390c62b09bcf3dd116c46489e",
-        "mtime_utc": "2026-08-01T13:40:02.063013+00:00",
+        "sha256": "5bbd0647cf840073176e0d274332bfb8df5111e7c8ace564761b00e7370aec69",
+        "mtime_utc": "2026-08-01T13:47:54.343283+00:00",
         "paper_use": "Use as official z=2 m negative validation evidence.",
         "limitations": "Formal metric fails; do not claim predictive accuracy."
       },
@@ -2346,9 +2523,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_reproducibility",
         "git_tracked": "true",
-        "size_bytes": 16383,
-        "sha256": "78fb3bb9207e11d11ee799872b28ff93ae9d6fa6840ee42236652a5a10170239",
-        "mtime_utc": "2026-08-01T13:40:00.634149+00:00",
+        "size_bytes": 16384,
+        "sha256": "ec8cb82a41db0f404772a7a50a93f65c07d7a0455336cab291c2df1c8b1ba564",
+        "mtime_utc": "2026-08-01T13:47:52.968926+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -2516,8 +2693,8 @@
         "claim_readiness": "paper_ready_reproducibility",
         "git_tracked": "true",
         "size_bytes": 68874,
-        "sha256": "e2f13016822d76a7fd72c7d9f8b489ea4bceb5679d6c3ad32636428bd9dc6636",
-        "mtime_utc": "2026-08-01T13:39:58.213717+00:00",
+        "sha256": "edc7259b26c0638c6d7369d82ff950a780bc4cc643fe1148a0264229ea2c7ce2",
+        "mtime_utc": "2026-08-01T13:47:50.432773+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -2529,8 +2706,8 @@
         "claim_readiness": "paper_ready_cross_experiment_results_packet",
         "git_tracked": "true",
         "size_bytes": 7890,
-        "sha256": "5a9cac0c12491106037bbac7c099ab042ca9eb6a7e526a76ce0a2b0d8b96a592",
-        "mtime_utc": "2026-08-01T13:40:05.498794+00:00",
+        "sha256": "f8c76d51aeaf4f83cfda79b62fb5b1013f849a0d80e841f1d28a5fc5a7719f0d",
+        "mtime_utc": "2026-08-01T13:47:57.592425+00:00",
         "paper_use": "Use to organize Experiments 1, 2, and 3 results into manuscript-ready and limitations-only rows.",
         "limitations": "Manuscript organization evidence only; does not add new CFD results or formal validation."
       },
@@ -2542,8 +2719,8 @@
         "claim_readiness": "paper_ready_cross_experiment_results_packet",
         "git_tracked": "true",
         "size_bytes": 12974,
-        "sha256": "29ba99d447f10656cbc03dc5f131ba8b90b8bea9861fc57aeb800d2bba52b0df",
-        "mtime_utc": "2026-08-01T13:40:05.497884+00:00",
+        "sha256": "88d884ec14246f4eb1803d769713e5f979ea61b8482c528020806ca9e56e6dff",
+        "mtime_utc": "2026-08-01T13:47:57.591335+00:00",
         "paper_use": "Use to organize Experiments 1, 2, and 3 results into manuscript-ready and limitations-only rows.",
         "limitations": "Manuscript organization evidence only; does not add new CFD results or formal validation."
       },
@@ -2555,10 +2732,49 @@
         "claim_readiness": "paper_ready_cross_experiment_results_packet",
         "git_tracked": "true",
         "size_bytes": 7675,
-        "sha256": "19bcf3269471399e4a1997f624b6a5bb2fa18904c79a8053b3188abdb0034856",
-        "mtime_utc": "2026-08-01T13:40:05.499299+00:00",
+        "sha256": "799aa7b58d043e532ef9cca0ba20fd1986701a674faf579b645fb52e9c7da726",
+        "mtime_utc": "2026-08-01T13:47:57.592853+00:00",
         "paper_use": "Use to organize Experiments 1, 2, and 3 results into manuscript-ready and limitations-only rows.",
         "limitations": "Manuscript organization evidence only; does not add new CFD results or formal validation."
+      },
+      {
+        "path": "docs/experiments/casee/results/citylbm_software_feedback_matrix.csv",
+        "category": "table_or_metric_csv",
+        "release_asset_role": "lightweight_release_asset",
+        "source_evidence_type": "preexisting_artifact",
+        "claim_readiness": "paper_ready_software_feedback_boundary",
+        "git_tracked": "true",
+        "size_bytes": 4921,
+        "sha256": "1a2033c82d0f4ec2b42393fe4145f3660530c38f59ecd8b86498f7ab8037c300",
+        "mtime_utc": "2026-08-01T13:47:57.746269+00:00",
+        "paper_use": "Use to trace how experiment findings are converted into defaults, diagnostic switches, and blockers.",
+        "limitations": "Software-feedback boundary only; does not add solver output or justify formal accuracy."
+      },
+      {
+        "path": "docs/experiments/casee/results/citylbm_software_feedback_matrix.json",
+        "category": "manifest_or_gate_json",
+        "release_asset_role": "lightweight_release_asset",
+        "source_evidence_type": "newly_run",
+        "claim_readiness": "paper_ready_software_feedback_boundary",
+        "git_tracked": "true",
+        "size_bytes": 9289,
+        "sha256": "a9f945cc39de1cfaaa93c473cd2109c568ec5526c54c1dcdc466648c5113bf6e",
+        "mtime_utc": "2026-08-01T13:47:57.745129+00:00",
+        "paper_use": "Use to trace how experiment findings are converted into defaults, diagnostic switches, and blockers.",
+        "limitations": "Software-feedback boundary only; does not add solver output or justify formal accuracy."
+      },
+      {
+        "path": "docs/experiments/casee/results/citylbm_software_feedback_matrix.md",
+        "category": "report_or_protocol_markdown",
+        "release_asset_role": "lightweight_release_asset",
+        "source_evidence_type": "preexisting_artifact",
+        "claim_readiness": "paper_ready_software_feedback_boundary",
+        "git_tracked": "true",
+        "size_bytes": 3749,
+        "sha256": "5f0d6114293b93ab5513505d4903c9c92d3a79ee8c450128ce3698b229c881d9",
+        "mtime_utc": "2026-08-01T13:47:57.747061+00:00",
+        "paper_use": "Use to trace how experiment findings are converted into defaults, diagnostic switches, and blockers.",
+        "limitations": "Software-feedback boundary only; does not add solver output or justify formal accuracy."
       },
       {
         "path": "docs/experiments/casee/results/dx1_feasibility_estimate.csv",
@@ -2594,8 +2810,8 @@
         "claim_readiness": "paper_ready_reproducibility",
         "git_tracked": "true",
         "size_bytes": 3194,
-        "sha256": "f5c8d00ad2efcac3ab7f26d979fa19c59937ee3ac0d6d893fce1a88b59ce6ef0",
-        "mtime_utc": "2026-08-01T13:39:59.284563+00:00",
+        "sha256": "4ab6e3a9168c4b1c8a8aa80d4cc5242a9eb35734dca3a726a1602dd3f68757ae",
+        "mtime_utc": "2026-08-01T13:47:51.522256+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -2932,8 +3148,8 @@
         "claim_readiness": "paper_ready_traceability",
         "git_tracked": "true",
         "size_bytes": 1015,
-        "sha256": "340b1882f06551b5c3e1745bbf25f44975f880d1214860f3cf375cf51ca72c71",
-        "mtime_utc": "2026-08-01T13:40:02.702144+00:00",
+        "sha256": "664a2de7c9df90e055f044b37b8c9f321414b8c3c85bf16634c0e375bae4d53b",
+        "mtime_utc": "2026-08-01T13:47:54.897813+00:00",
         "paper_use": "Use to prove claim-boundary and artifact traceability checks.",
         "limitations": ""
       },
@@ -2945,8 +3161,8 @@
         "claim_readiness": "blocked_formal_release_gate",
         "git_tracked": "true",
         "size_bytes": 4233,
-        "sha256": "7a224c30a96aa97738e1e4b9d3a581b85426d5ee3d906359eb1d56f03aaa632c",
-        "mtime_utc": "2026-08-01T13:39:59.463788+00:00",
+        "sha256": "4ba77ff2a9dd664c20acd575e7205c9de5fa45f6fc76d3c5eaad38fa77bb0643",
+        "mtime_utc": "2026-08-01T13:47:51.706769+00:00",
         "paper_use": "Use to state that formal v0.4.0 is not allowed.",
         "limitations": "Formal v0.4.0 tag remains prohibited."
       },
@@ -2958,8 +3174,8 @@
         "claim_readiness": "blocked_manual_rhino_load",
         "git_tracked": "true",
         "size_bytes": 2108,
-        "sha256": "4c0e4bfd61f2d71be308eb0b2ef1394c4579348576ed03b12eb7af9283275e36",
-        "mtime_utc": "2026-08-01T13:40:02.851500+00:00",
+        "sha256": "d1e68837af212c4f4329b3bc145416facaf1c3cc27d34420bc8ba3ba2462e2b6",
+        "mtime_utc": "2026-08-01T13:47:55.030811+00:00",
         "paper_use": "Use to document the fail-closed Rhino/Grasshopper new-GHA loading gate.",
         "limitations": "Manual Rhino/Grasshopper evidence is absent or incomplete; do not state the new GHA was loaded."
       },
@@ -2971,8 +3187,8 @@
         "claim_readiness": "blocked_manual_rhino_load",
         "git_tracked": "true",
         "size_bytes": 1903,
-        "sha256": "9d9e6df9d87112a3ca577a0ba45f3d5bf7356000fe27b72db592f14c4a4bee92",
-        "mtime_utc": "2026-08-01T13:40:02.852580+00:00",
+        "sha256": "8d614b165a50e470aac56b23ae500204052ed5174b3aa1e8315467b320c9c5a3",
+        "mtime_utc": "2026-08-01T13:47:55.031569+00:00",
         "paper_use": "Use to document the fail-closed Rhino/Grasshopper new-GHA loading gate.",
         "limitations": "Manual Rhino/Grasshopper evidence is absent or incomplete; do not state the new GHA was loaded."
       },
@@ -2983,9 +3199,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_reproducibility",
         "git_tracked": "true",
-        "size_bytes": 18907,
-        "sha256": "c679d9c19e5e9b374f135732a1a9e48563e8dc1e11bc9bad304916101dded5fa",
-        "mtime_utc": "2026-08-01T13:37:41.132114+00:00",
+        "size_bytes": 19614,
+        "sha256": "040b4664ccc585ac216c82989218ae12238f5fdad6fbee2cdbee60494109f2bf",
+        "mtime_utc": "2026-08-01T13:45:44.290252+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       },
@@ -3159,6 +3375,19 @@
         "limitations": "Manuscript organization evidence only; does not add new CFD results or formal validation."
       },
       {
+        "path": "docs/experiments/casee/tools/citylbm_software_feedback_matrix.py",
+        "category": "reproducibility_script",
+        "release_asset_role": "lightweight_release_asset",
+        "source_evidence_type": "preexisting_artifact",
+        "claim_readiness": "paper_ready_software_feedback_boundary",
+        "git_tracked": "true",
+        "size_bytes": 17940,
+        "sha256": "19097a4042b9d09ed1f03071dcf12c4b9b7dd31ec7212e4f2847ec14d1c90809",
+        "mtime_utc": "2026-08-01T13:45:03.900043+00:00",
+        "paper_use": "Use to trace how experiment findings are converted into defaults, diagnostic switches, and blockers.",
+        "limitations": "Software-feedback boundary only; does not add solver output or justify formal accuracy."
+      },
+      {
         "path": "docs/experiments/casee/tools/generate_native_casee.py",
         "category": "reproducibility_script",
         "release_asset_role": "lightweight_release_asset",
@@ -3191,9 +3420,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_reproducibility_appendix",
         "git_tracked": "true",
-        "size_bytes": 19164,
-        "sha256": "668c09dc2df65b479c5dcd4e50e08f0a3e15cd3d1854a45a77454b4d5030a9d0",
-        "mtime_utc": "2026-08-01T13:38:20.446242+00:00",
+        "size_bytes": 19363,
+        "sha256": "f11bcb1fee74c905debafd7cb0c088155ba1abf36663f9db5980ba48e2e252cb",
+        "mtime_utc": "2026-08-01T13:46:13.848645+00:00",
         "paper_use": "Use as a paper-facing reproducibility appendix, not as accuracy proof.",
         "limitations": ""
       },
@@ -3204,9 +3433,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_traceability",
         "git_tracked": "true",
-        "size_bytes": 23226,
-        "sha256": "2ecaeb77f8a86e453c64303afc661194f4b908bf900371f06d8e3cf6e98f9305",
-        "mtime_utc": "2026-08-01T13:38:07.802228+00:00",
+        "size_bytes": 25769,
+        "sha256": "b2e313ace223786a53c5f343feefc4bee3ecd57731a62317a7669256651e856b",
+        "mtime_utc": "2026-08-01T13:46:05.863590+00:00",
         "paper_use": "Use to prove claim-boundary and artifact traceability checks.",
         "limitations": ""
       },
@@ -3218,8 +3447,8 @@
         "claim_readiness": "paper_ready_traceability",
         "git_tracked": "true",
         "size_bytes": 3408,
-        "sha256": "001fba09350e0e85d9bd44ef63c84e13479310ec6bc87d1877cb81c445b7eb2e",
-        "mtime_utc": "2026-08-01T13:38:27.768581+00:00",
+        "sha256": "a20e4416a3b849c5c30b671bbea5b6230dfa85d0994c4231d768acb13027faa5",
+        "mtime_utc": "2026-08-01T13:46:25.452653+00:00",
         "paper_use": "Use to prove claim-boundary and artifact traceability checks.",
         "limitations": ""
       },
@@ -3243,9 +3472,9 @@
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_traceability",
         "git_tracked": "true",
-        "size_bytes": 9175,
-        "sha256": "5d6bed35a17bb1c23628c5d6f654a657970e138c1e3e936fc57ab35901cd4684",
-        "mtime_utc": "2026-08-01T13:37:29.858491+00:00",
+        "size_bytes": 9426,
+        "sha256": "214969d26deb9767fa25fea5b46ca813f44892e757d91db4fa220ce1e4965670",
+        "mtime_utc": "2026-08-01T13:45:32.326240+00:00",
         "paper_use": "Use to prove claim-boundary and artifact traceability checks.",
         "limitations": ""
       },
@@ -3263,15 +3492,15 @@
         "limitations": "Manual Rhino/Grasshopper evidence is absent or incomplete; do not state the new GHA was loaded."
       },
       {
-        "path": "docs/releases/v0.4.0-rc24.md",
+        "path": "docs/releases/v0.4.0-rc25.md",
         "category": "release_notes",
         "release_asset_role": "lightweight_release_asset",
         "source_evidence_type": "preexisting_artifact",
         "claim_readiness": "paper_ready_reproducibility",
         "git_tracked": "true",
-        "size_bytes": 1928,
-        "sha256": "955641f2448b7f76ac80fc330c85130d06df97ca5ee24c4c923f6b6be6636fb0",
-        "mtime_utc": "2026-08-01T13:39:17.332193+00:00",
+        "size_bytes": 2041,
+        "sha256": "33202f5a3737108038eca91cb7ed0df7a162606e1ddf3eaa7dedc2e7c40255ea",
+        "mtime_utc": "2026-08-01T13:47:08.021262+00:00",
         "paper_use": "Use as reproducibility support, not as standalone accuracy proof.",
         "limitations": ""
       }

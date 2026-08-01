@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc25 - Software feedback matrix
+
+- Added `citylbm_software_feedback_matrix.py` to convert Experiments 1-3 findings into CityLBM default-quality gates, formal protocol defaults, diagnostic switches, blocked follow-up work, and paper-only interpretation layers.
+- Generated `citylbm_software_feedback_matrix.json`, `citylbm_software_feedback_matrix.csv`, and `citylbm_software_feedback_matrix.md`.
+- Integrated the matrix into the reproducibility suite, artifact index, paper evidence gate, and reproducibility appendix command trace.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc25.md`.
+
+This release candidate improves software-feedback traceability only. It does not add new CFD results, improve official Case E z=2 m metrics, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc24 - Cross-experiment paper results packet
 
 - Added `citylbm_paper_results_packet.py` to consolidate Experiment 1, Experiment 2, and Experiment 3 evidence into manuscript-ready, limitations-ready, and blocked rows.

@@ -180,6 +180,7 @@ def main() -> int:
         ("casee_failure_mode_atlas", "casee_failure_mode_atlas.py"),
         ("casee_default_policy_gate", "casee_default_policy_gate.py"),
         ("citylbm_paper_results_packet", "citylbm_paper_results_packet.py"),
+        ("citylbm_software_feedback_matrix", "citylbm_software_feedback_matrix.py"),
         ("artifact_index_pre_appendix", "artifact_index.py"),
         ("paper_appendix_generator", "paper_appendix_generator.py"),
         ("casee_blocker_remediation_plan", "casee_blocker_remediation_plan.py"),
@@ -199,6 +200,7 @@ def main() -> int:
     failure_atlas = read_json(RESULTS_DIR / "casee_failure_mode_atlas.json")
     default_policy = read_json(RESULTS_DIR / "casee_default_policy_gate.json")
     paper_results_packet = read_json(RESULTS_DIR / "citylbm_paper_results_packet.json")
+    software_feedback_matrix = read_json(RESULTS_DIR / "citylbm_software_feedback_matrix.json")
     artifact_index = read_json(RESULTS_DIR / "casee_artifact_index.json")
     suite_passed = all(bool(step.get("passed")) for step in steps) and not bool(release_gate.get("formal_release_allowed"))
     payload = {
@@ -216,6 +218,7 @@ def main() -> int:
         "casee_failure_mode_atlas": failure_atlas,
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_results_packet,
+        "citylbm_software_feedback_matrix": software_feedback_matrix,
         "artifact_index": artifact_index,
     }
     OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")
