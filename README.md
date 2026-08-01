@@ -53,11 +53,13 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_paper_evidence_gate.json`
 - `docs/experiments/casee/results/casee_paper_evidence_gate.md`
 - `docs/experiments/casee/results/casee_paper_appendix_manifest.json`
+- `docs/experiments/casee/results/casee_remaining_blockers.json`
+- `docs/experiments/casee/results/casee_remaining_blockers.md`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc16.md`
+- `docs/releases/v0.4.0-rc17.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -124,6 +126,12 @@ Case E appendices from the release gate, reproducibility suite, artifact index,
 claim matrix, paper evidence gate, and plugin identity gate. These appendices
 are reviewer-facing traceability support only; they do not change the official
 z=2 m accuracy result or permit a formal `v0.4.0` tag.
+
+The remaining-blocker remediation plan converts the current release gate,
+build-chain audit, and run matrix into concrete pass conditions for the next
+work cycle. It records the official metric gate failure, Rhino new-GHA loading
+gap, GPU-lost runtime blocker, incomplete Visual Studio C++ build chain, and
+dx=1 m follow-up status as operational blockers rather than accuracy evidence.
 
 Run the audit after official data are present:
 

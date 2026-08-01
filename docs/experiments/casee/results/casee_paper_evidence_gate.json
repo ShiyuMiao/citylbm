@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T12:40:49.219785+00:00",
+  "generated_at": "2026-08-01T12:47:47.988512+00:00",
   "paper_evidence_gate_passed": true,
   "metric_gate": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc16",
+    "recommended_tag": "v0.4.0-rc17",
     "official_z2m_r2": -2.006330362229977,
     "official_z2m_mae_pp": 21.111408125,
     "official_z2m_pearson": 0.11575649438573923,
@@ -31,14 +31,14 @@
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_en.md",
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_zh.md"
     ],
-    "checked_nonblank_lines": 241,
+    "checked_nonblank_lines": 243,
     "forbidden_success_claim_violations": [],
     "draft_claim_boundary_passed": true
   },
   "artifact_index": {
     "artifact_index_found": true,
-    "artifact_count": 116,
-    "lightweight_release_asset_count": 84,
+    "artifact_count": 120,
+    "lightweight_release_asset_count": 88,
     "formal_accuracy_claim_supported": false,
     "required_artifacts_present": true,
     "missing_required_artifacts": []

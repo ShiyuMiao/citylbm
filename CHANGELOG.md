@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc17 - Blocker remediation plan
+
+- Added `casee_blocker_remediation_plan.py` to convert the current release-gate, build-chain, and run-matrix state into machine-readable blocker actions.
+- Generated `casee_remaining_blockers.json`, `casee_remaining_blockers.csv`, and `casee_remaining_blockers.md`.
+- Integrated the blocker remediation plan into the one-command reproducibility suite.
+- Extended the artifact index and paper evidence gate so the remaining-blocker plan and rc17 release notes are required traceability artifacts.
+
+This release candidate documents the exact external work needed before another official z=2 m accuracy run can support stronger claims. It does not change the official metric or permit formal `v0.4.0`.
+
 ## v0.4.0-rc16 - Paper reproducibility appendix
 
 - Added `paper_appendix_generator.py` to generate Chinese and English AIJ Case E reproducibility appendices from the release gate, reproducibility suite, artifact index, claim matrix, paper evidence gate, and plugin identity gate.

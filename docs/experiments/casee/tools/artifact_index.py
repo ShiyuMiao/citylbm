@@ -26,7 +26,7 @@ EXPLICIT_ARTIFACTS = [
     "CHANGELOG.md",
     "CityLBM/README.md",
     "CityLBM/bin/CityLBM.gha",
-    "docs/releases/v0.4.0-rc16.md",
+    "docs/releases/v0.4.0-rc17.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/data_manifest.csv",
@@ -52,6 +52,7 @@ RESULT_PATTERNS = [
     "casee_reproducibility_suite.json",
     "casee_reproducibility_suite.md",
     "casee_paper_appendix_manifest.json",
+    "casee_remaining_blockers.*",
     "citylbm_build_check.log",
     "fluidx3d_*_run*.log",
     "fluidx3d_*_compile.log",
@@ -69,6 +70,7 @@ OFFICIAL_DATA_PATTERNS = [
 TOOL_SCRIPTS = [
     "artifact_index.py",
     "build_chain_audit.py",
+    "casee_blocker_remediation_plan.py",
     "casee_audit.py",
     "casee_probe_modes_audit.py",
     "casee_probe_mode_metrics.py",
@@ -213,6 +215,8 @@ def release_asset_role(path: str, cat: str, size_bytes: int) -> str:
 def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
     if path.endswith("release_gate.json"):
         return "blocked_formal_release_gate"
+    if "casee_remaining_blockers" in path or "casee_blocker_remediation_plan" in path:
+        return "blocked_followup_plan"
     if "paper_evidence_gate" in path or "plugin_identity_gate" in path or "reproducibility_suite" in path:
         return "paper_ready_traceability"
     if "reproducibility_appendix" in path or "paper_appendix_manifest" in path or "paper_appendix_generator" in path:
@@ -233,6 +237,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
 def paper_use(path: str, readiness: str) -> str:
     if readiness == "blocked_formal_release_gate":
         return "Use to state that formal v0.4.0 is not allowed."
+    if readiness == "blocked_followup_plan":
+        return "Use to document the concrete blockers and next validation actions."
     if "negative_validation" in readiness:
         return "Use as official z=2 m negative validation evidence."
     if "diagnostic" in readiness:
@@ -257,6 +263,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Rhino/Grasshopper loading remains independently unverified."
     if readiness == "blocked_formal_release_gate":
         return "Formal v0.4.0 tag remains prohibited."
+    if readiness == "blocked_followup_plan":
+        return "Planning evidence only; does not improve or replace official z=2 m metrics."
     if path.endswith("BD_caseE.stl"):
         return "Official raw geometry should be referenced by hash; avoid duplicating large source data in manuscript."
     return ""
@@ -347,13 +355,15 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_paper_evidence_gate.json",
                 "casee_paper_appendix_manifest.json",
                 "casee_reproducibility_suite.json",
+                "casee_remaining_blockers.json",
+                "casee_remaining_blockers.md",
                 "plugin_identity_gate.json",
                 "casee_v04_reproducibility_appendix_en.md",
                 "casee_v04_reproducibility_appendix_zh.md",
                 "casee_manuscript_claim_matrix.csv",
                 "casee_zcenter_probe_mode_metrics.csv",
                 "casee_zcenter_voxel_probe_audit_groups.csv",
-                "v0.4.0-rc16.md",
+                "v0.4.0-rc17.md",
             )
         )
     ]
