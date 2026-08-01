@@ -1,4 +1,7 @@
 run_id,evidence_type,status,dx_m,steps,spinup,condition,wind_direction,validation_height_m,inlet,probe_output,notes
-casee_native_dx3_fullplane,newly_run_required,blocked_environment,3,48000,12000,ac,N,2,full_plane_digital_filter_AF_caseE,casee_probe_time_mean.csv,Requires FluidX3D source/build toolchain and GPU runtime.
-casee_native_dx2_fullplane,newly_run_required,blocked_environment,2,48000,12000,ac,N,2,full_plane_digital_filter_AF_caseE,casee_probe_time_mean.csv,Requires FluidX3D source/build toolchain and GPU runtime.
+casee_native_dx3_yn_sgs,newly_run,completed,3,48000,12000,ac,N,2,AF_caseE_profile_scaled,docs/experiments/casee/results/casee_native_dx3_probe_time_mean.csv,Official -Y convention baseline; metric gate failed.
+casee_native_dx3_yp_sgs,newly_run,completed_diagnostic,3,48000,12000,ac,N,2,AF_caseE_profile_scaled,docs/experiments/casee/results/casee_native_dx3_yp_probe_time_mean.csv,Wind-direction audit only; metric gate failed.
+casee_native_dx3_yn_nosgs,newly_run,completed_diagnostic,3,48000,12000,ac,N,2,AF_caseE_profile_scaled,docs/experiments/casee/results/casee_native_dx3_nosgs_probe_time_mean.csv,No-SUBGRID audit only; metric gate failed.
+casee_native_dx2_yn_sgs_sampledt200,newly_run,stopped_diagnostic,2,48000,12000,ac,N,2,AF_caseE_profile_scaled,none,Stopped at about 18675 steps because full-field CPU readback every 200 steps made probe sampling inefficient.
+casee_native_dx2_yn_sgs,newly_run,completed,2,48000,12000,ac,N,2,AF_caseE_profile_scaled,docs/experiments/casee/results/casee_native_dx2_sampledt2000_probe_time_mean.csv,Official -Y dx=2 run with sample_dt=2000; metric gate failed.
 casee_native_dx1_feasibility,diagnostic_required,not_started,1,tbd,tbd,ac,N,2,tbd,tbd,Feasibility and memory estimate only unless explicitly scheduled.

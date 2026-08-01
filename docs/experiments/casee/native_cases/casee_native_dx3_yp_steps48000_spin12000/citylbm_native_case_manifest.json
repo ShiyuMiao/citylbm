@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-08-01T09:20:30.586093+00:00",
+  "run_id": "casee_native_dx3_yp_steps48000_spin12000",
+  "dx_m": 3.0,
+  "steps": 48000,
+  "spinup": 12000,
+  "sample_dt": 200,
+  "condition": "ac",
+  "wind_direction": "N",
+  "solver_wind_y": 1.0,
+  "validation_height_m": 2.0,
+  "probe_count": 80,
+  "geometry_scale_factor": 250.0,
+  "binary_stl_triangles": 60101,
+  "output": "casee_probe_time_mean.csv",
+  "evidence_boundary": "generated case only until FluidX3D run completes"
+}

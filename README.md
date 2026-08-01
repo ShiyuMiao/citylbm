@@ -10,13 +10,19 @@ CityLBM is under active academic development.
 The repository currently serves as a reference point for the project
 and will be progressively updated.
 
-## AIJ Case E v0.3.0 Release Gate
+## AIJ Case E v0.4.0 Release Gate
 
-The active Experiment 2 branch is preparing CityLBM v0.3.0 around AIJ Case E
+The active Experiment 2 branch is preparing CityLBM v0.4.0 around AIJ Case E
 `ac+N` validation. Formal validation is locked to the official z=2 m probe
 set: `RS_caseE.csv` filtered by `case=ac` and `Wind_direction=N` gives 80
 probes. Diagnostic height offsets such as `z_plus_half` or `z+4.5 m` are not
 accepted as formal validation results.
+
+Current newly-run native results do not satisfy the formal accuracy gate. The
+best run so far is dx=2 m, 48000 steps, spinup 12000, raw_trilinear sampling:
+MAE 31.436 percentage points, R2 -4.006626, Pearson -0.001683. These results
+support a limitations/diagnostic discussion only, not a predictive-accuracy
+claim or a formal `v0.4.0` release.
 
 Current Case E materials:
 
@@ -24,20 +30,22 @@ Current Case E materials:
 - `docs/experiments/casee/casee_preset.json`
 - `docs/experiments/casee/casee_protocol.md`
 - `docs/experiments/casee/tools/casee_audit.py`
+- `docs/experiments/casee/tools/generate_native_casee.py`
 - `docs/experiments/casee/tools/release_gate.py`
-- `docs/releases/v0.3.0-rc1.md`
+- `docs/experiments/casee/results/casee_native_metric_comparison.csv`
+- `docs/releases/v0.4.0-rc1.md`
 
 Run the audit after official data are present:
 
 ```powershell
-python docs/experiments/casee/tools/casee_audit.py
+python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0
 python docs/experiments/casee/tools/release_gate.py
 ```
 
 If a complete solver output exists, provide a CSV with 80 probe predictions:
 
 ```powershell
-python docs/experiments/casee/tools/casee_audit.py --predicted path\to\casee_probe_time_mean.csv
+python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0 --predicted path\to\casee_probe_time_mean.csv
 ```
 
 The release gate fails closed unless CityLBM builds, the new GHA is loaded in

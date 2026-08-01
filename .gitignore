@@ -12,6 +12,7 @@
 __pycache__/
 *.py[cod]
 docs/experiments/casee/official_data/BD_caseE.stl
+docs/experiments/casee/native_cases/**/buildings.stl
 docs/experiments/casee/**/*.vtk
 docs/experiments/casee/**/*.vtu
 docs/experiments/casee/**/*.3dm

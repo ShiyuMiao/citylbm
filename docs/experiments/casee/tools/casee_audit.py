@@ -8,6 +8,7 @@ import csv
 import json
 import math
 import platform
+import hashlib
 import shutil
 import subprocess
 import sys
@@ -28,6 +29,15 @@ def read_csv(path: Path) -> List[Dict[str, str]]:
         return list(csv.DictReader(f))
 
 
+def read_text_fallback(path: Path) -> str:
+    for encoding in ("utf-8", "utf-8-sig", "utf-16", "gbk"):
+        try:
+            return path.read_text(encoding=encoding)
+        except UnicodeError:
+            continue
+    return path.read_text(encoding="utf-8", errors="ignore")
+
+
 def write_csv(path: Path, rows: Iterable[Dict[str, object]], fieldnames: List[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as f:
@@ -41,7 +51,7 @@ def run_cmd(args: List[str]) -> Dict[str, object]:
     exe = shutil.which(args[0])
     if not exe:
         return {"command": " ".join(args), "found": False, "returncode": None, "stdout": "", "stderr": "not found"}
-    proc = subprocess.run(args, text=True, capture_output=True, timeout=20)
+    proc = subprocess.run(args, text=True, capture_output=True, timeout=20, encoding="utf-8", errors="replace")
     return {
         "command": " ".join(args),
         "found": True,
@@ -49,6 +59,44 @@ def run_cmd(args: List[str]) -> Dict[str, object]:
         "stdout": proc.stdout.strip(),
         "stderr": proc.stderr.strip(),
     }
+
+
+def file_status(path: Optional[Path]) -> Dict[str, object]:
+    if path is None:
+        return {"found": False, "path": "", "sha256": "", "size_bytes": None, "mtime": ""}
+    p = path.expanduser()
+    if not p.exists():
+        return {"found": False, "path": str(p), "sha256": "", "size_bytes": None, "mtime": ""}
+    h = hashlib.sha256()
+    with p.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return {
+        "found": True,
+        "path": str(p),
+        "sha256": h.hexdigest(),
+        "size_bytes": p.stat().st_size,
+        "mtime": datetime.fromtimestamp(p.stat().st_mtime, timezone.utc).isoformat(),
+    }
+
+
+def run_matrix_status(path: Path) -> Dict[str, bool]:
+    if not path.exists():
+        return {"dx3_completed": False, "dx2_completed": False, "casea_smoke_regression_passed": False, "rhino_loaded_new_gha": False}
+    status = {"dx3_completed": False, "dx2_completed": False, "casea_smoke_regression_passed": False, "rhino_loaded_new_gha": False}
+    for row in read_csv(path):
+        run_id = (row.get("run_id") or "").lower()
+        row_status = (row.get("status") or "").lower()
+        completed = row_status in {"completed", "passed", "verified"}
+        if "dx3" in run_id and completed:
+            status["dx3_completed"] = True
+        if "dx2" in run_id and completed:
+            status["dx2_completed"] = True
+        if "casea" in run_id and completed:
+            status["casea_smoke_regression_passed"] = True
+        if "rhino" in run_id and completed:
+            status["rhino_loaded_new_gha"] = True
+    return status
 
 
 def pearson(xs: List[float], ys: List[float]) -> Optional[float]:
@@ -219,7 +267,13 @@ def write_optional_outputs(probes: List[Dict[str, object]], inlet: List[Dict[str
         (RESULTS_DIR / "png_blocked.txt").write_text(str(exc), encoding="utf-8")
 
 
-def build_release_gate(metrics: Optional[Dict[str, object]], env: Dict[str, object]) -> Dict[str, object]:
+def build_release_gate(
+    metrics: Optional[Dict[str, object]],
+    env: Dict[str, object],
+    release_target: str,
+    citylbm_build_passed: bool,
+    matrix: Dict[str, bool],
+) -> Dict[str, object]:
     metric_gate = False
     if metrics is not None:
         metric_gate = (
@@ -230,29 +284,30 @@ def build_release_gate(metrics: Optional[Dict[str, object]], env: Dict[str, obje
             and (metrics["pearson"] is not None and float(metrics["pearson"]) > 0.0)
         )
     checks = {
-        "citylbm_build_passed": False,
-        "rhino_loaded_new_gha": False,
-        "native_fluidx3d_dx3_completed": False,
-        "native_fluidx3d_dx2_completed": False,
+        "citylbm_build_passed": citylbm_build_passed,
+        "rhino_loaded_new_gha": matrix["rhino_loaded_new_gha"],
+        "native_fluidx3d_dx3_completed": matrix["dx3_completed"],
+        "native_fluidx3d_dx2_completed": matrix["dx2_completed"],
         "official_z2m_metric_gate": metric_gate,
-        "casea_smoke_regression_passed": False,
+        "casea_smoke_regression_passed": matrix["casea_smoke_regression_passed"],
         "readme_changelog_release_notes_updated": True,
         "evidence_trace_complete_for_available_artifacts": True,
     }
     allowed = all(checks.values())
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "release_target": "v0.3.0",
+        "release_target": release_target,
         "formal_v0_3_0_allowed": allowed,
-        "recommended_tag": "v0.3.0" if allowed else "v0.3.0-rc1",
+        "recommended_tag": release_target if allowed else f"{release_target}-rc1",
         "checks": checks,
         "metrics": metrics,
         "environment_summary": env,
-        "blocking_reason": "" if allowed else "Build/runtime/native FluidX3D evidence is incomplete; do not create formal v0.3.0 tag.",
+        "blocking_reason": "" if allowed else f"Release evidence is incomplete; do not create formal {release_target} tag.",
     }
 
 
 def write_report(metrics: Optional[Dict[str, object]], gate: Dict[str, object], prediction_path: Optional[Path]) -> None:
+    release_target = str(gate.get("release_target", "v0.3.0"))
     lines = [
         "# AIJ Case E Validation Report",
         "",
@@ -292,7 +347,8 @@ def write_report(metrics: Optional[Dict[str, object]], gate: Dict[str, object], 
         "",
         "## Release Gate",
         "",
-        f"- Formal v0.3.0 allowed: {gate['formal_v0_3_0_allowed']}",
+        f"- Release target: {release_target}",
+        f"- Formal release allowed: {gate['formal_v0_3_0_allowed']}",
         f"- Recommended tag: {gate['recommended_tag']}",
         "",
         "| Check | Status |",
@@ -305,8 +361,8 @@ def write_report(metrics: Optional[Dict[str, object]], gate: Dict[str, object], 
         "## Claim Boundaries",
         "",
         "- Paper-ready now: official data provenance, probe filtering protocol, and blocked release-gate transparency.",
-        "- Limitations now: local machine lacks native FluidX3D execution evidence and CityLBM build evidence.",
-        "- Not paper-ready: any claim that CityLBM v0.3.0 achieved predictive accuracy for Case E official z=2 m.",
+        "- Limitations now: formal accuracy remains blocked until native FluidX3D dx=3 m and dx=2 m official z=2 m runs produce complete probe CSVs.",
+        f"- Not paper-ready: any claim that CityLBM {release_target} achieved predictive accuracy for Case E official z=2 m before the metric gate passes.",
     ]
     (RESULTS_DIR / "casee_validation_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -314,6 +370,13 @@ def write_report(metrics: Optional[Dict[str, object]], gate: Dict[str, object], 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--predicted", type=Path, help="CSV with 80 predicted probe velocity ratios or speeds.")
+    parser.add_argument("--release-target", default="v0.3.0", help="Formal release target guarded by this audit.")
+    parser.add_argument("--dotnet-command", default="dotnet", help="dotnet executable to inspect.")
+    parser.add_argument("--nvidia-smi-command", default="nvidia-smi", help="nvidia-smi executable to inspect.")
+    parser.add_argument("--fluidx3d-exe", type=Path, help="FluidX3D executable to record without launching a full solver run.")
+    parser.add_argument("--citylbm-gha", type=Path, default=ROOT / "CityLBM" / "bin" / "Release" / "CityLBM.gha")
+    parser.add_argument("--citylbm-build-log", type=Path, default=RESULTS_DIR / "citylbm_build_check.log")
+    parser.add_argument("--run-matrix", type=Path, default=CASE_DIR / "native_fluidx3d_run_matrix.csv")
     args = parser.parse_args()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -335,15 +398,30 @@ def main() -> int:
         ["No.", "case", "Wind_direction", "x_m", "y_m", "z_m", "official_velocity_ratio", "predicted_velocity_ratio", "residual", "abs_error_pp", "sampling_mode", "solid_corner_risk", "evidence_type"],
     )
 
+    citylbm_gha = file_status(args.citylbm_gha)
+    citylbm_build_log = file_status(args.citylbm_build_log)
+    build_log_text = read_text_fallback(args.citylbm_build_log) if args.citylbm_build_log.exists() else ""
+    citylbm_build_passed = bool(citylbm_gha["found"]) and (
+        not args.citylbm_build_log.exists()
+        or "Build succeeded." in build_log_text
+        or "0 Error(s)" in build_log_text
+        or "0 errors" in build_log_text.lower()
+        or "0 个错误" in build_log_text
+    )
+    matrix = run_matrix_status(args.run_matrix)
+
     env = {
         "python": sys.version.split()[0],
         "platform": platform.platform(),
-        "dotnet": run_cmd(["dotnet", "--info"]),
-        "nvidia_smi": run_cmd(["nvidia-smi"]),
-        "fluidx3d": run_cmd(["FluidX3D", "--help"]),
+        "dotnet": run_cmd([args.dotnet_command, "--info"]),
+        "nvidia_smi": run_cmd([args.nvidia_smi_command]),
+        "fluidx3d_executable": file_status(args.fluidx3d_exe),
+        "citylbm_gha": citylbm_gha,
+        "citylbm_build_log": citylbm_build_log,
+        "run_matrix": {"path": str(args.run_matrix), **matrix},
     }
     (RESULTS_DIR / "environment_manifest.json").write_text(json.dumps(env, indent=2), encoding="utf-8")
-    gate = build_release_gate(metrics, env)
+    gate = build_release_gate(metrics, env, args.release_target, citylbm_build_passed, matrix)
     (RESULTS_DIR / "release_gate.json").write_text(json.dumps(gate, indent=2), encoding="utf-8")
     if metrics is not None:
         write_csv(RESULTS_DIR / "casee_metrics.csv", [metrics], list(metrics.keys()))

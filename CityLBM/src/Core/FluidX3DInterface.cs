@@ -349,14 +349,20 @@ namespace CityLBM.Solver
                 if (File.Exists(slnFile))
                 {
                     result = BuildWithMSBuild(slnFile, progressCallback);
+                    if (!result.Success)
+                        result = BuildWithFallback(result, "MSBuild", progressCallback);
                 }
                 else if (File.Exists(makeFile))
                 {
                     result = BuildWithMake(FluidX3DPath, progressCallback);
+                    if (!result.Success)
+                        result = BuildWithFallback(result, "make", progressCallback);
                 }
                 else if (File.Exists(cmakeLists))
                 {
                     result = BuildWithCMake(FluidX3DPath);
+                    if (!result.Success)
+                        result = BuildWithFallback(result, "CMake", progressCallback);
                 }
                 else
                 {
@@ -1140,6 +1146,91 @@ namespace CityLBM.Solver
             return result;
         }
 
+        private BuildResult BuildWithFallback(BuildResult previous, string failedBuilder, Action<string> progressCallback = null)
+        {
+            progressCallback?.Invoke($"[Build] {failedBuilder} failed or is unavailable. Trying MinGW/g++ fallback.");
+            BuildResult fallback = BuildWithMinGW(FluidX3DPath, progressCallback);
+            fallback.Log = (previous.Log ?? "") +
+                           Environment.NewLine +
+                           $"[CityLBM] {failedBuilder} fallback reason: {previous.ErrorMessage}" +
+                           Environment.NewLine +
+                           (fallback.Log ?? "");
+            return fallback;
+        }
+
+        private BuildResult BuildWithMinGW(string sourceDir, Action<string> progressCallback = null)
+        {
+            var result = new BuildResult { StartTime = DateTime.Now };
+            var sb = new StringBuilder();
+            string gpp = FindGpp();
+            if (string.IsNullOrEmpty(gpp))
+            {
+                result.Success = false;
+                result.ErrorMessage = "MinGW/g++ was not found. Set CITYLBM_GPP_PATH or CITYLBM_MINGW_BIN, or add g++.exe to PATH.";
+                result.EndTime = DateTime.Now;
+                return result;
+            }
+
+            string srcDir = Path.Combine(sourceDir, "src");
+            string openClLib = Path.Combine(srcDir, "OpenCL", "lib", "OpenCL.lib");
+            string openClInclude = Path.Combine(srcDir, "OpenCL", "include");
+            if (!Directory.Exists(srcDir) || !File.Exists(openClLib) || !Directory.Exists(openClInclude))
+            {
+                result.Success = false;
+                result.ErrorMessage = "FluidX3D source layout is incomplete for MinGW/g++ fallback.";
+                result.EndTime = DateTime.Now;
+                return result;
+            }
+
+            Directory.CreateDirectory(Path.Combine(sourceDir, "bin"));
+            string outputExe = Path.Combine(sourceDir, "bin", "FluidX3D.exe");
+            string cppFiles = string.Join(" ", Directory.GetFiles(srcDir, "*.cpp").Select(QuoteArg));
+            string args = $"{cppFiles} -o {QuoteArg(outputExe)} -std=c++17 -pthread -O -Wno-comment -I{QuoteArg(openClInclude)} {QuoteArg(openClLib)} -luser32 -lgdi32 -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 -lwinspool -lws2_32";
+
+            progressCallback?.Invoke($"[Build] MinGW/g++: {gpp}");
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = gpp,
+                Arguments = args,
+                WorkingDirectory = sourceDir,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                StandardOutputEncoding = System.Text.Encoding.UTF8,
+                StandardErrorEncoding = System.Text.Encoding.UTF8
+            };
+
+            using (var process = new Process { StartInfo = startInfo })
+            {
+                process.OutputDataReceived += (s, e) => {
+                    if (e.Data != null) {
+                        sb.AppendLine(e.Data);
+                        progressCallback?.Invoke(e.Data);
+                    }
+                };
+                process.ErrorDataReceived += (s, e) => {
+                    if (e.Data != null) {
+                        sb.AppendLine("[ERR] " + e.Data);
+                        progressCallback?.Invoke("[ERR] " + e.Data);
+                    }
+                };
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                process.WaitForExit();
+
+                result.ExitCode = process.ExitCode;
+                result.Success = process.ExitCode == 0 && File.Exists(outputExe);
+            }
+
+            result.Log = sb.ToString();
+            if (!result.Success)
+                result.ErrorMessage = $"MinGW/g++ build failed or did not create {outputExe}.";
+            result.EndTime = DateTime.Now;
+            return result;
+        }
+
         private BuildResult BuildWithMake(string sourceDir, Action<string> progressCallback = null)
         {
             var result = new BuildResult { StartTime = DateTime.Now };
@@ -1289,6 +1380,50 @@ namespace CityLBM.Solver
             catch { }
 
             return null;
+        }
+
+        private string FindGpp()
+        {
+            string explicitPath = Environment.GetEnvironmentVariable("CITYLBM_GPP_PATH");
+            if (!string.IsNullOrWhiteSpace(explicitPath) && File.Exists(explicitPath))
+                return explicitPath;
+
+            string mingwBin = Environment.GetEnvironmentVariable("CITYLBM_MINGW_BIN");
+            if (!string.IsNullOrWhiteSpace(mingwBin))
+            {
+                string candidate = Path.Combine(mingwBin, "g++.exe");
+                if (File.Exists(candidate))
+                    return candidate;
+            }
+
+            try
+            {
+                var startInfo = new ProcessStartInfo("where", "g++.exe")
+                {
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+                using (var process = Process.Start(startInfo))
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+                    string first = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+                    if (!string.IsNullOrWhiteSpace(first) && File.Exists(first))
+                        return first;
+                }
+            }
+            catch { }
+
+            return null;
+        }
+
+        private string QuoteArg(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return "\"\"";
+            return "\"" + value.Replace("\"", "\\\"") + "\"";
         }
 
         private string FindExecutable(string fluidX3DPath)

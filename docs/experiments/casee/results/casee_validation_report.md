@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-07-30T11:46:10.288180+00:00
+Generated: 2026-08-01T09:48:38.826857+00:00
 
 ## Protocol
 
@@ -13,22 +13,27 @@ Generated: 2026-07-30T11:46:10.288180+00:00
 
 ## Metrics
 
-No complete predicted probe CSV was provided. Official z=2 m validation metrics are blocked.
-
-- Evidence type: newly_run for data audit, blocked for accuracy metrics
-- Claim readiness: blocked
+- Prediction source: `docs\experiments\casee\results\casee_native_dx2_sampledt2000_probe_time_mean.csv`
+- n: 80
+- MAE: 31.436 percentage points
+- RMSE: 35.774 percentage points
+- Bias: -31.233 percentage points
+- R2: -4.006626
+- Pearson: -0.001683
+- Evidence type: newly_run
 
 ## Release Gate
 
-- Formal v0.3.0 allowed: False
-- Recommended tag: v0.3.0-rc1
+- Release target: v0.4.0
+- Formal release allowed: False
+- Recommended tag: v0.4.0-rc1
 
 | Check | Status |
 |---|---:|
-| citylbm_build_passed | False |
+| citylbm_build_passed | True |
 | rhino_loaded_new_gha | False |
-| native_fluidx3d_dx3_completed | False |
-| native_fluidx3d_dx2_completed | False |
+| native_fluidx3d_dx3_completed | True |
+| native_fluidx3d_dx2_completed | True |
 | official_z2m_metric_gate | False |
 | casea_smoke_regression_passed | False |
 | readme_changelog_release_notes_updated | True |
@@ -37,5 +42,5 @@ No complete predicted probe CSV was provided. Official z=2 m validation metrics 
 ## Claim Boundaries
 
 - Paper-ready now: official data provenance, probe filtering protocol, and blocked release-gate transparency.
-- Limitations now: local machine lacks native FluidX3D execution evidence and CityLBM build evidence.
-- Not paper-ready: any claim that CityLBM v0.3.0 achieved predictive accuracy for Case E official z=2 m.
+- Limitations now: formal accuracy remains blocked until native FluidX3D dx=3 m and dx=2 m official z=2 m runs produce complete probe CSVs.
+- Not paper-ready: any claim that CityLBM v0.4.0 achieved predictive accuracy for Case E official z=2 m before the metric gate passes.

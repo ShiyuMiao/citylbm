@@ -35,6 +35,7 @@ Implemented in source:
 - Added `citylbm_run_manifest.json` generation in every case folder.
 - Applied the Case E wind override to a generation-only `Scene` clone, so Grasshopper input scenes are not silently mutated.
 - Kept the generic CityLBM lattice velocity default at 0.1; the 0.08 cap is Case E preset-only.
+- Added a MinGW/g++ fallback path for FluidX3D builds when MSBuild is unavailable or fails. This is a build-chain reliability improvement, not a solver accuracy model.
 
 ### Experiment 3 / TUM2TWIN
 
@@ -60,8 +61,8 @@ Experimental only:
 
 ## Current Verification Status
 
-- Source was edited and statically inspected.
+- Source was edited, rebuilt, and inspected.
 - Official data and 80-probe filtering are verified.
-- Formal CityLBM build remains blocked because no .NET SDK/MSBuild is installed.
-- Native FluidX3D validation remains blocked because FluidX3D/GPU runtime is unavailable.
-- Therefore, this is an accuracy-oriented plugin optimization, not a validated accuracy success.
+- CityLBM builds on the local .NET SDK 8.0.423 toolchain; the generated GHA is recorded in `docs/experiments/casee/results/environment_manifest.json`.
+- Native FluidX3D dx=3 m and dx=2 m runs completed at official z=2 m, but the metrics remain below the release threshold.
+- Therefore, this is still an accuracy-diagnostic optimization, not a validated accuracy success.

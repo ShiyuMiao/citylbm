@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.4.0-rc1 - Native Case E diagnostic continuation
+
+- Added a native FluidX3D Case E generator for official `ac+N`, scale factor 250, AF_caseE profile ingestion, binary STL conversion, and direct `casee_probe_time_mean.csv` output for the 80 official z=2 m probes.
+- Completed newly-run native FluidX3D dx=3 m and dx=2 m Case E runs on this machine.
+- Added MinGW/g++ fallback compilation in `FluidX3DInterface` so CityLBM can build FluidX3D when MSBuild is unavailable.
+- Rebuilt CityLBM successfully with local .NET SDK 8.0.423; the generated GHA and build log are recorded in the Case E environment manifest.
+
+Case E official z=2 m metrics remain below the formal accuracy gate:
+
+- Best newly-run result so far: dx=2 m, 48000 steps, spinup 12000, raw_trilinear, n=80.
+- MAE = 31.436 percentage points, RMSE = 35.774 percentage points, bias = -31.233 percentage points.
+- R2 = -4.006626 and Pearson = -0.001683.
+
+Known blockers:
+
+- Do not create the formal `v0.4.0` tag: the official z=2 m metric gate fails.
+- Rhino/Grasshopper loading of the new GHA and Case A smoke regression are still not verified in this run.
+- The dx=2 implementation currently reads full velocity fields for probe sampling; a true GPU-side probe-only reducer is needed before scaling to longer/high-resolution sweeps.
+- Remaining accuracy risks are near-wall treatment, rough/effective ground modeling, inlet turbulence/digital-filter fidelity, voxelization alignment, and official probe sampling at solid corners.
+
 ## v0.3.0-rc1 - AIJ Case E accuracy diagnostic candidate
 
 - Added source-level plugin optimization from Experiments 1-3: an explicit AIJ Case E preset input, Case E protocol policy, AF_caseE inlet-profile generation, lattice velocity cap scaling, and per-case run manifest output.

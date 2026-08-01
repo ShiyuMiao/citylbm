@@ -17,7 +17,8 @@ def main() -> int:
         return 2
     data = json.loads(GATE.read_text(encoding="utf-8"))
     allowed = bool(data.get("formal_v0_3_0_allowed"))
-    print(f"formal_v0_3_0_allowed={allowed}")
+    print(f"release_target={data.get('release_target')}")
+    print(f"formal_release_allowed={allowed}")
     print(f"recommended_tag={data.get('recommended_tag')}")
     if not allowed:
         print(data.get("blocking_reason", "Release gate failed."))
