@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-01T11:12:08.894869+00:00
+Generated: 2026-08-01T11:21:54.833318+00:00
 
 ## Protocol
 
@@ -56,11 +56,19 @@ Generated: 2026-08-01T11:12:08.894869+00:00
 - Best diagnostic Pearson: `z_plus_half` with Pearson 0.187068
 - Interpretation: diagnostic sampling reduces error but all mode R2 values remain negative.
 
+## Voxel/Probe Protocol Audit
+
+- Evidence: `docs/experiments/casee/results/casee_voxel_probe_audit_groups.csv`
+- Low-risk probes: n=25, raw MAE 12.932 pp
+- High-risk probes: n=19, raw MAE 32.454 pp
+- All probes: raw MAE 23.972 pp; z_plus_half diagnostic MAE 21.217 pp
+- Interpretation: official z=2 m probes are sensitive to voxel layer placement and solid-neighbor interpolation; this is limitations evidence.
+
 ## Release Gate
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc6
+- Recommended tag: v0.4.0-rc7
 
 | Check | Status |
 |---|---:|

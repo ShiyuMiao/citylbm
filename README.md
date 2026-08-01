@@ -40,9 +40,11 @@ Current Case E and release-gate materials:
 - `docs/experiments/casee/results/casee_probe_modes_compile_manifest.json`
 - `docs/experiments/casee/results/casee_probe_mode_metrics.csv`
 - `docs/experiments/casee/results/casee_native_dx2_gshift1_nu001_pmodes_probe_time_mean.csv`
+- `docs/experiments/casee/results/casee_voxel_probe_audit.csv`
+- `docs/experiments/casee/results/casee_voxel_probe_audit_groups.csv`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc6.md`
+- `docs/releases/v0.4.0-rc7.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -65,6 +67,11 @@ The completed probe-mode diagnostic run reduced the best diagnostic MAE to
 21.217 percentage points with `z_plus_half` and raised Pearson to 0.187068, but
 R2 remained negative. This is limitations evidence for near-wall/probe-protocol
 sensitivity, not formal validation.
+
+The voxel/probe protocol audit shows the same limitation from the geometry side:
+low-risk probes have raw MAE 12.932 pp, while high-risk probes have raw MAE
+32.454 pp. CityLBM now records Case E probe protocol risk metadata in generated
+run manifests so this condition is visible before results are interpreted.
 
 Run the audit after official data are present:
 

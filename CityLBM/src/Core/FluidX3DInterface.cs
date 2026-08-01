@@ -1971,7 +1971,8 @@ namespace CityLBM.Solver
             sb.AppendLine($"    \"zref_m\": {settings.Zref.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"    \"expected_probe_count\": {settings.ExpectedProbeCount},");
             sb.AppendLine($"    \"formal_sampling_mode\": \"{EscapeJson(settings.FormalSamplingMode)}\",");
-            sb.AppendLine($"    \"diagnostic_modes\": \"{EscapeJson(settings.DiagnosticSamplingModes)}\"");
+            sb.AppendLine($"    \"diagnostic_modes\": \"{EscapeJson(settings.DiagnosticSamplingModes)}\",");
+            AppendProbeProtocolRisk(sb, grid, settings);
             sb.AppendLine("  },");
             sb.AppendLine("  \"inputs\": {");
             sb.AppendLine($"    \"approach_flow_csv\": \"{EscapeJson(settings.ApproachFlowCsvPath)}\",");
@@ -1982,6 +1983,38 @@ namespace CityLBM.Solver
             sb.AppendLine("}");
 
             File.WriteAllText(Path.Combine(caseDir, "citylbm_run_manifest.json"), sb.ToString(), Encoding.UTF8);
+        }
+
+        private void AppendProbeProtocolRisk(StringBuilder sb, CartesianGrid grid, SimulationSettings settings)
+        {
+            double dx = grid.Dx;
+            double height = settings.ValidationHeight;
+            bool canAudit = settings.UseAijCaseEPreset && dx > 0.0 && height > 0.0;
+            double gridZFloat = canAudit ? (height - grid.Origin.Z) / dx - 0.5 : 0.0;
+            int z0 = canAudit ? (int)Math.Floor(gridZFloat) : 0;
+            double tz = canAudit ? gridZFloat - z0 : 0.0;
+            double lowerCenter = canAudit ? grid.Origin.Z + (z0 + 0.5) * dx : 0.0;
+            double upperCenter = canAudit ? grid.Origin.Z + (z0 + 1.5) * dx : 0.0;
+            bool betweenLayers = canAudit && tz > 1e-6 && tz < 1.0 - 1e-6;
+
+            sb.AppendLine("    \"probe_protocol_risk\": {");
+            sb.AppendLine($"      \"enabled\": {BoolJson(canAudit)},");
+            sb.AppendLine($"      \"formal_height_m\": {height.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"      \"grid_z_float\": {gridZFloat.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"      \"grid_z0\": {z0},");
+            sb.AppendLine($"      \"grid_tz\": {tz.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"      \"lower_z_center_m\": {lowerCenter.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"      \"upper_z_center_m\": {upperCenter.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"      \"formal_height_between_lattice_layers\": {BoolJson(betweenLayers)},");
+            sb.AppendLine($"      \"formal_result_must_use_official_height\": {BoolJson(canAudit)},");
+            sb.AppendLine("      \"z_plus_half_allowed_as_formal_result\": false,");
+            sb.AppendLine("      \"note\": \"Diagnostic sampling modes help quantify near-wall/probe sensitivity but do not replace official z=2m validation.\"");
+            sb.AppendLine("    }");
+        }
+
+        private string BoolJson(bool value)
+        {
+            return value ? "true" : "false";
         }
 
         private string EscapeJson(string value)

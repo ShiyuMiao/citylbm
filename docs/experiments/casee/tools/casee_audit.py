@@ -26,6 +26,7 @@ PRESET_PATH = CASE_DIR / "casee_preset.json"
 SPATIAL_ALIGNMENT_CSV = RESULTS_DIR / "casee_spatial_alignment_diagnostic.csv"
 PROBE_MODES_COMPILE_MANIFEST = RESULTS_DIR / "casee_probe_modes_compile_manifest.json"
 PROBE_MODE_METRICS_CSV = RESULTS_DIR / "casee_probe_mode_metrics.csv"
+VOXEL_PROBE_AUDIT_GROUPS_CSV = RESULTS_DIR / "casee_voxel_probe_audit_groups.csv"
 
 
 def read_csv(path: Path) -> List[Dict[str, str]]:
@@ -536,6 +537,24 @@ def write_report(
             ]
         except Exception as exc:
             lines += ["", "## Probe Sampling Mode Metrics", "", f"- Blocked: {exc}"]
+    if VOXEL_PROBE_AUDIT_GROUPS_CSV.exists():
+        try:
+            voxel_groups = read_csv(VOXEL_PROBE_AUDIT_GROUPS_CSV)
+            high = next((row for row in voxel_groups if row.get("group") == "high"), None)
+            low = next((row for row in voxel_groups if row.get("group") == "low"), None)
+            all_row = next((row for row in voxel_groups if row.get("group") == "all"), None)
+            lines += [
+                "",
+                "## Voxel/Probe Protocol Audit",
+                "",
+                f"- Evidence: `{display_path(VOXEL_PROBE_AUDIT_GROUPS_CSV)}`",
+                f"- Low-risk probes: n={low['n']}, raw MAE {float(low['raw_mae_pp']):.3f} pp" if low else "- Low-risk row unavailable.",
+                f"- High-risk probes: n={high['n']}, raw MAE {float(high['raw_mae_pp']):.3f} pp" if high else "- High-risk row unavailable.",
+                f"- All probes: raw MAE {float(all_row['raw_mae_pp']):.3f} pp; z_plus_half diagnostic MAE {float(all_row['z_plus_half_mae_pp']):.3f} pp" if all_row else "- All-probe row unavailable.",
+                "- Interpretation: official z=2 m probes are sensitive to voxel layer placement and solid-neighbor interpolation; this is limitations evidence.",
+            ]
+        except Exception as exc:
+            lines += ["", "## Voxel/Probe Protocol Audit", "", f"- Blocked: {exc}"]
     lines += [
         "",
         "## Release Gate",

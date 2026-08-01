@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.4.0-rc7 - Voxel/probe protocol audit
+
+- Added a voxel/probe protocol audit for AIJ Case E official z=2 m probes against the scaled STL and dx=2 m effective-ground grid.
+- Added CityLBM run-manifest protocol-risk metadata for Case E, including lattice z-layer placement and an explicit rule that `z_plus_half` is not a formal substitute.
+- Updated the Case E validation report to include voxel/probe risk groups.
+
+Current diagnostic finding:
+
+- Low protocol-risk probes: n = 25, raw MAE = 12.932 pp.
+- Moderate protocol-risk probes: n = 36, raw MAE = 27.162 pp.
+- High protocol-risk probes: n = 19, raw MAE = 32.454 pp.
+- z_plus_half diagnostic MAE improves the all-probe average from 23.972 pp to 21.217 pp, but official R2 remains negative.
+
+This supports near-wall/probe-protocol limitations and software risk reporting, not formal predictive accuracy.
+
 ## v0.4.0-rc6 - Completed probe-mode diagnostic run
 
 - Completed the native dx=2 m, effective-ground one-cell, `nu_lbm=0.001` probe-mode diagnostic run for 48000 steps.
