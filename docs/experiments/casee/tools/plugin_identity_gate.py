@@ -15,7 +15,7 @@ PLUGIN = ROOT / "CityLBM" / "src" / "CityLBMPlugin.cs"
 README = ROOT / "README.md"
 CITYLBM_README = ROOT / "CityLBM" / "README.md"
 CHANGELOG = ROOT / "CHANGELOG.md"
-RELEASE_NOTES = ROOT / "docs" / "releases" / "v0.4.0-rc13.md"
+RELEASE_NOTES = ROOT / "docs" / "releases" / "v0.4.0-rc14.md"
 TRACKED_GHA = ROOT / "CityLBM" / "bin" / "CityLBM.gha"
 RELEASE_GHA = ROOT / "CityLBM" / "bin" / "Release" / "CityLBM.gha"
 RESULTS_DIR = ROOT / "docs" / "experiments" / "casee" / "results"
@@ -54,9 +54,9 @@ def main() -> int:
         "release_gha_exists": RELEASE_GHA.exists(),
         "tracked_gha_matches_release_build": bool(tracked_gha_sha256) and tracked_gha_sha256 == release_gha_sha256,
         "root_readme_mentions_paper_gate": contains(README, "paper_evidence_gate.py"),
-        "root_readme_mentions_rc13_release_notes": contains(README, "docs/releases/v0.4.0-rc13.md"),
+        "root_readme_mentions_rc14_release_notes": contains(README, "docs/releases/v0.4.0-rc14.md"),
         "citylbm_readme_mentions_rc_status": contains(CITYLBM_README, "CityLBM v0.4.0-rc Status"),
-        "changelog_has_rc13": contains(CHANGELOG, "## v0.4.0-rc13"),
+        "changelog_has_rc14": contains(CHANGELOG, "## v0.4.0-rc14"),
         "release_notes_exist": RELEASE_NOTES.exists(),
         "release_notes_blocks_formal_v040": contains(RELEASE_NOTES, "Formal `v0.4.0` remains blocked"),
     }

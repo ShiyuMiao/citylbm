@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc14 - Artifact index for paper and release traceability
+
+- Added `artifact_index.py` to generate a hash-indexed Case E artifact catalogue for paper appendices and lightweight release assets.
+- Generated `casee_artifact_index.csv`, `casee_artifact_index.json`, and `casee_artifact_index.md`.
+- Extended `paper_evidence_gate.py` so manuscript claim safety also requires the artifact index to contain key release and paper evidence files.
+- Updated plugin identity and paper evidence gates to point at the current rc14 release notes.
+
+This improves evidence traceability only. It does not change the official z=2 m Case E metrics, and formal `v0.4.0` remains blocked.
+
 ## v0.4.0-rc13 - Plugin identity and paper-gate alignment
 
 - Updated the Grasshopper plugin metadata from the old `0.1.0` WIP identity to the `0.4.0-rc` accuracy-diagnostic line.

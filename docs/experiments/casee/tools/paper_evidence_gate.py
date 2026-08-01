@@ -16,6 +16,17 @@ CASE_DIR = ROOT / "docs" / "experiments" / "casee"
 RESULTS_DIR = CASE_DIR / "results"
 PAPER_DRAFTS_DIR = ROOT / "academic-paper-writer" / "paper-drafts"
 
+REQUIRED_ARTIFACTS = [
+    "CityLBM/bin/CityLBM.gha",
+    "docs/experiments/casee/results/release_gate.json",
+    "docs/experiments/casee/results/casee_metrics.csv",
+    "docs/experiments/casee/results/casee_validation_report.md",
+    "docs/experiments/casee/results/casee_manuscript_claim_matrix.csv",
+    "docs/experiments/casee/results/casee_paper_evidence_gate.json",
+    "docs/experiments/casee/results/plugin_identity_gate.json",
+    "docs/releases/v0.4.0-rc14.md",
+]
+
 FORBIDDEN_SUCCESS_PATTERNS = [
     "has passed AIJ Case E accuracy validation",
     "validated predictive accuracy",
@@ -161,10 +172,36 @@ def draft_status(paths: Iterable[Path]) -> Dict[str, Any]:
     }
 
 
+def artifact_index_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "artifact_index_found": False,
+            "artifact_count": 0,
+            "lightweight_release_asset_count": 0,
+            "formal_accuracy_claim_supported": None,
+            "required_artifacts_present": False,
+            "missing_required_artifacts": REQUIRED_ARTIFACTS,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    artifacts = data.get("artifacts", [])
+    paths = {str(row.get("path", "")) for row in artifacts}
+    missing = [item for item in REQUIRED_ARTIFACTS if item not in paths]
+    summary = data.get("summary", {})
+    return {
+        "artifact_index_found": True,
+        "artifact_count": summary.get("artifact_count", len(artifacts)),
+        "lightweight_release_asset_count": summary.get("lightweight_release_asset_count", 0),
+        "formal_accuracy_claim_supported": summary.get("formal_accuracy_claim_supported"),
+        "required_artifacts_present": not missing,
+        "missing_required_artifacts": missing,
+    }
+
+
 def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     metric = payload["metric_gate"]
     claim = payload["claim_matrix"]
     draft = payload["draft_scan"]
+    artifact = payload["artifact_index"]
     lines = [
         "# Case E Paper Evidence Gate",
         "",
@@ -197,7 +234,19 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Checked files: {len(draft['checked_files'])}",
         f"- Checked nonblank lines: {draft['checked_nonblank_lines']}",
         f"- Draft claim boundary passed: {draft['draft_claim_boundary_passed']}",
+        "",
+        "## Artifact Index",
+        "",
+        f"- Artifact index found: {artifact['artifact_index_found']}",
+        f"- Artifact count: {artifact['artifact_count']}",
+        f"- Lightweight release assets: {artifact['lightweight_release_asset_count']}",
+        f"- Required artifacts present: {artifact['required_artifacts_present']}",
+        f"- Formal accuracy claim supported by index: {artifact['formal_accuracy_claim_supported']}",
     ]
+    if artifact["missing_required_artifacts"]:
+        lines += ["", "Missing required artifacts:"]
+        for item in artifact["missing_required_artifacts"]:
+            lines.append(f"- `{item}`")
     if draft["forbidden_success_claim_violations"]:
         lines += ["", "## Violations", ""]
         for item in draft["forbidden_success_claim_violations"]:
@@ -211,6 +260,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--release-gate", type=Path, default=RESULTS_DIR / "release_gate.json")
     parser.add_argument("--claim-matrix", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.csv")
+    parser.add_argument("--artifact-index", type=Path, default=RESULTS_DIR / "casee_artifact_index.json")
     parser.add_argument("--draft-glob", default="casee_v04_*.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.json")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.md")
@@ -220,6 +270,7 @@ def main() -> int:
     metric = metric_gate_status(gate)
     claim = claim_matrix_status(read_csv(args.claim_matrix), str(metric["recommended_tag"]))
     draft = draft_status(sorted(PAPER_DRAFTS_DIR.glob(args.draft_glob)))
+    artifact = artifact_index_status(args.artifact_index)
     passed = (
         metric["formal_metric_is_negative_validation"]
         and claim["blocked_release_claim_present"]
@@ -227,6 +278,9 @@ def main() -> int:
         and claim["recommended_tag_present"]
         and claim["no_overstated_paper_ready_claims"]
         and draft["draft_claim_boundary_passed"]
+        and artifact["artifact_index_found"]
+        and artifact["required_artifacts_present"]
+        and artifact["formal_accuracy_claim_supported"] is False
     )
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -234,6 +288,7 @@ def main() -> int:
         "metric_gate": metric,
         "claim_matrix": claim,
         "draft_scan": draft,
+        "artifact_index": artifact,
     }
     args.out_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     write_markdown(args.out_md, payload)
