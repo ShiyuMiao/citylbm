@@ -39,6 +39,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_official_run_preflight.py`
 - `docs/experiments/casee/tools/casee_environment_recovery_runbook.py`
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
+- `docs/experiments/casee/tools/casee_default_policy_gate.py`
 - `docs/experiments/casee/results/casee_native_metric_comparison.csv`
 - `docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv`
 - `docs/experiments/casee/results/casee_solid_corner_group_metrics.csv`
@@ -70,11 +71,14 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_failure_mode_atlas.json`
 - `docs/experiments/casee/results/casee_failure_mode_atlas.md`
 - `docs/experiments/casee/results/casee_failure_mode_atlas.png`
+- `docs/experiments/casee/results/casee_default_policy_gate.json`
+- `docs/experiments/casee/results/casee_default_policy_gate.md`
+- `docs/experiments/casee/results/casee_default_policy_gate.csv`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc22.md`
+- `docs/releases/v0.4.0-rc23.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -153,6 +157,13 @@ for preflight checks, dx=2 replication, wall-model and inlet-turbulence
 follow-ups, dx=1 feasibility/generation, and post-run official auditing. It is
 a run policy and traceability artifact only; it does not add a solver result.
 
+The default-policy gate verifies that software defaults remain claim-safe:
+official Case E validation stays locked to z=2 m, 80 ac+N probes, and
+`raw_trilinear`; generic viscosity mapping remains the default; `nuLBM`,
+`zOff`, effective-ground shifts, wall/roughness follow-ups, and non-raw probe
+sampling modes remain experimental switches. This is software-policy evidence,
+not formal validation.
+
 Run the audit after official data are present:
 
 ```powershell
@@ -162,6 +173,7 @@ python docs/experiments/casee/tools/rhino_gha_load_gate.py
 python docs/experiments/casee/tools/casee_official_run_preflight.py
 python docs/experiments/casee/tools/casee_environment_recovery_runbook.py
 python docs/experiments/casee/tools/casee_failure_mode_atlas.py
+python docs/experiments/casee/tools/casee_default_policy_gate.py
 python docs/experiments/casee/tools/paper_evidence_gate.py
 ```
 

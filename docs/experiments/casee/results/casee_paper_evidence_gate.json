@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T13:22:30.630889+00:00",
+  "generated_at": "2026-08-01T13:31:51.990198+00:00",
   "paper_evidence_gate_passed": true,
   "metric_gate": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc22",
+    "recommended_tag": "v0.4.0-rc23",
     "official_z2m_r2": -2.006330362229977,
     "official_z2m_mae_pp": 21.111408125,
     "official_z2m_pearson": 0.11575649438573923,
@@ -31,14 +31,14 @@
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_en.md",
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_zh.md"
     ],
-    "checked_nonblank_lines": 251,
+    "checked_nonblank_lines": 253,
     "forbidden_success_claim_violations": [],
     "draft_claim_boundary_passed": true
   },
   "artifact_index": {
     "artifact_index_found": true,
-    "artifact_count": 140,
-    "lightweight_release_asset_count": 108,
+    "artifact_count": 144,
+    "lightweight_release_asset_count": 112,
     "formal_accuracy_claim_supported": false,
     "required_artifacts_present": true,
     "missing_required_artifacts": []
@@ -79,6 +79,14 @@
     "claim_readiness": "limitations_ready_failure_mode_atlas",
     "failure_mode_count": 6,
     "formal_release_allowed": false,
+    "claim_boundary_safe": true
+  },
+  "casee_default_policy_gate": {
+    "default_policy_gate_found": true,
+    "default_policy_gate_passed": true,
+    "claim_readiness": "paper_ready_default_policy_boundary",
+    "formal_release_allowed": false,
+    "check_count": 15,
     "claim_boundary_safe": true
   }
 }

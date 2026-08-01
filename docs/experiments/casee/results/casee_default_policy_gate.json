@@ -1,0 +1,157 @@
+{
+  "generated_at": "2026-08-01T13:31:49.794538+00:00",
+  "default_policy_gate_passed": true,
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_default_policy_boundary",
+  "formal_release_allowed": false,
+  "default_settings_allowed": [
+    "Official Case E formal validation uses z=2 m, 80 ac+N probes, and raw_trilinear sampling.",
+    "Generic CityLBM viscosity remains the standard physical-viscosity mapping when nuLBM is 0.",
+    "Case E preset metadata may set protocol constants and manifest/risk fields.",
+    "Run manifests may record diagnostic availability and claim-boundary metadata."
+  ],
+  "experimental_switches": [
+    "Diagnostic LBM Nu Override / nuLBM sensitivity control.",
+    "Diagnostic Z Origin Offset / zOff vertical-origin sensitivity control.",
+    "nearest_valid, fluid_weighted, vertical_valid_above, and z_plus_half probe sampling.",
+    "Effective-ground, rough-wall, wall-model, voxelization, and inlet-turbulence follow-up settings until official z=2 m raw_trilinear improvement is proven."
+  ],
+  "checks": [
+    {
+      "check_id": "simulation_settings_formal_raw_trilinear",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "policy_boundary": "Formal validation defaults to official z=2 m raw_trilinear sampling.",
+      "paper_use": "Use to state the default formal sampling policy.",
+      "failure_action": "Restore SimulationSettings.FormalSamplingMode to raw_trilinear."
+    },
+    {
+      "check_id": "simulation_settings_diag_modes_empty_by_default",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "policy_boundary": "Generic simulations do not enable diagnostic probe modes by default.",
+      "paper_use": "Use to separate generic defaults from Case E diagnostics.",
+      "failure_action": "Keep diagnostic sampling modes opt-in or preset-scoped."
+    },
+    {
+      "check_id": "simulation_settings_nu_override_default_off",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "policy_boundary": "LBM viscosity override is default-off; standard physical-viscosity mapping remains default.",
+      "paper_use": "Use to state nu_lbm sensitivity is diagnostic only.",
+      "failure_action": "Reset DiagnosticNuLbmOverride default to 0.0."
+    },
+    {
+      "check_id": "simulation_settings_z_origin_offset_default_off",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "policy_boundary": "Vertical-origin offset is default-off and cannot redefine official z=2 m.",
+      "paper_use": "Use to state z-origin shifts are diagnostics only.",
+      "failure_action": "Reset DiagnosticZOriginOffsetM default to 0.0."
+    },
+    {
+      "check_id": "run_component_casee_preset_default_false",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "policy_boundary": "Case E preset is explicit and opt-in in Grasshopper.",
+      "paper_use": "Use to state users must deliberately select the Case E protocol preset.",
+      "failure_action": "Restore the AIJ Case E Preset input default to false."
+    },
+    {
+      "check_id": "run_component_nu_input_default_zero",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "policy_boundary": "Diagnostic LBM Nu Override stays off unless the user supplies a positive value.",
+      "paper_use": "Use to classify nu_lbm changes as experimental switches.",
+      "failure_action": "Restore the nuLBM input default to 0.0."
+    },
+    {
+      "check_id": "run_component_zoff_input_default_zero",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "policy_boundary": "Diagnostic Z Origin Offset stays off unless explicitly set.",
+      "paper_use": "Use to classify z-origin changes as experimental switches.",
+      "failure_action": "Restore the zOff input default to 0.0."
+    },
+    {
+      "check_id": "manifest_blocks_z_plus_half_formal",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "policy_boundary": "Run manifests forbid diagnostic modes as formal official z=2 m substitutes.",
+      "paper_use": "Use to keep z_plus_half out of formal Case E validation claims.",
+      "failure_action": "Restore manifest fields blocking diagnostic modes as formal results."
+    },
+    {
+      "check_id": "native_generator_formal_output_raw",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "docs/experiments/casee/tools/generate_native_casee.py",
+      "policy_boundary": "Native Case E probe CSV keeps predicted_velocity_ratio as the raw formal result.",
+      "paper_use": "Use to trace official metrics to raw_trilinear output.",
+      "failure_action": "Keep predicted_velocity_ratio tied to raw_trilinear before diagnostic columns."
+    },
+    {
+      "check_id": "native_generator_diagnostic_modes_declared",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "docs/experiments/casee/tools/generate_native_casee.py",
+      "policy_boundary": "Native diagnostic sampling modes are recorded as diagnostics.",
+      "paper_use": "Use to discuss probe-protocol sensitivity only.",
+      "failure_action": "Declare all diagnostic columns in the generator manifest."
+    },
+    {
+      "check_id": "casee_preset_formal_default_raw",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "docs/experiments/casee/casee_preset.json",
+      "policy_boundary": "Case E preset formal validation mode is raw_trilinear.",
+      "paper_use": "Use to document preset-level protocol policy.",
+      "failure_action": "Reset sampling_modes.default_for_validation to raw_trilinear."
+    },
+    {
+      "check_id": "casee_preset_diagnostic_only_complete",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "docs/experiments/casee/casee_preset.json",
+      "policy_boundary": "Case E preset lists nearest_valid, fluid_weighted, vertical_valid_above, and z_plus_half as diagnostic-only.",
+      "paper_use": "Use to classify non-raw sampling modes as limitations diagnostics.",
+      "failure_action": "Move diagnostic sampling modes back under sampling_modes.diagnostic_only."
+    },
+    {
+      "check_id": "release_gate_formal_blocked",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "docs/experiments/casee/results/release_gate.json",
+      "policy_boundary": "Formal v0.4.0 remains blocked while official z=2 m metrics fail.",
+      "paper_use": "Use to prevent accidental formal-release wording.",
+      "failure_action": "Do not promote defaults or release tags until release_gate.json passes."
+    },
+    {
+      "check_id": "failure_atlas_limitations_ready",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "docs/experiments/casee/results/casee_failure_mode_atlas.json",
+      "policy_boundary": "Failure-mode atlas supports limitations/software-feedback discussion only.",
+      "paper_use": "Use to structure manuscript limitations.",
+      "failure_action": "Regenerate the failure-mode atlas with limitations-only claim readiness."
+    },
+    {
+      "check_id": "readme_declares_diagnostics_nonformal",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "README.md",
+      "policy_boundary": "Repository documentation states diagnostic offsets and sampling modes are not formal validation.",
+      "paper_use": "Use to show documentation matches software policy.",
+      "failure_action": "Restore README language separating diagnostics from formal validation."
+    }
+  ],
+  "boundary": "This gate proves only that the software defaults and documentation do not promote diagnostic Case E settings into formal accuracy defaults. It does not add a solver run, improve the official z=2 m metric, or permit the formal v0.4.0 tag."
+}

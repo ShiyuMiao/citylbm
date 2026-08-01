@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc23 - Default policy gate
+
+- Added `casee_default_policy_gate.py` to verify that CityLBM defaults remain aligned with the formal AIJ Case E protocol while diagnostic controls remain opt-in.
+- Generated `casee_default_policy_gate.json`, `casee_default_policy_gate.csv`, and `casee_default_policy_gate.md`.
+- Integrated the default-policy gate into the reproducibility suite, artifact index, paper evidence gate, and reproducibility appendix command trace.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc23.md`.
+
+This release candidate improves claim-boundary and software-policy traceability only. It does not change the official Case E metric or permit formal `v0.4.0`.
+
 ## v0.4.0-rc22 - Failure-mode atlas
 
 - Added `casee_failure_mode_atlas.py` to synthesize audited Case E diagnostics into failure-mode rows for metric gate failure, underprediction bias, probe sampling sensitivity, near-wall/solid-corner risk, spatial-alignment audit, and runtime preflight blockers.

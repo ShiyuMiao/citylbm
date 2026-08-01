@@ -26,7 +26,7 @@ EXPLICIT_ARTIFACTS = [
     "CHANGELOG.md",
     "CityLBM/README.md",
     "CityLBM/bin/CityLBM.gha",
-    "docs/releases/v0.4.0-rc22.md",
+    "docs/releases/v0.4.0-rc23.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/data_manifest.csv",
@@ -56,6 +56,7 @@ RESULT_PATTERNS = [
     "casee_official_run_preflight.*",
     "casee_environment_recovery_runbook.*",
     "casee_failure_mode_atlas.*",
+    "casee_default_policy_gate.*",
     "casee_remaining_blockers.*",
     "casee_next_experiment_runbook.*",
     "citylbm_build_check.log",
@@ -80,6 +81,7 @@ TOOL_SCRIPTS = [
     "casee_official_run_preflight.py",
     "casee_environment_recovery_runbook.py",
     "casee_failure_mode_atlas.py",
+    "casee_default_policy_gate.py",
     "casee_audit.py",
     "casee_probe_modes_audit.py",
     "casee_probe_mode_metrics.py",
@@ -237,6 +239,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "blocked_environment_recovery_runbook"
     if "casee_failure_mode_atlas" in path:
         return "limitations_ready_failure_mode_atlas"
+    if "casee_default_policy_gate" in path:
+        return "paper_ready_default_policy_boundary"
     if "paper_evidence_gate" in path or "plugin_identity_gate" in path or "reproducibility_suite" in path:
         return "paper_ready_traceability"
     if "reproducibility_appendix" in path or "paper_appendix_manifest" in path or "paper_appendix_generator" in path:
@@ -269,6 +273,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to document the environment recovery actions needed before more official long runs."
     if readiness == "limitations_ready_failure_mode_atlas":
         return "Use to structure limitations and software-feedback discussion without claiming formal accuracy."
+    if readiness == "paper_ready_default_policy_boundary":
+        return "Use to distinguish formal defaults from diagnostic-only software switches."
     if "negative_validation" in readiness:
         return "Use as official z=2 m negative validation evidence."
     if "diagnostic" in readiness:
@@ -305,6 +311,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Operational recovery guidance only; does not install tools, run CFD, or improve metrics."
     if readiness == "limitations_ready_failure_mode_atlas":
         return "Synthesis of existing diagnostics only; does not add a new solver result."
+    if readiness == "paper_ready_default_policy_boundary":
+        return "Default-policy boundary only; does not improve or replace official z=2 m metrics."
     if path.endswith("BD_caseE.stl"):
         return "Official raw geometry should be referenced by hash; avoid duplicating large source data in manuscript."
     return ""
@@ -402,6 +410,9 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_failure_mode_atlas.json",
                 "casee_failure_mode_atlas.md",
                 "casee_failure_mode_atlas.png",
+                "casee_default_policy_gate.json",
+                "casee_default_policy_gate.md",
+                "casee_default_policy_gate.csv",
                 "casee_remaining_blockers.json",
                 "casee_remaining_blockers.md",
                 "casee_next_experiment_runbook.json",
@@ -414,7 +425,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_manuscript_claim_matrix.csv",
                 "casee_zcenter_probe_mode_metrics.csv",
                 "casee_zcenter_voxel_probe_audit_groups.csv",
-                "v0.4.0-rc22.md",
+                "v0.4.0-rc23.md",
             )
         )
     ]
