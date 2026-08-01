@@ -26,7 +26,9 @@ EXPLICIT_ARTIFACTS = [
     "CHANGELOG.md",
     "CityLBM/README.md",
     "CityLBM/bin/CityLBM.gha",
-    "docs/releases/v0.4.0-rc15.md",
+    "docs/releases/v0.4.0-rc16.md",
+    "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
+    "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/data_manifest.csv",
     "docs/experiments/casee/casee_preset.json",
     "docs/experiments/casee/casee_protocol.md",
@@ -49,6 +51,7 @@ RESULT_PATTERNS = [
     "plugin_identity_gate.json",
     "casee_reproducibility_suite.json",
     "casee_reproducibility_suite.md",
+    "casee_paper_appendix_manifest.json",
     "citylbm_build_check.log",
     "fluidx3d_*_run*.log",
     "fluidx3d_*_compile.log",
@@ -73,6 +76,7 @@ TOOL_SCRIPTS = [
     "casee_voxel_probe_audit.py",
     "generate_native_casee.py",
     "manuscript_evidence_summary.py",
+    "paper_appendix_generator.py",
     "paper_evidence_gate.py",
     "plugin_identity_gate.py",
     "reproducibility_suite.py",
@@ -211,6 +215,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "blocked_formal_release_gate"
     if "paper_evidence_gate" in path or "plugin_identity_gate" in path or "reproducibility_suite" in path:
         return "paper_ready_traceability"
+    if "reproducibility_appendix" in path or "paper_appendix_manifest" in path or "paper_appendix_generator" in path:
+        return "paper_ready_reproducibility_appendix"
     if path.endswith("casee_metrics.csv") or path.endswith("casee_validation_report.md"):
         return "limitations_ready_negative_validation"
     if "probe_mode" in path or "voxel_probe" in path or "spatial_alignment" in path or "dx1_feasibility" in path:
@@ -237,6 +243,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to identify the built rc plugin artifact, not CFD accuracy."
     if "traceability" in readiness:
         return "Use to prove claim-boundary and artifact traceability checks."
+    if "reproducibility_appendix" in readiness:
+        return "Use as a paper-facing reproducibility appendix, not as accuracy proof."
     return "Use as reproducibility support, not as standalone accuracy proof."
 
 
@@ -337,11 +345,15 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_metrics.csv",
                 "casee_validation_report.md",
                 "casee_paper_evidence_gate.json",
+                "casee_paper_appendix_manifest.json",
+                "casee_reproducibility_suite.json",
                 "plugin_identity_gate.json",
+                "casee_v04_reproducibility_appendix_en.md",
+                "casee_v04_reproducibility_appendix_zh.md",
                 "casee_manuscript_claim_matrix.csv",
                 "casee_zcenter_probe_mode_metrics.csv",
                 "casee_zcenter_voxel_probe_audit_groups.csv",
-                "v0.4.0-rc13.md",
+                "v0.4.0-rc16.md",
             )
         )
     ]

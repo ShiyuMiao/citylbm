@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc16 - Paper reproducibility appendix
+
+- Added `paper_appendix_generator.py` to generate Chinese and English AIJ Case E reproducibility appendices from the release gate, reproducibility suite, artifact index, claim matrix, paper evidence gate, and plugin identity gate.
+- Generated `casee_v04_reproducibility_appendix_en.md`, `casee_v04_reproducibility_appendix_zh.md`, and `casee_paper_appendix_manifest.json`.
+- Integrated the appendix generator into the one-command reproducibility suite.
+- Extended the artifact index and paper evidence gate so the appendix and rc16 release notes are required traceability artifacts.
+
+This improves paper reproducibility and reviewer traceability only. It does not change the official z=2 m Case E metric, and formal `v0.4.0` remains blocked.
+
 ## v0.4.0-rc15 - One-command Case E reproducibility suite
 
 - Added `reproducibility_suite.py` to run the lightweight Case E evidence chain in a single command.

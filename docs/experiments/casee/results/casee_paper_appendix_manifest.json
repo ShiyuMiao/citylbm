@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-08-01T12:40:48.264593+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_reproducibility_appendix; blocked formal accuracy release",
+  "outputs": {
+    "en": "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
+    "zh": "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md"
+  },
+  "source_artifacts": [
+    "docs/experiments/casee/results/release_gate.json",
+    "docs/experiments/casee/results/casee_reproducibility_suite.json",
+    "docs/experiments/casee/results/casee_artifact_index.json",
+    "docs/experiments/casee/results/casee_paper_evidence_gate.json",
+    "docs/experiments/casee/results/plugin_identity_gate.json",
+    "docs/experiments/casee/results/casee_manuscript_claim_matrix.csv"
+  ],
+  "formal_release_allowed": false,
+  "recommended_tag": "v0.4.0-rc16",
+  "official_z2m_metrics": {
+    "n": 80,
+    "mae_pp": 21.111408125,
+    "rmse_pp": 27.72103208243715,
+    "bias_pp": -16.409216,
+    "r2": -2.006330362229977,
+    "pearson": 0.11575649438573923,
+    "height_m": 2.0,
+    "sampling_mode": "raw_trilinear"
+  },
+  "boundary": "Appendix supports reproducibility and claim control only; it does not support formal accuracy success."
+}

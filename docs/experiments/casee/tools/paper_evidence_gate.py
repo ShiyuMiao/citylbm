@@ -23,8 +23,11 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_validation_report.md",
     "docs/experiments/casee/results/casee_manuscript_claim_matrix.csv",
     "docs/experiments/casee/results/casee_paper_evidence_gate.json",
+    "docs/experiments/casee/results/casee_paper_appendix_manifest.json",
+    "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
+    "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc15.md",
+    "docs/releases/v0.4.0-rc16.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -58,6 +61,7 @@ NEGATION_MARKERS = [
 
 FORBIDDEN_SECTION_MARKERS = [
     "## Forbidden",
+    "## 禁止",
     "## 论文中不能写",
 ]
 

@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-01T12:30:33.457570+00:00
+Generated: 2026-08-01T12:40:49.219785+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc15`
+- Recommended tag: `v0.4.0-rc16`
 
 ## Official z=2 m Metric
 
@@ -26,15 +26,15 @@ Generated: 2026-08-01T12:30:33.457570+00:00
 
 ## Draft Scan
 
-- Checked files: 3
-- Checked nonblank lines: 93
+- Checked files: 5
+- Checked nonblank lines: 241
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 112
-- Lightweight release assets: 80
+- Artifact count: 116
+- Lightweight release assets: 84
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 

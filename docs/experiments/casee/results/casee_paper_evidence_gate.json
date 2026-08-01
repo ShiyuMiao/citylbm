@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T12:30:33.457570+00:00",
+  "generated_at": "2026-08-01T12:40:49.219785+00:00",
   "paper_evidence_gate_passed": true,
   "metric_gate": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc15",
+    "recommended_tag": "v0.4.0-rc16",
     "official_z2m_r2": -2.006330362229977,
     "official_z2m_mae_pp": 21.111408125,
     "official_z2m_pearson": 0.11575649438573923,
@@ -26,17 +26,19 @@
   "draft_scan": {
     "checked_files": [
       "academic-paper-writer/paper-drafts/casee_v04_claim_control.md",
+      "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
+      "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_en.md",
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_zh.md"
     ],
-    "checked_nonblank_lines": 93,
+    "checked_nonblank_lines": 241,
     "forbidden_success_claim_violations": [],
     "draft_claim_boundary_passed": true
   },
   "artifact_index": {
     "artifact_index_found": true,
-    "artifact_count": 112,
-    "lightweight_release_asset_count": 80,
+    "artifact_count": 116,
+    "lightweight_release_asset_count": 84,
     "formal_accuracy_claim_supported": false,
     "required_artifacts_present": true,
     "missing_required_artifacts": []

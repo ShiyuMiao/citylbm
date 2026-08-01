@@ -174,6 +174,8 @@ def main() -> int:
     for name, script in [
         ("manuscript_evidence_summary", "manuscript_evidence_summary.py"),
         ("plugin_identity_gate", "plugin_identity_gate.py"),
+        ("artifact_index_pre_appendix", "artifact_index.py"),
+        ("paper_appendix_generator", "paper_appendix_generator.py"),
         ("artifact_index", "artifact_index.py"),
         ("paper_evidence_gate", "paper_evidence_gate.py"),
     ]:
