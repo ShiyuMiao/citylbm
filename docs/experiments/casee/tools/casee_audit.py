@@ -168,21 +168,29 @@ def detect_prediction_column(fieldnames: Iterable[str]) -> Tuple[str, str]:
     raise ValueError(f"No prediction column found. Columns: {names}")
 
 
-def load_predictions(path: Path, uref: float) -> Dict[int, float]:
+def load_predictions(path: Path, uref: float) -> Tuple[Dict[int, float], Dict[int, Dict[str, object]]]:
     rows = read_csv(path)
     if not rows:
-        return {}
+        return {}, {}
     col, unit = detect_prediction_column(rows[0].keys())
     pred: Dict[int, float] = {}
+    meta: Dict[int, Dict[str, object]] = {}
     for idx, r in enumerate(rows, start=1):
         no_raw = r.get("No.") or r.get("No") or r.get("probe_id") or str(idx)
+        no = int(float(no_raw))
         value = float(r[col])
-        pred[int(float(no_raw))] = value / uref if unit == "speed" else value
-    return pred
+        pred[no] = value / uref if unit == "speed" else value
+        meta[no] = {
+            "solid_corner_neighbors_max": r.get("solid_corner_neighbors_max", ""),
+            "samples": r.get("samples", ""),
+        }
+    return pred, meta
 
 
 def compute_residuals(
-    probes: List[Dict[str, object]], predictions: Optional[Dict[int, float]]
+    probes: List[Dict[str, object]],
+    predictions: Optional[Dict[int, float]],
+    prediction_meta: Optional[Dict[int, Dict[str, object]]] = None,
 ) -> Tuple[List[Dict[str, object]], Optional[Dict[str, object]]]:
     rows: List[Dict[str, object]] = []
     y_true: List[float] = []
@@ -191,6 +199,8 @@ def compute_residuals(
         no = int(p["No."])
         official = float(p["official_velocity_ratio"])
         pred = None if predictions is None else predictions.get(no)
+        meta = {} if prediction_meta is None else prediction_meta.get(no, {})
+        solid_neighbors = meta.get("solid_corner_neighbors_max", "")
         residual = None if pred is None else pred - official
         rows.append(
             {
@@ -199,7 +209,9 @@ def compute_residuals(
                 "residual": "" if residual is None else residual,
                 "abs_error_pp": "" if residual is None else abs(residual) * 100.0,
                 "sampling_mode": "raw_trilinear",
-                "solid_corner_risk": "unknown_until_solver_probe_audit",
+                "solid_corner_neighbors_max": solid_neighbors,
+                "samples": meta.get("samples", ""),
+                "solid_corner_risk": classify_solid_corner_risk(solid_neighbors),
                 "evidence_type": "newly_run" if pred is not None else "blocked",
             }
         )
@@ -222,7 +234,56 @@ def compute_residuals(
     return rows, metrics
 
 
-def write_optional_outputs(probes: List[Dict[str, object]], inlet: List[Dict[str, object]], residuals: List[Dict[str, object]]) -> None:
+def classify_solid_corner_risk(value: object) -> str:
+    if value in (None, ""):
+        return "unknown_until_solver_probe_audit"
+    try:
+        n = int(float(str(value)))
+    except ValueError:
+        return "unknown_until_solver_probe_audit"
+    if n <= 0:
+        return "none"
+    if n <= 2:
+        return "moderate"
+    return "high"
+
+
+def metric_summary(y_true: List[float], y_pred: List[float]) -> Dict[str, object]:
+    errors = [p - y for y, p in zip(y_true, y_pred)]
+    return {
+        "n": len(y_true),
+        "mae_pp": 100.0 * sum(abs(e) for e in errors) / len(errors),
+        "rmse_pp": 100.0 * math.sqrt(sum(e * e for e in errors) / len(errors)),
+        "bias_pp": 100.0 * sum(errors) / len(errors),
+        "r2": r2_score(y_true, y_pred),
+        "pearson": pearson(y_true, y_pred),
+    }
+
+
+def compute_solid_corner_group_metrics(residuals: List[Dict[str, object]]) -> List[Dict[str, object]]:
+    groups: Dict[str, Tuple[List[float], List[float]]] = {}
+    for row in residuals:
+        pred_raw = row.get("predicted_velocity_ratio", "")
+        if pred_raw == "":
+            continue
+        key = str(row.get("solid_corner_neighbors_max", "unknown") or "unknown")
+        y_true, y_pred = groups.setdefault(key, ([], []))
+        y_true.append(float(row["official_velocity_ratio"]))
+        y_pred.append(float(pred_raw))
+    out: List[Dict[str, object]] = []
+    for key in sorted(groups, key=lambda x: (x == "unknown", float(x) if x.replace(".", "", 1).isdigit() else 999.0)):
+        y_true, y_pred = groups[key]
+        metrics = metric_summary(y_true, y_pred)
+        out.append({"solid_corner_neighbors_max": key, **metrics})
+    return out
+
+
+def write_optional_outputs(
+    probes: List[Dict[str, object]],
+    inlet: List[Dict[str, object]],
+    residuals: List[Dict[str, object]],
+    group_metrics: List[Dict[str, object]],
+) -> None:
     try:
         import pandas as pd
 
@@ -230,6 +291,8 @@ def write_optional_outputs(probes: List[Dict[str, object]], inlet: List[Dict[str
             pd.DataFrame(probes).to_excel(writer, sheet_name="official_probes", index=False)
             pd.DataFrame(inlet).to_excel(writer, sheet_name="inlet_profile", index=False)
             pd.DataFrame(residuals).to_excel(writer, sheet_name="residuals", index=False)
+            if group_metrics:
+                pd.DataFrame(group_metrics).to_excel(writer, sheet_name="solid_corner_groups", index=False)
     except Exception as exc:
         (RESULTS_DIR / "xlsx_blocked.txt").write_text(str(exc), encoding="utf-8")
 
@@ -294,12 +357,13 @@ def build_release_gate(
         "evidence_trace_complete_for_available_artifacts": True,
     }
     allowed = all(checks.values())
+    recommended_tag = release_target if allowed else recommended_rc_tag(release_target)
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "release_target": release_target,
         "formal_release_allowed": allowed,
         "formal_v0_3_0_allowed": allowed,
-        "recommended_tag": release_target if allowed else f"{release_target}-rc1",
+        "recommended_tag": recommended_tag,
         "checks": checks,
         "metrics": metrics,
         "environment_summary": env,
@@ -307,7 +371,51 @@ def build_release_gate(
     }
 
 
-def write_report(metrics: Optional[Dict[str, object]], gate: Dict[str, object], prediction_path: Optional[Path]) -> None:
+def recommended_rc_tag(release_target: str) -> str:
+    prefix = f"{release_target}-rc"
+    try:
+        head_tags = subprocess.run(
+            ["git", "tag", "--points-at", "HEAD"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            timeout=10,
+            encoding="utf-8",
+            errors="replace",
+        )
+        if head_tags.returncode == 0:
+            matching_head = sorted(t.strip() for t in head_tags.stdout.splitlines() if t.strip().startswith(prefix))
+            if matching_head:
+                return matching_head[-1]
+
+        all_tags = subprocess.run(
+            ["git", "tag", "--list", f"{prefix}*"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            timeout=10,
+            encoding="utf-8",
+            errors="replace",
+        )
+        if all_tags.returncode == 0:
+            numbers: List[int] = []
+            for tag in all_tags.stdout.splitlines():
+                suffix = tag.strip()[len(prefix) :]
+                if suffix.isdigit():
+                    numbers.append(int(suffix))
+            if numbers:
+                return f"{prefix}{max(numbers) + 1}"
+    except Exception:
+        pass
+    return f"{prefix}1"
+
+
+def write_report(
+    metrics: Optional[Dict[str, object]],
+    gate: Dict[str, object],
+    prediction_path: Optional[Path],
+    group_metrics: List[Dict[str, object]],
+) -> None:
     release_target = str(gate.get("release_target", "v0.3.0"))
     lines = [
         "# AIJ Case E Validation Report",
@@ -344,6 +452,20 @@ def write_report(metrics: Optional[Dict[str, object]], gate: Dict[str, object], 
             f"- Pearson: {metrics['pearson']:.6f}",
             "- Evidence type: newly_run",
         ]
+    if group_metrics:
+        lines += [
+            "",
+            "## Solid-Corner Diagnostic",
+            "",
+            "| solid_corner_neighbors_max | n | MAE pp | R2 | Pearson |",
+            "|---:|---:|---:|---:|---:|",
+        ]
+        for row in group_metrics:
+            r2 = "" if row["r2"] is None else f"{float(row['r2']):.6f}"
+            pr = "" if row["pearson"] is None else f"{float(row['pearson']):.6f}"
+            lines.append(
+                f"| {row['solid_corner_neighbors_max']} | {row['n']} | {float(row['mae_pp']):.3f} | {r2} | {pr} |"
+            )
     lines += [
         "",
         "## Release Gate",
@@ -388,16 +510,42 @@ def main() -> int:
         raise SystemExit(f"Expected 80 official probes, found {len(probes)}")
 
     inlet = audit_inlet_profile(uref)
-    predictions = load_predictions(args.predicted, uref) if args.predicted else None
-    residuals, metrics = compute_residuals(probes, predictions)
+    predictions: Optional[Dict[int, float]] = None
+    prediction_meta: Optional[Dict[int, Dict[str, object]]] = None
+    if args.predicted:
+        predictions, prediction_meta = load_predictions(args.predicted, uref)
+    residuals, metrics = compute_residuals(probes, predictions, prediction_meta)
 
     write_csv(RESULTS_DIR / "casee_official_ac_N_probes.csv", probes, ["No.", "case", "Wind_direction", "x_m", "y_m", "z_m", "official_velocity_ratio"])
     write_csv(RESULTS_DIR / "casee_inlet_profile_audit.csv", inlet, ["z_m", "u_m_s", "k_m2_s2", "u_over_uref"])
     write_csv(
         RESULTS_DIR / "casee_probe_residuals.csv",
         residuals,
-        ["No.", "case", "Wind_direction", "x_m", "y_m", "z_m", "official_velocity_ratio", "predicted_velocity_ratio", "residual", "abs_error_pp", "sampling_mode", "solid_corner_risk", "evidence_type"],
+        [
+            "No.",
+            "case",
+            "Wind_direction",
+            "x_m",
+            "y_m",
+            "z_m",
+            "official_velocity_ratio",
+            "predicted_velocity_ratio",
+            "residual",
+            "abs_error_pp",
+            "sampling_mode",
+            "solid_corner_neighbors_max",
+            "samples",
+            "solid_corner_risk",
+            "evidence_type",
+        ],
     )
+    group_metrics = compute_solid_corner_group_metrics(residuals)
+    if group_metrics:
+        write_csv(
+            RESULTS_DIR / "casee_solid_corner_group_metrics.csv",
+            group_metrics,
+            ["solid_corner_neighbors_max", "n", "mae_pp", "rmse_pp", "bias_pp", "r2", "pearson"],
+        )
 
     citylbm_gha = file_status(args.citylbm_gha)
     citylbm_build_log = file_status(args.citylbm_build_log)
@@ -426,8 +574,8 @@ def main() -> int:
     (RESULTS_DIR / "release_gate.json").write_text(json.dumps(gate, indent=2), encoding="utf-8")
     if metrics is not None:
         write_csv(RESULTS_DIR / "casee_metrics.csv", [metrics], list(metrics.keys()))
-    write_optional_outputs(probes, inlet, residuals)
-    write_report(metrics, gate, args.predicted)
+    write_optional_outputs(probes, inlet, residuals, group_metrics)
+    write_report(metrics, gate, args.predicted, group_metrics)
     print(json.dumps({"probes": len(probes), "metrics": metrics, "recommended_tag": gate["recommended_tag"]}, indent=2))
     return 0
 

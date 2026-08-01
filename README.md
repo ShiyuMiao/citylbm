@@ -35,7 +35,8 @@ Current Case E materials:
 - `docs/experiments/casee/tools/release_gate.py`
 - `docs/experiments/casee/results/casee_native_metric_comparison.csv`
 - `docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv`
-- `docs/releases/v0.4.0-rc1.md`
+- `docs/experiments/casee/results/casee_solid_corner_group_metrics.csv`
+- `docs/releases/v0.4.0-rc3.md`
 
 CityLBM includes one experiment-derived default-off solver switch in this branch:
 `Diagnostic LBM Nu Override` (`nuLBM`) on the Grasshopper `Run Simulation`

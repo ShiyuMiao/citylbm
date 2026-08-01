@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.4.0-rc3 - Probe-risk audit and nu diagnostic plugin switch
+
+- Added automatic solid-corner metadata propagation in `casee_audit.py`; native probe CSVs with `solid_corner_neighbors_max` now produce probe residual risk labels and `casee_solid_corner_group_metrics.csv`.
+- Updated `casee_validation_report.md` and XLSX output to include solid-corner group metrics.
+- Fixed the release-gate recommendation so an existing HEAD rc tag, such as `v0.4.0-rc2`, is reported instead of always falling back to `v0.4.0-rc1`.
+- Added the default-off Grasshopper `Diagnostic LBM Nu Override` input for reproducible `nu_lbm` sensitivity diagnostics without changing default solver behavior.
+
+Case E remains below the formal accuracy gate:
+
+- Best newly-run official z=2 m result remains MAE = 23.972 pp, R2 = -2.311768, Pearson = 0.071789.
+- Solid-corner grouping shows 25 probes with zero solid interpolation neighbors have MAE = 12.932 pp and Pearson = 0.356584, while probes with 2 or 4 solid neighbors remain much worse.
+- This supports a near-wall/probe-protocol limitation claim, not a predictive-accuracy claim.
+
 ## v0.4.0-rc1 - Native Case E diagnostic continuation
 
 - Added a native FluidX3D Case E generator for official `ac+N`, scale factor 250, AF_caseE profile ingestion, binary STL conversion, and direct `casee_probe_time_mean.csv` output for the 80 official z=2 m probes.

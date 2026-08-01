@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-01T10:22:17.081920+00:00
+Generated: 2026-08-01T10:31:42.877949+00:00
 
 ## Protocol
 
@@ -22,11 +22,20 @@ Generated: 2026-08-01T10:22:17.081920+00:00
 - Pearson: 0.071789
 - Evidence type: newly_run
 
+## Solid-Corner Diagnostic
+
+| solid_corner_neighbors_max | n | MAE pp | R2 | Pearson |
+|---:|---:|---:|---:|---:|
+| 0 | 25 | 12.932 | -0.176479 | 0.356584 |
+| 2 | 37 | 27.110 | -3.232167 | -0.199618 |
+| 3 | 2 | 13.338 | -17.017904 | -1.000000 |
+| 4 | 16 | 35.294 | -3.349963 | 0.269639 |
+
 ## Release Gate
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc1
+- Recommended tag: v0.4.0-rc3
 
 | Check | Status |
 |---|---:|

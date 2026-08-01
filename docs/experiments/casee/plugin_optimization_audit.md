@@ -69,5 +69,6 @@ Experimental only:
 - Native FluidX3D dx=3 m and dx=2 m runs completed at official z=2 m, but the metrics remain below the release threshold.
 - Effective-ground plus lower `nu_lbm` diagnostics improved the best newly-run official z=2 m result to MAE 23.972 pp, R2 -2.311768, Pearson 0.071789. This is directional improvement only; R2 remains negative and the release gate still fails.
 - Error grouping for the best diagnostic run shows MAE 12.932 pp at probes with zero solid interpolation neighbors, but 35.294 pp at probes with four solid neighbors. An affine calibration of the predictions still gives only R2 0.005154, so the main blocker is spatial/protocol fidelity near walls and solid corners, not just a global velocity scale.
+- `casee_audit.py` now propagates `solid_corner_neighbors_max` from native probe CSVs into residuals, XLSX output, validation reports, and `casee_solid_corner_group_metrics.csv`; this makes the near-wall/probe-protocol risk reproducible rather than hand-entered.
 - Because effective-ground shifting depends on native Case E's explicit STL physical-origin mapping and CityLBM's generic generator currently voxelizes around `lbm.center()`, the effective-ground switch was not migrated into the plugin defaults or GH UI in this continuation.
 - Therefore, this is still an accuracy-diagnostic optimization, not a validated accuracy success.
