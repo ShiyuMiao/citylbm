@@ -1,0 +1,9 @@
+check_id,passed,evidence_type,source_path,paper_use,failure_action
+run_component_has_manifest_output,True,newly_run,CityLBM/src/Components/Simulation/RunSimulationComponent.cs,Use to show Grasshopper exposes the generated run manifest path.,Restore the Manifest Path output parameter.
+manifest_path_helper_exists,True,newly_run,CityLBM/src/Components/Simulation/RunSimulationComponent.cs,Use to trace the component output to the generated manifest filename.,Restore ManifestPathForCase and the citylbm_run_manifest.json filename.
+mode0_sets_manifest_output,True,newly_run,CityLBM/src/Components/Simulation/RunSimulationComponent.cs,Use to show Generate Only mode returns the manifest path.,Set output index 6 after successful Mode 0 generation.
+mode1_sets_manifest_output,True,newly_run,CityLBM/src/Components/Simulation/RunSimulationComponent.cs,Use to show full-auto mode returns the manifest path.,Set output index 6 after successful Mode 1 execution.
+mode2_sets_manifest_output,True,newly_run,CityLBM/src/Components/Simulation/RunSimulationComponent.cs,Use to show deploy-only mode returns the generated manifest path.,Set output index 6 after Mode 2 case generation.
+async_sets_manifest_output,True,newly_run,CityLBM/src/Components/Simulation/RunSimulationComponent.cs,Use to show background mode returns the manifest path after completion.,Set output index 6 in OutputAsyncResult.
+fluidx_writes_run_manifest,True,newly_run,CityLBM/src/Core/FluidX3DInterface.cs,Use to show the exposed path points to a file written by the solver interface.,Restore WriteRunManifest output to citylbm_run_manifest.json.
+manifest_contains_claim_boundary,True,newly_run,CityLBM/src/Core/FluidX3DInterface.cs,Use to show the manifest records formal protocol and diagnostic boundaries.,Restore claim-boundary fields in the run manifest.

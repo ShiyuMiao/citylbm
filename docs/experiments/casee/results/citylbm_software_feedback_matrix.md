@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-01T13:47:57.740453+00:00
+Generated: 2026-08-01T14:01:49.046898+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 8
+- Feedback rows: 9
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -20,6 +20,7 @@ Generated: 2026-08-01T13:47:57.740453+00:00
 - diagnostic_switch: 2
 - formal_protocol_default: 1
 - paper_interpretation_layer: 1
+- software_traceability_output: 1
 
 ## Feedback Rows
 
@@ -33,6 +34,7 @@ Generated: 2026-08-01T13:47:57.740453+00:00
 | `SF006` | Experiment 2 / AIJ Case E | blocked_followup_run | blocked_until_external_recovery | False | The next official Case E run is blocked by runtime and load-identity gates. |
 | `SF007` | Experiment 3 / TUM2TWIN digital-twin application | application_workflow_policy | paper_ready_workflow_guidance | True | TUM2TWIN layers are separated into visual reference, semantic/collision geometry and CFD/LBM simulation inputs. |
 | `SF008` | Experiment 3 / TUM2TWIN digital-twin application | paper_interpretation_layer | paper_ready_with_boundary | False | Basic morphology variables are interpretable screening descriptors; sector enclosure ranks above single-building footprint/elongation. |
+| `SF009` | CityLBM traceability layer | software_traceability_output | implemented | True | Run Simulation exposes the generated citylbm_run_manifest.json path as a Grasshopper output for direct reviewer tracing. |
 
 ## Paper Boundary
 
@@ -46,6 +48,7 @@ Generated: 2026-08-01T13:47:57.740453+00:00
 | `SF006` | Use to explain why no new official long run is reported in this rc. | Operational readiness evidence only; not solver-output evidence. |
 | `SF007` | Use as CityLBM-compatible digital-twin workflow evidence. | Does not prove Case E benchmark accuracy or CityLBM-GH end-to-end execution for Experiment 3. |
 | `SF008` | Use as design-screening interpretation evidence. | Sample-internal screening only; no field validation or annual comfort compliance. |
+| `SF009` | Use as software traceability evidence for run manifests and protocol metadata. | Traceability output only; does not prove Rhino loaded the new GHA or improve official z=2 m accuracy. |
 
 ## Boundary
 

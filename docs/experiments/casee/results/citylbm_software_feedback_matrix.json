@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-01T13:47:57.740453+00:00",
-    "feedback_count": 8,
+    "generated_at": "2026-08-01T14:01:49.046898+00:00",
+    "feedback_count": 9,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -9,12 +9,13 @@
       "diagnostic_switch": 2,
       "blocked_followup_run": 1,
       "application_workflow_policy": 1,
-      "paper_interpretation_layer": 1
+      "paper_interpretation_layer": 1,
+      "software_traceability_output": 1
     },
     "citylbm_status_counts": {
       "implemented_as_release_gate_requirement": 1,
       "formal_release_blocked": 1,
-      "implemented": 1,
+      "implemented": 2,
       "implemented_default_off": 2,
       "blocked_until_external_recovery": 1,
       "paper_ready_workflow_guidance": 1,
@@ -140,6 +141,20 @@
       "default_setting_allowed": false,
       "paper_use": "Use as design-screening interpretation evidence.",
       "limitations": "Sample-internal screening only; no field validation or annual comfort compliance."
+    },
+    {
+      "feedback_id": "SF009",
+      "experiment": "CityLBM traceability layer",
+      "finding": "Run Simulation exposes the generated citylbm_run_manifest.json path as a Grasshopper output for direct reviewer tracing.",
+      "evidence_type": "newly_run",
+      "source_paths": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs; CityLBM/src/Core/FluidX3DInterface.cs; docs/experiments/casee/results/citylbm_manifest_output_gate.json",
+      "source_paths_exist": true,
+      "decision_class": "software_traceability_output",
+      "citylbm_status": "implemented",
+      "implementation_evidence": "Manifest Path output points to citylbm_run_manifest.json and the manifest records formal/diagnostic claim boundaries.",
+      "default_setting_allowed": true,
+      "paper_use": "Use as software traceability evidence for run manifests and protocol metadata.",
+      "limitations": "Traceability output only; does not prove Rhino loaded the new GHA or improve official z=2 m accuracy."
     }
   ],
   "source_artifacts": [
@@ -148,6 +163,7 @@
     "docs/experiments/casee/results/casee_default_policy_gate.json",
     "docs/experiments/casee/results/casee_official_run_preflight.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
+    "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv",
     "CityLBM/src/Core/FluidX3DInterface.cs",
     "CityLBM/src/Components/Simulation/RunSimulationComponent.cs"

@@ -106,6 +106,7 @@ namespace CityLBM.Components.Simulation
             pManager.AddTextParameter("Status",      "Status",   "当前状态信息",          GH_ParamAccess.item);
             pManager.AddIntegerParameter("Progress", "Pct",      "进度百分比（0-100）",   GH_ParamAccess.item);
             pManager.AddTextParameter("Log",         "Log",      "实时运行日志",          GH_ParamAccess.item);
+            pManager.AddTextParameter("Manifest Path", "Man", "Path to citylbm_run_manifest.json with protocol and claim-boundary metadata.", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -274,6 +275,7 @@ namespace CityLBM.Components.Simulation
             DA.SetData(2, result.Success);
             DA.SetData(3, result.Success ? result.Instructions : $"生成失败：{result.ErrorMessage}");
             DA.SetData(4, result.Success ? 100 : 0);
+            DA.SetData(6, result.Success ? ManifestPathForCase(result.CaseDirectory ?? "") : "");
 
             if (result.Success)
             {
@@ -321,6 +323,7 @@ namespace CityLBM.Components.Simulation
 
             DA.SetData(3, summary);
             DA.SetData(5, result.Log);
+            DA.SetData(6, result.Success ? ManifestPathForCase(result.CaseDirectory ?? "") : "");
 
             if (!result.Success)
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, result.ErrorMessage ?? "未知错误");
@@ -356,6 +359,7 @@ namespace CityLBM.Components.Simulation
             DA.SetData(1, Path.Combine(solver.FluidX3DPath, "output"));
             DA.SetData(2, deployResult.Success);
             DA.SetData(4, deployResult.Success ? 100 : 0);
+            DA.SetData(6, ManifestPathForCase(caseDir));
 
             if (deployResult.Success)
             {
@@ -461,6 +465,7 @@ namespace CityLBM.Components.Simulation
 
             DA.SetData(3, status);
             DA.SetData(5, GetCurrentLog());
+            DA.SetData(6, result.Success ? ManifestPathForCase(result.CaseDirectory ?? "") : "");
 
             if (result.Success)
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, $"[OK] 模拟完成！耗时 {result.Duration.TotalMinutes:F1} 分钟");
@@ -484,6 +489,13 @@ namespace CityLBM.Components.Simulation
                 }
                 return sb.ToString();
             }
+        }
+
+        private string ManifestPathForCase(string caseDirectory)
+        {
+            if (string.IsNullOrWhiteSpace(caseDirectory))
+                return "";
+            return Path.Combine(caseDirectory, "citylbm_run_manifest.json");
         }
 
         /// <summary>

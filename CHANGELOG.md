@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.0-rc26 - Manifest path traceability output
+
+- Added a `Manifest Path` (`Man`) output to the Grasshopper `Run Simulation` component so users can directly trace each run to `citylbm_run_manifest.json`.
+- Added `citylbm_manifest_output_gate.py` to verify the component output, generated manifest path, and claim-boundary fields.
+- Generated `citylbm_manifest_output_gate.json`, `citylbm_manifest_output_gate.csv`, and `citylbm_manifest_output_gate.md`.
+- Integrated the manifest-output gate into the reproducibility suite, artifact index, paper evidence gate, reproducibility appendix command trace, and software feedback matrix as SF009.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc26.md`.
+
+This release candidate improves software and paper traceability only. It does not add CFD results, improve official Case E z=2 m metrics, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc25 - Software feedback matrix
 
 - Added `citylbm_software_feedback_matrix.py` to convert Experiments 1-3 findings into CityLBM default-quality gates, formal protocol defaults, diagnostic switches, blocked follow-up work, and paper-only interpretation layers.
