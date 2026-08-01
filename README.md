@@ -19,11 +19,12 @@ probes. Diagnostic height offsets such as `z_plus_half` or `z+4.5 m` are not
 accepted as formal validation results.
 
 Current newly-run native results do not satisfy the formal accuracy gate. The
-best run so far is a diagnostic dx=2 m run with one effective-ground offset
-cell and `nu_lbm=0.001`, 48000 steps, spinup 12000, raw_trilinear sampling:
-MAE 23.972 percentage points, R2 -2.311768, Pearson 0.071789. These results
-show directional improvement but support a limitations/diagnostic discussion
-only, not a predictive-accuracy claim or a formal `v0.4.0` release.
+best run so far is a z-center lattice diagnostic dx=2 m run with one
+effective-ground offset cell, `origin_z_offset_m=1.0`, and `nu_lbm=0.001`,
+48000 steps, spinup 12000, raw_trilinear sampling: MAE 21.111 percentage
+points, R2 -2.006330, Pearson 0.115756. These results show directional
+improvement but support a limitations/diagnostic discussion only, not a
+predictive-accuracy claim or a formal `v0.4.0` release.
 
 Current Case E and release-gate materials:
 
@@ -40,11 +41,14 @@ Current Case E and release-gate materials:
 - `docs/experiments/casee/results/casee_probe_modes_compile_manifest.json`
 - `docs/experiments/casee/results/casee_probe_mode_metrics.csv`
 - `docs/experiments/casee/results/casee_native_dx2_gshift1_nu001_pmodes_probe_time_mean.csv`
+- `docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv`
+- `docs/experiments/casee/results/casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv`
 - `docs/experiments/casee/results/casee_voxel_probe_audit.csv`
 - `docs/experiments/casee/results/casee_voxel_probe_audit_groups.csv`
+- `docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc7.md`
+- `docs/releases/v0.4.0-rc8.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -72,6 +76,12 @@ The voxel/probe protocol audit shows the same limitation from the geometry side:
 low-risk probes have raw MAE 12.932 pp, while high-risk probes have raw MAE
 32.454 pp. CityLBM now records Case E probe protocol risk metadata in generated
 run manifests so this condition is visible before results are interpreted.
+
+The z-center lattice diagnostic puts official z=2 m on a dx=2 m lattice center.
+It improves the formal raw_trilinear MAE to 21.111 pp and Pearson to 0.115756,
+but R2 remains negative. Its best diagnostic sampling mode,
+`vertical_valid_above`, reaches MAE 16.041 pp and Pearson 0.336940, but this is
+still not a formal validation result.
 
 Run the audit after official data are present:
 

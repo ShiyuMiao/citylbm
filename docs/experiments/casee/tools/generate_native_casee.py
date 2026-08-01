@@ -138,12 +138,13 @@ def generate_setup(
     lattice_umax: float,
     wind_y: float,
     ground_offset_cells: int,
+    origin_z_offset_m: float,
     domain_decomp: tuple[int, int, int],
     nu_lbm: float,
 ) -> str:
     probes = official_probes()
     af = approach_flow()
-    origin_z = DOMAIN["origin_z"] - ground_offset_cells * dx
+    origin_z = DOMAIN["origin_z"] - ground_offset_cells * dx + origin_z_offset_m
     nx = math.ceil(DOMAIN["size_x"] / dx)
     ny = math.ceil(DOMAIN["size_y"] / dx)
     nz = math.ceil((DOMAIN["size_z"] - origin_z) / dx)
@@ -163,6 +164,7 @@ def generate_setup(
         f"static const float CASEE_ORIGIN_Y = {DOMAIN['origin_y']:.8f}f;",
         f"static const float CASEE_ORIGIN_Z = {origin_z:.8f}f;",
         f"static const int CASEE_GROUND_OFFSET_CELLS = {ground_offset_cells};",
+        f"static const float CASEE_ORIGIN_Z_OFFSET_M = {origin_z_offset_m:.8f}f;",
         f"static const uint CASEE_DX_DOMAINS = {domain_decomp[0]}u;",
         f"static const uint CASEE_DY_DOMAINS = {domain_decomp[1]}u;",
         f"static const uint CASEE_DZ_DOMAINS = {domain_decomp[2]}u;",
@@ -403,6 +405,12 @@ def main() -> int:
         default=0,
         help="Diagnostic effective-ground shift. 1 adds one sub-ground solid layer so z=0 falls at the solid-fluid interface.",
     )
+    parser.add_argument(
+        "--origin-z-offset-m",
+        type=float,
+        default=0.0,
+        help="Diagnostic vertical origin offset after ground-offset is applied. Use 1.0 with dx=2 and ground-offset-cells=1 to center z=2 m on a lattice layer.",
+    )
     parser.add_argument("--domain-x", type=int, default=2)
     parser.add_argument("--domain-y", type=int, default=2)
     parser.add_argument("--domain-z", type=int, default=1)
@@ -414,8 +422,9 @@ def main() -> int:
     wind_label = "yn" if args.wind_y < 0 else "yp"
     sgs_label = "nosgs" if args.no_subgrid else "sgs"
     ground_label = f"gshift{args.ground_offset_cells}"
+    zoff_label = f"zoff{args.origin_z_offset_m:g}".replace(".", "p").replace("-", "m")
     nu_label = f"nu{args.nu_lbm:g}".replace(".", "p")
-    run_id = f"casee_native_dx{args.dx:g}_{wind_label}_{sgs_label}_{ground_label}_{nu_label}_pmodes_steps{args.steps}_spin{args.spinup}"
+    run_id = f"casee_native_dx{args.dx:g}_{wind_label}_{sgs_label}_{ground_label}_{zoff_label}_{nu_label}_pmodes_steps{args.steps}_spin{args.spinup}"
     case_dir = NATIVE_DIR / run_id
     case_dir.mkdir(parents=True, exist_ok=True)
     domain_decomp = (args.domain_x, args.domain_y, args.domain_z)
@@ -427,6 +436,7 @@ def main() -> int:
         args.lattice_umax,
         args.wind_y,
         args.ground_offset_cells,
+        args.origin_z_offset_m,
         domain_decomp,
         args.nu_lbm,
     )
@@ -447,6 +457,7 @@ def main() -> int:
         "solver_wind_y": args.wind_y,
         "subgrid_enabled": not args.no_subgrid,
         "ground_offset_cells": args.ground_offset_cells,
+        "origin_z_offset_m": args.origin_z_offset_m,
         "domain_decomposition": list(domain_decomp),
         "nu_lbm": args.nu_lbm,
         "validation_height_m": 2.0,

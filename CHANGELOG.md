@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.4.0-rc8 - Z-center lattice diagnostic
+
+- Added `origin_z_offset_m` support to the native AIJ Case E generator.
+- Completed a dx=2 m, one effective-ground cell, `origin_z_offset_m=1.0`, `nu_lbm=0.001` z-center diagnostic for 48000 steps.
+- Extended the voxel/probe audit so the reported lattice placement matches shifted vertical origins.
+- Updated the Case E validation report to include z-center probe-mode and voxel/probe diagnostic sections.
+
+Current diagnostic finding:
+
+- Formal `raw_trilinear` official z=2 m: MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+- Best diagnostic mode: `vertical_valid_above`, MAE = 16.041 pp, R2 = -0.554717, Pearson = 0.336940.
+- Z-center low protocol-risk probes: n = 47, raw MAE = 12.435 pp.
+- Z-center high protocol-risk probes: n = 14, raw MAE = 34.589 pp.
+
+This improves the diagnostic evidence but still does not support formal `v0.4.0` or a predictive-accuracy claim.
+
 ## v0.4.0-rc7 - Voxel/probe protocol audit
 
 - Added a voxel/probe protocol audit for AIJ Case E official z=2 m probes against the scaled STL and dx=2 m effective-ground grid.

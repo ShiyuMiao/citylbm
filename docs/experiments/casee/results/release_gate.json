@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T11:21:54.833318+00:00",
+  "generated_at": "2026-08-01T11:36:01.492548+00:00",
   "release_target": "v0.4.0",
   "formal_release_allowed": false,
   "formal_v0_3_0_allowed": false,
-  "recommended_tag": "v0.4.0-rc7",
+  "recommended_tag": "v0.4.0-rc8",
   "checks": {
     "citylbm_build_passed": true,
     "rhino_loaded_new_gha": false,
@@ -16,11 +16,11 @@
   },
   "metrics": {
     "n": 80,
-    "mae_pp": 23.971843712499997,
-    "rmse_pp": 29.09517811414642,
-    "bias_pp": -20.8333859625,
-    "r2": -2.3117683583310877,
-    "pearson": 0.07178905303473038,
+    "mae_pp": 21.111408125,
+    "rmse_pp": 27.72103208243715,
+    "bias_pp": -16.409216,
+    "r2": -2.006330362229977,
+    "pearson": 0.11575649438573923,
     "height_m": 2.0,
     "sampling_mode": "raw_trilinear"
   },
@@ -35,7 +35,7 @@
       "stderr": ""
     },
     "nvidia_smi": {
-      "command": "C:\\Windows\\System32\\nvidia-smi.exe",
+      "command": "nvidia-smi",
       "found": true,
       "returncode": 15,
       "stdout": "Unable to determine the device handle for GPU0000:C3:00.0: GPU is lost.  Reboot the system to recover this GPU",
@@ -44,23 +44,23 @@
     "fluidx3d_executable": {
       "found": true,
       "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
-      "sha256": "ec8f38f4fac96a8c0f72ce8900bfc6ce038565147ad17095a9b878541f333397",
+      "sha256": "2fee1e6c7e59d6c5ac238d9aa1623cb6138e9ba5bc278bcfcf74532b443c5a1e",
       "size_bytes": 1062291,
-      "mtime": "2026-08-01T10:57:23.774236+00:00"
+      "mtime": "2026-08-01T11:25:49.607732+00:00"
     },
     "citylbm_gha": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.gha",
-      "sha256": "f3edaf1c9aa2ef8905dc975c4df94d2e9d2c19191911764095c22143c8d3b448",
+      "sha256": "7cd86303e16c3b099dbf8878c5b075c306066cde12a1c0130bb9489cb708232b",
       "size_bytes": 1787904,
-      "mtime": "2026-08-01T11:20:11.155474+00:00"
+      "mtime": "2026-08-01T11:35:52.292330+00:00"
     },
     "citylbm_build_log": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-      "sha256": "fd6b75e9989c357925f235862a5238910cce0c7bef1a042bf185fc060db8381a",
-      "size_bytes": 69979,
-      "mtime": "2026-08-01T11:20:58.526242+00:00"
+      "sha256": "e566377b0e9c6feb0c9751d1916144ff423c614601167fdc00768453265f4827",
+      "size_bytes": 101498,
+      "mtime": "2026-08-01T11:35:52.447122+00:00"
     },
     "run_matrix": {
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",

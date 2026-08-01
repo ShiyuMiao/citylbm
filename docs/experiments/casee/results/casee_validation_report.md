@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-01T11:21:54.833318+00:00
+Generated: 2026-08-01T11:36:01.492548+00:00
 
 ## Protocol
 
@@ -13,23 +13,22 @@ Generated: 2026-08-01T11:21:54.833318+00:00
 
 ## Metrics
 
-- Prediction source: `docs\experiments\casee\results\casee_native_dx2_gshift1_nu001_pmodes_probe_time_mean.csv`
+- Prediction source: `docs\experiments\casee\results\casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv`
 - n: 80
-- MAE: 23.972 percentage points
-- RMSE: 29.095 percentage points
-- Bias: -20.833 percentage points
-- R2: -2.311768
-- Pearson: 0.071789
+- MAE: 21.111 percentage points
+- RMSE: 27.721 percentage points
+- Bias: -16.409 percentage points
+- R2: -2.006330
+- Pearson: 0.115756
 - Evidence type: newly_run
 
 ## Solid-Corner Diagnostic
 
 | solid_corner_neighbors_max | n | MAE pp | R2 | Pearson |
 |---:|---:|---:|---:|---:|
-| 0 | 25 | 12.932 | -0.176479 | 0.356584 |
-| 2 | 37 | 27.110 | -3.232167 | -0.199618 |
-| 3 | 2 | 13.338 | -17.017904 | -1.000000 |
-| 4 | 16 | 35.294 | -3.349963 | 0.269639 |
+| 0 | 47 | 12.435 | -0.281039 | 0.322599 |
+| 2 | 20 | 31.925 | -2.746254 | -0.135504 |
+| 4 | 13 | 35.845 | -4.513468 | -0.254465 |
 
 ## Spatial Alignment Diagnostic
 
@@ -56,6 +55,15 @@ Generated: 2026-08-01T11:21:54.833318+00:00
 - Best diagnostic Pearson: `z_plus_half` with Pearson 0.187068
 - Interpretation: diagnostic sampling reduces error but all mode R2 values remain negative.
 
+## Z-Center Lattice Diagnostic
+
+- Evidence: `docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv`
+- Setup: dx=2 m, one effective-ground offset cell, origin_z_offset_m=1.0, official z=2 m placed on a lattice-center height.
+- Formal raw_trilinear MAE: 21.111 pp; R2: -2.006330; Pearson: 0.115756
+- Best diagnostic MAE: `vertical_valid_above` with MAE 16.041 pp and R2 -0.554717
+- Best diagnostic Pearson: `vertical_valid_above` with Pearson 0.336940
+- Interpretation: vertical lattice centering improves MAE and Pearson but does not make official z=2 m R2 positive.
+
 ## Voxel/Probe Protocol Audit
 
 - Evidence: `docs/experiments/casee/results/casee_voxel_probe_audit_groups.csv`
@@ -64,11 +72,19 @@ Generated: 2026-08-01T11:21:54.833318+00:00
 - All probes: raw MAE 23.972 pp; z_plus_half diagnostic MAE 21.217 pp
 - Interpretation: official z=2 m probes are sensitive to voxel layer placement and solid-neighbor interpolation; this is limitations evidence.
 
+## Z-Center Voxel/Probe Audit
+
+- Evidence: `docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv`
+- Low-risk probes: n=47, raw MAE 12.435 pp
+- High-risk probes: n=14, raw MAE 34.589 pp
+- All probes: raw MAE 21.111 pp; vertical_valid_above diagnostic MAE 16.041 pp
+- Interpretation: after z-center alignment, low-risk probes are substantially closer than moderate/high-risk probes; remaining failure is concentrated near solid-corner and wall-proximity cases.
+
 ## Release Gate
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc7
+- Recommended tag: v0.4.0-rc8
 
 | Check | Status |
 |---|---:|

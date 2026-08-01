@@ -27,6 +27,8 @@ SPATIAL_ALIGNMENT_CSV = RESULTS_DIR / "casee_spatial_alignment_diagnostic.csv"
 PROBE_MODES_COMPILE_MANIFEST = RESULTS_DIR / "casee_probe_modes_compile_manifest.json"
 PROBE_MODE_METRICS_CSV = RESULTS_DIR / "casee_probe_mode_metrics.csv"
 VOXEL_PROBE_AUDIT_GROUPS_CSV = RESULTS_DIR / "casee_voxel_probe_audit_groups.csv"
+ZCENTER_PROBE_MODE_METRICS_CSV = RESULTS_DIR / "casee_zcenter_probe_mode_metrics.csv"
+ZCENTER_VOXEL_PROBE_AUDIT_GROUPS_CSV = RESULTS_DIR / "casee_zcenter_voxel_probe_audit_groups.csv"
 
 
 def read_csv(path: Path) -> List[Dict[str, str]]:
@@ -392,8 +394,8 @@ def build_release_gate(
 def recommended_rc_tag(release_target: str) -> str:
     prefix = f"{release_target}-rc"
     try:
-        head_tags = subprocess.run(
-            ["git", "tag", "--points-at", "HEAD"],
+        worktree = subprocess.run(
+            ["git", "status", "--porcelain"],
             cwd=ROOT,
             text=True,
             capture_output=True,
@@ -401,10 +403,21 @@ def recommended_rc_tag(release_target: str) -> str:
             encoding="utf-8",
             errors="replace",
         )
-        if head_tags.returncode == 0:
-            matching_head = sorted(t.strip() for t in head_tags.stdout.splitlines() if t.strip().startswith(prefix))
-            if matching_head:
-                return matching_head[-1]
+        worktree_clean = worktree.returncode == 0 and not worktree.stdout.strip()
+        if worktree_clean:
+            head_tags = subprocess.run(
+                ["git", "tag", "--points-at", "HEAD"],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                timeout=10,
+                encoding="utf-8",
+                errors="replace",
+            )
+            if head_tags.returncode == 0:
+                matching_head = sorted(t.strip() for t in head_tags.stdout.splitlines() if t.strip().startswith(prefix))
+                if matching_head:
+                    return matching_head[-1]
 
         all_tags = subprocess.run(
             ["git", "tag", "--list", f"{prefix}*"],
@@ -537,6 +550,26 @@ def write_report(
             ]
         except Exception as exc:
             lines += ["", "## Probe Sampling Mode Metrics", "", f"- Blocked: {exc}"]
+    if ZCENTER_PROBE_MODE_METRICS_CSV.exists():
+        try:
+            mode_rows = read_csv(ZCENTER_PROBE_MODE_METRICS_CSV)
+            formal = next((row for row in mode_rows if row.get("sampling_mode") == "raw_trilinear"), None)
+            diagnostics = [row for row in mode_rows if row.get("claim_boundary") == "diagnostic"]
+            best_mae = min(diagnostics, key=lambda row: float(row["mae_pp"])) if diagnostics else None
+            best_pearson = max(diagnostics, key=lambda row: float(row["pearson"])) if diagnostics else None
+            lines += [
+                "",
+                "## Z-Center Lattice Diagnostic",
+                "",
+                f"- Evidence: `{display_path(ZCENTER_PROBE_MODE_METRICS_CSV)}`",
+                "- Setup: dx=2 m, one effective-ground offset cell, origin_z_offset_m=1.0, official z=2 m placed on a lattice-center height.",
+                f"- Formal raw_trilinear MAE: {float(formal['mae_pp']):.3f} pp; R2: {float(formal['r2']):.6f}; Pearson: {float(formal['pearson']):.6f}" if formal else "- Formal raw_trilinear row unavailable.",
+                f"- Best diagnostic MAE: `{best_mae['sampling_mode']}` with MAE {float(best_mae['mae_pp']):.3f} pp and R2 {float(best_mae['r2']):.6f}" if best_mae else "- Diagnostic mode rows unavailable.",
+                f"- Best diagnostic Pearson: `{best_pearson['sampling_mode']}` with Pearson {float(best_pearson['pearson']):.6f}" if best_pearson else "- Diagnostic mode rows unavailable.",
+                "- Interpretation: vertical lattice centering improves MAE and Pearson but does not make official z=2 m R2 positive.",
+            ]
+        except Exception as exc:
+            lines += ["", "## Z-Center Lattice Diagnostic", "", f"- Blocked: {exc}"]
     if VOXEL_PROBE_AUDIT_GROUPS_CSV.exists():
         try:
             voxel_groups = read_csv(VOXEL_PROBE_AUDIT_GROUPS_CSV)
@@ -555,6 +588,24 @@ def write_report(
             ]
         except Exception as exc:
             lines += ["", "## Voxel/Probe Protocol Audit", "", f"- Blocked: {exc}"]
+    if ZCENTER_VOXEL_PROBE_AUDIT_GROUPS_CSV.exists():
+        try:
+            voxel_groups = read_csv(ZCENTER_VOXEL_PROBE_AUDIT_GROUPS_CSV)
+            high = next((row for row in voxel_groups if row.get("group") == "high"), None)
+            low = next((row for row in voxel_groups if row.get("group") == "low"), None)
+            all_row = next((row for row in voxel_groups if row.get("group") == "all"), None)
+            lines += [
+                "",
+                "## Z-Center Voxel/Probe Audit",
+                "",
+                f"- Evidence: `{display_path(ZCENTER_VOXEL_PROBE_AUDIT_GROUPS_CSV)}`",
+                f"- Low-risk probes: n={low['n']}, raw MAE {float(low['raw_mae_pp']):.3f} pp" if low else "- Low-risk row unavailable.",
+                f"- High-risk probes: n={high['n']}, raw MAE {float(high['raw_mae_pp']):.3f} pp" if high else "- High-risk row unavailable.",
+                f"- All probes: raw MAE {float(all_row['raw_mae_pp']):.3f} pp; vertical_valid_above diagnostic MAE {float(all_row['vertical_valid_above_mae_pp']):.3f} pp" if all_row else "- All-probe row unavailable.",
+                "- Interpretation: after z-center alignment, low-risk probes are substantially closer than moderate/high-risk probes; remaining failure is concentrated near solid-corner and wall-proximity cases.",
+            ]
+        except Exception as exc:
+            lines += ["", "## Z-Center Voxel/Probe Audit", "", f"- Blocked: {exc}"]
     lines += [
         "",
         "## Release Gate",

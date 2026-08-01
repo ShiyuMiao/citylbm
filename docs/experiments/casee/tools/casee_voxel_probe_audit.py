@@ -148,8 +148,8 @@ def load_probe_predictions(path: Path) -> Dict[int, Dict[str, float]]:
     return out
 
 
-def voxel_info(x: float, y: float, z: float, dx: float, ground_offset_cells: int) -> Dict[str, object]:
-    origin_z = DOMAIN["origin_z"] - ground_offset_cells * dx
+def voxel_info(x: float, y: float, z: float, dx: float, ground_offset_cells: int, origin_z_offset_m: float) -> Dict[str, object]:
+    origin_z = DOMAIN["origin_z"] - ground_offset_cells * dx + origin_z_offset_m
     gx = (x - DOMAIN["origin_x"]) / dx - 0.5
     gy = (y - DOMAIN["origin_y"]) / dx - 0.5
     gz = (z - origin_z) / dx - 0.5
@@ -162,6 +162,7 @@ def voxel_info(x: float, y: float, z: float, dx: float, ground_offset_cells: int
     return {
         "dx_m": dx,
         "ground_offset_cells": ground_offset_cells,
+        "origin_z_offset_m": origin_z_offset_m,
         "grid_x_float": gx,
         "grid_y_float": gy,
         "grid_z_float": gz,
@@ -185,7 +186,13 @@ def classify_protocol_risk(distance_wall: float, distance_footprint: float, soli
     return "low"
 
 
-def audit(triangles: Sequence[Triangle], predictions: Dict[int, Dict[str, float]], dx: float, ground_offset_cells: int) -> List[Dict[str, object]]:
+def audit(
+    triangles: Sequence[Triangle],
+    predictions: Dict[int, Dict[str, float]],
+    dx: float,
+    ground_offset_cells: int,
+    origin_z_offset_m: float,
+) -> List[Dict[str, object]]:
     probes = []
     for row in read_csv(DATA_DIR / "RS_caseE.csv"):
         if row["case"] == "ac" and row["Wind_direction"] == "N" and abs(float(row["z(m)"]) - 2.0) < 1e-9:
@@ -220,7 +227,7 @@ def audit(triangles: Sequence[Triangle], predictions: Dict[int, Dict[str, float]
         zph = float(pred.get("z_plus_half", raw))
         vva = float(pred.get("vertical_valid_above", raw))
         solid_neighbors = float(pred.get("solid_neighbors", 0.0))
-        info = voxel_info(probe["x"], probe["y"], probe["z"], dx, ground_offset_cells)
+        info = voxel_info(probe["x"], probe["y"], probe["z"], dx, ground_offset_cells, origin_z_offset_m)
         out.append(
             {
                 "No.": int(probe["no"]),
@@ -270,7 +277,16 @@ def group_summary(rows: List[Dict[str, object]]) -> List[Dict[str, object]]:
     return out
 
 
-def write_report(rows: List[Dict[str, object]], groups: List[Dict[str, object]], bbox: Dict[str, float], output: Path, prediction_path: Path) -> None:
+def write_report(
+    rows: List[Dict[str, object]],
+    groups: List[Dict[str, object]],
+    bbox: Dict[str, float],
+    output: Path,
+    prediction_path: Path,
+    dx: float,
+    ground_offset_cells: int,
+    origin_z_offset_m: float,
+) -> None:
     high = [r for r in rows if r["protocol_risk"] == "high"]
     low = [r for r in rows if r["protocol_risk"] == "low"]
     raw_errors = [float(r["raw_abs_error_pp"]) for r in rows]
@@ -278,6 +294,16 @@ def write_report(rows: List[Dict[str, object]], groups: List[Dict[str, object]],
     footprint_distances = [float(r["nearest_footprint_distance_m"]) for r in rows]
     solid_neighbors = [float(r["solid_corner_neighbors_max"]) for r in rows]
     zph_improvements = [float(r["z_plus_half_improvement_pp"]) for r in rows]
+    mean_tz = sum(float(r["grid_tz"]) for r in rows) / len(rows)
+    if abs(mean_tz) <= 1e-9:
+        z_sampling_line = "- Official z = 2 m lies on a lattice-center height in this diagnostic setup."
+        voxel_interpretation = "This diagnostic removes vertical two-layer interpolation at official z = 2 m, so any remaining error is less attributable to height straddling alone."
+    elif abs(mean_tz - 0.5) <= 1e-9:
+        z_sampling_line = "- Official z = 2 m lies halfway between two lattice-center heights in this diagnostic setup."
+        voxel_interpretation = "The official pedestrian-height probes are voxel-sensitive because z = 2 m is not a lattice-center height in this diagnostic setup."
+    else:
+        z_sampling_line = f"- Official z = 2 m has mean lattice interpolation fraction tz = {mean_tz:.6f} in this diagnostic setup."
+        voxel_interpretation = "The official pedestrian-height probes remain sensitive to the selected vertical lattice convention in this diagnostic setup."
     lines = [
         "# Case E Voxel/Probe Protocol Audit",
         "",
@@ -288,8 +314,8 @@ def write_report(rows: List[Dict[str, object]], groups: List[Dict[str, object]],
         "",
         f"- STL scale factor: {SCALE_FACTOR:g}",
         f"- Physical mesh bbox: x [{bbox['min_x']:.3f}, {bbox['max_x']:.3f}], y [{bbox['min_y']:.3f}, {bbox['max_y']:.3f}], z [{bbox['min_z']:.3f}, {bbox['max_z']:.3f}] m.",
-        "- Audited grid: dx = 2 m with one effective-ground offset cell.",
-        "- Official z = 2 m lies halfway between the z = 1 m and z = 3 m lattice centers in this diagnostic setup.",
+        f"- Audited grid: dx = {dx:g} m, ground offset cells = {ground_offset_cells}, origin z offset = {origin_z_offset_m:g} m.",
+        z_sampling_line,
         "",
         "## Summary",
         "",
@@ -315,7 +341,7 @@ def write_report(rows: List[Dict[str, object]], groups: List[Dict[str, object]],
         "",
         "## Interpretation",
         "",
-        "The official pedestrian-height probes are voxel-sensitive because z = 2 m is not a lattice-center height in the best dx = 2 m effective-ground diagnostic.",
+        voxel_interpretation,
         "The association between solid-neighbor count and diagnostic sampling improvement supports treating near-wall/probe protocol as a primary limitation.",
         "This audit does not validate predictive accuracy; it narrows the next software work toward explicit wall-distance-aware probe reporting and wall/voxelization model changes.",
     ]
@@ -376,6 +402,7 @@ def main() -> int:
     parser.add_argument("--predicted", type=Path, required=True)
     parser.add_argument("--dx", type=float, default=2.0)
     parser.add_argument("--ground-offset-cells", type=int, default=1)
+    parser.add_argument("--origin-z-offset-m", type=float, default=0.0)
     parser.add_argument("--out-csv", type=Path, default=RESULTS_DIR / "casee_voxel_probe_audit.csv")
     parser.add_argument("--out-groups", type=Path, default=RESULTS_DIR / "casee_voxel_probe_audit_groups.csv")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_voxel_probe_audit.md")
@@ -385,7 +412,7 @@ def main() -> int:
     triangles = parse_ascii_stl(args.stl, SCALE_FACTOR)
     bbox = mesh_bbox(triangles)
     predictions = load_probe_predictions(args.predicted)
-    rows = audit(triangles, predictions, args.dx, args.ground_offset_cells)
+    rows = audit(triangles, predictions, args.dx, args.ground_offset_cells, args.origin_z_offset_m)
     groups = group_summary(rows)
     write_csv(
         args.out_csv,
@@ -409,6 +436,7 @@ def main() -> int:
             "protocol_risk",
             "dx_m",
             "ground_offset_cells",
+            "origin_z_offset_m",
             "grid_x_float",
             "grid_y_float",
             "grid_z_float",
@@ -437,7 +465,7 @@ def main() -> int:
             "mean_solid_neighbors",
         ],
     )
-    write_report(rows, groups, bbox, args.out_md, args.predicted)
+    write_report(rows, groups, bbox, args.out_md, args.predicted, args.dx, args.ground_offset_cells, args.origin_z_offset_m)
     write_plot(rows, args.out_png)
     print(json.dumps({"triangles": len(triangles), "bbox": bbox, "groups": groups, "out_csv": str(args.out_csv)}, indent=2))
     return 0
