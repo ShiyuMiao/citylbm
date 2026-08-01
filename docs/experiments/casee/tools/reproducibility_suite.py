@@ -176,6 +176,7 @@ def main() -> int:
         ("plugin_identity_gate", "plugin_identity_gate.py"),
         ("rhino_gha_load_gate", "rhino_gha_load_gate.py"),
         ("casee_official_run_preflight", "casee_official_run_preflight.py"),
+        ("casee_environment_recovery_runbook", "casee_environment_recovery_runbook.py"),
         ("artifact_index_pre_appendix", "artifact_index.py"),
         ("paper_appendix_generator", "paper_appendix_generator.py"),
         ("casee_blocker_remediation_plan", "casee_blocker_remediation_plan.py"),
@@ -191,6 +192,7 @@ def main() -> int:
     plugin_gate = read_json(RESULTS_DIR / "plugin_identity_gate.json")
     rhino_gate = read_json(RESULTS_DIR / "rhino_gha_load_gate.json")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
+    recovery = read_json(RESULTS_DIR / "casee_environment_recovery_runbook.json")
     artifact_index = read_json(RESULTS_DIR / "casee_artifact_index.json")
     suite_passed = all(bool(step.get("passed")) for step in steps) and not bool(release_gate.get("formal_release_allowed"))
     payload = {
@@ -204,6 +206,7 @@ def main() -> int:
         "plugin_identity_gate": plugin_gate,
         "rhino_gha_load_gate": rhino_gate,
         "casee_official_run_preflight": preflight,
+        "casee_environment_recovery_runbook": recovery,
         "artifact_index": artifact_index,
     }
     OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")

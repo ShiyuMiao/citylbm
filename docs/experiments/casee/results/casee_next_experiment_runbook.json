@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-01T13:09:18.553377+00:00",
+  "generated_at": "2026-08-01T13:16:30.972214+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_followup_runbook; not_accuracy_evidence",
   "release_gate_summary": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc20",
+    "recommended_tag": "v0.4.0-rc21",
     "metrics": {
       "n": 80,
       "mae_pp": 21.111408125,

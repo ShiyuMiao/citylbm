@@ -26,7 +26,7 @@ EXPLICIT_ARTIFACTS = [
     "CHANGELOG.md",
     "CityLBM/README.md",
     "CityLBM/bin/CityLBM.gha",
-    "docs/releases/v0.4.0-rc20.md",
+    "docs/releases/v0.4.0-rc21.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/data_manifest.csv",
@@ -54,6 +54,7 @@ RESULT_PATTERNS = [
     "casee_reproducibility_suite.md",
     "casee_paper_appendix_manifest.json",
     "casee_official_run_preflight.*",
+    "casee_environment_recovery_runbook.*",
     "casee_remaining_blockers.*",
     "casee_next_experiment_runbook.*",
     "citylbm_build_check.log",
@@ -76,6 +77,7 @@ TOOL_SCRIPTS = [
     "casee_blocker_remediation_plan.py",
     "casee_next_experiment_runbook.py",
     "casee_official_run_preflight.py",
+    "casee_environment_recovery_runbook.py",
     "casee_audit.py",
     "casee_probe_modes_audit.py",
     "casee_probe_mode_metrics.py",
@@ -229,6 +231,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "blocked_manual_rhino_load"
     if "casee_official_run_preflight" in path:
         return "blocked_official_followup_preflight"
+    if "casee_environment_recovery_runbook" in path:
+        return "blocked_environment_recovery_runbook"
     if "paper_evidence_gate" in path or "plugin_identity_gate" in path or "reproducibility_suite" in path:
         return "paper_ready_traceability"
     if "reproducibility_appendix" in path or "paper_appendix_manifest" in path or "paper_appendix_generator" in path:
@@ -257,6 +261,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to document the fail-closed Rhino/Grasshopper new-GHA loading gate."
     if readiness == "blocked_official_followup_preflight":
         return "Use to document why another official native Case E follow-up run is or is not currently allowed."
+    if readiness == "blocked_environment_recovery_runbook":
+        return "Use to document the environment recovery actions needed before more official long runs."
     if "negative_validation" in readiness:
         return "Use as official z=2 m negative validation evidence."
     if "diagnostic" in readiness:
@@ -289,6 +295,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Manual Rhino/Grasshopper evidence is absent or incomplete; do not state the new GHA was loaded."
     if readiness == "blocked_official_followup_preflight":
         return "Preflight evidence only; does not add solver output or improve the official metric."
+    if readiness == "blocked_environment_recovery_runbook":
+        return "Operational recovery guidance only; does not install tools, run CFD, or improve metrics."
     if path.endswith("BD_caseE.stl"):
         return "Official raw geometry should be referenced by hash; avoid duplicating large source data in manuscript."
     return ""
@@ -381,6 +389,8 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_reproducibility_suite.json",
                 "casee_official_run_preflight.json",
                 "casee_official_run_preflight.md",
+                "casee_environment_recovery_runbook.json",
+                "casee_environment_recovery_runbook.md",
                 "casee_remaining_blockers.json",
                 "casee_remaining_blockers.md",
                 "casee_next_experiment_runbook.json",
@@ -393,7 +403,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_manuscript_claim_matrix.csv",
                 "casee_zcenter_probe_mode_metrics.csv",
                 "casee_zcenter_voxel_probe_audit_groups.csv",
-                "v0.4.0-rc20.md",
+                "v0.4.0-rc21.md",
             )
         )
     ]

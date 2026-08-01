@@ -1,0 +1,142 @@
+{
+  "generated_at": "2026-08-01T13:16:29.764350+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "blocked_environment_recovery_runbook",
+  "official_followup_run_allowed": false,
+  "formal_release_allowed": false,
+  "blocked_gates": [
+    "rhino_gha_load",
+    "gpu_runtime",
+    "vs_cpp_build_tools"
+  ],
+  "disk": [
+    {
+      "drive": "C:\\",
+      "free_gb": 0.503,
+      "total_gb": 194.47
+    },
+    {
+      "drive": "D:\\",
+      "free_gb": 229.047,
+      "total_gb": 281.627
+    },
+    {
+      "drive": "E:\\",
+      "free_gb": 810.415,
+      "total_gb": 931.512
+    },
+    {
+      "drive": "F:\\",
+      "free_gb": 2087.88,
+      "total_gb": 2702.007
+    },
+    {
+      "drive": "G:\\",
+      "free_gb": 1023.866,
+      "total_gb": 1023.999
+    }
+  ],
+  "workspace_cleanup_candidates": [
+    {
+      "path": "CityLBM/NuGet",
+      "exists": true,
+      "file_count": 1,
+      "size_bytes": 0,
+      "size_mb": 0.0
+    },
+    {
+      "path": "CityLBM/bin/Release",
+      "exists": true,
+      "file_count": 4,
+      "size_bytes": 2094572,
+      "size_mb": 1.998
+    },
+    {
+      "path": "CityLBM/obj",
+      "exists": true,
+      "file_count": 14,
+      "size_bytes": 264374,
+      "size_mb": 0.252
+    },
+    {
+      "path": "NuGet",
+      "exists": true,
+      "file_count": 1,
+      "size_bytes": 0,
+      "size_mb": 0.0
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "REC001_gpu_recovery",
+      "enabled": true,
+      "priority": 1,
+      "blocking_gate": "gpu_runtime",
+      "action": "Reboot or recover the NVIDIA driver/device before any long native FluidX3D run.",
+      "verification_command": "nvidia-smi",
+      "pass_condition": "returncode=0 and no GPU-lost message.",
+      "risk_boundary": "GPU readiness is environment evidence only, not solver accuracy."
+    },
+    {
+      "step_id": "REC002_free_c_drive",
+      "enabled": true,
+      "priority": 2,
+      "blocking_gate": "vs_cpp_build_tools",
+      "action": "Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 0.503 GB. Workspace build-cache candidates total only 2.250 MB.",
+      "verification_command": "Get-PSDrive C",
+      "pass_condition": "C: free space >= 8 GB; workspace cache cleanup alone is not enough if the current value remains near 0.5 GB.",
+      "risk_boundary": "Do not delete user data; record any cleanup outside the repo separately."
+    },
+    {
+      "step_id": "REC003_install_vs_cpp",
+      "enabled": true,
+      "priority": 3,
+      "blocking_gate": "vs_cpp_build_tools",
+      "action": "After freeing disk space and approving UAC, install Visual Studio Build Tools 2022 C++ workload.",
+      "verification_command": "winget install --id Microsoft.VisualStudio.2022.BuildTools --accept-package-agreements --accept-source-agreements --silent --override \"--wait --quiet --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended\"",
+      "pass_condition": "Installer exits 0 and vswhere finds Microsoft.VisualStudio.Component.VC.Tools.x86.x64.",
+      "risk_boundary": "Installation readiness is build-chain evidence only."
+    },
+    {
+      "step_id": "REC004_refresh_build_chain",
+      "enabled": true,
+      "priority": 4,
+      "blocking_gate": "build_chain_manifest",
+      "action": "Refresh the build-chain manifest after GPU, disk, or VS changes.",
+      "verification_command": "python docs/experiments/casee/tools/build_chain_audit.py",
+      "pass_condition": "build_chain_manifest.json records the updated GPU, disk, .NET, FluidX3D and VS C++ status.",
+      "risk_boundary": "This does not create a new CFD result."
+    },
+    {
+      "step_id": "REC005_rhino_manifest",
+      "enabled": true,
+      "priority": 5,
+      "blocking_gate": "rhino_gha_load",
+      "action": "Load the tracked CityLBM/bin/CityLBM.gha in Rhino/Grasshopper and create the manual load manifest plus screenshot/log evidence.",
+      "verification_command": "python docs/experiments/casee/tools/rhino_gha_load_gate.py",
+      "pass_condition": "rhino_gha_load_gate.json reports rhino_loaded_new_gha=true from real manifest evidence.",
+      "risk_boundary": "Software-load identity only; not CFD accuracy."
+    },
+    {
+      "step_id": "REC006_preflight_rerun",
+      "enabled": true,
+      "priority": 6,
+      "blocking_gate": "official_followup_preflight",
+      "action": "Rerun official follow-up preflight before scheduling another long Case E native run.",
+      "verification_command": "python docs/experiments/casee/tools/casee_official_run_preflight.py",
+      "pass_condition": "official_followup_run_allowed=true before launching another official long follow-up.",
+      "risk_boundary": "Preflight readiness is not solver-output evidence."
+    },
+    {
+      "step_id": "REC007_reproducibility_suite",
+      "enabled": true,
+      "priority": 7,
+      "blocking_gate": "evidence_chain",
+      "action": "Run the full lightweight evidence suite after any recovery or code change.",
+      "verification_command": "python docs/experiments/casee/tools/reproducibility_suite.py",
+      "pass_condition": "suite_passed=true; formal_release_allowed remains false until official z=2 m metrics pass.",
+      "risk_boundary": "Claim-safety evidence only unless a new audited official probe CSV is supplied."
+    }
+  ],
+  "boundary": "This runbook records recovery actions for environment and build-chain blockers. It does not delete files, install tools, run CFD, improve official z=2 m metrics, or allow formal v0.4.0."
+}

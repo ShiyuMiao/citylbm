@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-01T13:09:19.421805+00:00
+Generated: 2026-08-01T13:16:31.985094+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc20`
+- Recommended tag: `v0.4.0-rc21`
 
 ## Official z=2 m Metric
 
@@ -27,14 +27,14 @@ Generated: 2026-08-01T13:09:19.421805+00:00
 ## Draft Scan
 
 - Checked files: 5
-- Checked nonblank lines: 247
+- Checked nonblank lines: 251
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 131
-- Lightweight release assets: 99
+- Artifact count: 135
+- Lightweight release assets: 103
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -51,6 +51,14 @@ Generated: 2026-08-01T13:09:19.421805+00:00
 - Official follow-up run allowed: False
 - Formal release allowed: False
 - Claim readiness: `blocked_official_followup_preflight`
+- Claim boundary safe: True
+
+## Environment Recovery Runbook
+
+- Recovery runbook found: True
+- Formal release allowed: False
+- Claim readiness: `blocked_environment_recovery_runbook`
+- Recovery steps: 7
 - Claim boundary safe: True
 
 No forbidden success-claim violations were found outside negated or forbidden-claim sections.

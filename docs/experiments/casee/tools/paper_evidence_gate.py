@@ -32,10 +32,12 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/rhino_gha_load_gate.md",
     "docs/experiments/casee/results/casee_official_run_preflight.json",
     "docs/experiments/casee/results/casee_official_run_preflight.md",
+    "docs/experiments/casee/results/casee_environment_recovery_runbook.json",
+    "docs/experiments/casee/results/casee_environment_recovery_runbook.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc20.md",
+    "docs/releases/v0.4.0-rc21.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -250,6 +252,26 @@ def preflight_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def recovery_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "recovery_found": False,
+            "formal_release_allowed": None,
+            "claim_readiness": "missing",
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    readiness = str(data.get("claim_readiness", ""))
+    return {
+        "recovery_found": True,
+        "formal_release_allowed": data.get("formal_release_allowed"),
+        "claim_readiness": readiness,
+        "blocked_gates": data.get("blocked_gates", []),
+        "step_count": len(data.get("steps", [])),
+        "claim_boundary_safe": readiness == "blocked_environment_recovery_runbook",
+    }
+
+
 def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     metric = payload["metric_gate"]
     claim = payload["claim_matrix"]
@@ -257,6 +279,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     artifact = payload["artifact_index"]
     rhino = payload["rhino_gha_load_gate"]
     preflight = payload["casee_official_run_preflight"]
+    recovery = payload["casee_environment_recovery_runbook"]
     lines = [
         "# Case E Paper Evidence Gate",
         "",
@@ -312,6 +335,14 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Formal release allowed: {preflight['formal_release_allowed']}",
         f"- Claim readiness: `{preflight['claim_readiness']}`",
         f"- Claim boundary safe: {preflight['claim_boundary_safe']}",
+        "",
+        "## Environment Recovery Runbook",
+        "",
+        f"- Recovery runbook found: {recovery['recovery_found']}",
+        f"- Formal release allowed: {recovery['formal_release_allowed']}",
+        f"- Claim readiness: `{recovery['claim_readiness']}`",
+        f"- Recovery steps: {recovery['step_count']}",
+        f"- Claim boundary safe: {recovery['claim_boundary_safe']}",
     ]
     if artifact["missing_required_artifacts"]:
         lines += ["", "Missing required artifacts:"]
@@ -333,6 +364,7 @@ def main() -> int:
     parser.add_argument("--artifact-index", type=Path, default=RESULTS_DIR / "casee_artifact_index.json")
     parser.add_argument("--rhino-gate", type=Path, default=RESULTS_DIR / "rhino_gha_load_gate.json")
     parser.add_argument("--preflight", type=Path, default=RESULTS_DIR / "casee_official_run_preflight.json")
+    parser.add_argument("--recovery", type=Path, default=RESULTS_DIR / "casee_environment_recovery_runbook.json")
     parser.add_argument("--draft-glob", default="casee_v04_*.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.json")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.md")
@@ -345,6 +377,7 @@ def main() -> int:
     artifact = artifact_index_status(args.artifact_index)
     rhino = rhino_gate_status(args.rhino_gate)
     preflight = preflight_status(args.preflight)
+    recovery = recovery_status(args.recovery)
     passed = (
         metric["formal_metric_is_negative_validation"]
         and claim["blocked_release_claim_present"]
@@ -360,6 +393,9 @@ def main() -> int:
         and preflight["preflight_found"]
         and preflight["claim_boundary_safe"]
         and preflight["formal_release_allowed"] is False
+        and recovery["recovery_found"]
+        and recovery["claim_boundary_safe"]
+        and recovery["formal_release_allowed"] is False
     )
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -370,6 +406,7 @@ def main() -> int:
         "artifact_index": artifact,
         "rhino_gha_load_gate": rhino,
         "casee_official_run_preflight": preflight,
+        "casee_environment_recovery_runbook": recovery,
     }
     args.out_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     write_markdown(args.out_md, payload)

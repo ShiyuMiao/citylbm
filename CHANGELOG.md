@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc21 - Environment recovery runbook
+
+- Added `casee_environment_recovery_runbook.py` to turn the current GPU, VS C++ and Rhino/GHA load blockers into ordered recovery steps with verification commands.
+- Generated `casee_environment_recovery_runbook.json`, `casee_environment_recovery_runbook.csv`, and `casee_environment_recovery_runbook.md`.
+- Recorded workspace build-cache cleanup candidates and showed that they are too small to solve the C: drive VS installer-space blocker by themselves.
+- Integrated the recovery runbook into the one-command reproducibility suite, artifact index, paper evidence gate, and reproducibility appendix.
+
+This release candidate improves environment recovery traceability only. It does not delete files, install tools, run new CFD, change the official Case E metric, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc20 - Official follow-up preflight gate
 
 - Added `casee_official_run_preflight.py` to combine official-data, 80-probe protocol, CityLBM build, plugin identity, Rhino/GHA loading, .NET, FluidX3D, GPU runtime, VS C++ and Case A smoke-regression checks.
