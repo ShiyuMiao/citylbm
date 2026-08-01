@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc24 - Cross-experiment paper results packet
+
+- Added `citylbm_paper_results_packet.py` to consolidate Experiment 1, Experiment 2, and Experiment 3 evidence into manuscript-ready, limitations-ready, and blocked rows.
+- Generated `citylbm_paper_results_packet.json`, `citylbm_paper_results_packet.csv`, and `citylbm_paper_results_packet.md`.
+- Integrated the packet into the one-command reproducibility suite, artifact index, paper evidence gate, and reproducibility appendix command trace.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc24.md`.
+
+This release candidate improves paper organization and cross-experiment claim control only. It does not add new CFD results, improve the official Case E z=2 m metric, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc23 - Default policy gate
 
 - Added `casee_default_policy_gate.py` to verify that CityLBM defaults remain aligned with the formal AIJ Case E protocol while diagnostic controls remain opt-in.

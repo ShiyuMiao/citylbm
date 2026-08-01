@@ -39,10 +39,12 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_failure_mode_atlas.png",
     "docs/experiments/casee/results/casee_default_policy_gate.json",
     "docs/experiments/casee/results/casee_default_policy_gate.md",
+    "docs/experiments/casee/results/citylbm_paper_results_packet.json",
+    "docs/experiments/casee/results/citylbm_paper_results_packet.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc23.md",
+    "docs/releases/v0.4.0-rc24.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -320,6 +322,36 @@ def default_policy_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def paper_results_packet_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "paper_results_packet_found": False,
+            "paper_results_packet_passed": False,
+            "claim_boundary_safe": False,
+            "result_count": 0,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    summary = data.get("summary", {})
+    rows = data.get("rows", [])
+    result_ids = {str(row.get("result_id", "")) for row in rows}
+    return {
+        "paper_results_packet_found": True,
+        "paper_results_packet_passed": summary.get("paper_results_packet_passed"),
+        "result_count": summary.get("result_count", len(rows)),
+        "formal_accuracy_claim_supported": summary.get("formal_accuracy_claim_supported"),
+        "formal_v0_4_0_allowed": summary.get("formal_v0_4_0_allowed"),
+        "required_result_rows_present": {
+            "casea_smoke_regression_guard": "casea_smoke_regression_guard" in result_ids,
+            "official_z2m_negative_validation": "official_z2m_negative_validation" in result_ids,
+            "module_claim_L1": "module_claim_L1" in result_ids,
+            "formal_release_block": "formal_release_block" in result_ids,
+        },
+        "claim_boundary_safe": summary.get("paper_results_packet_passed") is True
+        and summary.get("formal_accuracy_claim_supported") is False
+        and summary.get("formal_v0_4_0_allowed") is False,
+    }
+
+
 def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     metric = payload["metric_gate"]
     claim = payload["claim_matrix"]
@@ -330,6 +362,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     recovery = payload["casee_environment_recovery_runbook"]
     atlas = payload["casee_failure_mode_atlas"]
     default_policy = payload["casee_default_policy_gate"]
+    paper_packet = payload["citylbm_paper_results_packet"]
     lines = [
         "# Case E Paper Evidence Gate",
         "",
@@ -408,6 +441,15 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Checks: {default_policy['check_count']}",
         f"- Claim readiness: `{default_policy['claim_readiness']}`",
         f"- Claim boundary safe: {default_policy['claim_boundary_safe']}",
+        "",
+        "## Cross-Experiment Paper Results Packet",
+        "",
+        f"- Packet found: {paper_packet['paper_results_packet_found']}",
+        f"- Packet passed: {paper_packet['paper_results_packet_passed']}",
+        f"- Result rows: {paper_packet['result_count']}",
+        f"- Formal accuracy claim supported: {paper_packet['formal_accuracy_claim_supported']}",
+        f"- Formal v0.4.0 allowed: {paper_packet['formal_v0_4_0_allowed']}",
+        f"- Claim boundary safe: {paper_packet['claim_boundary_safe']}",
     ]
     if artifact["missing_required_artifacts"]:
         lines += ["", "Missing required artifacts:"]
@@ -432,6 +474,7 @@ def main() -> int:
     parser.add_argument("--recovery", type=Path, default=RESULTS_DIR / "casee_environment_recovery_runbook.json")
     parser.add_argument("--failure-atlas", type=Path, default=RESULTS_DIR / "casee_failure_mode_atlas.json")
     parser.add_argument("--default-policy", type=Path, default=RESULTS_DIR / "casee_default_policy_gate.json")
+    parser.add_argument("--paper-results-packet", type=Path, default=RESULTS_DIR / "citylbm_paper_results_packet.json")
     parser.add_argument("--draft-glob", default="casee_v04_*.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.json")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.md")
@@ -447,6 +490,7 @@ def main() -> int:
     recovery = recovery_status(args.recovery)
     atlas = failure_atlas_status(args.failure_atlas)
     default_policy = default_policy_status(args.default_policy)
+    paper_packet = paper_results_packet_status(args.paper_results_packet)
     passed = (
         metric["formal_metric_is_negative_validation"]
         and claim["blocked_release_claim_present"]
@@ -469,6 +513,8 @@ def main() -> int:
         and atlas["claim_boundary_safe"]
         and default_policy["default_policy_gate_found"]
         and default_policy["claim_boundary_safe"]
+        and paper_packet["paper_results_packet_found"]
+        and paper_packet["claim_boundary_safe"]
     )
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -482,6 +528,7 @@ def main() -> int:
         "casee_environment_recovery_runbook": recovery,
         "casee_failure_mode_atlas": atlas,
         "casee_default_policy_gate": default_policy,
+        "citylbm_paper_results_packet": paper_packet,
     }
     args.out_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     write_markdown(args.out_md, payload)

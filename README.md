@@ -40,6 +40,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_environment_recovery_runbook.py`
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
+- `docs/experiments/casee/tools/citylbm_paper_results_packet.py`
 - `docs/experiments/casee/results/casee_native_metric_comparison.csv`
 - `docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv`
 - `docs/experiments/casee/results/casee_solid_corner_group_metrics.csv`
@@ -74,11 +75,14 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_default_policy_gate.json`
 - `docs/experiments/casee/results/casee_default_policy_gate.md`
 - `docs/experiments/casee/results/casee_default_policy_gate.csv`
+- `docs/experiments/casee/results/citylbm_paper_results_packet.json`
+- `docs/experiments/casee/results/citylbm_paper_results_packet.md`
+- `docs/experiments/casee/results/citylbm_paper_results_packet.csv`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md`
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc23.md`
+- `docs/releases/v0.4.0-rc24.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -164,6 +168,13 @@ official Case E validation stays locked to z=2 m, 80 ac+N probes, and
 sampling modes remain experimental switches. This is software-policy evidence,
 not formal validation.
 
+The cross-experiment paper results packet now consolidates Experiment 1
+workflow evidence, Experiment 2 Case E negative-validation evidence, and
+Experiment 3 digital-twin screening evidence into manuscript-ready,
+limitations-ready, and blocked rows. It is intended for paper organization and
+claim control; it does not add new CFD output or turn Case E into a successful
+accuracy validation.
+
 Run the audit after official data are present:
 
 ```powershell
@@ -174,6 +185,7 @@ python docs/experiments/casee/tools/casee_official_run_preflight.py
 python docs/experiments/casee/tools/casee_environment_recovery_runbook.py
 python docs/experiments/casee/tools/casee_failure_mode_atlas.py
 python docs/experiments/casee/tools/casee_default_policy_gate.py
+python docs/experiments/casee/tools/citylbm_paper_results_packet.py
 python docs/experiments/casee/tools/paper_evidence_gate.py
 ```
 

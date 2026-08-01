@@ -1,0 +1,195 @@
+{
+  "summary": {
+    "generated_at": "2026-08-01T13:40:05.493775+00:00",
+    "result_count": 14,
+    "readiness_counts": {
+      "paper_ready_workflow_guard": 1,
+      "limitations_ready_negative_validation": 1,
+      "paper_ready_default_policy_boundary": 1,
+      "blocked_official_followup_preflight": 1,
+      "paper_ready": 1,
+      "paper_ready_as_screening": 1,
+      "paper_ready_with_boundary": 4,
+      "paper_ready_negative_result": 1,
+      "must_state_as_boundary": 1,
+      "available_for_manual_review": 1,
+      "blocked_formal_release_gate": 1
+    },
+    "evidence_type_counts": {
+      "newly_run": 8,
+      "newly_run + preexisting_artifact": 3,
+      "blocked": 1,
+      "newly_run + preexisting_artifact + blocked": 2
+    },
+    "paper_results_packet_passed": true,
+    "formal_accuracy_claim_supported": false,
+    "formal_v0_4_0_allowed": false,
+    "boundary": "The packet is a manuscript organization and claim-control artifact. It preserves negative-validation and limitations boundaries and does not add new CFD results."
+  },
+  "rows": [
+    {
+      "experiment": "Experiment 1 / AIJ Case A",
+      "result_id": "casea_smoke_regression_guard",
+      "claim_readiness": "paper_ready_workflow_guard",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casea/results/casea_smoke_regression.json; docs/experiments/casea/results/casea_vtk_manifest.csv",
+      "metric_or_status": "status=passed; steps_complete=True; vtk_outputs=2; timestep_2000_vtk=True",
+      "paper_use": "Use as workflow non-regression evidence for the CityLBM/FluidX3D chain.",
+      "limitations": "Smoke regression only; it is not benchmark accuracy validation.",
+      "software_feedback": "Keep Case A smoke as a required regression guard before stronger Case E claims."
+    },
+    {
+      "experiment": "Experiment 2 / AIJ Case E",
+      "result_id": "official_z2m_negative_validation",
+      "claim_readiness": "limitations_ready_negative_validation",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/release_gate.json; docs/experiments/casee/results/casee_metrics.csv; docs/experiments/casee/results/casee_validation_report.md",
+      "metric_or_status": "MAE=21.111408125 pp; RMSE=27.72103208243715 pp; bias=-16.409216 pp; R2=-2.006330362229977; Pearson=0.11575649438573923",
+      "paper_use": "Use as transparent negative validation of the current official z=2 m Case E result.",
+      "limitations": "Do not claim predictive accuracy, mesh independence, LES improvement, or formal v0.4.0 readiness.",
+      "software_feedback": "Accuracy-improvement work should target near-wall, wall-model, inlet turbulence, voxelization, and official probe protocol fidelity."
+    },
+    {
+      "experiment": "Experiment 2 / AIJ Case E",
+      "result_id": "casee_software_policy_boundary",
+      "claim_readiness": "paper_ready_default_policy_boundary",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_default_policy_gate.json; docs/experiments/casee/results/casee_failure_mode_atlas.json",
+      "metric_or_status": "default_policy_gate_passed=True; failure_modes=6; formal_allowed=False",
+      "paper_use": "Use to explain which CityLBM settings are formal defaults and which are diagnostic switches.",
+      "limitations": "Default-policy evidence does not improve or replace the official z=2 m metric.",
+      "software_feedback": "Keep raw_trilinear official z=2 m as formal output; keep nuLBM, zOff and non-raw sampling diagnostic-only."
+    },
+    {
+      "experiment": "Experiment 2 / AIJ Case E",
+      "result_id": "next_official_run_readiness",
+      "claim_readiness": "blocked_official_followup_preflight",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_official_run_preflight.json; docs/experiments/casee/results/casee_environment_recovery_runbook.json",
+      "metric_or_status": "official_followup_run_allowed=False; blocked_gates=rhino_gha_load,gpu_runtime,vs_cpp_build_tools",
+      "paper_use": "Use to document why the next long official validation run is not yet schedulable on this machine.",
+      "limitations": "Runtime readiness evidence only; no new solver output is produced.",
+      "software_feedback": "Recover GPU runtime, Rhino new-GHA loading, and VS C++ build chain before new formal Case E sweeps."
+    },
+    {
+      "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
+      "result_id": "module_claim_M1",
+      "claim_readiness": "paper_ready",
+      "evidence_type": "newly_run + preexisting_artifact",
+      "source_paths": "reports/data_source_and_download_manifest.md; reports/cfd_ready_geometry_qa.md; manifests/gcri_scoring_table.csv",
+      "metric_or_status": "paper_ready",
+      "paper_use": "TUM2TWIN layers are separated into visual reference, semantic/collision geometry and CFD/LBM simulation inputs.",
+      "limitations": "Use within the archived Experiment 3 scope.",
+      "software_feedback": "Use as design-application workflow evidence, not as Case E accuracy evidence."
+    },
+    {
+      "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
+      "result_id": "module_claim_R1",
+      "claim_readiness": "paper_ready_as_screening",
+      "evidence_type": "newly_run",
+      "source_paths": "figures/final_integrated_key_result_matrix.csv",
+      "metric_or_status": "paper_ready_as_screening",
+      "paper_use": "S0 baseline pedestrian layer is dominated by low speed, while the upper layer recovers.",
+      "limitations": "Use within the archived Experiment 3 scope.",
+      "software_feedback": "Use as design-application workflow evidence, not as Case E accuracy evidence."
+    },
+    {
+      "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
+      "result_id": "module_claim_R2",
+      "claim_readiness": "paper_ready_with_boundary",
+      "evidence_type": "newly_run + preexisting_artifact",
+      "source_paths": "figures/fluidx3d_core_prism_open_meteo_2024_weighted_metrics.csv",
+      "metric_or_status": "paper_ready_with_boundary",
+      "paper_use": "Open-Meteo 2024 weighting is a climate-proxy sensitivity layer, not an annual comfort assessment.",
+      "limitations": "Screening/application evidence only; field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution remain unsupported.",
+      "software_feedback": "Use as design-application workflow evidence, not as Case E accuracy evidence."
+    },
+    {
+      "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
+      "result_id": "module_claim_R3",
+      "claim_readiness": "paper_ready_with_boundary",
+      "evidence_type": "newly_run",
+      "source_paths": "figures/basic_morphology_multivariate_robustness.csv; reports/basic_morphology_multivariate_robustness.md",
+      "metric_or_status": "paper_ready_with_boundary",
+      "paper_use": "Basic morphology variables are interpretable screening descriptors; sector enclosure ranks above single-building footprint/elongation.",
+      "limitations": "Screening/application evidence only; field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution remain unsupported.",
+      "software_feedback": "Use as design-application workflow evidence, not as Case E accuracy evidence."
+    },
+    {
+      "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
+      "result_id": "module_claim_R4",
+      "claim_readiness": "paper_ready_negative_result",
+      "evidence_type": "newly_run",
+      "source_paths": "figures/fluidx3d_s0_s1_ventilation_relief_metric_comparison.csv; figures/fluidx3d_s0_s2_network_porosity_metric_comparison.csv",
+      "metric_or_status": "paper_ready_negative_result",
+      "paper_use": "S1/S2 are negative design-sensitivity evidence rather than successful optimization.",
+      "limitations": "Use within the archived Experiment 3 scope.",
+      "software_feedback": "Use as design-application workflow evidence, not as Case E accuracy evidence."
+    },
+    {
+      "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
+      "result_id": "module_claim_L1",
+      "claim_readiness": "must_state_as_boundary",
+      "evidence_type": "blocked",
+      "source_paths": "reports/claim_boundary.md; reports/experiment3_completion_audit_and_paper_readiness.md",
+      "metric_or_status": "must_state_as_boundary",
+      "paper_use": "Field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution remain unsupported.",
+      "limitations": "Screening/application evidence only; field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution remain unsupported.",
+      "software_feedback": "Use as design-application workflow evidence, not as Case E accuracy evidence."
+    },
+    {
+      "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
+      "result_id": "module_claim_NUMERICAL_PROTOCOL",
+      "claim_readiness": "paper_ready_with_boundary",
+      "evidence_type": "newly_run + preexisting_artifact + blocked",
+      "source_paths": "manifests/fluidx3d_numerical_protocol_audit.csv; reports/fluidx3d_numerical_protocol_and_stability_audit.md",
+      "metric_or_status": "paper_ready_with_boundary",
+      "paper_use": "FluidX3D numerical parameters are archived for screening-level reproduction; residual convergence, field validation and annual compliance are not claimed.",
+      "limitations": "Screening/application evidence only; field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution remain unsupported.",
+      "software_feedback": "Use as design-application workflow evidence, not as Case E accuracy evidence."
+    },
+    {
+      "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
+      "result_id": "module_claim_FINAL_DISCUSSION",
+      "claim_readiness": "paper_ready_with_boundary",
+      "evidence_type": "newly_run + preexisting_artifact + blocked",
+      "source_paths": "manifests/experiment3_final_discussion_paragraph_evidence_map.csv; reports/experiment3_final_sci_discussion_evidence_map.md",
+      "metric_or_status": "paper_ready_with_boundary",
+      "paper_use": "Final discussion and conclusion paragraphs are mapped to evidence and retain blocked claim boundaries.",
+      "limitations": "Screening/application evidence only; field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution remain unsupported.",
+      "software_feedback": "Use as design-application workflow evidence, not as Case E accuracy evidence."
+    },
+    {
+      "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
+      "result_id": "figure_table_manual_review_packet",
+      "claim_readiness": "available_for_manual_review",
+      "evidence_type": "newly_run + preexisting_artifact",
+      "source_paths": "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv",
+      "metric_or_status": "available_figure_table_callouts=12",
+      "paper_use": "Use as a checklist for manual figure/table selection in the manuscript.",
+      "limitations": "Figure/table availability is not independent validation of CFD accuracy.",
+      "software_feedback": "Keep release assets lightweight and hash-indexed; large VTK/3DM files should remain external or release assets."
+    },
+    {
+      "experiment": "CityLBM v0.4.0 release boundary",
+      "result_id": "formal_release_block",
+      "claim_readiness": "blocked_formal_release_gate",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/release_gate.json",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc24",
+      "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
+      "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
+      "software_feedback": "Version software as release candidates until the formal gate passes."
+    }
+  ],
+  "source_artifacts": [
+    "docs/experiments/casea/results/casea_smoke_regression.json",
+    "docs/experiments/casee/results/release_gate.json",
+    "docs/experiments/casee/results/casee_default_policy_gate.json",
+    "docs/experiments/casee/results/casee_failure_mode_atlas.json",
+    "docs/experiments/casee/results/casee_official_run_preflight.json",
+    "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv",
+    "academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md",
+    "releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication"
+  ]
+}

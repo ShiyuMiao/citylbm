@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T13:31:47.359375+00:00",
+  "generated_at": "2026-08-01T13:40:02.701602+00:00",
   "plugin_public_version": "0.4.0-rc",
   "plugin_assembly_version": "0.4.0.0",
-  "tracked_gha_sha256": "3052d33139f75906d458760933fc6cb4f0e37a1401872734ff82a6a7bd407f54",
-  "release_gha_sha256": "3052d33139f75906d458760933fc6cb4f0e37a1401872734ff82a6a7bd407f54",
+  "tracked_gha_sha256": "9e0d25e0d27e1beafd13a2f498cfcd284ab6c3c80153fe877e6e475ea514c811",
+  "release_gha_sha256": "9e0d25e0d27e1beafd13a2f498cfcd284ab6c3c80153fe877e6e475ea514c811",
   "plugin_identity_gate_passed": true,
   "checks": {
     "plugin_public_version_is_rc": true,
@@ -13,9 +13,9 @@
     "release_gha_exists": true,
     "tracked_gha_matches_release_build": true,
     "root_readme_mentions_paper_gate": true,
-    "root_readme_mentions_rc23_release_notes": true,
+    "root_readme_mentions_rc24_release_notes": true,
     "citylbm_readme_mentions_rc_status": true,
-    "changelog_has_rc23": true,
+    "changelog_has_rc24": true,
     "release_notes_exist": true,
     "release_notes_blocks_formal_v040": true
   },
