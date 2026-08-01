@@ -25,7 +25,7 @@ MAE 23.972 percentage points, R2 -2.311768, Pearson 0.071789. These results
 show directional improvement but support a limitations/diagnostic discussion
 only, not a predictive-accuracy claim or a formal `v0.4.0` release.
 
-Current Case E materials:
+Current Case E and release-gate materials:
 
 - `docs/experiments/casee/data_manifest.csv`
 - `docs/experiments/casee/casee_preset.json`
@@ -36,7 +36,15 @@ Current Case E materials:
 - `docs/experiments/casee/results/casee_native_metric_comparison.csv`
 - `docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv`
 - `docs/experiments/casee/results/casee_solid_corner_group_metrics.csv`
-- `docs/releases/v0.4.0-rc3.md`
+- `docs/experiments/casea/results/casea_smoke_regression.json`
+- `docs/experiments/casea/results/casea_vtk_manifest.csv`
+- `docs/releases/v0.4.0-rc4.md`
+
+The current-machine AIJ Case A smoke regression passed as a workflow
+non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
+two external VTK outputs recorded by hash. This does not provide accuracy
+validation for CityLBM; it only guards against breaking the earlier Case A
+workflow while Case E is being optimized.
 
 CityLBM includes one experiment-derived default-off solver switch in this branch:
 `Diagnostic LBM Nu Override` (`nuLBM`) on the Grasshopper `Run Simulation`

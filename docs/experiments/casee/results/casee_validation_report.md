@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-01T10:31:42.877949+00:00
+Generated: 2026-08-01T10:49:08.059469+00:00
 
 ## Protocol
 
@@ -35,7 +35,7 @@ Generated: 2026-08-01T10:31:42.877949+00:00
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc3
+- Recommended tag: v0.4.0-rc4
 
 | Check | Status |
 |---|---:|
@@ -44,9 +44,16 @@ Generated: 2026-08-01T10:31:42.877949+00:00
 | native_fluidx3d_dx3_completed | True |
 | native_fluidx3d_dx2_completed | True |
 | official_z2m_metric_gate | False |
-| casea_smoke_regression_passed | False |
+| casea_smoke_regression_passed | True |
 | readme_changelog_release_notes_updated | True |
 | evidence_trace_complete_for_available_artifacts | True |
+
+## Case A Smoke Regression
+
+- Status: passed
+- Evidence type: newly_run
+- Scope: workflow non-regression guard only; not accuracy validation.
+- Evidence: `docs/experiments/casea/results/casea_smoke_regression.json` and `docs/experiments/casea/results/casea_vtk_manifest.csv`
 
 ## Claim Boundaries
 

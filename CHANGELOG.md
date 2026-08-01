@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.4.0-rc4 - Case A smoke regression gate
+
+- Added a reproducible AIJ Case A smoke-regression audit under `docs/experiments/casea/`.
+- Generated and ran a native FluidX3D Case A smoke case with dx = 3.5 m and 2000 steps on this machine.
+- Recorded the completed run log, compile log, generated case manifest, artifact hashes, and external VTK hashes without committing large VTK files.
+- Wired the Case A smoke-regression status into the Case E release gate.
+
+The release gate still blocks formal `v0.4.0`:
+
+- Case A smoke regression now passes and can be used as a workflow non-regression guard.
+- Best newly-run Case E official z=2 m result remains MAE = 23.972 pp, R2 = -2.311768, Pearson = 0.071789.
+- Rhino/Grasshopper loading of the new GHA is still not independently verified.
+- Case A smoke is not an accuracy-validation result and does not justify a formal predictive-accuracy claim.
+
 ## v0.4.0-rc3 - Probe-risk audit and nu diagnostic plugin switch
 
 - Added automatic solid-corner metadata propagation in `casee_audit.py`; native probe CSVs with `solid_corner_neighbors_max` now produce probe residual risk labels and `casee_solid_corner_group_metrics.csv`.

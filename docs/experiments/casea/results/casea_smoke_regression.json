@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-08-01T10:48:22.252020+00:00",
+  "run_id": "casea_smoke_dx3p5_steps2000",
+  "status": "passed",
+  "evidence_type": "newly_run",
+  "generated_case_ready": true,
+  "geometry_triangles": 12,
+  "run_log": "docs\\experiments\\casea\\results\\casea_smoke_run.log",
+  "run_log_complete_2000": true,
+  "vtk_manifest": "docs/experiments/casea/results/casea_vtk_manifest.csv",
+  "vtk_output_count": 2,
+  "has_timestep_2000_vtk": true,
+  "claim_readiness": "smoke_regression_guard",
+  "blocking_reason": ""
+}

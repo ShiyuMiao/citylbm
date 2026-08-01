@@ -19,6 +19,7 @@ from typing import Dict, Iterable, List, Optional, Tuple
 
 ROOT = Path(__file__).resolve().parents[4]
 CASE_DIR = ROOT / "docs" / "experiments" / "casee"
+CASEA_GATE = ROOT / "docs" / "experiments" / "casea" / "results" / "casea_smoke_regression.json"
 DATA_DIR = CASE_DIR / "official_data"
 RESULTS_DIR = CASE_DIR / "results"
 PRESET_PATH = CASE_DIR / "casee_preset.json"
@@ -84,6 +85,12 @@ def run_matrix_status(path: Path) -> Dict[str, bool]:
     if not path.exists():
         return {"dx3_completed": False, "dx2_completed": False, "casea_smoke_regression_passed": False, "rhino_loaded_new_gha": False}
     status = {"dx3_completed": False, "dx2_completed": False, "casea_smoke_regression_passed": False, "rhino_loaded_new_gha": False}
+    if CASEA_GATE.exists():
+        try:
+            casea_gate = json.loads(CASEA_GATE.read_text(encoding="utf-8"))
+            status["casea_smoke_regression_passed"] = casea_gate.get("status") == "passed"
+        except Exception:
+            status["casea_smoke_regression_passed"] = False
     for row in read_csv(path):
         run_id = (row.get("run_id") or "").lower()
         row_status = (row.get("status") or "").lower()
@@ -479,6 +486,16 @@ def write_report(
     ]
     for key, value in gate["checks"].items():
         lines.append(f"| {key} | {value} |")
+    if gate["checks"].get("casea_smoke_regression_passed"):
+        lines += [
+            "",
+            "## Case A Smoke Regression",
+            "",
+            "- Status: passed",
+            "- Evidence type: newly_run",
+            "- Scope: workflow non-regression guard only; not accuracy validation.",
+            "- Evidence: `docs/experiments/casea/results/casea_smoke_regression.json` and `docs/experiments/casea/results/casea_vtk_manifest.csv`",
+        ]
     lines += [
         "",
         "## Claim Boundaries",

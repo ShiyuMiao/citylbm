@@ -13,7 +13,7 @@ Generated in the `codex/experiment-2-aij-casee-citylbm-v0.3.0-rc` branch.
 
 ### Experiment 1 / Case A Boundary
 
-Case A remains a smoke-regression guard. No accuracy-model default was changed from Case A alone. The release gate still requires a Case A smoke regression before any formal v0.3.0 release.
+Case A remains a smoke-regression guard. No accuracy-model default was changed from Case A alone. The current-machine smoke regression passed with a 2000-step FluidX3D run log and timestep-2000 VTK output recorded by hash. This satisfies the workflow non-regression guard for the release gate, but it is not an accuracy-validation result.
 
 ### Experiment 2 / AIJ Case E
 
@@ -65,6 +65,7 @@ Experimental only:
 
 - Source was edited, rebuilt, and inspected.
 - Official data and 80-probe filtering are verified.
+- AIJ Case A smoke regression passed on this machine; the generated case, logs, artifact hashes, and external VTK hashes are recorded under `docs/experiments/casea/`.
 - CityLBM builds on the local .NET SDK 8.0.423 toolchain with 0 errors and existing nullable warnings; the generated GHA is recorded in `docs/experiments/casee/results/environment_manifest.json`.
 - Native FluidX3D dx=3 m and dx=2 m runs completed at official z=2 m, but the metrics remain below the release threshold.
 - Effective-ground plus lower `nu_lbm` diagnostics improved the best newly-run official z=2 m result to MAE 23.972 pp, R2 -2.311768, Pearson 0.071789. This is directional improvement only; R2 remains negative and the release gate still fails.

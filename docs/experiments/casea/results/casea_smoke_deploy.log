@@ -1,0 +1,16 @@
+﻿{
+  "case_dir": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casea\\native_cases\\casea_smoke_dx3p5_steps2000",
+  "generated_at": "2026-08-01T10:38:32.257571+00:00",
+  "run_id": "casea_smoke_dx3p5_steps2000",
+  "status": "blocked",
+  "evidence_type": "blocked",
+  "generated_case_ready": true,
+  "geometry_triangles": 12,
+  "run_log": "",
+  "run_log_complete_2000": false,
+  "vtk_output_count": 0,
+  "has_timestep_2000_vtk": false,
+  "claim_readiness": "blocked_current_smoke_regression",
+  "blocking_reason": "Current Case A smoke regression requires a completed FluidX3D run log and timestep-2000 VTK output."
+}
+

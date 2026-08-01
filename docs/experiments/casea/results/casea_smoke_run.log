@@ -1,0 +1,84 @@
+﻿.-----------------------------------------------------------------------------.
+|                       ______________   ______________                       |
+|                       \   ________  | |  ________   /                       |
+|                        \  \       | | | |       /  /                        |
+|                         \  \      | | | |      /  /                         |
+|                          \  \     | | | |     /  /                          |
+|                           \  \_.-"  | |  "-._/  /                           |
+|                            \    _.-" _ "-._    /                            |
+|                             \.-" _.-" "-._ "-./                             |
+|                               .-"  .-"-.  "-.                               |
+|                               \  v"     "v  /                               |
+|                                \  \     /  /                                |
+|                                 \  \   /  /                                 |
+|                                  \  \ /  /                                  |
+|                                   \  '  /                                   |
+|                                    \   /                                    |
+|                                     \ /                FluidX3D Version 3.7 |
+|                                      '     Copyright (c) Dr. Moritz Lehmann |
+|-----------------------------------------------------------------------------|
+
+|----------------.------------------------------------------------------------|
+| Device ID    0 | Tesla P100-PCIE-16GB                                       |
+| Device ID    1 | Tesla P100-PCIE-16GB                                       |
+| Device ID    2 | Tesla P100-PCIE-16GB                                       |
+|----------------'------------------------------------------------------------|
+
+|----------------.------------------------------------------------------------|
+| Device ID      | 0                                                          |
+| Device Name    | Tesla P100-PCIE-16GB                                       |
+| Device Vendor  | NVIDIA Corporation                                         |
+| Device Driver  | 560.76 (Windows)                                           |
+| OpenCL Version | OpenCL C 3.0                                               |
+| Compute Units  | 56 at 1328 MHz (3584 cores, 9.519 TFLOPs/s)                |
+| Memory, Cache  | 16287 MB VRAM, 1344 KB global / 48 KB local                |
+| Buffer Limits  | 4071 MB global, 64 KB constant                             |
+|----------------'------------------------------------------------------------|
+
+| Info: OpenCL C code successfully compiled.                                  |
+
+| Info: Allocating memory. This may take a few seconds.                       |
+
+| Info: Loading "buildings.stl" with 12 triangles.                            |
+
+| Warning: Some boundary cells have non-zero velocity, but MOVING_BOUNDARIES  |
+|          is not enabled. If you intend to use moving boundaries, uncomment  |
+|          "#define MOVING_BOUNDARIES" in defines.hpp.                        |
+|-----------------.-----------------------------------------------------------|
+| Grid Resolution |                                  229 x 115 x 69 = 1817115 |
+| Grid Domains    |                                             1 x 1 x 1 = 1 |
+| LBM Type        |                                    D3Q19 SRT (FP32/FP16S) |
+| Memory Usage    |                                   CPU 29 MB, GPU 1x 92 MB |
+| Max Alloc Size  |                                                     65 MB |
+| Time Steps      |                                                         0 |
+| Kin. Viscosity  |                                                0.01666667 |
+| Relaxation Time |                                                0.55000000 |
+| Reynolds Number |                                                 Re < 9193 |
+|---------.-------'-----.-----------.-------------------.---------------------|
+| MLUPs   | Bandwidth   | Steps/s   | Current Step      | Time Remaining      |
+
+|     221 |     17 GB/s |       121 |           37   4% |                 31s |
+|    1065 |     82 GB/s |       586 |          198  20% |                 10s |
+|    1811 |    139 GB/s |       997 |          373  37% |                 14s |
+|    2378 |    183 GB/s |      1309 |          537  54% |                  0s |
+|    2868 |    221 GB/s |      1578 |          711  71% |                  0s |
+|    3250 |    250 GB/s |      1789 |          879  88% |                  0s |
+|    3482 |    268 GB/s |      1916 |         1000 100% |                  0s |
+|    3482 |    268 GB/s |      1916 |         1000 100% |                  0s |
+| Info: File "output/u-000001000.vtk" saved.                                  |
+
+| Info: Step: 1000 / 2000                                                     |
+
+|    3712 |    286 GB/s |      2043 |         1145  15% |                  1s |
+|    3931 |    303 GB/s |      2163 |         1310  31% |                  0s |
+|    4121 |    317 GB/s |      2268 |         1484  48% |                  0s |
+|    4270 |    329 GB/s |      2350 |         1652  65% |                  0s |
+|    4392 |    338 GB/s |      2417 |         1820  82% |                  0s |
+|    4487 |    346 GB/s |      2470 |         1986  99% |                  0s |
+|    4495 |    346 GB/s |      2473 |         2000 100% |                  0s |
+| Info: File "output/u-000002000.vtk" saved.                                  |
+
+| Info: Step: 2000 / 2000                                                     |
+
+|---------'-------------'-----------'-------------------'---------------------|
+

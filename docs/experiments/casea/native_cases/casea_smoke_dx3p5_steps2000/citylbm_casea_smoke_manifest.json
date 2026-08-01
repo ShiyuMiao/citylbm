@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-08-01T10:46:17.281782+00:00",
+  "run_id": "casea_smoke_dx3p5_steps2000",
+  "case": "AIJ Case A",
+  "evidence_boundary": "generated smoke case only until FluidX3D run log and VTK output are verified",
+  "source_setup": "releases/v0.2.0/package/validation_experiments/AIJ_CaseA/case/setup.cpp",
+  "source_geometry": "releases/v0.2.0/package/examples/AIJ_CaseA/geometry/buildings.stl",
+  "steps": 2000,
+  "dx_m": 3.5,
+  "nx": 229,
+  "ny": 115,
+  "nz": 69,
+  "geometry_triangles": 12
+}

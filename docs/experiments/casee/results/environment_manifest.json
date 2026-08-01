@@ -18,9 +18,9 @@
   "fluidx3d_executable": {
     "found": true,
     "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
-    "sha256": "31c0db49267d496cb7c50c01c74b0662335b86fb2742a2cc0247536f74d72f90",
-    "size_bytes": 1050351,
-    "mtime": "2026-08-01T10:05:50.970647+00:00"
+    "sha256": "7f5052744eb39e0ac3ccdbfb78b28d410600b85cf596ed78ac61d91997af3853",
+    "size_bytes": 1049168,
+    "mtime": "2026-08-01T10:39:36.924963+00:00"
   },
   "citylbm_gha": {
     "found": true,
@@ -40,7 +40,7 @@
     "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",
     "dx3_completed": true,
     "dx2_completed": true,
-    "casea_smoke_regression_passed": false,
+    "casea_smoke_regression_passed": true,
     "rhino_loaded_new_gha": false
   }
 }
