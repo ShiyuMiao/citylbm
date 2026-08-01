@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc19 - Rhino/GHA load gate
+
+- Added `rhino_gha_load_gate.py` to audit whether Rhino/Grasshopper has loaded the tracked `CityLBM/bin/CityLBM.gha` rather than an older installed copy.
+- Generated fail-closed `rhino_gha_load_gate.json` and `rhino_gha_load_gate.md`; without a real manual manifest and evidence artifacts, `rhino_loaded_new_gha` remains false.
+- Integrated the Rhino/GHA load gate into the one-command reproducibility suite.
+- Extended the artifact index and paper evidence gate so the Rhino/GHA load gate and rc19 release notes are required traceability artifacts.
+
+This release candidate improves software-load traceability only. It does not change the official z=2 m Case E metric or permit formal `v0.4.0`.
+
 ## v0.4.0-rc18 - Next experiment runbook
 
 - Added `casee_next_experiment_runbook.py` to generate a command matrix for the next official z=2 m Case E follow-up cycle.

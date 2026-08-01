@@ -28,10 +28,12 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_remaining_blockers.md",
     "docs/experiments/casee/results/casee_next_experiment_runbook.json",
     "docs/experiments/casee/results/casee_next_experiment_runbook.md",
+    "docs/experiments/casee/results/rhino_gha_load_gate.json",
+    "docs/experiments/casee/results/rhino_gha_load_gate.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc18.md",
+    "docs/releases/v0.4.0-rc19.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -205,11 +207,32 @@ def artifact_index_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def rhino_gate_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "rhino_gate_found": False,
+            "rhino_loaded_new_gha": False,
+            "claim_readiness": "missing",
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    readiness = str(data.get("claim_readiness", ""))
+    loaded = bool(data.get("rhino_loaded_new_gha"))
+    return {
+        "rhino_gate_found": True,
+        "rhino_loaded_new_gha": loaded,
+        "claim_readiness": readiness,
+        "manual_manifest_present": bool(data.get("manual_manifest_present")),
+        "claim_boundary_safe": loaded or readiness == "blocked_manual_rhino_load",
+    }
+
+
 def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     metric = payload["metric_gate"]
     claim = payload["claim_matrix"]
     draft = payload["draft_scan"]
     artifact = payload["artifact_index"]
+    rhino = payload["rhino_gha_load_gate"]
     lines = [
         "# Case E Paper Evidence Gate",
         "",
@@ -250,6 +273,13 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Lightweight release assets: {artifact['lightweight_release_asset_count']}",
         f"- Required artifacts present: {artifact['required_artifacts_present']}",
         f"- Formal accuracy claim supported by index: {artifact['formal_accuracy_claim_supported']}",
+        "",
+        "## Rhino/GHA Load Gate",
+        "",
+        f"- Gate found: {rhino['rhino_gate_found']}",
+        f"- Rhino loaded new GHA: {rhino['rhino_loaded_new_gha']}",
+        f"- Claim readiness: `{rhino['claim_readiness']}`",
+        f"- Claim boundary safe: {rhino['claim_boundary_safe']}",
     ]
     if artifact["missing_required_artifacts"]:
         lines += ["", "Missing required artifacts:"]
@@ -269,6 +299,7 @@ def main() -> int:
     parser.add_argument("--release-gate", type=Path, default=RESULTS_DIR / "release_gate.json")
     parser.add_argument("--claim-matrix", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.csv")
     parser.add_argument("--artifact-index", type=Path, default=RESULTS_DIR / "casee_artifact_index.json")
+    parser.add_argument("--rhino-gate", type=Path, default=RESULTS_DIR / "rhino_gha_load_gate.json")
     parser.add_argument("--draft-glob", default="casee_v04_*.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.json")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.md")
@@ -279,6 +310,7 @@ def main() -> int:
     claim = claim_matrix_status(read_csv(args.claim_matrix), str(metric["recommended_tag"]))
     draft = draft_status(sorted(PAPER_DRAFTS_DIR.glob(args.draft_glob)))
     artifact = artifact_index_status(args.artifact_index)
+    rhino = rhino_gate_status(args.rhino_gate)
     passed = (
         metric["formal_metric_is_negative_validation"]
         and claim["blocked_release_claim_present"]
@@ -289,6 +321,8 @@ def main() -> int:
         and artifact["artifact_index_found"]
         and artifact["required_artifacts_present"]
         and artifact["formal_accuracy_claim_supported"] is False
+        and rhino["rhino_gate_found"]
+        and rhino["claim_boundary_safe"]
     )
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -297,6 +331,7 @@ def main() -> int:
         "claim_matrix": claim,
         "draft_scan": draft,
         "artifact_index": artifact,
+        "rhino_gha_load_gate": rhino,
     }
     args.out_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     write_markdown(args.out_md, payload)

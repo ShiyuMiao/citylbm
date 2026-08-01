@@ -1,12 +1,12 @@
 # Case E Reproducibility Suite
 
-Generated: 2026-08-01T12:53:31.926242+00:00
+Generated: 2026-08-01T13:02:16.171619+00:00
 
 ## Verdict
 
 - Suite passed: True
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc18`
+- Recommended tag: `v0.4.0-rc19`
 
 ## Official z=2 m Metric
 
@@ -16,8 +16,8 @@ Generated: 2026-08-01T12:53:31.926242+00:00
 
 ## Artifact Index
 
-- Artifact count: 124
-- Lightweight release assets: 92
+- Artifact count: 127
+- Lightweight release assets: 95
 - Formal accuracy claim supported: False
 
 ## Commands
@@ -29,6 +29,7 @@ Generated: 2026-08-01T12:53:31.926242+00:00
 | casee_audit | 0 | True |
 | manuscript_evidence_summary | 0 | True |
 | plugin_identity_gate | 0 | True |
+| rhino_gha_load_gate | 0 | True |
 | artifact_index_pre_appendix | 0 | True |
 | paper_appendix_generator | 0 | True |
 | casee_blocker_remediation_plan | 0 | True |
