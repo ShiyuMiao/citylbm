@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.4.0-rc10 - Manuscript claim readiness matrix
+
+- Added `manuscript_evidence_summary.py` to convert Case E outputs into a manuscript-facing claim matrix.
+- Generated `casee_manuscript_claim_matrix.csv`, `casee_manuscript_claim_matrix.json`, and `casee_manuscript_evidence_summary.md`.
+- Updated the Case E validation report to summarize claim readiness counts.
+
+Current claim boundary:
+
+- `paper_ready`: protocol definition and build/workflow non-regression evidence.
+- `limitations_ready`: negative formal Case E validation, near-wall/probe-risk concentration, and diagnostic sampling sensitivity.
+- `weaken_claim`: z-center alignment improved MAE/Pearson but did not make R2 positive.
+- `blocked`: formal `v0.4.0`, predictive accuracy, fully ready VS C++/GPU native validation chain.
+
+Official z=2 m metrics remain unchanged: MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc9 - Diagnostic z-origin switch and build-chain audit
 
 - Added a default-off `Diagnostic Z Origin Offset` (`zOff`) input to the Grasshopper `Run Simulation` component.

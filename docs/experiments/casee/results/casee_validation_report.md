@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-01T11:47:58.985573+00:00
+Generated: 2026-08-01T11:56:14.798966+00:00
 
 ## Protocol
 
@@ -90,11 +90,21 @@ Generated: 2026-08-01T11:47:58.985573+00:00
 - VS Build Tools blocker: Visual Studio bootstrapper log reported possible declined UAC prompt
 - VS Build Tools blocker: older setup error log reported C: drive free-space precheck failure; C: currently has less than 5.71 GB free
 
+## Manuscript Claim Readiness
+
+- Evidence: `docs/experiments/casee/results/casee_manuscript_claim_matrix.csv`
+- Summary: `docs/experiments/casee/results/casee_manuscript_evidence_summary.md`
+- blocked: 2 claims
+- limitations_ready: 3 claims
+- paper_ready: 2 claims
+- weaken_claim: 1 claims
+- Interpretation: only protocol, build/workflow, and limitation claims are paper-ready; formal predictive-accuracy claims remain blocked.
+
 ## Release Gate
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc9
+- Recommended tag: v0.4.0-rc10
 
 | Check | Status |
 |---|---:|

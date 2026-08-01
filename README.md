@@ -47,9 +47,11 @@ Current Case E and release-gate materials:
 - `docs/experiments/casee/results/casee_voxel_probe_audit_groups.csv`
 - `docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv`
 - `docs/experiments/casee/results/build_chain_manifest.json`
+- `docs/experiments/casee/results/casee_manuscript_claim_matrix.csv`
+- `docs/experiments/casee/results/casee_manuscript_evidence_summary.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc9.md`
+- `docs/releases/v0.4.0-rc10.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -94,6 +96,12 @@ available under `E:\citylbm_buildchain`, but Visual Studio Build Tools 2022 C++
 is still blocked. `winget` returned exit code 1602, the bootstrapper log
 reported a possible declined UAC prompt, and C: has less than the free space
 required by the VS precheck.
+
+The manuscript evidence summary now converts Case E outputs into a claim matrix.
+It marks protocol and build/workflow evidence as paper-ready, marks the current
+official z=2 m result as a negative validation/limitations result, and blocks
+formal predictive-accuracy or `v0.4.0` release claims until the metric gate
+passes.
 
 Run the audit after official data are present:
 

@@ -1,0 +1,101 @@
+{
+  "generated_at": "2026-08-01T11:56:17.974455+00:00",
+  "claims": [
+    {
+      "claim_id": "C001",
+      "claim_readiness": "paper_ready",
+      "evidence_type": "newly_run",
+      "section": "Methods / Validation protocol",
+      "claim": "AIJ Case E validation uses the official ac+N, z=2 m, 80-probe protocol.",
+      "supporting_metrics": "n=80; height=2 m; sampling=raw_trilinear",
+      "source_paths": "docs/experiments/casee/results/casee_official_ac_N_probes.csv; docs/experiments/casee/casee_protocol.md",
+      "allowed_use": "Use as protocol definition and reproducibility evidence.",
+      "forbidden_use": "Do not imply accuracy success from protocol setup alone.",
+      "protocol_risks": "single benchmark case; official pedestrian-height sampling is near-wall sensitive"
+    },
+    {
+      "claim_id": "C002",
+      "claim_readiness": "limitations_ready",
+      "evidence_type": "newly_run",
+      "section": "Results / Case E validation",
+      "claim": "The current formal official z=2 m Case E validation does not meet the release accuracy gate.",
+      "supporting_metrics": "MAE=21.111 pp; R2=-2.006330; Pearson=0.115756",
+      "source_paths": "docs/experiments/casee/results/release_gate.json; docs/experiments/casee/results/casee_metrics.csv",
+      "allowed_use": "Use as a transparent negative validation result.",
+      "forbidden_use": "Do not claim predictive accuracy, mesh independence, LES improvement, or formal v0.4.0 readiness.",
+      "protocol_risks": "metric gate fails; Rhino new GHA loading unverified"
+    },
+    {
+      "claim_id": "C003",
+      "claim_readiness": "weaken_claim",
+      "evidence_type": "newly_run",
+      "section": "Results / Diagnostic improvement",
+      "claim": "Z-center lattice alignment improved the formal raw_trilinear diagnostic relative to the previous dx=2 probe-mode run, but R2 remained negative.",
+      "supporting_metrics": "previous raw MAE=23.972 pp, R2=-2.311768, Pearson=0.071789; z-center raw MAE=21.111 pp, R2=-2.006330, Pearson=0.115756",
+      "source_paths": "docs/experiments/casee/results/casee_probe_mode_metrics.csv; docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv",
+      "allowed_use": "Use as diagnostic evidence that vertical lattice placement affects Case E measurements.",
+      "forbidden_use": "Do not describe z-origin offset as a validated default model.",
+      "protocol_risks": "diagnostic parameter tuned on the benchmark; single run; no independent validation"
+    },
+    {
+      "claim_id": "C004",
+      "claim_readiness": "limitations_ready",
+      "evidence_type": "newly_run",
+      "section": "Discussion / Near-wall limitations",
+      "claim": "Error is concentrated at high protocol-risk probes near walls or solid interpolation corners.",
+      "supporting_metrics": "baseline low-risk MAE=12.932 pp, high-risk MAE=32.454 pp; z-center low-risk MAE=12.435 pp, high-risk MAE=34.589 pp",
+      "source_paths": "docs/experiments/casee/results/casee_voxel_probe_audit_groups.csv; docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv",
+      "allowed_use": "Use to motivate wall-model, voxelization, and official probe-protocol limitations.",
+      "forbidden_use": "Do not remove high-risk probes to report a formal validation metric.",
+      "protocol_risks": "risk grouping is diagnostic; formal metric remains all 80 official probes"
+    },
+    {
+      "claim_id": "C005",
+      "claim_readiness": "limitations_ready",
+      "evidence_type": "newly_run",
+      "section": "Discussion / Probe sampling diagnostics",
+      "claim": "Diagnostic sampling can reduce Case E MAE, but no diagnostic mode makes official z=2 m R2 positive.",
+      "supporting_metrics": "best z-center diagnostic mode=vertical_valid_above; MAE=16.041 pp; R2=-0.554717; Pearson=0.336940",
+      "source_paths": "docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv",
+      "allowed_use": "Use as sensitivity evidence.",
+      "forbidden_use": "Do not use vertical_valid_above or z_plus_half as the formal official z=2 m result.",
+      "protocol_risks": "alternative sampling is diagnostic only and benchmark-specific"
+    },
+    {
+      "claim_id": "C006",
+      "claim_readiness": "paper_ready",
+      "evidence_type": "newly_run",
+      "section": "Reproducibility / Build",
+      "claim": "The current CityLBM source builds in Release configuration on the available .NET SDK toolchain.",
+      "supporting_metrics": "citylbm_build_passed=True; Case A smoke regression=True",
+      "source_paths": "docs/experiments/casee/results/citylbm_build_check.log; docs/experiments/casea/results/casea_smoke_regression.json",
+      "allowed_use": "Use as build and workflow non-regression evidence.",
+      "forbidden_use": "Do not use build success as CFD accuracy validation.",
+      "protocol_risks": "Rhino/Grasshopper loading of the new GHA remains unverified"
+    },
+    {
+      "claim_id": "C007",
+      "claim_readiness": "blocked",
+      "evidence_type": "newly_run",
+      "section": "Reproducibility / Build chain",
+      "claim": "Visual Studio Build Tools 2022 C++ and GPU runtime are not fully ready for additional long native validation.",
+      "supporting_metrics": "VS C++ status=blocked; nvidia-smi returncode=15",
+      "source_paths": "docs/experiments/casee/results/build_chain_manifest.json",
+      "allowed_use": "Use as a reproducibility blocker statement.",
+      "forbidden_use": "Do not claim the native validation chain is fully installed.",
+      "protocol_risks": "VS installation failed; GPU driver/device recovery required"
+    },
+    {
+      "claim_id": "C008",
+      "claim_readiness": "blocked",
+      "evidence_type": "newly_run",
+      "section": "Release",
+      "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
+      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc10",
+      "source_paths": "docs/experiments/casee/results/release_gate.json",
+      "allowed_use": "Use to justify rc-only release status.",
+      "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",
+      "protocol_risks": "accuracy gate and Rhino-load gate fail"
+    }
+  ]
+}

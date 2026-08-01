@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T11:47:58.985573+00:00",
+  "generated_at": "2026-08-01T11:56:14.798966+00:00",
   "release_target": "v0.4.0",
   "formal_release_allowed": false,
   "formal_v0_3_0_allowed": false,
-  "recommended_tag": "v0.4.0-rc9",
+  "recommended_tag": "v0.4.0-rc10",
   "checks": {
     "citylbm_build_passed": true,
     "rhino_loaded_new_gha": false,

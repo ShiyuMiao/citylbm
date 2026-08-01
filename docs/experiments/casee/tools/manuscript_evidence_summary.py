@@ -1,0 +1,282 @@
+#!/usr/bin/env python3
+"""Generate manuscript-facing claim boundaries for AIJ Case E evidence."""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, Iterable, List
+
+
+ROOT = Path(__file__).resolve().parents[4]
+CASE_DIR = ROOT / "docs" / "experiments" / "casee"
+RESULTS_DIR = CASE_DIR / "results"
+
+
+def read_csv(path: Path) -> List[Dict[str, str]]:
+    with path.open("r", newline="", encoding="utf-8-sig") as f:
+        return list(csv.DictReader(f))
+
+
+def write_csv(path: Path, rows: Iterable[Dict[str, Any]], fieldnames: List[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+
+
+def display_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def metric_row(rows: List[Dict[str, str]], mode: str) -> Dict[str, str]:
+    for row in rows:
+        if row.get("sampling_mode") == mode:
+            return row
+    raise SystemExit(f"Missing sampling mode {mode}")
+
+
+def group_row(rows: List[Dict[str, str]], group: str) -> Dict[str, str]:
+    for row in rows:
+        if row.get("group") == group:
+            return row
+    raise SystemExit(f"Missing group {group}")
+
+
+def fmt(value: Any, digits: int = 3) -> str:
+    return f"{float(value):.{digits}f}"
+
+
+def build_claims(
+    gate: Dict[str, Any],
+    probe_modes: List[Dict[str, str]],
+    zcenter_modes: List[Dict[str, str]],
+    voxel_groups: List[Dict[str, str]],
+    zcenter_voxel_groups: List[Dict[str, str]],
+    build_chain: Dict[str, Any],
+) -> List[Dict[str, Any]]:
+    baseline_raw = metric_row(probe_modes, "raw_trilinear")
+    zcenter_raw = metric_row(zcenter_modes, "raw_trilinear")
+    zcenter_vva = metric_row(zcenter_modes, "vertical_valid_above")
+    voxel_low = group_row(voxel_groups, "low")
+    voxel_high = group_row(voxel_groups, "high")
+    zcenter_low = group_row(zcenter_voxel_groups, "low")
+    zcenter_high = group_row(zcenter_voxel_groups, "high")
+    checks = gate.get("checks", {})
+    vs_cpp = build_chain.get("visual_studio_build_tools_2022_cpp", {})
+    gpu = build_chain.get("gpu_runtime", {}).get("nvidia_smi", {})
+    claims: List[Dict[str, Any]] = [
+        {
+            "claim_id": "C001",
+            "claim_readiness": "paper_ready",
+            "evidence_type": "newly_run",
+            "section": "Methods / Validation protocol",
+            "claim": "AIJ Case E validation uses the official ac+N, z=2 m, 80-probe protocol.",
+            "supporting_metrics": "n=80; height=2 m; sampling=raw_trilinear",
+            "source_paths": "docs/experiments/casee/results/casee_official_ac_N_probes.csv; docs/experiments/casee/casee_protocol.md",
+            "allowed_use": "Use as protocol definition and reproducibility evidence.",
+            "forbidden_use": "Do not imply accuracy success from protocol setup alone.",
+            "protocol_risks": "single benchmark case; official pedestrian-height sampling is near-wall sensitive",
+        },
+        {
+            "claim_id": "C002",
+            "claim_readiness": "limitations_ready",
+            "evidence_type": "newly_run",
+            "section": "Results / Case E validation",
+            "claim": "The current formal official z=2 m Case E validation does not meet the release accuracy gate.",
+            "supporting_metrics": f"MAE={fmt(gate['metrics']['mae_pp'])} pp; R2={fmt(gate['metrics']['r2'], 6)}; Pearson={fmt(gate['metrics']['pearson'], 6)}",
+            "source_paths": "docs/experiments/casee/results/release_gate.json; docs/experiments/casee/results/casee_metrics.csv",
+            "allowed_use": "Use as a transparent negative validation result.",
+            "forbidden_use": "Do not claim predictive accuracy, mesh independence, LES improvement, or formal v0.4.0 readiness.",
+            "protocol_risks": "metric gate fails; Rhino new GHA loading unverified",
+        },
+        {
+            "claim_id": "C003",
+            "claim_readiness": "weaken_claim",
+            "evidence_type": "newly_run",
+            "section": "Results / Diagnostic improvement",
+            "claim": "Z-center lattice alignment improved the formal raw_trilinear diagnostic relative to the previous dx=2 probe-mode run, but R2 remained negative.",
+            "supporting_metrics": (
+                f"previous raw MAE={fmt(baseline_raw['mae_pp'])} pp, R2={fmt(baseline_raw['r2'], 6)}, Pearson={fmt(baseline_raw['pearson'], 6)}; "
+                f"z-center raw MAE={fmt(zcenter_raw['mae_pp'])} pp, R2={fmt(zcenter_raw['r2'], 6)}, Pearson={fmt(zcenter_raw['pearson'], 6)}"
+            ),
+            "source_paths": "docs/experiments/casee/results/casee_probe_mode_metrics.csv; docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv",
+            "allowed_use": "Use as diagnostic evidence that vertical lattice placement affects Case E measurements.",
+            "forbidden_use": "Do not describe z-origin offset as a validated default model.",
+            "protocol_risks": "diagnostic parameter tuned on the benchmark; single run; no independent validation",
+        },
+        {
+            "claim_id": "C004",
+            "claim_readiness": "limitations_ready",
+            "evidence_type": "newly_run",
+            "section": "Discussion / Near-wall limitations",
+            "claim": "Error is concentrated at high protocol-risk probes near walls or solid interpolation corners.",
+            "supporting_metrics": (
+                f"baseline low-risk MAE={fmt(voxel_low['raw_mae_pp'])} pp, high-risk MAE={fmt(voxel_high['raw_mae_pp'])} pp; "
+                f"z-center low-risk MAE={fmt(zcenter_low['raw_mae_pp'])} pp, high-risk MAE={fmt(zcenter_high['raw_mae_pp'])} pp"
+            ),
+            "source_paths": "docs/experiments/casee/results/casee_voxel_probe_audit_groups.csv; docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv",
+            "allowed_use": "Use to motivate wall-model, voxelization, and official probe-protocol limitations.",
+            "forbidden_use": "Do not remove high-risk probes to report a formal validation metric.",
+            "protocol_risks": "risk grouping is diagnostic; formal metric remains all 80 official probes",
+        },
+        {
+            "claim_id": "C005",
+            "claim_readiness": "limitations_ready",
+            "evidence_type": "newly_run",
+            "section": "Discussion / Probe sampling diagnostics",
+            "claim": "Diagnostic sampling can reduce Case E MAE, but no diagnostic mode makes official z=2 m R2 positive.",
+            "supporting_metrics": f"best z-center diagnostic mode=vertical_valid_above; MAE={fmt(zcenter_vva['mae_pp'])} pp; R2={fmt(zcenter_vva['r2'], 6)}; Pearson={fmt(zcenter_vva['pearson'], 6)}",
+            "source_paths": "docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv",
+            "allowed_use": "Use as sensitivity evidence.",
+            "forbidden_use": "Do not use vertical_valid_above or z_plus_half as the formal official z=2 m result.",
+            "protocol_risks": "alternative sampling is diagnostic only and benchmark-specific",
+        },
+        {
+            "claim_id": "C006",
+            "claim_readiness": "paper_ready",
+            "evidence_type": "newly_run",
+            "section": "Reproducibility / Build",
+            "claim": "The current CityLBM source builds in Release configuration on the available .NET SDK toolchain.",
+            "supporting_metrics": f"citylbm_build_passed={checks.get('citylbm_build_passed')}; Case A smoke regression={checks.get('casea_smoke_regression_passed')}",
+            "source_paths": "docs/experiments/casee/results/citylbm_build_check.log; docs/experiments/casea/results/casea_smoke_regression.json",
+            "allowed_use": "Use as build and workflow non-regression evidence.",
+            "forbidden_use": "Do not use build success as CFD accuracy validation.",
+            "protocol_risks": "Rhino/Grasshopper loading of the new GHA remains unverified",
+        },
+        {
+            "claim_id": "C007",
+            "claim_readiness": "blocked",
+            "evidence_type": "newly_run",
+            "section": "Reproducibility / Build chain",
+            "claim": "Visual Studio Build Tools 2022 C++ and GPU runtime are not fully ready for additional long native validation.",
+            "supporting_metrics": f"VS C++ status={vs_cpp.get('status')}; nvidia-smi returncode={gpu.get('returncode')}",
+            "source_paths": "docs/experiments/casee/results/build_chain_manifest.json",
+            "allowed_use": "Use as a reproducibility blocker statement.",
+            "forbidden_use": "Do not claim the native validation chain is fully installed.",
+            "protocol_risks": "VS installation failed; GPU driver/device recovery required",
+        },
+        {
+            "claim_id": "C008",
+            "claim_readiness": "blocked",
+            "evidence_type": "newly_run",
+            "section": "Release",
+            "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
+            "supporting_metrics": f"formal_release_allowed={gate.get('formal_release_allowed')}; recommended_tag={gate.get('recommended_tag')}",
+            "source_paths": "docs/experiments/casee/results/release_gate.json",
+            "allowed_use": "Use to justify rc-only release status.",
+            "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",
+            "protocol_risks": "accuracy gate and Rhino-load gate fail",
+        },
+    ]
+    return claims
+
+
+def write_markdown(path: Path, claims: List[Dict[str, Any]], gate: Dict[str, Any]) -> None:
+    metrics = gate["metrics"]
+    lines = [
+        "# AIJ Case E Manuscript Evidence Summary",
+        "",
+        f"Generated: {datetime.now(timezone.utc).isoformat()}",
+        "",
+        "## Current Formal Metric",
+        "",
+        "- Protocol: AIJ Case E `ac+N`, official z=2 m, 80 probes, formal `raw_trilinear` sampling.",
+        f"- MAE: {fmt(metrics['mae_pp'])} pp.",
+        f"- RMSE: {fmt(metrics['rmse_pp'])} pp.",
+        f"- Bias: {fmt(metrics['bias_pp'])} pp.",
+        f"- R2: {fmt(metrics['r2'], 6)}.",
+        f"- Pearson: {fmt(metrics['pearson'], 6)}.",
+        f"- Formal release allowed: {gate.get('formal_release_allowed')}.",
+        f"- Recommended tag: `{gate.get('recommended_tag')}`.",
+        "",
+        "## Claim Matrix",
+        "",
+        "| claim_id | readiness | section | allowed claim | evidence |",
+        "|---|---|---|---|---|",
+    ]
+    for claim in claims:
+        lines.append(
+            f"| {claim['claim_id']} | {claim['claim_readiness']} | {claim['section']} | "
+            f"{claim['claim']} | `{claim['source_paths']}` |"
+        )
+    lines += [
+        "",
+        "## Results Paragraph Draft",
+        "",
+        "AIJ Case E was evaluated under the official `ac+N` protocol using 80 pedestrian-height probes at z=2 m and formal raw-trilinear sampling. "
+        f"The latest z-center diagnostic run produced MAE = {fmt(metrics['mae_pp'])} percentage points, RMSE = {fmt(metrics['rmse_pp'])} percentage points, "
+        f"bias = {fmt(metrics['bias_pp'])} percentage points, R2 = {fmt(metrics['r2'], 6)}, and Pearson = {fmt(metrics['pearson'], 6)} "
+        "(newly_run; see `docs/experiments/casee/results/release_gate.json`). "
+        "Because R2 remains negative and the release gate fails, this result should be reported as a transparent diagnostic/negative validation outcome rather than a predictive-accuracy result.",
+        "",
+        "## Limitations Paragraph Draft",
+        "",
+        "The dominant remaining limitation is near-wall and probe-protocol fidelity. "
+        "Voxel/probe audits show substantially lower MAE for low-risk probes than for high-risk probes, while alternative diagnostic sampling modes reduce MAE but still do not make R2 positive. "
+        "Therefore, the current evidence supports claims about workflow reproducibility, protocol transparency, and identified wall/voxelization/probe-sampling limitations, but it does not support formal mesh-independence, LES-improvement, or research-grade predictive-accuracy claims.",
+        "",
+        "## Forbidden Claims",
+        "",
+        "- CityLBM v0.4.0 has achieved validated predictive accuracy for AIJ Case E.",
+        "- z_plus_half, vertical_valid_above, or any z-offset diagnostic is the formal official z=2 m validation result.",
+        "- The current branch demonstrates mesh independence or LES improvement.",
+        "- The native Windows C++/GPU validation chain is fully ready for additional long runs.",
+        "",
+    ]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--release-gate", type=Path, default=RESULTS_DIR / "release_gate.json")
+    parser.add_argument("--probe-mode-metrics", type=Path, default=RESULTS_DIR / "casee_probe_mode_metrics.csv")
+    parser.add_argument("--zcenter-metrics", type=Path, default=RESULTS_DIR / "casee_zcenter_probe_mode_metrics.csv")
+    parser.add_argument("--voxel-groups", type=Path, default=RESULTS_DIR / "casee_voxel_probe_audit_groups.csv")
+    parser.add_argument("--zcenter-voxel-groups", type=Path, default=RESULTS_DIR / "casee_zcenter_voxel_probe_audit_groups.csv")
+    parser.add_argument("--build-chain", type=Path, default=RESULTS_DIR / "build_chain_manifest.json")
+    parser.add_argument("--out-csv", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.csv")
+    parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_manuscript_evidence_summary.md")
+    parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.json")
+    args = parser.parse_args()
+
+    gate = json.loads(args.release_gate.read_text(encoding="utf-8"))
+    build_chain = json.loads(args.build_chain.read_text(encoding="utf-8"))
+    claims = build_claims(
+        gate,
+        read_csv(args.probe_mode_metrics),
+        read_csv(args.zcenter_metrics),
+        read_csv(args.voxel_groups),
+        read_csv(args.zcenter_voxel_groups),
+        build_chain,
+    )
+    fieldnames = [
+        "claim_id",
+        "claim_readiness",
+        "evidence_type",
+        "section",
+        "claim",
+        "supporting_metrics",
+        "source_paths",
+        "allowed_use",
+        "forbidden_use",
+        "protocol_risks",
+    ]
+    write_csv(args.out_csv, claims, fieldnames)
+    args.out_json.write_text(json.dumps({"generated_at": datetime.now(timezone.utc).isoformat(), "claims": claims}, indent=2), encoding="utf-8")
+    write_markdown(args.out_md, claims, gate)
+    print(json.dumps({"claims": len(claims), "out_csv": str(args.out_csv), "out_md": str(args.out_md)}, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

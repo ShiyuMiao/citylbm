@@ -30,6 +30,8 @@ VOXEL_PROBE_AUDIT_GROUPS_CSV = RESULTS_DIR / "casee_voxel_probe_audit_groups.csv
 ZCENTER_PROBE_MODE_METRICS_CSV = RESULTS_DIR / "casee_zcenter_probe_mode_metrics.csv"
 ZCENTER_VOXEL_PROBE_AUDIT_GROUPS_CSV = RESULTS_DIR / "casee_zcenter_voxel_probe_audit_groups.csv"
 BUILD_CHAIN_MANIFEST = RESULTS_DIR / "build_chain_manifest.json"
+MANUSCRIPT_EVIDENCE_SUMMARY = RESULTS_DIR / "casee_manuscript_evidence_summary.md"
+MANUSCRIPT_CLAIM_MATRIX = RESULTS_DIR / "casee_manuscript_claim_matrix.csv"
 
 
 def read_csv(path: Path) -> List[Dict[str, str]]:
@@ -627,6 +629,24 @@ def write_report(
                 lines.append(f"- VS Build Tools blocker: {blocker}")
         except Exception as exc:
             lines += ["", "## Build Chain Audit", "", f"- Blocked: {exc}"]
+    if MANUSCRIPT_CLAIM_MATRIX.exists():
+        try:
+            claim_rows = read_csv(MANUSCRIPT_CLAIM_MATRIX)
+            readiness_counts: Dict[str, int] = {}
+            for row in claim_rows:
+                readiness_counts[row.get("claim_readiness", "unknown")] = readiness_counts.get(row.get("claim_readiness", "unknown"), 0) + 1
+            lines += [
+                "",
+                "## Manuscript Claim Readiness",
+                "",
+                f"- Evidence: `{display_path(MANUSCRIPT_CLAIM_MATRIX)}`",
+                f"- Summary: `{display_path(MANUSCRIPT_EVIDENCE_SUMMARY)}`" if MANUSCRIPT_EVIDENCE_SUMMARY.exists() else "- Summary markdown unavailable.",
+            ]
+            for key in sorted(readiness_counts):
+                lines.append(f"- {key}: {readiness_counts[key]} claims")
+            lines.append("- Interpretation: only protocol, build/workflow, and limitation claims are paper-ready; formal predictive-accuracy claims remain blocked.")
+        except Exception as exc:
+            lines += ["", "## Manuscript Claim Readiness", "", f"- Blocked: {exc}"]
     lines += [
         "",
         "## Release Gate",
