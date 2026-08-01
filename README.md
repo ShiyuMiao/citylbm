@@ -46,9 +46,10 @@ Current Case E and release-gate materials:
 - `docs/experiments/casee/results/casee_voxel_probe_audit.csv`
 - `docs/experiments/casee/results/casee_voxel_probe_audit_groups.csv`
 - `docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv`
+- `docs/experiments/casee/results/build_chain_manifest.json`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc8.md`
+- `docs/releases/v0.4.0-rc9.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -82,6 +83,17 @@ It improves the formal raw_trilinear MAE to 21.111 pp and Pearson to 0.115756,
 but R2 remains negative. Its best diagnostic sampling mode,
 `vertical_valid_above`, reaches MAE 16.041 pp and Pearson 0.336940, but this is
 still not a formal validation result.
+
+CityLBM now exposes the corresponding `Diagnostic Z Origin Offset` (`zOff`)
+input on the Grasshopper `Run Simulation` component. The default is 0 m. This
+is an experiment switch for inlet-height and probe-protocol diagnostics, not a
+validated default accuracy model.
+
+Current build-chain audit: .NET SDK 8.0.423 and the existing FluidX3D binary are
+available under `E:\citylbm_buildchain`, but Visual Studio Build Tools 2022 C++
+is still blocked. `winget` returned exit code 1602, the bootstrapper log
+reported a possible declined UAC prompt, and C: has less than the free space
+required by the VS precheck.
 
 Run the audit after official data are present:
 

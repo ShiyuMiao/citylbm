@@ -29,6 +29,7 @@ PROBE_MODE_METRICS_CSV = RESULTS_DIR / "casee_probe_mode_metrics.csv"
 VOXEL_PROBE_AUDIT_GROUPS_CSV = RESULTS_DIR / "casee_voxel_probe_audit_groups.csv"
 ZCENTER_PROBE_MODE_METRICS_CSV = RESULTS_DIR / "casee_zcenter_probe_mode_metrics.csv"
 ZCENTER_VOXEL_PROBE_AUDIT_GROUPS_CSV = RESULTS_DIR / "casee_zcenter_voxel_probe_audit_groups.csv"
+BUILD_CHAIN_MANIFEST = RESULTS_DIR / "build_chain_manifest.json"
 
 
 def read_csv(path: Path) -> List[Dict[str, str]]:
@@ -606,6 +607,26 @@ def write_report(
             ]
         except Exception as exc:
             lines += ["", "## Z-Center Voxel/Probe Audit", "", f"- Blocked: {exc}"]
+    if BUILD_CHAIN_MANIFEST.exists():
+        try:
+            build_chain = json.loads(BUILD_CHAIN_MANIFEST.read_text(encoding="utf-8"))
+            vs_cpp = build_chain.get("visual_studio_build_tools_2022_cpp", {})
+            dotnet = build_chain.get("dotnet_sdk", {})
+            fluidx3d = build_chain.get("fluidx3d", {})
+            blockers = vs_cpp.get("install_attempt", {}).get("observed_blockers", [])
+            lines += [
+                "",
+                "## Build Chain Audit",
+                "",
+                f"- Evidence: `{display_path(BUILD_CHAIN_MANIFEST)}`",
+                f"- .NET SDK status: {dotnet.get('status', 'unknown')}",
+                f"- FluidX3D binary status: {fluidx3d.get('status', 'unknown')}",
+                f"- Visual Studio Build Tools 2022 C++ status: {vs_cpp.get('status', 'unknown')}",
+            ]
+            for blocker in blockers:
+                lines.append(f"- VS Build Tools blocker: {blocker}")
+        except Exception as exc:
+            lines += ["", "## Build Chain Audit", "", f"- Blocked: {exc}"]
     lines += [
         "",
         "## Release Gate",

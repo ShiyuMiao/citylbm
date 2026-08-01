@@ -1,0 +1,147 @@
+{
+  "generated_at": "2026-08-01T11:47:10.762353+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "build_chain_diagnostic",
+  "visual_studio_build_tools_2022_cpp": {
+    "status": "blocked",
+    "vswhere": {
+      "found": true,
+      "path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe",
+      "sha256": "c54f3b7c9164ea9a0db8641e81ecdda80c2664ef5a47c4191406f848cc07c662",
+      "size_bytes": 469456,
+      "mtime": "2026-07-30T15:43:57.893350+00:00"
+    },
+    "vswhere_requires_vc": {
+      "command": "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath",
+      "found": true,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "cl_on_path": {
+      "command": "cl.exe",
+      "found": false,
+      "returncode": null,
+      "stdout": "",
+      "stderr": "not found"
+    },
+    "msbuild_on_path": {
+      "command": "msbuild.exe",
+      "found": false,
+      "returncode": null,
+      "stdout": "",
+      "stderr": "not found"
+    },
+    "vcvars64_candidates": [
+      {
+        "found": false,
+        "path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\Build\\vcvars64.bat",
+        "sha256": "",
+        "size_bytes": null,
+        "mtime": ""
+      },
+      {
+        "found": false,
+        "path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\Build\\vcvars64.bat",
+        "sha256": "",
+        "size_bytes": null,
+        "mtime": ""
+      }
+    ],
+    "install_attempt": {
+      "command": "winget install --id Microsoft.VisualStudio.2022.BuildTools --accept-package-agreements --accept-source-agreements --silent --override \"--wait --quiet --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended\"",
+      "exit_code": 1602,
+      "winget_log": {
+        "found": true,
+        "path": "C:\\Users\\miaoshiyu\\AppData\\Local\\Packages\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\LocalState\\DiagOutputDir\\WinGet-2026-08-01-19-41-25.578.log",
+        "sha256": "ce73b2a0e8d0cbbe6a359b129ce089312e6389b93f2fd618cef32b99e55d8416",
+        "size_bytes": 6884,
+        "mtime": "2026-08-01T11:43:35.612074+00:00"
+      },
+      "vs_bootstrapper_log": {
+        "found": true,
+        "path": "C:\\Users\\MIAOSH~1\\AppData\\Local\\Temp\\dd_vs_BuildTools_decompression_log.txt",
+        "sha256": "ac51c1e3c799f6c7d5c494e112f3fc6dec2c1b10d8a503372726b19ddacec8be",
+        "size_bytes": 1030,
+        "mtime": "2026-08-01T11:43:35.594832+00:00"
+      },
+      "observed_blockers": [
+        "winget returned 1602 during the current attempt",
+        "Visual Studio bootstrapper log reported possible declined UAC prompt",
+        "older setup error log reported C: drive free-space precheck failure; C: currently has less than 5.71 GB free"
+      ]
+    }
+  },
+  "dotnet_sdk": {
+    "status": "ready",
+    "executable": {
+      "found": true,
+      "path": "E:\\citylbm_buildchain\\dotnet\\dotnet.exe",
+      "sha256": "e94c17675054a5dec941971293f08c417756a9a4f78efb4b7f88e312272a07c2",
+      "size_bytes": 157480,
+      "mtime": "2026-06-24T02:23:18+00:00"
+    },
+    "info": {
+      "command": "E:\\citylbm_buildchain\\dotnet\\dotnet.exe --info",
+      "found": true,
+      "returncode": 0,
+      "stdout": ".NET SDK:\n Version:           8.0.423\n Commit:            62e3aa2c1f\n Workload version:  8.0.400-manifests.a04bdf47\n MSBuild version:   17.11.48+02bf66295\n\n\u8fd0\u884c\u65f6\u73af\u5883:\n OS Name:     Windows\n OS Version:  10.0.26100\n OS Platform: Windows\n RID:         win-x64\n Base Path:   E:\\citylbm_buildchain\\dotnet\\sdk\\8.0.423\\\n\n\u5df2\u5b89\u88c5 .NET \u5de5\u4f5c\u8d1f\u8f7d:\n\u914d\u7f6e\u4e3a\u5728\u5b89\u88c5\u65b0\u6e05\u5355\u65f6\u4f7f\u7528 loose manifests\u3002\n\u6ca1\u6709\u8981\u663e\u793a\u7684\u5df2\u5b89\u88c5\u5de5\u4f5c\u8d1f\u8f7d\u3002\n\nHost:\n  Version:      8.0.29\n  Architecture: x64\n  Commit:       18fd75c847\n\n.NET SDKs installed:\n  8.0.423 [E:\\citylbm_buildchain\\dotnet\\sdk]\n\n.NET runtimes installed:\n  Microsoft.AspNetCore.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.NETCore.App]\n  Microsoft.WindowsDesktop.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\n\nOther architectures found:\n  None\n\nEnvironment variables:\n  Not set\n\nglobal.json file:\n  Not found\n\nLearn more:\n  https://aka.ms/dotnet/info\n\nDownload .NET:\n  https://aka.ms/dotnet/download",
+      "stderr": ""
+    }
+  },
+  "fluidx3d": {
+    "status": "ready_for_existing_binary",
+    "executable": {
+      "found": true,
+      "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
+      "sha256": "2fee1e6c7e59d6c5ac238d9aa1623cb6138e9ba5bc278bcfcf74532b443c5a1e",
+      "size_bytes": 1062291,
+      "mtime": "2026-08-01T11:25:49.607732+00:00"
+    }
+  },
+  "gpu_runtime": {
+    "nvidia_smi": {
+      "command": "nvidia-smi",
+      "found": true,
+      "returncode": 15,
+      "stdout": "Unable to determine the device handle for GPU0000:C3:00.0: GPU is lost.  Reboot the system to recover this GPU",
+      "stderr": ""
+    },
+    "note": "A GPU-lost nvidia-smi result blocks further long FluidX3D validation runs until driver/device recovery."
+  },
+  "disk": [
+    {
+      "drive": "C:\\",
+      "free_bytes": 571166720,
+      "total_bytes": 208810242048,
+      "free_gb": 0.532
+    },
+    {
+      "drive": "D:\\",
+      "free_bytes": 245935620096,
+      "total_bytes": 302394634240,
+      "free_gb": 229.045
+    },
+    {
+      "drive": "E:\\",
+      "free_bytes": 870175993856,
+      "total_bytes": 1000203087872,
+      "free_gb": 810.415
+    },
+    {
+      "drive": "F:\\",
+      "free_bytes": 2241844584448,
+      "total_bytes": 2901257744384,
+      "free_gb": 2087.88
+    },
+    {
+      "drive": "G:\\",
+      "free_bytes": 1099368198144,
+      "total_bytes": 1099510575104,
+      "free_gb": 1023.866
+    }
+  ],
+  "environment": {
+    "path": "C:\\Users\\miaoshiyu\\.codex\\tmp\\arg0\\codex-arg09xJGTa;D:\\phoenics\\d_utils\\windfsd.bat;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\bin;E:\\ProgramData\\anaconda3;E:\\ProgramData\\anaconda3\\Scripts;E:\\ProgramData\\anaconda3\\Lib\\site-packages;C:\\Program Files\\Microsoft SQL Server\\120\\Tools\\Binn\\;C:\\Program Files\\Common Files\\Autodesk Shared\\;C:\\Windows\\System32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Users\\miaoshiyu\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\miaoshiyu\\AppData\\Roaming\\Programs\\Zero Install;F:\\citylbm_fluidx3d_workspace\\WinLibs\\mingw64\\bin;D:\\Apps\\ParaView-6.1.1-Windows-Python3.12-msvc2017-AMD64\\bin;E:\\citylbm_buildchain\\dotnet_home\\.dotnet\\tools;E:\\citylbm_buildchain\\userprofile\\.dotnet_home\\.dotnet\\tools;C:\\Users\\miaoshiyu\\AppData\\Local\\OpenAI\\Codex\\bin\\3e42d49ad3e35a50;C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.721.4979.0_x64__2p2nqsd0c76g0\\app\\resources"
+  }
+}

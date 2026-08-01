@@ -1703,6 +1703,7 @@ namespace CityLBM.Solver
             if (!hasDiagnosticNuOverride)
                 tau_val = Math.Max(0.55, Math.Min(tau_val, 2.0));
             double nu_final = hasDiagnosticNuOverride ? nu_lbm_val : (tau_val - 0.5) / 3.0;
+            double effectiveOriginZ = grid.Origin.Z + settings.DiagnosticZOriginOffsetM;
 
             sb.AppendLine("void main_setup() {");
             sb.AppendLine($"    // LBM 物理参数 (u_max = {uMax}, tau = {tau_val:F4}, nu = {nu_final:E4})");
@@ -1710,7 +1711,7 @@ namespace CityLBM.Solver
             sb.AppendLine($"    const float u_y = {ulbm_y.ToString("F6", System.Globalization.CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float u_z = {ulbm_z.ToString("F6", System.Globalization.CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_dx = {grid.Dx.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
-            sb.AppendLine($"    const float citylbm_origin_z = {grid.Origin.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const float citylbm_origin_z = {effectiveOriginZ.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
             AppendInletProfileFunction(sb, settings, windDir, referenceLatticeVelocity, scene.WindSpeed);
             sb.AppendLine();
 
@@ -1947,7 +1948,9 @@ namespace CityLBM.Solver
             sb.AppendLine($"    \"nx\": {grid.Nx}, \"ny\": {grid.Ny}, \"nz\": {grid.Nz}, \"dx_m\": {grid.Dx.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"    \"origin_x_m\": {grid.Origin.X.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"    \"origin_y_m\": {grid.Origin.Y.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
-            sb.AppendLine($"    \"origin_z_m\": {grid.Origin.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}");
+            sb.AppendLine($"    \"origin_z_m\": {grid.Origin.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"    \"diagnostic_z_origin_offset_m\": {settings.DiagnosticZOriginOffsetM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"    \"effective_origin_z_m\": {(grid.Origin.Z + settings.DiagnosticZOriginOffsetM).ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}");
             sb.AppendLine("  },");
             sb.AppendLine("  \"wind\": {");
             sb.AppendLine($"    \"speed_m_s\": {scene.WindSpeed.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
@@ -1962,7 +1965,8 @@ namespace CityLBM.Solver
             sb.AppendLine($"    \"save_interval\": {settings.SaveInterval},");
             sb.AppendLine($"    \"viscosity_m2_s\": {settings.Viscosity.ToString("E8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"    \"max_lattice_velocity\": {settings.MaxLatticeVelocity.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
-            sb.AppendLine($"    \"diagnostic_nu_lbm_override\": {settings.DiagnosticNuLbmOverride.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}");
+            sb.AppendLine($"    \"diagnostic_nu_lbm_override\": {settings.DiagnosticNuLbmOverride.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"    \"diagnostic_z_origin_offset_m\": {settings.DiagnosticZOriginOffsetM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}");
             sb.AppendLine("  },");
             sb.AppendLine("  \"validation\": {");
             sb.AppendLine($"    \"case_condition\": \"{EscapeJson(settings.CaseCondition)}\",");
@@ -1990,11 +1994,12 @@ namespace CityLBM.Solver
             double dx = grid.Dx;
             double height = settings.ValidationHeight;
             bool canAudit = settings.UseAijCaseEPreset && dx > 0.0 && height > 0.0;
-            double gridZFloat = canAudit ? (height - grid.Origin.Z) / dx - 0.5 : 0.0;
+            double effectiveOriginZ = grid.Origin.Z + settings.DiagnosticZOriginOffsetM;
+            double gridZFloat = canAudit ? (height - effectiveOriginZ) / dx - 0.5 : 0.0;
             int z0 = canAudit ? (int)Math.Floor(gridZFloat) : 0;
             double tz = canAudit ? gridZFloat - z0 : 0.0;
-            double lowerCenter = canAudit ? grid.Origin.Z + (z0 + 0.5) * dx : 0.0;
-            double upperCenter = canAudit ? grid.Origin.Z + (z0 + 1.5) * dx : 0.0;
+            double lowerCenter = canAudit ? effectiveOriginZ + (z0 + 0.5) * dx : 0.0;
+            double upperCenter = canAudit ? effectiveOriginZ + (z0 + 1.5) * dx : 0.0;
             bool betweenLayers = canAudit && tz > 1e-6 && tz < 1.0 - 1e-6;
 
             sb.AppendLine("    \"probe_protocol_risk\": {");
@@ -2008,6 +2013,8 @@ namespace CityLBM.Solver
             sb.AppendLine($"      \"formal_height_between_lattice_layers\": {BoolJson(betweenLayers)},");
             sb.AppendLine($"      \"formal_result_must_use_official_height\": {BoolJson(canAudit)},");
             sb.AppendLine("      \"z_plus_half_allowed_as_formal_result\": false,");
+            sb.AppendLine($"      \"diagnostic_z_origin_offset_m\": {settings.DiagnosticZOriginOffsetM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"      \"diagnostic_z_origin_offset_is_default\": {BoolJson(Math.Abs(settings.DiagnosticZOriginOffsetM) <= 1e-12)},");
             sb.AppendLine("      \"note\": \"Diagnostic sampling modes help quantify near-wall/probe sensitivity but do not replace official z=2m validation.\"");
             sb.AppendLine("    }");
         }
@@ -2265,6 +2272,7 @@ namespace CityLBM.Solver
         public string ReferenceProbeCsvPath { get; set; } = "";
         public double MaxLatticeVelocity { get; set; } = 0.1;
         public double DiagnosticNuLbmOverride { get; set; } = 0.0;
+        public double DiagnosticZOriginOffsetM { get; set; } = 0.0;
         public List<InletProfilePoint> InletProfile { get; set; } = new List<InletProfilePoint>();
 
         public double InletVelocityX { get; set; }
@@ -2363,6 +2371,7 @@ namespace CityLBM.Solver
                 ReferenceProbeCsvPath = source.ReferenceProbeCsvPath,
                 MaxLatticeVelocity = source.MaxLatticeVelocity,
                 DiagnosticNuLbmOverride = source.DiagnosticNuLbmOverride,
+                DiagnosticZOriginOffsetM = source.DiagnosticZOriginOffsetM,
                 InletVelocityX = source.InletVelocityX,
                 InletVelocityY = source.InletVelocityY,
                 InletVelocityZ = source.InletVelocityZ,

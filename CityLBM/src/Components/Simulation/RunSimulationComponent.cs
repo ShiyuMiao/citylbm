@@ -89,6 +89,10 @@ namespace CityLBM.Components.Simulation
                 "Experimental only. >0 overrides the generated FluidX3D LBM lattice viscosity; default 0 keeps the standard physical-viscosity mapping.",
                 GH_ParamAccess.item, 0.0);
             pManager[11].Optional = true;
+            pManager.AddNumberParameter("Diagnostic Z Origin Offset", "zOff",
+                "Experimental only. Adds a vertical-origin offset, in meters, for Case E inlet-height and probe-protocol diagnostics; default 0 keeps the grid origin unchanged.",
+                GH_ParamAccess.item, 0.0);
+            pManager[12].Optional = true;
 
             // 全部可选（除 Scene 和 Grid）
             for (int i = 2; i <= 10; i++) pManager[i].Optional = true;
@@ -119,6 +123,7 @@ namespace CityLBM.Components.Simulation
             bool cancel = false;
             bool useCaseEPreset = false;
             double diagnosticNuLbmOverride = 0.0;
+            double diagnosticZOriginOffsetM = 0.0;
 
             if (!DA.GetData(0, ref ghScene)) return;
             if (!DA.GetData(1, ref ghGrid)) return;
@@ -132,6 +137,7 @@ namespace CityLBM.Components.Simulation
             DA.GetData(9, ref cancel);
             DA.GetData(10, ref useCaseEPreset);
             DA.GetData(11, ref diagnosticNuLbmOverride);
+            DA.GetData(12, ref diagnosticZOriginOffsetM);
 
             // ── GH 加载期保护 ────────────────────────────────────────────
             // 使用宽限期策略：组件创建后 3 秒内认为 GH 可能还在加载
@@ -230,7 +236,8 @@ namespace CityLBM.Components.Simulation
                 TimeSteps = timeSteps,
                 SaveInterval = saveInterval,
                 UseAijCaseEPreset = useCaseEPreset,
-                DiagnosticNuLbmOverride = diagnosticNuLbmOverride
+                DiagnosticNuLbmOverride = diagnosticNuLbmOverride,
+                DiagnosticZOriginOffsetM = diagnosticZOriginOffsetM
             };
             settings.SetInletVelocity(scene.WindDirection, scene.WindSpeed);
 

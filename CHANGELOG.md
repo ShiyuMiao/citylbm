@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.4.0-rc9 - Diagnostic z-origin switch and build-chain audit
+
+- Added a default-off `Diagnostic Z Origin Offset` (`zOff`) input to the Grasshopper `Run Simulation` component.
+- Propagated `DiagnosticZOriginOffsetM` through `SimulationSettings`, generated FluidX3D setup code, and `citylbm_run_manifest.json`.
+- Updated Case E probe-protocol risk metadata to compute lattice z placement from the effective diagnostic origin.
+- Added `build_chain_audit.py` and `build_chain_manifest.json` to record .NET SDK, FluidX3D, Visual Studio Build Tools C++, GPU runtime, disk space, and installation-attempt status.
+
+Current status:
+
+- CityLBM Release build passes with 0 errors and existing nullable warnings.
+- .NET SDK 8.0.423 and the existing FluidX3D binary are available.
+- Visual Studio Build Tools 2022 C++ remains blocked: `winget` returned exit code 1602, the bootstrapper log indicates a possible declined UAC prompt, and C: has insufficient free space for the VS precheck.
+- Official z=2 m metrics are unchanged from the latest z-center run: MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
+This improves reproducibility and diagnostic control but still does not support formal `v0.4.0` or a predictive-accuracy claim.
+
 ## v0.4.0-rc8 - Z-center lattice diagnostic
 
 - Added `origin_z_offset_m` support to the native AIJ Case E generator.

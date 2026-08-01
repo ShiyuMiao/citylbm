@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-01T11:36:01.492548+00:00
+Generated: 2026-08-01T11:47:58.985573+00:00
 
 ## Protocol
 
@@ -80,11 +80,21 @@ Generated: 2026-08-01T11:36:01.492548+00:00
 - All probes: raw MAE 21.111 pp; vertical_valid_above diagnostic MAE 16.041 pp
 - Interpretation: after z-center alignment, low-risk probes are substantially closer than moderate/high-risk probes; remaining failure is concentrated near solid-corner and wall-proximity cases.
 
+## Build Chain Audit
+
+- Evidence: `docs/experiments/casee/results/build_chain_manifest.json`
+- .NET SDK status: ready
+- FluidX3D binary status: ready_for_existing_binary
+- Visual Studio Build Tools 2022 C++ status: blocked
+- VS Build Tools blocker: winget returned 1602 during the current attempt
+- VS Build Tools blocker: Visual Studio bootstrapper log reported possible declined UAC prompt
+- VS Build Tools blocker: older setup error log reported C: drive free-space precheck failure; C: currently has less than 5.71 GB free
+
 ## Release Gate
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc8
+- Recommended tag: v0.4.0-rc9
 
 | Check | Status |
 |---|---:|

@@ -36,6 +36,7 @@ Implemented in source:
 - Applied the Case E wind override to a generation-only `Scene` clone, so Grasshopper input scenes are not silently mutated.
 - Kept the generic CityLBM lattice velocity default at 0.1; the 0.08 cap is Case E preset-only.
 - Added a default-off `Diagnostic LBM Nu Override` Grasshopper input and run-manifest field. It exists to reproduce native `nu_lbm` sensitivity diagnostics and is not a default solver accuracy model.
+- Added a default-off `Diagnostic Z Origin Offset` Grasshopper input and run-manifest field. It exists to reproduce z-center lattice diagnostics for inlet-height and probe-protocol analysis and is not a default solver accuracy model.
 - Added a MinGW/g++ fallback path for FluidX3D builds when MSBuild is unavailable or fails. This is a build-chain reliability improvement, not a solver accuracy model.
 
 ### Experiment 3 / TUM2TWIN
@@ -59,6 +60,7 @@ Experimental only:
 - `nearest_valid`, `fluid_weighted`, `vertical_valid_above`, `z_plus_half`.
 - near-wall, rough-wall, and effective-ground switches.
 - `nu_lbm` sweeps below the generic stable default.
+- Diagnostic z-origin offsets such as `origin_z_offset_m=1.0`.
 - claims about full-plane digital-filter turbulence improvement until native FluidX3D logs and z=2 m metrics prove it.
 
 ## Current Verification Status
@@ -76,5 +78,7 @@ Experimental only:
 - The voxel/probe protocol audit shows a strong risk split: low-risk probes have raw MAE 12.932 pp, while high-risk probes have raw MAE 32.454 pp. CityLBM now writes Case E probe protocol-risk metadata into `citylbm_run_manifest.json`, including lattice z-layer placement and the rule that `z_plus_half` cannot be used as a formal substitute.
 - A z-center lattice diagnostic (`origin_z_offset_m=1.0`) put official z=2 m directly on a dx=2 m lattice-center height. The formal raw_trilinear MAE improved to 21.111 pp and Pearson to 0.115756, but R2 remained negative at -2.006330. The best diagnostic mode in that run (`vertical_valid_above`) reached MAE 16.041 pp and Pearson 0.336940, but R2 was still -0.554717. This shows vertical lattice centering alone is insufficient for formal validation.
 - The z-center voxel/probe audit shifted many probes into the low-risk group (n=47, raw MAE 12.435 pp), while high-risk probes still had raw MAE 34.589 pp. This strengthens the conclusion that the next accuracy work belongs in wall/voxelization/probe-protocol treatment, not a generic CityLBM default parameter change.
+- CityLBM now exposes the z-origin offset as a default-off diagnostic switch and records it in generated manifests. This improves reproducibility of the diagnostic but does not change default simulation accuracy settings.
+- The build-chain audit confirms .NET SDK 8.0.423 and the existing FluidX3D binary are available, while Visual Studio Build Tools 2022 C++ remains blocked by `winget` exit code 1602, possible UAC rejection, and insufficient C: free space. GPU runtime also needs recovery before further long FluidX3D runs.
 - Because effective-ground shifting depends on native Case E's explicit STL physical-origin mapping and CityLBM's generic generator currently voxelizes around `lbm.center()`, the effective-ground switch was not migrated into the plugin defaults or GH UI in this continuation.
 - Therefore, this is still an accuracy-diagnostic optimization, not a validated accuracy success.
