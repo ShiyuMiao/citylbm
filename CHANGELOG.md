@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc15 - One-command Case E reproducibility suite
+
+- Added `reproducibility_suite.py` to run the lightweight Case E evidence chain in a single command.
+- Generated `casee_reproducibility_suite.json` and `casee_reproducibility_suite.md`.
+- The suite rebuilds CityLBM, synchronizes the tracked `CityLBM.gha`, reruns Case E audit outputs, regenerates manuscript and artifact evidence, and records the formal release gate as an expected blocker while official z=2 m R2 remains negative.
+
+This makes the current negative-validation and limitations evidence easier to reproduce for paper review. It is not a formal accuracy pass.
+
 ## v0.4.0-rc14 - Artifact index for paper and release traceability
 
 - Added `artifact_index.py` to generate a hash-indexed Case E artifact catalogue for paper appendices and lightweight release assets.

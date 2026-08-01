@@ -26,7 +26,7 @@ EXPLICIT_ARTIFACTS = [
     "CHANGELOG.md",
     "CityLBM/README.md",
     "CityLBM/bin/CityLBM.gha",
-    "docs/releases/v0.4.0-rc14.md",
+    "docs/releases/v0.4.0-rc15.md",
     "docs/experiments/casee/data_manifest.csv",
     "docs/experiments/casee/casee_preset.json",
     "docs/experiments/casee/casee_protocol.md",
@@ -47,6 +47,8 @@ RESULT_PATTERNS = [
     "release_gate.json",
     "build_chain_manifest.json",
     "plugin_identity_gate.json",
+    "casee_reproducibility_suite.json",
+    "casee_reproducibility_suite.md",
     "citylbm_build_check.log",
     "fluidx3d_*_run*.log",
     "fluidx3d_*_compile.log",
@@ -73,6 +75,7 @@ TOOL_SCRIPTS = [
     "manuscript_evidence_summary.py",
     "paper_evidence_gate.py",
     "plugin_identity_gate.py",
+    "reproducibility_suite.py",
     "release_gate.py",
 ]
 
@@ -206,7 +209,7 @@ def release_asset_role(path: str, cat: str, size_bytes: int) -> str:
 def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
     if path.endswith("release_gate.json"):
         return "blocked_formal_release_gate"
-    if "paper_evidence_gate" in path or "plugin_identity_gate" in path:
+    if "paper_evidence_gate" in path or "plugin_identity_gate" in path or "reproducibility_suite" in path:
         return "paper_ready_traceability"
     if path.endswith("casee_metrics.csv") or path.endswith("casee_validation_report.md"):
         return "limitations_ready_negative_validation"

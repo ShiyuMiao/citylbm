@@ -24,7 +24,7 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_manuscript_claim_matrix.csv",
     "docs/experiments/casee/results/casee_paper_evidence_gate.json",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc14.md",
+    "docs/releases/v0.4.0-rc15.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
