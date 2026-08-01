@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-01T10:49:08.059469+00:00
+Generated: 2026-08-01T11:02:01.042819+00:00
 
 ## Protocol
 
@@ -31,11 +31,27 @@ Generated: 2026-08-01T10:49:08.059469+00:00
 | 3 | 2 | 13.338 | -17.017904 | -1.000000 |
 | 4 | 16 | 35.294 | -3.349963 | 0.269639 |
 
+## Spatial Alignment Diagnostic
+
+- Evidence: `docs/experiments/casee/results/casee_spatial_alignment_diagnostic.csv`
+- Identity Pearson: 0.071789; R2: -2.311768
+- Best Pearson transform: `identity` with Pearson 0.071789
+- Best R2 transform: `flip_y` with R2 -2.111059
+- Interpretation: no tested x/y flip, swap, or 90-degree rotation makes official z=2 m R2 positive.
+
+## Probe Sampling Modes Runner
+
+- Status: passed
+- Evidence type: newly_run
+- Claim readiness: compile_only_no_accuracy_metric
+- Case: `docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_nu0p001_pmodes_steps48000_spin12000`
+- Scope: compile-only diagnostic runner; no probe-mode accuracy metric is claimed until a full FluidX3D run completes.
+
 ## Release Gate
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc4
+- Recommended tag: v0.4.0-rc5
 
 | Check | Status |
 |---|---:|

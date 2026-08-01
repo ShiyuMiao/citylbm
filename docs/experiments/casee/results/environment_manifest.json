@@ -18,9 +18,9 @@
   "fluidx3d_executable": {
     "found": true,
     "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
-    "sha256": "7f5052744eb39e0ac3ccdbfb78b28d410600b85cf596ed78ac61d91997af3853",
-    "size_bytes": 1049168,
-    "mtime": "2026-08-01T10:39:36.924963+00:00"
+    "sha256": "ec8f38f4fac96a8c0f72ce8900bfc6ce038565147ad17095a9b878541f333397",
+    "size_bytes": 1062291,
+    "mtime": "2026-08-01T10:57:23.774236+00:00"
   },
   "citylbm_gha": {
     "found": true,

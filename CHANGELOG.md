@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.4.0-rc5 - Probe-mode runner and spatial alignment diagnostic
+
+- Added a native Case E probe-mode diagnostic runner that preserves formal `raw_trilinear` output while also writing `nearest_valid`, `fluid_weighted`, `vertical_valid_above`, and `z_plus_half` diagnostic columns for future full runs.
+- Added a compile-only probe-mode audit manifest so the new native runner is traceable without claiming new accuracy metrics.
+- Added a spatial alignment diagnostic for the best existing official z=2 m run.
+
+Current diagnostic finding:
+
+- Simple x/y flips, x/y swaps, and 90-degree coordinate transforms do not make official z=2 m R2 positive.
+- Identity remains the best Pearson transform at Pearson = 0.071789, while the best R2 transform is still negative at R2 = -2.111059.
+- This points away from a simple coordinate-convention failure and toward near-wall sampling, wall modeling, inlet turbulence, voxelization, or probe protocol fidelity.
+
+Formal `v0.4.0` remains blocked because official z=2 m R2 is still negative and Rhino/Grasshopper loading of the new GHA is not independently verified.
+
 ## v0.4.0-rc4 - Case A smoke regression gate
 
 - Added a reproducible AIJ Case A smoke-regression audit under `docs/experiments/casea/`.

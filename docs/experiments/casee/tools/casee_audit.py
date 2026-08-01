@@ -23,6 +23,8 @@ CASEA_GATE = ROOT / "docs" / "experiments" / "casea" / "results" / "casea_smoke_
 DATA_DIR = CASE_DIR / "official_data"
 RESULTS_DIR = CASE_DIR / "results"
 PRESET_PATH = CASE_DIR / "casee_preset.json"
+SPATIAL_ALIGNMENT_CSV = RESULTS_DIR / "casee_spatial_alignment_diagnostic.csv"
+PROBE_MODES_COMPILE_MANIFEST = RESULTS_DIR / "casee_probe_modes_compile_manifest.json"
 
 
 def read_csv(path: Path) -> List[Dict[str, str]]:
@@ -79,6 +81,13 @@ def file_status(path: Optional[Path]) -> Dict[str, object]:
         "size_bytes": p.stat().st_size,
         "mtime": datetime.fromtimestamp(p.stat().st_mtime, timezone.utc).isoformat(),
     }
+
+
+def display_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def run_matrix_status(path: Path) -> Dict[str, bool]:
@@ -473,6 +482,39 @@ def write_report(
             lines.append(
                 f"| {row['solid_corner_neighbors_max']} | {row['n']} | {float(row['mae_pp']):.3f} | {r2} | {pr} |"
             )
+    if SPATIAL_ALIGNMENT_CSV.exists():
+        try:
+            alignment_rows = read_csv(SPATIAL_ALIGNMENT_CSV)
+            identity = next((row for row in alignment_rows if row.get("transform") == "identity"), None)
+            best_pearson = max(alignment_rows, key=lambda row: float(row["pearson"]))
+            best_r2 = max(alignment_rows, key=lambda row: float(row["r2"]))
+            lines += [
+                "",
+                "## Spatial Alignment Diagnostic",
+                "",
+                f"- Evidence: `{display_path(SPATIAL_ALIGNMENT_CSV)}`",
+                f"- Identity Pearson: {float(identity['pearson']):.6f}; R2: {float(identity['r2']):.6f}" if identity else "- Identity transform row unavailable.",
+                f"- Best Pearson transform: `{best_pearson['transform']}` with Pearson {float(best_pearson['pearson']):.6f}",
+                f"- Best R2 transform: `{best_r2['transform']}` with R2 {float(best_r2['r2']):.6f}",
+                "- Interpretation: no tested x/y flip, swap, or 90-degree rotation makes official z=2 m R2 positive.",
+            ]
+        except Exception as exc:
+            lines += ["", "## Spatial Alignment Diagnostic", "", f"- Blocked: {exc}"]
+    if PROBE_MODES_COMPILE_MANIFEST.exists():
+        try:
+            pmodes = json.loads(PROBE_MODES_COMPILE_MANIFEST.read_text(encoding="utf-8"))
+            lines += [
+                "",
+                "## Probe Sampling Modes Runner",
+                "",
+                f"- Status: {pmodes.get('status')}",
+                f"- Evidence type: {pmodes.get('evidence_type')}",
+                f"- Claim readiness: {pmodes.get('claim_readiness')}",
+                f"- Case: `{pmodes.get('case_dir')}`",
+                "- Scope: compile-only diagnostic runner; no probe-mode accuracy metric is claimed until a full FluidX3D run completes.",
+            ]
+        except Exception as exc:
+            lines += ["", "## Probe Sampling Modes Runner", "", f"- Blocked: {exc}"]
     lines += [
         "",
         "## Release Gate",

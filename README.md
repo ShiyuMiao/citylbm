@@ -36,9 +36,11 @@ Current Case E and release-gate materials:
 - `docs/experiments/casee/results/casee_native_metric_comparison.csv`
 - `docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv`
 - `docs/experiments/casee/results/casee_solid_corner_group_metrics.csv`
+- `docs/experiments/casee/results/casee_spatial_alignment_diagnostic.csv`
+- `docs/experiments/casee/results/casee_probe_modes_compile_manifest.json`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc4.md`
+- `docs/releases/v0.4.0-rc5.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -50,6 +52,12 @@ CityLBM includes one experiment-derived default-off solver switch in this branch
 `Diagnostic LBM Nu Override` (`nuLBM`) on the Grasshopper `Run Simulation`
 component. It is for reproducing `nu_lbm` sensitivity diagnostics only; leaving
 it at 0 keeps the standard physical-viscosity mapping.
+
+The native Case E generator also supports a compile-verified probe-mode
+diagnostic runner. It keeps `predicted_velocity_ratio` as the formal
+`raw_trilinear` z=2 m result and adds diagnostic columns for `nearest_valid`,
+`fluid_weighted`, `vertical_valid_above`, and `z_plus_half`. These columns are
+experimental only until a full run is completed and audited.
 
 Run the audit after official data are present:
 

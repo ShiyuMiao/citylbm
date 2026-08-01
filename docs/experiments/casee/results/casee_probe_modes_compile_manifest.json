@@ -1,0 +1,48 @@
+{
+  "generated_at": "2026-08-01T10:59:54.056495+00:00",
+  "status": "passed",
+  "evidence_type": "newly_run",
+  "claim_readiness": "compile_only_no_accuracy_metric",
+  "case_dir": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_nu0p001_pmodes_steps48000_spin12000",
+  "setup": {
+    "found": true,
+    "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_nu0p001_pmodes_steps48000_spin12000/setup.cpp",
+    "sha256": "b3f8b05d90f6c8ee0711c4e0f13aaec201675d16b7d1069613ac9e787cdcf7e1",
+    "size_bytes": 15481,
+    "mtime_utc": "2026-08-01T10:56:07.364861+00:00"
+  },
+  "case_manifest": {
+    "found": true,
+    "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_nu0p001_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
+    "sha256": "a5674278d04d7449bba8ad5b3d2c7ddeeb3558f61e45ac83c5314c2530bc0bb1",
+    "size_bytes": 845,
+    "mtime_utc": "2026-08-01T10:56:08.312897+00:00"
+  },
+  "compile_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_dx2_pmodes_compile.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "mtime_utc": "2026-08-01T10:56:19.335380+00:00"
+  },
+  "fluidx3d_executable": {
+    "found": true,
+    "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
+    "sha256": "ec8f38f4fac96a8c0f72ce8900bfc6ce038565147ad17095a9b878541f333397",
+    "size_bytes": 1062291,
+    "mtime_utc": "2026-08-01T10:57:23.774236+00:00"
+  },
+  "executable_mtime_after_setup": true,
+  "required_setup_markers": {
+    "sample_u_raw_trilinear": true,
+    "sample_u_nearest_valid": true,
+    "sample_u_fluid_weighted": true,
+    "sample_u_vertical_valid_above": true,
+    "z_plus_half_velocity_ratio": true,
+    "nearest_valid_velocity_ratio": true,
+    "fluid_weighted_velocity_ratio": true,
+    "vertical_valid_above_velocity_ratio": true
+  },
+  "blocking_reason": "",
+  "accuracy_boundary": "No probe-mode accuracy metrics are claimed until a full FluidX3D run writes casee_probe_time_mean.csv with diagnostic columns."
+}
