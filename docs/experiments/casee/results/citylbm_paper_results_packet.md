@@ -1,11 +1,11 @@
 # CityLBM Paper Results Packet
 
-Generated: 2026-08-09T11:19:50.406951+00:00
+Generated: 2026-08-09T11:29:25.210672+00:00
 
 ## Verdict
 
 - Packet passed: True
-- Result rows: 14
+- Result rows: 15
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 
@@ -19,6 +19,7 @@ Generated: 2026-08-09T11:19:50.406951+00:00
 - paper_ready_as_screening: 1
 - paper_ready_default_policy_boundary: 1
 - paper_ready_negative_result: 1
+- paper_ready_negative_validation_and_limitations: 1
 - paper_ready_with_boundary: 4
 - paper_ready_workflow_guard: 1
 - ready_for_next_official_followup_run: 1
@@ -29,6 +30,7 @@ Generated: 2026-08-09T11:19:50.406951+00:00
 |---|---|---|---|---|
 | Experiment 1 / AIJ Case A | `casea_smoke_regression_guard` | paper_ready_workflow_guard | status=passed; steps_complete=True; vtk_outputs=2; timestep_2000_vtk=True | Use as workflow non-regression evidence for the CityLBM/FluidX3D chain. |
 | Experiment 2 / AIJ Case E | `casee_software_policy_boundary` | paper_ready_default_policy_boundary | default_policy_gate_passed=True; failure_modes=6; formal_allowed=False | Use to explain which CityLBM settings are formal defaults and which are diagnostic switches. |
+| Experiment 2 / AIJ Case E | `casee_manuscript_section_pack` | paper_ready_negative_validation_and_limitations | section_pack_passed=True; formal_accuracy_claim_supported=False; formal_release_allowed=False | Use as ready-to-edit Methods, Results, Diagnostics, Limitations, Software implications, and Release-boundary prose for the negative-validation Case E result. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_M1` | paper_ready | paper_ready | TUM2TWIN layers are separated into visual reference, semantic/collision geometry and CFD/LBM simulation inputs. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_R1` | paper_ready_as_screening | paper_ready_as_screening | S0 baseline pedestrian layer is dominated by low speed, while the upper layer recovers. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_R2` | paper_ready_with_boundary | paper_ready_with_boundary | Open-Meteo 2024 weighting is a climate-proxy sensitivity layer, not an annual comfort assessment. |
@@ -46,6 +48,7 @@ Generated: 2026-08-09T11:19:50.406951+00:00
 | Experiment 2 / AIJ Case E | `official_z2m_negative_validation` | limitations_ready_negative_validation | Do not claim predictive accuracy, mesh independence, LES improvement, or formal v0.4.0 readiness. | Accuracy-improvement work should target near-wall, wall-model, inlet turbulence, voxelization, and official probe protocol fidelity. |
 | Experiment 2 / AIJ Case E | `casee_software_policy_boundary` | paper_ready_default_policy_boundary | Default-policy evidence does not improve or replace the official z=2 m metric. | Keep raw_trilinear official z=2 m as formal output; keep nuLBM, zOff and non-raw sampling diagnostic-only. |
 | Experiment 2 / AIJ Case E | `next_official_run_readiness` | ready_for_next_official_followup_run | Runtime readiness evidence only; no new solver output is produced. | Recover GPU runtime, Rhino new-GHA loading, and VS C++ build chain before new formal Case E sweeps. |
+| Experiment 2 / AIJ Case E | `casee_manuscript_section_pack` | paper_ready_negative_validation_and_limitations | Generated prose only; it does not add CFD output, improve official z=2 m metrics, or support formal accuracy. | Keep manuscript prose generation downstream of release_gate and manuscript_results_table so claim boundaries stay synchronized. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_M1` | paper_ready | Use within the archived Experiment 3 scope. | Use as design-application workflow evidence, not as Case E accuracy evidence. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_R1` | paper_ready_as_screening | Use within the archived Experiment 3 scope. | Use as design-application workflow evidence, not as Case E accuracy evidence. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_R2` | paper_ready_with_boundary | Screening/application evidence only; field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution remain unsupported. | Use as design-application workflow evidence, not as Case E accuracy evidence. |

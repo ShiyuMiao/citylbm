@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-09T11:19:48.102156+00:00",
+  "generated_at": "2026-08-09T11:29:22.939180+00:00",
   "evidence_type": "newly_run",
   "rhino_loaded_new_gha": false,
   "claim_readiness": "blocked_manual_rhino_load",
   "expected_plugin_public_version": "0.4.0-rc",
-  "expected_tracked_gha_sha256": "caf06402885e2fc29c8624891e61c28665e8ddd0cd72080fc999acd2ecef1263",
+  "expected_tracked_gha_sha256": "21b0a2081c446dfffc1d49df0489825ad7e8cd3c4a936f28f9b22362801fac08",
   "tracked_gha_path": "CityLBM/bin/CityLBM.gha",
   "plugin_identity_gate_path": "docs/experiments/casee/results/plugin_identity_gate.json",
   "manual_manifest_path": "docs/experiments/casee/results/rhino_gha_load_manifest.json",
@@ -36,7 +36,7 @@
     "grasshopper_version": "Grasshopper version string",
     "observed_plugin_version": "0.4.0-rc",
     "observed_assembly_version": "0.4.0.0",
-    "observed_gha_sha256": "caf06402885e2fc29c8624891e61c28665e8ddd0cd72080fc999acd2ecef1263",
+    "observed_gha_sha256": "21b0a2081c446dfffc1d49df0489825ad7e8cd3c4a936f28f9b22362801fac08",
     "evidence_artifacts": [
       "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
       "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc31 - Manuscript section pack
+
+- Added `casee_manuscript_section_pack.py` to generate claim-safe English Methods, Results, Diagnostics, Limitations, Software implications, Release-boundary prose, and a QA manifest from the gated Case E results table.
+- Generated `casee_manuscript_section_pack.json`, `casee_manuscript_section_pack_qa.md`, and `academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md`.
+- Integrated the section pack into the reproducibility suite, artifact index, paper evidence gate, paper appendix generator, cross-experiment paper results packet, and software-feedback matrix as SF014.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc31.md`.
+
+This release candidate improves manuscript prose readiness and claim traceability only. It does not add CFD results, improve official Case E z=2 m metrics, promote diagnostic sampling to formal validation, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc30 - Grasshopper claim-gate output
 
 - Added a `Claim Gate` (`Gate`) output to the Grasshopper `Run Simulation` component.

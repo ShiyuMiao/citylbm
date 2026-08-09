@@ -41,6 +41,9 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_default_policy_gate.md",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.md",
+    "docs/experiments/casee/results/casee_manuscript_section_pack.json",
+    "docs/experiments/casee/results/casee_manuscript_section_pack_qa.md",
+    "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "docs/experiments/casee/results/casee_paper_results_figure.svg",
     "docs/experiments/casee/results/casee_paper_results_figure.png",
     "docs/experiments/casee/results/casee_paper_results_figure_source.csv",
@@ -55,7 +58,7 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc30.md",
+    "docs/releases/v0.4.0-rc31.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -461,6 +464,36 @@ def manuscript_results_table_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def manuscript_section_pack_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "manuscript_section_pack_found": False,
+            "section_pack_passed": False,
+            "claim_readiness": "missing",
+            "formal_accuracy_claim_supported": None,
+            "formal_release_allowed": None,
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    readiness = str(data.get("claim_readiness", ""))
+    checks = data.get("checks") or {}
+    return {
+        "manuscript_section_pack_found": True,
+        "section_pack_passed": data.get("section_pack_passed"),
+        "claim_readiness": readiness,
+        "formal_accuracy_claim_supported": data.get("formal_accuracy_claim_supported"),
+        "formal_release_allowed": data.get("formal_release_allowed"),
+        "recommended_tag": data.get("recommended_tag"),
+        "check_count": len(checks),
+        "claim_boundary_safe": data.get("section_pack_passed") is True
+        and readiness == "paper_ready_negative_validation_and_limitations"
+        and data.get("formal_accuracy_claim_supported") is False
+        and data.get("formal_release_allowed") is False
+        and checks.get("forbidden_success_wording_absent") is True
+        and checks.get("evidence_notes_present") is True,
+    }
+
+
 def paper_results_figure_status(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {
@@ -507,6 +540,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     paper_packet = payload["citylbm_paper_results_packet"]
     manifest_output = payload["citylbm_manifest_output_gate"]
     manuscript_table = payload["casee_manuscript_results_table"]
+    section_pack = payload["casee_manuscript_section_pack"]
     paper_figure = payload["casee_paper_results_figure"]
     software_feedback = payload["citylbm_software_feedback_matrix"]
     lines = [
@@ -617,6 +651,16 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Formal accuracy claim supported: {manuscript_table['formal_accuracy_claim_supported']}",
         f"- Claim boundary safe: {manuscript_table['claim_boundary_safe']}",
         "",
+        "## Manuscript Section Pack",
+        "",
+        f"- Pack found: {section_pack['manuscript_section_pack_found']}",
+        f"- Pack passed: {section_pack['section_pack_passed']}",
+        f"- Checks: {section_pack['check_count']}",
+        f"- Claim readiness: `{section_pack['claim_readiness']}`",
+        f"- Formal release allowed: {section_pack['formal_release_allowed']}",
+        f"- Formal accuracy claim supported: {section_pack['formal_accuracy_claim_supported']}",
+        f"- Claim boundary safe: {section_pack['claim_boundary_safe']}",
+        "",
         "## Paper Results Figure",
         "",
         f"- Figure found: {paper_figure['paper_results_figure_found']}",
@@ -663,6 +707,7 @@ def main() -> int:
     parser.add_argument("--paper-results-packet", type=Path, default=RESULTS_DIR / "citylbm_paper_results_packet.json")
     parser.add_argument("--manifest-output", type=Path, default=RESULTS_DIR / "citylbm_manifest_output_gate.json")
     parser.add_argument("--manuscript-results-table", type=Path, default=RESULTS_DIR / "casee_manuscript_results_table.json")
+    parser.add_argument("--manuscript-section-pack", type=Path, default=RESULTS_DIR / "casee_manuscript_section_pack.json")
     parser.add_argument("--paper-results-figure", type=Path, default=RESULTS_DIR / "casee_paper_results_figure_qa.json")
     parser.add_argument("--software-feedback", type=Path, default=RESULTS_DIR / "citylbm_software_feedback_matrix.json")
     parser.add_argument("--draft-glob", default="casee_v04_*.md")
@@ -683,6 +728,7 @@ def main() -> int:
     paper_packet = paper_results_packet_status(args.paper_results_packet)
     manifest_output = manifest_output_status(args.manifest_output)
     manuscript_table = manuscript_results_table_status(args.manuscript_results_table)
+    section_pack = manuscript_section_pack_status(args.manuscript_section_pack)
     paper_figure = paper_results_figure_status(args.paper_results_figure)
     software_feedback = software_feedback_status(args.software_feedback)
     passed = (
@@ -713,6 +759,8 @@ def main() -> int:
         and manifest_output["claim_boundary_safe"]
         and manuscript_table["manuscript_results_table_found"]
         and manuscript_table["claim_boundary_safe"]
+        and section_pack["manuscript_section_pack_found"]
+        and section_pack["claim_boundary_safe"]
         and paper_figure["paper_results_figure_found"]
         and paper_figure["claim_boundary_safe"]
         and software_feedback["software_feedback_matrix_found"]
@@ -733,6 +781,7 @@ def main() -> int:
         "citylbm_paper_results_packet": paper_packet,
         "citylbm_manifest_output_gate": manifest_output,
         "casee_manuscript_results_table": manuscript_table,
+        "casee_manuscript_section_pack": section_pack,
         "casee_paper_results_figure": paper_figure,
         "citylbm_software_feedback_matrix": software_feedback,
     }

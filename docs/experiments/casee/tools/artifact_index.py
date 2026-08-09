@@ -26,7 +26,8 @@ EXPLICIT_ARTIFACTS = [
     "CHANGELOG.md",
     "CityLBM/README.md",
     "CityLBM/bin/CityLBM.gha",
-    "docs/releases/v0.4.0-rc30.md",
+    "docs/releases/v0.4.0-rc31.md",
+    "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/data_manifest.csv",
@@ -49,6 +50,7 @@ RESULT_PATTERNS = [
     "environment_manifest.json",
     "release_gate.json",
     "casee_manuscript_results_table.*",
+    "casee_manuscript_section_pack.*",
     "casee_paper_results_figure.*",
     "citylbm_paper_results_packet.*",
     "citylbm_manifest_output_gate.*",
@@ -89,6 +91,7 @@ TOOL_SCRIPTS = [
     "casee_failure_mode_atlas.py",
     "casee_default_policy_gate.py",
     "casee_manuscript_results_table.py",
+    "casee_manuscript_section_pack.py",
     "casee_paper_results_figure.py",
     "citylbm_paper_results_packet.py",
     "citylbm_manifest_output_gate.py",
@@ -254,6 +257,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "paper_ready_default_policy_boundary"
     if "casee_manuscript_results_table" in path:
         return "paper_ready_manuscript_results_table"
+    if "casee_manuscript_section_pack" in path:
+        return "paper_ready_section_pack_negative_validation"
     if "casee_paper_results_figure" in path:
         return "paper_ready_figure_negative_validation"
     if "citylbm_paper_results_packet" in path:
@@ -298,6 +303,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to distinguish formal defaults from diagnostic-only software switches."
     if readiness == "paper_ready_manuscript_results_table":
         return "Use as the manuscript-facing Case E result table with formal and diagnostic boundaries."
+    if readiness == "paper_ready_section_pack_negative_validation":
+        return "Use as paper-ready Results/Discussion/Limitations prose for negative validation only."
     if readiness == "paper_ready_figure_negative_validation":
         return "Use as a paper figure for negative validation and limitations only."
     if readiness == "paper_ready_cross_experiment_results_packet":
@@ -346,6 +353,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Default-policy boundary only; does not improve or replace official z=2 m metrics."
     if readiness == "paper_ready_manuscript_results_table":
         return "Manuscript result formatting only; formal official row remains negative validation and diagnostic rows remain limitations-only."
+    if readiness == "paper_ready_section_pack_negative_validation":
+        return "Generated prose only; does not add CFD output or support a formal accuracy claim."
     if readiness == "paper_ready_figure_negative_validation":
         return "Figure formatting only; diagnostic rows cannot be reported as formal validation."
     if readiness == "paper_ready_cross_experiment_results_packet":
@@ -457,6 +466,9 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_manuscript_results_table.json",
                 "casee_manuscript_results_table.md",
                 "casee_manuscript_results_table.csv",
+                "casee_manuscript_section_pack.json",
+                "casee_manuscript_section_pack_qa.md",
+                "casee_v04_manuscript_section_pack_en.md",
                 "casee_paper_results_figure.svg",
                 "casee_paper_results_figure.png",
                 "casee_paper_results_figure_source.csv",
@@ -483,7 +495,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_manuscript_claim_matrix.csv",
                 "casee_zcenter_probe_mode_metrics.csv",
                 "casee_zcenter_voxel_probe_audit_groups.csv",
-                "v0.4.0-rc30.md",
+                "v0.4.0-rc31.md",
             )
         )
     ]

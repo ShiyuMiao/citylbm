@@ -1,12 +1,13 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T11:19:50.406951+00:00",
-    "result_count": 14,
+    "generated_at": "2026-08-09T11:29:25.210672+00:00",
+    "result_count": 15,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
       "limitations_ready_negative_validation": 1,
       "paper_ready_default_policy_boundary": 1,
       "ready_for_next_official_followup_run": 1,
+      "paper_ready_negative_validation_and_limitations": 1,
       "paper_ready": 1,
       "paper_ready_as_screening": 1,
       "paper_ready_with_boundary": 4,
@@ -16,7 +17,7 @@
       "blocked_formal_release_gate": 1
     },
     "evidence_type_counts": {
-      "newly_run": 8,
+      "newly_run": 9,
       "newly_run + preexisting_artifact": 3,
       "blocked": 1,
       "newly_run + preexisting_artifact + blocked": 2
@@ -70,6 +71,17 @@
       "paper_use": "Use to document why the next long official validation run is not yet schedulable on this machine.",
       "limitations": "Runtime readiness evidence only; no new solver output is produced.",
       "software_feedback": "Recover GPU runtime, Rhino new-GHA loading, and VS C++ build chain before new formal Case E sweeps."
+    },
+    {
+      "experiment": "Experiment 2 / AIJ Case E",
+      "result_id": "casee_manuscript_section_pack",
+      "claim_readiness": "paper_ready_negative_validation_and_limitations",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_manuscript_section_pack.json; docs/experiments/casee/results/casee_manuscript_section_pack_qa.md; academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
+      "metric_or_status": "section_pack_passed=True; formal_accuracy_claim_supported=False; formal_release_allowed=False",
+      "paper_use": "Use as ready-to-edit Methods, Results, Diagnostics, Limitations, Software implications, and Release-boundary prose for the negative-validation Case E result.",
+      "limitations": "Generated prose only; it does not add CFD output, improve official z=2 m metrics, or support formal accuracy.",
+      "software_feedback": "Keep manuscript prose generation downstream of release_gate and manuscript_results_table so claim boundaries stay synchronized."
     },
     {
       "experiment": "Experiment 3 / TUM2TWIN digital-twin application",
@@ -176,7 +188,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc30",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc31",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."
@@ -188,7 +200,9 @@
     "docs/experiments/casee/results/casee_default_policy_gate.json",
     "docs/experiments/casee/results/casee_failure_mode_atlas.json",
     "docs/experiments/casee/results/casee_official_run_preflight.json",
+    "docs/experiments/casee/results/casee_manuscript_section_pack.json",
     "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv",
+    "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/experiment3_publication_readiness_checklist.md",
     "releases/v0.2.0/package/validation_experiments/Experiment3_TUM2TWIN_DigitalTwin_DesignApplication"
   ]

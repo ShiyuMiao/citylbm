@@ -92,6 +92,7 @@ def build_rows() -> List[Dict[str, str]]:
     default_policy = read_json(CASEE_RESULTS / "casee_default_policy_gate.json")
     failure_atlas = read_json(CASEE_RESULTS / "casee_failure_mode_atlas.json")
     preflight = read_json(CASEE_RESULTS / "casee_official_run_preflight.json")
+    section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -175,6 +176,28 @@ def build_rows() -> List[Dict[str, str]]:
             paper_use="Use to document why the next long official validation run is not yet schedulable on this machine.",
             limitations="Runtime readiness evidence only; no new solver output is produced.",
             software_feedback="Recover GPU runtime, Rhino new-GHA loading, and VS C++ build chain before new formal Case E sweeps.",
+        )
+    )
+
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="casee_manuscript_section_pack",
+            claim_readiness=str(section_pack.get("claim_readiness", "blocked_manuscript_section_pack")),
+            evidence_type=str(section_pack.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_manuscript_section_pack.json"),
+                rel(CASEE_RESULTS / "casee_manuscript_section_pack_qa.md"),
+                rel(PAPER_DRAFTS / "casee_v04_manuscript_section_pack_en.md"),
+            ],
+            metric_or_status=(
+                f"section_pack_passed={section_pack.get('section_pack_passed')}; "
+                f"formal_accuracy_claim_supported={section_pack.get('formal_accuracy_claim_supported')}; "
+                f"formal_release_allowed={section_pack.get('formal_release_allowed')}"
+            ),
+            paper_use="Use as ready-to-edit Methods, Results, Diagnostics, Limitations, Software implications, and Release-boundary prose for the negative-validation Case E result.",
+            limitations="Generated prose only; it does not add CFD output, improve official z=2 m metrics, or support formal accuracy.",
+            software_feedback="Keep manuscript prose generation downstream of release_gate and manuscript_results_table so claim boundaries stay synchronized.",
         )
     )
 
@@ -362,7 +385,9 @@ def main() -> int:
             rel(CASEE_RESULTS / "casee_default_policy_gate.json"),
             rel(CASEE_RESULTS / "casee_failure_mode_atlas.json"),
             rel(CASEE_RESULTS / "casee_official_run_preflight.json"),
+            rel(CASEE_RESULTS / "casee_manuscript_section_pack.json"),
             rel(PAPER_DRAFTS / "experiment3_claim_verification.csv"),
+            rel(PAPER_DRAFTS / "casee_v04_manuscript_section_pack_en.md"),
             rel(PAPER_DRAFTS / "experiment3_publication_readiness_checklist.md"),
             rel(EXP3_ROOT),
         ],

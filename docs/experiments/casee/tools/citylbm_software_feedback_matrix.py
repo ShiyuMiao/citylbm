@@ -117,6 +117,7 @@ def build_rows() -> List[Dict[str, Any]]:
     paper_packet = read_json(RESULTS_DIR / "citylbm_paper_results_packet.json")
     manifest_output = read_json(RESULTS_DIR / "citylbm_manifest_output_gate.json")
     manuscript_table = read_json(RESULTS_DIR / "casee_manuscript_results_table.json")
+    section_pack = read_json(RESULTS_DIR / "casee_manuscript_section_pack.json")
     paper_figure = read_json(RESULTS_DIR / "casee_paper_results_figure_qa.json")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -426,6 +427,31 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    rows.append(
+        row(
+            feedback_id="SF014",
+            experiment="Experiment 2 / AIJ Case E manuscript prose layer",
+            finding="The generated section pack converts gated Case E rows into Methods, Results, Diagnostics, Limitations, Software implications, and Release-boundary prose with explicit evidence notes.",
+            evidence_type="newly_run",
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_manuscript_section_pack.py",
+                RESULTS_DIR / "casee_manuscript_section_pack.json",
+                RESULTS_DIR / "casee_manuscript_section_pack_qa.md",
+                PAPER_DRAFTS / "casee_v04_manuscript_section_pack_en.md",
+            ],
+            decision_class="paper_traceability_output",
+            citylbm_status="implemented"
+            if section_pack.get("section_pack_passed") is True
+            and section_pack.get("formal_accuracy_claim_supported") is False
+            and section_pack.get("formal_release_allowed") is False
+            else "blocked",
+            implementation_evidence="casee_manuscript_section_pack.py emits a claim-safe English manuscript section pack and QA manifest from the gated results table and release gate.",
+            default_setting_allowed=True,
+            paper_use="Use as ready-to-edit manuscript prose for negative validation, diagnostic interpretation, limitations, and release-boundary text.",
+            limitations="Generated prose does not add CFD output, improve official z=2 m metrics, or support a formal predictive-accuracy claim.",
+        )
+    )
+
     return rows
 
 
@@ -444,7 +470,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -538,8 +564,10 @@ def main() -> int:
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
             rel(RESULTS_DIR / "casee_manuscript_results_table.json"),
+            rel(RESULTS_DIR / "casee_manuscript_section_pack.json"),
             rel(RESULTS_DIR / "casee_paper_results_figure_qa.json"),
             rel(PAPER_DRAFTS / "experiment3_claim_verification.csv"),
+            rel(PAPER_DRAFTS / "casee_v04_manuscript_section_pack_en.md"),
             rel(FLUIDX),
             rel(RUN_COMPONENT),
         ],

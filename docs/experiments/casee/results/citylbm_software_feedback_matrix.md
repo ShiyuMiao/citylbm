@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-09T11:19:52.720621+00:00
+Generated: 2026-08-09T11:29:27.595184+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 13
+- Feedback rows: 14
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -21,7 +21,7 @@ Generated: 2026-08-09T11:19:52.720621+00:00
 - formal_protocol_default: 1
 - paper_figure_output: 1
 - paper_interpretation_layer: 1
-- paper_traceability_output: 1
+- paper_traceability_output: 2
 - software_traceability_output: 3
 
 ## Feedback Rows
@@ -41,6 +41,7 @@ Generated: 2026-08-09T11:19:52.720621+00:00
 | `SF011` | Experiment 2 / AIJ Case E paper-figure layer | paper_figure_output | implemented | True | The manuscript result table is exported as an editable SVG/PNG/source-CSV figure bundle with QA checks. |
 | `SF012` | Experiment 2 / AIJ Case E manifest gate contract | software_traceability_output | implemented | True | Generated run manifests now encode the formal v0.4.0 accuracy-gate contract and keep manifest-only accuracy claims blocked. |
 | `SF013` | Experiment 2 / AIJ Case E Grasshopper claim boundary | software_traceability_output | implemented | True | Run Simulation now exposes a Claim Gate output so users can see the formal accuracy boundary beside run status and manifest path. |
+| `SF014` | Experiment 2 / AIJ Case E manuscript prose layer | paper_traceability_output | implemented | True | The generated section pack converts gated Case E rows into Methods, Results, Diagnostics, Limitations, Software implications, and Release-boundary prose with explicit evidence notes. |
 
 ## Paper Boundary
 
@@ -59,6 +60,7 @@ Generated: 2026-08-09T11:19:52.720621+00:00
 | `SF011` | Use as a paper figure for negative validation and limitations only. | Figure output does not add CFD results, improve official z=2 m metrics, or justify formal accuracy claims. |
 | `SF012` | Use as software traceability evidence that each generated case records the formal release-gate contract. | Manifest-gate metadata does not add solver output, improve official z=2 m metrics, or permit formal v0.4.0. |
 | `SF013` | Use as software misuse-prevention evidence: successful execution is separated from formal benchmark accuracy. | UI claim-boundary text does not add solver output, improve official z=2 m metrics, or prove Rhino loaded the new GHA. |
+| `SF014` | Use as ready-to-edit manuscript prose for negative validation, diagnostic interpretation, limitations, and release-boundary text. | Generated prose does not add CFD output, improve official z=2 m metrics, or support a formal predictive-accuracy claim. |
 
 ## Boundary
 

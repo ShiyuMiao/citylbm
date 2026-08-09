@@ -41,6 +41,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
 - `docs/experiments/casee/tools/casee_manuscript_results_table.py`
+- `docs/experiments/casee/tools/casee_manuscript_section_pack.py`
 - `docs/experiments/casee/tools/casee_paper_results_figure.py`
 - `docs/experiments/casee/tools/citylbm_paper_results_packet.py`
 - `docs/experiments/casee/tools/citylbm_manifest_output_gate.py`
@@ -82,6 +83,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_manuscript_results_table.json`
 - `docs/experiments/casee/results/casee_manuscript_results_table.md`
 - `docs/experiments/casee/results/casee_manuscript_results_table.csv`
+- `docs/experiments/casee/results/casee_manuscript_section_pack.json`
+- `docs/experiments/casee/results/casee_manuscript_section_pack_qa.md`
+- `academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md`
 - `docs/experiments/casee/results/casee_paper_results_figure.svg`
 - `docs/experiments/casee/results/casee_paper_results_figure.png`
 - `docs/experiments/casee/results/casee_paper_results_figure_source.csv`
@@ -100,7 +104,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc30.md`
+- `docs/releases/v0.4.0-rc31.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -232,6 +236,11 @@ source CSV, and QA manifest. It is suitable for a negative-validation and
 limitations figure only; diagnostic bars and risk-group results are not formal
 official z=2 m validation evidence.
 
+The manuscript section pack turns the gated Case E result rows into SCI-ready
+English Methods, Results, Diagnostics, Limitations, Software implications, and
+Release-boundary prose with explicit evidence notes. It is a negative-validation
+and limitations writing aid only; it does not change the official z=2 m metric.
+
 Run the audit after official data are present:
 
 ```powershell
@@ -243,6 +252,7 @@ python docs/experiments/casee/tools/casee_environment_recovery_runbook.py
 python docs/experiments/casee/tools/casee_failure_mode_atlas.py
 python docs/experiments/casee/tools/casee_default_policy_gate.py
 python docs/experiments/casee/tools/casee_manuscript_results_table.py
+python docs/experiments/casee/tools/casee_manuscript_section_pack.py
 python docs/experiments/casee/tools/casee_paper_results_figure.py
 python docs/experiments/casee/tools/citylbm_paper_results_packet.py
 python docs/experiments/casee/tools/citylbm_manifest_output_gate.py
