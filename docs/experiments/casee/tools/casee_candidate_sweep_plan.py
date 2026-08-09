@@ -483,7 +483,7 @@ def build_candidates(
             forbidden_claim=common_forbidden,
         ),
         candidate(
-            candidate_id="C008_C012_full_plane_inlet_turbulence_sweep",
+            candidate_id="C008_C015_full_plane_inlet_turbulence_sgs_sweep",
             priority=8,
             candidate_class="requires_implementation",
             executable_now=executable_native,
@@ -501,16 +501,16 @@ def build_candidates(
                 "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 "
                 "--sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 "
                 "--domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane "
-                "--inlet-turbulence-scale 2.00"
+                "--inlet-turbulence-scale 2.50 --no-subgrid"
             ),
             expected_artifacts=[
                 "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
                 "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md",
-                "docs/experiments/casee/results/casee_c012_inlet_k_synthetic_s2p0_<stamp>_probe_time_mean.csv",
+                "docs/experiments/casee/results/casee_c015_inlet_k_synthetic_s2p5_nosgs_<stamp>_probe_time_mean.csv",
             ],
             rationale=(
-                "Completed: C008-C012 AF-k synthetic full-plane inlet candidates substantially improved official-height MAE/R2/Pearson, "
-                "but R2 remains negative, C012 did not improve beyond C011, and the scale sweep is diagnostic-only. "
+                "Completed: C008-C015 AF-k synthetic full-plane inlet and SGS ablation candidates substantially improved official-height MAE/R2/Pearson, "
+                "but R2 remains negative. C014 no-SGS scale 2.00 is the best diagnostic candidate and C015 scale 2.50 rolls back, so the sweep is diagnostic-only. "
                 f"status={c008_audit.get('status')}; best_R2={((c008_audit.get('best_candidate') or {}).get('candidate_metrics') or {}).get('r2')}; "
                 f"best_MAE={((c008_audit.get('best_candidate') or {}).get('candidate_metrics') or {}).get('mae_pp')}."
                 if c008_completed

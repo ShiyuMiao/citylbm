@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-09T15:41:17.639451+00:00
+Generated: 2026-08-09T16:05:40.989583+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc45`
+- Recommended tag: `v0.4.0-rc46`
 
 ## Official z=2 m Metric
 
@@ -33,8 +33,8 @@ Generated: 2026-08-09T15:41:17.639451+00:00
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 262
-- Lightweight release assets: 199
+- Artifact count: 275
+- Lightweight release assets: 203
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 

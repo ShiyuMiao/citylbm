@@ -281,7 +281,7 @@ def build_claims(
                 "claim_readiness": "limitations_ready",
                 "evidence_type": c008_c009_inlet.get("evidence_type", "newly_run"),
                 "section": "Results / Inlet turbulence follow-up",
-                "claim": "The C008-C012 AF_caseE-k default-off synthetic full-plane inlet sweep substantially improved the official-height raw-trilinear metric, but R2 remained negative and C012 did not improve beyond C011.",
+                "claim": "The C008-C015 AF_caseE-k default-off synthetic full-plane inlet and no-SGS sweep substantially improved the official-height raw-trilinear metric, but R2 remained negative; C014 was best and C015 rolled back.",
                 "supporting_metrics": (
                     f"status={c008_c009_inlet.get('status')}; best={best.get('candidate_id')}; "
                     f"MAE={fmt(candidate['mae_pp'])} pp; R2={fmt(candidate['r2'], 6)}; Pearson={fmt(candidate['pearson'], 6)}; "
@@ -289,7 +289,7 @@ def build_claims(
                 ),
                 "source_paths": "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md",
                 "allowed_use": "Use as the strongest current diagnostic improvement evidence and as motivation for a physically validated inlet-turbulence model.",
-                "forbidden_use": "Do not claim formal predictive accuracy, LES improvement, or default promotion from the synthetic inlet scale sweep.",
+                "forbidden_use": "Do not claim formal predictive accuracy, LES improvement, mesh independence, or default promotion from the synthetic inlet/SGS sweep.",
                 "protocol_risks": "single benchmark; diagnostic turbulence scale sweep; R2 remains negative; domain decomposition sensitivity remains present",
             }
         )

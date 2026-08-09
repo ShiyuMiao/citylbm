@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit C008-C012 AF-k synthetic full-plane inlet turbulence candidates."""
+"""Audit C008-C015 AF-k synthetic full-plane inlet turbulence candidates."""
 
 from __future__ import annotations
 
@@ -112,7 +112,7 @@ def log_completed(path: Path, steps: int = 48000) -> bool:
     return re.search(rf"CaseE step\s+{steps}\s*/\s*{steps}", text) is not None
 
 
-def manifest_ok(path: Path, scale: float) -> bool:
+def manifest_ok(path: Path, scale: float, subgrid_enabled: bool = True) -> bool:
     if not path.exists():
         return False
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -125,10 +125,11 @@ def manifest_ok(path: Path, scale: float) -> bool:
         and data.get("inlet_turbulence_mode") == "k_synthetic_fullplane"
         and abs(float(data.get("inlet_turbulence_scale")) - scale) < 1e-12
         and data.get("inlet_turbulence_uses_af_k") is True
+        and data.get("subgrid_enabled") is subgrid_enabled
     )
 
 
-def candidate_row(candidate_id: str, scale: float, csv_path: Path, run_log: Path, compile_log: Path, compile_err: Path, manifest: Path) -> Dict[str, Any]:
+def candidate_row(candidate_id: str, scale: float, csv_path: Path, run_log: Path, compile_log: Path, compile_err: Path, manifest: Path, subgrid_enabled: bool = True) -> Dict[str, Any]:
     candidate_metrics = metrics(csv_path) if csv_path.exists() else {}
     baseline_metrics = metrics(ZCENTER_BASELINE_CSV)
     c005_metrics = metrics(C005_CSV)
@@ -141,7 +142,8 @@ def candidate_row(candidate_id: str, scale: float, csv_path: Path, run_log: Path
         "compile_err_log": file_status(compile_err),
         "case_manifest": file_status(manifest),
         "log_completed_48000": log_completed(run_log),
-        "manifest_protocol_ok": manifest_ok(manifest, scale),
+        "manifest_protocol_ok": manifest_ok(manifest, scale, subgrid_enabled),
+        "subgrid_enabled": subgrid_enabled,
         "candidate_metrics": candidate_metrics,
         "delta_vs_zcenter_baseline": delta(candidate_metrics, baseline_metrics) if candidate_metrics else {},
         "delta_vs_c005_decomposition": delta(candidate_metrics, c005_metrics) if candidate_metrics else {},
@@ -152,6 +154,7 @@ def write_csv(path: Path, rows: Iterable[Dict[str, Any]]) -> None:
     fieldnames = [
         "candidate_id",
         "scale",
+        "subgrid_enabled",
         "log_completed_48000",
         "manifest_protocol_ok",
         "mae_pp",
@@ -177,6 +180,7 @@ def write_csv(path: Path, rows: Iterable[Dict[str, Any]]) -> None:
                 {
                     "candidate_id": row["candidate_id"],
                     "scale": row["scale"],
+                    "subgrid_enabled": row.get("subgrid_enabled"),
                     "log_completed_48000": row["log_completed_48000"],
                     "manifest_protocol_ok": row["manifest_protocol_ok"],
                     "mae_pp": m.get("mae_pp"),
@@ -200,7 +204,7 @@ def write_md(path: Path, payload: Dict[str, Any]) -> None:
     dz = best.get("delta_vs_zcenter_baseline", {})
     dc = best.get("delta_vs_c005_decomposition", {})
     lines = [
-        "# C008-C012 Inlet Turbulence Sweep Audit",
+        "# C008-C015 Inlet Turbulence and SGS Sweep Audit",
         "",
         f"Generated: {payload['generated_at']}",
         "",
@@ -239,11 +243,17 @@ def main() -> int:
     c010_csv = latest("casee_c010_inlet_k_synthetic_s1p0_*_probe_time_mean.csv")
     c011_csv = latest("casee_c011_inlet_k_synthetic_s1p5_*_probe_time_mean.csv")
     c012_csv = latest("casee_c012_inlet_k_synthetic_s2p0_*_probe_time_mean.csv")
+    c013_csv = latest("casee_c013_inlet_k_synthetic_s1p5_nosgs_*_probe_time_mean.csv")
+    c014_csv = latest("casee_c014_inlet_k_synthetic_s2p0_nosgs_*_probe_time_mean.csv")
+    c015_csv = latest("casee_c015_inlet_k_synthetic_s2p5_nosgs_*_probe_time_mean.csv")
     c008_run = latest("fluidx3d_c008_inlet_k_synthetic_run_*.log")
     c009_run = latest("fluidx3d_c009_inlet_k_synthetic_s0p7_run_*.log")
     c010_run = latest("fluidx3d_c010_inlet_k_synthetic_s1p0_run_*.log")
     c011_run = latest("fluidx3d_c011_inlet_k_synthetic_s1p5_run_*.log")
     c012_run = latest("fluidx3d_c012_inlet_k_synthetic_s2p0_run_*.log")
+    c013_run = latest("fluidx3d_c013_inlet_k_synthetic_s1p5_nosgs_run_*.log")
+    c014_run = latest("fluidx3d_c014_inlet_k_synthetic_s2p0_nosgs_run_*.log")
+    c015_run = latest("fluidx3d_c015_inlet_k_synthetic_s2p5_nosgs_run_*.log")
     c008 = candidate_row(
         "C008_inlet_k_synthetic_fullplane_s0p35",
         0.35,
@@ -289,7 +299,37 @@ def main() -> int:
         RESULTS_DIR / "fluidx3d_c012_inlet_k_synthetic_s2p0_compile.err.log",
         NATIVE_DIR / "casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s2_pmodes_steps48000_spin12000" / "citylbm_native_case_manifest.json",
     )
-    candidates = [c008, c009, c010, c011, c012]
+    c013 = candidate_row(
+        "C013_inlet_k_synthetic_fullplane_s1p50_no_sgs",
+        1.50,
+        c013_csv,
+        c013_run,
+        RESULTS_DIR / "fluidx3d_c013_inlet_k_synthetic_s1p5_nosgs_compile.log",
+        RESULTS_DIR / "fluidx3d_c013_inlet_k_synthetic_s1p5_nosgs_compile.err.log",
+        NATIVE_DIR / "casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s1p5_pmodes_steps48000_spin12000" / "citylbm_native_case_manifest.json",
+        subgrid_enabled=False,
+    )
+    c014 = candidate_row(
+        "C014_inlet_k_synthetic_fullplane_s2p00_no_sgs",
+        2.00,
+        c014_csv,
+        c014_run,
+        RESULTS_DIR / "fluidx3d_c014_inlet_k_synthetic_s2p0_nosgs_compile.log",
+        RESULTS_DIR / "fluidx3d_c014_inlet_k_synthetic_s2p0_nosgs_compile.err.log",
+        NATIVE_DIR / "casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s2_pmodes_steps48000_spin12000" / "citylbm_native_case_manifest.json",
+        subgrid_enabled=False,
+    )
+    c015 = candidate_row(
+        "C015_inlet_k_synthetic_fullplane_s2p50_no_sgs",
+        2.50,
+        c015_csv,
+        c015_run,
+        RESULTS_DIR / "fluidx3d_c015_inlet_k_synthetic_s2p5_nosgs_compile.log",
+        RESULTS_DIR / "fluidx3d_c015_inlet_k_synthetic_s2p5_nosgs_compile.err.log",
+        NATIVE_DIR / "casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s2p5_pmodes_steps48000_spin12000" / "citylbm_native_case_manifest.json",
+        subgrid_enabled=False,
+    )
+    candidates = [c008, c009, c010, c011, c012, c013, c014, c015]
     best = min(candidates, key=lambda row: row["candidate_metrics"].get("rmse_pp", float("inf")))
     bm = best["candidate_metrics"]
     all_protocol_ok = all(row["log_completed_48000"] and row["manifest_protocol_ok"] for row in candidates)
@@ -301,7 +341,7 @@ def main() -> int:
     metric_gate = bm.get("mae_pp", 999.0) < 15.0 and bm.get("r2", -999.0) > 0.0 and bm.get("pearson", -999.0) > 0.0
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "audit_id": "casee_c008_c012_inlet_turbulence_sweep_audit",
+        "audit_id": "casee_c008_c015_inlet_turbulence_sgs_sweep_audit",
         "status": "completed_inlet_turbulence_improved_but_negative_r2" if all_protocol_ok and improved_vs_zcenter and not metric_gate else "blocked_or_inconclusive",
         "evidence_type": "newly_run",
         "claim_readiness": "limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release",
@@ -315,9 +355,9 @@ def main() -> int:
         "candidates": candidates,
         "best_candidate": best,
         "boundary": (
-            "C008-C012 are completed official-height raw_trilinear candidate runs using a default-off synthetic full-plane inlet based on AF_caseE k. "
-            "They improve MAE, R2, and Pearson relative to the z-center baseline, but R2 remains negative and the scale sweep shows a plateau/rollback beyond C011. "
-            "The turbulence scale is a diagnostic sweep parameter. "
+            "C008-C015 are completed official-height raw_trilinear candidate runs using a default-off synthetic full-plane inlet based on AF_caseE k. "
+            "C013-C015 add a no-SGS ablation; C014 is the strongest current diagnostic candidate, but R2 remains negative. "
+            "The turbulence scale and no-SGS setting are diagnostic sweep parameters. "
             "Use as inlet-turbulence evidence and software-feedback guidance only; do not claim formal v0.4.0, predictive accuracy, mesh independence, or LES improvement."
         ),
     }

@@ -1,11 +1,11 @@
 # Case E Remaining Blockers And Remediation Plan
 
-Generated: 2026-08-09T15:41:16.320783+00:00
+Generated: 2026-08-09T16:05:39.605164+00:00
 
 ## Verdict
 
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc45`
+- Recommended tag: `v0.4.0-rc46`
 - Official z=2 m MAE: 21.111408125 pp
 - Official z=2 m R2: -2.006330362229977
 - Official z=2 m Pearson: 0.11575649438573923
@@ -48,7 +48,7 @@ Generated: 2026-08-09T15:41:16.320783+00:00
 
 ### B004_vs_cpp_build_tools
 
-- Current evidence: VS C++ status=blocked; C: free=6.897 GB
+- Current evidence: VS C++ status=blocked; C: free=6.875 GB
 - Required action: Free enough space on C: or redirect installer cache, approve UAC, and install Visual Studio Build Tools 2022 C++ workload.
 - Verification: `"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`
 - Paper use: Use as build-chain limitation until ready.

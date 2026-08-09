@@ -1,6 +1,6 @@
-# C008-C012 Inlet Turbulence Sweep Audit
+# C008-C015 Inlet Turbulence and SGS Sweep Audit
 
-Generated: 2026-08-09T15:41:11.238800+00:00
+Generated: 2026-08-09T16:05:34.977788+00:00
 
 ## Verdict
 
@@ -8,22 +8,22 @@ Generated: 2026-08-09T15:41:11.238800+00:00
 - Evidence type: `newly_run`
 - Claim readiness: `limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release`
 - Formal release allowed: False
-- Best candidate: `C011_inlet_k_synthetic_fullplane_s1p50`
+- Best candidate: `C014_inlet_k_synthetic_fullplane_s2p00_no_sgs`
 
 ## Best Official z=2 m Raw Metric
 
-- MAE: 14.3750643375 pp
-- RMSE: 18.41596115408416 pp
-- Bias: -4.6872345375 pp
-- R2: -0.32680378704255153
-- Pearson: 0.2856641275815884
-- Delta MAE vs z-center baseline: -6.73634375 pp
-- Delta R2 vs z-center baseline: 1.679526670176449
-- Delta Pearson vs z-center baseline: 0.16990764609679754
-- Delta MAE vs C005: -5.351208612499999 pp
-- Delta R2 vs C005: 1.281271353151709
-- Delta Pearson vs C005: 0.18634883204252256
+- MAE: 13.7856467875 pp
+- RMSE: 17.730306046944502 pp
+- Bias: -3.5140317875 pp
+- R2: -0.22984501828340775
+- Pearson: 0.31496559664177526
+- Delta MAE vs z-center baseline: -7.3257613 pp
+- Delta R2 vs z-center baseline: 1.7764854389355929
+- Delta Pearson vs z-center baseline: 0.19920911515698442
+- Delta MAE vs C005: -5.940626162499999 pp
+- Delta R2 vs C005: 1.3782301219108528
+- Delta Pearson vs C005: 0.21565030110270944
 
 ## Boundary
 
-C008-C012 are completed official-height raw_trilinear candidate runs using a default-off synthetic full-plane inlet based on AF_caseE k. They improve MAE, R2, and Pearson relative to the z-center baseline, but R2 remains negative and the scale sweep shows a plateau/rollback beyond C011. The turbulence scale is a diagnostic sweep parameter. Use as inlet-turbulence evidence and software-feedback guidance only; do not claim formal v0.4.0, predictive accuracy, mesh independence, or LES improvement.
+C008-C015 are completed official-height raw_trilinear candidate runs using a default-off synthetic full-plane inlet based on AF_caseE k. C013-C015 add a no-SGS ablation; C014 is the strongest current diagnostic candidate, but R2 remains negative. The turbulence scale and no-SGS setting are diagnostic sweep parameters. Use as inlet-turbulence evidence and software-feedback guidance only; do not claim formal v0.4.0, predictive accuracy, mesh independence, or LES improvement.

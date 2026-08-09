@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T15:41:07.958556+00:00",
+  "generated_at": "2026-08-09T16:05:31.769876+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_official_followup_preflight",
   "official_followup_run_allowed": false,
@@ -197,12 +197,12 @@
     "disk": [
       {
         "drive": "C:\\",
-        "free_gb": 6.897,
+        "free_gb": 6.875,
         "total_gb": 194.47
       },
       {
         "drive": "D:\\",
-        "free_gb": 229.3,
+        "free_gb": 229.297,
         "total_gb": 281.627
       },
       {

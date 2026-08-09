@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T15:41:14.751462+00:00",
+    "generated_at": "2026-08-09T16:05:38.272319+00:00",
     "feedback_count": 25,
     "decision_class_counts": {
       "default_quality_gate": 1,
@@ -374,17 +374,17 @@
     },
     {
       "feedback_id": "SF025",
-      "experiment": "Experiment 2 / AIJ Case E C008-C012 inlet turbulence",
-      "finding": "The C008-C012 AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, with best MAE=14.3750643375 pp, R2=-0.32680378704255153, and Pearson=0.2856641275815884, but R2 remained negative.",
+      "experiment": "Experiment 2 / AIJ Case E C008-C015 inlet turbulence and SGS ablation",
+      "finding": "The C008-C015 AF-k synthetic full-plane inlet and no-SGS ablation candidates produced the largest official-height improvement so far, with best MAE=13.7856467875 pp, R2=-0.22984501828340775, and Pearson=0.31496559664177526, but R2 remained negative.",
       "evidence_type": "newly_run",
-      "source_paths": "docs/experiments/casee/tools/generate_native_casee.py; docs/experiments/casee/tools/casee_c008_c009_inlet_turbulence_audit.py; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md; docs/experiments/casee/results/casee_c011_inlet_k_synthetic_s1p5_20260809_230150_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c011_inlet_k_synthetic_s1p5_run_20260809_230150.log",
+      "source_paths": "docs/experiments/casee/tools/generate_native_casee.py; docs/experiments/casee/tools/casee_c008_c009_inlet_turbulence_audit.py; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md; docs/experiments/casee/results/casee_c014_inlet_k_synthetic_s2p0_nosgs_20260809_235100_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c014_inlet_k_synthetic_s2p0_nosgs_run_20260809_235100.log",
       "source_paths_exist": true,
       "decision_class": "inlet_turbulence_diagnostic_no_default_promotion",
       "citylbm_status": "inlet_turbulence_candidate_improved_but_blocked",
-      "implementation_evidence": "pass_condition_met=True; metric_gate_passed=False; delta_mae_vs_zcenter=-6.73634375; delta_r2_vs_zcenter=1.679526670176449; delta_pearson_vs_zcenter=0.16990764609679754; citylbm_default_off_controls=inletT/inletS",
+      "implementation_evidence": "pass_condition_met=True; metric_gate_passed=False; delta_mae_vs_zcenter=-7.3257613; delta_r2_vs_zcenter=1.7764854389355929; delta_pearson_vs_zcenter=0.19920911515698442; citylbm_default_off_controls=inletT/inletS",
       "default_setting_allowed": false,
-      "paper_use": "Use as evidence that AF k and full-plane inlet turbulence are the strongest current improvement direction.",
-      "limitations": "Diagnostic scale sweep on one benchmark; C012 shows plateau/rollback beyond C011, R2 remains negative, and the result cannot support formal v0.4.0, LES improvement, or a default accuracy model."
+      "paper_use": "Use as evidence that AF k, full-plane inlet turbulence, and SGS treatment are the strongest current improvement directions.",
+      "limitations": "Diagnostic sweep on one benchmark; C014 no-SGS scale 2.00 is best but R2 remains negative, C015 rolls back, and the result cannot support formal v0.4.0, LES improvement, or a default accuracy model."
     },
     {
       "feedback_id": "SF019",
@@ -395,7 +395,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=8; executable_now_count=0; recommended_tag=v0.4.0-rc45",
+      "implementation_evidence": "candidate_count=8; executable_now_count=0; recommended_tag=v0.4.0-rc46",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."

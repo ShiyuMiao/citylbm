@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-09T15:41:02.775596+00:00",
+  "generated_at": "2026-08-09T16:05:27.083324+00:00",
   "release_target": "v0.4.0",
   "formal_release_allowed": false,
   "formal_v0_3_0_allowed": false,
-  "recommended_tag": "v0.4.0-rc45",
+  "recommended_tag": "v0.4.0-rc46",
   "checks": {
     "citylbm_build_passed": true,
     "rhino_loaded_new_gha": false,
@@ -44,23 +44,23 @@
     "fluidx3d_executable": {
       "found": true,
       "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
-      "sha256": "7fe197c3d81151b3324042775e0455a55ce0ad071e6f15c214736f813aeaeaa6",
+      "sha256": "a59e1c526f02ba9ae64dc28d5fbcf2fb200970b1a4ae0e79daba94dddc640891",
       "size_bytes": 1064774,
-      "mtime": "2026-08-09T15:31:13.529647+00:00"
+      "mtime": "2026-08-09T15:56:35.614218+00:00"
     },
     "citylbm_gha": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.gha",
-      "sha256": "ebeaded6ff8e9803f7b3b162e33da3cd1fa4ebdd5cf53d2327dc16be8b86aa07",
+      "sha256": "d1570ee200c8d2940700ad2c4f48fa661246af3038ef480b8e2435aef8f8654e",
       "size_bytes": 1809920,
-      "mtime": "2026-08-09T15:41:01.436508+00:00"
+      "mtime": "2026-08-09T16:05:25.567867+00:00"
     },
     "citylbm_build_log": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-      "sha256": "d37f9c21c507c8d55ad3678cbe7676b36d81039357052e4030bccef0df419ada",
-      "size_bytes": 1011,
-      "mtime": "2026-08-09T15:41:01.657493+00:00"
+      "sha256": "d51ebbb673339a8c5f32a9b7b5b9d4d5c10d6260fb2ddb32dfd27f2a1ce66bc0",
+      "size_bytes": 69986,
+      "mtime": "2026-08-09T16:05:25.808016+00:00"
     },
     "run_matrix": {
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",

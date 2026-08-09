@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc46 - Case E no-SGS inlet diagnostic improvement
+
+- Generated, compiled, and ran C013-C015 dx=2 m, z-center, 4x1x1 AF-k synthetic full-plane inlet candidates with SUBGRID disabled for 48000 FluidX3D steps under the official z=2 m raw_trilinear protocol.
+- Extended the inlet-turbulence audit from C008-C012 to C008-C015 and refreshed the candidate sweep plan, evidence gates, artifact index, manuscript packets, and software-feedback matrix.
+- Recorded C014 no-SGS scale 2.00 as the strongest current diagnostic candidate, while C015 scale 2.50 rolled back.
+
+C014 produced MAE = 13.786 pp, R2 = -0.229845, Pearson = 0.314966. This is the best official-height diagnostic result so far and indicates that SGS treatment is a major remaining software/physics sensitivity. It is still not a formal accuracy pass because R2 remains negative and the no-SGS/inlet-scale combination is a benchmark diagnostic sweep. It does not prove predictive accuracy, mesh independence, LES improvement, Rhino new-GHA loading, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc45 - Case E inlet-turbulence plateau audit
 
 - Generated, compiled, and ran C012 dx=2 m, z-center, 4x1x1 AF-k synthetic full-plane inlet candidate with scale 2.00 for 48000 FluidX3D steps under the official z=2 m raw_trilinear protocol.

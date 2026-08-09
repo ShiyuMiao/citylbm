@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T15:41:06.170199+00:00",
+  "generated_at": "2026-08-09T16:05:30.079908+00:00",
   "claims": [
     {
       "claim_id": "C001",
@@ -91,7 +91,7 @@
       "evidence_type": "newly_run",
       "section": "Release",
       "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
-      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc45",
+      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc46",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
       "allowed_use": "Use to justify rc-only release status.",
       "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",
@@ -150,11 +150,11 @@
       "claim_readiness": "limitations_ready",
       "evidence_type": "newly_run",
       "section": "Results / Inlet turbulence follow-up",
-      "claim": "The C008-C012 AF_caseE-k default-off synthetic full-plane inlet sweep substantially improved the official-height raw-trilinear metric, but R2 remained negative and C012 did not improve beyond C011.",
-      "supporting_metrics": "status=completed_inlet_turbulence_improved_but_negative_r2; best=C011_inlet_k_synthetic_fullplane_s1p50; MAE=14.375 pp; R2=-0.326804; Pearson=0.285664; delta_MAE_vs_zcenter=-6.736 pp; delta_R2_vs_zcenter=1.679527",
+      "claim": "The C008-C015 AF_caseE-k default-off synthetic full-plane inlet and no-SGS sweep substantially improved the official-height raw-trilinear metric, but R2 remained negative; C014 was best and C015 rolled back.",
+      "supporting_metrics": "status=completed_inlet_turbulence_improved_but_negative_r2; best=C014_inlet_k_synthetic_fullplane_s2p00_no_sgs; MAE=13.786 pp; R2=-0.229845; Pearson=0.314966; delta_MAE_vs_zcenter=-7.326 pp; delta_R2_vs_zcenter=1.776485",
       "source_paths": "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md",
       "allowed_use": "Use as the strongest current diagnostic improvement evidence and as motivation for a physically validated inlet-turbulence model.",
-      "forbidden_use": "Do not claim formal predictive accuracy, LES improvement, or default promotion from the synthetic inlet scale sweep.",
+      "forbidden_use": "Do not claim formal predictive accuracy, LES improvement, mesh independence, or default promotion from the synthetic inlet/SGS sweep.",
       "protocol_risks": "single benchmark; diagnostic turbulence scale sweep; R2 remains negative; domain decomposition sensitivity remains present"
     }
   ]

@@ -369,7 +369,7 @@ def build_rows() -> List[Dict[str, str]]:
     out.append(
         row(
             experiment="Experiment 2 / AIJ Case E",
-            result_id="c008_c012_inlet_turbulence_best_negative_candidate",
+            result_id="c008_c015_inlet_turbulence_sgs_best_negative_candidate",
             claim_readiness=str(c008_c009_inlet.get("claim_readiness", "blocked_inlet_turbulence_audit")),
             evidence_type=str(c008_c009_inlet.get("evidence_type", "missing")),
             source_paths=[
@@ -384,9 +384,9 @@ def build_rows() -> List[Dict[str, str]]:
                 f"delta_MAE_vs_zcenter={inlet_delta.get('mae_pp')} pp; delta_R2_vs_zcenter={inlet_delta.get('r2')}; "
                 f"metric_gate_passed={c008_c009_inlet.get('metric_gate_passed')}"
             ),
-            paper_use="Use as the strongest current Case E diagnostic improvement and as evidence that inlet turbulence is a major remaining software target.",
-            limitations="R2 remains negative and the AF-k synthetic inlet scale is a diagnostic sweep parameter; it cannot support formal v0.4.0, predictive accuracy, LES improvement, or default promotion.",
-            software_feedback="Keep AF-k inlet turbulence default-off until a physically validated inlet model reproduces positive R2 without benchmark-specific scale tuning.",
+            paper_use="Use as the strongest current Case E diagnostic improvement and as evidence that inlet turbulence and SGS treatment are major remaining software targets.",
+            limitations="R2 remains negative and the AF-k synthetic inlet/no-SGS combination is a diagnostic sweep parameter; it cannot support formal v0.4.0, predictive accuracy, LES improvement, mesh independence, or default promotion.",
+            software_feedback="Keep AF-k inlet turbulence and SGS/no-SGS choices default-safe until a physically validated model reproduces positive R2 without benchmark-specific scale tuning.",
         )
     )
 

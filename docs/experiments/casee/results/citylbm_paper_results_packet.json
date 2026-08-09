@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T15:41:11.700642+00:00",
+    "generated_at": "2026-08-09T16:05:35.483554+00:00",
     "result_count": 25,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
@@ -161,14 +161,14 @@
     },
     {
       "experiment": "Experiment 2 / AIJ Case E",
-      "result_id": "c008_c012_inlet_turbulence_best_negative_candidate",
+      "result_id": "c008_c015_inlet_turbulence_sgs_best_negative_candidate",
       "claim_readiness": "limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release",
       "evidence_type": "newly_run",
-      "source_paths": "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md; docs/experiments/casee/results/casee_c011_inlet_k_synthetic_s1p5_20260809_230150_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c011_inlet_k_synthetic_s1p5_run_20260809_230150.log",
-      "metric_or_status": "status=completed_inlet_turbulence_improved_but_negative_r2; best=C011_inlet_k_synthetic_fullplane_s1p50; MAE=14.3750643375 pp; R2=-0.32680378704255153; Pearson=0.2856641275815884; delta_MAE_vs_zcenter=-6.73634375 pp; delta_R2_vs_zcenter=1.679526670176449; metric_gate_passed=False",
-      "paper_use": "Use as the strongest current Case E diagnostic improvement and as evidence that inlet turbulence is a major remaining software target.",
-      "limitations": "R2 remains negative and the AF-k synthetic inlet scale is a diagnostic sweep parameter; it cannot support formal v0.4.0, predictive accuracy, LES improvement, or default promotion.",
-      "software_feedback": "Keep AF-k inlet turbulence default-off until a physically validated inlet model reproduces positive R2 without benchmark-specific scale tuning."
+      "source_paths": "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md; docs/experiments/casee/results/casee_c014_inlet_k_synthetic_s2p0_nosgs_20260809_235100_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c014_inlet_k_synthetic_s2p0_nosgs_run_20260809_235100.log",
+      "metric_or_status": "status=completed_inlet_turbulence_improved_but_negative_r2; best=C014_inlet_k_synthetic_fullplane_s2p00_no_sgs; MAE=13.7856467875 pp; R2=-0.22984501828340775; Pearson=0.31496559664177526; delta_MAE_vs_zcenter=-7.3257613 pp; delta_R2_vs_zcenter=1.7764854389355929; metric_gate_passed=False",
+      "paper_use": "Use as the strongest current Case E diagnostic improvement and as evidence that inlet turbulence and SGS treatment are major remaining software targets.",
+      "limitations": "R2 remains negative and the AF-k synthetic inlet/no-SGS combination is a diagnostic sweep parameter; it cannot support formal v0.4.0, predictive accuracy, LES improvement, mesh independence, or default promotion.",
+      "software_feedback": "Keep AF-k inlet turbulence and SGS/no-SGS choices default-safe until a physically validated model reproduces positive R2 without benchmark-specific scale tuning."
     },
     {
       "experiment": "Build-chain recovery / AIJ Case E follow-up",
@@ -308,7 +308,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc45",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc46",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."
