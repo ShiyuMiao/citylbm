@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T14:01:51.245322+00:00",
+  "generated_at": "2026-08-09T10:57:40.939232+00:00",
   "paper_evidence_gate_passed": true,
   "metric_gate": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc26",
+    "recommended_tag": "v0.4.0-rc27",
     "official_z2m_r2": -2.006330362229977,
     "official_z2m_mae_pp": 21.111408125,
     "official_z2m_pearson": 0.11575649438573923,
@@ -37,8 +37,8 @@
   },
   "artifact_index": {
     "artifact_index_found": true,
-    "artifact_count": 156,
-    "lightweight_release_asset_count": 124,
+    "artifact_count": 160,
+    "lightweight_release_asset_count": 128,
     "formal_accuracy_claim_supported": false,
     "required_artifacts_present": true,
     "missing_required_artifacts": []
@@ -52,12 +52,11 @@
   },
   "casee_official_run_preflight": {
     "preflight_found": true,
-    "official_followup_run_allowed": false,
+    "official_followup_run_allowed": true,
     "formal_release_allowed": false,
-    "claim_readiness": "blocked_official_followup_preflight",
+    "claim_readiness": "ready_for_next_official_followup_run",
     "blocked_gates": [
       "rhino_gha_load",
-      "gpu_runtime",
       "vs_cpp_build_tools"
     ],
     "claim_boundary_safe": true
@@ -68,7 +67,6 @@
     "claim_readiness": "blocked_environment_recovery_runbook",
     "blocked_gates": [
       "rhino_gha_load",
-      "gpu_runtime",
       "vs_cpp_build_tools"
     ],
     "step_count": 7,
@@ -108,13 +106,29 @@
     "manifest_output_gate_passed": true,
     "claim_readiness": "paper_ready_manifest_traceability",
     "formal_accuracy_claim_supported": false,
-    "check_count": 8,
+    "check_count": 9,
+    "claim_boundary_safe": true
+  },
+  "casee_manuscript_results_table": {
+    "manuscript_results_table_found": true,
+    "manuscript_results_table_passed": true,
+    "claim_readiness": "paper_ready_manuscript_results_table",
+    "row_count": 6,
+    "required_rows_present": {
+      "formal_official_z2m": true,
+      "best_diagnostic_sampling": true,
+      "near_wall_risk_gradient": true,
+      "release_boundary_status": true
+    },
+    "diagnostic_rows_not_formal": true,
+    "formal_r2_negative": true,
+    "formal_accuracy_claim_supported": false,
     "claim_boundary_safe": true
   },
   "citylbm_software_feedback_matrix": {
     "software_feedback_matrix_found": true,
     "software_feedback_matrix_passed": true,
-    "feedback_count": 9,
+    "feedback_count": 10,
     "all_source_paths_exist": true,
     "no_forbidden_default_promotion": true,
     "formal_accuracy_claim_supported": false,

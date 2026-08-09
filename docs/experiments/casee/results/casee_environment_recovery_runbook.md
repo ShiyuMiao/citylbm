@@ -1,10 +1,10 @@
 # Case E Environment Recovery Runbook
 
-Generated: 2026-08-01T14:01:47.019669+00:00
+Generated: 2026-08-09T10:57:37.131848+00:00
 
 ## Verdict
 
-- Official follow-up run allowed now: False
+- Official follow-up run allowed now: True
 - Formal v0.4.0 release allowed: False
 - Claim readiness: `blocked_environment_recovery_runbook`
 
@@ -13,7 +13,7 @@ Generated: 2026-08-01T14:01:47.019669+00:00
 | path | exists | files | size MB |
 |---|---:|---:|---:|
 | `CityLBM/NuGet` | True | 1 | 0.0 |
-| `CityLBM/bin/Release` | True | 4 | 1.999 |
+| `CityLBM/bin/Release` | True | 4 | 2.0 |
 | `CityLBM/obj` | True | 14 | 0.253 |
 | `NuGet` | True | 1 | 0.0 |
 
@@ -21,7 +21,7 @@ Generated: 2026-08-01T14:01:47.019669+00:00
 
 | step | enabled | priority | gate | verification |
 |---|---:|---:|---|---|
-| `REC001_gpu_recovery` | True | 1 | gpu_runtime | `nvidia-smi` |
+| `REC001_gpu_recovery` | False | 1 | gpu_runtime | `nvidia-smi` |
 | `REC002_free_c_drive` | True | 2 | vs_cpp_build_tools | `Get-PSDrive C` |
 | `REC003_install_vs_cpp` | True | 3 | vs_cpp_build_tools | `winget install --id Microsoft.VisualStudio.2022.BuildTools --accept-package-agreements --accept-source-agreements --silent --override "--wait --quiet --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"` |
 | `REC004_refresh_build_chain` | True | 4 | build_chain_manifest | `python docs/experiments/casee/tools/build_chain_audit.py` |
@@ -39,7 +39,7 @@ Generated: 2026-08-01T14:01:47.019669+00:00
 
 ### REC002_free_c_drive
 
-- Action: Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 0.488 GB. Workspace build-cache candidates total only 2.252 MB.
+- Action: Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 7.094 GB. Workspace build-cache candidates total only 2.253 MB.
 - Pass condition: C: free space >= 8 GB; workspace cache cleanup alone is not enough if the current value remains near 0.5 GB.
 - Risk boundary: Do not delete user data; record any cleanup outside the repo separately.
 

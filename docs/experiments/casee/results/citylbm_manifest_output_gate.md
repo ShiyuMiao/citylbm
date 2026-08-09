@@ -1,6 +1,6 @@
 # CityLBM Manifest Output Gate
 
-Generated: 2026-08-01T14:01:48.889110+00:00
+Generated: 2026-08-09T10:57:38.788914+00:00
 
 ## Verdict
 
@@ -21,6 +21,7 @@ Generated: 2026-08-01T14:01:48.889110+00:00
 | `async_sets_manifest_output` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Use to show background mode returns the manifest path after completion. |
 | `fluidx_writes_run_manifest` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show the exposed path points to a file written by the solver interface. |
 | `manifest_contains_claim_boundary` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show the manifest records formal protocol and diagnostic boundaries. |
+| `manifest_contains_paper_readiness_boundary` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show the manifest records paper-use and forbidden-claim boundaries. |
 
 ## Boundary
 

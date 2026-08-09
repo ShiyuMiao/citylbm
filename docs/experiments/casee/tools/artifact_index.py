@@ -26,7 +26,7 @@ EXPLICIT_ARTIFACTS = [
     "CHANGELOG.md",
     "CityLBM/README.md",
     "CityLBM/bin/CityLBM.gha",
-    "docs/releases/v0.4.0-rc26.md",
+    "docs/releases/v0.4.0-rc27.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/data_manifest.csv",
@@ -47,6 +47,7 @@ RESULT_PATTERNS = [
     "dx1_feasibility_estimate.*",
     "environment_manifest.json",
     "release_gate.json",
+    "casee_manuscript_results_table.*",
     "citylbm_paper_results_packet.*",
     "citylbm_manifest_output_gate.*",
     "citylbm_software_feedback_matrix.*",
@@ -85,6 +86,7 @@ TOOL_SCRIPTS = [
     "casee_environment_recovery_runbook.py",
     "casee_failure_mode_atlas.py",
     "casee_default_policy_gate.py",
+    "casee_manuscript_results_table.py",
     "citylbm_paper_results_packet.py",
     "citylbm_manifest_output_gate.py",
     "citylbm_software_feedback_matrix.py",
@@ -247,6 +249,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "limitations_ready_failure_mode_atlas"
     if "casee_default_policy_gate" in path:
         return "paper_ready_default_policy_boundary"
+    if "casee_manuscript_results_table" in path:
+        return "paper_ready_manuscript_results_table"
     if "citylbm_paper_results_packet" in path:
         return "paper_ready_cross_experiment_results_packet"
     if "citylbm_manifest_output_gate" in path:
@@ -287,6 +291,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to structure limitations and software-feedback discussion without claiming formal accuracy."
     if readiness == "paper_ready_default_policy_boundary":
         return "Use to distinguish formal defaults from diagnostic-only software switches."
+    if readiness == "paper_ready_manuscript_results_table":
+        return "Use as the manuscript-facing Case E result table with formal and diagnostic boundaries."
     if readiness == "paper_ready_cross_experiment_results_packet":
         return "Use to organize Experiments 1, 2, and 3 results into manuscript-ready and limitations-only rows."
     if readiness == "paper_ready_manifest_traceability":
@@ -331,6 +337,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Synthesis of existing diagnostics only; does not add a new solver result."
     if readiness == "paper_ready_default_policy_boundary":
         return "Default-policy boundary only; does not improve or replace official z=2 m metrics."
+    if readiness == "paper_ready_manuscript_results_table":
+        return "Manuscript result formatting only; formal official row remains negative validation and diagnostic rows remain limitations-only."
     if readiness == "paper_ready_cross_experiment_results_packet":
         return "Manuscript organization evidence only; does not add new CFD results or formal validation."
     if readiness == "paper_ready_manifest_traceability":
@@ -437,6 +445,9 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_default_policy_gate.json",
                 "casee_default_policy_gate.md",
                 "casee_default_policy_gate.csv",
+                "casee_manuscript_results_table.json",
+                "casee_manuscript_results_table.md",
+                "casee_manuscript_results_table.csv",
                 "citylbm_paper_results_packet.json",
                 "citylbm_paper_results_packet.md",
                 "citylbm_paper_results_packet.csv",
@@ -458,7 +469,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_manuscript_claim_matrix.csv",
                 "casee_zcenter_probe_mode_metrics.csv",
                 "casee_zcenter_voxel_probe_audit_groups.csv",
-                "v0.4.0-rc26.md",
+                "v0.4.0-rc27.md",
             )
         )
     ]

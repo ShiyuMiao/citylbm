@@ -39,6 +39,8 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_failure_mode_atlas.png",
     "docs/experiments/casee/results/casee_default_policy_gate.json",
     "docs/experiments/casee/results/casee_default_policy_gate.md",
+    "docs/experiments/casee/results/casee_manuscript_results_table.json",
+    "docs/experiments/casee/results/casee_manuscript_results_table.md",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.md",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
@@ -48,7 +50,7 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc26.md",
+    "docs/releases/v0.4.0-rc27.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -405,6 +407,55 @@ def manifest_output_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def manuscript_results_table_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "manuscript_results_table_found": False,
+            "manuscript_results_table_passed": False,
+            "claim_readiness": "missing",
+            "row_count": 0,
+            "diagnostic_rows_not_formal": False,
+            "formal_r2_negative": False,
+            "formal_accuracy_claim_supported": None,
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    summary = data.get("summary", {})
+    rows = data.get("rows", [])
+    row_ids = {str(row.get("row_id", "")) for row in rows}
+    diagnostic_safe = all(
+        row.get("claim_boundary") != "formal_gate_input"
+        for row in rows
+        if row.get("result_role") == "diagnostic_only"
+    )
+    formal = next((row for row in rows if row.get("row_id") == "formal_official_z2m"), {})
+    formal_r2_negative = False
+    try:
+        formal_r2_negative = float(formal.get("r2", "nan")) < 0.0
+    except ValueError:
+        formal_r2_negative = False
+    return {
+        "manuscript_results_table_found": True,
+        "manuscript_results_table_passed": summary.get("manuscript_results_table_passed"),
+        "claim_readiness": summary.get("claim_readiness"),
+        "row_count": summary.get("row_count", len(rows)),
+        "required_rows_present": {
+            "formal_official_z2m": "formal_official_z2m" in row_ids,
+            "best_diagnostic_sampling": "best_diagnostic_sampling" in row_ids,
+            "near_wall_risk_gradient": "near_wall_risk_gradient" in row_ids,
+            "release_boundary_status": "release_boundary_status" in row_ids,
+        },
+        "diagnostic_rows_not_formal": diagnostic_safe,
+        "formal_r2_negative": formal_r2_negative,
+        "formal_accuracy_claim_supported": summary.get("formal_accuracy_claim_supported"),
+        "claim_boundary_safe": summary.get("manuscript_results_table_passed") is True
+        and summary.get("claim_readiness") == "paper_ready_manuscript_results_table"
+        and diagnostic_safe
+        and formal_r2_negative
+        and summary.get("formal_accuracy_claim_supported") is False,
+    }
+
+
 def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     metric = payload["metric_gate"]
     claim = payload["claim_matrix"]
@@ -417,6 +468,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     default_policy = payload["casee_default_policy_gate"]
     paper_packet = payload["citylbm_paper_results_packet"]
     manifest_output = payload["citylbm_manifest_output_gate"]
+    manuscript_table = payload["casee_manuscript_results_table"]
     software_feedback = payload["citylbm_software_feedback_matrix"]
     lines = [
         "# Case E Paper Evidence Gate",
@@ -515,6 +567,17 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Formal accuracy claim supported: {manifest_output['formal_accuracy_claim_supported']}",
         f"- Claim boundary safe: {manifest_output['claim_boundary_safe']}",
         "",
+        "## Manuscript Results Table",
+        "",
+        f"- Table found: {manuscript_table['manuscript_results_table_found']}",
+        f"- Table passed: {manuscript_table['manuscript_results_table_passed']}",
+        f"- Rows: {manuscript_table['row_count']}",
+        f"- Claim readiness: `{manuscript_table['claim_readiness']}`",
+        f"- Diagnostic rows not formal: {manuscript_table['diagnostic_rows_not_formal']}",
+        f"- Formal R2 negative: {manuscript_table['formal_r2_negative']}",
+        f"- Formal accuracy claim supported: {manuscript_table['formal_accuracy_claim_supported']}",
+        f"- Claim boundary safe: {manuscript_table['claim_boundary_safe']}",
+        "",
         "## Software Feedback Matrix",
         "",
         f"- Matrix found: {software_feedback['software_feedback_matrix_found']}",
@@ -551,6 +614,7 @@ def main() -> int:
     parser.add_argument("--default-policy", type=Path, default=RESULTS_DIR / "casee_default_policy_gate.json")
     parser.add_argument("--paper-results-packet", type=Path, default=RESULTS_DIR / "citylbm_paper_results_packet.json")
     parser.add_argument("--manifest-output", type=Path, default=RESULTS_DIR / "citylbm_manifest_output_gate.json")
+    parser.add_argument("--manuscript-results-table", type=Path, default=RESULTS_DIR / "casee_manuscript_results_table.json")
     parser.add_argument("--software-feedback", type=Path, default=RESULTS_DIR / "citylbm_software_feedback_matrix.json")
     parser.add_argument("--draft-glob", default="casee_v04_*.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.json")
@@ -569,6 +633,7 @@ def main() -> int:
     default_policy = default_policy_status(args.default_policy)
     paper_packet = paper_results_packet_status(args.paper_results_packet)
     manifest_output = manifest_output_status(args.manifest_output)
+    manuscript_table = manuscript_results_table_status(args.manuscript_results_table)
     software_feedback = software_feedback_status(args.software_feedback)
     passed = (
         metric["formal_metric_is_negative_validation"]
@@ -596,6 +661,8 @@ def main() -> int:
         and paper_packet["claim_boundary_safe"]
         and manifest_output["manifest_output_gate_found"]
         and manifest_output["claim_boundary_safe"]
+        and manuscript_table["manuscript_results_table_found"]
+        and manuscript_table["claim_boundary_safe"]
         and software_feedback["software_feedback_matrix_found"]
         and software_feedback["claim_boundary_safe"]
     )
@@ -613,6 +680,7 @@ def main() -> int:
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_packet,
         "citylbm_manifest_output_gate": manifest_output,
+        "casee_manuscript_results_table": manuscript_table,
         "citylbm_software_feedback_matrix": software_feedback,
     }
     args.out_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")

@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.0-rc27 - Manuscript results table boundary
+
+- Added `casee_manuscript_results_table.py` to generate a paper-facing Case E results table with formal, diagnostic, limitations, traceability, and release-boundary rows.
+- Generated `casee_manuscript_results_table.json`, `casee_manuscript_results_table.csv`, and `casee_manuscript_results_table.md`.
+- Added paper-readiness metadata to generated `citylbm_run_manifest.json`: `paper_readiness`, `paper_allowed_uses`, and `paper_forbidden_claims`.
+- Extended the manifest-output gate, paper evidence gate, artifact index, reproducibility suite, appendix command trace, and software-feedback matrix so the result table and manifest paper boundary are audited.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc27.md`.
+
+This release candidate improves manuscript readiness and software traceability only. It does not add CFD results, improve official Case E z=2 m metrics, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc26 - Manifest path traceability output
 
 - Added a `Manifest Path` (`Man`) output to the Grasshopper `Run Simulation` component so users can directly trace each run to `citylbm_run_manifest.json`.

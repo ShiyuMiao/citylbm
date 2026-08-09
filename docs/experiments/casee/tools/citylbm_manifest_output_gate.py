@@ -107,6 +107,16 @@ def build_checks() -> List[Dict[str, Any]]:
             "Use to show the manifest records formal protocol and diagnostic boundaries.",
             "Restore claim-boundary fields in the run manifest.",
         ),
+        check(
+            "manifest_contains_paper_readiness_boundary",
+            "paper_readiness" in fluidx
+            and "paper_allowed_uses" in fluidx
+            and "paper_forbidden_claims" in fluidx
+            and "accuracy_claim_requires_external_release_gate" in fluidx,
+            FLUIDX,
+            "Use to show the manifest records paper-use and forbidden-claim boundaries.",
+            "Restore paper_readiness, paper_allowed_uses, and paper_forbidden_claims in the run manifest.",
+        ),
     ]
 
 

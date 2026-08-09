@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-01T14:01:49.046898+00:00",
-    "feedback_count": 9,
+    "generated_at": "2026-08-09T10:57:39.070054+00:00",
+    "feedback_count": 10,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -10,14 +10,15 @@
       "blocked_followup_run": 1,
       "application_workflow_policy": 1,
       "paper_interpretation_layer": 1,
-      "software_traceability_output": 1
+      "software_traceability_output": 1,
+      "paper_traceability_output": 1
     },
     "citylbm_status_counts": {
       "implemented_as_release_gate_requirement": 1,
       "formal_release_blocked": 1,
-      "implemented": 2,
+      "implemented": 3,
       "implemented_default_off": 2,
-      "blocked_until_external_recovery": 1,
+      "ready_for_next_official_run": 1,
       "paper_ready_workflow_guidance": 1,
       "paper_ready_with_boundary": 1
     },
@@ -108,8 +109,8 @@
       "source_paths": "docs/experiments/casee/results/casee_official_run_preflight.json; docs/experiments/casee/results/casee_environment_recovery_runbook.json; docs/experiments/casee/results/rhino_gha_load_gate.json",
       "source_paths_exist": true,
       "decision_class": "blocked_followup_run",
-      "citylbm_status": "blocked_until_external_recovery",
-      "implementation_evidence": "blocked_gates=rhino_gha_load,gpu_runtime,vs_cpp_build_tools",
+      "citylbm_status": "ready_for_next_official_run",
+      "implementation_evidence": "blocked_gates=rhino_gha_load,vs_cpp_build_tools",
       "default_setting_allowed": false,
       "paper_use": "Use to explain why no new official long run is reported in this rc.",
       "limitations": "Operational readiness evidence only; not solver-output evidence."
@@ -155,6 +156,20 @@
       "default_setting_allowed": true,
       "paper_use": "Use as software traceability evidence for run manifests and protocol metadata.",
       "limitations": "Traceability output only; does not prove Rhino loaded the new GHA or improve official z=2 m accuracy."
+    },
+    {
+      "feedback_id": "SF010",
+      "experiment": "Experiment 2 / AIJ Case E paper-readiness layer",
+      "finding": "Run manifests and manuscript result rows now record allowed paper uses and forbidden accuracy claims.",
+      "evidence_type": "newly_run",
+      "source_paths": "CityLBM/src/Core/FluidX3DInterface.cs; docs/experiments/casee/results/citylbm_manifest_output_gate.json; docs/experiments/casee/results/casee_manuscript_results_table.json",
+      "source_paths_exist": true,
+      "decision_class": "paper_traceability_output",
+      "citylbm_status": "implemented",
+      "implementation_evidence": "citylbm_run_manifest.json includes paper_readiness fields and casee_manuscript_results_table separates formal and diagnostic rows.",
+      "default_setting_allowed": true,
+      "paper_use": "Use to move Case E results into manuscript tables without overstating formal accuracy.",
+      "limitations": "Paper-readiness metadata does not change the official z=2 m metric or permit formal v0.4.0."
     }
   ],
   "source_artifacts": [
@@ -164,6 +179,7 @@
     "docs/experiments/casee/results/casee_official_run_preflight.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
+    "docs/experiments/casee/results/casee_manuscript_results_table.json",
     "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv",
     "CityLBM/src/Core/FluidX3DInterface.cs",
     "CityLBM/src/Components/Simulation/RunSimulationComponent.cs"

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T14:01:48.889110+00:00",
+  "generated_at": "2026-08-09T10:57:38.788914+00:00",
   "manifest_output_gate_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_manifest_traceability",
@@ -68,6 +68,14 @@
       "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
       "paper_use": "Use to show the manifest records formal protocol and diagnostic boundaries.",
       "failure_action": "Restore claim-boundary fields in the run manifest."
+    },
+    {
+      "check_id": "manifest_contains_paper_readiness_boundary",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "paper_use": "Use to show the manifest records paper-use and forbidden-claim boundaries.",
+      "failure_action": "Restore paper_readiness, paper_allowed_uses, and paper_forbidden_claims in the run manifest."
     }
   ],
   "boundary": "This gate verifies software traceability only: Run Simulation exposes the generated citylbm_run_manifest.json path and the manifest records claim-boundary fields. It does not validate CFD accuracy or Rhino loading of the new GHA."

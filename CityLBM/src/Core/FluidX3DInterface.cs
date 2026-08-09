@@ -1954,7 +1954,10 @@ namespace CityLBM.Solver
             sb.AppendLine("    \"formal_result_height_must_equal_official_z2m\": true,");
             sb.AppendLine("    \"diagnostic_modes_allowed_as_formal_result\": false,");
             sb.AppendLine("    \"diagnostic_z_origin_offset_allowed_as_default_accuracy_model\": false,");
-            sb.AppendLine("    \"requires_external_release_gate_pass\": true");
+            sb.AppendLine("    \"requires_external_release_gate_pass\": true,");
+            sb.AppendLine("    \"paper_readiness\": \"manifest_traceability_only; accuracy_claim_requires_external_release_gate\",");
+            sb.AppendLine("    \"paper_allowed_uses\": [\"protocol_traceability\", \"software_identity_traceability\", \"limitations_boundary\"],");
+            sb.AppendLine("    \"paper_forbidden_claims\": [\"predictive_accuracy_pass\", \"mesh_independence\", \"les_improvement\", \"diagnostic_sampling_as_formal_result\"]");
             sb.AppendLine("  },");
             sb.AppendLine("  \"grid\": {");
             sb.AppendLine($"    \"nx\": {grid.Nx}, \"ny\": {grid.Ny}, \"nz\": {grid.Nz}, \"dx_m\": {grid.Dx.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");

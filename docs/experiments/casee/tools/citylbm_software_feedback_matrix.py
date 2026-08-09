@@ -116,6 +116,7 @@ def build_rows() -> List[Dict[str, Any]]:
     default_policy = read_json(RESULTS_DIR / "casee_default_policy_gate.json")
     paper_packet = read_json(RESULTS_DIR / "citylbm_paper_results_packet.json")
     manifest_output = read_json(RESULTS_DIR / "citylbm_manifest_output_gate.json")
+    manuscript_table = read_json(RESULTS_DIR / "casee_manuscript_results_table.json")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
@@ -326,6 +327,30 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    rows.append(
+        row(
+            feedback_id="SF010",
+            experiment="Experiment 2 / AIJ Case E paper-readiness layer",
+            finding="Run manifests and manuscript result rows now record allowed paper uses and forbidden accuracy claims.",
+            evidence_type="newly_run",
+            source_paths=[
+                FLUIDX,
+                RESULTS_DIR / "citylbm_manifest_output_gate.json",
+                RESULTS_DIR / "casee_manuscript_results_table.json",
+            ],
+            decision_class="paper_traceability_output",
+            citylbm_status="implemented"
+            if manifest_output.get("manifest_output_gate_passed") is True
+            and (manuscript_table.get("summary") or {}).get("manuscript_results_table_passed") is True
+            and "paper_readiness" in fluidx
+            else "blocked",
+            implementation_evidence="citylbm_run_manifest.json includes paper_readiness fields and casee_manuscript_results_table separates formal and diagnostic rows.",
+            default_setting_allowed=True,
+            paper_use="Use to move Case E results into manuscript tables without overstating formal accuracy.",
+            limitations="Paper-readiness metadata does not change the official z=2 m metric or permit formal v0.4.0.",
+        )
+    )
+
     return rows
 
 
@@ -344,13 +369,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
@@ -437,6 +462,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_official_run_preflight.json"),
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
+            rel(RESULTS_DIR / "casee_manuscript_results_table.json"),
             rel(PAPER_DRAFTS / "experiment3_claim_verification.csv"),
             rel(FLUIDX),
             rel(RUN_COMPONENT),

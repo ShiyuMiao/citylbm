@@ -11,8 +11,8 @@
   "nvidia_smi": {
     "command": "nvidia-smi",
     "found": true,
-    "returncode": 15,
-    "stdout": "Unable to determine the device handle for GPU0000:C3:00.0: GPU is lost.  Reboot the system to recover this GPU",
+    "returncode": 0,
+    "stdout": "Sun Aug  9 18:57:22 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     |\n|-----------------------------------------+------------------------+----------------------+\n| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  Tesla P100-PCIE-16GB         TCC   |   00000000:18:00.0 Off |                    0 |\n| N/A   46C    P0             29W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   1  Tesla P100-PCIE-16GB         TCC   |   00000000:51:00.0 Off |                    0 |\n| N/A   43C    P0             28W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   2  Tesla P100-PCIE-16GB         TCC   |   00000000:8A:00.0 Off |                    0 |\n| N/A   43C    P0             26W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   3  Tesla P100-PCIE-16GB         TCC   |   00000000:C3:00.0 Off |                    0 |\n| N/A   68C    P0             32W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n                                                                                         \n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+",
     "stderr": ""
   },
   "fluidx3d_executable": {
@@ -25,16 +25,16 @@
   "citylbm_gha": {
     "found": true,
     "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.gha",
-    "sha256": "13a2b1082472cff1f7466e54ee9df5e1a7b71dd4073c7ab2bb29ab489c617255",
-    "size_bytes": 1789952,
-    "mtime": "2026-08-01T14:01:41.118846+00:00"
+    "sha256": "dc32d4843d574b58b3fd726f121c4e175fc4927da8e3197e04a2c9bf7e0f46aa",
+    "size_bytes": 1790976,
+    "mtime": "2026-08-09T10:57:20.799468+00:00"
   },
   "citylbm_build_log": {
     "found": true,
     "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-    "sha256": "7f06ea2a45624023db9cbe01f36c1cf0e1e74f8cdc7cc9680a0803a83987c233",
-    "size_bytes": 1011,
-    "mtime": "2026-08-01T14:01:41.365032+00:00"
+    "sha256": "57f7f0200462467c274ff1417908104246823796850c82bff60c1158bdb75b7c",
+    "size_bytes": 68874,
+    "mtime": "2026-08-09T10:57:20.997767+00:00"
   },
   "run_matrix": {
     "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",

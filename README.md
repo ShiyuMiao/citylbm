@@ -40,6 +40,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_environment_recovery_runbook.py`
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
+- `docs/experiments/casee/tools/casee_manuscript_results_table.py`
 - `docs/experiments/casee/tools/citylbm_paper_results_packet.py`
 - `docs/experiments/casee/tools/citylbm_manifest_output_gate.py`
 - `docs/experiments/casee/tools/citylbm_software_feedback_matrix.py`
@@ -77,6 +78,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_default_policy_gate.json`
 - `docs/experiments/casee/results/casee_default_policy_gate.md`
 - `docs/experiments/casee/results/casee_default_policy_gate.csv`
+- `docs/experiments/casee/results/casee_manuscript_results_table.json`
+- `docs/experiments/casee/results/casee_manuscript_results_table.md`
+- `docs/experiments/casee/results/casee_manuscript_results_table.csv`
 - `docs/experiments/casee/results/citylbm_paper_results_packet.json`
 - `docs/experiments/casee/results/citylbm_paper_results_packet.md`
 - `docs/experiments/casee/results/citylbm_paper_results_packet.csv`
@@ -90,7 +94,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc26.md`
+- `docs/releases/v0.4.0-rc27.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -123,6 +127,11 @@ The Grasshopper `Run Simulation` component now exposes a `Manifest Path` (`Man`)
 output pointing to the generated `citylbm_run_manifest.json`. This is a
 traceability improvement for paper and reviewer auditing of protocol metadata;
 it does not change solver numerics or official z=2 m accuracy.
+
+The generated run manifest now also records `paper_readiness`,
+`paper_allowed_uses`, and `paper_forbidden_claims` under
+`release_claim_boundary`. These fields make the formal release gate and
+diagnostic-only boundaries visible in each generated case folder.
 
 The z-center lattice diagnostic puts official z=2 m on a dx=2 m lattice center.
 It improves the formal raw_trilinear MAE to 21.111 pp and Pearson to 0.115756,
@@ -196,6 +205,11 @@ condition; Experiment 3 stays in the digital-twin screening/application layer.
 This matrix is the current basis for software optimization claims, not a formal
 accuracy-upgrade claim.
 
+The manuscript results table converts Case E evidence into paper-facing rows:
+the official z=2 m result is a negative-validation result, the best diagnostic
+sampling and near-wall risk rows are limitations-only, and the release boundary
+row blocks any formal `v0.4.0` accuracy claim.
+
 Run the audit after official data are present:
 
 ```powershell
@@ -206,6 +220,7 @@ python docs/experiments/casee/tools/casee_official_run_preflight.py
 python docs/experiments/casee/tools/casee_environment_recovery_runbook.py
 python docs/experiments/casee/tools/casee_failure_mode_atlas.py
 python docs/experiments/casee/tools/casee_default_policy_gate.py
+python docs/experiments/casee/tools/casee_manuscript_results_table.py
 python docs/experiments/casee/tools/citylbm_paper_results_packet.py
 python docs/experiments/casee/tools/citylbm_manifest_output_gate.py
 python docs/experiments/casee/tools/citylbm_software_feedback_matrix.py
