@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T14:50:40.084002+00:00",
+  "generated_at": "2026-08-09T15:13:16.105006+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_build_chain_diagnostic",
   "build_chain_ready": false,
@@ -127,9 +127,9 @@
     "executable": {
       "found": true,
       "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
-      "sha256": "1cb9eb73ce6d5f28e8e54b482d9ada0f4542a8c8f8ede34e730b03cea14f6aaa",
+      "sha256": "e7ceb5c652f2a64aa9ea62aeb0a692c7427c0ac7a1eaa0163df5deb09a8d119e",
       "size_bytes": 1064774,
-      "mtime": "2026-08-09T14:30:12.236142+00:00"
+      "mtime": "2026-08-09T15:01:40.773008+00:00"
     }
   },
   "gpu_runtime": {
@@ -146,15 +146,15 @@
   "disk": [
     {
       "drive": "C:\\",
-      "free_bytes": 7435337728,
+      "free_bytes": 7418724352,
       "total_bytes": 208810242048,
-      "free_gb": 6.925
+      "free_gb": 6.909
     },
     {
       "drive": "D:\\",
-      "free_bytes": 246206181376,
+      "free_bytes": 246208933888,
       "total_bytes": 302394634240,
-      "free_gb": 229.297
+      "free_gb": 229.3
     },
     {
       "drive": "E:\\",

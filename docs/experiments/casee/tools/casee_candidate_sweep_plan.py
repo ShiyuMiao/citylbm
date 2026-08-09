@@ -483,7 +483,7 @@ def build_candidates(
             forbidden_claim=common_forbidden,
         ),
         candidate(
-            candidate_id="C008_full_plane_inlet_turbulence_implementation",
+            candidate_id="C008_C011_full_plane_inlet_turbulence_sweep",
             priority=8,
             candidate_class="requires_implementation",
             executable_now=executable_native,
@@ -501,15 +501,15 @@ def build_candidates(
                 "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 "
                 "--sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 "
                 "--domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane "
-                "--inlet-turbulence-scale 0.70"
+                "--inlet-turbulence-scale 1.50"
             ),
             expected_artifacts=[
                 "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
                 "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md",
-                "docs/experiments/casee/results/casee_c009_inlet_k_synthetic_s0p7_<stamp>_probe_time_mean.csv",
+                "docs/experiments/casee/results/casee_c011_inlet_k_synthetic_s1p5_<stamp>_probe_time_mean.csv",
             ],
             rationale=(
-                "Completed: AF-k synthetic full-plane inlet candidates substantially improved official-height MAE/R2/Pearson, "
+                "Completed: C008-C011 AF-k synthetic full-plane inlet candidates substantially improved official-height MAE/R2/Pearson, "
                 "but R2 remains negative and the scale sweep is diagnostic-only. "
                 f"status={c008_audit.get('status')}; best_R2={((c008_audit.get('best_candidate') or {}).get('candidate_metrics') or {}).get('r2')}; "
                 f"best_MAE={((c008_audit.get('best_candidate') or {}).get('candidate_metrics') or {}).get('mae_pp')}."

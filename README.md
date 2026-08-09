@@ -143,7 +143,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc42.md`
+- `docs/releases/v0.4.0-rc43.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -247,13 +247,15 @@ to the baseline, and decomposition consistency thresholds failed. It is
 runtime/decomposition sensitivity evidence and a prompt to keep decomposition
 in generated run IDs/manifests, not a default accuracy setting.
 
-Newly-run source-recompiled C008/C009 inlet-turbulence candidates used
+Newly-run source-recompiled C008-C011 inlet-turbulence candidates used
 `AF_caseE.csv` z,U,k to drive a default-off synthetic full-plane inlet. The
-best candidate, C009 with scale 0.70, completed 48000 steps and produced the
-strongest official-height diagnostic result so far: MAE 14.678 pp, R2
--0.359819, and Pearson 0.283411. This supports AF-k inlet turbulence as the
+best candidate, C011 with scale 1.50, completed 48000 steps and produced the
+strongest official-height diagnostic result so far: MAE 14.375 pp, R2
+-0.326804, and Pearson 0.285664. This supports AF-k inlet turbulence as the
 main next software target, but R2 is still negative and the turbulence scale is
-a diagnostic sweep parameter, so it is not a formal accuracy model.
+a diagnostic sweep parameter, so it is not a formal accuracy model. During the
+C010/C011 runs `nvidia-smi` reported GPU3 lost, so FluidX3D was launched on
+devices `0 1 2`; this is recorded as a runtime protocol risk.
 
 CityLBM now exposes the corresponding `Diagnostic Z Origin Offset` (`zOff`)
 input on the Grasshopper `Run Simulation` component. The default is 0 m. This

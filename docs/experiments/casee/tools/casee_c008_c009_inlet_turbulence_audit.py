@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit C008/C009 AF-k synthetic full-plane inlet turbulence candidates."""
+"""Audit C008-C011 AF-k synthetic full-plane inlet turbulence candidates."""
 
 from __future__ import annotations
 
@@ -200,7 +200,7 @@ def write_md(path: Path, payload: Dict[str, Any]) -> None:
     dz = best.get("delta_vs_zcenter_baseline", {})
     dc = best.get("delta_vs_c005_decomposition", {})
     lines = [
-        "# C008/C009 Inlet Turbulence Audit",
+        "# C008-C011 Inlet Turbulence Sweep Audit",
         "",
         f"Generated: {payload['generated_at']}",
         "",
@@ -236,8 +236,12 @@ def write_md(path: Path, payload: Dict[str, Any]) -> None:
 def main() -> int:
     c008_csv = latest("casee_c008_inlet_k_synthetic_*_probe_time_mean.csv")
     c009_csv = latest("casee_c009_inlet_k_synthetic_s0p7_*_probe_time_mean.csv")
+    c010_csv = latest("casee_c010_inlet_k_synthetic_s1p0_*_probe_time_mean.csv")
+    c011_csv = latest("casee_c011_inlet_k_synthetic_s1p5_*_probe_time_mean.csv")
     c008_run = latest("fluidx3d_c008_inlet_k_synthetic_run_*.log")
     c009_run = latest("fluidx3d_c009_inlet_k_synthetic_s0p7_run_*.log")
+    c010_run = latest("fluidx3d_c010_inlet_k_synthetic_s1p0_run_*.log")
+    c011_run = latest("fluidx3d_c011_inlet_k_synthetic_s1p5_run_*.log")
     c008 = candidate_row(
         "C008_inlet_k_synthetic_fullplane_s0p35",
         0.35,
@@ -256,7 +260,25 @@ def main() -> int:
         RESULTS_DIR / "fluidx3d_c009_inlet_k_synthetic_s0p7_compile.err.log",
         NATIVE_DIR / "casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s0p7_pmodes_steps48000_spin12000" / "citylbm_native_case_manifest.json",
     )
-    candidates = [c008, c009]
+    c010 = candidate_row(
+        "C010_inlet_k_synthetic_fullplane_s1p00",
+        1.00,
+        c010_csv,
+        c010_run,
+        RESULTS_DIR / "fluidx3d_c010_inlet_k_synthetic_s1p0_compile.log",
+        RESULTS_DIR / "fluidx3d_c010_inlet_k_synthetic_s1p0_compile.err.log",
+        NATIVE_DIR / "casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s1_pmodes_steps48000_spin12000" / "citylbm_native_case_manifest.json",
+    )
+    c011 = candidate_row(
+        "C011_inlet_k_synthetic_fullplane_s1p50",
+        1.50,
+        c011_csv,
+        c011_run,
+        RESULTS_DIR / "fluidx3d_c011_inlet_k_synthetic_s1p5_compile.log",
+        RESULTS_DIR / "fluidx3d_c011_inlet_k_synthetic_s1p5_compile.err.log",
+        NATIVE_DIR / "casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s1p5_pmodes_steps48000_spin12000" / "citylbm_native_case_manifest.json",
+    )
+    candidates = [c008, c009, c010, c011]
     best = min(candidates, key=lambda row: row["candidate_metrics"].get("rmse_pp", float("inf")))
     bm = best["candidate_metrics"]
     all_protocol_ok = all(row["log_completed_48000"] and row["manifest_protocol_ok"] for row in candidates)
@@ -268,7 +290,7 @@ def main() -> int:
     metric_gate = bm.get("mae_pp", 999.0) < 15.0 and bm.get("r2", -999.0) > 0.0 and bm.get("pearson", -999.0) > 0.0
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "audit_id": "casee_c008_c009_inlet_turbulence_audit",
+        "audit_id": "casee_c008_c011_inlet_turbulence_sweep_audit",
         "status": "completed_inlet_turbulence_improved_but_negative_r2" if all_protocol_ok and improved_vs_zcenter and not metric_gate else "blocked_or_inconclusive",
         "evidence_type": "newly_run",
         "claim_readiness": "limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release",
@@ -282,7 +304,7 @@ def main() -> int:
         "candidates": candidates,
         "best_candidate": best,
         "boundary": (
-            "C008/C009 are completed official-height raw_trilinear candidate runs using a default-off synthetic full-plane inlet based on AF_caseE k. "
+            "C008-C011 are completed official-height raw_trilinear candidate runs using a default-off synthetic full-plane inlet based on AF_caseE k. "
             "They improve MAE, R2, and Pearson, but R2 remains negative and the turbulence scale is a diagnostic sweep parameter. "
             "Use as inlet-turbulence evidence and software-feedback guidance only; do not claim formal v0.4.0, predictive accuracy, mesh independence, or LES improvement."
         ),

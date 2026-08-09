@@ -743,9 +743,9 @@ def build_rows() -> List[Dict[str, Any]]:
     rows.append(
         row(
             feedback_id="SF025",
-            experiment="Experiment 2 / AIJ Case E C008/C009 inlet turbulence",
+            experiment="Experiment 2 / AIJ Case E C008-C011 inlet turbulence",
             finding=(
-                "The AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, "
+                "The C008-C011 AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, "
                 f"with best MAE={inlet_metrics.get('mae_pp')} pp, R2={inlet_metrics.get('r2')}, and Pearson={inlet_metrics.get('pearson')}, "
                 "but R2 remained negative."
             ),

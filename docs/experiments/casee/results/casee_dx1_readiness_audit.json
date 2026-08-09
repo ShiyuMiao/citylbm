@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T14:50:41.403011+00:00",
+  "generated_at": "2026-08-09T15:13:17.364922+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "limitations_ready_dx1_feasibility",
   "dx1_command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 1 --steps 48000 --spinup 12000 --sample-dt 4000 --ground-offset-cells 1 --origin-z-offset-m 0.5 --nu-lbm 0.001",

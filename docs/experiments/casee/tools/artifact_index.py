@@ -37,6 +37,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc40.md",
     "docs/releases/v0.4.0-rc41.md",
     "docs/releases/v0.4.0-rc42.md",
+    "docs/releases/v0.4.0-rc43.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -279,7 +280,13 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "limitations_ready_dx3_low_cost_regression"
     if "casee_c005_decomposition_audit" in path or "c005_dx2_decomp4x1x1" in path:
         return "limitations_ready_decomposition_sensitivity"
-    if "casee_c008_c009_inlet_turbulence_audit" in path or "c008_inlet_k_synthetic" in path or "c009_inlet_k_synthetic" in path:
+    if (
+        "casee_c008_c009_inlet_turbulence_audit" in path
+        or "c008_inlet_k_synthetic" in path
+        or "c009_inlet_k_synthetic" in path
+        or "c010_inlet_k_synthetic" in path
+        or "c011_inlet_k_synthetic" in path
+    ):
         return "limitations_ready_inlet_turbulence_improvement"
     if "rhino_gha_load_gate" in path:
         return "blocked_manual_rhino_load"
@@ -592,6 +599,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc40.md",
                 "v0.4.0-rc41.md",
                 "v0.4.0-rc42.md",
+                "v0.4.0-rc43.md",
             )
         )
     ]

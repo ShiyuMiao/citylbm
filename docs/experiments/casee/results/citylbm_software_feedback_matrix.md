@@ -1,6 +1,6 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-09T14:50:47.800142+00:00
+Generated: 2026-08-09T15:13:23.780978+00:00
 
 ## Verdict
 
@@ -59,7 +59,7 @@ Generated: 2026-08-09T14:50:47.800142+00:00
 | `SF022` | Experiment 2 / AIJ Case E C003 z-origin ablation | diagnostic_ablation_no_default_promotion | zorigin_sensitivity_confirmed | False | The completed C003 no-z-center ablation worsened the official z=2 m raw_trilinear metric relative to the z-center baseline, so z-origin alignment remains a diagnostic sensitivity rather than a validated default model. |
 | `SF023` | Experiment 2 / AIJ Case E C004 dx=3 control | low_cost_regression_no_default_promotion | dx3_control_completed_positive_correlation | False | The completed C004 dx=3 low-cost control kept positive Pearson correlation but worsened MAE and R2, so it is useful as a quick protocol/direction regression rather than an accuracy default. |
 | `SF024` | Experiment 2 / AIJ Case E C005 domain decomposition | runtime_decomposition_sensitivity_no_default_promotion | decomposition_sensitivity_detected | False | The completed C005 dx=2 m 4x1x1 domain-decomposition ablation improved MAE and R2 versus the z-center baseline, but R2 stayed negative, Pearson decreased, and reproducibility-consistency thresholds failed. |
-| `SF025` | Experiment 2 / AIJ Case E C008/C009 inlet turbulence | inlet_turbulence_diagnostic_no_default_promotion | inlet_turbulence_candidate_improved_but_blocked | False | The AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, with best MAE=14.677544574999999 pp, R2=-0.3598186886134105, and Pearson=0.2834105384611786, but R2 remained negative. |
+| `SF025` | Experiment 2 / AIJ Case E C008-C011 inlet turbulence | inlet_turbulence_diagnostic_no_default_promotion | inlet_turbulence_candidate_improved_but_blocked | False | The C008-C011 AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, with best MAE=14.3750643375 pp, R2=-0.32680378704255153, and Pearson=0.2856641275815884, but R2 remained negative. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary

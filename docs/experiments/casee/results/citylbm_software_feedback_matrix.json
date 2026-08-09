@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T14:50:47.800142+00:00",
+    "generated_at": "2026-08-09T15:13:23.780978+00:00",
     "feedback_count": 25,
     "decision_class_counts": {
       "default_quality_gate": 1,
@@ -374,14 +374,14 @@
     },
     {
       "feedback_id": "SF025",
-      "experiment": "Experiment 2 / AIJ Case E C008/C009 inlet turbulence",
-      "finding": "The AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, with best MAE=14.677544574999999 pp, R2=-0.3598186886134105, and Pearson=0.2834105384611786, but R2 remained negative.",
+      "experiment": "Experiment 2 / AIJ Case E C008-C011 inlet turbulence",
+      "finding": "The C008-C011 AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, with best MAE=14.3750643375 pp, R2=-0.32680378704255153, and Pearson=0.2856641275815884, but R2 remained negative.",
       "evidence_type": "newly_run",
-      "source_paths": "docs/experiments/casee/tools/generate_native_casee.py; docs/experiments/casee/tools/casee_c008_c009_inlet_turbulence_audit.py; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md; docs/experiments/casee/results/casee_c009_inlet_k_synthetic_s0p7_20260809_223022_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_run_20260809_223022.log",
+      "source_paths": "docs/experiments/casee/tools/generate_native_casee.py; docs/experiments/casee/tools/casee_c008_c009_inlet_turbulence_audit.py; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md; docs/experiments/casee/results/casee_c011_inlet_k_synthetic_s1p5_20260809_230150_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c011_inlet_k_synthetic_s1p5_run_20260809_230150.log",
       "source_paths_exist": true,
       "decision_class": "inlet_turbulence_diagnostic_no_default_promotion",
       "citylbm_status": "inlet_turbulence_candidate_improved_but_blocked",
-      "implementation_evidence": "pass_condition_met=True; metric_gate_passed=False; delta_mae_vs_zcenter=-6.4338635125; delta_r2_vs_zcenter=1.6465117686055901; delta_pearson_vs_zcenter=0.16765405697638774",
+      "implementation_evidence": "pass_condition_met=True; metric_gate_passed=False; delta_mae_vs_zcenter=-6.73634375; delta_r2_vs_zcenter=1.679526670176449; delta_pearson_vs_zcenter=0.16990764609679754",
       "default_setting_allowed": false,
       "paper_use": "Use as evidence that AF k and full-plane inlet turbulence are the strongest current improvement direction.",
       "limitations": "Diagnostic scale sweep on one benchmark; R2 remains negative and cannot support formal v0.4.0, LES improvement, or a default accuracy model."
@@ -395,7 +395,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=8; executable_now_count=0; recommended_tag=v0.4.0-rc42",
+      "implementation_evidence": "candidate_count=8; executable_now_count=0; recommended_tag=v0.4.0-rc43",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."

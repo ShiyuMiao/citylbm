@@ -369,7 +369,7 @@ def build_rows() -> List[Dict[str, str]]:
     out.append(
         row(
             experiment="Experiment 2 / AIJ Case E",
-            result_id="c008_c009_inlet_turbulence_best_negative_candidate",
+            result_id="c008_c011_inlet_turbulence_best_negative_candidate",
             claim_readiness=str(c008_c009_inlet.get("claim_readiness", "blocked_inlet_turbulence_audit")),
             evidence_type=str(c008_c009_inlet.get("evidence_type", "missing")),
             source_paths=[

@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.0-rc43 - AF-k inlet turbulence scale sweep extension
+
+- Extended the default-off `k_synthetic_fullplane` inlet-turbulence diagnostic sweep with C010 scale 1.00 and C011 scale 1.50.
+- Generated, compiled, and ran C010/C011 dx=2 m, z-center, 4x1x1 inlet-turbulence candidates for 48000 FluidX3D steps under the official z=2 m raw_trilinear protocol.
+- Updated the C008-C011 inlet-turbulence audit, candidate sweep plan, evidence gates, artifact index, manuscript claim matrix, paper results packet, and software-feedback matrix.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc43.md`.
+- Recorded a runtime risk: `nvidia-smi` reported GPU3 lost, so C010/C011 were launched with FluidX3D device arguments `0 1 2`.
+
+C011 is now the strongest diagnostic Case E official-height candidate: MAE = 14.375 pp, R2 = -0.326804, Pearson = 0.285664. Relative to the z-center baseline, the delta is MAE = -6.736 pp and R2 = +1.679527. This is a substantial diagnostic improvement but not a formal accuracy pass because R2 remains negative and the AF-k synthetic inlet scale is a benchmark-sweep parameter. It does not prove predictive accuracy, mesh independence, LES improvement, Rhino new-GHA loading, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc42 - AF-k inlet turbulence diagnostic improvement
 
 - Added default-off `k_synthetic_fullplane` support to `generate_native_casee.py`, using `AF_caseE.csv` z,U,k to generate bounded full-plane synthetic inlet fluctuations while preserving the default steady inlet.

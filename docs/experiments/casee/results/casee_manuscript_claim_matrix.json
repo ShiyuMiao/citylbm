@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T14:50:39.433454+00:00",
+  "generated_at": "2026-08-09T15:13:15.403735+00:00",
   "claims": [
     {
       "claim_id": "C001",
@@ -79,7 +79,7 @@
       "evidence_type": "newly_run",
       "section": "Reproducibility / Build chain",
       "claim": "Visual Studio Build Tools 2022 C++ remains unavailable, but GPU runtime and the audited native-source fallback path are available for additional native validation attempts.",
-      "supporting_metrics": "VS C++ status=blocked; native_source_compile_path=mingw_gpp_fallback; nvidia-smi returncode=0",
+      "supporting_metrics": "VS C++ status=blocked; native_source_compile_path=mingw_gpp_fallback; nvidia-smi returncode=15",
       "source_paths": "docs/experiments/casee/results/build_chain_manifest.json",
       "allowed_use": "Use as a reproducibility limitation and fallback-build statement.",
       "forbidden_use": "Do not claim the VS C++ build-chain requirement is fully installed.",
@@ -91,7 +91,7 @@
       "evidence_type": "newly_run",
       "section": "Release",
       "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
-      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc42",
+      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc43",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
       "allowed_use": "Use to justify rc-only release status.",
       "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",
@@ -150,8 +150,8 @@
       "claim_readiness": "limitations_ready",
       "evidence_type": "newly_run",
       "section": "Results / Inlet turbulence follow-up",
-      "claim": "Using AF_caseE k in a default-off synthetic full-plane inlet substantially improved the official-height raw-trilinear metric, but R2 remained negative.",
-      "supporting_metrics": "status=completed_inlet_turbulence_improved_but_negative_r2; best=C009_inlet_k_synthetic_fullplane_s0p70; MAE=14.678 pp; R2=-0.359819; Pearson=0.283411; delta_MAE_vs_zcenter=-6.434 pp; delta_R2_vs_zcenter=1.646512",
+      "claim": "The C008-C011 AF_caseE-k default-off synthetic full-plane inlet sweep substantially improved the official-height raw-trilinear metric, but R2 remained negative.",
+      "supporting_metrics": "status=completed_inlet_turbulence_improved_but_negative_r2; best=C011_inlet_k_synthetic_fullplane_s1p50; MAE=14.375 pp; R2=-0.326804; Pearson=0.285664; delta_MAE_vs_zcenter=-6.736 pp; delta_R2_vs_zcenter=1.679527",
       "source_paths": "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md",
       "allowed_use": "Use as the strongest current diagnostic improvement evidence and as motivation for a physically validated inlet-turbulence model.",
       "forbidden_use": "Do not claim formal predictive accuracy, LES improvement, or default promotion from the synthetic inlet scale sweep.",

@@ -1,6 +1,6 @@
 # AIJ Case E Manuscript Evidence Summary
 
-Generated: 2026-08-09T14:50:39.435423+00:00
+Generated: 2026-08-09T15:13:15.405009+00:00
 
 ## Current Formal Metric
 
@@ -11,7 +11,7 @@ Generated: 2026-08-09T14:50:39.435423+00:00
 - R2: -2.006330.
 - Pearson: 0.115756.
 - Formal release allowed: False.
-- Recommended tag: `v0.4.0-rc42`.
+- Recommended tag: `v0.4.0-rc43`.
 
 ## Claim Matrix
 
@@ -29,7 +29,7 @@ Generated: 2026-08-09T14:50:39.435423+00:00
 | C010 | limitations_ready | Results / Z-origin ablation | Removing the z-center alignment worsened the official z=2 m raw-trilinear metric, confirming z-origin sensitivity rather than a validated default model. | `docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json; docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.md` |
 | C011 | limitations_ready | Results / dx=3 control | The dx=3 m low-cost control retained positive Pearson correlation but did not improve the official z=2 m Case E metric. | `docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json; docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md` |
 | C012 | limitations_ready | Results / Runtime decomposition sensitivity | The 4x1x1 domain-decomposition ablation improved MAE and R2 relative to the z-center baseline but remained negative and failed reproducibility-consistency thresholds. | `docs/experiments/casee/results/casee_c005_decomposition_audit.json; docs/experiments/casee/results/casee_c005_decomposition_audit.md` |
-| C013 | limitations_ready | Results / Inlet turbulence follow-up | Using AF_caseE k in a default-off synthetic full-plane inlet substantially improved the official-height raw-trilinear metric, but R2 remained negative. | `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md` |
+| C013 | limitations_ready | Results / Inlet turbulence follow-up | The C008-C011 AF_caseE-k default-off synthetic full-plane inlet sweep substantially improved the official-height raw-trilinear metric, but R2 remained negative. | `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md` |
 
 ## Results Paragraph Draft
 

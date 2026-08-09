@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-09T14:50:44.458560+00:00",
+  "generated_at": "2026-08-09T15:13:20.447022+00:00",
   "candidate_sweep_plan_generated": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc42",
+  "recommended_tag": "v0.4.0-rc43",
   "current_official_metrics": {
     "n": 80,
     "mae_pp": 21.111408125,
@@ -235,7 +235,7 @@
       "forbidden_claim": "Do not claim predictive accuracy, mesh independence, LES improvement, or formal v0.4.0 readiness from this candidate unless the official release gate later passes."
     },
     {
-      "candidate_id": "C008_full_plane_inlet_turbulence_implementation",
+      "candidate_id": "C008_C011_full_plane_inlet_turbulence_sweep",
       "priority": 8,
       "candidate_class": "requires_implementation",
       "executable_now": false,
@@ -253,13 +253,13 @@
       "origin_z_offset_m": 1.0,
       "nu_lbm": 0.001,
       "domain_decomposition": "4x1x1",
-      "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane --inlet-turbulence-scale 0.70",
+      "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane --inlet-turbulence-scale 1.50",
       "expected_artifacts": [
         "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
         "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md",
-        "docs/experiments/casee/results/casee_c009_inlet_k_synthetic_s0p7_<stamp>_probe_time_mean.csv"
+        "docs/experiments/casee/results/casee_c011_inlet_k_synthetic_s1p5_<stamp>_probe_time_mean.csv"
       ],
-      "rationale": "Completed: AF-k synthetic full-plane inlet candidates substantially improved official-height MAE/R2/Pearson, but R2 remains negative and the scale sweep is diagnostic-only. status=completed_inlet_turbulence_improved_but_negative_r2; best_R2=-0.3598186886134105; best_MAE=14.677544574999999.",
+      "rationale": "Completed: C008-C011 AF-k synthetic full-plane inlet candidates substantially improved official-height MAE/R2/Pearson, but R2 remains negative and the scale sweep is diagnostic-only. status=completed_inlet_turbulence_improved_but_negative_r2; best_R2=-0.32680378704255153; best_MAE=14.3750643375.",
       "formal_result_policy": "Only the completed 80-probe official z=2 m raw_trilinear casee_probe_time_mean.csv may feed release_gate.json. Diagnostic sampling columns and z offsets cannot substitute for the formal result.",
       "pass_condition": "Official raw_trilinear metric improves without relying on non-raw sampling or z-height substitution.",
       "default_promotion_allowed": false,

@@ -281,7 +281,7 @@ def build_claims(
                 "claim_readiness": "limitations_ready",
                 "evidence_type": c008_c009_inlet.get("evidence_type", "newly_run"),
                 "section": "Results / Inlet turbulence follow-up",
-                "claim": "Using AF_caseE k in a default-off synthetic full-plane inlet substantially improved the official-height raw-trilinear metric, but R2 remained negative.",
+                "claim": "The C008-C011 AF_caseE-k default-off synthetic full-plane inlet sweep substantially improved the official-height raw-trilinear metric, but R2 remained negative.",
                 "supporting_metrics": (
                     f"status={c008_c009_inlet.get('status')}; best={best.get('candidate_id')}; "
                     f"MAE={fmt(candidate['mae_pp'])} pp; R2={fmt(candidate['r2'], 6)}; Pearson={fmt(candidate['pearson'], 6)}; "

@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-08-09T15:00:43.558279+00:00",
+  "run_id": "casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s1p5_pmodes_steps48000_spin12000",
+  "dx_m": 2.0,
+  "steps": 48000,
+  "spinup": 12000,
+  "sample_dt": 2000,
+  "condition": "ac",
+  "wind_direction": "N",
+  "solver_wind_y": -1.0,
+  "subgrid_enabled": true,
+  "ground_offset_cells": 1,
+  "origin_z_offset_m": 1.0,
+  "domain_decomposition": [
+    4,
+    1,
+    1
+  ],
+  "nu_lbm": 0.001,
+  "inlet_turbulence_mode": "k_synthetic_fullplane",
+  "inlet_turbulence_scale": 1.5,
+  "inlet_turbulence_uses_af_k": true,
+  "validation_height_m": 2.0,
+  "probe_count": 80,
+  "formal_sampling_mode": "raw_trilinear",
+  "diagnostic_sampling_modes": [
+    "nearest_valid",
+    "fluid_weighted",
+    "vertical_valid_above",
+    "z_plus_half"
+  ],
+  "geometry_scale_factor": 250.0,
+  "binary_stl_triangles": 60101,
+  "output": "casee_probe_time_mean.csv",
+  "evidence_boundary": "generated case only until FluidX3D run completes"
+}
