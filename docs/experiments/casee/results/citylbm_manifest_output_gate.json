@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T11:55:39.866262+00:00",
+  "generated_at": "2026-08-09T12:09:00.562306+00:00",
   "manifest_output_gate_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_manifest_traceability",
@@ -116,6 +116,14 @@
       "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
       "paper_use": "Use to show the manifest records formal protocol and diagnostic boundaries.",
       "failure_action": "Restore claim-boundary fields in the run manifest."
+    },
+    {
+      "check_id": "manifest_contains_wall_roughness_followup_fields",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "paper_use": "Use to show run manifests trace wall/roughness follow-up switches without changing solver defaults.",
+      "failure_action": "Restore wall/roughness follow-up fields in WriteRunManifest."
     },
     {
       "check_id": "manifest_contains_paper_readiness_boundary",

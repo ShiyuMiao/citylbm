@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T11:55:39.608244+00:00",
+  "generated_at": "2026-08-09T12:09:00.272717+00:00",
   "default_policy_gate_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_default_policy_boundary",
@@ -15,6 +15,8 @@
   "experimental_switches": [
     "Diagnostic LBM Nu Override / nuLBM sensitivity control.",
     "Diagnostic Z Origin Offset / zOff vertical-origin sensitivity control.",
+    "Diagnostic Wall Model / wallModel follow-up control.",
+    "Diagnostic Roughness Length / z0Wall follow-up control.",
     "nearest_valid, fluid_weighted, vertical_valid_above, and z_plus_half probe sampling.",
     "Effective-ground, rough-wall, wall-model, voxelization, and inlet-turbulence follow-up settings until official z=2 m raw_trilinear improvement is proven."
   ],
@@ -56,6 +58,24 @@
       "failure_action": "Reset DiagnosticZOriginOffsetM default to 0.0."
     },
     {
+      "check_id": "simulation_settings_wall_model_default_none",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "policy_boundary": "Diagnostic wall model is default-off and cannot replace the existing wall treatment by default.",
+      "paper_use": "Use to state wall-model follow-ups are experimental switches.",
+      "failure_action": "Restore DiagnosticWallModel default to none."
+    },
+    {
+      "check_id": "simulation_settings_roughness_default_zero",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "policy_boundary": "Diagnostic roughness length is default-off and cannot become a formal accuracy model without official z=2 m improvement.",
+      "paper_use": "Use to state rough-wall/effective-ground follow-ups are diagnostics only.",
+      "failure_action": "Restore DiagnosticRoughnessLengthM default to 0.0."
+    },
+    {
       "check_id": "run_component_casee_preset_default_false",
       "passed": true,
       "evidence_type": "newly_run",
@@ -83,6 +103,24 @@
       "failure_action": "Restore the zOff input default to 0.0."
     },
     {
+      "check_id": "run_component_wall_model_input_default_none",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "policy_boundary": "Diagnostic Wall Model stays at none unless explicitly changed.",
+      "paper_use": "Use to classify wall-model changes as experimental switches.",
+      "failure_action": "Restore the wallModel input default to none."
+    },
+    {
+      "check_id": "run_component_roughness_input_default_zero",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "policy_boundary": "Diagnostic Roughness Length stays at zero unless explicitly changed.",
+      "paper_use": "Use to classify roughness changes as experimental switches.",
+      "failure_action": "Restore the z0Wall input default to 0.0."
+    },
+    {
       "check_id": "run_component_claim_gate_output",
       "passed": true,
       "evidence_type": "newly_run",
@@ -108,6 +146,15 @@
       "policy_boundary": "Run manifests encode the formal v0.4.0 accuracy-gate contract and keep manifest-only claims blocked.",
       "paper_use": "Use to state that software traceability encodes the release gate but does not satisfy it.",
       "failure_action": "Restore formal_accuracy_gate contract fields in WriteRunManifest."
+    },
+    {
+      "check_id": "manifest_blocks_wall_roughness_formal_defaults",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "policy_boundary": "Run manifests forbid wall-model and roughness diagnostics from becoming default accuracy claims.",
+      "paper_use": "Use to state wall/roughness follow-ups are limitations-only until official metrics improve.",
+      "failure_action": "Restore wall/roughness claim-boundary fields in WriteRunManifest."
     },
     {
       "check_id": "native_generator_formal_output_raw",

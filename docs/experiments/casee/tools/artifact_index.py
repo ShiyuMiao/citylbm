@@ -28,6 +28,7 @@ EXPLICIT_ARTIFACTS = [
     "CityLBM/bin/CityLBM.gha",
     "docs/releases/v0.4.0-rc32.md",
     "docs/releases/v0.4.0-rc33.md",
+    "docs/releases/v0.4.0-rc34.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -512,6 +513,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_zcenter_voxel_probe_audit_groups.csv",
                 "v0.4.0-rc32.md",
                 "v0.4.0-rc33.md",
+                "v0.4.0-rc34.md",
             )
         )
     ]

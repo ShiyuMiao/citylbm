@@ -111,7 +111,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc33.md`
+- `docs/releases/v0.4.0-rc34.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -123,6 +123,13 @@ CityLBM includes one experiment-derived default-off solver switch in this branch
 `Diagnostic LBM Nu Override` (`nuLBM`) on the Grasshopper `Run Simulation`
 component. It is for reproducing `nu_lbm` sensitivity diagnostics only; leaving
 it at 0 keeps the standard physical-viscosity mapping.
+
+CityLBM also exposes default-off wall and roughness follow-up controls on
+`Run Simulation`: `Diagnostic Wall Model` (`wallModel`, default `none`) and
+`Diagnostic Roughness Length` (`z0Wall`, default `0.0 m`). Generated
+`setup.cpp` and `citylbm_run_manifest.json` record these settings for audit
+traceability only. They do not change the default wall treatment and are not
+formal validation or accepted accuracy-improvement claims.
 
 The native Case E generator also supports a compile-verified probe-mode
 diagnostic runner. It keeps `predicted_velocity_ratio` as the formal
@@ -157,9 +164,9 @@ that the manifest alone cannot authorize a formal accuracy claim.
 
 The Grasshopper `Run Simulation` component now exposes a `Claim Gate` (`Gate`)
 output next to `Manifest Path`. For Case E runs it reports the official
-validation contract and states that diagnostic sampling or z offsets are
-limitations-only. This output is intended to prevent workflow-success from
-being mistaken for benchmark-accuracy success.
+validation contract and states that diagnostic sampling, z offsets, wall
+models, and roughness lengths are limitations-only. This output is intended to
+prevent workflow-success from being mistaken for benchmark-accuracy success.
 
 The z-center lattice diagnostic puts official z=2 m on a dx=2 m lattice center.
 It improves the formal raw_trilinear MAE to 21.111 pp and Pearson to 0.115756,

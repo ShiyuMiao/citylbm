@@ -93,6 +93,14 @@ namespace CityLBM.Components.Simulation
                 "Experimental only. Adds a vertical-origin offset, in meters, for Case E inlet-height and probe-protocol diagnostics; default 0 keeps the grid origin unchanged.",
                 GH_ParamAccess.item, 0.0);
             pManager[12].Optional = true;
+            pManager.AddTextParameter("Diagnostic Wall Model", "wallModel",
+                "Experimental only. Default 'none' keeps the existing no-slip wall handling. Other labels are recorded for wall/roughness follow-up audits only until official z=2m metrics pass.",
+                GH_ParamAccess.item, "none");
+            pManager[13].Optional = true;
+            pManager.AddNumberParameter("Diagnostic Roughness Length", "z0Wall",
+                "Experimental only. Roughness length in meters for wall/ground follow-up audits; default 0 keeps the existing wall treatment and is not a formal validation substitute.",
+                GH_ParamAccess.item, 0.0);
+            pManager[14].Optional = true;
 
             // 全部可选（除 Scene 和 Grid）
             for (int i = 2; i <= 10; i++) pManager[i].Optional = true;
@@ -126,6 +134,8 @@ namespace CityLBM.Components.Simulation
             bool useCaseEPreset = false;
             double diagnosticNuLbmOverride = 0.0;
             double diagnosticZOriginOffsetM = 0.0;
+            string diagnosticWallModel = "none";
+            double diagnosticRoughnessLengthM = 0.0;
 
             if (!DA.GetData(0, ref ghScene)) return;
             if (!DA.GetData(1, ref ghGrid)) return;
@@ -140,6 +150,8 @@ namespace CityLBM.Components.Simulation
             DA.GetData(10, ref useCaseEPreset);
             DA.GetData(11, ref diagnosticNuLbmOverride);
             DA.GetData(12, ref diagnosticZOriginOffsetM);
+            DA.GetData(13, ref diagnosticWallModel);
+            DA.GetData(14, ref diagnosticRoughnessLengthM);
 
             // ── GH 加载期保护 ────────────────────────────────────────────
             // 使用宽限期策略：组件创建后 3 秒内认为 GH 可能还在加载
@@ -243,7 +255,9 @@ namespace CityLBM.Components.Simulation
                 SaveInterval = saveInterval,
                 UseAijCaseEPreset = useCaseEPreset,
                 DiagnosticNuLbmOverride = diagnosticNuLbmOverride,
-                DiagnosticZOriginOffsetM = diagnosticZOriginOffsetM
+                DiagnosticZOriginOffsetM = diagnosticZOriginOffsetM,
+                DiagnosticWallModel = diagnosticWallModel,
+                DiagnosticRoughnessLengthM = diagnosticRoughnessLengthM
             };
             settings.SetInletVelocity(scene.WindDirection, scene.WindSpeed);
 
@@ -520,7 +534,7 @@ namespace CityLBM.Components.Simulation
             if (settings != null && settings.UseAijCaseEPreset)
             {
                 string status = caseGeneratedOrRunCompleted ? "case generated" : "case not yet completed";
-                return $"AIJ Case E formal gate ({status}): official ac+N, wind vector (0,-1,0), z=2 m, 80 probes, raw_trilinear only. Diagnostic sampling or z offsets are limitations-only. Formal v0.4.0 requires release_gate.json pass, Case A smoke regression, Rhino new-GHA load, MAE improvement, positive R2, and positive Pearson.";
+                return $"AIJ Case E formal gate ({status}): official ac+N, wind vector (0,-1,0), z=2 m, 80 probes, raw_trilinear only. Diagnostic sampling, z offsets, wall models, and roughness lengths are limitations-only. Formal v0.4.0 requires release_gate.json pass, Case A smoke regression, Rhino new-GHA load, MAE improvement, positive R2, and positive Pearson.";
             }
             return "Generic CityLBM run: no benchmark accuracy claim is supported without an external validation protocol, completed logs, probe CSV, and release gate.";
         }

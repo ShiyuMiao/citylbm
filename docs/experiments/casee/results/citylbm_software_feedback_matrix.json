@@ -1,12 +1,12 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T11:55:42.129971+00:00",
-    "feedback_count": 16,
+    "generated_at": "2026-08-09T12:09:03.230233+00:00",
+    "feedback_count": 17,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
       "formal_protocol_default": 1,
-      "diagnostic_switch": 2,
+      "diagnostic_switch": 3,
       "blocked_followup_run": 3,
       "application_workflow_policy": 1,
       "paper_interpretation_layer": 1,
@@ -18,7 +18,7 @@
       "implemented_as_release_gate_requirement": 1,
       "formal_release_blocked": 1,
       "implemented": 7,
-      "implemented_default_off": 2,
+      "implemented_default_off": 3,
       "ready_for_next_official_run": 1,
       "paper_ready_workflow_guidance": 1,
       "paper_ready_with_boundary": 1,
@@ -257,6 +257,20 @@
       "default_setting_allowed": false,
       "paper_use": "Use as high-resolution follow-up feasibility and limitations evidence.",
       "limitations": "Readiness evidence only; no dx=1 solver output, no official z=2 m metric improvement, and no mesh-independence claim."
+    },
+    {
+      "feedback_id": "SF017",
+      "experiment": "Experiment 2 / AIJ Case E wall and roughness follow-up",
+      "finding": "Near-wall underprediction and solid-corner diagnostics justify a default-off wall/roughness follow-up interface, but the official z=2 m raw_trilinear metric has not improved enough to promote any wall model as a default accuracy setting.",
+      "evidence_type": "newly_run",
+      "source_paths": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs; CityLBM/src/Core/FluidX3DInterface.cs; docs/experiments/casee/results/casee_failure_mode_atlas.json; docs/experiments/casee/results/casee_default_policy_gate.json; docs/experiments/casee/results/citylbm_manifest_output_gate.json",
+      "source_paths_exist": true,
+      "decision_class": "diagnostic_switch",
+      "citylbm_status": "implemented_default_off",
+      "implementation_evidence": "Grasshopper wallModel defaults to none, z0Wall defaults to 0.0, generated setup.cpp records audit constants only, and run manifests block default accuracy promotion.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as software-feedback evidence that Case E diagnostics were converted into controlled follow-up interfaces.",
+      "limitations": "No wall-model or roughness setting is a formal validation result until completed official z=2 m raw_trilinear runs pass the release gate."
     }
   ],
   "source_artifacts": [

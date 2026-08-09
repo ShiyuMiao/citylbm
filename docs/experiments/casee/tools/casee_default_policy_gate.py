@@ -116,6 +116,22 @@ def build_checks() -> List[Dict[str, Any]]:
             "Reset DiagnosticZOriginOffsetM default to 0.0.",
         ),
         check_row(
+            "simulation_settings_wall_model_default_none",
+            'DiagnosticWallModel' in fluidx and '"none"' in fluidx,
+            FLUIDX,
+            "Diagnostic wall model is default-off and cannot replace the existing wall treatment by default.",
+            "Use to state wall-model follow-ups are experimental switches.",
+            "Restore DiagnosticWallModel default to none.",
+        ),
+        check_row(
+            "simulation_settings_roughness_default_zero",
+            "DiagnosticRoughnessLengthM { get; set; } = 0.0" in fluidx,
+            FLUIDX,
+            "Diagnostic roughness length is default-off and cannot become a formal accuracy model without official z=2 m improvement.",
+            "Use to state rough-wall/effective-ground follow-ups are diagnostics only.",
+            "Restore DiagnosticRoughnessLengthM default to 0.0.",
+        ),
+        check_row(
             "run_component_casee_preset_default_false",
             has_regex(
                 run_component,
@@ -149,6 +165,28 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore the zOff input default to 0.0.",
         ),
         check_row(
+            "run_component_wall_model_input_default_none",
+            has_regex(
+                run_component,
+                r'AddTextParameter\("Diagnostic Wall Model".*?GH_ParamAccess\.item,\s*"none"\)',
+            ),
+            RUN_COMPONENT,
+            "Diagnostic Wall Model stays at none unless explicitly changed.",
+            "Use to classify wall-model changes as experimental switches.",
+            "Restore the wallModel input default to none.",
+        ),
+        check_row(
+            "run_component_roughness_input_default_zero",
+            has_regex(
+                run_component,
+                r'AddNumberParameter\("Diagnostic Roughness Length".*?GH_ParamAccess\.item,\s*0\.0\)',
+            ),
+            RUN_COMPONENT,
+            "Diagnostic Roughness Length stays at zero unless explicitly changed.",
+            "Use to classify roughness changes as experimental switches.",
+            "Restore the z0Wall input default to 0.0.",
+        ),
+        check_row(
             "run_component_claim_gate_output",
             'AddTextParameter("Claim Gate", "Gate"' in run_component
             and "ClaimGateSummary" in run_component
@@ -180,6 +218,18 @@ def build_checks() -> List[Dict[str, Any]]:
             "Run manifests encode the formal v0.4.0 accuracy-gate contract and keep manifest-only claims blocked.",
             "Use to state that software traceability encodes the release gate but does not satisfy it.",
             "Restore formal_accuracy_gate contract fields in WriteRunManifest.",
+        ),
+        check_row(
+            "manifest_blocks_wall_roughness_formal_defaults",
+            "diagnostic_wall_model_allowed_as_default_accuracy_model" in fluidx
+            and "diagnostic_roughness_length_allowed_as_default_accuracy_model" in fluidx
+            and "diagnostic_wall_roughness_changes_solver_defaults" in fluidx
+            and "wall_model" in fluidx
+            and "roughness_length" in fluidx,
+            FLUIDX,
+            "Run manifests forbid wall-model and roughness diagnostics from becoming default accuracy claims.",
+            "Use to state wall/roughness follow-ups are limitations-only until official metrics improve.",
+            "Restore wall/roughness claim-boundary fields in WriteRunManifest.",
         ),
         check_row(
             "native_generator_formal_output_raw",
@@ -327,6 +377,8 @@ def main() -> int:
         "experimental_switches": [
             "Diagnostic LBM Nu Override / nuLBM sensitivity control.",
             "Diagnostic Z Origin Offset / zOff vertical-origin sensitivity control.",
+            "Diagnostic Wall Model / wallModel follow-up control.",
+            "Diagnostic Roughness Length / z0Wall follow-up control.",
             "nearest_valid, fluid_weighted, vertical_valid_above, and z_plus_half probe sampling.",
             "Effective-ground, rough-wall, wall-model, voxelization, and inlet-turbulence follow-up settings until official z=2 m raw_trilinear improvement is proven.",
         ],

@@ -513,6 +513,38 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    rows.append(
+        row(
+            feedback_id="SF017",
+            experiment="Experiment 2 / AIJ Case E wall and roughness follow-up",
+            finding=(
+                "Near-wall underprediction and solid-corner diagnostics justify a default-off "
+                "wall/roughness follow-up interface, but the official z=2 m raw_trilinear metric "
+                "has not improved enough to promote any wall model as a default accuracy setting."
+            ),
+            evidence_type="newly_run",
+            source_paths=[
+                RUN_COMPONENT,
+                FLUIDX,
+                RESULTS_DIR / "casee_failure_mode_atlas.json",
+                RESULTS_DIR / "casee_default_policy_gate.json",
+                RESULTS_DIR / "citylbm_manifest_output_gate.json",
+            ],
+            decision_class="diagnostic_switch",
+            citylbm_status="implemented_default_off"
+            if "Diagnostic Wall Model" in run_component
+            and "Diagnostic Roughness Length" in run_component
+            and "DiagnosticWallModel" in fluidx
+            and "DiagnosticRoughnessLengthM { get; set; } = 0.0" in fluidx
+            and "diagnostic_wall_model_allowed_as_default_accuracy_model" in fluidx
+            else "missing_or_not_default_off",
+            implementation_evidence="Grasshopper wallModel defaults to none, z0Wall defaults to 0.0, generated setup.cpp records audit constants only, and run manifests block default accuracy promotion.",
+            default_setting_allowed=False,
+            paper_use="Use as software-feedback evidence that Case E diagnostics were converted into controlled follow-up interfaces.",
+            limitations="No wall-model or roughness setting is a formal validation result until completed official z=2 m raw_trilinear runs pass the release gate.",
+        )
+    )
+
     return rows
 
 
@@ -531,7 +563,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(

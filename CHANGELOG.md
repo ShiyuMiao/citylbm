@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc34 - Wall and roughness follow-up interface
+
+- Added default-off Grasshopper `Run Simulation` inputs for `Diagnostic Wall Model` (`wallModel`, default `none`) and `Diagnostic Roughness Length` (`z0Wall`, default `0.0 m`).
+- Propagated the wall/roughness follow-up settings through `SimulationSettings`, generated `setup.cpp` audit constants, and `citylbm_run_manifest.json`.
+- Extended the default-policy gate, manifest-output gate, artifact index, paper evidence gate, and software-feedback matrix with wall/roughness claim-boundary checks.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc34.md`.
+
+This release candidate improves controlled follow-up interfaces and traceability for near-wall limitations only. It does not change default solver wall treatment, add CFD output, improve official Case E z=2 m metrics, prove mesh independence, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc33 - dx=1 readiness audit
 
 - Added `casee_dx1_readiness_audit.py` to quantify the dx=1 m high-resolution Case E follow-up before launching any long FluidX3D run.

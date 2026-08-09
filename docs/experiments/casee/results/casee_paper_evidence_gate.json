@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-09T11:55:44.154812+00:00",
+  "generated_at": "2026-08-09T12:09:05.617621+00:00",
   "paper_evidence_gate_passed": true,
   "metric_gate": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc33",
+    "recommended_tag": "v0.4.0-rc34",
     "official_z2m_r2": -2.006330362229977,
     "official_z2m_mae_pp": 21.111408125,
     "official_z2m_pearson": 0.11575649438573923,
@@ -38,8 +38,8 @@
   },
   "artifact_index": {
     "artifact_index_found": true,
-    "artifact_count": 177,
-    "lightweight_release_asset_count": 144,
+    "artifact_count": 178,
+    "lightweight_release_asset_count": 145,
     "formal_accuracy_claim_supported": false,
     "required_artifacts_present": true,
     "missing_required_artifacts": []
@@ -107,7 +107,7 @@
     "default_policy_gate_passed": true,
     "claim_readiness": "paper_ready_default_policy_boundary",
     "formal_release_allowed": false,
-    "check_count": 17,
+    "check_count": 22,
     "claim_boundary_safe": true
   },
   "citylbm_paper_results_packet": {
@@ -129,7 +129,7 @@
     "manifest_output_gate_passed": true,
     "claim_readiness": "paper_ready_manifest_traceability",
     "formal_accuracy_claim_supported": false,
-    "check_count": 16,
+    "check_count": 17,
     "claim_boundary_safe": true
   },
   "casee_manuscript_results_table": {
@@ -154,7 +154,7 @@
     "claim_readiness": "paper_ready_negative_validation_and_limitations",
     "formal_accuracy_claim_supported": false,
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc33",
+    "recommended_tag": "v0.4.0-rc34",
     "check_count": 9,
     "claim_boundary_safe": true
   },
@@ -170,7 +170,7 @@
   "citylbm_software_feedback_matrix": {
     "software_feedback_matrix_found": true,
     "software_feedback_matrix_passed": true,
-    "feedback_count": 16,
+    "feedback_count": 17,
     "all_source_paths_exist": true,
     "no_forbidden_default_promotion": true,
     "formal_accuracy_claim_supported": false,

@@ -1704,6 +1704,10 @@ namespace CityLBM.Solver
                 tau_val = Math.Max(0.55, Math.Min(tau_val, 2.0));
             double nu_final = hasDiagnosticNuOverride ? nu_lbm_val : (tau_val - 0.5) / 3.0;
             double effectiveOriginZ = grid.Origin.Z + settings.DiagnosticZOriginOffsetM;
+            string diagnosticWallModel = NormalizeDiagnosticWallModel(settings.DiagnosticWallModel);
+            bool hasDiagnosticWallModel = !diagnosticWallModel.Equals("none", StringComparison.OrdinalIgnoreCase);
+            bool hasDiagnosticRoughnessLength = Math.Abs(settings.DiagnosticRoughnessLengthM) > 1e-12;
+            int diagnosticWallModelCode = hasDiagnosticWallModel ? 1 : 0;
 
             sb.AppendLine("void main_setup() {");
             sb.AppendLine($"    // LBM 物理参数 (u_max = {uMax}, tau = {tau_val:F4}, nu = {nu_final:E4})");
@@ -1712,6 +1716,14 @@ namespace CityLBM.Solver
             sb.AppendLine($"    const float u_z = {ulbm_z.ToString("F6", System.Globalization.CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_dx = {grid.Dx.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_origin_z = {effectiveOriginZ.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine("    // Diagnostic wall/roughness controls are recorded for follow-up audits only.");
+            sb.AppendLine("    // They do not change the default wall treatment and do not support formal accuracy claims.");
+            sb.AppendLine($"    const int citylbm_diagnostic_wall_model_code = {diagnosticWallModelCode};");
+            sb.AppendLine($"    const float citylbm_diagnostic_roughness_length_m = {settings.DiagnosticRoughnessLengthM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const bool citylbm_diagnostic_wall_followup_enabled = {BoolJson(hasDiagnosticWallModel || hasDiagnosticRoughnessLength)};");
+            sb.AppendLine("    (void)citylbm_diagnostic_wall_model_code;");
+            sb.AppendLine("    (void)citylbm_diagnostic_roughness_length_m;");
+            sb.AppendLine("    (void)citylbm_diagnostic_wall_followup_enabled;");
             AppendInletProfileFunction(sb, settings, windDir, referenceLatticeVelocity, scene.WindSpeed);
             sb.AppendLine();
 
@@ -1940,7 +1952,13 @@ namespace CityLBM.Solver
         {
             bool hasDiagnosticNuOverride = settings.DiagnosticNuLbmOverride > 0.0;
             bool hasDiagnosticZOriginOffset = Math.Abs(settings.DiagnosticZOriginOffsetM) > 1e-12;
-            bool diagnosticSettingsAreDefaultSafe = !hasDiagnosticNuOverride && !hasDiagnosticZOriginOffset;
+            string diagnosticWallModel = NormalizeDiagnosticWallModel(settings.DiagnosticWallModel);
+            bool hasDiagnosticWallModel = !diagnosticWallModel.Equals("none", StringComparison.OrdinalIgnoreCase);
+            bool hasDiagnosticRoughnessLength = Math.Abs(settings.DiagnosticRoughnessLengthM) > 1e-12;
+            bool diagnosticSettingsAreDefaultSafe = !hasDiagnosticNuOverride
+                && !hasDiagnosticZOriginOffset
+                && !hasDiagnosticWallModel
+                && !hasDiagnosticRoughnessLength;
 
             var sb = new StringBuilder();
             sb.AppendLine("{");
@@ -1954,6 +1972,8 @@ namespace CityLBM.Solver
             sb.AppendLine("    \"formal_result_height_must_equal_official_z2m\": true,");
             sb.AppendLine("    \"diagnostic_modes_allowed_as_formal_result\": false,");
             sb.AppendLine("    \"diagnostic_z_origin_offset_allowed_as_default_accuracy_model\": false,");
+            sb.AppendLine("    \"diagnostic_wall_model_allowed_as_default_accuracy_model\": false,");
+            sb.AppendLine("    \"diagnostic_roughness_length_allowed_as_default_accuracy_model\": false,");
             sb.AppendLine("    \"requires_external_release_gate_pass\": true,");
             sb.AppendLine("    \"paper_readiness\": \"manifest_traceability_only; accuracy_claim_requires_external_release_gate\",");
             sb.AppendLine("    \"paper_allowed_uses\": [\"protocol_traceability\", \"software_identity_traceability\", \"limitations_boundary\"],");
@@ -1982,7 +2002,12 @@ namespace CityLBM.Solver
             sb.AppendLine($"    \"viscosity_m2_s\": {settings.Viscosity.ToString("E8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"    \"max_lattice_velocity\": {settings.MaxLatticeVelocity.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"    \"diagnostic_nu_lbm_override\": {settings.DiagnosticNuLbmOverride.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
-            sb.AppendLine($"    \"diagnostic_z_origin_offset_m\": {settings.DiagnosticZOriginOffsetM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}");
+            sb.AppendLine($"    \"diagnostic_z_origin_offset_m\": {settings.DiagnosticZOriginOffsetM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"    \"diagnostic_wall_model\": \"{EscapeJson(diagnosticWallModel)}\",");
+            sb.AppendLine($"    \"diagnostic_wall_model_is_default\": {BoolJson(!hasDiagnosticWallModel)},");
+            sb.AppendLine($"    \"diagnostic_roughness_length_m\": {settings.DiagnosticRoughnessLengthM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"    \"diagnostic_roughness_length_is_default\": {BoolJson(!hasDiagnosticRoughnessLength)},");
+            sb.AppendLine("    \"diagnostic_wall_roughness_changes_solver_defaults\": false");
             sb.AppendLine("  },");
             sb.AppendLine("  \"validation\": {");
             sb.AppendLine($"    \"case_condition\": \"{EscapeJson(settings.CaseCondition)}\",");
@@ -2031,6 +2056,10 @@ namespace CityLBM.Solver
             sb.AppendLine("      \"z_plus_half_allowed_as_formal_result\": false,");
             sb.AppendLine($"      \"diagnostic_z_origin_offset_m\": {settings.DiagnosticZOriginOffsetM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"      \"diagnostic_z_origin_offset_is_default\": {BoolJson(Math.Abs(settings.DiagnosticZOriginOffsetM) <= 1e-12)},");
+            sb.AppendLine($"      \"diagnostic_wall_model\": \"{EscapeJson(NormalizeDiagnosticWallModel(settings.DiagnosticWallModel))}\",");
+            sb.AppendLine($"      \"diagnostic_wall_model_is_default\": {BoolJson(NormalizeDiagnosticWallModel(settings.DiagnosticWallModel).Equals("none", StringComparison.OrdinalIgnoreCase))},");
+            sb.AppendLine($"      \"diagnostic_roughness_length_m\": {settings.DiagnosticRoughnessLengthM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"      \"diagnostic_roughness_length_is_default\": {BoolJson(Math.Abs(settings.DiagnosticRoughnessLengthM) <= 1e-12)},");
             sb.AppendLine("      \"note\": \"Diagnostic sampling modes help quantify near-wall/probe sensitivity but do not replace official z=2m validation.\"");
             sb.AppendLine("    }");
         }
@@ -2060,7 +2089,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    \"required_formal_sampling_mode\": \"raw_trilinear\",");
             sb.AppendLine("    \"required_metric_trend\": \"MAE clearly below previous near-20pp level; R2 positive; Pearson positive\",");
             sb.AppendLine("    \"diagnostic_substitutes_allowed\": false,");
-            sb.AppendLine("    \"diagnostic_substitutes\": [\"z_plus_half\", \"vertical_valid_above\", \"nearest_valid\", \"fluid_weighted\", \"z_origin_offset\", \"effective_ground_shift\"],");
+            sb.AppendLine("    \"diagnostic_substitutes\": [\"z_plus_half\", \"vertical_valid_above\", \"nearest_valid\", \"fluid_weighted\", \"z_origin_offset\", \"effective_ground_shift\", \"wall_model\", \"roughness_length\"],");
             sb.AppendLine("    \"claim_boundary\": \"This manifest is protocol evidence only; formal accuracy requires external release_gate.json metrics from completed official z=2m runs.\"");
             sb.AppendLine("  },");
         }
@@ -2068,6 +2097,13 @@ namespace CityLBM.Solver
         private string BoolJson(bool value)
         {
             return value ? "true" : "false";
+        }
+
+        private string NormalizeDiagnosticWallModel(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return "none";
+            return value.Trim();
         }
 
         private string EscapeJson(string value)
@@ -2319,6 +2355,13 @@ namespace CityLBM.Solver
         public double MaxLatticeVelocity { get; set; } = 0.1;
         public double DiagnosticNuLbmOverride { get; set; } = 0.0;
         public double DiagnosticZOriginOffsetM { get; set; } = 0.0;
+        private string _diagnosticWallModel = "none";
+        public string DiagnosticWallModel
+        {
+            get { return string.IsNullOrWhiteSpace(_diagnosticWallModel) ? "none" : _diagnosticWallModel.Trim(); }
+            set { _diagnosticWallModel = string.IsNullOrWhiteSpace(value) ? "none" : value.Trim(); }
+        }
+        public double DiagnosticRoughnessLengthM { get; set; } = 0.0;
         public List<InletProfilePoint> InletProfile { get; set; } = new List<InletProfilePoint>();
 
         public double InletVelocityX { get; set; }
@@ -2418,6 +2461,8 @@ namespace CityLBM.Solver
                 MaxLatticeVelocity = source.MaxLatticeVelocity,
                 DiagnosticNuLbmOverride = source.DiagnosticNuLbmOverride,
                 DiagnosticZOriginOffsetM = source.DiagnosticZOriginOffsetM,
+                DiagnosticWallModel = source.DiagnosticWallModel,
+                DiagnosticRoughnessLengthM = source.DiagnosticRoughnessLengthM,
                 InletVelocityX = source.InletVelocityX,
                 InletVelocityY = source.InletVelocityY,
                 InletVelocityZ = source.InletVelocityZ,

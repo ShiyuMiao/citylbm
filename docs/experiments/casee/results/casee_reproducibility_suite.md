@@ -1,12 +1,12 @@
 # Case E Reproducibility Suite
 
-Generated: 2026-08-09T11:55:44.269420+00:00
+Generated: 2026-08-09T12:09:05.748622+00:00
 
 ## Verdict
 
 - Suite passed: True
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc33`
+- Recommended tag: `v0.4.0-rc34`
 
 ## Official z=2 m Metric
 
@@ -16,8 +16,8 @@ Generated: 2026-08-09T11:55:44.269420+00:00
 
 ## Artifact Index
 
-- Artifact count: 177
-- Lightweight release assets: 144
+- Artifact count: 178
+- Lightweight release assets: 145
 - Formal accuracy claim supported: False
 
 ## Build Chain
