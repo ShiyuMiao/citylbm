@@ -43,6 +43,8 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_failure_mode_atlas.json",
     "docs/experiments/casee/results/casee_failure_mode_atlas.md",
     "docs/experiments/casee/results/casee_failure_mode_atlas.png",
+    "docs/experiments/casee/results/casee_candidate_sweep_plan.json",
+    "docs/experiments/casee/results/casee_candidate_sweep_plan.md",
     "docs/experiments/casee/results/casee_default_policy_gate.json",
     "docs/experiments/casee/results/casee_default_policy_gate.md",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",
@@ -66,7 +68,7 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc35.md",
+    "docs/releases/v0.4.0-rc36.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -396,6 +398,35 @@ def failure_atlas_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def candidate_sweep_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "candidate_sweep_plan_found": False,
+            "candidate_sweep_plan_generated": False,
+            "claim_readiness": "missing",
+            "candidate_count": 0,
+            "executable_now_count": 0,
+            "formal_accuracy_claim_supported": None,
+            "formal_release_allowed": None,
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    readiness = str(data.get("claim_readiness", ""))
+    return {
+        "candidate_sweep_plan_found": True,
+        "candidate_sweep_plan_generated": data.get("candidate_sweep_plan_generated"),
+        "claim_readiness": readiness,
+        "candidate_count": data.get("candidate_count"),
+        "executable_now_count": data.get("executable_now_count"),
+        "formal_accuracy_claim_supported": data.get("formal_accuracy_claim_supported"),
+        "formal_release_allowed": data.get("formal_release_allowed"),
+        "claim_boundary_safe": data.get("candidate_sweep_plan_generated") is True
+        and readiness == "paper_ready_followup_plan; blocked formal accuracy release"
+        and data.get("formal_accuracy_claim_supported") is False
+        and data.get("formal_release_allowed") is False,
+    }
+
+
 def default_policy_status(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {
@@ -646,6 +677,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     dx1 = payload["casee_dx1_readiness_audit"]
     recovery = payload["casee_environment_recovery_runbook"]
     atlas = payload["casee_failure_mode_atlas"]
+    candidate_sweep = payload["casee_candidate_sweep_plan"]
     default_policy = payload["casee_default_policy_gate"]
     paper_packet = payload["citylbm_paper_results_packet"]
     manifest_output = payload["citylbm_manifest_output_gate"]
@@ -746,6 +778,16 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Failure modes: {atlas['failure_mode_count']}",
         f"- Claim readiness: `{atlas['claim_readiness']}`",
         f"- Claim boundary safe: {atlas['claim_boundary_safe']}",
+        "",
+        "## Candidate Sweep Plan",
+        "",
+        f"- Plan found: {candidate_sweep['candidate_sweep_plan_found']}",
+        f"- Plan generated: {candidate_sweep['candidate_sweep_plan_generated']}",
+        f"- Candidate count: {candidate_sweep['candidate_count']}",
+        f"- Executable-now count: {candidate_sweep['executable_now_count']}",
+        f"- Claim readiness: `{candidate_sweep['claim_readiness']}`",
+        f"- Formal accuracy claim supported: {candidate_sweep['formal_accuracy_claim_supported']}",
+        f"- Claim boundary safe: {candidate_sweep['claim_boundary_safe']}",
         "",
         "## Default Policy Gate",
         "",
@@ -848,6 +890,7 @@ def main() -> int:
     parser.add_argument("--dx1-readiness", type=Path, default=RESULTS_DIR / "casee_dx1_readiness_audit.json")
     parser.add_argument("--recovery", type=Path, default=RESULTS_DIR / "casee_environment_recovery_runbook.json")
     parser.add_argument("--failure-atlas", type=Path, default=RESULTS_DIR / "casee_failure_mode_atlas.json")
+    parser.add_argument("--candidate-sweep", type=Path, default=RESULTS_DIR / "casee_candidate_sweep_plan.json")
     parser.add_argument("--default-policy", type=Path, default=RESULTS_DIR / "casee_default_policy_gate.json")
     parser.add_argument("--paper-results-packet", type=Path, default=RESULTS_DIR / "citylbm_paper_results_packet.json")
     parser.add_argument("--manifest-output", type=Path, default=RESULTS_DIR / "citylbm_manifest_output_gate.json")
@@ -872,6 +915,7 @@ def main() -> int:
     dx1_readiness = dx1_readiness_status(args.dx1_readiness)
     recovery = recovery_status(args.recovery)
     atlas = failure_atlas_status(args.failure_atlas)
+    candidate_sweep = candidate_sweep_status(args.candidate_sweep)
     default_policy = default_policy_status(args.default_policy)
     paper_packet = paper_results_packet_status(args.paper_results_packet)
     manifest_output = manifest_output_status(args.manifest_output)
@@ -904,6 +948,8 @@ def main() -> int:
         and recovery["formal_release_allowed"] is False
         and atlas["atlas_found"]
         and atlas["claim_boundary_safe"]
+        and candidate_sweep["candidate_sweep_plan_found"]
+        and candidate_sweep["claim_boundary_safe"]
         and default_policy["default_policy_gate_found"]
         and default_policy["claim_boundary_safe"]
         and paper_packet["paper_results_packet_found"]
@@ -934,6 +980,7 @@ def main() -> int:
         "casee_dx1_readiness_audit": dx1_readiness,
         "casee_environment_recovery_runbook": recovery,
         "casee_failure_mode_atlas": atlas,
+        "casee_candidate_sweep_plan": candidate_sweep,
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_packet,
         "citylbm_manifest_output_gate": manifest_output,

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc36 - Candidate sweep plan for official z=2 m follow-up
+
+- Added `casee_candidate_sweep_plan.py` to rank the next AIJ Case E official z=2 m follow-up candidates.
+- The plan records candidate priority, executable-now status, blocking gates, native generator commands, expected artifacts, pass conditions, and default-promotion boundaries.
+- Integrated the candidate sweep plan into the reproducibility suite, artifact index, paper evidence gate, reproducibility appendix, paper results packet, and software-feedback matrix as SF019.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc36.md`.
+
+This release candidate improves follow-up experiment planning only. It does not launch FluidX3D, add solver output, improve official Case E z=2 m metrics, prove mesh independence, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc35 - Manifest schema claim-contract gate
 
 - Added `citylbm_manifest_schema_gate.py` to verify the generated `citylbm_run_manifest.json` schema and Case E claim contract from source and upstream gates.

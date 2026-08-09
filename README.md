@@ -41,6 +41,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_dx1_readiness_audit.py`
 - `docs/experiments/casee/tools/casee_environment_recovery_runbook.py`
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
+- `docs/experiments/casee/tools/casee_candidate_sweep_plan.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
 - `docs/experiments/casee/tools/casee_manuscript_results_table.py`
 - `docs/experiments/casee/tools/casee_manuscript_section_pack.py`
@@ -85,6 +86,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_failure_mode_atlas.json`
 - `docs/experiments/casee/results/casee_failure_mode_atlas.md`
 - `docs/experiments/casee/results/casee_failure_mode_atlas.png`
+- `docs/experiments/casee/results/casee_candidate_sweep_plan.json`
+- `docs/experiments/casee/results/casee_candidate_sweep_plan.md`
+- `docs/experiments/casee/results/casee_candidate_sweep_plan.csv`
 - `docs/experiments/casee/results/casee_default_policy_gate.json`
 - `docs/experiments/casee/results/casee_default_policy_gate.md`
 - `docs/experiments/casee/results/casee_default_policy_gate.csv`
@@ -115,7 +119,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc35.md`
+- `docs/releases/v0.4.0-rc36.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -206,6 +210,13 @@ decomposition, leaving insufficient 25% headroom on the current P100 cards; the
 conservative overhead scenario is not feasible. This is limitations/follow-up
 planning evidence only, not mesh-independence or accuracy evidence.
 
+The candidate sweep plan now ranks the next official z=2 m follow-up attempts:
+baseline replication, longer time-mean stability, z-origin ablation,
+decomposition ablation, dx=1 dry-allocation gating, and implementation-required
+wall/inlet follow-ups. Each candidate records whether it is executable now, the
+blocking gates, the exact native generator command when one exists, expected
+artifacts, and the metric condition required before any default promotion.
+
 The manuscript evidence summary now converts Case E outputs into a claim matrix.
 It marks protocol and build/workflow evidence as paper-ready, marks the current
 official z=2 m result as a negative validation/limitations result, and blocks
@@ -286,6 +297,7 @@ python docs/experiments/casee/tools/build_chain_audit.py
 python docs/experiments/casee/tools/casee_official_run_preflight.py
 python docs/experiments/casee/tools/casee_environment_recovery_runbook.py
 python docs/experiments/casee/tools/casee_failure_mode_atlas.py
+python docs/experiments/casee/tools/casee_candidate_sweep_plan.py
 python docs/experiments/casee/tools/casee_default_policy_gate.py
 python docs/experiments/casee/tools/casee_manuscript_results_table.py
 python docs/experiments/casee/tools/casee_manuscript_section_pack.py

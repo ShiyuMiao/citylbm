@@ -122,6 +122,7 @@ def build_rows() -> List[Dict[str, Any]]:
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
     build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
     dx1_readiness = read_json(RESULTS_DIR / "casee_dx1_readiness_audit.json")
+    candidate_sweep = read_json(RESULTS_DIR / "casee_candidate_sweep_plan.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -571,6 +572,33 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    rows.append(
+        row(
+            feedback_id="SF019",
+            experiment="Experiment 2 / AIJ Case E official z=2 m follow-up planning",
+            finding=(
+                "The candidate sweep plan converts the current negative official metric and failure-mode evidence "
+                "into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries."
+            ),
+            evidence_type=str(candidate_sweep.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_candidate_sweep_plan.py",
+                RESULTS_DIR / "casee_candidate_sweep_plan.json",
+                RESULTS_DIR / "casee_candidate_sweep_plan.md",
+                RESULTS_DIR / "release_gate.json",
+                RESULTS_DIR / "casee_official_run_preflight.json",
+            ],
+            decision_class="followup_sweep_plan",
+            citylbm_status="planned_candidate_matrix"
+            if candidate_sweep.get("candidate_sweep_plan_generated") is True
+            else "missing_candidate_matrix",
+            implementation_evidence=f"candidate_count={candidate_sweep.get('candidate_count')}; executable_now_count={candidate_sweep.get('executable_now_count')}; recommended_tag={candidate_sweep.get('recommended_tag')}",
+            default_setting_allowed=False,
+            paper_use="Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
+            limitations="Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone.",
+        )
+    )
+
     return rows
 
 
@@ -589,7 +617,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -682,6 +710,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_official_run_preflight.json"),
             rel(RESULTS_DIR / "build_chain_manifest.json"),
             rel(RESULTS_DIR / "casee_dx1_readiness_audit.json"),
+            rel(RESULTS_DIR / "casee_candidate_sweep_plan.json"),
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
             rel(RESULTS_DIR / "casee_manuscript_results_table.json"),

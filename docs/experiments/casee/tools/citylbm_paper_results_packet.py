@@ -93,6 +93,7 @@ def build_rows() -> List[Dict[str, str]]:
     failure_atlas = read_json(CASEE_RESULTS / "casee_failure_mode_atlas.json")
     preflight = read_json(CASEE_RESULTS / "casee_official_run_preflight.json")
     dx1_readiness = read_json(CASEE_RESULTS / "casee_dx1_readiness_audit.json")
+    candidate_sweep = read_json(CASEE_RESULTS / "casee_candidate_sweep_plan.json")
     build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -203,6 +204,28 @@ def build_rows() -> List[Dict[str, str]]:
             paper_use="Use as a limitations/future-work statement for high-resolution official Case E follow-up planning.",
             limitations="No dx=1 FluidX3D solver output was produced; do not claim mesh independence or improved official z=2 m accuracy.",
             software_feedback="Keep dx=1 as a user-confirmed high-resolution follow-up path, not a default validation claim.",
+        )
+    )
+
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="candidate_sweep_followup_plan",
+            claim_readiness=str(candidate_sweep.get("claim_readiness", "paper_ready_followup_plan; blocked formal accuracy release")),
+            evidence_type=str(candidate_sweep.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_candidate_sweep_plan.json"),
+                rel(CASEE_RESULTS / "casee_candidate_sweep_plan.md"),
+                rel(CASEE_RESULTS / "casee_candidate_sweep_plan.csv"),
+            ],
+            metric_or_status=(
+                f"candidate_count={candidate_sweep.get('candidate_count')}; "
+                f"executable_now_count={candidate_sweep.get('executable_now_count')}; "
+                f"formal_accuracy_claim_supported={candidate_sweep.get('formal_accuracy_claim_supported')}"
+            ),
+            paper_use="Use as a pre-registered follow-up sweep plan for improving the official z=2 m R2.",
+            limitations="Planning evidence only; it does not add solver output or justify changing CityLBM defaults.",
+            software_feedback="Run candidates in priority order and promote settings only after official raw_trilinear metrics pass the release gate.",
         )
     )
 

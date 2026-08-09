@@ -30,6 +30,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc33.md",
     "docs/releases/v0.4.0-rc34.md",
     "docs/releases/v0.4.0-rc35.md",
+    "docs/releases/v0.4.0-rc36.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -69,6 +70,7 @@ RESULT_PATTERNS = [
     "casee_dx1_readiness_audit.*",
     "casee_environment_recovery_runbook.*",
     "casee_failure_mode_atlas.*",
+    "casee_candidate_sweep_plan.*",
     "casee_default_policy_gate.*",
     "casee_remaining_blockers.*",
     "casee_next_experiment_runbook.*",
@@ -91,6 +93,7 @@ TOOL_SCRIPTS = [
     "build_chain_audit.py",
     "casee_blocker_remediation_plan.py",
     "casee_next_experiment_runbook.py",
+    "casee_candidate_sweep_plan.py",
     "casee_official_run_preflight.py",
     "casee_dx1_readiness_audit.py",
     "casee_environment_recovery_runbook.py",
@@ -252,6 +255,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "blocked_followup_plan"
     if "casee_next_experiment_runbook" in path:
         return "blocked_followup_runbook"
+    if "casee_candidate_sweep_plan" in path:
+        return "paper_ready_followup_plan"
     if "rhino_gha_load_gate" in path:
         return "blocked_manual_rhino_load"
     if "casee_official_run_preflight" in path:
@@ -511,6 +516,9 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_remaining_blockers.md",
                 "casee_next_experiment_runbook.json",
                 "casee_next_experiment_runbook.md",
+                "casee_candidate_sweep_plan.json",
+                "casee_candidate_sweep_plan.md",
+                "casee_candidate_sweep_plan.csv",
                 "plugin_identity_gate.json",
                 "rhino_gha_load_gate.json",
                 "rhino_gha_load_gate.md",
@@ -523,6 +531,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc33.md",
                 "v0.4.0-rc34.md",
                 "v0.4.0-rc35.md",
+                "v0.4.0-rc36.md",
             )
         )
     ]

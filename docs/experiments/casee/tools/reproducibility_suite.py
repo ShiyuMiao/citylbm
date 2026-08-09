@@ -192,6 +192,7 @@ def main() -> int:
         ("casee_dx1_readiness_audit", "casee_dx1_readiness_audit.py"),
         ("casee_environment_recovery_runbook", "casee_environment_recovery_runbook.py"),
         ("casee_failure_mode_atlas", "casee_failure_mode_atlas.py"),
+        ("casee_candidate_sweep_plan", "casee_candidate_sweep_plan.py"),
         ("casee_default_policy_gate", "casee_default_policy_gate.py"),
         ("citylbm_paper_results_packet", "citylbm_paper_results_packet.py"),
         ("citylbm_manifest_output_gate", "citylbm_manifest_output_gate.py"),
@@ -219,6 +220,7 @@ def main() -> int:
     dx1_readiness = read_json(RESULTS_DIR / "casee_dx1_readiness_audit.json")
     recovery = read_json(RESULTS_DIR / "casee_environment_recovery_runbook.json")
     failure_atlas = read_json(RESULTS_DIR / "casee_failure_mode_atlas.json")
+    candidate_sweep_plan = read_json(RESULTS_DIR / "casee_candidate_sweep_plan.json")
     default_policy = read_json(RESULTS_DIR / "casee_default_policy_gate.json")
     paper_results_packet = read_json(RESULTS_DIR / "citylbm_paper_results_packet.json")
     manifest_output_gate = read_json(RESULTS_DIR / "citylbm_manifest_output_gate.json")
@@ -244,6 +246,7 @@ def main() -> int:
         "casee_dx1_readiness_audit": dx1_readiness,
         "casee_environment_recovery_runbook": recovery,
         "casee_failure_mode_atlas": failure_atlas,
+        "casee_candidate_sweep_plan": candidate_sweep_plan,
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_results_packet,
         "citylbm_manifest_output_gate": manifest_output_gate,

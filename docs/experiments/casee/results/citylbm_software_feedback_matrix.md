@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-09T12:18:35.006807+00:00
+Generated: 2026-08-09T12:30:01.767662+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 18
+- Feedback rows: 19
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -18,6 +18,7 @@ Generated: 2026-08-09T12:18:35.006807+00:00
 - blocked_followup_run: 3
 - default_quality_gate: 1
 - diagnostic_switch: 3
+- followup_sweep_plan: 1
 - formal_protocol_default: 1
 - paper_figure_output: 1
 - paper_interpretation_layer: 1
@@ -47,6 +48,7 @@ Generated: 2026-08-09T12:18:35.006807+00:00
 | `SF016` | Experiment 2 / AIJ Case E dx=1 follow-up readiness | blocked_followup_run | blocked_until_user_confirmed_dx1_dry_run | False | The dx=1 m high-resolution official follow-up is a high-risk long-run candidate: readiness=high_risk_blocked_until_dry_run, memory_headroom_ok=False, moderate required per GPU=13.79 GiB, minimum free GPU memory=15.898 GiB. |
 | `SF017` | Experiment 2 / AIJ Case E wall and roughness follow-up | diagnostic_switch | implemented_default_off | False | Near-wall underprediction and solid-corner diagnostics justify a default-off wall/roughness follow-up interface, but the official z=2 m raw_trilinear metric has not improved enough to promote any wall model as a default accuracy setting. |
 | `SF018` | Experiment 2 / AIJ Case E manifest schema traceability | software_traceability_gate | implemented_schema_gate | False | Generated run manifests need a stable reader-facing schema so Case E protocol fields, diagnostic substitute blockers, and paper-forbidden claim classes can be audited without reinterpreting solver logs. |
+| `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary
 
@@ -70,6 +72,7 @@ Generated: 2026-08-09T12:18:35.006807+00:00
 | `SF016` | Use as high-resolution follow-up feasibility and limitations evidence. | Readiness evidence only; no dx=1 solver output, no official z=2 m metric improvement, and no mesh-independence claim. |
 | `SF017` | Use as software-feedback evidence that Case E diagnostics were converted into controlled follow-up interfaces. | No wall-model or roughness setting is a formal validation result until completed official z=2 m raw_trilinear runs pass the release gate. |
 | `SF018` | Use as reviewer-facing manifest schema and claim-boundary evidence. | Schema traceability does not add CFD output, improve official z=2 m metrics, or permit a formal accuracy claim. |
+| `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 
 ## Boundary
 

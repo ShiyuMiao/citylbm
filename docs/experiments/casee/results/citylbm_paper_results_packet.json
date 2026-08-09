@@ -1,13 +1,14 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T12:18:32.210136+00:00",
-    "result_count": 18,
+    "generated_at": "2026-08-09T12:29:58.942100+00:00",
+    "result_count": 19,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
       "limitations_ready_negative_validation": 1,
       "paper_ready_default_policy_boundary": 1,
       "ready_for_next_official_followup_run": 1,
       "limitations_ready_dx1_feasibility": 1,
+      "paper_ready_followup_plan; blocked formal accuracy release": 1,
       "blocked_build_chain_diagnostic": 1,
       "paper_ready_negative_validation_and_limitations": 1,
       "paper_ready": 1,
@@ -20,7 +21,7 @@
       "blocked_formal_release_gate": 1
     },
     "evidence_type_counts": {
-      "newly_run": 12,
+      "newly_run": 13,
       "newly_run + preexisting_artifact": 3,
       "blocked": 1,
       "newly_run + preexisting_artifact + blocked": 2
@@ -85,6 +86,17 @@
       "paper_use": "Use as a limitations/future-work statement for high-resolution official Case E follow-up planning.",
       "limitations": "No dx=1 FluidX3D solver output was produced; do not claim mesh independence or improved official z=2 m accuracy.",
       "software_feedback": "Keep dx=1 as a user-confirmed high-resolution follow-up path, not a default validation claim."
+    },
+    {
+      "experiment": "Experiment 2 / AIJ Case E",
+      "result_id": "candidate_sweep_followup_plan",
+      "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_candidate_sweep_plan.json; docs/experiments/casee/results/casee_candidate_sweep_plan.md; docs/experiments/casee/results/casee_candidate_sweep_plan.csv",
+      "metric_or_status": "candidate_count=8; executable_now_count=5; formal_accuracy_claim_supported=False",
+      "paper_use": "Use as a pre-registered follow-up sweep plan for improving the official z=2 m R2.",
+      "limitations": "Planning evidence only; it does not add solver output or justify changing CityLBM defaults.",
+      "software_feedback": "Run candidates in priority order and promote settings only after official raw_trilinear metrics pass the release gate."
     },
     {
       "experiment": "Build-chain recovery / AIJ Case E follow-up",
@@ -224,7 +236,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc35",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc36",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."
