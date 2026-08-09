@@ -28,6 +28,9 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_remaining_blockers.md",
     "docs/experiments/casee/results/casee_next_experiment_runbook.json",
     "docs/experiments/casee/results/casee_next_experiment_runbook.md",
+    "docs/experiments/casee/results/build_chain_manifest.json",
+    "docs/experiments/casee/results/build_chain_manifest.csv",
+    "docs/experiments/casee/results/build_chain_manifest.md",
     "docs/experiments/casee/results/rhino_gha_load_gate.json",
     "docs/experiments/casee/results/rhino_gha_load_gate.md",
     "docs/experiments/casee/results/casee_official_run_preflight.json",
@@ -58,7 +61,7 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc31.md",
+    "docs/releases/v0.4.0-rc32.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -249,6 +252,48 @@ def rhino_gate_status(path: Path) -> Dict[str, Any]:
         "claim_readiness": readiness,
         "manual_manifest_present": bool(data.get("manual_manifest_present")),
         "claim_boundary_safe": loaded or readiness == "blocked_manual_rhino_load",
+    }
+
+
+def build_chain_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "build_chain_found": False,
+            "build_chain_ready": False,
+            "claim_readiness": "missing",
+            "vs_cpp_status": "missing",
+            "dotnet_status": "missing",
+            "fluidx3d_status": "missing",
+            "gpu_status": "missing",
+            "uac_blocker_recorded": False,
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    vs_status = str((data.get("visual_studio_build_tools_2022_cpp") or {}).get("status", ""))
+    dotnet_status = str((data.get("dotnet_sdk") or {}).get("status", ""))
+    fluidx3d_status = str((data.get("fluidx3d") or {}).get("status", ""))
+    gpu_status = str((data.get("gpu_runtime") or {}).get("status", ""))
+    readiness = str(data.get("claim_readiness", ""))
+    build_ready = bool(data.get("build_chain_ready"))
+    return {
+        "build_chain_found": True,
+        "build_chain_ready": build_ready,
+        "claim_readiness": readiness,
+        "vs_cpp_status": vs_status,
+        "dotnet_status": dotnet_status,
+        "fluidx3d_status": fluidx3d_status,
+        "gpu_status": gpu_status,
+        "uac_blocker_recorded": any(
+            "UAC" in item or "1602" in item
+            for item in ((data.get("visual_studio_build_tools_2022_cpp") or {}).get("install_attempt") or {}).get("observed_blockers", [])
+        ),
+        "claim_boundary_safe": (
+            readiness in {"build_chain_ready", "blocked_build_chain_diagnostic"}
+            and dotnet_status == "ready"
+            and fluidx3d_status == "ready_for_existing_binary"
+            and gpu_status in {"ready", "blocked"}
+            and (build_ready or vs_status == "blocked")
+        ),
     }
 
 
@@ -533,6 +578,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     draft = payload["draft_scan"]
     artifact = payload["artifact_index"]
     rhino = payload["rhino_gha_load_gate"]
+    build_chain = payload["build_chain_manifest"]
     preflight = payload["casee_official_run_preflight"]
     recovery = payload["casee_environment_recovery_runbook"]
     atlas = payload["casee_failure_mode_atlas"]
@@ -590,6 +636,18 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Rhino loaded new GHA: {rhino['rhino_loaded_new_gha']}",
         f"- Claim readiness: `{rhino['claim_readiness']}`",
         f"- Claim boundary safe: {rhino['claim_boundary_safe']}",
+        "",
+        "## Build Chain Manifest",
+        "",
+        f"- Manifest found: {build_chain['build_chain_found']}",
+        f"- Build chain ready: {build_chain['build_chain_ready']}",
+        f"- Claim readiness: `{build_chain['claim_readiness']}`",
+        f"- VS Build Tools C++: `{build_chain['vs_cpp_status']}`",
+        f"- .NET SDK: `{build_chain['dotnet_status']}`",
+        f"- FluidX3D: `{build_chain['fluidx3d_status']}`",
+        f"- GPU runtime: `{build_chain['gpu_status']}`",
+        f"- UAC/1602 blocker recorded: {build_chain['uac_blocker_recorded']}",
+        f"- Claim boundary safe: {build_chain['claim_boundary_safe']}",
         "",
         "## Official Run Preflight",
         "",
@@ -700,6 +758,7 @@ def main() -> int:
     parser.add_argument("--claim-matrix", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.csv")
     parser.add_argument("--artifact-index", type=Path, default=RESULTS_DIR / "casee_artifact_index.json")
     parser.add_argument("--rhino-gate", type=Path, default=RESULTS_DIR / "rhino_gha_load_gate.json")
+    parser.add_argument("--build-chain", type=Path, default=RESULTS_DIR / "build_chain_manifest.json")
     parser.add_argument("--preflight", type=Path, default=RESULTS_DIR / "casee_official_run_preflight.json")
     parser.add_argument("--recovery", type=Path, default=RESULTS_DIR / "casee_environment_recovery_runbook.json")
     parser.add_argument("--failure-atlas", type=Path, default=RESULTS_DIR / "casee_failure_mode_atlas.json")
@@ -721,6 +780,7 @@ def main() -> int:
     draft = draft_status(sorted(PAPER_DRAFTS_DIR.glob(args.draft_glob)))
     artifact = artifact_index_status(args.artifact_index)
     rhino = rhino_gate_status(args.rhino_gate)
+    build_chain = build_chain_status(args.build_chain)
     preflight = preflight_status(args.preflight)
     recovery = recovery_status(args.recovery)
     atlas = failure_atlas_status(args.failure_atlas)
@@ -743,6 +803,8 @@ def main() -> int:
         and artifact["formal_accuracy_claim_supported"] is False
         and rhino["rhino_gate_found"]
         and rhino["claim_boundary_safe"]
+        and build_chain["build_chain_found"]
+        and build_chain["claim_boundary_safe"]
         and preflight["preflight_found"]
         and preflight["claim_boundary_safe"]
         and preflight["formal_release_allowed"] is False
@@ -774,6 +836,7 @@ def main() -> int:
         "draft_scan": draft,
         "artifact_index": artifact,
         "rhino_gha_load_gate": rhino,
+        "build_chain_manifest": build_chain,
         "casee_official_run_preflight": preflight,
         "casee_environment_recovery_runbook": recovery,
         "casee_failure_mode_atlas": atlas,

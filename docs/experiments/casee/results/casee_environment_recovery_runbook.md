@@ -1,6 +1,6 @@
 # Case E Environment Recovery Runbook
 
-Generated: 2026-08-09T11:29:23.724955+00:00
+Generated: 2026-08-09T11:43:38.838739+00:00
 
 ## Verdict
 
@@ -23,7 +23,7 @@ Generated: 2026-08-09T11:29:23.724955+00:00
 |---|---:|---:|---|---|
 | `REC001_gpu_recovery` | False | 1 | gpu_runtime | `nvidia-smi` |
 | `REC002_free_c_drive` | True | 2 | vs_cpp_build_tools | `Get-PSDrive C` |
-| `REC003_install_vs_cpp` | True | 3 | vs_cpp_build_tools | `winget install --id Microsoft.VisualStudio.2022.BuildTools --accept-package-agreements --accept-source-agreements --silent --override "--wait --quiet --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"` |
+| `REC003_install_vs_cpp` | True | 3 | vs_cpp_build_tools | `winget install --id Microsoft.VisualStudio.2022.BuildTools --source winget --accept-package-agreements --accept-source-agreements --silent --location E:\citylbm_buildchain\VSBuildTools --override "--wait --quiet --norestart --installPath E:\citylbm_buildchain\VSBuildTools --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.Component.Windows11SDK.26100"` |
 | `REC004_refresh_build_chain` | True | 4 | build_chain_manifest | `python docs/experiments/casee/tools/build_chain_audit.py` |
 | `REC005_rhino_manifest` | True | 5 | rhino_gha_load | `python docs/experiments/casee/tools/rhino_gha_load_gate.py` |
 | `REC006_preflight_rerun` | True | 6 | official_followup_preflight | `python docs/experiments/casee/tools/casee_official_run_preflight.py` |
@@ -39,7 +39,7 @@ Generated: 2026-08-09T11:29:23.724955+00:00
 
 ### REC002_free_c_drive
 
-- Action: Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 7.074 GB. Workspace build-cache candidates total only 2.268 MB.
+- Action: Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 7.063 GB. Workspace build-cache candidates total only 2.268 MB.
 - Pass condition: C: free space >= 8 GB; workspace cache cleanup alone is not enough if the current value remains near 0.5 GB.
 - Risk boundary: Do not delete user data; record any cleanup outside the repo separately.
 

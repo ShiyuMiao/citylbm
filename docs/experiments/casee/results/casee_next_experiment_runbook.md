@@ -1,6 +1,6 @@
 # Case E Next Experiment Runbook
 
-Generated: 2026-08-09T11:29:28.672159+00:00
+Generated: 2026-08-09T11:43:43.808761+00:00
 
 ## Current Official Metric
 
@@ -8,7 +8,7 @@ Generated: 2026-08-09T11:29:28.672159+00:00
 - R2: -2.006330362229977
 - Pearson: 0.11575649438573923
 - Formal release allowed: False
-- Recommended tag: `v0.4.0-rc31`
+- Recommended tag: `v0.4.0-rc32`
 
 ## Command Matrix
 
@@ -18,10 +18,10 @@ Generated: 2026-08-09T11:29:28.672159+00:00
 | `R002_gpu_recovery_check` | preflight | True | Verify whether long native FluidX3D runs can be attempted. | `nvidia-smi` |
 | `R003_build_chain_refresh` | preflight | True | Refresh .NET, FluidX3D, VS C++ and disk-space evidence. | `python docs/experiments/casee/tools/build_chain_audit.py` |
 | `R004_rhino_gha_load_check` | manual_validation | False | Close the Rhino/Grasshopper new-GHA release gate. | `Manual: capture Rhino/Grasshopper screenshot/log showing CityLBM Version=0.4.0-rc and GHA SHA256.` |
-| `R005_official_dx2_zcenter_replicate` | native_case_generation | False | Replicate the current best official raw_trilinear diagnostic before changing physics. | `python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001` |
+| `R005_official_dx2_zcenter_replicate` | native_case_generation | True | Replicate the current best official raw_trilinear diagnostic before changing physics. | `python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001` |
 | `R006_wall_model_followup_placeholder` | implementation_then_native_run | False | Test a wall/roughness/voxelization change aimed at near-wall official z=2 m errors. | `TODO after implementation: generate native Case E with the new wall/voxelization option and audit raw_trilinear output.` |
 | `R007_inlet_turbulence_followup_placeholder` | implementation_then_native_run | False | Test a full-plane digital-filter inlet turbulence change based on AF_caseE z,U,k. | `TODO after implementation: generate native Case E with revised full-plane inlet turbulence and audit raw_trilinear output.` |
-| `R008_dx1_feasibility_or_generation` | high_resolution_followup | False | Prepare a dx=1 m official follow-up only if memory/runtime evidence is acceptable. | `python docs/experiments/casee/tools/generate_native_casee.py --dx 1 --steps 48000 --spinup 12000 --sample-dt 4000 --ground-offset-cells 1 --origin-z-offset-m 0.5 --nu-lbm 0.001` |
+| `R008_dx1_feasibility_or_generation` | high_resolution_followup | True | Prepare a dx=1 m official follow-up only if memory/runtime evidence is acceptable. | `python docs/experiments/casee/tools/generate_native_casee.py --dx 1 --steps 48000 --spinup 12000 --sample-dt 4000 --ground-offset-cells 1 --origin-z-offset-m 0.5 --nu-lbm 0.001` |
 | `R009_postrun_official_audit` | postrun_audit | False | Audit any newly completed official z=2 m probe CSV against the release gate. | `python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0 --predicted <new_casee_probe_time_mean.csv>` |
 
 ## Formal Result Policy

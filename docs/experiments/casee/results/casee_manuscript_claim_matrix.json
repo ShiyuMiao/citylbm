@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T11:29:22.720179+00:00",
+  "generated_at": "2026-08-09T11:43:36.713345+00:00",
   "claims": [
     {
       "claim_id": "C001",
@@ -79,7 +79,7 @@
       "evidence_type": "newly_run",
       "section": "Reproducibility / Build chain",
       "claim": "Visual Studio Build Tools 2022 C++ and GPU runtime are not fully ready for additional long native validation.",
-      "supporting_metrics": "VS C++ status=blocked; nvidia-smi returncode=15",
+      "supporting_metrics": "VS C++ status=blocked; nvidia-smi returncode=0",
       "source_paths": "docs/experiments/casee/results/build_chain_manifest.json",
       "allowed_use": "Use as a reproducibility blocker statement.",
       "forbidden_use": "Do not claim the native validation chain is fully installed.",
@@ -91,7 +91,7 @@
       "evidence_type": "newly_run",
       "section": "Release",
       "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
-      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc31",
+      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc32",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
       "allowed_use": "Use to justify rc-only release status.",
       "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",

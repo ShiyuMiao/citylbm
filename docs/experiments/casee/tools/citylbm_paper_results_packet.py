@@ -92,6 +92,7 @@ def build_rows() -> List[Dict[str, str]]:
     default_policy = read_json(CASEE_RESULTS / "casee_default_policy_gate.json")
     failure_atlas = read_json(CASEE_RESULTS / "casee_failure_mode_atlas.json")
     preflight = read_json(CASEE_RESULTS / "casee_official_run_preflight.json")
+    build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
@@ -176,6 +177,31 @@ def build_rows() -> List[Dict[str, str]]:
             paper_use="Use to document why the next long official validation run is not yet schedulable on this machine.",
             limitations="Runtime readiness evidence only; no new solver output is produced.",
             software_feedback="Recover GPU runtime, Rhino new-GHA loading, and VS C++ build chain before new formal Case E sweeps.",
+        )
+    )
+
+    build_vs = build_chain.get("visual_studio_build_tools_2022_cpp") or {}
+    build_gpu = build_chain.get("gpu_runtime") or {}
+    out.append(
+        row(
+            experiment="Build-chain recovery / AIJ Case E follow-up",
+            result_id="build_chain_recovery_status",
+            claim_readiness=str(build_chain.get("claim_readiness", "blocked_build_chain_diagnostic")),
+            evidence_type=str(build_chain.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "build_chain_manifest.json"),
+                rel(CASEE_RESULTS / "build_chain_manifest.md"),
+                rel(CASEE_RESULTS / "casee_official_run_preflight.json"),
+            ],
+            metric_or_status=(
+                f"build_chain_ready={build_chain.get('build_chain_ready')}; "
+                f"vs_cpp={build_vs.get('status')}; gpu={build_gpu.get('status')}; "
+                f"dotnet={(build_chain.get('dotnet_sdk') or {}).get('status')}; "
+                f"fluidx3d={(build_chain.get('fluidx3d') or {}).get('status')}"
+            ),
+            paper_use="Use as environment/build-chain status for explaining remaining official follow-up requirements.",
+            limitations="Build-chain status is not solver-output evidence and cannot support formal accuracy.",
+            software_feedback="Keep VS C++ Build Tools recovery and Rhino/GHA load evidence as required operational gates before stronger software-release claims.",
         )
     )
 
@@ -385,6 +411,7 @@ def main() -> int:
             rel(CASEE_RESULTS / "casee_default_policy_gate.json"),
             rel(CASEE_RESULTS / "casee_failure_mode_atlas.json"),
             rel(CASEE_RESULTS / "casee_official_run_preflight.json"),
+            rel(CASEE_RESULTS / "build_chain_manifest.json"),
             rel(CASEE_RESULTS / "casee_manuscript_section_pack.json"),
             rel(PAPER_DRAFTS / "experiment3_claim_verification.csv"),
             rel(PAPER_DRAFTS / "casee_v04_manuscript_section_pack_en.md"),

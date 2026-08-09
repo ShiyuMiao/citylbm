@@ -92,6 +92,9 @@ def write_markdown(payload: Dict[str, Any]) -> None:
     gate = payload.get("release_gate", {})
     metrics = gate.get("metrics") or {}
     artifact = payload.get("artifact_index", {}).get("summary", {})
+    build_chain = payload.get("build_chain_manifest", {})
+    vs = build_chain.get("visual_studio_build_tools_2022_cpp", {})
+    gpu = build_chain.get("gpu_runtime", {})
     lines = [
         "# Case E Reproducibility Suite",
         "",
@@ -114,6 +117,12 @@ def write_markdown(payload: Dict[str, Any]) -> None:
         f"- Artifact count: {artifact.get('artifact_count')}",
         f"- Lightweight release assets: {artifact.get('lightweight_release_asset_count')}",
         f"- Formal accuracy claim supported: {artifact.get('formal_accuracy_claim_supported')}",
+        "",
+        "## Build Chain",
+        "",
+        f"- Build chain ready: {build_chain.get('build_chain_ready')}",
+        f"- VS Build Tools C++: `{vs.get('status')}`",
+        f"- GPU runtime: `{gpu.get('status')}`",
         "",
         "## Commands",
         "",
@@ -175,6 +184,7 @@ def main() -> int:
         ("manuscript_evidence_summary", "manuscript_evidence_summary.py"),
         ("plugin_identity_gate", "plugin_identity_gate.py"),
         ("rhino_gha_load_gate", "rhino_gha_load_gate.py"),
+        ("build_chain_audit", "build_chain_audit.py"),
         ("casee_official_run_preflight", "casee_official_run_preflight.py"),
         ("casee_environment_recovery_runbook", "casee_environment_recovery_runbook.py"),
         ("casee_failure_mode_atlas", "casee_failure_mode_atlas.py"),
@@ -199,6 +209,7 @@ def main() -> int:
     paper_gate = read_json(RESULTS_DIR / "casee_paper_evidence_gate.json")
     plugin_gate = read_json(RESULTS_DIR / "plugin_identity_gate.json")
     rhino_gate = read_json(RESULTS_DIR / "rhino_gha_load_gate.json")
+    build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
     recovery = read_json(RESULTS_DIR / "casee_environment_recovery_runbook.json")
     failure_atlas = read_json(RESULTS_DIR / "casee_failure_mode_atlas.json")
@@ -221,6 +232,7 @@ def main() -> int:
         "paper_evidence_gate": paper_gate,
         "plugin_identity_gate": plugin_gate,
         "rhino_gha_load_gate": rhino_gate,
+        "build_chain_manifest": build_chain,
         "casee_official_run_preflight": preflight,
         "casee_environment_recovery_runbook": recovery,
         "casee_failure_mode_atlas": failure_atlas,

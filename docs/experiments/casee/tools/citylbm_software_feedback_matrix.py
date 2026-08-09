@@ -120,6 +120,7 @@ def build_rows() -> List[Dict[str, Any]]:
     section_pack = read_json(RESULTS_DIR / "casee_manuscript_section_pack.json")
     paper_figure = read_json(RESULTS_DIR / "casee_paper_results_figure_qa.json")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
+    build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -452,6 +453,35 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    build_vs = build_chain.get("visual_studio_build_tools_2022_cpp") or {}
+    build_gpu = build_chain.get("gpu_runtime") or {}
+    rows.append(
+        row(
+            feedback_id="SF015",
+            experiment="Build-chain recovery / Case E follow-up readiness",
+            finding=(
+                "The current build-chain audit records .NET and FluidX3D as available, GPU runtime as "
+                f"{build_gpu.get('status')}, and VS Build Tools C++ as {build_vs.get('status')} after a winget "
+                "BuildTools attempt exited 1602 with UAC-related bootstrapper evidence."
+            ),
+            evidence_type="newly_run",
+            source_paths=[
+                CASEE_DIR / "tools" / "build_chain_audit.py",
+                RESULTS_DIR / "build_chain_manifest.json",
+                RESULTS_DIR / "build_chain_manifest.md",
+                RESULTS_DIR / "casee_official_run_preflight.json",
+            ],
+            decision_class="blocked_followup_run",
+            citylbm_status="blocked_vs_cpp_build_tools"
+            if build_vs.get("status") != "ready"
+            else "build_chain_ready",
+            implementation_evidence="build_chain_audit.py now captures latest winget/VS installer logs, vswhere VC detection, GPU status, .NET status, FluidX3D binary status, and disk state.",
+            default_setting_allowed=False,
+            paper_use="Use as environment/build-chain evidence explaining why another full software/native validation loop still requires manual VS C++ recovery.",
+            limitations="Build-chain readiness does not add CFD output, improve official z=2 m metrics, prove Rhino loaded the new GHA, or permit formal v0.4.0.",
+        )
+    )
+
     return rows
 
 
@@ -470,7 +500,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -561,6 +591,7 @@ def main() -> int:
             rel(RESULTS_DIR / "release_gate.json"),
             rel(RESULTS_DIR / "casee_default_policy_gate.json"),
             rel(RESULTS_DIR / "casee_official_run_preflight.json"),
+            rel(RESULTS_DIR / "build_chain_manifest.json"),
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
             rel(RESULTS_DIR / "casee_manuscript_results_table.json"),

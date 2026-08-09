@@ -58,6 +58,14 @@ def fmt(value: Any, digits: int = 3) -> str:
     return f"{float(value):.{digits}f}"
 
 
+def compact(value: Any, max_len: int = 240) -> str:
+    text = str(value or "")
+    one_line = " ".join(line.strip() for line in text.splitlines() if line.strip())
+    if len(one_line) > max_len:
+        return one_line[: max_len - 3] + "..."
+    return one_line
+
+
 def run_exists(rows: List[Dict[str, str]], run_id: str) -> bool:
     return any(row.get("run_id") == run_id and row.get("status", "").startswith("completed") for row in rows)
 
@@ -118,7 +126,7 @@ def build_blockers(gate: Dict[str, Any], build_chain: Dict[str, Any], matrix: Li
             "release_gate_check": "native_fluidx3d_followup_capacity",
             "evidence_type": "newly_run",
             "source_paths": "docs/experiments/casee/results/build_chain_manifest.json; docs/experiments/casee/results/release_gate.json",
-            "current_evidence": f"nvidia-smi returncode={gpu.get('returncode')}; stdout={gpu.get('stdout')}",
+            "current_evidence": f"nvidia-smi returncode={gpu.get('returncode')}; stdout={compact(gpu.get('stdout'))}",
             "required_action": "Recover the NVIDIA device/driver before any additional long native FluidX3D validation run.",
             "verification_command_or_artifact": "nvidia-smi",
             "pass_condition": "nvidia-smi returns 0 and reports the target GPU without GPU-lost errors.",

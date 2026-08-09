@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.0-rc32 - Build-chain audit refresh
+
+- Attempted Visual Studio Build Tools 2022 C++ installation through `winget` using the BuildTools 17.14.37 package and an `E:\citylbm_buildchain\VSBuildTools` install path.
+- The install attempt still failed with exit code 1602; the Visual Studio bootstrapper log records a possible declined UAC prompt.
+- Extended `build_chain_audit.py` to auto-capture latest winget/VS logs, vswhere VC detection, `cl.exe`/`msbuild.exe` availability, .NET SDK, FluidX3D binary, GPU runtime, disk state, and JSON/CSV/Markdown outputs.
+- Integrated the build-chain audit into the reproducibility suite, artifact index, paper evidence gate, appendix command trace, cross-experiment paper results packet, and software-feedback matrix as SF015.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc32.md`.
+
+This release candidate improves build-chain traceability and records that GPU/.NET/FluidX3D are available while VS C++ remains blocked by installer/UAC evidence. It does not add CFD results, improve official Case E z=2 m metrics, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc31 - Manuscript section pack
 
 - Added `casee_manuscript_section_pack.py` to generate claim-safe English Methods, Results, Diagnostics, Limitations, Software implications, Release-boundary prose, and a QA manifest from the gated Case E results table.

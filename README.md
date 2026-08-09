@@ -36,6 +36,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/release_gate.py`
 - `docs/experiments/casee/tools/paper_evidence_gate.py`
 - `docs/experiments/casee/tools/rhino_gha_load_gate.py`
+- `docs/experiments/casee/tools/build_chain_audit.py`
 - `docs/experiments/casee/tools/casee_official_run_preflight.py`
 - `docs/experiments/casee/tools/casee_environment_recovery_runbook.py`
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
@@ -59,6 +60,8 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_voxel_probe_audit_groups.csv`
 - `docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv`
 - `docs/experiments/casee/results/build_chain_manifest.json`
+- `docs/experiments/casee/results/build_chain_manifest.csv`
+- `docs/experiments/casee/results/build_chain_manifest.md`
 - `docs/experiments/casee/results/casee_manuscript_claim_matrix.csv`
 - `docs/experiments/casee/results/casee_manuscript_evidence_summary.md`
 - `docs/experiments/casee/results/casee_paper_evidence_gate.json`
@@ -104,7 +107,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc31.md`
+- `docs/releases/v0.4.0-rc32.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -166,10 +169,12 @@ is an experiment switch for inlet-height and probe-protocol diagnostics, not a
 validated default accuracy model.
 
 Current build-chain audit: .NET SDK 8.0.423 and the existing FluidX3D binary are
-available under `E:\citylbm_buildchain`, but Visual Studio Build Tools 2022 C++
-is still blocked. `winget` returned exit code 1602, the bootstrapper log
-reported a possible declined UAC prompt, and C: has less than the free space
-required by the VS precheck.
+available under `E:\citylbm_buildchain`, and `nvidia-smi` now reports four
+available Tesla P100 GPUs. Visual Studio Build Tools 2022 C++ remains blocked:
+the current `winget` BuildTools 17.14.37 attempt exited 1602 and the Visual
+Studio bootstrapper log reports a possible declined UAC prompt. C: has about
+7 GB free, which remains below the 8 GB operational threshold used by the
+recovery runbook.
 
 The manuscript evidence summary now converts Case E outputs into a claim matrix.
 It marks protocol and build/workflow evidence as paper-ready, marks the current
@@ -247,6 +252,7 @@ Run the audit after official data are present:
 python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0
 python docs/experiments/casee/tools/release_gate.py
 python docs/experiments/casee/tools/rhino_gha_load_gate.py
+python docs/experiments/casee/tools/build_chain_audit.py
 python docs/experiments/casee/tools/casee_official_run_preflight.py
 python docs/experiments/casee/tools/casee_environment_recovery_runbook.py
 python docs/experiments/casee/tools/casee_failure_mode_atlas.py

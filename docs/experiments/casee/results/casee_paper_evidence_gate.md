@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-09T11:29:29.468180+00:00
+Generated: 2026-08-09T11:43:44.675073+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc31`
+- Recommended tag: `v0.4.0-rc32`
 
 ## Official z=2 m Metric
 
@@ -27,14 +27,14 @@ Generated: 2026-08-09T11:29:29.468180+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 300
+- Checked nonblank lines: 304
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 170
-- Lightweight release assets: 137
+- Artifact count: 172
+- Lightweight release assets: 139
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -43,6 +43,18 @@ Generated: 2026-08-09T11:29:29.468180+00:00
 - Gate found: True
 - Rhino loaded new GHA: False
 - Claim readiness: `blocked_manual_rhino_load`
+- Claim boundary safe: True
+
+## Build Chain Manifest
+
+- Manifest found: True
+- Build chain ready: False
+- Claim readiness: `blocked_build_chain_diagnostic`
+- VS Build Tools C++: `blocked`
+- .NET SDK: `ready`
+- FluidX3D: `ready_for_existing_binary`
+- GPU runtime: `ready`
+- UAC/1602 blocker recorded: True
 - Claim boundary safe: True
 
 ## Official Run Preflight
@@ -80,7 +92,7 @@ Generated: 2026-08-09T11:29:29.468180+00:00
 
 - Packet found: True
 - Packet passed: True
-- Result rows: 15
+- Result rows: 16
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 - Claim boundary safe: True
@@ -128,7 +140,7 @@ Generated: 2026-08-09T11:29:29.468180+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 14
+- Feedback rows: 15
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False

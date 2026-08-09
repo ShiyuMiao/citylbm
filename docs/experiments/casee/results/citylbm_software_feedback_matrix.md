@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-09T11:29:27.595184+00:00
+Generated: 2026-08-09T11:43:42.742736+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 14
+- Feedback rows: 15
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -15,7 +15,7 @@ Generated: 2026-08-09T11:29:27.595184+00:00
 
 - application_workflow_policy: 1
 - blocked_default_accuracy_upgrade: 1
-- blocked_followup_run: 1
+- blocked_followup_run: 2
 - default_quality_gate: 1
 - diagnostic_switch: 2
 - formal_protocol_default: 1
@@ -42,6 +42,7 @@ Generated: 2026-08-09T11:29:27.595184+00:00
 | `SF012` | Experiment 2 / AIJ Case E manifest gate contract | software_traceability_output | implemented | True | Generated run manifests now encode the formal v0.4.0 accuracy-gate contract and keep manifest-only accuracy claims blocked. |
 | `SF013` | Experiment 2 / AIJ Case E Grasshopper claim boundary | software_traceability_output | implemented | True | Run Simulation now exposes a Claim Gate output so users can see the formal accuracy boundary beside run status and manifest path. |
 | `SF014` | Experiment 2 / AIJ Case E manuscript prose layer | paper_traceability_output | implemented | True | The generated section pack converts gated Case E rows into Methods, Results, Diagnostics, Limitations, Software implications, and Release-boundary prose with explicit evidence notes. |
+| `SF015` | Build-chain recovery / Case E follow-up readiness | blocked_followup_run | blocked_vs_cpp_build_tools | False | The current build-chain audit records .NET and FluidX3D as available, GPU runtime as ready, and VS Build Tools C++ as blocked after a winget BuildTools attempt exited 1602 with UAC-related bootstrapper evidence. |
 
 ## Paper Boundary
 
@@ -61,6 +62,7 @@ Generated: 2026-08-09T11:29:27.595184+00:00
 | `SF012` | Use as software traceability evidence that each generated case records the formal release-gate contract. | Manifest-gate metadata does not add solver output, improve official z=2 m metrics, or permit formal v0.4.0. |
 | `SF013` | Use as software misuse-prevention evidence: successful execution is separated from formal benchmark accuracy. | UI claim-boundary text does not add solver output, improve official z=2 m metrics, or prove Rhino loaded the new GHA. |
 | `SF014` | Use as ready-to-edit manuscript prose for negative validation, diagnostic interpretation, limitations, and release-boundary text. | Generated prose does not add CFD output, improve official z=2 m metrics, or support a formal predictive-accuracy claim. |
+| `SF015` | Use as environment/build-chain evidence explaining why another full software/native validation loop still requires manual VS C++ recovery. | Build-chain readiness does not add CFD output, improve official z=2 m metrics, prove Rhino loaded the new GHA, or permit formal v0.4.0. |
 
 ## Boundary
 

@@ -1,13 +1,13 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T11:29:27.595184+00:00",
-    "feedback_count": 14,
+    "generated_at": "2026-08-09T11:43:42.742736+00:00",
+    "feedback_count": 15,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
       "formal_protocol_default": 1,
       "diagnostic_switch": 2,
-      "blocked_followup_run": 1,
+      "blocked_followup_run": 2,
       "application_workflow_policy": 1,
       "paper_interpretation_layer": 1,
       "software_traceability_output": 3,
@@ -21,7 +21,8 @@
       "implemented_default_off": 2,
       "ready_for_next_official_run": 1,
       "paper_ready_workflow_guidance": 1,
-      "paper_ready_with_boundary": 1
+      "paper_ready_with_boundary": 1,
+      "blocked_vs_cpp_build_tools": 1
     },
     "required_feedback_rows_present": true,
     "all_source_paths_exist": true,
@@ -227,6 +228,20 @@
       "default_setting_allowed": true,
       "paper_use": "Use as ready-to-edit manuscript prose for negative validation, diagnostic interpretation, limitations, and release-boundary text.",
       "limitations": "Generated prose does not add CFD output, improve official z=2 m metrics, or support a formal predictive-accuracy claim."
+    },
+    {
+      "feedback_id": "SF015",
+      "experiment": "Build-chain recovery / Case E follow-up readiness",
+      "finding": "The current build-chain audit records .NET and FluidX3D as available, GPU runtime as ready, and VS Build Tools C++ as blocked after a winget BuildTools attempt exited 1602 with UAC-related bootstrapper evidence.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/build_chain_audit.py; docs/experiments/casee/results/build_chain_manifest.json; docs/experiments/casee/results/build_chain_manifest.md; docs/experiments/casee/results/casee_official_run_preflight.json",
+      "source_paths_exist": true,
+      "decision_class": "blocked_followup_run",
+      "citylbm_status": "blocked_vs_cpp_build_tools",
+      "implementation_evidence": "build_chain_audit.py now captures latest winget/VS installer logs, vswhere VC detection, GPU status, .NET status, FluidX3D binary status, and disk state.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as environment/build-chain evidence explaining why another full software/native validation loop still requires manual VS C++ recovery.",
+      "limitations": "Build-chain readiness does not add CFD output, improve official z=2 m metrics, prove Rhino loaded the new GHA, or permit formal v0.4.0."
     }
   ],
   "source_artifacts": [
@@ -234,6 +249,7 @@
     "docs/experiments/casee/results/release_gate.json",
     "docs/experiments/casee/results/casee_default_policy_gate.json",
     "docs/experiments/casee/results/casee_official_run_preflight.json",
+    "docs/experiments/casee/results/build_chain_manifest.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",

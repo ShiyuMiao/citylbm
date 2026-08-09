@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-09T11:29:19.995593+00:00
+Generated: 2026-08-09T11:43:34.212192+00:00
 
 ## Protocol
 
@@ -88,7 +88,10 @@ Generated: 2026-08-09T11:29:19.995593+00:00
 - Visual Studio Build Tools 2022 C++ status: blocked
 - VS Build Tools blocker: winget returned 1602 during the current attempt
 - VS Build Tools blocker: Visual Studio bootstrapper log reported possible declined UAC prompt
-- VS Build Tools blocker: older setup error log reported C: drive free-space precheck failure; C: currently has less than 5.71 GB free
+- VS Build Tools blocker: vswhere does not find Microsoft.VisualStudio.Component.VC.Tools.x86.x64
+- VS Build Tools blocker: cl.exe is not on PATH
+- VS Build Tools blocker: msbuild.exe is not on PATH
+- VS Build Tools blocker: C: drive free space is below 8 GB; Visual Studio may still require more system-drive cache space
 
 ## Manuscript Claim Readiness
 
@@ -104,7 +107,7 @@ Generated: 2026-08-09T11:29:19.995593+00:00
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc31
+- Recommended tag: v0.4.0-rc32
 
 | Check | Status |
 |---|---:|

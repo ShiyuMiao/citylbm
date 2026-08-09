@@ -1,7 +1,8 @@
 {
-  "generated_at": "2026-08-01T11:47:10.762353+00:00",
+  "generated_at": "2026-08-09T11:43:37.522189+00:00",
   "evidence_type": "newly_run",
-  "claim_readiness": "build_chain_diagnostic",
+  "claim_readiness": "blocked_build_chain_diagnostic",
+  "build_chain_ready": false,
   "visual_studio_build_tools_2022_cpp": {
     "status": "blocked",
     "vswhere": {
@@ -35,6 +36,13 @@
     "vcvars64_candidates": [
       {
         "found": false,
+        "path": "E:\\citylbm_buildchain\\VSBuildTools\\VC\\Auxiliary\\Build\\vcvars64.bat",
+        "sha256": "",
+        "size_bytes": null,
+        "mtime": ""
+      },
+      {
+        "found": false,
         "path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\Build\\vcvars64.bat",
         "sha256": "",
         "size_bytes": null,
@@ -49,26 +57,37 @@
       }
     ],
     "install_attempt": {
-      "command": "winget install --id Microsoft.VisualStudio.2022.BuildTools --accept-package-agreements --accept-source-agreements --silent --override \"--wait --quiet --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended\"",
+      "command": "winget install --id Microsoft.VisualStudio.2022.BuildTools --source winget --accept-package-agreements --accept-source-agreements --silent --location E:\\citylbm_buildchain\\VSBuildTools --override \"--wait --quiet --norestart --installPath E:\\citylbm_buildchain\\VSBuildTools --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.Component.Windows11SDK.26100\"",
       "exit_code": 1602,
       "winget_log": {
         "found": true,
-        "path": "C:\\Users\\miaoshiyu\\AppData\\Local\\Packages\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\LocalState\\DiagOutputDir\\WinGet-2026-08-01-19-41-25.578.log",
-        "sha256": "ce73b2a0e8d0cbbe6a359b129ce089312e6389b93f2fd618cef32b99e55d8416",
-        "size_bytes": 6884,
-        "mtime": "2026-08-01T11:43:35.612074+00:00"
+        "path": "C:\\Users\\miaoshiyu\\AppData\\Local\\Packages\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\LocalState\\DiagOutputDir\\WinGet-2026-08-09-19-33-00.669.log",
+        "sha256": "01087e3c66de8fae51aa58c80be340d8ed4d2ff0fbc91f14e057a08ceade9f5a",
+        "size_bytes": 6964,
+        "mtime": "2026-08-09T11:35:10.372497+00:00",
+        "tail": "2026-08-09 19:33:00.671 <I> [CORE] WinGet, version [1.29.280], activity [{5B1B0E4C-59AB-462D-9342-5B0ADAFB7180}]\n2026-08-09 19:33:00.671 <I> [CORE] Process: winget.exe[9544], Level[0], Offset: 00007FFB73130000\n2026-08-09 19:33:00.672 <I> [CORE] OS: Windows.Server v10.0.26100.1742\n2026-08-09 19:33:00.672 <I> [CORE] Command line Args: \"C:\\Users\\miaoshiyu\\AppData\\Local\\Microsoft\\WindowsApps\\winget.exe\" install --id Microsoft.VisualStudio.2022.BuildTools --source winget --accept-package-agreements --accept-source-agreements --silent --location E:\\citylbm_buildchain\\VSBuildTools --override \"--wait --quiet --norestart --installPath E:\\citylbm_buildchain\\VSBuildTools --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.Component.Windows11SDK.26100\"\n2026-08-09 19:33:00.672 <I> [CORE] Package: Microsoft.DesktopAppInstaller v1.29.280.0\n2026-08-09 19:33:00.672 <I> [CORE] IsCOMCall:0; Caller: winget-cli\n2026-08-09 19:33:00.688 <I> [CLI ] WinGet invoked with arguments: 'install' '--id' 'Microsoft.VisualStudio.2022.BuildTools' '--source' 'winget' '--accept-package-agreements' '--accept-source-agreements' '--silent' '--location' 'E:\\citylbm_buildchain\\VSBuildTools' '--override' '--wait --quiet --norestart --installPath E:\\citylbm_buildchain\\VSBuildTools --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.Component.Windows11SDK.26100'\n2026-08-09 19:33:00.689 <I> [CLI ] Found subcommand: install\n2026-08-09 19:33:00.689 <I> [CLI ] Leaf command to execute: root:install\n2026-08-09 19:33:00.693 <I> [CLI ] Executing command: install\n2026-08-09 19:33:00.709 <I> [REPO] Named source requested, found: winget\n2026-08-09 19:33:00.709 <I> [CLI ] Created authentication arguments. Mode: silentPreferred, Account: \n2026-08-09 19:33:00.735 <I> [CORE] Examining extension: PFN = Microsoft.Winget.Source_8wekyb3d8bbwe, ID = IndexDB\n2026-08-09 19:33:00.735 <I> [CORE] Found matching extension.\n2026-08-09 19:33:00.749 <I> [CORE] Examining extension: PFN = Microsoft.Winget.Source_8wekyb3d8bbwe, ID = IndexDB\n2026-08-09 19:33:00.749 <I> [CORE] Found matching extension.\n2026-08-09 19:33:00.776 <I> [REPO] Opening database for ImmutableRead at 'C:\\Program Files\\WindowsApps\\Microsoft.Winget.Source_2026.809.1133.45_neutral__8wekyb3d8bbwe\\Public\\index.db'\n2026-08-09 19:33:00.777 <I> [REPO] Opened SQLite Index with version [2.0], last write [2026-08-09 18:32:24.000]\n2026-08-09 19:33:00.832 <I> [REPO] Packaged source open for 'winget' succeeded in 93 ms [extensionLookup=10 ms, verifyContentIntegrity=8 ms, sqliteOpen=53 ms, mode=optimistic]\n2026-08-09 19:33:00.835 <I> [REPO] Creating new SQLite Index with version [Latest] at ':memory:'\n2026-08-09 19:33:00.843 <I> [REPO] Reading MSI UpgradeCodes\n2026-08-09 19:33:00.959 <I> [REPO] Reading MSI UpgradeCodes\n2026-08-09 19:33:01.154 <I> [REPO] Opening database for ReadWrite at 'C:\\Users\\miaoshiyu\\AppData\\Local\\Packages\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\LocalState\\Microsoft.Winget.Source_8wekyb3d8bbwe\\installed.db'\n2026-08-09 19:33:01.155 <I> [REPO] Opened SQLite Index with version [1.7], last write [2026-07-26 18:27:10.000]\n2026-08-09 19:33:01.182 <I> [CLI ] Found one app. App id: Microsoft.VisualStudio.2022.BuildTools App name: Visual Studio BuildTools 2022\n2026-08-09 19:33:01.193 <I> [REPO] Attempting to open pinning database: C:\\Users\\miaoshiyu\\AppData\\Local\\Packages\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\LocalState\\pinning.db\n2026-08-09 19:33:01.194 <I> [CORE] WinINet downloading from url: https://cdn.winget.microsoft.com/cache/packages/Microsoft.VisualStudio.2022.BuildTools/87d36d94/versionData.mszyml\n2026-08-09 19:33:01.194 <I> [CORE] Default proxy is not set\n2026-08-09 19:33:01.856 <I> [CORE] Download hash: 87d36d94d0f8f6592d7b1e862851e935ac0f7284ef659f66fa9c1f384734231c\n2026-08-09 19:33:01.856 <I> [CORE] Download completed.\n2026-08-09 19:33:01.864 <I> [CORE] WinINet downloading from url: https://cdn.winget.microsoft.com/cache/manifests/m/Microsoft/VisualStudio/2022/BuildTools/17.14.37/5ead\n2026-08-09 19:33:02.107 <I> [CORE] Download hash: 0c316097ee8fc6cf814300a0968930c24fd2c06397d6cc7badfa3b057998b567\n2026-08-09 19:33:02.107 <I> [CORE] Download completed.\n2026-08-09 19:33:02.114 <I> [CLI ] Manifest fields: Name [Visual Studio BuildTools 2022], Version [17.14.37]\n2026-08-09 19:33:02.136 <I> [CLI ] Generated temp download path: C:\\Users\\MIAOSH~1\\AppData\\Local\\Temp\\WinGet\\Microsoft.VisualStudio.2022.BuildTools.17.14.37\\e0b8ea16494b4a79c68da26773131562aefecc8d87f1923c24d579c7a72e0575\n2026-08-09 19:33:02.136 <I> [CLI ] Installer download headers: \n2026-08-09 19:33:02.136 <I> [CORE] Downloading to path: C:\\Users\\MIAOSH~1\\AppData\\Local\\Temp\\WinGet\\Microsoft.VisualStudio.2022.BuildTools.17.14.37\\e0b8ea16494b4a79c68da26773131562aefecc8d87f1923c24d579c7a72e0575\n2026-08-09 19:33:02.137 <I> [CORE] DeliveryOptimization downloading from url: https://download.visualstudio.microsoft.com/download/pr/f7f5ecbc-83ca-4cf0-bdb2-aaf70efb6d97/e0b8ea16494b4a79c68da26773131562aefecc8d87f1923c24d579c7a72e0575/vs_BuildTools.exe\n2026-08-09 19:33:05.645 <I> [CORE] Download completed.\n2026-08-09 19:33:05.674 <I> [CORE] Started applying motw to C:\\Users\\MIAOSH~1\\AppData\\Local\\Temp\\WinGet\\Microsoft.VisualStudio.2022.BuildTools.17.14.37\\e0b8ea16494b4a79c68da26773131562aefecc8d87f1923c24d579c7a72e0575 with zone: 3\n2026-08-09 19:33:05.680 <I> [CORE] Finished applying motw\n2026-08-09 19:33:05.680 <I> [CLI ] Installer hash verified\n2026-08-09 19:33:05.681 <I> [CLI ] Successfully renamed downloaded installer. Path: C:\\Users\\MIAOSH~1\\AppData\\Local\\Temp\\WinGet\\Microsoft.VisualStudio.2022.BuildTools.17.14.37\\vs_BuildTools.exe\n2026-08-09 19:33:05.681 <I> [CORE] Started applying motw to C:\\Users\\MIAOSH~1\\AppData\\Local\\Temp\\WinGet\\Microsoft.VisualStudio.2022.BuildTools.17.14.37\\vs_BuildTools.exe with zone: 2\n2026-08-09 19:33:05.682 <I> [CORE] Finished applying motw\n2026-08-09 19:33:05.682 <I> [REPO] Creating new SQLite Index with version [Latest] at ':memory:'\n2026-08-09 19:33:05.689 <I> [REPO] Reading MSI UpgradeCodes\n2026-08-09 19:33:05.795 <I> [REPO] Reading MSI UpgradeCodes\n2026-08-09 19:33:05.813 <I> [CLI ] Starting: 'C:\\Users\\MIAOSH~1\\AppData\\Local\\Temp\\WinGet\\Microsoft.VisualStudio.2022.BuildTools.17.14.37\\vs_BuildTools.exe' with arguments '--wait --quiet --norestart --installPath E:\\citylbm_buildchain\\VSBuildTools --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.Component.Windows11SDK.26100'\n2026-08-09 19:35:10.372 <E> [CLI ] ShellExecute installer failed: 1602\n2026-08-09 19:35:10.372 <E> [CLI ] Terminating context: 0x8a150006 at C:\\__w\\1\\s\\external\\pkg\\src\\AppInstallerCLICore\\Workflows\\InstallFlow.cpp:239",
+        "exit_1602_detected": true,
+        "uac_declined_detected": false,
+        "buildtools_installer_detected": true
       },
       "vs_bootstrapper_log": {
         "found": true,
         "path": "C:\\Users\\MIAOSH~1\\AppData\\Local\\Temp\\dd_vs_BuildTools_decompression_log.txt",
-        "sha256": "ac51c1e3c799f6c7d5c494e112f3fc6dec2c1b10d8a503372726b19ddacec8be",
-        "size_bytes": 1030,
-        "mtime": "2026-08-01T11:43:35.594832+00:00"
+        "sha256": "f21c1a710e30b86a82e5113a137ad3a911f57eecc9ac41c64d7848565a6b5078",
+        "size_bytes": 1015,
+        "mtime": "2026-08-09T11:35:10.351432+00:00",
+        "tail": "[8/9/2026, 19:33:5] === Logging started: 2026/08/09 19:33:05 ===\n[8/9/2026, 19:33:5] Executable: C:\\Users\\MIAOSH~1\\AppData\\Local\\Temp\\WinGet\\Microsoft.VisualStudio.2022.BuildTools.17.14.37\\vs_BuildTools.exe v17.14.37516.0\n[8/9/2026, 19:33:5] --- logging level: standard ---\n[8/9/2026, 19:33:5] Directory 'C:\\Users\\MIAOSH~1\\AppData\\Local\\Temp\\ace0a6d48e834f32ddc26c1933\\' has been selected for file extraction\n[8/9/2026, 19:33:5] Extracting files to: C:\\Users\\MIAOSH~1\\AppData\\Local\\Temp\\ace0a6d48e834f32ddc26c1933\\\n[8/9/2026, 19:33:6] Extraction took 922 milliseconds\n[8/9/2026, 19:33:6] [8/9/2026, 19:35:10] User may have declined UAC prompt\n[8/9/2026, 19:35:10] Error 0x80070642: Failed to start the process\n[8/9/2026, 19:35:10] Error 0x80070642: Failed to execute file\n[8/9/2026, 19:35:10] The entire Box execution exiting with result code: 0x80070642\n[8/9/2026, 19:35:10] Launched extracted application exiting with result code: 0x0\n[8/9/2026, 19:35:10] === Logging stopped: 2026/08/09 19:35:10 ===",
+        "exit_1602_detected": false,
+        "uac_declined_detected": true,
+        "buildtools_installer_detected": true
       },
       "observed_blockers": [
         "winget returned 1602 during the current attempt",
         "Visual Studio bootstrapper log reported possible declined UAC prompt",
-        "older setup error log reported C: drive free-space precheck failure; C: currently has less than 5.71 GB free"
+        "vswhere does not find Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+        "cl.exe is not on PATH",
+        "msbuild.exe is not on PATH",
+        "C: drive free space is below 8 GB; Visual Studio may still require more system-drive cache space"
       ]
     }
   },
@@ -100,39 +119,40 @@
     }
   },
   "gpu_runtime": {
+    "status": "ready",
     "nvidia_smi": {
       "command": "nvidia-smi",
       "found": true,
-      "returncode": 15,
-      "stdout": "Unable to determine the device handle for GPU0000:C3:00.0: GPU is lost.  Reboot the system to recover this GPU",
+      "returncode": 0,
+      "stdout": "Sun Aug  9 19:43:37 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     |\n|-----------------------------------------+------------------------+----------------------+\n| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  Tesla P100-PCIE-16GB         TCC   |   00000000:18:00.0 Off |                    0 |\n| N/A   46C    P0             29W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   1  Tesla P100-PCIE-16GB         TCC   |   00000000:51:00.0 Off |                    0 |\n| N/A   43C    P0             28W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   2  Tesla P100-PCIE-16GB         TCC   |   00000000:8A:00.0 Off |                    0 |\n| N/A   43C    P0             26W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   3  Tesla P100-PCIE-16GB         TCC   |   00000000:C3:00.0 Off |                    0 |\n| N/A   68C    P0             32W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n                                                                                         \n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+",
       "stderr": ""
     },
-    "note": "A GPU-lost nvidia-smi result blocks further long FluidX3D validation runs until driver/device recovery."
+    "note": "GPU runtime is available for scheduling checks only; it does not improve official Case E metrics."
   },
   "disk": [
     {
       "drive": "C:\\",
-      "free_bytes": 571166720,
+      "free_bytes": 7584083968,
       "total_bytes": 208810242048,
-      "free_gb": 0.532
+      "free_gb": 7.063
     },
     {
       "drive": "D:\\",
-      "free_bytes": 245935620096,
+      "free_bytes": 246256119808,
       "total_bytes": 302394634240,
-      "free_gb": 229.045
+      "free_gb": 229.344
     },
     {
       "drive": "E:\\",
-      "free_bytes": 870175993856,
+      "free_bytes": 870311890944,
       "total_bytes": 1000203087872,
-      "free_gb": 810.415
+      "free_gb": 810.541
     },
     {
       "drive": "F:\\",
-      "free_bytes": 2241844584448,
+      "free_bytes": 2241859321856,
       "total_bytes": 2901257744384,
-      "free_gb": 2087.88
+      "free_gb": 2087.894
     },
     {
       "drive": "G:\\",
@@ -142,6 +162,7 @@
     }
   ],
   "environment": {
-    "path": "C:\\Users\\miaoshiyu\\.codex\\tmp\\arg0\\codex-arg09xJGTa;D:\\phoenics\\d_utils\\windfsd.bat;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\bin;E:\\ProgramData\\anaconda3;E:\\ProgramData\\anaconda3\\Scripts;E:\\ProgramData\\anaconda3\\Lib\\site-packages;C:\\Program Files\\Microsoft SQL Server\\120\\Tools\\Binn\\;C:\\Program Files\\Common Files\\Autodesk Shared\\;C:\\Windows\\System32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Users\\miaoshiyu\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\miaoshiyu\\AppData\\Roaming\\Programs\\Zero Install;F:\\citylbm_fluidx3d_workspace\\WinLibs\\mingw64\\bin;D:\\Apps\\ParaView-6.1.1-Windows-Python3.12-msvc2017-AMD64\\bin;E:\\citylbm_buildchain\\dotnet_home\\.dotnet\\tools;E:\\citylbm_buildchain\\userprofile\\.dotnet_home\\.dotnet\\tools;C:\\Users\\miaoshiyu\\AppData\\Local\\OpenAI\\Codex\\bin\\3e42d49ad3e35a50;C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.721.4979.0_x64__2p2nqsd0c76g0\\app\\resources"
-  }
+    "path": "C:\\Users\\miaoshiyu\\.codex\\tmp\\arg0\\codex-arg0qcHE5O;C:\\Users\\miaoshiyu\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\override;D:\\phoenics\\d_utils\\windfsd.bat;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\bin;E:\\ProgramData\\anaconda3;E:\\ProgramData\\anaconda3\\Scripts;E:\\ProgramData\\anaconda3\\Lib\\site-packages;C:\\Program Files\\Microsoft SQL Server\\120\\Tools\\Binn\\;C:\\Program Files\\Common Files\\Autodesk Shared\\;C:\\Windows\\System32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Users\\miaoshiyu\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\miaoshiyu\\AppData\\Roaming\\Programs\\Zero Install;F:\\citylbm_fluidx3d_workspace\\WinLibs\\mingw64\\bin;D:\\Apps\\ParaView-6.1.1-Windows-Python3.12-msvc2017-AMD64\\bin;E:\\citylbm_buildchain\\dotnet_home\\.dotnet\\tools;E:\\citylbm_buildchain\\userprofile\\.dotnet_home\\.dotnet\\tools;C:\\Users\\miaoshiyu\\.dotnet\\tools;C:\\Users\\miaoshiyu\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\fallback;C:\\Users\\miaoshiyu\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd;C:\\Users\\miaoshiyu\\AppData\\Local\\OpenAI\\Codex\\bin\\fda9f910656130f4;C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.803.5235.0_x64__2p2nqsd0c76g0\\app\\resources"
+  },
+  "boundary": "This manifest records build-chain and runtime readiness only. It does not install tools by itself, does not add CFD output, and does not support formal accuracy or v0.4.0 release claims."
 }
