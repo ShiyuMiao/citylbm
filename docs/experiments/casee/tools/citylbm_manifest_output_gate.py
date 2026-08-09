@@ -117,6 +117,18 @@ def build_checks() -> List[Dict[str, Any]]:
             "Use to show the manifest records paper-use and forbidden-claim boundaries.",
             "Restore paper_readiness, paper_allowed_uses, and paper_forbidden_claims in the run manifest.",
         ),
+        check(
+            "manifest_contains_formal_accuracy_gate_contract",
+            "formal_accuracy_gate" in fluidx
+            and "formal_accuracy_claim_allowed_from_manifest_alone" in fluidx
+            and "requires_release_gate_json" in fluidx
+            and "requires_casea_smoke_regression" in fluidx
+            and "required_formal_sampling_mode" in fluidx
+            and "diagnostic_substitutes_allowed" in fluidx,
+            FLUIDX,
+            "Use to show each generated run manifest records the formal v0.4.0 accuracy-gate contract.",
+            "Restore formal_accuracy_gate fields in the run manifest.",
+        ),
     ]
 
 
@@ -171,8 +183,8 @@ def main() -> int:
         "checks": checks,
         "boundary": (
             "This gate verifies software traceability only: Run Simulation exposes the generated "
-            "citylbm_run_manifest.json path and the manifest records claim-boundary fields. It does "
-            "not validate CFD accuracy or Rhino loading of the new GHA."
+            "citylbm_run_manifest.json path and the manifest records claim-boundary and formal "
+            "accuracy-gate fields. It does not validate CFD accuracy or Rhino loading of the new GHA."
         ),
     }
     OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")

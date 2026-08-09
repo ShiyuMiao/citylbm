@@ -1,6 +1,6 @@
 # CityLBM Manifest Output Gate
 
-Generated: 2026-08-09T11:09:39.065822+00:00
+Generated: 2026-08-09T11:14:48.633744+00:00
 
 ## Verdict
 
@@ -22,7 +22,8 @@ Generated: 2026-08-09T11:09:39.065822+00:00
 | `fluidx_writes_run_manifest` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show the exposed path points to a file written by the solver interface. |
 | `manifest_contains_claim_boundary` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show the manifest records formal protocol and diagnostic boundaries. |
 | `manifest_contains_paper_readiness_boundary` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show the manifest records paper-use and forbidden-claim boundaries. |
+| `manifest_contains_formal_accuracy_gate_contract` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show each generated run manifest records the formal v0.4.0 accuracy-gate contract. |
 
 ## Boundary
 
-This gate verifies software traceability only: Run Simulation exposes the generated citylbm_run_manifest.json path and the manifest records claim-boundary fields. It does not validate CFD accuracy or Rhino loading of the new GHA.
+This gate verifies software traceability only: Run Simulation exposes the generated citylbm_run_manifest.json path and the manifest records claim-boundary and formal accuracy-gate fields. It does not validate CFD accuracy or Rhino loading of the new GHA.

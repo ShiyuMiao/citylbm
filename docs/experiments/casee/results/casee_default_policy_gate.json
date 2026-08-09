@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T11:09:38.833780+00:00",
+  "generated_at": "2026-08-09T11:14:48.362651+00:00",
   "default_policy_gate_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_default_policy_boundary",
@@ -8,7 +8,8 @@
     "Official Case E formal validation uses z=2 m, 80 ac+N probes, and raw_trilinear sampling.",
     "Generic CityLBM viscosity remains the standard physical-viscosity mapping when nuLBM is 0.",
     "Case E preset metadata may set protocol constants and manifest/risk fields.",
-    "Run manifests may record diagnostic availability and claim-boundary metadata."
+    "Run manifests may record diagnostic availability and claim-boundary metadata.",
+    "Run manifests may record the formal accuracy-gate contract for reviewer traceability."
   ],
   "experimental_switches": [
     "Diagnostic LBM Nu Override / nuLBM sensitivity control.",
@@ -88,6 +89,15 @@
       "policy_boundary": "Run manifests forbid diagnostic modes as formal official z=2 m substitutes.",
       "paper_use": "Use to keep z_plus_half out of formal Case E validation claims.",
       "failure_action": "Restore manifest fields blocking diagnostic modes as formal results."
+    },
+    {
+      "check_id": "manifest_formal_accuracy_gate_contract",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "policy_boundary": "Run manifests encode the formal v0.4.0 accuracy-gate contract and keep manifest-only claims blocked.",
+      "paper_use": "Use to state that software traceability encodes the release gate but does not satisfy it.",
+      "failure_action": "Restore formal_accuracy_gate contract fields in WriteRunManifest."
     },
     {
       "check_id": "native_generator_formal_output_raw",

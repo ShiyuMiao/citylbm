@@ -1,6 +1,6 @@
 # Case E Default Policy Gate
 
-Generated: 2026-08-09T11:09:38.833780+00:00
+Generated: 2026-08-09T11:14:48.362651+00:00
 
 ## Verdict
 
@@ -15,6 +15,7 @@ Generated: 2026-08-09T11:09:38.833780+00:00
 - Generic CityLBM viscosity remains the standard physical-viscosity mapping when nuLBM is 0.
 - Case E preset metadata may set protocol constants and manifest/risk fields.
 - Run manifests may record diagnostic availability and claim-boundary metadata.
+- Run manifests may record the formal accuracy-gate contract for reviewer traceability.
 
 ## Experimental Switches
 
@@ -35,6 +36,7 @@ Generated: 2026-08-09T11:09:38.833780+00:00
 | `run_component_nu_input_default_zero` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Diagnostic LBM Nu Override stays off unless the user supplies a positive value. |
 | `run_component_zoff_input_default_zero` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Diagnostic Z Origin Offset stays off unless explicitly set. |
 | `manifest_blocks_z_plus_half_formal` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Run manifests forbid diagnostic modes as formal official z=2 m substitutes. |
+| `manifest_formal_accuracy_gate_contract` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Run manifests encode the formal v0.4.0 accuracy-gate contract and keep manifest-only claims blocked. |
 | `native_generator_formal_output_raw` | True | `docs/experiments/casee/tools/generate_native_casee.py` | Native Case E probe CSV keeps predicted_velocity_ratio as the raw formal result. |
 | `native_generator_diagnostic_modes_declared` | True | `docs/experiments/casee/tools/generate_native_casee.py` | Native diagnostic sampling modes are recorded as diagnostics. |
 | `casee_preset_formal_default_raw` | True | `docs/experiments/casee/casee_preset.json` | Case E preset formal validation mode is raw_trilinear. |

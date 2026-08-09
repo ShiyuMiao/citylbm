@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T11:09:41.321498+00:00",
-    "feedback_count": 11,
+    "generated_at": "2026-08-09T11:14:50.722468+00:00",
+    "feedback_count": 12,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -10,14 +10,14 @@
       "blocked_followup_run": 1,
       "application_workflow_policy": 1,
       "paper_interpretation_layer": 1,
-      "software_traceability_output": 1,
+      "software_traceability_output": 2,
       "paper_traceability_output": 1,
       "paper_figure_output": 1
     },
     "citylbm_status_counts": {
       "implemented_as_release_gate_requirement": 1,
       "formal_release_blocked": 1,
-      "implemented": 4,
+      "implemented": 5,
       "implemented_default_off": 2,
       "ready_for_next_official_run": 1,
       "paper_ready_workflow_guidance": 1,
@@ -185,6 +185,20 @@
       "default_setting_allowed": true,
       "paper_use": "Use as a paper figure for negative validation and limitations only.",
       "limitations": "Figure output does not add CFD results, improve official z=2 m metrics, or justify formal accuracy claims."
+    },
+    {
+      "feedback_id": "SF012",
+      "experiment": "Experiment 2 / AIJ Case E manifest gate contract",
+      "finding": "Generated run manifests now encode the formal v0.4.0 accuracy-gate contract and keep manifest-only accuracy claims blocked.",
+      "evidence_type": "newly_run",
+      "source_paths": "CityLBM/src/Core/FluidX3DInterface.cs; docs/experiments/casee/results/citylbm_manifest_output_gate.json; docs/experiments/casee/results/casee_default_policy_gate.json",
+      "source_paths_exist": true,
+      "decision_class": "software_traceability_output",
+      "citylbm_status": "implemented",
+      "implementation_evidence": "WriteRunManifest emits formal_accuracy_gate with required official protocol, release-gate, Case A, Rhino/GHA, R2/Pearson, and diagnostic-substitute constraints.",
+      "default_setting_allowed": true,
+      "paper_use": "Use as software traceability evidence that each generated case records the formal release-gate contract.",
+      "limitations": "Manifest-gate metadata does not add solver output, improve official z=2 m metrics, or permit formal v0.4.0."
     }
   ],
   "source_artifacts": [

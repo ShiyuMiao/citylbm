@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc29 - Manifest formal accuracy gate contract
+
+- Added `formal_accuracy_gate` to generated `citylbm_run_manifest.json` files so each CityLBM run records the formal v0.4.0 release-gate contract.
+- The manifest contract records official Case E `ac+N`, wind vector `(0, -1, 0)`, z=2 m, 80 probes, `raw_trilinear`, required Case A smoke regression, Rhino/GHA load verification, and external `release_gate.json` dependency.
+- Extended `citylbm_manifest_output_gate.py`, `casee_default_policy_gate.py`, and `citylbm_software_feedback_matrix.py` to verify the new manifest gate contract as SF012.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc29.md`.
+
+This release candidate improves software traceability and misuse prevention only. It does not add CFD results, improve official Case E z=2 m metrics, promote diagnostic sampling to formal validation, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc28 - Paper results figure bundle
 
 - Added `casee_paper_results_figure.py` to export the Case E manuscript results table as an editable SVG, PNG preview, source CSV, JSON QA manifest, and Markdown QA note.

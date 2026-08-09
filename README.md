@@ -100,7 +100,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc28.md`
+- `docs/releases/v0.4.0-rc29.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -138,6 +138,11 @@ The generated run manifest now also records `paper_readiness`,
 `paper_allowed_uses`, and `paper_forbidden_claims` under
 `release_claim_boundary`. These fields make the formal release gate and
 diagnostic-only boundaries visible in each generated case folder.
+
+Generated run manifests also include a `formal_accuracy_gate` contract for the
+`v0.4.0` line. It records the official Case E `ac+N` z=2 m raw-trilinear
+requirements, Case A/Rhino/release-gate dependencies, and explicitly states
+that the manifest alone cannot authorize a formal accuracy claim.
 
 The z-center lattice diagnostic puts official z=2 m on a dx=2 m lattice center.
 It improves the formal raw_trilinear MAE to 21.111 pp and Pearson to 0.115756,

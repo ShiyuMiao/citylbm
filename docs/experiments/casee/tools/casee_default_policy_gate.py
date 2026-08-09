@@ -159,6 +159,19 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore manifest fields blocking diagnostic modes as formal results.",
         ),
         check_row(
+            "manifest_formal_accuracy_gate_contract",
+            "formal_accuracy_gate" in fluidx
+            and "formal_accuracy_claim_allowed_from_manifest_alone" in fluidx
+            and "requires_release_gate_json" in fluidx
+            and "requires_casea_smoke_regression" in fluidx
+            and "requires_rhino_loaded_new_gha" in fluidx
+            and "diagnostic_substitutes_allowed" in fluidx,
+            FLUIDX,
+            "Run manifests encode the formal v0.4.0 accuracy-gate contract and keep manifest-only claims blocked.",
+            "Use to state that software traceability encodes the release gate but does not satisfy it.",
+            "Restore formal_accuracy_gate contract fields in WriteRunManifest.",
+        ),
+        check_row(
             "native_generator_formal_output_raw",
             '"formal_sampling_mode": "raw_trilinear"' in generator
             and "official_velocity_ratio,predicted_velocity_ratio,speed_lbm" in generator,
@@ -298,6 +311,7 @@ def main() -> int:
             "Generic CityLBM viscosity remains the standard physical-viscosity mapping when nuLBM is 0.",
             "Case E preset metadata may set protocol constants and manifest/risk fields.",
             "Run manifests may record diagnostic availability and claim-boundary metadata.",
+            "Run manifests may record the formal accuracy-gate contract for reviewer traceability.",
         ],
         "experimental_switches": [
             "Diagnostic LBM Nu Override / nuLBM sensitivity control.",

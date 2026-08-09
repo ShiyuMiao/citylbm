@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-09T11:09:41.321498+00:00
+Generated: 2026-08-09T11:14:50.722468+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 11
+- Feedback rows: 12
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -22,7 +22,7 @@ Generated: 2026-08-09T11:09:41.321498+00:00
 - paper_figure_output: 1
 - paper_interpretation_layer: 1
 - paper_traceability_output: 1
-- software_traceability_output: 1
+- software_traceability_output: 2
 
 ## Feedback Rows
 
@@ -39,6 +39,7 @@ Generated: 2026-08-09T11:09:41.321498+00:00
 | `SF009` | CityLBM traceability layer | software_traceability_output | implemented | True | Run Simulation exposes the generated citylbm_run_manifest.json path as a Grasshopper output for direct reviewer tracing. |
 | `SF010` | Experiment 2 / AIJ Case E paper-readiness layer | paper_traceability_output | implemented | True | Run manifests and manuscript result rows now record allowed paper uses and forbidden accuracy claims. |
 | `SF011` | Experiment 2 / AIJ Case E paper-figure layer | paper_figure_output | implemented | True | The manuscript result table is exported as an editable SVG/PNG/source-CSV figure bundle with QA checks. |
+| `SF012` | Experiment 2 / AIJ Case E manifest gate contract | software_traceability_output | implemented | True | Generated run manifests now encode the formal v0.4.0 accuracy-gate contract and keep manifest-only accuracy claims blocked. |
 
 ## Paper Boundary
 
@@ -55,6 +56,7 @@ Generated: 2026-08-09T11:09:41.321498+00:00
 | `SF009` | Use as software traceability evidence for run manifests and protocol metadata. | Traceability output only; does not prove Rhino loaded the new GHA or improve official z=2 m accuracy. |
 | `SF010` | Use to move Case E results into manuscript tables without overstating formal accuracy. | Paper-readiness metadata does not change the official z=2 m metric or permit formal v0.4.0. |
 | `SF011` | Use as a paper figure for negative validation and limitations only. | Figure output does not add CFD results, improve official z=2 m metrics, or justify formal accuracy claims. |
+| `SF012` | Use as software traceability evidence that each generated case records the formal release-gate contract. | Manifest-gate metadata does not add solver output, improve official z=2 m metrics, or permit formal v0.4.0. |
 
 ## Boundary
 

@@ -1959,6 +1959,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    \"paper_allowed_uses\": [\"protocol_traceability\", \"software_identity_traceability\", \"limitations_boundary\"],");
             sb.AppendLine("    \"paper_forbidden_claims\": [\"predictive_accuracy_pass\", \"mesh_independence\", \"les_improvement\", \"diagnostic_sampling_as_formal_result\"]");
             sb.AppendLine("  },");
+            AppendFormalAccuracyGate(sb, settings);
             sb.AppendLine("  \"grid\": {");
             sb.AppendLine($"    \"nx\": {grid.Nx}, \"ny\": {grid.Ny}, \"nz\": {grid.Nz}, \"dx_m\": {grid.Dx.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"    \"origin_x_m\": {grid.Origin.X.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
@@ -2032,6 +2033,36 @@ namespace CityLBM.Solver
             sb.AppendLine($"      \"diagnostic_z_origin_offset_is_default\": {BoolJson(Math.Abs(settings.DiagnosticZOriginOffsetM) <= 1e-12)},");
             sb.AppendLine("      \"note\": \"Diagnostic sampling modes help quantify near-wall/probe sensitivity but do not replace official z=2m validation.\"");
             sb.AppendLine("    }");
+        }
+
+        private void AppendFormalAccuracyGate(StringBuilder sb, SimulationSettings settings)
+        {
+            bool caseEProtocol = settings.UseAijCaseEPreset
+                && settings.ProtocolName == "AIJ_CaseE_ac_N_official_z2m"
+                && settings.CaseCondition == "ac"
+                && settings.WindDirectionLabel == "N"
+                && Math.Abs(settings.ValidationHeight - 2.0) <= 1e-9
+                && settings.ExpectedProbeCount == 80
+                && settings.FormalSamplingMode == "raw_trilinear";
+
+            sb.AppendLine("  \"formal_accuracy_gate\": {");
+            sb.AppendLine("    \"release_target\": \"v0.4.0\",");
+            sb.AppendLine($"    \"casee_protocol_contract_satisfied\": {BoolJson(caseEProtocol)},");
+            sb.AppendLine("    \"formal_accuracy_claim_allowed_from_manifest_alone\": false,");
+            sb.AppendLine("    \"requires_release_gate_json\": true,");
+            sb.AppendLine("    \"requires_casea_smoke_regression\": true,");
+            sb.AppendLine("    \"requires_rhino_loaded_new_gha\": true,");
+            sb.AppendLine("    \"required_case_condition\": \"ac\",");
+            sb.AppendLine("    \"required_wind_direction\": \"N\",");
+            sb.AppendLine("    \"required_wind_vector\": [0.0, -1.0, 0.0],");
+            sb.AppendLine("    \"required_validation_height_m\": 2.0,");
+            sb.AppendLine("    \"required_probe_count\": 80,");
+            sb.AppendLine("    \"required_formal_sampling_mode\": \"raw_trilinear\",");
+            sb.AppendLine("    \"required_metric_trend\": \"MAE clearly below previous near-20pp level; R2 positive; Pearson positive\",");
+            sb.AppendLine("    \"diagnostic_substitutes_allowed\": false,");
+            sb.AppendLine("    \"diagnostic_substitutes\": [\"z_plus_half\", \"vertical_valid_above\", \"nearest_valid\", \"fluid_weighted\", \"z_origin_offset\", \"effective_ground_shift\"],");
+            sb.AppendLine("    \"claim_boundary\": \"This manifest is protocol evidence only; formal accuracy requires external release_gate.json metrics from completed official z=2m runs.\"");
+            sb.AppendLine("  },");
         }
 
         private string BoolJson(bool value)
