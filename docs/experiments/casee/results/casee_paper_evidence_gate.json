@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-09T10:57:40.939232+00:00",
+  "generated_at": "2026-08-09T11:09:43.344017+00:00",
   "paper_evidence_gate_passed": true,
   "metric_gate": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc27",
+    "recommended_tag": "v0.4.0-rc28",
     "official_z2m_r2": -2.006330362229977,
     "official_z2m_mae_pp": 21.111408125,
     "official_z2m_pearson": 0.11575649438573923,
@@ -31,14 +31,14 @@
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_en.md",
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_zh.md"
     ],
-    "checked_nonblank_lines": 261,
+    "checked_nonblank_lines": 273,
     "forbidden_success_claim_violations": [],
     "draft_claim_boundary_passed": true
   },
   "artifact_index": {
     "artifact_index_found": true,
-    "artifact_count": 160,
-    "lightweight_release_asset_count": 128,
+    "artifact_count": 166,
+    "lightweight_release_asset_count": 133,
     "formal_accuracy_claim_supported": false,
     "required_artifacts_present": true,
     "missing_required_artifacts": []
@@ -125,10 +125,19 @@
     "formal_accuracy_claim_supported": false,
     "claim_boundary_safe": true
   },
+  "casee_paper_results_figure": {
+    "paper_results_figure_found": true,
+    "figure_gate_passed": true,
+    "claim_readiness": "paper_ready_figure_for_negative_validation_and_limitations",
+    "formal_accuracy_claim_supported": false,
+    "export_bundle_complete": true,
+    "missing_bundle_paths": [],
+    "claim_boundary_safe": true
+  },
   "citylbm_software_feedback_matrix": {
     "software_feedback_matrix_found": true,
     "software_feedback_matrix_passed": true,
-    "feedback_count": 10,
+    "feedback_count": 11,
     "all_source_paths_exist": true,
     "no_forbidden_default_promotion": true,
     "formal_accuracy_claim_supported": false,

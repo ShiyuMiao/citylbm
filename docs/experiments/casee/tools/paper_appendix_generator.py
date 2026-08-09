@@ -57,6 +57,7 @@ def command_lines(suite: Dict[str, Any]) -> List[str]:
         "citylbm_paper_results_packet": "python docs/experiments/casee/tools/citylbm_paper_results_packet.py",
         "citylbm_manifest_output_gate": "python docs/experiments/casee/tools/citylbm_manifest_output_gate.py",
         "casee_manuscript_results_table": "python docs/experiments/casee/tools/casee_manuscript_results_table.py",
+        "casee_paper_results_figure": "python docs/experiments/casee/tools/casee_paper_results_figure.py",
         "citylbm_software_feedback_matrix": "python docs/experiments/casee/tools/citylbm_software_feedback_matrix.py",
         "artifact_index_pre_appendix": "python docs/experiments/casee/tools/artifact_index.py",
         "paper_appendix_generator": "python docs/experiments/casee/tools/paper_appendix_generator.py",
@@ -75,7 +76,7 @@ def command_lines(suite: Dict[str, Any]) -> List[str]:
     return lines
 
 
-def artifact_rows(artifact_index: Dict[str, Any], limit: int = 14) -> List[Dict[str, Any]]:
+def artifact_rows(artifact_index: Dict[str, Any], limit: int = 18) -> List[Dict[str, Any]]:
     rows = artifact_index.get("artifacts", [])
     priority = {
         "CityLBM/bin/CityLBM.gha",
@@ -95,6 +96,9 @@ def artifact_rows(artifact_index: Dict[str, Any], limit: int = 14) -> List[Dict[
         "docs/experiments/casee/results/citylbm_paper_results_packet.json",
         "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
         "docs/experiments/casee/results/citylbm_software_feedback_matrix.json",
+        "docs/experiments/casee/results/casee_paper_results_figure.svg",
+        "docs/experiments/casee/results/casee_paper_results_figure_source.csv",
+        "docs/experiments/casee/results/casee_paper_results_figure_qa.json",
         "docs/experiments/casee/results/casee_artifact_index.json",
         "docs/experiments/casee/results/build_chain_manifest.json",
         "docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv",

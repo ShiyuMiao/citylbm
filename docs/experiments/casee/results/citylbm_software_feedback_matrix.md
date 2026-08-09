@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-09T10:57:39.070054+00:00
+Generated: 2026-08-09T11:09:41.321498+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 10
+- Feedback rows: 11
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -19,6 +19,7 @@ Generated: 2026-08-09T10:57:39.070054+00:00
 - default_quality_gate: 1
 - diagnostic_switch: 2
 - formal_protocol_default: 1
+- paper_figure_output: 1
 - paper_interpretation_layer: 1
 - paper_traceability_output: 1
 - software_traceability_output: 1
@@ -37,6 +38,7 @@ Generated: 2026-08-09T10:57:39.070054+00:00
 | `SF008` | Experiment 3 / TUM2TWIN digital-twin application | paper_interpretation_layer | paper_ready_with_boundary | False | Basic morphology variables are interpretable screening descriptors; sector enclosure ranks above single-building footprint/elongation. |
 | `SF009` | CityLBM traceability layer | software_traceability_output | implemented | True | Run Simulation exposes the generated citylbm_run_manifest.json path as a Grasshopper output for direct reviewer tracing. |
 | `SF010` | Experiment 2 / AIJ Case E paper-readiness layer | paper_traceability_output | implemented | True | Run manifests and manuscript result rows now record allowed paper uses and forbidden accuracy claims. |
+| `SF011` | Experiment 2 / AIJ Case E paper-figure layer | paper_figure_output | implemented | True | The manuscript result table is exported as an editable SVG/PNG/source-CSV figure bundle with QA checks. |
 
 ## Paper Boundary
 
@@ -52,6 +54,7 @@ Generated: 2026-08-09T10:57:39.070054+00:00
 | `SF008` | Use as design-screening interpretation evidence. | Sample-internal screening only; no field validation or annual comfort compliance. |
 | `SF009` | Use as software traceability evidence for run manifests and protocol metadata. | Traceability output only; does not prove Rhino loaded the new GHA or improve official z=2 m accuracy. |
 | `SF010` | Use to move Case E results into manuscript tables without overstating formal accuracy. | Paper-readiness metadata does not change the official z=2 m metric or permit formal v0.4.0. |
+| `SF011` | Use as a paper figure for negative validation and limitations only. | Figure output does not add CFD results, improve official z=2 m metrics, or justify formal accuracy claims. |
 
 ## Boundary
 

@@ -26,7 +26,7 @@ EXPLICIT_ARTIFACTS = [
     "CHANGELOG.md",
     "CityLBM/README.md",
     "CityLBM/bin/CityLBM.gha",
-    "docs/releases/v0.4.0-rc27.md",
+    "docs/releases/v0.4.0-rc28.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/data_manifest.csv",
@@ -43,11 +43,13 @@ RESULT_PATTERNS = [
     "casee_*.json",
     "casee_*.md",
     "casee_*.png",
+    "casee_*.svg",
     "casee_*.xlsx",
     "dx1_feasibility_estimate.*",
     "environment_manifest.json",
     "release_gate.json",
     "casee_manuscript_results_table.*",
+    "casee_paper_results_figure.*",
     "citylbm_paper_results_packet.*",
     "citylbm_manifest_output_gate.*",
     "citylbm_software_feedback_matrix.*",
@@ -87,6 +89,7 @@ TOOL_SCRIPTS = [
     "casee_failure_mode_atlas.py",
     "casee_default_policy_gate.py",
     "casee_manuscript_results_table.py",
+    "casee_paper_results_figure.py",
     "citylbm_paper_results_packet.py",
     "citylbm_manifest_output_gate.py",
     "citylbm_software_feedback_matrix.py",
@@ -251,6 +254,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "paper_ready_default_policy_boundary"
     if "casee_manuscript_results_table" in path:
         return "paper_ready_manuscript_results_table"
+    if "casee_paper_results_figure" in path:
+        return "paper_ready_figure_negative_validation"
     if "citylbm_paper_results_packet" in path:
         return "paper_ready_cross_experiment_results_packet"
     if "citylbm_manifest_output_gate" in path:
@@ -293,6 +298,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to distinguish formal defaults from diagnostic-only software switches."
     if readiness == "paper_ready_manuscript_results_table":
         return "Use as the manuscript-facing Case E result table with formal and diagnostic boundaries."
+    if readiness == "paper_ready_figure_negative_validation":
+        return "Use as a paper figure for negative validation and limitations only."
     if readiness == "paper_ready_cross_experiment_results_packet":
         return "Use to organize Experiments 1, 2, and 3 results into manuscript-ready and limitations-only rows."
     if readiness == "paper_ready_manifest_traceability":
@@ -339,6 +346,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Default-policy boundary only; does not improve or replace official z=2 m metrics."
     if readiness == "paper_ready_manuscript_results_table":
         return "Manuscript result formatting only; formal official row remains negative validation and diagnostic rows remain limitations-only."
+    if readiness == "paper_ready_figure_negative_validation":
+        return "Figure formatting only; diagnostic rows cannot be reported as formal validation."
     if readiness == "paper_ready_cross_experiment_results_packet":
         return "Manuscript organization evidence only; does not add new CFD results or formal validation."
     if readiness == "paper_ready_manifest_traceability":
@@ -448,6 +457,11 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_manuscript_results_table.json",
                 "casee_manuscript_results_table.md",
                 "casee_manuscript_results_table.csv",
+                "casee_paper_results_figure.svg",
+                "casee_paper_results_figure.png",
+                "casee_paper_results_figure_source.csv",
+                "casee_paper_results_figure_qa.json",
+                "casee_paper_results_figure_qa.md",
                 "citylbm_paper_results_packet.json",
                 "citylbm_paper_results_packet.md",
                 "citylbm_paper_results_packet.csv",
@@ -469,7 +483,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_manuscript_claim_matrix.csv",
                 "casee_zcenter_probe_mode_metrics.csv",
                 "casee_zcenter_voxel_probe_audit_groups.csv",
-                "v0.4.0-rc27.md",
+                "v0.4.0-rc28.md",
             )
         )
     ]

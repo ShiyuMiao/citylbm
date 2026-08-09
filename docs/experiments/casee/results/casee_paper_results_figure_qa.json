@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-08-09T11:09:41.115409+00:00",
+  "figure_gate_passed": true,
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_figure_for_negative_validation_and_limitations",
+  "formal_accuracy_claim_supported": false,
+  "core_conclusion": "The official Case E z=2 m result remains negative validation; diagnostic improvements and probe-risk gradients support limitations only.",
+  "figure_contract": {
+    "evidence_hierarchy": {
+      "primary": "docs/experiments/casee/results/casee_manuscript_results_table.csv",
+      "derived_source_data": "docs/experiments/casee/results/casee_paper_results_figure_source.csv",
+      "supporting": [
+        "docs/experiments/casee/results/release_gate.json",
+        "docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv",
+        "docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv"
+      ]
+    },
+    "chart_archetype": "error diagnosis / claim-primary result with limitations supports",
+    "panel_mapping": {
+      "a": "formal official MAE versus best diagnostic MAE",
+      "b": "R2/Pearson evidence showing negative formal R2",
+      "c": "near-wall probe-risk stratification"
+    },
+    "reviewer_risk": "Reviewer may mistake diagnostic rows for formal accuracy. Mitigation: labels, hatches, caption and QA mark diagnostics as limitations-only.",
+    "export_bundle": {
+      "script": "docs/experiments/casee/tools/casee_paper_results_figure.py",
+      "source_csv": "docs/experiments/casee/results/casee_paper_results_figure_source.csv",
+      "svg": "docs/experiments/casee/results/casee_paper_results_figure.svg",
+      "png": "docs/experiments/casee/results/casee_paper_results_figure.png",
+      "qa": "docs/experiments/casee/results/casee_paper_results_figure_qa.json"
+    }
+  },
+  "checks": {
+    "source_table_exists": true,
+    "source_csv_written": true,
+    "editable_svg_written": true,
+    "png_export_written": true,
+    "formal_row_negative_validation": true,
+    "diagnostic_rows_not_formal": true,
+    "n_values_visible_in_source": true,
+    "no_rainbow_palette": true,
+    "uses_hatch_and_labels": true,
+    "formal_accuracy_claim_supported": false
+  }
+}

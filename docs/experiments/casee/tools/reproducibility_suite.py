@@ -182,6 +182,7 @@ def main() -> int:
         ("citylbm_paper_results_packet", "citylbm_paper_results_packet.py"),
         ("citylbm_manifest_output_gate", "citylbm_manifest_output_gate.py"),
         ("casee_manuscript_results_table", "casee_manuscript_results_table.py"),
+        ("casee_paper_results_figure", "casee_paper_results_figure.py"),
         ("citylbm_software_feedback_matrix", "citylbm_software_feedback_matrix.py"),
         ("artifact_index_pre_appendix", "artifact_index.py"),
         ("paper_appendix_generator", "paper_appendix_generator.py"),
@@ -204,6 +205,7 @@ def main() -> int:
     paper_results_packet = read_json(RESULTS_DIR / "citylbm_paper_results_packet.json")
     manifest_output_gate = read_json(RESULTS_DIR / "citylbm_manifest_output_gate.json")
     manuscript_results_table = read_json(RESULTS_DIR / "casee_manuscript_results_table.json")
+    paper_results_figure = read_json(RESULTS_DIR / "casee_paper_results_figure_qa.json")
     software_feedback_matrix = read_json(RESULTS_DIR / "citylbm_software_feedback_matrix.json")
     artifact_index = read_json(RESULTS_DIR / "casee_artifact_index.json")
     suite_passed = all(bool(step.get("passed")) for step in steps) and not bool(release_gate.get("formal_release_allowed"))
@@ -224,6 +226,7 @@ def main() -> int:
         "citylbm_paper_results_packet": paper_results_packet,
         "citylbm_manifest_output_gate": manifest_output_gate,
         "casee_manuscript_results_table": manuscript_results_table,
+        "casee_paper_results_figure": paper_results_figure,
         "citylbm_software_feedback_matrix": software_feedback_matrix,
         "artifact_index": artifact_index,
     }

@@ -1,11 +1,11 @@
 # Case E Remaining Blockers And Remediation Plan
 
-Generated: 2026-08-09T10:57:40.034851+00:00
+Generated: 2026-08-09T11:09:42.390647+00:00
 
 ## Verdict
 
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc27`
+- Recommended tag: `v0.4.0-rc28`
 - Official z=2 m MAE: 21.111408125 pp
 - Official z=2 m R2: -2.006330362229977
 - Official z=2 m Pearson: 0.11575649438573923

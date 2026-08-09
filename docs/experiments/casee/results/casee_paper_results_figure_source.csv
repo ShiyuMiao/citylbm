@@ -1,0 +1,9 @@
+panel,item,claim_boundary,metric,value,n,evidence_type,source_path
+a_error_magnitude,Official raw_trilinear,limitations_ready_negative_validation,mae_pp,21.111,80,newly_run,docs/experiments/casee/results/casee_manuscript_results_table.csv
+a_error_magnitude,Best diagnostic sampling,limitations_ready_diagnostic,mae_pp,16.041,80,newly_run,docs/experiments/casee/results/casee_manuscript_results_table.csv
+b_correlation,Official R2,limitations_ready_negative_validation,r2,-2.00633,80,newly_run,docs/experiments/casee/results/casee_manuscript_results_table.csv
+b_correlation,Official Pearson,limitations_ready_negative_validation,pearson,0.115756,80,newly_run,docs/experiments/casee/results/casee_manuscript_results_table.csv
+b_correlation,Diagnostic R2,limitations_ready_diagnostic,r2,-0.554717,80,newly_run,docs/experiments/casee/results/casee_manuscript_results_table.csv
+b_correlation,Diagnostic Pearson,limitations_ready_diagnostic,pearson,0.33694,80,newly_run,docs/experiments/casee/results/casee_manuscript_results_table.csv
+c_probe_risk,Low-risk probes,limitations_ready_diagnostic,raw_mae_pp,12.435,47,newly_run,docs/experiments/casee/results/casee_manuscript_results_table.csv
+c_probe_risk,High-risk probes,limitations_ready_diagnostic,raw_mae_pp,34.589,14,newly_run,docs/experiments/casee/results/casee_manuscript_results_table.csv

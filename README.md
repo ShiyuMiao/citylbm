@@ -41,6 +41,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
 - `docs/experiments/casee/tools/casee_manuscript_results_table.py`
+- `docs/experiments/casee/tools/casee_paper_results_figure.py`
 - `docs/experiments/casee/tools/citylbm_paper_results_packet.py`
 - `docs/experiments/casee/tools/citylbm_manifest_output_gate.py`
 - `docs/experiments/casee/tools/citylbm_software_feedback_matrix.py`
@@ -81,6 +82,11 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_manuscript_results_table.json`
 - `docs/experiments/casee/results/casee_manuscript_results_table.md`
 - `docs/experiments/casee/results/casee_manuscript_results_table.csv`
+- `docs/experiments/casee/results/casee_paper_results_figure.svg`
+- `docs/experiments/casee/results/casee_paper_results_figure.png`
+- `docs/experiments/casee/results/casee_paper_results_figure_source.csv`
+- `docs/experiments/casee/results/casee_paper_results_figure_qa.json`
+- `docs/experiments/casee/results/casee_paper_results_figure_qa.md`
 - `docs/experiments/casee/results/citylbm_paper_results_packet.json`
 - `docs/experiments/casee/results/citylbm_paper_results_packet.md`
 - `docs/experiments/casee/results/citylbm_paper_results_packet.csv`
@@ -94,7 +100,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc27.md`
+- `docs/releases/v0.4.0-rc28.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -210,6 +216,11 @@ the official z=2 m result is a negative-validation result, the best diagnostic
 sampling and near-wall risk rows are limitations-only, and the release boundary
 row blocks any formal `v0.4.0` accuracy claim.
 
+The paper results figure exports that table into an editable SVG, PNG preview,
+source CSV, and QA manifest. It is suitable for a negative-validation and
+limitations figure only; diagnostic bars and risk-group results are not formal
+official z=2 m validation evidence.
+
 Run the audit after official data are present:
 
 ```powershell
@@ -221,6 +232,7 @@ python docs/experiments/casee/tools/casee_environment_recovery_runbook.py
 python docs/experiments/casee/tools/casee_failure_mode_atlas.py
 python docs/experiments/casee/tools/casee_default_policy_gate.py
 python docs/experiments/casee/tools/casee_manuscript_results_table.py
+python docs/experiments/casee/tools/casee_paper_results_figure.py
 python docs/experiments/casee/tools/citylbm_paper_results_packet.py
 python docs/experiments/casee/tools/citylbm_manifest_output_gate.py
 python docs/experiments/casee/tools/citylbm_software_feedback_matrix.py

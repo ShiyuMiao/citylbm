@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T10:57:39.070054+00:00",
-    "feedback_count": 10,
+    "generated_at": "2026-08-09T11:09:41.321498+00:00",
+    "feedback_count": 11,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -11,12 +11,13 @@
       "application_workflow_policy": 1,
       "paper_interpretation_layer": 1,
       "software_traceability_output": 1,
-      "paper_traceability_output": 1
+      "paper_traceability_output": 1,
+      "paper_figure_output": 1
     },
     "citylbm_status_counts": {
       "implemented_as_release_gate_requirement": 1,
       "formal_release_blocked": 1,
-      "implemented": 3,
+      "implemented": 4,
       "implemented_default_off": 2,
       "ready_for_next_official_run": 1,
       "paper_ready_workflow_guidance": 1,
@@ -170,6 +171,20 @@
       "default_setting_allowed": true,
       "paper_use": "Use to move Case E results into manuscript tables without overstating formal accuracy.",
       "limitations": "Paper-readiness metadata does not change the official z=2 m metric or permit formal v0.4.0."
+    },
+    {
+      "feedback_id": "SF011",
+      "experiment": "Experiment 2 / AIJ Case E paper-figure layer",
+      "finding": "The manuscript result table is exported as an editable SVG/PNG/source-CSV figure bundle with QA checks.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/casee_paper_results_figure.py; docs/experiments/casee/results/casee_paper_results_figure_qa.json; docs/experiments/casee/results/casee_paper_results_figure.svg; docs/experiments/casee/results/casee_paper_results_figure_source.csv",
+      "source_paths_exist": true,
+      "decision_class": "paper_figure_output",
+      "citylbm_status": "implemented",
+      "implementation_evidence": "casee_paper_results_figure_qa.json verifies source CSV, editable SVG, PNG export, and negative-validation claim boundary.",
+      "default_setting_allowed": true,
+      "paper_use": "Use as a paper figure for negative validation and limitations only.",
+      "limitations": "Figure output does not add CFD results, improve official z=2 m metrics, or justify formal accuracy claims."
     }
   ],
   "source_artifacts": [
@@ -180,6 +195,7 @@
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",
+    "docs/experiments/casee/results/casee_paper_results_figure_qa.json",
     "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv",
     "CityLBM/src/Core/FluidX3DInterface.cs",
     "CityLBM/src/Components/Simulation/RunSimulationComponent.cs"

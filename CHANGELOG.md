@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc28 - Paper results figure bundle
+
+- Added `casee_paper_results_figure.py` to export the Case E manuscript results table as an editable SVG, PNG preview, source CSV, JSON QA manifest, and Markdown QA note.
+- Integrated the figure bundle into the reproducibility suite, artifact index, paper evidence gate, reproducibility appendix command trace, and software-feedback matrix as SF011.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc28.md`.
+
+This release candidate improves manuscript figure readiness only. It does not add CFD results, improve official Case E z=2 m metrics, promote diagnostic sampling to formal validation, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc27 - Manuscript results table boundary
 
 - Added `casee_manuscript_results_table.py` to generate a paper-facing Case E results table with formal, diagnostic, limitations, traceability, and release-boundary rows.
