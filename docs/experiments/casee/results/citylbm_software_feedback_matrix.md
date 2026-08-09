@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-09T13:21:19.760373+00:00
+Generated: 2026-08-09T13:39:08.191789+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 21
+- Feedback rows: 22
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -18,6 +18,7 @@ Generated: 2026-08-09T13:21:19.760373+00:00
 - blocked_followup_run: 3
 - completed_candidate_no_default_promotion: 1
 - default_quality_gate: 1
+- diagnostic_ablation_no_default_promotion: 1
 - diagnostic_switch: 3
 - followup_sweep_plan: 1
 - formal_protocol_default: 1
@@ -52,6 +53,7 @@ Generated: 2026-08-09T13:21:19.760373+00:00
 | `SF018` | Experiment 2 / AIJ Case E manifest schema traceability | software_traceability_gate | implemented_schema_gate | False | Generated run manifests need a stable reader-facing schema so Case E protocol fields, diagnostic substitute blockers, and paper-forbidden claim classes can be audited without reinterpreting solver logs. |
 | `SF020` | Experiment 2 / AIJ Case E z-center rerun | rerun_reproducibility_guard | baseline_failure_reproduced | False | A newly-run 48000-step rerun of the currently compiled z-center Case E setup reproduced the same official z=2 m raw_trilinear failure metric, so repeating the baseline is not an accuracy-improvement path. |
 | `SF021` | Experiment 2 / AIJ Case E C002 longer mean | completed_candidate_no_default_promotion | candidate_completed_no_improvement | False | The completed 96000-step C002 longer-time-mean candidate worsened the official z=2 m raw_trilinear metric, so longer averaging alone should not be promoted as a CityLBM accuracy fix. |
+| `SF022` | Experiment 2 / AIJ Case E C003 z-origin ablation | diagnostic_ablation_no_default_promotion | zorigin_sensitivity_confirmed | False | The completed C003 no-z-center ablation worsened the official z=2 m raw_trilinear metric relative to the z-center baseline, so z-origin alignment remains a diagnostic sensitivity rather than a validated default model. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary
@@ -78,6 +80,7 @@ Generated: 2026-08-09T13:21:19.760373+00:00
 | `SF018` | Use as reviewer-facing manifest schema and claim-boundary evidence. | Schema traceability does not add CFD output, improve official z=2 m metrics, or permit a formal accuracy claim. |
 | `SF020` | Use as reproducibility evidence that the current best compiled diagnostic repeats the negative official z=2 m result. | Does not improve accuracy, does not support formal v0.4.0, and does not justify promoting diagnostic settings. |
 | `SF021` | Use as candidate-run evidence that longer time averaging did not solve the official z=2 m accuracy failure. | Single candidate run; useful for narrowing the failure mode, not for formal accuracy or mesh-independence claims. |
+| `SF022` | Use as ablation evidence that z-origin placement affects near-wall/probe-protocol metrics. | Single ablation run; it worsens the formal metric and cannot support formal v0.4.0 or a default z-origin model. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 
 ## Boundary

@@ -96,6 +96,7 @@ def build_rows() -> List[Dict[str, str]]:
     candidate_sweep = read_json(CASEE_RESULTS / "casee_candidate_sweep_plan.json")
     zcenter_rerun = read_json(CASEE_RESULTS / "casee_zcenter_rerun_consistency.json")
     c002_longer_mean = read_json(CASEE_RESULTS / "casee_c002_longer_mean_audit.json")
+    c003_zorigin_ablation = read_json(CASEE_RESULTS / "casee_c003_zorigin_ablation_audit.json")
     build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -277,6 +278,32 @@ def build_rows() -> List[Dict[str, str]]:
             paper_use="Use as candidate-run evidence that extending the averaging window alone did not improve the official z=2 m metric.",
             limitations="Completed candidate result only; it worsened the formal raw_trilinear metric and cannot be used for formal v0.4.0.",
             software_feedback="Do not promote longer averaging as a default accuracy fix; prioritize wall/inlet/voxelization changes.",
+        )
+    )
+
+    c003_metrics = c003_zorigin_ablation.get("candidate_metrics") or {}
+    c003_delta = c003_zorigin_ablation.get("metric_delta_vs_zcenter_baseline") or {}
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="c003_zorigin_ablation_supports_sensitivity",
+            claim_readiness=str(c003_zorigin_ablation.get("claim_readiness", "blocked_c003_audit")),
+            evidence_type=str(c003_zorigin_ablation.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_c003_zorigin_ablation_audit.json"),
+                rel(CASEE_RESULTS / "casee_c003_zorigin_ablation_audit.md"),
+                str((c003_zorigin_ablation.get("candidate_csv") or {}).get("path", "")),
+                str((c003_zorigin_ablation.get("run_log") or {}).get("path", "")),
+            ],
+            metric_or_status=(
+                f"status={c003_zorigin_ablation.get('status')}; log_completed_48000={c003_zorigin_ablation.get('log_completed_48000')}; "
+                f"MAE={c003_metrics.get('mae_pp')} pp; R2={c003_metrics.get('r2')}; Pearson={c003_metrics.get('pearson')}; "
+                f"delta_MAE_vs_zcenter={c003_delta.get('mae_pp')} pp; delta_R2_vs_zcenter={c003_delta.get('r2')}; "
+                f"consistent_with_preexisting_no_zcenter={c003_zorigin_ablation.get('consistent_with_preexisting_no_zcenter')}"
+            ),
+            paper_use="Use as ablation evidence that z-origin placement changes the official z=2 m metric and should be discussed as near-wall/probe-protocol sensitivity.",
+            limitations="The no-z-center ablation worsened the formal metric; it cannot support formal accuracy or a default z-origin model.",
+            software_feedback="Keep z-origin alignment as a diagnostic switch and prioritize physical wall/inlet/voxelization work before default promotion.",
         )
     )
 

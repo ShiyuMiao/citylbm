@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T13:21:17.111738+00:00",
-    "result_count": 21,
+    "generated_at": "2026-08-09T13:39:05.584439+00:00",
+    "result_count": 22,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
       "limitations_ready_negative_validation": 1,
@@ -11,6 +11,7 @@
       "limitations_ready_dx1_feasibility": 1,
       "paper_ready_followup_plan; blocked formal accuracy release": 1,
       "limitations_ready_candidate_result; blocked formal accuracy release": 1,
+      "limitations_ready_zorigin_ablation; blocked formal accuracy release": 1,
       "blocked_build_chain_diagnostic": 1,
       "paper_ready_negative_validation_and_limitations": 1,
       "paper_ready": 1,
@@ -23,7 +24,7 @@
       "blocked_formal_release_gate": 1
     },
     "evidence_type_counts": {
-      "newly_run": 15,
+      "newly_run": 16,
       "newly_run + preexisting_artifact": 3,
       "blocked": 1,
       "newly_run + preexisting_artifact + blocked": 2
@@ -121,6 +122,17 @@
       "paper_use": "Use as candidate-run evidence that extending the averaging window alone did not improve the official z=2 m metric.",
       "limitations": "Completed candidate result only; it worsened the formal raw_trilinear metric and cannot be used for formal v0.4.0.",
       "software_feedback": "Do not promote longer averaging as a default accuracy fix; prioritize wall/inlet/voxelization changes."
+    },
+    {
+      "experiment": "Experiment 2 / AIJ Case E",
+      "result_id": "c003_zorigin_ablation_supports_sensitivity",
+      "claim_readiness": "limitations_ready_zorigin_ablation; blocked formal accuracy release",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json; docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.md; docs/experiments/casee/results/casee_c003_dx2_no_zcenter_20260809_212601_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c003_dx2_no_zcenter_run_20260809_212601.log",
+      "metric_or_status": "status=completed_ablation_supports_zorigin_sensitivity; log_completed_48000=True; MAE=23.125594087499998 pp; R2=-2.221378753276796; Pearson=0.09921683588947784; delta_MAE_vs_zcenter=2.0141859624999974 pp; delta_R2_vs_zcenter=-0.21504839104681928; consistent_with_preexisting_no_zcenter=True",
+      "paper_use": "Use as ablation evidence that z-origin placement changes the official z=2 m metric and should be discussed as near-wall/probe-protocol sensitivity.",
+      "limitations": "The no-z-center ablation worsened the formal metric; it cannot support formal accuracy or a default z-origin model.",
+      "software_feedback": "Keep z-origin alignment as a diagnostic switch and prioritize physical wall/inlet/voxelization work before default promotion."
     },
     {
       "experiment": "Build-chain recovery / AIJ Case E follow-up",
@@ -260,7 +272,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc38",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc39",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."

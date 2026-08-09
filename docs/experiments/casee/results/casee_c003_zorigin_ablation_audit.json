@@ -1,0 +1,114 @@
+{
+  "generated_at": "2026-08-09T13:39:05.174390+00:00",
+  "candidate_id": "C003_dx2_no_zcenter_ablation",
+  "status": "completed_ablation_supports_zorigin_sensitivity",
+  "evidence_type": "newly_run",
+  "claim_readiness": "limitations_ready_zorigin_ablation; blocked formal accuracy release",
+  "formal_release_allowed": false,
+  "formal_accuracy_claim_supported": false,
+  "pass_condition_met": true,
+  "log_completed_48000": true,
+  "probe_count_ok": true,
+  "consistent_with_preexisting_no_zcenter": true,
+  "zcenter_baseline_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv",
+    "sha256": "a3ec4396a6722aaf2b7432ea976892423f4d31c528f180fd668731757650bb97",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-01T11:28:45.792455+00:00"
+  },
+  "preexisting_no_zcenter_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_native_dx2_gshift1_nu001_pmodes_probe_time_mean.csv",
+    "sha256": "b2d2a0302f056ee1c1ce91ee52a9d92576161152108b3e1adecc855b8e0d59f4",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-01T11:07:19.609009+00:00"
+  },
+  "candidate_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_c003_dx2_no_zcenter_20260809_212601_probe_time_mean.csv",
+    "sha256": "ac6cc80f858e7d401be6725f38ff4a0bf80711fdb7db1149cfd4bb67be122091",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-09T13:33:04.935951+00:00"
+  },
+  "run_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c003_dx2_no_zcenter_run_20260809_212601.log",
+    "sha256": "d5ede0670f4b37c977c8014ff261b8989360792d5b74b7ce31e9f7d9eda61ad9",
+    "size_bytes": 547435,
+    "mtime_utc": "2026-08-09T13:33:05.198909+00:00"
+  },
+  "run_err_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c003_dx2_no_zcenter_run_20260809_212601.err.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "mtime_utc": "2026-08-09T13:26:02.031394+00:00"
+  },
+  "compile_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c003_dx2_no_zcenter_compile.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "mtime_utc": "2026-08-09T13:24:52.325278+00:00"
+  },
+  "compile_err_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c003_dx2_no_zcenter_compile.err.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "mtime_utc": "2026-08-09T13:24:52.326672+00:00"
+  },
+  "case_manifest": {
+    "found": true,
+    "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff0_nu0p001_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
+    "sha256": "6ea291b7b67b35c5cbe95f43dbbb1685631a6cdaff3a4ffd641843ea6b9b1115",
+    "size_bytes": 880,
+    "mtime_utc": "2026-08-09T13:24:32.568379+00:00"
+  },
+  "zcenter_baseline_metrics": {
+    "n": 80,
+    "mae_pp": 21.111408125,
+    "rmse_pp": 27.72103208243715,
+    "bias_pp": -16.409215999999997,
+    "r2": -2.006330362229977,
+    "pearson": 0.11575649438573923,
+    "height_m": 2.0,
+    "sampling_mode": "raw_trilinear"
+  },
+  "preexisting_no_zcenter_metrics": {
+    "n": 80,
+    "mae_pp": 23.9718437125,
+    "rmse_pp": 29.09517811414642,
+    "bias_pp": -20.8333859625,
+    "r2": -2.3117683583310877,
+    "pearson": 0.07178905303473038,
+    "height_m": 2.0,
+    "sampling_mode": "raw_trilinear"
+  },
+  "candidate_metrics": {
+    "n": 80,
+    "mae_pp": 23.125594087499998,
+    "rmse_pp": 28.695377268333043,
+    "bias_pp": -20.765241212499998,
+    "r2": -2.221378753276796,
+    "pearson": 0.09921683588947784,
+    "height_m": 2.0,
+    "sampling_mode": "raw_trilinear"
+  },
+  "metric_delta_vs_zcenter_baseline": {
+    "mae_pp": 2.0141859624999974,
+    "rmse_pp": 0.974345185895892,
+    "bias_pp": -4.3560252125000005,
+    "r2": -0.21504839104681928,
+    "pearson": -0.016539658496261392
+  },
+  "metric_delta_vs_preexisting_no_zcenter": {
+    "mae_pp": -0.8462496250000022,
+    "rmse_pp": -0.3998008458133775,
+    "bias_pp": 0.06814475000000186,
+    "r2": 0.09038960505429161,
+    "pearson": 0.027427782854747465
+  },
+  "boundary": "C003 is a completed official z=2 m raw_trilinear z-origin ablation. It supports treating z-center behavior as a protocol/near-wall sensitivity diagnostic, not as a validated default accuracy model. It does not support formal v0.4.0."
+}

@@ -125,6 +125,7 @@ def build_rows() -> List[Dict[str, Any]]:
     candidate_sweep = read_json(RESULTS_DIR / "casee_candidate_sweep_plan.json")
     zcenter_rerun = read_json(RESULTS_DIR / "casee_zcenter_rerun_consistency.json")
     c002_longer_mean = read_json(RESULTS_DIR / "casee_c002_longer_mean_audit.json")
+    c003_zorigin_ablation = read_json(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -638,6 +639,38 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF022",
+            experiment="Experiment 2 / AIJ Case E C003 z-origin ablation",
+            finding=(
+                "The completed C003 no-z-center ablation worsened the official z=2 m raw_trilinear metric relative to "
+                "the z-center baseline, so z-origin alignment remains a diagnostic sensitivity rather than a validated default model."
+            ),
+            evidence_type=str(c003_zorigin_ablation.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_c003_zorigin_ablation_audit.py",
+                RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json",
+                RESULTS_DIR / "casee_c003_zorigin_ablation_audit.md",
+                Path(str((c003_zorigin_ablation.get("candidate_csv") or {}).get("path", ""))),
+                Path(str((c003_zorigin_ablation.get("run_log") or {}).get("path", ""))),
+            ],
+            decision_class="diagnostic_ablation_no_default_promotion",
+            citylbm_status="zorigin_sensitivity_confirmed"
+            if c003_zorigin_ablation.get("status") == "completed_ablation_supports_zorigin_sensitivity"
+            else "zorigin_ablation_missing_or_inconclusive",
+            implementation_evidence=(
+                f"pass_condition_met={c003_zorigin_ablation.get('pass_condition_met')}; "
+                f"r2={(c003_zorigin_ablation.get('candidate_metrics') or {}).get('r2')}; "
+                f"delta_r2_vs_zcenter={(c003_zorigin_ablation.get('metric_delta_vs_zcenter_baseline') or {}).get('r2')}; "
+                f"consistent_with_preexisting_no_zcenter={c003_zorigin_ablation.get('consistent_with_preexisting_no_zcenter')}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as ablation evidence that z-origin placement affects near-wall/probe-protocol metrics.",
+            limitations="Single ablation run; it worsens the formal metric and cannot support formal v0.4.0 or a default z-origin model.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF019",
             experiment="Experiment 2 / AIJ Case E official z=2 m follow-up planning",
             finding=(
@@ -681,7 +714,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -691,7 +724,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -777,6 +810,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_candidate_sweep_plan.json"),
             rel(RESULTS_DIR / "casee_zcenter_rerun_consistency.json"),
             rel(RESULTS_DIR / "casee_c002_longer_mean_audit.json"),
+            rel(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json"),
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
             rel(RESULTS_DIR / "casee_manuscript_results_table.json"),

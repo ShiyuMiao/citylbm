@@ -201,6 +201,10 @@ def build_candidates(
     baseline_mae = metrics.get("mae_pp")
     baseline_r2 = metrics.get("r2")
     low_risk_phrase = "failure atlas" if failure_atlas.get("failure_modes") else "current diagnostics"
+    c002_audit = read_json(RESULTS_DIR / "casee_c002_longer_mean_audit.json")
+    c003_audit = read_json(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
+    c002_completed = c002_audit.get("evidence_type") == "newly_run"
+    c003_completed = c003_audit.get("evidence_type") == "newly_run"
     executable_native = official_followup_allowed and gpu_ready and fluidx_ready and native_source_compile_ready
     source_compile_blockers = [gate for gate in blocked_gates if gate not in {"rhino_gha_load", "vs_cpp_build_tools"}]
     if not gpu_ready:
@@ -251,7 +255,7 @@ def build_candidates(
             candidate_class="time_mean_stability",
             executable_now=executable_native,
             blocking_gates=source_compile_blockers,
-            evidence_type="planned_run",
+            evidence_type=str(c002_audit.get("evidence_type", "planned_run")) if c002_completed else "planned_run",
             dx_m=2.0,
             steps=96000,
             spinup=24000,
@@ -270,10 +274,17 @@ def build_candidates(
                 nu_lbm=0.001,
             ),
             expected_artifacts=[
-                "docs/experiments/casee/native_cases/<candidate>/casee_probe_time_mean.csv",
-                "docs/experiments/casee/results/<candidate>_time_mean_stability_metrics.csv",
+                "docs/experiments/casee/results/casee_c002_longer_mean_audit.json",
+                "docs/experiments/casee/results/casee_c002_longer_mean_audit.md",
+                "docs/experiments/casee/results/casee_c002_dx2_longer_mean_<stamp>_probe_time_mean.csv",
             ],
-            rationale="Test whether negative R2 is partly caused by insufficient averaging rather than geometry/probe physics.",
+            rationale=(
+                "Completed: longer averaging worsened the official metric. "
+                f"status={c002_audit.get('status')}; R2={(c002_audit.get('candidate_metrics') or {}).get('r2')}; "
+                f"delta_R2={(c002_audit.get('metric_delta_vs_baseline') or {}).get('r2')}."
+                if c002_completed
+                else "Test whether negative R2 is partly caused by insufficient averaging rather than geometry/probe physics."
+            ),
             formal_result_policy=formal_policy,
             pass_condition="Pearson remains positive and R2 moves toward zero without diagnostic sampling substitution.",
             default_promotion_allowed=False,
@@ -285,7 +296,7 @@ def build_candidates(
             candidate_class="protocol_ablation",
             executable_now=executable_native,
             blocking_gates=source_compile_blockers,
-            evidence_type="planned_run",
+            evidence_type=str(c003_audit.get("evidence_type", "planned_run")) if c003_completed else "planned_run",
             dx_m=2.0,
             steps=48000,
             spinup=12000,
@@ -304,10 +315,17 @@ def build_candidates(
                 nu_lbm=0.001,
             ),
             expected_artifacts=[
-                "docs/experiments/casee/native_cases/<candidate>/casee_probe_time_mean.csv",
-                "docs/experiments/casee/results/<candidate>_zorigin_ablation_metrics.csv",
+                "docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json",
+                "docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.md",
+                "docs/experiments/casee/results/casee_c003_dx2_no_zcenter_<stamp>_probe_time_mean.csv",
             ],
-            rationale="Separate effective-ground and z-center sensitivity from actual wall/inlet physics.",
+            rationale=(
+                "Completed: removing z-center worsened the official metric and confirms z-origin sensitivity. "
+                f"status={c003_audit.get('status')}; R2={(c003_audit.get('candidate_metrics') or {}).get('r2')}; "
+                f"delta_R2_vs_zcenter={(c003_audit.get('metric_delta_vs_zcenter_baseline') or {}).get('r2')}."
+                if c003_completed
+                else "Separate effective-ground and z-center sensitivity from actual wall/inlet physics."
+            ),
             formal_result_policy=formal_policy,
             pass_condition="Shows whether z-origin sensitivity is a diagnostic limitation rather than a stable accuracy fix.",
             default_promotion_allowed=False,

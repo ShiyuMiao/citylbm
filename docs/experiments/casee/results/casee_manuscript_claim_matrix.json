@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T13:21:12.481028+00:00",
+  "generated_at": "2026-08-09T13:39:00.698412+00:00",
   "claims": [
     {
       "claim_id": "C001",
@@ -91,7 +91,7 @@
       "evidence_type": "newly_run",
       "section": "Release",
       "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
-      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc38",
+      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc39",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
       "allowed_use": "Use to justify rc-only release status.",
       "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",
@@ -108,6 +108,18 @@
       "allowed_use": "Use as negative follow-up evidence that longer averaging alone is not the current accuracy bottleneck.",
       "forbidden_use": "Do not promote C002 settings to CityLBM defaults or claim official z=2 m accuracy improvement.",
       "protocol_risks": "single follow-up candidate; formal metric remains negative and worsened relative to the z-center baseline"
+    },
+    {
+      "claim_id": "C010",
+      "claim_readiness": "limitations_ready",
+      "evidence_type": "newly_run",
+      "section": "Results / Z-origin ablation",
+      "claim": "Removing the z-center alignment worsened the official z=2 m raw-trilinear metric, confirming z-origin sensitivity rather than a validated default model.",
+      "supporting_metrics": "status=completed_ablation_supports_zorigin_sensitivity; MAE=23.126 pp; R2=-2.221379; Pearson=0.099217; delta_MAE_vs_zcenter=2.014 pp; delta_R2_vs_zcenter=-0.215048",
+      "source_paths": "docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json; docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.md",
+      "allowed_use": "Use as negative ablation evidence for near-wall/probe-protocol sensitivity.",
+      "forbidden_use": "Do not claim z-center is a validated default accuracy model or that C003 supports formal v0.4.0.",
+      "protocol_risks": "single ablation run; z-origin was benchmark-diagnostic and remains default-off/non-formal"
     }
   ]
 }

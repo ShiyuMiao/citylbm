@@ -44,6 +44,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_zcenter_rerun_consistency.py`
 - `docs/experiments/casee/tools/casee_candidate_sweep_plan.py`
 - `docs/experiments/casee/tools/casee_c002_longer_mean_audit.py`
+- `docs/experiments/casee/tools/casee_c003_zorigin_ablation_audit.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
 - `docs/experiments/casee/tools/casee_manuscript_results_table.py`
 - `docs/experiments/casee/tools/casee_manuscript_section_pack.py`
@@ -94,6 +95,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_c002_longer_mean_audit.json`
 - `docs/experiments/casee/results/casee_c002_longer_mean_audit.md`
 - `docs/experiments/casee/results/casee_c002_longer_mean_audit.csv`
+- `docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json`
+- `docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.md`
+- `docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.csv`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.json`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.md`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.csv`
@@ -127,7 +131,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc38.md`
+- `docs/releases/v0.4.0-rc39.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -208,6 +212,14 @@ candidate to 96000 steps with spinup 24000. The run completed and produced the
 R2 -2.185136, and Pearson -0.008937. This is negative follow-up evidence that
 longer averaging alone is not the current accuracy bottleneck; it is not a
 CityLBM default setting and does not permit formal `v0.4.0`.
+
+A newly-run source-recompiled C003 z-origin ablation removed the z-center
+alignment while keeping dx=2 m, ground offset, and `nu_lbm=0.001`. The run
+completed 48000 steps and produced the 80 official z=2 m probe CSV, but it
+worsened the current best formal metric: MAE 23.126 pp, R2 -2.221379, and
+Pearson 0.099217. This supports treating z-origin alignment as a near-wall and
+probe-protocol sensitivity diagnostic, not as a validated default accuracy
+model.
 
 CityLBM now exposes the corresponding `Diagnostic Z Origin Offset` (`zOff`)
 input on the Grasshopper `Run Simulation` component. The default is 0 m. This

@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.4.0-rc39 - Z-origin ablation candidate audit
+
+- Generated, compiled, and ran the C003 dx=2 m no-z-center Case E ablation for 48000 FluidX3D steps using the audited MinGW/g++ fallback.
+- Archived the C003 run log, stderr log, compile logs, generated native setup, manifest, and 80-probe official z=2 m time-mean CSV.
+- Added `casee_c003_zorigin_ablation_audit.py` to compare the no-z-center ablation against the current z-center baseline and the preexisting no-z-center artifact.
+- Updated the candidate sweep plan so completed C002/C003 candidates are reported as newly-run evidence rather than planned-only work.
+- Integrated the C003 ablation into the reproducibility suite, paper evidence gate, artifact index, manuscript claim matrix, paper results packet, and software-feedback matrix as SF022.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc39.md`.
+
+C003 completed but worsened the formal official z=2 m metric relative to the current z-center baseline: MAE = 23.126 pp, R2 = -2.221379, Pearson = 0.099217. This release candidate supports a limitations claim that z-origin alignment is a near-wall/probe-protocol sensitivity diagnostic, not a validated default accuracy model. It does not improve official Case E z=2 m R2, prove predictive accuracy, prove mesh independence, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc38 - Longer time-mean candidate audit
 
 - Generated, compiled, and ran the C002 dx=2 m z-center Case E follow-up for 96000 FluidX3D steps with spinup 24000 using the audited MinGW/g++ fallback.

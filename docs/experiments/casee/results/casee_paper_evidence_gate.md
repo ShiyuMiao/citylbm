@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-09T13:21:22.308177+00:00
+Generated: 2026-08-09T13:39:10.537282+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc38`
+- Recommended tag: `v0.4.0-rc39`
 
 ## Official z=2 m Metric
 
@@ -17,8 +17,8 @@ Generated: 2026-08-09T13:21:22.308177+00:00
 
 ## Claim Matrix
 
-- Claims: 9
-- Readiness counts: `{'paper_ready': 2, 'limitations_ready': 4, 'weaken_claim': 2, 'blocked': 1}`
+- Claims: 10
+- Readiness counts: `{'paper_ready': 2, 'limitations_ready': 5, 'weaken_claim': 2, 'blocked': 1}`
 - Blocked release claim present: True
 - Negative validation claim present: True
 - Recommended tag present: True
@@ -27,14 +27,14 @@ Generated: 2026-08-09T13:21:22.308177+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 312
+- Checked nonblank lines: 314
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 203
-- Lightweight release assets: 167
+- Artifact count: 212
+- Lightweight release assets: 173
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -114,6 +114,18 @@ Generated: 2026-08-09T13:21:22.308177+00:00
 - Claim readiness: `limitations_ready_candidate_result; blocked formal accuracy release`
 - Claim boundary safe: True
 
+## C003 Z-Origin Ablation Audit
+
+- Audit found: True
+- Status: `completed_ablation_supports_zorigin_sensitivity`
+- 48000-step log complete: True
+- Pass condition met: True
+- Consistent with preexisting no-zcenter artifact: True
+- R2: -2.221378753276796
+- R2 delta vs z-center baseline: -0.21504839104681928
+- Claim readiness: `limitations_ready_zorigin_ablation; blocked formal accuracy release`
+- Claim boundary safe: True
+
 ## Candidate Sweep Plan
 
 - Plan found: True
@@ -136,7 +148,7 @@ Generated: 2026-08-09T13:21:22.308177+00:00
 
 - Packet found: True
 - Packet passed: True
-- Result rows: 21
+- Result rows: 22
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 - Claim boundary safe: True
@@ -194,7 +206,7 @@ Generated: 2026-08-09T13:21:22.308177+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 21
+- Feedback rows: 22
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False

@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-09T13:21:09.700044+00:00
+Generated: 2026-08-09T13:38:57.769618+00:00
 
 ## Protocol
 
@@ -98,7 +98,7 @@ Generated: 2026-08-09T13:21:09.700044+00:00
 - Evidence: `docs/experiments/casee/results/casee_manuscript_claim_matrix.csv`
 - Summary: `docs/experiments/casee/results/casee_manuscript_evidence_summary.md`
 - blocked: 1 claims
-- limitations_ready: 3 claims
+- limitations_ready: 4 claims
 - paper_ready: 2 claims
 - weaken_claim: 2 claims
 - Interpretation: only protocol, build/workflow, and limitation claims are paper-ready; formal predictive-accuracy claims remain blocked.
@@ -107,7 +107,7 @@ Generated: 2026-08-09T13:21:09.700044+00:00
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc38
+- Recommended tag: v0.4.0-rc39
 
 | Check | Status |
 |---|---:|

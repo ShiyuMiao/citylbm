@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-09T13:21:16.834651+00:00",
+  "generated_at": "2026-08-09T13:39:05.317441+00:00",
   "candidate_sweep_plan_generated": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc38",
+  "recommended_tag": "v0.4.0-rc39",
   "current_official_metrics": {
     "n": 80,
     "mae_pp": 21.111408125,
@@ -54,7 +54,7 @@
       "candidate_class": "time_mean_stability",
       "executable_now": true,
       "blocking_gates": [],
-      "evidence_type": "planned_run",
+      "evidence_type": "newly_run",
       "dx_m": 2.0,
       "steps": 96000,
       "spinup": 24000,
@@ -65,10 +65,11 @@
       "domain_decomposition": "2x2x1",
       "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 96000 --spinup 24000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 2 --domain-y 2 --domain-z 1",
       "expected_artifacts": [
-        "docs/experiments/casee/native_cases/<candidate>/casee_probe_time_mean.csv",
-        "docs/experiments/casee/results/<candidate>_time_mean_stability_metrics.csv"
+        "docs/experiments/casee/results/casee_c002_longer_mean_audit.json",
+        "docs/experiments/casee/results/casee_c002_longer_mean_audit.md",
+        "docs/experiments/casee/results/casee_c002_dx2_longer_mean_<stamp>_probe_time_mean.csv"
       ],
-      "rationale": "Test whether negative R2 is partly caused by insufficient averaging rather than geometry/probe physics.",
+      "rationale": "Completed: longer averaging worsened the official metric. status=completed_no_improvement; R2=-2.1851358653077058; delta_R2=-0.1788055030777289.",
       "formal_result_policy": "Only the completed 80-probe official z=2 m raw_trilinear casee_probe_time_mean.csv may feed release_gate.json. Diagnostic sampling columns and z offsets cannot substitute for the formal result.",
       "pass_condition": "Pearson remains positive and R2 moves toward zero without diagnostic sampling substitution.",
       "default_promotion_allowed": false,
@@ -80,7 +81,7 @@
       "candidate_class": "protocol_ablation",
       "executable_now": true,
       "blocking_gates": [],
-      "evidence_type": "planned_run",
+      "evidence_type": "newly_run",
       "dx_m": 2.0,
       "steps": 48000,
       "spinup": 12000,
@@ -91,10 +92,11 @@
       "domain_decomposition": "2x2x1",
       "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 0.0 --nu-lbm 0.001 --domain-x 2 --domain-y 2 --domain-z 1",
       "expected_artifacts": [
-        "docs/experiments/casee/native_cases/<candidate>/casee_probe_time_mean.csv",
-        "docs/experiments/casee/results/<candidate>_zorigin_ablation_metrics.csv"
+        "docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json",
+        "docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.md",
+        "docs/experiments/casee/results/casee_c003_dx2_no_zcenter_<stamp>_probe_time_mean.csv"
       ],
-      "rationale": "Separate effective-ground and z-center sensitivity from actual wall/inlet physics.",
+      "rationale": "Completed: removing z-center worsened the official metric and confirms z-origin sensitivity. status=completed_ablation_supports_zorigin_sensitivity; R2=-2.221378753276796; delta_R2_vs_zcenter=-0.21504839104681928.",
       "formal_result_policy": "Only the completed 80-probe official z=2 m raw_trilinear casee_probe_time_mean.csv may feed release_gate.json. Diagnostic sampling columns and z offsets cannot substitute for the formal result.",
       "pass_condition": "Shows whether z-origin sensitivity is a diagnostic limitation rather than a stable accuracy fix.",
       "default_promotion_allowed": false,

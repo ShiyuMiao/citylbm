@@ -63,6 +63,7 @@ def build_claims(
     zcenter_voxel_groups: List[Dict[str, str]],
     build_chain: Dict[str, Any],
     c002_longer_mean: Dict[str, Any],
+    c003_zorigin_ablation: Dict[str, Any],
 ) -> List[Dict[str, Any]]:
     baseline_raw = metric_row(probe_modes, "raw_trilinear")
     zcenter_raw = metric_row(zcenter_modes, "raw_trilinear")
@@ -203,6 +204,27 @@ def build_claims(
                 "protocol_risks": "single follow-up candidate; formal metric remains negative and worsened relative to the z-center baseline",
             }
         )
+    if c003_zorigin_ablation:
+        candidate = c003_zorigin_ablation.get("candidate_metrics", {})
+        delta = c003_zorigin_ablation.get("metric_delta_vs_zcenter_baseline", {})
+        claims.append(
+            {
+                "claim_id": "C010",
+                "claim_readiness": "limitations_ready",
+                "evidence_type": c003_zorigin_ablation.get("evidence_type", "newly_run"),
+                "section": "Results / Z-origin ablation",
+                "claim": "Removing the z-center alignment worsened the official z=2 m raw-trilinear metric, confirming z-origin sensitivity rather than a validated default model.",
+                "supporting_metrics": (
+                    f"status={c003_zorigin_ablation.get('status')}; "
+                    f"MAE={fmt(candidate['mae_pp'])} pp; R2={fmt(candidate['r2'], 6)}; Pearson={fmt(candidate['pearson'], 6)}; "
+                    f"delta_MAE_vs_zcenter={fmt(delta['mae_pp'])} pp; delta_R2_vs_zcenter={fmt(delta['r2'], 6)}"
+                ),
+                "source_paths": "docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json; docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.md",
+                "allowed_use": "Use as negative ablation evidence for near-wall/probe-protocol sensitivity.",
+                "forbidden_use": "Do not claim z-center is a validated default accuracy model or that C003 supports formal v0.4.0.",
+                "protocol_risks": "single ablation run; z-origin was benchmark-diagnostic and remains default-off/non-formal",
+            }
+        )
     return claims
 
 
@@ -271,6 +293,7 @@ def main() -> int:
     parser.add_argument("--zcenter-voxel-groups", type=Path, default=RESULTS_DIR / "casee_zcenter_voxel_probe_audit_groups.csv")
     parser.add_argument("--build-chain", type=Path, default=RESULTS_DIR / "build_chain_manifest.json")
     parser.add_argument("--c002-longer-mean", type=Path, default=RESULTS_DIR / "casee_c002_longer_mean_audit.json")
+    parser.add_argument("--c003-zorigin-ablation", type=Path, default=RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
     parser.add_argument("--out-csv", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.csv")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_manuscript_evidence_summary.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.json")
@@ -279,6 +302,7 @@ def main() -> int:
     gate = json.loads(args.release_gate.read_text(encoding="utf-8"))
     build_chain = json.loads(args.build_chain.read_text(encoding="utf-8"))
     c002_longer_mean = json.loads(args.c002_longer_mean.read_text(encoding="utf-8")) if args.c002_longer_mean.exists() else {}
+    c003_zorigin_ablation = json.loads(args.c003_zorigin_ablation.read_text(encoding="utf-8")) if args.c003_zorigin_ablation.exists() else {}
     claims = build_claims(
         gate,
         read_csv(args.probe_mode_metrics),
@@ -287,6 +311,7 @@ def main() -> int:
         read_csv(args.zcenter_voxel_groups),
         build_chain,
         c002_longer_mean,
+        c003_zorigin_ablation,
     )
     fieldnames = [
         "claim_id",

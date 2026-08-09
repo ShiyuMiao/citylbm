@@ -1,0 +1,2 @@
+candidate_id,status,evidence_type,log_completed_48000,probe_count_ok,mae_pp,r2,pearson,delta_mae_vs_zcenter_pp,delta_r2_vs_zcenter,delta_pearson_vs_zcenter,consistent_with_preexisting_no_zcenter,pass_condition_met,formal_release_allowed,claim_readiness
+C003_dx2_no_zcenter_ablation,completed_ablation_supports_zorigin_sensitivity,newly_run,True,True,23.125594087499998,-2.221378753276796,0.09921683588947784,2.0141859624999974,-0.21504839104681928,-0.016539658496261392,True,True,False,limitations_ready_zorigin_ablation; blocked formal accuracy release
