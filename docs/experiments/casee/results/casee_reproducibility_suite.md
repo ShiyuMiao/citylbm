@@ -1,12 +1,12 @@
 # Case E Reproducibility Suite
 
-Generated: 2026-08-09T11:14:52.586121+00:00
+Generated: 2026-08-09T11:19:54.797346+00:00
 
 ## Verdict
 
 - Suite passed: True
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc29`
+- Recommended tag: `v0.4.0-rc30`
 
 ## Official z=2 m Metric
 

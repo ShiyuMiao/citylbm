@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-09T11:14:43.280860+00:00",
+  "generated_at": "2026-08-09T11:19:45.393964+00:00",
   "release_target": "v0.4.0",
   "formal_release_allowed": false,
   "formal_v0_3_0_allowed": false,
-  "recommended_tag": "v0.4.0-rc29",
+  "recommended_tag": "v0.4.0-rc30",
   "checks": {
     "citylbm_build_passed": true,
     "rhino_loaded_new_gha": false,
@@ -38,7 +38,7 @@
       "command": "nvidia-smi",
       "found": true,
       "returncode": 0,
-      "stdout": "Sun Aug  9 19:14:42 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     |\n|-----------------------------------------+------------------------+----------------------+\n| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  Tesla P100-PCIE-16GB         TCC   |   00000000:18:00.0 Off |                    0 |\n| N/A   46C    P0             29W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   1  Tesla P100-PCIE-16GB         TCC   |   00000000:51:00.0 Off |                    0 |\n| N/A   43C    P0             28W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   2  Tesla P100-PCIE-16GB         TCC   |   00000000:8A:00.0 Off |                    0 |\n| N/A   43C    P0             26W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   3  Tesla P100-PCIE-16GB         TCC   |   00000000:C3:00.0 Off |                    0 |\n| N/A   68C    P0             32W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n                                                                                         \n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+",
+      "stdout": "Sun Aug  9 19:19:44 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     |\n|-----------------------------------------+------------------------+----------------------+\n| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  Tesla P100-PCIE-16GB         TCC   |   00000000:18:00.0 Off |                    0 |\n| N/A   46C    P0             29W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   1  Tesla P100-PCIE-16GB         TCC   |   00000000:51:00.0 Off |                    0 |\n| N/A   43C    P0             28W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   2  Tesla P100-PCIE-16GB         TCC   |   00000000:8A:00.0 Off |                    0 |\n| N/A   43C    P0             26W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   3  Tesla P100-PCIE-16GB         TCC   |   00000000:C3:00.0 Off |                    0 |\n| N/A   68C    P0             32W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n                                                                                         \n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+",
       "stderr": ""
     },
     "fluidx3d_executable": {
@@ -51,16 +51,16 @@
     "citylbm_gha": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.gha",
-      "sha256": "04fc06447511a34362f3577b116e9f68c99b512b1992bce8688370eb5eb52e4a",
-      "size_bytes": 1793536,
-      "mtime": "2026-08-09T11:14:41.789932+00:00"
+      "sha256": "caf06402885e2fc29c8624891e61c28665e8ddd0cd72080fc999acd2ecef1263",
+      "size_bytes": 1796096,
+      "mtime": "2026-08-09T11:19:43.930000+00:00"
     },
     "citylbm_build_log": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-      "sha256": "9fb538aad5162df22dddfed52fdf942fbe1a0739c67dc9a99de257bc7959b718",
+      "sha256": "e53655a8e393e87b018627b90c046daa7702d2de3961cd4c330163e789d47b34",
       "size_bytes": 68874,
-      "mtime": "2026-08-09T11:14:41.970654+00:00"
+      "mtime": "2026-08-09T11:19:44.107420+00:00"
     },
     "run_matrix": {
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",

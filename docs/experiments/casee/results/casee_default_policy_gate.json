@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T11:14:48.362651+00:00",
+  "generated_at": "2026-08-09T11:19:50.288855+00:00",
   "default_policy_gate_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_default_policy_boundary",
@@ -9,7 +9,8 @@
     "Generic CityLBM viscosity remains the standard physical-viscosity mapping when nuLBM is 0.",
     "Case E preset metadata may set protocol constants and manifest/risk fields.",
     "Run manifests may record diagnostic availability and claim-boundary metadata.",
-    "Run manifests may record the formal accuracy-gate contract for reviewer traceability."
+    "Run manifests may record the formal accuracy-gate contract for reviewer traceability.",
+    "Run Simulation may expose claim-boundary text as a traceability output."
   ],
   "experimental_switches": [
     "Diagnostic LBM Nu Override / nuLBM sensitivity control.",
@@ -80,6 +81,15 @@
       "policy_boundary": "Diagnostic Z Origin Offset stays off unless explicitly set.",
       "paper_use": "Use to classify z-origin changes as experimental switches.",
       "failure_action": "Restore the zOff input default to 0.0."
+    },
+    {
+      "check_id": "run_component_claim_gate_output",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "policy_boundary": "Run Simulation exposes the formal accuracy claim boundary directly in Grasshopper.",
+      "paper_use": "Use to state that claim-boundary metadata is visible without opening the manifest JSON.",
+      "failure_action": "Restore the Claim Gate output and ClaimGateSummary helper."
     },
     {
       "check_id": "manifest_blocks_z_plus_half_formal",

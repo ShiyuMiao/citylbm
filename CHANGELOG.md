@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc30 - Grasshopper claim-gate output
+
+- Added a `Claim Gate` (`Gate`) output to the Grasshopper `Run Simulation` component.
+- The output reports the formal Case E boundary beside run status and manifest path: official `ac+N`, wind vector `(0,-1,0)`, z=2 m, 80 probes, `raw_trilinear`, and the external release-gate requirements.
+- Extended `citylbm_manifest_output_gate.py`, `casee_default_policy_gate.py`, and `citylbm_software_feedback_matrix.py` to verify the new output as SF013.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc30.md`.
+
+This release candidate improves UI-level claim safety and software traceability only. It does not add CFD results, improve official Case E z=2 m metrics, promote diagnostic sampling to formal validation, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc29 - Manifest formal accuracy gate contract
 
 - Added `formal_accuracy_gate` to generated `citylbm_run_manifest.json` files so each CityLBM run records the formal v0.4.0 release-gate contract.

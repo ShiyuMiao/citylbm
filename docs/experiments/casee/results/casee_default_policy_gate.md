@@ -1,6 +1,6 @@
 # Case E Default Policy Gate
 
-Generated: 2026-08-09T11:14:48.362651+00:00
+Generated: 2026-08-09T11:19:50.288855+00:00
 
 ## Verdict
 
@@ -16,6 +16,7 @@ Generated: 2026-08-09T11:14:48.362651+00:00
 - Case E preset metadata may set protocol constants and manifest/risk fields.
 - Run manifests may record diagnostic availability and claim-boundary metadata.
 - Run manifests may record the formal accuracy-gate contract for reviewer traceability.
+- Run Simulation may expose claim-boundary text as a traceability output.
 
 ## Experimental Switches
 
@@ -35,6 +36,7 @@ Generated: 2026-08-09T11:14:48.362651+00:00
 | `run_component_casee_preset_default_false` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Case E preset is explicit and opt-in in Grasshopper. |
 | `run_component_nu_input_default_zero` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Diagnostic LBM Nu Override stays off unless the user supplies a positive value. |
 | `run_component_zoff_input_default_zero` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Diagnostic Z Origin Offset stays off unless explicitly set. |
+| `run_component_claim_gate_output` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Run Simulation exposes the formal accuracy claim boundary directly in Grasshopper. |
 | `manifest_blocks_z_plus_half_formal` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Run manifests forbid diagnostic modes as formal official z=2 m substitutes. |
 | `manifest_formal_accuracy_gate_contract` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Run manifests encode the formal v0.4.0 accuracy-gate contract and keep manifest-only claims blocked. |
 | `native_generator_formal_output_raw` | True | `docs/experiments/casee/tools/generate_native_casee.py` | Native Case E probe CSV keeps predicted_velocity_ratio as the raw formal result. |

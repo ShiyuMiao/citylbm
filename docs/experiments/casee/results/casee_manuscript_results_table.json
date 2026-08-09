@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T11:14:48.771751+00:00",
+    "generated_at": "2026-08-09T11:19:50.662513+00:00",
     "manuscript_results_table_passed": true,
     "row_count": 6,
     "formal_accuracy_claim_supported": false,
@@ -84,7 +84,7 @@
       "claim_boundary": "paper_ready_manifest_traceability",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/citylbm_manifest_output_gate.json; CityLBM/src/Core/FluidX3DInterface.cs",
-      "n": "10",
+      "n": "16",
       "mae_pp": "",
       "rmse_pp": "",
       "bias_pp": "",
@@ -107,7 +107,7 @@
       "bias_pp": "",
       "r2": "",
       "pearson": "",
-      "paper_sentence": "The formal release gate remains closed (`formal_release_allowed=False`), and the recommended tag is `v0.4.0-rc29`.",
+      "paper_sentence": "The formal release gate remains closed (`formal_release_allowed=False`), and the recommended tag is `v0.4.0-rc30`.",
       "limitations_sentence": "Formal v0.4.0 must not be created until official z=2 m metrics and load/runtime gates pass.",
       "forbidden_claim": "The current rc is a formal v0.4.0 accuracy release."
     }

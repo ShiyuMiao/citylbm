@@ -100,7 +100,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc29.md`
+- `docs/releases/v0.4.0-rc30.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -143,6 +143,12 @@ Generated run manifests also include a `formal_accuracy_gate` contract for the
 `v0.4.0` line. It records the official Case E `ac+N` z=2 m raw-trilinear
 requirements, Case A/Rhino/release-gate dependencies, and explicitly states
 that the manifest alone cannot authorize a formal accuracy claim.
+
+The Grasshopper `Run Simulation` component now exposes a `Claim Gate` (`Gate`)
+output next to `Manifest Path`. For Case E runs it reports the official
+validation contract and states that diagnostic sampling or z offsets are
+limitations-only. This output is intended to prevent workflow-success from
+being mistaken for benchmark-accuracy success.
 
 The z-center lattice diagnostic puts official z=2 m on a dx=2 m lattice center.
 It improves the formal raw_trilinear MAE to 21.111 pp and Pearson to 0.115756,

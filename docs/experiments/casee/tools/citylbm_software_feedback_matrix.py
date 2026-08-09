@@ -401,6 +401,31 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    rows.append(
+        row(
+            feedback_id="SF013",
+            experiment="Experiment 2 / AIJ Case E Grasshopper claim boundary",
+            finding="Run Simulation now exposes a Claim Gate output so users can see the formal accuracy boundary beside run status and manifest path.",
+            evidence_type="newly_run",
+            source_paths=[
+                RUN_COMPONENT,
+                RESULTS_DIR / "citylbm_manifest_output_gate.json",
+                RESULTS_DIR / "casee_default_policy_gate.json",
+            ],
+            decision_class="software_traceability_output",
+            citylbm_status="implemented"
+            if 'AddTextParameter("Claim Gate", "Gate"' in run_component
+            and "ClaimGateSummary" in run_component
+            and manifest_output.get("manifest_output_gate_passed") is True
+            and default_policy.get("default_policy_gate_passed") is True
+            else "blocked",
+            implementation_evidence="RunSimulationComponent adds Claim Gate output index 7 and sets it in generate, deploy, full-auto, async, cancelled, running, and no-run states.",
+            default_setting_allowed=True,
+            paper_use="Use as software misuse-prevention evidence: successful execution is separated from formal benchmark accuracy.",
+            limitations="UI claim-boundary text does not add solver output, improve official z=2 m metrics, or prove Rhino loaded the new GHA.",
+        )
+    )
+
     return rows
 
 
@@ -419,7 +444,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(

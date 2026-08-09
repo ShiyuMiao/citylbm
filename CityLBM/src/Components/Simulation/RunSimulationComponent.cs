@@ -107,6 +107,7 @@ namespace CityLBM.Components.Simulation
             pManager.AddIntegerParameter("Progress", "Pct",      "进度百分比（0-100）",   GH_ParamAccess.item);
             pManager.AddTextParameter("Log",         "Log",      "实时运行日志",          GH_ParamAccess.item);
             pManager.AddTextParameter("Manifest Path", "Man", "Path to citylbm_run_manifest.json with protocol and claim-boundary metadata.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Claim Gate", "Gate", "Formal accuracy claim boundary for the generated run. This is traceability text, not CFD accuracy evidence.", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -152,6 +153,7 @@ namespace CityLBM.Components.Simulation
                 DA.SetData(3, $"[加载中] GH 初始化中，请等待 {waitSec:F1} 秒后再运行...");
                 DA.SetData(4, 0);            // Progress
                 DA.SetData(5, "");           // Log
+                DA.SetData(7, "No run started; no formal accuracy claim is supported.");
                 // 触发一次刷新，让状态更新
                 ScheduleRefresh(500);
                 return;
@@ -169,6 +171,7 @@ namespace CityLBM.Components.Simulation
                 DA.SetData(3, "正在取消...");
                 DA.SetData(4, _asyncProgress);
                 DA.SetData(5, GetCurrentLog());
+                DA.SetData(7, "Run cancelled; no formal accuracy claim is supported.");
                 return;
             }
 
@@ -186,6 +189,7 @@ namespace CityLBM.Components.Simulation
                 DA.SetData(3, statusMsg);
                 DA.SetData(4, _asyncProgress);
                 DA.SetData(5, GetCurrentLog());
+                DA.SetData(7, "Run in progress; formal accuracy requires completed logs, probe CSV, and release_gate.json.");
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, $"{stage} {_asyncProgress}%");
                 return;
             }
@@ -211,6 +215,7 @@ namespace CityLBM.Components.Simulation
                     DA.SetData(2, false);
                     DA.SetData(3, "将 Run 设为 True 以触发。Mode 3 = 后台运行（推荐，不弹窗）。");
                     DA.SetData(4, 0);
+                    DA.SetData(7, "No run started; no formal accuracy claim is supported.");
                 }
                 return;
             }
@@ -276,6 +281,7 @@ namespace CityLBM.Components.Simulation
             DA.SetData(3, result.Success ? result.Instructions : $"生成失败：{result.ErrorMessage}");
             DA.SetData(4, result.Success ? 100 : 0);
             DA.SetData(6, result.Success ? ManifestPathForCase(result.CaseDirectory ?? "") : "");
+            DA.SetData(7, ClaimGateSummary(settings, result.Success));
 
             if (result.Success)
             {
@@ -302,6 +308,7 @@ namespace CityLBM.Components.Simulation
                     "Mode 1 需要设置 FluidX3D 源码路径（FX3D 输入），或确保 FluidX3D 安装在常见位置以便自动检测。\n建议改用 Mode 3（后台异步，不阻塞界面）。");
                 DA.SetData(2, false);
                 DA.SetData(3, "错误：未找到 FluidX3D 路径。请设置 FX3D 输入或安装到默认位置。");
+                DA.SetData(7, "FluidX3D path missing; no formal accuracy claim is supported.");
                 return;
             }
             
@@ -324,6 +331,7 @@ namespace CityLBM.Components.Simulation
             DA.SetData(3, summary);
             DA.SetData(5, result.Log);
             DA.SetData(6, result.Success ? ManifestPathForCase(result.CaseDirectory ?? "") : "");
+            DA.SetData(7, ClaimGateSummary(settings, result.Success));
 
             if (!result.Success)
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, result.ErrorMessage ?? "未知错误");
@@ -340,6 +348,7 @@ namespace CityLBM.Components.Simulation
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Mode 2 需要设置 FluidX3D 源码路径（FX3D 输入），或确保 FluidX3D 安装在常见位置以便自动检测。");
                 DA.SetData(2, false);
                 DA.SetData(3, "错误：未找到 FluidX3D 路径。请设置 FX3D 输入或安装到默认位置。");
+                DA.SetData(7, "FluidX3D path missing; no formal accuracy claim is supported.");
                 return;
             }
             
@@ -351,6 +360,7 @@ namespace CityLBM.Components.Simulation
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, $"生成 Case 失败: {ex.Message}");
                 DA.SetData(2, false); DA.SetData(3, $"生成 Case 失败: {ex.Message}");
+                DA.SetData(7, "Case generation failed; no formal accuracy claim is supported.");
                 return;
             }
 
@@ -360,6 +370,7 @@ namespace CityLBM.Components.Simulation
             DA.SetData(2, deployResult.Success);
             DA.SetData(4, deployResult.Success ? 100 : 0);
             DA.SetData(6, ManifestPathForCase(caseDir));
+            DA.SetData(7, ClaimGateSummary(settings, deployResult.Success));
 
             if (deployResult.Success)
             {
@@ -389,6 +400,7 @@ namespace CityLBM.Components.Simulation
                     "Mode 3 需要设置 FluidX3D 源码路径（FX3D 输入），或确保 FluidX3D 安装在常见位置以便自动检测。");
                 DA.SetData(2, false);
                 DA.SetData(3, "错误：未找到 FluidX3D 路径。请设置 FX3D 输入或安装到默认位置。");
+                DA.SetData(7, "FluidX3D path missing; no formal accuracy claim is supported.");
                 return;
             }
             
@@ -402,6 +414,7 @@ namespace CityLBM.Components.Simulation
                 DA.SetData(3, $"[{stg}]\n{bar} {_asyncProgress}%\n后台任务运行中...");
                 DA.SetData(4, _asyncProgress);
                 DA.SetData(5, GetCurrentLog());
+                DA.SetData(7, "Run in progress; formal accuracy requires completed logs, probe CSV, and release_gate.json.");
                 return;
             }
 
@@ -442,6 +455,7 @@ namespace CityLBM.Components.Simulation
             DA.SetData(3, "[启动] 后台运行已启动，编译中...");
             DA.SetData(4, 0);
             DA.SetData(5, "正在初始化...");
+            DA.SetData(7, ClaimGateSummary(settings, false));
 
             AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
                 "[Mode 3] 后台运行已启动，GH 组件将每 2 秒自动刷新进度。\n" +
@@ -466,6 +480,9 @@ namespace CityLBM.Components.Simulation
             DA.SetData(3, status);
             DA.SetData(5, GetCurrentLog());
             DA.SetData(6, result.Success ? ManifestPathForCase(result.CaseDirectory ?? "") : "");
+            DA.SetData(7, result.Success
+                ? "Run completed; formal accuracy still requires release_gate.json metrics and claim-boundary checks."
+                : "Run failed; no formal accuracy claim is supported.");
 
             if (result.Success)
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, $"[OK] 模拟完成！耗时 {result.Duration.TotalMinutes:F1} 分钟");
@@ -496,6 +513,16 @@ namespace CityLBM.Components.Simulation
             if (string.IsNullOrWhiteSpace(caseDirectory))
                 return "";
             return Path.Combine(caseDirectory, "citylbm_run_manifest.json");
+        }
+
+        private string ClaimGateSummary(SimulationSettings settings, bool caseGeneratedOrRunCompleted)
+        {
+            if (settings != null && settings.UseAijCaseEPreset)
+            {
+                string status = caseGeneratedOrRunCompleted ? "case generated" : "case not yet completed";
+                return $"AIJ Case E formal gate ({status}): official ac+N, wind vector (0,-1,0), z=2 m, 80 probes, raw_trilinear only. Diagnostic sampling or z offsets are limitations-only. Formal v0.4.0 requires release_gate.json pass, Case A smoke regression, Rhino new-GHA load, MAE improvement, positive R2, and positive Pearson.";
+            }
+            return "Generic CityLBM run: no benchmark accuracy claim is supported without an external validation protocol, completed logs, probe CSV, and release gate.";
         }
 
         /// <summary>

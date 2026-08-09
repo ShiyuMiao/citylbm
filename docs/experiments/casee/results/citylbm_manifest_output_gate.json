@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T11:14:48.633744+00:00",
+  "generated_at": "2026-08-09T11:19:50.541010+00:00",
   "manifest_output_gate_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_manifest_traceability",
@@ -14,12 +14,28 @@
       "failure_action": "Restore the Manifest Path output parameter."
     },
     {
+      "check_id": "run_component_has_claim_gate_output",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "paper_use": "Use to show Grasshopper exposes the formal accuracy claim boundary beside run status.",
+      "failure_action": "Restore the Claim Gate output parameter."
+    },
+    {
       "check_id": "manifest_path_helper_exists",
       "passed": true,
       "evidence_type": "newly_run",
       "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
       "paper_use": "Use to trace the component output to the generated manifest filename.",
       "failure_action": "Restore ManifestPathForCase and the citylbm_run_manifest.json filename."
+    },
+    {
+      "check_id": "claim_gate_helper_exists",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "paper_use": "Use to show the component emits an explicit no-overclaim boundary for Case E runs.",
+      "failure_action": "Restore ClaimGateSummary and its formal-release boundary text."
     },
     {
       "check_id": "mode0_sets_manifest_output",
@@ -30,12 +46,28 @@
       "failure_action": "Set output index 6 after successful Mode 0 generation."
     },
     {
+      "check_id": "mode0_sets_claim_gate_output",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "paper_use": "Use to show Generate Only mode returns the claim-gate boundary.",
+      "failure_action": "Set output index 7 after Mode 0 generation."
+    },
+    {
       "check_id": "mode1_sets_manifest_output",
       "passed": true,
       "evidence_type": "newly_run",
       "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
       "paper_use": "Use to show full-auto mode returns the manifest path.",
       "failure_action": "Set output index 6 after successful Mode 1 execution."
+    },
+    {
+      "check_id": "mode1_sets_claim_gate_output",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "paper_use": "Use to show full-auto mode returns the claim-gate boundary.",
+      "failure_action": "Set output index 7 after Mode 1 execution."
     },
     {
       "check_id": "mode2_sets_manifest_output",
@@ -46,12 +78,28 @@
       "failure_action": "Set output index 6 after Mode 2 case generation."
     },
     {
+      "check_id": "mode2_sets_claim_gate_output",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "paper_use": "Use to show deploy-only mode returns the claim-gate boundary.",
+      "failure_action": "Set output index 7 after Mode 2 deployment."
+    },
+    {
       "check_id": "async_sets_manifest_output",
       "passed": true,
       "evidence_type": "newly_run",
       "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
       "paper_use": "Use to show background mode returns the manifest path after completion.",
       "failure_action": "Set output index 6 in OutputAsyncResult."
+    },
+    {
+      "check_id": "async_sets_claim_gate_output",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "paper_use": "Use to show background mode returns the claim-gate boundary after completion.",
+      "failure_action": "Set output index 7 in OutputAsyncResult."
     },
     {
       "check_id": "fluidx_writes_run_manifest",
@@ -86,5 +134,5 @@
       "failure_action": "Restore formal_accuracy_gate fields in the run manifest."
     }
   ],
-  "boundary": "This gate verifies software traceability only: Run Simulation exposes the generated citylbm_run_manifest.json path and the manifest records claim-boundary and formal accuracy-gate fields. It does not validate CFD accuracy or Rhino loading of the new GHA."
+  "boundary": "This gate verifies software traceability only: Run Simulation exposes the generated citylbm_run_manifest.json path, exposes the claim-gate boundary in Grasshopper, and records claim-boundary and formal accuracy-gate fields. It does not validate CFD accuracy or Rhino loading of the new GHA."
 }

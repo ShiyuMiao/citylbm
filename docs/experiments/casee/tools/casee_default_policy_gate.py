@@ -149,6 +149,16 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore the zOff input default to 0.0.",
         ),
         check_row(
+            "run_component_claim_gate_output",
+            'AddTextParameter("Claim Gate", "Gate"' in run_component
+            and "ClaimGateSummary" in run_component
+            and "Formal v0.4.0 requires release_gate.json pass" in run_component,
+            RUN_COMPONENT,
+            "Run Simulation exposes the formal accuracy claim boundary directly in Grasshopper.",
+            "Use to state that claim-boundary metadata is visible without opening the manifest JSON.",
+            "Restore the Claim Gate output and ClaimGateSummary helper.",
+        ),
+        check_row(
             "manifest_blocks_z_plus_half_formal",
             "z_plus_half_allowed_as_formal_result" in fluidx
             and "diagnostic_modes_allowed_as_formal_result" in fluidx
@@ -312,6 +322,7 @@ def main() -> int:
             "Case E preset metadata may set protocol constants and manifest/risk fields.",
             "Run manifests may record diagnostic availability and claim-boundary metadata.",
             "Run manifests may record the formal accuracy-gate contract for reviewer traceability.",
+            "Run Simulation may expose claim-boundary text as a traceability output.",
         ],
         "experimental_switches": [
             "Diagnostic LBM Nu Override / nuLBM sensitivity control.",

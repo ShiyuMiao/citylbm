@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T11:14:50.722468+00:00",
-    "feedback_count": 12,
+    "generated_at": "2026-08-09T11:19:52.720621+00:00",
+    "feedback_count": 13,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -10,14 +10,14 @@
       "blocked_followup_run": 1,
       "application_workflow_policy": 1,
       "paper_interpretation_layer": 1,
-      "software_traceability_output": 2,
+      "software_traceability_output": 3,
       "paper_traceability_output": 1,
       "paper_figure_output": 1
     },
     "citylbm_status_counts": {
       "implemented_as_release_gate_requirement": 1,
       "formal_release_blocked": 1,
-      "implemented": 5,
+      "implemented": 6,
       "implemented_default_off": 2,
       "ready_for_next_official_run": 1,
       "paper_ready_workflow_guidance": 1,
@@ -199,6 +199,20 @@
       "default_setting_allowed": true,
       "paper_use": "Use as software traceability evidence that each generated case records the formal release-gate contract.",
       "limitations": "Manifest-gate metadata does not add solver output, improve official z=2 m metrics, or permit formal v0.4.0."
+    },
+    {
+      "feedback_id": "SF013",
+      "experiment": "Experiment 2 / AIJ Case E Grasshopper claim boundary",
+      "finding": "Run Simulation now exposes a Claim Gate output so users can see the formal accuracy boundary beside run status and manifest path.",
+      "evidence_type": "newly_run",
+      "source_paths": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs; docs/experiments/casee/results/citylbm_manifest_output_gate.json; docs/experiments/casee/results/casee_default_policy_gate.json",
+      "source_paths_exist": true,
+      "decision_class": "software_traceability_output",
+      "citylbm_status": "implemented",
+      "implementation_evidence": "RunSimulationComponent adds Claim Gate output index 7 and sets it in generate, deploy, full-auto, async, cancelled, running, and no-run states.",
+      "default_setting_allowed": true,
+      "paper_use": "Use as software misuse-prevention evidence: successful execution is separated from formal benchmark accuracy.",
+      "limitations": "UI claim-boundary text does not add solver output, improve official z=2 m metrics, or prove Rhino loaded the new GHA."
     }
   ],
   "source_artifacts": [

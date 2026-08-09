@@ -56,11 +56,27 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore the Manifest Path output parameter.",
         ),
         check(
+            "run_component_has_claim_gate_output",
+            'AddTextParameter("Claim Gate", "Gate"' in component,
+            RUN_COMPONENT,
+            "Use to show Grasshopper exposes the formal accuracy claim boundary beside run status.",
+            "Restore the Claim Gate output parameter.",
+        ),
+        check(
             "manifest_path_helper_exists",
             "ManifestPathForCase" in component and "citylbm_run_manifest.json" in component,
             RUN_COMPONENT,
             "Use to trace the component output to the generated manifest filename.",
             "Restore ManifestPathForCase and the citylbm_run_manifest.json filename.",
+        ),
+        check(
+            "claim_gate_helper_exists",
+            "ClaimGateSummary" in component
+            and "Formal v0.4.0 requires release_gate.json pass" in component
+            and "Diagnostic sampling or z offsets are limitations-only" in component,
+            RUN_COMPONENT,
+            "Use to show the component emits an explicit no-overclaim boundary for Case E runs.",
+            "Restore ClaimGateSummary and its formal-release boundary text.",
         ),
         check(
             "mode0_sets_manifest_output",
@@ -70,11 +86,25 @@ def build_checks() -> List[Dict[str, Any]]:
             "Set output index 6 after successful Mode 0 generation.",
         ),
         check(
+            "mode0_sets_claim_gate_output",
+            has_regex(component, r"RunMode0_GenerateOnly.*?DA\.SetData\(7,\s*ClaimGateSummary\(settings,\s*result\.Success\)"),
+            RUN_COMPONENT,
+            "Use to show Generate Only mode returns the claim-gate boundary.",
+            "Set output index 7 after Mode 0 generation.",
+        ),
+        check(
             "mode1_sets_manifest_output",
             has_regex(component, r"RunMode1_FullAuto.*?DA\.SetData\(6,\s*result\.Success\s*\?\s*ManifestPathForCase"),
             RUN_COMPONENT,
             "Use to show full-auto mode returns the manifest path.",
             "Set output index 6 after successful Mode 1 execution.",
+        ),
+        check(
+            "mode1_sets_claim_gate_output",
+            has_regex(component, r"RunMode1_FullAuto.*?DA\.SetData\(7,\s*ClaimGateSummary\(settings,\s*result\.Success\)"),
+            RUN_COMPONENT,
+            "Use to show full-auto mode returns the claim-gate boundary.",
+            "Set output index 7 after Mode 1 execution.",
         ),
         check(
             "mode2_sets_manifest_output",
@@ -84,11 +114,25 @@ def build_checks() -> List[Dict[str, Any]]:
             "Set output index 6 after Mode 2 case generation.",
         ),
         check(
+            "mode2_sets_claim_gate_output",
+            has_regex(component, r"RunMode2_DeployOnly.*?DA\.SetData\(7,\s*ClaimGateSummary\(settings,\s*deployResult\.Success\)"),
+            RUN_COMPONENT,
+            "Use to show deploy-only mode returns the claim-gate boundary.",
+            "Set output index 7 after Mode 2 deployment.",
+        ),
+        check(
             "async_sets_manifest_output",
             has_regex(component, r"OutputAsyncResult.*?DA\.SetData\(6,\s*result\.Success\s*\?\s*ManifestPathForCase"),
             RUN_COMPONENT,
             "Use to show background mode returns the manifest path after completion.",
             "Set output index 6 in OutputAsyncResult.",
+        ),
+        check(
+            "async_sets_claim_gate_output",
+            has_regex(component, r"OutputAsyncResult.*?DA\.SetData\(7,\s*result\.Success"),
+            RUN_COMPONENT,
+            "Use to show background mode returns the claim-gate boundary after completion.",
+            "Set output index 7 in OutputAsyncResult.",
         ),
         check(
             "fluidx_writes_run_manifest",
@@ -183,8 +227,9 @@ def main() -> int:
         "checks": checks,
         "boundary": (
             "This gate verifies software traceability only: Run Simulation exposes the generated "
-            "citylbm_run_manifest.json path and the manifest records claim-boundary and formal "
-            "accuracy-gate fields. It does not validate CFD accuracy or Rhino loading of the new GHA."
+            "citylbm_run_manifest.json path, exposes the claim-gate boundary in Grasshopper, "
+            "and records claim-boundary and formal accuracy-gate fields. It does not validate "
+            "CFD accuracy or Rhino loading of the new GHA."
         ),
     }
     OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")
