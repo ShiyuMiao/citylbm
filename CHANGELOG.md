@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.4.0-rc41 - Domain-decomposition sensitivity audit
+
+- Generated, compiled, and ran the C005 dx=2 m 4x1x1 domain-decomposition Case E ablation for 48000 FluidX3D steps using the audited MinGW/g++ fallback.
+- Archived the C005 run log, stderr log, compile logs, generated native setup, manifest, and 80-probe official z=2 m time-mean CSV.
+- Added `casee_c005_decomposition_audit.py` to check protocol consistency, metric deltas, Pearson sign, and reproducibility consistency against the current z-center baseline.
+- Fixed `generate_native_casee.py` so non-default `domain_decomposition` values are encoded in `run_id`, preventing generated candidates from overwriting baseline native-case directories.
+- Integrated C005 into the candidate sweep plan, reproducibility suite, paper evidence gate, artifact index, manuscript claim matrix, paper results packet, and software-feedback matrix as SF024.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc41.md`.
+
+C005 improved the formal official z=2 m MAE/R2 relative to the current z-center baseline, but it did not meet the release gate: MAE = 19.726 pp, R2 = -1.608075, Pearson = 0.099315. The delta versus the z-center baseline was MAE = -1.385 pp and R2 = +0.398255, but Pearson decreased and the decomposition consistency thresholds failed. This release candidate supports runtime/decomposition sensitivity and a run-id traceability fix only. It does not prove predictive accuracy, mesh independence, LES improvement, Rhino new-GHA loading, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc40 - dx=3 low-cost control audit
 
 - Generated, compiled, and ran the C004 dx=3 m low-cost Case E control for 48000 FluidX3D steps using the audited MinGW/g++ fallback.

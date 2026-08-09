@@ -98,6 +98,7 @@ def build_rows() -> List[Dict[str, str]]:
     c002_longer_mean = read_json(CASEE_RESULTS / "casee_c002_longer_mean_audit.json")
     c003_zorigin_ablation = read_json(CASEE_RESULTS / "casee_c003_zorigin_ablation_audit.json")
     c004_dx3_low_cost = read_json(CASEE_RESULTS / "casee_c004_dx3_low_cost_audit.json")
+    c005_decomposition = read_json(CASEE_RESULTS / "casee_c005_decomposition_audit.json")
     build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -331,6 +332,33 @@ def build_rows() -> List[Dict[str, str]]:
             paper_use="Use as low-cost dx=3 control evidence that protocol direction remains positively correlated but coarse-grid accuracy is worse.",
             limitations="Positive Pearson is not enough for formal validation; R2 remains negative and worse than the current z-center baseline.",
             software_feedback="Do not promote dx=3 coarse-grid settings as an accuracy fix; use it as a quick regression/control path.",
+        )
+    )
+
+    c005_metrics = c005_decomposition.get("candidate_metrics") or {}
+    c005_delta = c005_decomposition.get("metric_delta_vs_zcenter_baseline") or {}
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="c005_decomposition_improves_mae_r2_but_unstable",
+            claim_readiness=str(c005_decomposition.get("claim_readiness", "blocked_c005_audit")),
+            evidence_type=str(c005_decomposition.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_c005_decomposition_audit.json"),
+                rel(CASEE_RESULTS / "casee_c005_decomposition_audit.md"),
+                str((c005_decomposition.get("candidate_csv") or {}).get("path", "")),
+                str((c005_decomposition.get("run_log") or {}).get("path", "")),
+            ],
+            metric_or_status=(
+                f"status={c005_decomposition.get('status')}; log_completed_48000={c005_decomposition.get('log_completed_48000')}; "
+                f"manifest_protocol_ok={c005_decomposition.get('manifest_protocol_ok')}; MAE={c005_metrics.get('mae_pp')} pp; "
+                f"R2={c005_metrics.get('r2')}; Pearson={c005_metrics.get('pearson')}; "
+                f"delta_MAE_vs_zcenter={c005_delta.get('mae_pp')} pp; delta_R2_vs_zcenter={c005_delta.get('r2')}; "
+                f"delta_Pearson_vs_zcenter={c005_delta.get('pearson')}; pass_condition_met={c005_decomposition.get('pass_condition_met')}"
+            ),
+            paper_use="Use as decomposition/runtime sensitivity evidence and as the current best negative MAE/R2 diagnostic candidate.",
+            limitations="R2 remains negative, Pearson decreased versus the z-center baseline, and decomposition consistency thresholds failed; no default promotion or formal v0.4.0 claim is supported.",
+            software_feedback="Record domain decomposition in generated run IDs/manifests and treat 4x1x1 as an experimental switch, not a default accuracy setting.",
         )
     )
 
@@ -587,6 +615,7 @@ def main() -> int:
             rel(CASEE_RESULTS / "casee_official_run_preflight.json"),
             rel(CASEE_RESULTS / "casee_dx1_readiness_audit.json"),
             rel(CASEE_RESULTS / "build_chain_manifest.json"),
+            rel(CASEE_RESULTS / "casee_c005_decomposition_audit.json"),
             rel(CASEE_RESULTS / "casee_manuscript_section_pack.json"),
             rel(PAPER_DRAFTS / "experiment3_claim_verification.csv"),
             rel(PAPER_DRAFTS / "casee_v04_manuscript_section_pack_en.md"),

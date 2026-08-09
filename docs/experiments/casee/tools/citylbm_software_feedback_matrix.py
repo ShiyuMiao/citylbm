@@ -127,6 +127,7 @@ def build_rows() -> List[Dict[str, Any]]:
     c002_longer_mean = read_json(RESULTS_DIR / "casee_c002_longer_mean_audit.json")
     c003_zorigin_ablation = read_json(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
     c004_dx3_low_cost = read_json(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
+    c005_decomposition = read_json(RESULTS_DIR / "casee_c005_decomposition_audit.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -704,6 +705,39 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF024",
+            experiment="Experiment 2 / AIJ Case E C005 domain decomposition",
+            finding=(
+                "The completed C005 dx=2 m 4x1x1 domain-decomposition ablation improved MAE and R2 versus the "
+                "z-center baseline, but R2 stayed negative, Pearson decreased, and reproducibility-consistency thresholds failed."
+            ),
+            evidence_type=str(c005_decomposition.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_c005_decomposition_audit.py",
+                RESULTS_DIR / "casee_c005_decomposition_audit.json",
+                RESULTS_DIR / "casee_c005_decomposition_audit.md",
+                Path(str((c005_decomposition.get("candidate_csv") or {}).get("path", ""))),
+                Path(str((c005_decomposition.get("run_log") or {}).get("path", ""))),
+            ],
+            decision_class="runtime_decomposition_sensitivity_no_default_promotion",
+            citylbm_status="decomposition_sensitivity_detected"
+            if c005_decomposition.get("status") == "completed_decomposition_sensitivity_warning"
+            else "decomposition_audit_missing_or_inconclusive",
+            implementation_evidence=(
+                f"pass_condition_met={c005_decomposition.get('pass_condition_met')}; "
+                f"manifest_protocol_ok={c005_decomposition.get('manifest_protocol_ok')}; "
+                f"mae={(c005_decomposition.get('candidate_metrics') or {}).get('mae_pp')}; "
+                f"r2={(c005_decomposition.get('candidate_metrics') or {}).get('r2')}; "
+                f"delta_r2_vs_zcenter={(c005_decomposition.get('metric_delta_vs_zcenter_baseline') or {}).get('r2')}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as runtime/decomposition sensitivity evidence and as a limited negative diagnostic improvement result.",
+            limitations="Single decomposition ablation; R2 remains negative and consistency thresholds failed, so it cannot support formal v0.4.0 or default promotion.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF019",
             experiment="Experiment 2 / AIJ Case E official z=2 m follow-up planning",
             finding=(
@@ -747,7 +781,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -757,7 +791,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -845,6 +879,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_c002_longer_mean_audit.json"),
             rel(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json"),
             rel(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json"),
+            rel(RESULTS_DIR / "casee_c005_decomposition_audit.json"),
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
             rel(RESULTS_DIR / "casee_manuscript_results_table.json"),

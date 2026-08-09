@@ -65,6 +65,7 @@ def build_claims(
     c002_longer_mean: Dict[str, Any],
     c003_zorigin_ablation: Dict[str, Any],
     c004_dx3_low_cost: Dict[str, Any],
+    c005_decomposition: Dict[str, Any],
 ) -> List[Dict[str, Any]]:
     baseline_raw = metric_row(probe_modes, "raw_trilinear")
     zcenter_raw = metric_row(zcenter_modes, "raw_trilinear")
@@ -247,6 +248,28 @@ def build_claims(
                 "protocol_risks": "single low-cost control; coarser grid; formal accuracy gate remains failed",
             }
         )
+    if c005_decomposition:
+        candidate = c005_decomposition.get("candidate_metrics", {})
+        delta = c005_decomposition.get("metric_delta_vs_zcenter_baseline", {})
+        claims.append(
+            {
+                "claim_id": "C012",
+                "claim_readiness": "limitations_ready",
+                "evidence_type": c005_decomposition.get("evidence_type", "newly_run"),
+                "section": "Results / Runtime decomposition sensitivity",
+                "claim": "The 4x1x1 domain-decomposition ablation improved MAE and R2 relative to the z-center baseline but remained negative and failed reproducibility-consistency thresholds.",
+                "supporting_metrics": (
+                    f"status={c005_decomposition.get('status')}; "
+                    f"MAE={fmt(candidate['mae_pp'])} pp; R2={fmt(candidate['r2'], 6)}; Pearson={fmt(candidate['pearson'], 6)}; "
+                    f"delta_MAE_vs_zcenter={fmt(delta['mae_pp'])} pp; delta_R2_vs_zcenter={fmt(delta['r2'], 6)}; "
+                    f"delta_Pearson_vs_zcenter={fmt(delta['pearson'], 6)}"
+                ),
+                "source_paths": "docs/experiments/casee/results/casee_c005_decomposition_audit.json; docs/experiments/casee/results/casee_c005_decomposition_audit.md",
+                "allowed_use": "Use as runtime/decomposition sensitivity evidence and as a pointer to the current best negative MAE/R2 diagnostic candidate.",
+                "forbidden_use": "Do not promote 4x1x1 decomposition as a default accuracy model or claim formal v0.4.0 validation.",
+                "protocol_risks": "single decomposition ablation; R2 remains negative; Pearson worsened; consistency thresholds failed",
+            }
+        )
     return claims
 
 
@@ -317,6 +340,7 @@ def main() -> int:
     parser.add_argument("--c002-longer-mean", type=Path, default=RESULTS_DIR / "casee_c002_longer_mean_audit.json")
     parser.add_argument("--c003-zorigin-ablation", type=Path, default=RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
     parser.add_argument("--c004-dx3-low-cost", type=Path, default=RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
+    parser.add_argument("--c005-decomposition", type=Path, default=RESULTS_DIR / "casee_c005_decomposition_audit.json")
     parser.add_argument("--out-csv", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.csv")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_manuscript_evidence_summary.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.json")
@@ -327,6 +351,7 @@ def main() -> int:
     c002_longer_mean = json.loads(args.c002_longer_mean.read_text(encoding="utf-8")) if args.c002_longer_mean.exists() else {}
     c003_zorigin_ablation = json.loads(args.c003_zorigin_ablation.read_text(encoding="utf-8")) if args.c003_zorigin_ablation.exists() else {}
     c004_dx3_low_cost = json.loads(args.c004_dx3_low_cost.read_text(encoding="utf-8")) if args.c004_dx3_low_cost.exists() else {}
+    c005_decomposition = json.loads(args.c005_decomposition.read_text(encoding="utf-8")) if args.c005_decomposition.exists() else {}
     claims = build_claims(
         gate,
         read_csv(args.probe_mode_metrics),
@@ -337,6 +362,7 @@ def main() -> int:
         c002_longer_mean,
         c003_zorigin_ablation,
         c004_dx3_low_cost,
+        c005_decomposition,
     )
     fieldnames = [
         "claim_id",

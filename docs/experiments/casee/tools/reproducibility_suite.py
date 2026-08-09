@@ -201,6 +201,7 @@ def main() -> int:
         ("casee_c002_longer_mean_audit", "casee_c002_longer_mean_audit.py"),
         ("casee_c003_zorigin_ablation_audit", "casee_c003_zorigin_ablation_audit.py"),
         ("casee_c004_dx3_low_cost_audit", "casee_c004_dx3_low_cost_audit.py"),
+        ("casee_c005_decomposition_audit", "casee_c005_decomposition_audit.py"),
         ("casee_candidate_sweep_plan", "casee_candidate_sweep_plan.py"),
         ("casee_default_policy_gate", "casee_default_policy_gate.py"),
         ("citylbm_paper_results_packet", "citylbm_paper_results_packet.py"),

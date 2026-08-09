@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T13:50:55.450650+00:00",
-    "feedback_count": 23,
+    "generated_at": "2026-08-09T14:10:32.477147+00:00",
+    "feedback_count": 24,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -18,6 +18,7 @@
       "completed_candidate_no_default_promotion": 1,
       "diagnostic_ablation_no_default_promotion": 1,
       "low_cost_regression_no_default_promotion": 1,
+      "runtime_decomposition_sensitivity_no_default_promotion": 1,
       "followup_sweep_plan": 1
     },
     "citylbm_status_counts": {
@@ -35,6 +36,7 @@
       "candidate_completed_no_improvement": 1,
       "zorigin_sensitivity_confirmed": 1,
       "dx3_control_completed_positive_correlation": 1,
+      "decomposition_sensitivity_detected": 1,
       "planned_candidate_matrix": 1
     },
     "required_feedback_rows_present": true,
@@ -355,6 +357,20 @@
       "limitations": "R2 remains negative and worse than the current baseline; this does not prove accuracy or mesh independence."
     },
     {
+      "feedback_id": "SF024",
+      "experiment": "Experiment 2 / AIJ Case E C005 domain decomposition",
+      "finding": "The completed C005 dx=2 m 4x1x1 domain-decomposition ablation improved MAE and R2 versus the z-center baseline, but R2 stayed negative, Pearson decreased, and reproducibility-consistency thresholds failed.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/casee_c005_decomposition_audit.py; docs/experiments/casee/results/casee_c005_decomposition_audit.json; docs/experiments/casee/results/casee_c005_decomposition_audit.md; docs/experiments/casee/results/casee_c005_dx2_decomp4x1x1_20260809_215600_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c005_dx2_decomp4x1x1_run_20260809_215600.log",
+      "source_paths_exist": true,
+      "decision_class": "runtime_decomposition_sensitivity_no_default_promotion",
+      "citylbm_status": "decomposition_sensitivity_detected",
+      "implementation_evidence": "pass_condition_met=False; manifest_protocol_ok=True; mae=19.7262730375; r2=-1.608075055394031; delta_r2_vs_zcenter=0.3982553068359458",
+      "default_setting_allowed": false,
+      "paper_use": "Use as runtime/decomposition sensitivity evidence and as a limited negative diagnostic improvement result.",
+      "limitations": "Single decomposition ablation; R2 remains negative and consistency thresholds failed, so it cannot support formal v0.4.0 or default promotion."
+    },
+    {
       "feedback_id": "SF019",
       "experiment": "Experiment 2 / AIJ Case E official z=2 m follow-up planning",
       "finding": "The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries.",
@@ -363,7 +379,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=8; executable_now_count=4; recommended_tag=v0.4.0-rc40",
+      "implementation_evidence": "candidate_count=8; executable_now_count=4; recommended_tag=v0.4.0-rc41",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."
@@ -381,6 +397,7 @@
     "docs/experiments/casee/results/casee_c002_longer_mean_audit.json",
     "docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json",
     "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json",
+    "docs/experiments/casee/results/casee_c005_decomposition_audit.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",

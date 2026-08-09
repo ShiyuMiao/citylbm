@@ -204,9 +204,11 @@ def build_candidates(
     c002_audit = read_json(RESULTS_DIR / "casee_c002_longer_mean_audit.json")
     c003_audit = read_json(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
     c004_audit = read_json(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
+    c005_audit = read_json(RESULTS_DIR / "casee_c005_decomposition_audit.json")
     c002_completed = c002_audit.get("evidence_type") == "newly_run"
     c003_completed = c003_audit.get("evidence_type") == "newly_run"
     c004_completed = c004_audit.get("evidence_type") == "newly_run"
+    c005_completed = c005_audit.get("evidence_type") == "newly_run"
     executable_native = official_followup_allowed and gpu_ready and fluidx_ready and native_source_compile_ready
     source_compile_blockers = [gate for gate in blocked_gates if gate not in {"rhino_gha_load", "vs_cpp_build_tools"}]
     if not gpu_ready:
@@ -380,7 +382,7 @@ def build_candidates(
             candidate_class="runtime_ablation",
             executable_now=executable_native,
             blocking_gates=source_compile_blockers,
-            evidence_type="planned_run",
+            evidence_type=str(c005_audit.get("evidence_type", "planned_run")) if c005_completed else "planned_run",
             dx_m=2.0,
             steps=48000,
             spinup=12000,
@@ -400,10 +402,18 @@ def build_candidates(
                 domain="4x1x1",
             ),
             expected_artifacts=[
-                "docs/experiments/casee/native_cases/<candidate>/casee_probe_time_mean.csv",
-                "docs/experiments/casee/results/<candidate>_decomposition_metrics.csv",
+                "docs/experiments/casee/results/casee_c005_decomposition_audit.json",
+                "docs/experiments/casee/results/casee_c005_decomposition_audit.md",
+                "docs/experiments/casee/results/casee_c005_dx2_decomp4x1x1_<stamp>_probe_time_mean.csv",
             ],
-            rationale="Check whether GPU decomposition affects stability or output reproducibility before long runs.",
+            rationale=(
+                "Completed: 4x1x1 domain decomposition improved MAE/R2 but changed the result beyond reproducibility tolerances "
+                "and reduced Pearson versus the z-center baseline. "
+                f"status={c005_audit.get('status')}; R2={(c005_audit.get('candidate_metrics') or {}).get('r2')}; "
+                f"delta_R2_vs_zcenter={(c005_audit.get('metric_delta_vs_zcenter_baseline') or {}).get('r2')}."
+                if c005_completed
+                else "Check whether GPU decomposition affects stability or output reproducibility before long runs."
+            ),
             formal_result_policy=formal_policy,
             pass_condition="Raw_trilinear metrics remain consistent with C001 within expected numerical variability.",
             default_promotion_allowed=False,

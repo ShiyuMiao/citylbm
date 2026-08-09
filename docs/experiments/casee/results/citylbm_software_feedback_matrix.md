@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-09T13:50:55.450650+00:00
+Generated: 2026-08-09T14:10:32.477147+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 23
+- Feedback rows: 24
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -27,6 +27,7 @@ Generated: 2026-08-09T13:50:55.450650+00:00
 - paper_interpretation_layer: 1
 - paper_traceability_output: 2
 - rerun_reproducibility_guard: 1
+- runtime_decomposition_sensitivity_no_default_promotion: 1
 - software_traceability_gate: 1
 - software_traceability_output: 3
 
@@ -56,6 +57,7 @@ Generated: 2026-08-09T13:50:55.450650+00:00
 | `SF021` | Experiment 2 / AIJ Case E C002 longer mean | completed_candidate_no_default_promotion | candidate_completed_no_improvement | False | The completed 96000-step C002 longer-time-mean candidate worsened the official z=2 m raw_trilinear metric, so longer averaging alone should not be promoted as a CityLBM accuracy fix. |
 | `SF022` | Experiment 2 / AIJ Case E C003 z-origin ablation | diagnostic_ablation_no_default_promotion | zorigin_sensitivity_confirmed | False | The completed C003 no-z-center ablation worsened the official z=2 m raw_trilinear metric relative to the z-center baseline, so z-origin alignment remains a diagnostic sensitivity rather than a validated default model. |
 | `SF023` | Experiment 2 / AIJ Case E C004 dx=3 control | low_cost_regression_no_default_promotion | dx3_control_completed_positive_correlation | False | The completed C004 dx=3 low-cost control kept positive Pearson correlation but worsened MAE and R2, so it is useful as a quick protocol/direction regression rather than an accuracy default. |
+| `SF024` | Experiment 2 / AIJ Case E C005 domain decomposition | runtime_decomposition_sensitivity_no_default_promotion | decomposition_sensitivity_detected | False | The completed C005 dx=2 m 4x1x1 domain-decomposition ablation improved MAE and R2 versus the z-center baseline, but R2 stayed negative, Pearson decreased, and reproducibility-consistency thresholds failed. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary
@@ -84,6 +86,7 @@ Generated: 2026-08-09T13:50:55.450650+00:00
 | `SF021` | Use as candidate-run evidence that longer time averaging did not solve the official z=2 m accuracy failure. | Single candidate run; useful for narrowing the failure mode, not for formal accuracy or mesh-independence claims. |
 | `SF022` | Use as ablation evidence that z-origin placement affects near-wall/probe-protocol metrics. | Single ablation run; it worsens the formal metric and cannot support formal v0.4.0 or a default z-origin model. |
 | `SF023` | Use as low-cost regression evidence that the wind-direction/protocol chain remains positively correlated at dx=3. | R2 remains negative and worse than the current baseline; this does not prove accuracy or mesh independence. |
+| `SF024` | Use as runtime/decomposition sensitivity evidence and as a limited negative diagnostic improvement result. | Single decomposition ablation; R2 remains negative and consistency thresholds failed, so it cannot support formal v0.4.0 or default promotion. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 
 ## Boundary

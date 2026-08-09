@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T13:50:47.476389+00:00",
+  "generated_at": "2026-08-09T14:10:23.810212+00:00",
   "claims": [
     {
       "claim_id": "C001",
@@ -91,7 +91,7 @@
       "evidence_type": "newly_run",
       "section": "Release",
       "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
-      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc40",
+      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc41",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
       "allowed_use": "Use to justify rc-only release status.",
       "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",
@@ -132,6 +132,18 @@
       "allowed_use": "Use as low-cost direction/protocol regression evidence and coarse-grid limitation evidence.",
       "forbidden_use": "Do not claim dx=3 improves official z=2 m accuracy or proves mesh independence.",
       "protocol_risks": "single low-cost control; coarser grid; formal accuracy gate remains failed"
+    },
+    {
+      "claim_id": "C012",
+      "claim_readiness": "limitations_ready",
+      "evidence_type": "newly_run",
+      "section": "Results / Runtime decomposition sensitivity",
+      "claim": "The 4x1x1 domain-decomposition ablation improved MAE and R2 relative to the z-center baseline but remained negative and failed reproducibility-consistency thresholds.",
+      "supporting_metrics": "status=completed_decomposition_sensitivity_warning; MAE=19.726 pp; R2=-1.608075; Pearson=0.099315; delta_MAE_vs_zcenter=-1.385 pp; delta_R2_vs_zcenter=0.398255; delta_Pearson_vs_zcenter=-0.016441",
+      "source_paths": "docs/experiments/casee/results/casee_c005_decomposition_audit.json; docs/experiments/casee/results/casee_c005_decomposition_audit.md",
+      "allowed_use": "Use as runtime/decomposition sensitivity evidence and as a pointer to the current best negative MAE/R2 diagnostic candidate.",
+      "forbidden_use": "Do not promote 4x1x1 decomposition as a default accuracy model or claim formal v0.4.0 validation.",
+      "protocol_risks": "single decomposition ablation; R2 remains negative; Pearson worsened; consistency thresholds failed"
     }
   ]
 }

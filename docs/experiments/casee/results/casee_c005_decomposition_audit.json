@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-08-09T14:10:29.130955+00:00",
+  "candidate_id": "C005_dx2_domain_decomposition_ablation",
+  "status": "completed_decomposition_sensitivity_warning",
+  "evidence_type": "newly_run",
+  "claim_readiness": "limitations_ready_runtime_decomposition_ablation; blocked formal accuracy release",
+  "formal_release_allowed": false,
+  "formal_accuracy_claim_supported": false,
+  "pass_condition_met": false,
+  "log_completed_48000": true,
+  "probe_count_ok": true,
+  "manifest_protocol_ok": true,
+  "pearson_positive": true,
+  "mae_consistent_within_1pp": false,
+  "r2_consistent_within_0p2": false,
+  "improved_vs_zcenter_baseline": false,
+  "zcenter_baseline_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv",
+    "sha256": "a3ec4396a6722aaf2b7432ea976892423f4d31c528f180fd668731757650bb97",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-01T11:28:45.792455+00:00"
+  },
+  "candidate_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_c005_dx2_decomp4x1x1_20260809_215600_probe_time_mean.csv",
+    "sha256": "4c9cabb1659556bd9cc6cedd5c568e4f33f2d3f47cafa529a79096fafcea612e",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-09T14:03:20.319161+00:00"
+  },
+  "run_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c005_dx2_decomp4x1x1_run_20260809_215600.log",
+    "sha256": "496ec61cb4840e39a8a25ce293057e7dcaf70dfa96b0acd3df5be8b0e342106a",
+    "size_bytes": 564075,
+    "mtime_utc": "2026-08-09T14:03:20.528587+00:00"
+  },
+  "run_err_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c005_dx2_decomp4x1x1_run_20260809_215600.err.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "mtime_utc": "2026-08-09T13:56:00.183218+00:00"
+  },
+  "compile_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c005_dx2_decomp4x1x1_compile.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "mtime_utc": "2026-08-09T13:54:56.792669+00:00"
+  },
+  "compile_err_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c005_dx2_decomp4x1x1_compile.err.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "mtime_utc": "2026-08-09T13:54:56.798973+00:00"
+  },
+  "case_manifest": {
+    "found": true,
+    "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
+    "sha256": "c6cb88498aed76b041d885f84ea70078529e30b620d7ad77178f13bf4cfd031d",
+    "size_bytes": 889,
+    "mtime_utc": "2026-08-09T13:54:34.422222+00:00"
+  },
+  "zcenter_baseline_metrics": {
+    "n": 80,
+    "mae_pp": 21.111408125,
+    "rmse_pp": 27.72103208243715,
+    "bias_pp": -16.409215999999997,
+    "r2": -2.006330362229977,
+    "pearson": 0.11575649438573923,
+    "height_m": 2.0,
+    "sampling_mode": "raw_trilinear"
+  },
+  "candidate_metrics": {
+    "n": 80,
+    "mae_pp": 19.7262730375,
+    "rmse_pp": 25.81969374521911,
+    "bias_pp": -15.221349012500001,
+    "r2": -1.608075055394031,
+    "pearson": 0.09931531110580517,
+    "height_m": 2.0,
+    "sampling_mode": "raw_trilinear"
+  },
+  "metric_delta_vs_zcenter_baseline": {
+    "mae_pp": -1.3851350875000001,
+    "rmse_pp": -1.9013383372180428,
+    "bias_pp": 1.187866987499996,
+    "r2": 0.3982553068359458,
+    "pearson": -0.01644118327993406
+  },
+  "consistency_thresholds": {
+    "abs_mae_delta_pp_max": 1.0,
+    "abs_r2_delta_max": 0.2,
+    "pearson_must_remain_positive": true
+  },
+  "boundary": "C005 is a completed dx=2 4x1x1 domain-decomposition ablation under the official z=2 m raw_trilinear protocol. It is runtime/reproducibility evidence only and cannot support formal v0.4.0, mesh independence, or a default accuracy upgrade."
+}

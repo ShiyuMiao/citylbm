@@ -46,6 +46,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_c002_longer_mean_audit.py`
 - `docs/experiments/casee/tools/casee_c003_zorigin_ablation_audit.py`
 - `docs/experiments/casee/tools/casee_c004_dx3_low_cost_audit.py`
+- `docs/experiments/casee/tools/casee_c005_decomposition_audit.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
 - `docs/experiments/casee/tools/casee_manuscript_results_table.py`
 - `docs/experiments/casee/tools/casee_manuscript_section_pack.py`
@@ -102,6 +103,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json`
 - `docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md`
 - `docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.csv`
+- `docs/experiments/casee/results/casee_c005_decomposition_audit.json`
+- `docs/experiments/casee/results/casee_c005_decomposition_audit.md`
+- `docs/experiments/casee/results/casee_c005_decomposition_audit.csv`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.json`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.md`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.csv`
@@ -135,7 +139,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc40.md`
+- `docs/releases/v0.4.0-rc41.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -230,6 +234,14 @@ steps and kept Pearson positive, but it worsened the current best formal
 metric: MAE 24.485 pp, R2 -2.528299, and Pearson 0.109349. This supports use
 as a quick direction/protocol regression check only; it is not a coarse-grid
 accuracy improvement and does not support mesh independence.
+
+A newly-run source-recompiled C005 dx=2 m 4x1x1 domain-decomposition ablation
+completed 48000 steps and improved MAE/R2 relative to the z-center baseline:
+MAE 19.726 pp, R2 -1.608075, and Pearson 0.099315. The result remains below
+paper-grade accuracy because R2 is still negative, Pearson decreased relative
+to the baseline, and decomposition consistency thresholds failed. It is
+runtime/decomposition sensitivity evidence and a prompt to keep decomposition
+in generated run IDs/manifests, not a default accuracy setting.
 
 CityLBM now exposes the corresponding `Diagnostic Z Origin Offset` (`zOff`)
 input on the Grasshopper `Run Simulation` component. The default is 0 m. This

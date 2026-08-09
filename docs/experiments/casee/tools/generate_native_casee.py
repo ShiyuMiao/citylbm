@@ -424,10 +424,11 @@ def main() -> int:
     ground_label = f"gshift{args.ground_offset_cells}"
     zoff_label = f"zoff{args.origin_z_offset_m:g}".replace(".", "p").replace("-", "m")
     nu_label = f"nu{args.nu_lbm:g}".replace(".", "p")
-    run_id = f"casee_native_dx{args.dx:g}_{wind_label}_{sgs_label}_{ground_label}_{zoff_label}_{nu_label}_pmodes_steps{args.steps}_spin{args.spinup}"
+    domain_decomp = (args.domain_x, args.domain_y, args.domain_z)
+    domain_label = "" if domain_decomp == (2, 2, 1) else f"_dom{args.domain_x}x{args.domain_y}x{args.domain_z}"
+    run_id = f"casee_native_dx{args.dx:g}_{wind_label}_{sgs_label}_{ground_label}_{zoff_label}_{nu_label}{domain_label}_pmodes_steps{args.steps}_spin{args.spinup}"
     case_dir = NATIVE_DIR / run_id
     case_dir.mkdir(parents=True, exist_ok=True)
-    domain_decomp = (args.domain_x, args.domain_y, args.domain_z)
     setup = generate_setup(
         args.dx,
         args.steps,
