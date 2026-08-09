@@ -203,8 +203,10 @@ def build_candidates(
     low_risk_phrase = "failure atlas" if failure_atlas.get("failure_modes") else "current diagnostics"
     c002_audit = read_json(RESULTS_DIR / "casee_c002_longer_mean_audit.json")
     c003_audit = read_json(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
+    c004_audit = read_json(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     c002_completed = c002_audit.get("evidence_type") == "newly_run"
     c003_completed = c003_audit.get("evidence_type") == "newly_run"
+    c004_completed = c004_audit.get("evidence_type") == "newly_run"
     executable_native = official_followup_allowed and gpu_ready and fluidx_ready and native_source_compile_ready
     source_compile_blockers = [gate for gate in blocked_gates if gate not in {"rhino_gha_load", "vs_cpp_build_tools"}]
     if not gpu_ready:
@@ -337,7 +339,7 @@ def build_candidates(
             candidate_class="low_cost_regression",
             executable_now=executable_native,
             blocking_gates=source_compile_blockers,
-            evidence_type="planned_run",
+            evidence_type=str(c004_audit.get("evidence_type", "planned_run")) if c004_completed else "planned_run",
             dx_m=3.0,
             steps=48000,
             spinup=12000,
@@ -356,10 +358,17 @@ def build_candidates(
                 nu_lbm=0.001,
             ),
             expected_artifacts=[
-                "docs/experiments/casee/native_cases/<candidate>/casee_probe_time_mean.csv",
-                "docs/experiments/casee/results/<candidate>_dx3_regression_metrics.csv",
+                "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json",
+                "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md",
+                "docs/experiments/casee/results/casee_c004_dx3_low_cost_<stamp>_probe_time_mean.csv",
             ],
-            rationale="Cheaper control run for wind-direction, inlet, and lattice convention regression before expensive sweeps.",
+            rationale=(
+                "Completed: dx=3 kept positive Pearson correlation but worsened MAE/R2 versus the z-center baseline. "
+                f"status={c004_audit.get('status')}; R2={(c004_audit.get('candidate_metrics') or {}).get('r2')}; "
+                f"delta_R2_vs_zcenter={(c004_audit.get('metric_delta_vs_zcenter_baseline') or {}).get('r2')}."
+                if c004_completed
+                else "Cheaper control run for wind-direction, inlet, and lattice convention regression before expensive sweeps."
+            ),
             formal_result_policy=formal_policy,
             pass_condition="No reversal of Pearson sign and no protocol mismatch in manifest/logs.",
             default_promotion_allowed=False,

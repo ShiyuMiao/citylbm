@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.4.0-rc40 - dx=3 low-cost control audit
+
+- Generated, compiled, and ran the C004 dx=3 m low-cost Case E control for 48000 FluidX3D steps using the audited MinGW/g++ fallback.
+- Archived the C004 run log, stderr log, compile logs, generated native setup, manifest, and 80-probe official z=2 m time-mean CSV.
+- Added `casee_c004_dx3_low_cost_audit.py` to check protocol consistency, Pearson sign, and metric deltas versus the current z-center baseline.
+- Updated the candidate sweep plan so completed C002, C003, and C004 candidates are represented as newly-run evidence rather than planned-only rows.
+- Integrated the C004 control into the reproducibility suite, paper evidence gate, artifact index, manuscript claim matrix, paper results packet, and software-feedback matrix as SF023.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc40.md`.
+
+C004 completed and kept Pearson positive, but worsened the formal official z=2 m metric relative to the current z-center baseline: MAE = 24.485 pp, R2 = -2.528299, Pearson = 0.109349. This release candidate supports low-cost direction/protocol regression evidence only. It does not improve official Case E z=2 m R2, prove predictive accuracy, prove mesh independence, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc39 - Z-origin ablation candidate audit
 
 - Generated, compiled, and ran the C003 dx=2 m no-z-center Case E ablation for 48000 FluidX3D steps using the audited MinGW/g++ fallback.

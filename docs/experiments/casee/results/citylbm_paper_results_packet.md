@@ -1,11 +1,11 @@
 # CityLBM Paper Results Packet
 
-Generated: 2026-08-09T13:39:05.584439+00:00
+Generated: 2026-08-09T13:50:52.778089+00:00
 
 ## Verdict
 
 - Packet passed: True
-- Result rows: 22
+- Result rows: 23
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 
@@ -16,6 +16,7 @@ Generated: 2026-08-09T13:39:05.584439+00:00
 - blocked_formal_release_gate: 1
 - limitations_ready_candidate_result; blocked formal accuracy release: 1
 - limitations_ready_dx1_feasibility: 1
+- limitations_ready_dx3_low_cost_regression; blocked formal accuracy release: 1
 - limitations_ready_negative_validation: 1
 - limitations_ready_zorigin_ablation; blocked formal accuracy release: 1
 - must_state_as_boundary: 1
@@ -63,6 +64,7 @@ Generated: 2026-08-09T13:39:05.584439+00:00
 | Experiment 2 / AIJ Case E | `candidate_sweep_followup_plan` | paper_ready_followup_plan; blocked formal accuracy release | Planning evidence only; it does not add solver output or justify changing CityLBM defaults. | Run candidates in priority order and promote settings only after official raw_trilinear metrics pass the release gate. |
 | Experiment 2 / AIJ Case E | `c002_longer_mean_completed_no_improvement` | limitations_ready_candidate_result; blocked formal accuracy release | Completed candidate result only; it worsened the formal raw_trilinear metric and cannot be used for formal v0.4.0. | Do not promote longer averaging as a default accuracy fix; prioritize wall/inlet/voxelization changes. |
 | Experiment 2 / AIJ Case E | `c003_zorigin_ablation_supports_sensitivity` | limitations_ready_zorigin_ablation; blocked formal accuracy release | The no-z-center ablation worsened the formal metric; it cannot support formal accuracy or a default z-origin model. | Keep z-origin alignment as a diagnostic switch and prioritize physical wall/inlet/voxelization work before default promotion. |
+| Experiment 2 / AIJ Case E | `c004_dx3_low_cost_positive_but_worse` | limitations_ready_dx3_low_cost_regression; blocked formal accuracy release | Positive Pearson is not enough for formal validation; R2 remains negative and worse than the current z-center baseline. | Do not promote dx=3 coarse-grid settings as an accuracy fix; use it as a quick regression/control path. |
 | Build-chain recovery / AIJ Case E follow-up | `build_chain_recovery_status` | blocked_build_chain_diagnostic | Build-chain status is not solver-output evidence and cannot support formal accuracy. | Keep VS C++ Build Tools recovery and Rhino/GHA load evidence as required operational gates before stronger software-release claims. |
 | Experiment 2 / AIJ Case E | `casee_manuscript_section_pack` | paper_ready_negative_validation_and_limitations | Generated prose only; it does not add CFD output, improve official z=2 m metrics, or support formal accuracy. | Keep manuscript prose generation downstream of release_gate and manuscript_results_table so claim boundaries stay synchronized. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_M1` | paper_ready | Use within the archived Experiment 3 scope. | Use as design-application workflow evidence, not as Case E accuracy evidence. |

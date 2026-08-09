@@ -1,0 +1,2 @@
+candidate_id,status,evidence_type,log_completed_48000,probe_count_ok,manifest_protocol_ok,mae_pp,r2,pearson,delta_mae_vs_zcenter_pp,delta_r2_vs_zcenter,delta_pearson_vs_zcenter,pearson_positive,pass_condition_met,formal_release_allowed,claim_readiness
+C004_dx3_low_cost_direction_check,completed_low_cost_positive_correlation,newly_run,True,True,True,24.48456695,-2.5282993702661267,0.10934876905648619,3.373158825000001,-0.5219690080361499,-0.0064077253292530445,True,True,False,limitations_ready_dx3_low_cost_regression; blocked formal accuracy release

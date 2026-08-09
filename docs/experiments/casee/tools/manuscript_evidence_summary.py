@@ -64,6 +64,7 @@ def build_claims(
     build_chain: Dict[str, Any],
     c002_longer_mean: Dict[str, Any],
     c003_zorigin_ablation: Dict[str, Any],
+    c004_dx3_low_cost: Dict[str, Any],
 ) -> List[Dict[str, Any]]:
     baseline_raw = metric_row(probe_modes, "raw_trilinear")
     zcenter_raw = metric_row(zcenter_modes, "raw_trilinear")
@@ -225,6 +226,27 @@ def build_claims(
                 "protocol_risks": "single ablation run; z-origin was benchmark-diagnostic and remains default-off/non-formal",
             }
         )
+    if c004_dx3_low_cost:
+        candidate = c004_dx3_low_cost.get("candidate_metrics", {})
+        delta = c004_dx3_low_cost.get("metric_delta_vs_zcenter_baseline", {})
+        claims.append(
+            {
+                "claim_id": "C011",
+                "claim_readiness": "limitations_ready",
+                "evidence_type": c004_dx3_low_cost.get("evidence_type", "newly_run"),
+                "section": "Results / dx=3 control",
+                "claim": "The dx=3 m low-cost control retained positive Pearson correlation but did not improve the official z=2 m Case E metric.",
+                "supporting_metrics": (
+                    f"status={c004_dx3_low_cost.get('status')}; "
+                    f"MAE={fmt(candidate['mae_pp'])} pp; R2={fmt(candidate['r2'], 6)}; Pearson={fmt(candidate['pearson'], 6)}; "
+                    f"delta_MAE_vs_zcenter={fmt(delta['mae_pp'])} pp; delta_R2_vs_zcenter={fmt(delta['r2'], 6)}"
+                ),
+                "source_paths": "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json; docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md",
+                "allowed_use": "Use as low-cost direction/protocol regression evidence and coarse-grid limitation evidence.",
+                "forbidden_use": "Do not claim dx=3 improves official z=2 m accuracy or proves mesh independence.",
+                "protocol_risks": "single low-cost control; coarser grid; formal accuracy gate remains failed",
+            }
+        )
     return claims
 
 
@@ -294,6 +316,7 @@ def main() -> int:
     parser.add_argument("--build-chain", type=Path, default=RESULTS_DIR / "build_chain_manifest.json")
     parser.add_argument("--c002-longer-mean", type=Path, default=RESULTS_DIR / "casee_c002_longer_mean_audit.json")
     parser.add_argument("--c003-zorigin-ablation", type=Path, default=RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
+    parser.add_argument("--c004-dx3-low-cost", type=Path, default=RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     parser.add_argument("--out-csv", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.csv")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_manuscript_evidence_summary.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.json")
@@ -303,6 +326,7 @@ def main() -> int:
     build_chain = json.loads(args.build_chain.read_text(encoding="utf-8"))
     c002_longer_mean = json.loads(args.c002_longer_mean.read_text(encoding="utf-8")) if args.c002_longer_mean.exists() else {}
     c003_zorigin_ablation = json.loads(args.c003_zorigin_ablation.read_text(encoding="utf-8")) if args.c003_zorigin_ablation.exists() else {}
+    c004_dx3_low_cost = json.loads(args.c004_dx3_low_cost.read_text(encoding="utf-8")) if args.c004_dx3_low_cost.exists() else {}
     claims = build_claims(
         gate,
         read_csv(args.probe_mode_metrics),
@@ -312,6 +336,7 @@ def main() -> int:
         build_chain,
         c002_longer_mean,
         c003_zorigin_ablation,
+        c004_dx3_low_cost,
     )
     fieldnames = [
         "claim_id",

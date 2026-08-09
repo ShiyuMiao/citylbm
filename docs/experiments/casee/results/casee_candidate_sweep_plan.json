@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-09T13:39:05.317441+00:00",
+  "generated_at": "2026-08-09T13:50:52.497763+00:00",
   "candidate_sweep_plan_generated": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc39",
+  "recommended_tag": "v0.4.0-rc40",
   "current_official_metrics": {
     "n": 80,
     "mae_pp": 21.111408125,
@@ -108,7 +108,7 @@
       "candidate_class": "low_cost_regression",
       "executable_now": true,
       "blocking_gates": [],
-      "evidence_type": "planned_run",
+      "evidence_type": "newly_run",
       "dx_m": 3.0,
       "steps": 48000,
       "spinup": 12000,
@@ -119,10 +119,11 @@
       "domain_decomposition": "2x2x1",
       "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 3 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 0.0 --nu-lbm 0.001 --domain-x 2 --domain-y 2 --domain-z 1",
       "expected_artifacts": [
-        "docs/experiments/casee/native_cases/<candidate>/casee_probe_time_mean.csv",
-        "docs/experiments/casee/results/<candidate>_dx3_regression_metrics.csv"
+        "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json",
+        "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md",
+        "docs/experiments/casee/results/casee_c004_dx3_low_cost_<stamp>_probe_time_mean.csv"
       ],
-      "rationale": "Cheaper control run for wind-direction, inlet, and lattice convention regression before expensive sweeps.",
+      "rationale": "Completed: dx=3 kept positive Pearson correlation but worsened MAE/R2 versus the z-center baseline. status=completed_low_cost_positive_correlation; R2=-2.5282993702661267; delta_R2_vs_zcenter=-0.5219690080361499.",
       "formal_result_policy": "Only the completed 80-probe official z=2 m raw_trilinear casee_probe_time_mean.csv may feed release_gate.json. Diagnostic sampling columns and z offsets cannot substitute for the formal result.",
       "pass_condition": "No reversal of Pearson sign and no protocol mismatch in manifest/logs.",
       "default_promotion_allowed": false,

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T13:39:00.698412+00:00",
+  "generated_at": "2026-08-09T13:50:47.476389+00:00",
   "claims": [
     {
       "claim_id": "C001",
@@ -91,7 +91,7 @@
       "evidence_type": "newly_run",
       "section": "Release",
       "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
-      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc39",
+      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc40",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
       "allowed_use": "Use to justify rc-only release status.",
       "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",
@@ -120,6 +120,18 @@
       "allowed_use": "Use as negative ablation evidence for near-wall/probe-protocol sensitivity.",
       "forbidden_use": "Do not claim z-center is a validated default accuracy model or that C003 supports formal v0.4.0.",
       "protocol_risks": "single ablation run; z-origin was benchmark-diagnostic and remains default-off/non-formal"
+    },
+    {
+      "claim_id": "C011",
+      "claim_readiness": "limitations_ready",
+      "evidence_type": "newly_run",
+      "section": "Results / dx=3 control",
+      "claim": "The dx=3 m low-cost control retained positive Pearson correlation but did not improve the official z=2 m Case E metric.",
+      "supporting_metrics": "status=completed_low_cost_positive_correlation; MAE=24.485 pp; R2=-2.528299; Pearson=0.109349; delta_MAE_vs_zcenter=3.373 pp; delta_R2_vs_zcenter=-0.521969",
+      "source_paths": "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json; docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md",
+      "allowed_use": "Use as low-cost direction/protocol regression evidence and coarse-grid limitation evidence.",
+      "forbidden_use": "Do not claim dx=3 improves official z=2 m accuracy or proves mesh independence.",
+      "protocol_risks": "single low-cost control; coarser grid; formal accuracy gate remains failed"
     }
   ]
 }

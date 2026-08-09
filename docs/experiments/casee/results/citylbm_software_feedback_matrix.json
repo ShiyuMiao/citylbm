@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T13:39:08.191789+00:00",
-    "feedback_count": 22,
+    "generated_at": "2026-08-09T13:50:55.450650+00:00",
+    "feedback_count": 23,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -17,6 +17,7 @@
       "rerun_reproducibility_guard": 1,
       "completed_candidate_no_default_promotion": 1,
       "diagnostic_ablation_no_default_promotion": 1,
+      "low_cost_regression_no_default_promotion": 1,
       "followup_sweep_plan": 1
     },
     "citylbm_status_counts": {
@@ -33,6 +34,7 @@
       "baseline_failure_reproduced": 1,
       "candidate_completed_no_improvement": 1,
       "zorigin_sensitivity_confirmed": 1,
+      "dx3_control_completed_positive_correlation": 1,
       "planned_candidate_matrix": 1
     },
     "required_feedback_rows_present": true,
@@ -339,6 +341,20 @@
       "limitations": "Single ablation run; it worsens the formal metric and cannot support formal v0.4.0 or a default z-origin model."
     },
     {
+      "feedback_id": "SF023",
+      "experiment": "Experiment 2 / AIJ Case E C004 dx=3 control",
+      "finding": "The completed C004 dx=3 low-cost control kept positive Pearson correlation but worsened MAE and R2, so it is useful as a quick protocol/direction regression rather than an accuracy default.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/casee_c004_dx3_low_cost_audit.py; docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json; docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md; docs/experiments/casee/results/casee_c004_dx3_low_cost_20260809_214302_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c004_dx3_low_cost_run_20260809_214302.log",
+      "source_paths_exist": true,
+      "decision_class": "low_cost_regression_no_default_promotion",
+      "citylbm_status": "dx3_control_completed_positive_correlation",
+      "implementation_evidence": "pass_condition_met=True; manifest_protocol_ok=True; r2=-2.5282993702661267; delta_r2_vs_zcenter=-0.5219690080361499",
+      "default_setting_allowed": false,
+      "paper_use": "Use as low-cost regression evidence that the wind-direction/protocol chain remains positively correlated at dx=3.",
+      "limitations": "R2 remains negative and worse than the current baseline; this does not prove accuracy or mesh independence."
+    },
+    {
       "feedback_id": "SF019",
       "experiment": "Experiment 2 / AIJ Case E official z=2 m follow-up planning",
       "finding": "The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries.",
@@ -347,7 +363,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=8; executable_now_count=4; recommended_tag=v0.4.0-rc39",
+      "implementation_evidence": "candidate_count=8; executable_now_count=4; recommended_tag=v0.4.0-rc40",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."
@@ -364,6 +380,7 @@
     "docs/experiments/casee/results/casee_zcenter_rerun_consistency.json",
     "docs/experiments/casee/results/casee_c002_longer_mean_audit.json",
     "docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json",
+    "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",

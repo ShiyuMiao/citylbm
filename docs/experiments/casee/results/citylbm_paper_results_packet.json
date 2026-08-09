@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T13:39:05.584439+00:00",
-    "result_count": 22,
+    "generated_at": "2026-08-09T13:50:52.778089+00:00",
+    "result_count": 23,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
       "limitations_ready_negative_validation": 1,
@@ -12,6 +12,7 @@
       "paper_ready_followup_plan; blocked formal accuracy release": 1,
       "limitations_ready_candidate_result; blocked formal accuracy release": 1,
       "limitations_ready_zorigin_ablation; blocked formal accuracy release": 1,
+      "limitations_ready_dx3_low_cost_regression; blocked formal accuracy release": 1,
       "blocked_build_chain_diagnostic": 1,
       "paper_ready_negative_validation_and_limitations": 1,
       "paper_ready": 1,
@@ -24,7 +25,7 @@
       "blocked_formal_release_gate": 1
     },
     "evidence_type_counts": {
-      "newly_run": 16,
+      "newly_run": 17,
       "newly_run + preexisting_artifact": 3,
       "blocked": 1,
       "newly_run + preexisting_artifact + blocked": 2
@@ -133,6 +134,17 @@
       "paper_use": "Use as ablation evidence that z-origin placement changes the official z=2 m metric and should be discussed as near-wall/probe-protocol sensitivity.",
       "limitations": "The no-z-center ablation worsened the formal metric; it cannot support formal accuracy or a default z-origin model.",
       "software_feedback": "Keep z-origin alignment as a diagnostic switch and prioritize physical wall/inlet/voxelization work before default promotion."
+    },
+    {
+      "experiment": "Experiment 2 / AIJ Case E",
+      "result_id": "c004_dx3_low_cost_positive_but_worse",
+      "claim_readiness": "limitations_ready_dx3_low_cost_regression; blocked formal accuracy release",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json; docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md; docs/experiments/casee/results/casee_c004_dx3_low_cost_20260809_214302_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c004_dx3_low_cost_run_20260809_214302.log",
+      "metric_or_status": "status=completed_low_cost_positive_correlation; log_completed_48000=True; manifest_protocol_ok=True; MAE=24.48456695 pp; R2=-2.5282993702661267; Pearson=0.10934876905648619; delta_MAE_vs_zcenter=3.373158825000001 pp; delta_R2_vs_zcenter=-0.5219690080361499",
+      "paper_use": "Use as low-cost dx=3 control evidence that protocol direction remains positively correlated but coarse-grid accuracy is worse.",
+      "limitations": "Positive Pearson is not enough for formal validation; R2 remains negative and worse than the current z-center baseline.",
+      "software_feedback": "Do not promote dx=3 coarse-grid settings as an accuracy fix; use it as a quick regression/control path."
     },
     {
       "experiment": "Build-chain recovery / AIJ Case E follow-up",
@@ -272,7 +284,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc39",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc40",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."

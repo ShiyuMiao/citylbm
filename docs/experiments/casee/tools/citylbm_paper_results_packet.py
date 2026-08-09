@@ -97,6 +97,7 @@ def build_rows() -> List[Dict[str, str]]:
     zcenter_rerun = read_json(CASEE_RESULTS / "casee_zcenter_rerun_consistency.json")
     c002_longer_mean = read_json(CASEE_RESULTS / "casee_c002_longer_mean_audit.json")
     c003_zorigin_ablation = read_json(CASEE_RESULTS / "casee_c003_zorigin_ablation_audit.json")
+    c004_dx3_low_cost = read_json(CASEE_RESULTS / "casee_c004_dx3_low_cost_audit.json")
     build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -304,6 +305,32 @@ def build_rows() -> List[Dict[str, str]]:
             paper_use="Use as ablation evidence that z-origin placement changes the official z=2 m metric and should be discussed as near-wall/probe-protocol sensitivity.",
             limitations="The no-z-center ablation worsened the formal metric; it cannot support formal accuracy or a default z-origin model.",
             software_feedback="Keep z-origin alignment as a diagnostic switch and prioritize physical wall/inlet/voxelization work before default promotion.",
+        )
+    )
+
+    c004_metrics = c004_dx3_low_cost.get("candidate_metrics") or {}
+    c004_delta = c004_dx3_low_cost.get("metric_delta_vs_zcenter_baseline") or {}
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="c004_dx3_low_cost_positive_but_worse",
+            claim_readiness=str(c004_dx3_low_cost.get("claim_readiness", "blocked_c004_audit")),
+            evidence_type=str(c004_dx3_low_cost.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_c004_dx3_low_cost_audit.json"),
+                rel(CASEE_RESULTS / "casee_c004_dx3_low_cost_audit.md"),
+                str((c004_dx3_low_cost.get("candidate_csv") or {}).get("path", "")),
+                str((c004_dx3_low_cost.get("run_log") or {}).get("path", "")),
+            ],
+            metric_or_status=(
+                f"status={c004_dx3_low_cost.get('status')}; log_completed_48000={c004_dx3_low_cost.get('log_completed_48000')}; "
+                f"manifest_protocol_ok={c004_dx3_low_cost.get('manifest_protocol_ok')}; MAE={c004_metrics.get('mae_pp')} pp; "
+                f"R2={c004_metrics.get('r2')}; Pearson={c004_metrics.get('pearson')}; "
+                f"delta_MAE_vs_zcenter={c004_delta.get('mae_pp')} pp; delta_R2_vs_zcenter={c004_delta.get('r2')}"
+            ),
+            paper_use="Use as low-cost dx=3 control evidence that protocol direction remains positively correlated but coarse-grid accuracy is worse.",
+            limitations="Positive Pearson is not enough for formal validation; R2 remains negative and worse than the current z-center baseline.",
+            software_feedback="Do not promote dx=3 coarse-grid settings as an accuracy fix; use it as a quick regression/control path.",
         )
     )
 

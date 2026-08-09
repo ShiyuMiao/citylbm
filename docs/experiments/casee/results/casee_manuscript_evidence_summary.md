@@ -1,6 +1,6 @@
 # AIJ Case E Manuscript Evidence Summary
 
-Generated: 2026-08-09T13:39:00.700577+00:00
+Generated: 2026-08-09T13:50:47.478455+00:00
 
 ## Current Formal Metric
 
@@ -11,7 +11,7 @@ Generated: 2026-08-09T13:39:00.700577+00:00
 - R2: -2.006330.
 - Pearson: 0.115756.
 - Formal release allowed: False.
-- Recommended tag: `v0.4.0-rc39`.
+- Recommended tag: `v0.4.0-rc40`.
 
 ## Claim Matrix
 
@@ -27,6 +27,7 @@ Generated: 2026-08-09T13:39:00.700577+00:00
 | C008 | blocked | Release | Formal CityLBM v0.4.0 release is not allowed by the release gate. | `docs/experiments/casee/results/release_gate.json` |
 | C009 | limitations_ready | Results / Follow-up candidate audit | Extending the dx=2 m z-center candidate to 96000 steps did not improve the official z=2 m Case E metric. | `docs/experiments/casee/results/casee_c002_longer_mean_audit.json; docs/experiments/casee/results/casee_c002_longer_mean_audit.md` |
 | C010 | limitations_ready | Results / Z-origin ablation | Removing the z-center alignment worsened the official z=2 m raw-trilinear metric, confirming z-origin sensitivity rather than a validated default model. | `docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json; docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.md` |
+| C011 | limitations_ready | Results / dx=3 control | The dx=3 m low-cost control retained positive Pearson correlation but did not improve the official z=2 m Case E metric. | `docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json; docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md` |
 
 ## Results Paragraph Draft
 
