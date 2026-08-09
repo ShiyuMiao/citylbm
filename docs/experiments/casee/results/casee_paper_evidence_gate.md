@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-09T14:10:34.996264+00:00
+Generated: 2026-08-09T14:50:50.507318+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc41`
+- Recommended tag: `v0.4.0-rc42`
 
 ## Official z=2 m Metric
 
@@ -17,8 +17,8 @@ Generated: 2026-08-09T14:10:34.996264+00:00
 
 ## Claim Matrix
 
-- Claims: 12
-- Readiness counts: `{'paper_ready': 2, 'limitations_ready': 7, 'weaken_claim': 2, 'blocked': 1}`
+- Claims: 13
+- Readiness counts: `{'paper_ready': 2, 'limitations_ready': 8, 'weaken_claim': 2, 'blocked': 1}`
 - Blocked release claim present: True
 - Negative validation claim present: True
 - Recommended tag present: True
@@ -27,14 +27,14 @@ Generated: 2026-08-09T14:10:34.996264+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 318
+- Checked nonblank lines: 320
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 230
-- Lightweight release assets: 185
+- Artifact count: 247
+- Lightweight release assets: 193
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -56,16 +56,16 @@ Generated: 2026-08-09T14:10:34.996264+00:00
 - Native source compile path: `mingw_gpp_fallback`
 - .NET SDK: `ready`
 - FluidX3D: `ready_for_existing_binary`
-- GPU runtime: `ready`
+- GPU runtime: `blocked`
 - UAC/1602 blocker recorded: True
 - Claim boundary safe: True
 
 ## Official Run Preflight
 
 - Preflight found: True
-- Official follow-up run allowed: True
+- Official follow-up run allowed: False
 - Formal release allowed: False
-- Claim readiness: `ready_for_next_official_followup_run`
+- Claim readiness: `blocked_official_followup_preflight`
 - Claim boundary safe: True
 
 ## dx=1 Readiness Audit
@@ -144,7 +144,7 @@ Generated: 2026-08-09T14:10:34.996264+00:00
 - Plan found: True
 - Plan generated: True
 - Candidate count: 8
-- Executable-now count: 4
+- Executable-now count: 0
 - Claim readiness: `paper_ready_followup_plan; blocked formal accuracy release`
 - Formal accuracy claim supported: False
 - Claim boundary safe: True
@@ -161,7 +161,7 @@ Generated: 2026-08-09T14:10:34.996264+00:00
 
 - Packet found: True
 - Packet passed: True
-- Result rows: 24
+- Result rows: 25
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 - Claim boundary safe: True
@@ -219,7 +219,7 @@ Generated: 2026-08-09T14:10:34.996264+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 24
+- Feedback rows: 25
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False

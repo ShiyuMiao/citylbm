@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-09T14:10:32.477147+00:00
+Generated: 2026-08-09T14:50:47.800142+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 24
+- Feedback rows: 25
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -22,6 +22,7 @@ Generated: 2026-08-09T14:10:32.477147+00:00
 - diagnostic_switch: 3
 - followup_sweep_plan: 1
 - formal_protocol_default: 1
+- inlet_turbulence_diagnostic_no_default_promotion: 1
 - low_cost_regression_no_default_promotion: 1
 - paper_figure_output: 1
 - paper_interpretation_layer: 1
@@ -40,7 +41,7 @@ Generated: 2026-08-09T14:10:32.477147+00:00
 | `SF003` | Experiment 2 / AIJ Case E | formal_protocol_default | implemented | True | The formal Case E protocol must remain z=2 m, 80 ac+N probes, and raw_trilinear sampling. |
 | `SF004` | Experiment 2 / AIJ Case E | diagnostic_switch | implemented_default_off | False | Diagnostic nu_lbm sensitivity is useful for investigation but has not produced a formal official z=2 m pass. |
 | `SF005` | Experiment 2 / AIJ Case E | diagnostic_switch | implemented_default_off | False | Vertical-origin and probe sampling diagnostics expose near-wall/protocol sensitivity but remain non-formal. |
-| `SF006` | Experiment 2 / AIJ Case E | blocked_followup_run | ready_for_next_official_run | False | The next official Case E run is blocked by runtime and load-identity gates. |
+| `SF006` | Experiment 2 / AIJ Case E | blocked_followup_run | blocked_until_external_recovery | False | The next official Case E run is blocked by runtime and load-identity gates. |
 | `SF007` | Experiment 3 / TUM2TWIN digital-twin application | application_workflow_policy | paper_ready_workflow_guidance | True | TUM2TWIN layers are separated into visual reference, semantic/collision geometry and CFD/LBM simulation inputs. |
 | `SF008` | Experiment 3 / TUM2TWIN digital-twin application | paper_interpretation_layer | paper_ready_with_boundary | False | Basic morphology variables are interpretable screening descriptors; sector enclosure ranks above single-building footprint/elongation. |
 | `SF009` | CityLBM traceability layer | software_traceability_output | implemented | True | Run Simulation exposes the generated citylbm_run_manifest.json path as a Grasshopper output for direct reviewer tracing. |
@@ -49,8 +50,8 @@ Generated: 2026-08-09T14:10:32.477147+00:00
 | `SF012` | Experiment 2 / AIJ Case E manifest gate contract | software_traceability_output | implemented | True | Generated run manifests now encode the formal v0.4.0 accuracy-gate contract and keep manifest-only accuracy claims blocked. |
 | `SF013` | Experiment 2 / AIJ Case E Grasshopper claim boundary | software_traceability_output | implemented | True | Run Simulation now exposes a Claim Gate output so users can see the formal accuracy boundary beside run status and manifest path. |
 | `SF014` | Experiment 2 / AIJ Case E manuscript prose layer | paper_traceability_output | implemented | True | The generated section pack converts gated Case E rows into Methods, Results, Diagnostics, Limitations, Software implications, and Release-boundary prose with explicit evidence notes. |
-| `SF015` | Build-chain recovery / Case E follow-up readiness | blocked_followup_run | blocked_vs_cpp_build_tools | False | The current build-chain audit records .NET and FluidX3D as available, GPU runtime as ready, and VS Build Tools C++ as blocked after a winget BuildTools attempt exited 1602 with UAC-related bootstrapper evidence. |
-| `SF016` | Experiment 2 / AIJ Case E dx=1 follow-up readiness | blocked_followup_run | blocked_until_user_confirmed_dx1_dry_run | False | The dx=1 m high-resolution official follow-up is a high-risk long-run candidate: readiness=high_risk_blocked_until_dry_run, memory_headroom_ok=False, moderate required per GPU=13.79 GiB, minimum free GPU memory=15.898 GiB. |
+| `SF015` | Build-chain recovery / Case E follow-up readiness | blocked_followup_run | blocked_vs_cpp_build_tools | False | The current build-chain audit records .NET and FluidX3D as available, GPU runtime as blocked, and VS Build Tools C++ as blocked after a winget BuildTools attempt exited 1602 with UAC-related bootstrapper evidence. |
+| `SF016` | Experiment 2 / AIJ Case E dx=1 follow-up readiness | blocked_followup_run | blocked_until_user_confirmed_dx1_dry_run | False | The dx=1 m high-resolution official follow-up is a high-risk long-run candidate: readiness=high_risk_blocked_until_dry_run, memory_headroom_ok=False, moderate required per GPU=13.79 GiB, minimum free GPU memory=0.0 GiB. |
 | `SF017` | Experiment 2 / AIJ Case E wall and roughness follow-up | diagnostic_switch | implemented_default_off | False | Near-wall underprediction and solid-corner diagnostics justify a default-off wall/roughness follow-up interface, but the official z=2 m raw_trilinear metric has not improved enough to promote any wall model as a default accuracy setting. |
 | `SF018` | Experiment 2 / AIJ Case E manifest schema traceability | software_traceability_gate | implemented_schema_gate | False | Generated run manifests need a stable reader-facing schema so Case E protocol fields, diagnostic substitute blockers, and paper-forbidden claim classes can be audited without reinterpreting solver logs. |
 | `SF020` | Experiment 2 / AIJ Case E z-center rerun | rerun_reproducibility_guard | baseline_failure_reproduced | False | A newly-run 48000-step rerun of the currently compiled z-center Case E setup reproduced the same official z=2 m raw_trilinear failure metric, so repeating the baseline is not an accuracy-improvement path. |
@@ -58,6 +59,7 @@ Generated: 2026-08-09T14:10:32.477147+00:00
 | `SF022` | Experiment 2 / AIJ Case E C003 z-origin ablation | diagnostic_ablation_no_default_promotion | zorigin_sensitivity_confirmed | False | The completed C003 no-z-center ablation worsened the official z=2 m raw_trilinear metric relative to the z-center baseline, so z-origin alignment remains a diagnostic sensitivity rather than a validated default model. |
 | `SF023` | Experiment 2 / AIJ Case E C004 dx=3 control | low_cost_regression_no_default_promotion | dx3_control_completed_positive_correlation | False | The completed C004 dx=3 low-cost control kept positive Pearson correlation but worsened MAE and R2, so it is useful as a quick protocol/direction regression rather than an accuracy default. |
 | `SF024` | Experiment 2 / AIJ Case E C005 domain decomposition | runtime_decomposition_sensitivity_no_default_promotion | decomposition_sensitivity_detected | False | The completed C005 dx=2 m 4x1x1 domain-decomposition ablation improved MAE and R2 versus the z-center baseline, but R2 stayed negative, Pearson decreased, and reproducibility-consistency thresholds failed. |
+| `SF025` | Experiment 2 / AIJ Case E C008/C009 inlet turbulence | inlet_turbulence_diagnostic_no_default_promotion | inlet_turbulence_candidate_improved_but_blocked | False | The AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, with best MAE=14.677544574999999 pp, R2=-0.3598186886134105, and Pearson=0.2834105384611786, but R2 remained negative. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary
@@ -87,6 +89,7 @@ Generated: 2026-08-09T14:10:32.477147+00:00
 | `SF022` | Use as ablation evidence that z-origin placement affects near-wall/probe-protocol metrics. | Single ablation run; it worsens the formal metric and cannot support formal v0.4.0 or a default z-origin model. |
 | `SF023` | Use as low-cost regression evidence that the wind-direction/protocol chain remains positively correlated at dx=3. | R2 remains negative and worse than the current baseline; this does not prove accuracy or mesh independence. |
 | `SF024` | Use as runtime/decomposition sensitivity evidence and as a limited negative diagnostic improvement result. | Single decomposition ablation; R2 remains negative and consistency thresholds failed, so it cannot support formal v0.4.0 or default promotion. |
+| `SF025` | Use as evidence that AF k and full-plane inlet turbulence are the strongest current improvement direction. | Diagnostic scale sweep on one benchmark; R2 remains negative and cannot support formal v0.4.0, LES improvement, or a default accuracy model. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 
 ## Boundary

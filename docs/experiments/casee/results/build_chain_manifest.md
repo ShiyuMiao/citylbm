@@ -1,18 +1,18 @@
 # CityLBM Build-Chain Manifest
 
-Generated: 2026-08-09T14:10:24.786077+00:00
+Generated: 2026-08-09T14:50:40.084002+00:00
 
 ## Verdict
 
 - Build chain ready: False
-- Operational with fallback: True
+- Operational with fallback: False
 - Claim readiness: `blocked_build_chain_diagnostic`
 - VS Build Tools C++: `blocked`
 - MinGW/g++ fallback: `ready`
 - Native source compile path: `mingw_gpp_fallback`
 - .NET SDK: `ready`
 - FluidX3D binary: `ready_for_existing_binary`
-- GPU runtime: `ready`
+- GPU runtime: `blocked`
 
 ## Latest VS Build Tools Attempt
 
@@ -33,8 +33,8 @@ Observed blockers:
 
 | drive | free GB | total bytes |
 |---|---:|---:|
-| `C:\` | 6.991 | 208810242048 |
-| `D:\` | 229.31 | 302394634240 |
+| `C:\` | 6.925 | 208810242048 |
+| `D:\` | 229.297 | 302394634240 |
 | `E:\` | 810.541 | 1000203087872 |
 | `F:\` | 2087.894 | 2901257744384 |
 | `G:\` | 1023.866 | 1099510575104 |

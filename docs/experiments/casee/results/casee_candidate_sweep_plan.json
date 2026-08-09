@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-09T14:10:29.288101+00:00",
+  "generated_at": "2026-08-09T14:50:44.458560+00:00",
   "candidate_sweep_plan_generated": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc41",
+  "recommended_tag": "v0.4.0-rc42",
   "current_official_metrics": {
     "n": 80,
     "mae_pp": 21.111408125,
@@ -17,7 +17,7 @@
     "sampling_mode": "raw_trilinear"
   },
   "candidate_count": 8,
-  "executable_now_count": 4,
+  "executable_now_count": 0,
   "candidates": [
     {
       "candidate_id": "C001_dx2_zcenter_replicate_best_known",
@@ -25,6 +25,9 @@
       "candidate_class": "current_compiled_binary_rerun",
       "executable_now": false,
       "blocking_gates": [
+        "gpu_runtime",
+        "gpu_runtime",
+        "official_followup_preflight",
         "current_deployed_binary_not_matching_baseline"
       ],
       "evidence_type": "planned_or_completed_rerun",
@@ -52,8 +55,12 @@
       "candidate_id": "C002_dx2_longer_mean_stability",
       "priority": 2,
       "candidate_class": "time_mean_stability",
-      "executable_now": true,
-      "blocking_gates": [],
+      "executable_now": false,
+      "blocking_gates": [
+        "gpu_runtime",
+        "gpu_runtime",
+        "official_followup_preflight"
+      ],
       "evidence_type": "newly_run",
       "dx_m": 2.0,
       "steps": 96000,
@@ -79,8 +86,12 @@
       "candidate_id": "C003_dx2_no_zcenter_ablation",
       "priority": 3,
       "candidate_class": "protocol_ablation",
-      "executable_now": true,
-      "blocking_gates": [],
+      "executable_now": false,
+      "blocking_gates": [
+        "gpu_runtime",
+        "gpu_runtime",
+        "official_followup_preflight"
+      ],
       "evidence_type": "newly_run",
       "dx_m": 2.0,
       "steps": 48000,
@@ -106,8 +117,12 @@
       "candidate_id": "C004_dx3_low_cost_direction_check",
       "priority": 4,
       "candidate_class": "low_cost_regression",
-      "executable_now": true,
-      "blocking_gates": [],
+      "executable_now": false,
+      "blocking_gates": [
+        "gpu_runtime",
+        "gpu_runtime",
+        "official_followup_preflight"
+      ],
       "evidence_type": "newly_run",
       "dx_m": 3.0,
       "steps": 48000,
@@ -133,8 +148,12 @@
       "candidate_id": "C005_dx2_domain_decomposition_ablation",
       "priority": 5,
       "candidate_class": "runtime_ablation",
-      "executable_now": true,
-      "blocking_gates": [],
+      "executable_now": false,
+      "blocking_gates": [
+        "gpu_runtime",
+        "gpu_runtime",
+        "official_followup_preflight"
+      ],
       "evidence_type": "newly_run",
       "dx_m": 2.0,
       "steps": 48000,
@@ -221,24 +240,26 @@
       "candidate_class": "requires_implementation",
       "executable_now": false,
       "blocking_gates": [
-        "inlet_turbulence_change_not_implemented"
+        "gpu_runtime",
+        "gpu_runtime",
+        "official_followup_preflight"
       ],
-      "evidence_type": "blocked_until_physical_change_exists",
+      "evidence_type": "newly_run",
       "dx_m": "2.0",
       "steps": ">=48000",
       "spinup": ">=12000",
       "sample_dt": "<=2000",
-      "ground_offset_cells": "0 or 1 as pre-registered",
-      "origin_z_offset_m": "0 for formal run",
-      "nu_lbm": "pre-registered value",
-      "domain_decomposition": "2x2x1",
-      "command": "Implement revised full-plane digital-filter inlet using AF_caseE z,U,k, then generate official z=2 m raw_trilinear Case E.",
+      "ground_offset_cells": 1,
+      "origin_z_offset_m": 1.0,
+      "nu_lbm": 0.001,
+      "domain_decomposition": "4x1x1",
+      "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane --inlet-turbulence-scale 0.70",
       "expected_artifacts": [
-        "CityLBM source diff",
-        "docs/experiments/casee/results/<candidate>_inlet_audit.png",
-        "docs/experiments/casee/results/<candidate>_official_metrics.csv"
+        "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
+        "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md",
+        "docs/experiments/casee/results/casee_c009_inlet_k_synthetic_s0p7_<stamp>_probe_time_mean.csv"
       ],
-      "rationale": "Inlet turbulence remains a plausible cause of low correlation and should be tested after a documented physical implementation exists.",
+      "rationale": "Completed: AF-k synthetic full-plane inlet candidates substantially improved official-height MAE/R2/Pearson, but R2 remains negative and the scale sweep is diagnostic-only. status=completed_inlet_turbulence_improved_but_negative_r2; best_R2=-0.3598186886134105; best_MAE=14.677544574999999.",
       "formal_result_policy": "Only the completed 80-probe official z=2 m raw_trilinear casee_probe_time_mean.csv may feed release_gate.json. Diagnostic sampling columns and z offsets cannot substitute for the formal result.",
       "pass_condition": "Official raw_trilinear metric improves without relying on non-raw sampling or z-height substitution.",
       "default_promotion_allowed": false,

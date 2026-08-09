@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-09T14:10:33.852678+00:00",
+  "generated_at": "2026-08-09T14:50:49.249811+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_followup_runbook; not_accuracy_evidence",
   "release_gate_summary": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc41",
+    "recommended_tag": "v0.4.0-rc42",
     "metrics": {
       "n": 80,
       "mae_pp": 21.111408125,
@@ -82,8 +82,8 @@
     {
       "runbook_id": "R005_official_dx2_zcenter_replicate",
       "stage": "native_case_generation",
-      "enabled_now": true,
-      "evidence_type": "newly_run_when_executed",
+      "enabled_now": false,
+      "evidence_type": "blocked_until_gpu_ready",
       "purpose": "Replicate the current best official raw_trilinear diagnostic before changing physics.",
       "trigger_condition": "GPU ready; need a clean baseline for comparison.",
       "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001",
@@ -145,6 +145,6 @@
       "forbidden_claim": "Do not cite an unaudited probe CSV as a paper result."
     }
   ],
-  "blocked_command_count": 5,
+  "blocked_command_count": 6,
   "boundary": "Future-run command matrix only; no new CFD accuracy evidence."
 }

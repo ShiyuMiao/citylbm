@@ -36,6 +36,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc39.md",
     "docs/releases/v0.4.0-rc40.md",
     "docs/releases/v0.4.0-rc41.md",
+    "docs/releases/v0.4.0-rc42.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -104,6 +105,7 @@ TOOL_SCRIPTS = [
     "casee_c003_zorigin_ablation_audit.py",
     "casee_c004_dx3_low_cost_audit.py",
     "casee_c005_decomposition_audit.py",
+    "casee_c008_c009_inlet_turbulence_audit.py",
     "casee_official_run_preflight.py",
     "casee_dx1_readiness_audit.py",
     "casee_environment_recovery_runbook.py",
@@ -277,6 +279,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "limitations_ready_dx3_low_cost_regression"
     if "casee_c005_decomposition_audit" in path or "c005_dx2_decomp4x1x1" in path:
         return "limitations_ready_decomposition_sensitivity"
+    if "casee_c008_c009_inlet_turbulence_audit" in path or "c008_inlet_k_synthetic" in path or "c009_inlet_k_synthetic" in path:
+        return "limitations_ready_inlet_turbulence_improvement"
     if "rhino_gha_load_gate" in path:
         return "blocked_manual_rhino_load"
     if "casee_official_run_preflight" in path:
@@ -337,6 +341,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to show the C004 dx=3 low-cost run kept positive correlation but did not improve official z=2 m metrics."
     if readiness == "limitations_ready_decomposition_sensitivity":
         return "Use to show the C005 4x1x1 domain-decomposition run improved MAE/R2 but was not reproducibility-consistent or default-promotable."
+    if readiness == "limitations_ready_inlet_turbulence_improvement":
+        return "Use to show AF-k synthetic full-plane inlet candidates substantially improved official-height MAE/R2/Pearson but still had negative R2."
     if readiness == "blocked_manual_rhino_load":
         return "Use to document the fail-closed Rhino/Grasshopper new-GHA loading gate."
     if readiness == "blocked_official_followup_preflight":
@@ -564,6 +570,9 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_c005_decomposition_audit.json",
                 "casee_c005_decomposition_audit.md",
                 "casee_c005_decomposition_audit.csv",
+                "casee_c008_c009_inlet_turbulence_audit.json",
+                "casee_c008_c009_inlet_turbulence_audit.md",
+                "casee_c008_c009_inlet_turbulence_audit.csv",
                 "plugin_identity_gate.json",
                 "rhino_gha_load_gate.json",
                 "rhino_gha_load_gate.md",
@@ -582,6 +591,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc39.md",
                 "v0.4.0-rc40.md",
                 "v0.4.0-rc41.md",
+                "v0.4.0-rc42.md",
             )
         )
     ]

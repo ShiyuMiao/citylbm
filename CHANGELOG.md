@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.0-rc42 - AF-k inlet turbulence diagnostic improvement
+
+- Added default-off `k_synthetic_fullplane` support to `generate_native_casee.py`, using `AF_caseE.csv` z,U,k to generate bounded full-plane synthetic inlet fluctuations while preserving the default steady inlet.
+- Generated, compiled, and ran C008/C009 dx=2 m, z-center, 4x1x1 inlet-turbulence candidates for 48000 FluidX3D steps under the official z=2 m raw_trilinear protocol.
+- Added `casee_c008_c009_inlet_turbulence_audit.py` to compare the inlet candidates against the z-center baseline and C005 decomposition candidate.
+- Integrated the inlet-turbulence audit into the candidate sweep plan, reproducibility suite, paper evidence gate, artifact index, manuscript claim matrix, paper results packet, and software-feedback matrix as SF025.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc42.md`.
+
+C009 is now the strongest diagnostic Case E official-height candidate: MAE = 14.678 pp, R2 = -0.359819, Pearson = 0.283411. Relative to the z-center baseline, the delta is MAE = -6.434 pp and R2 = +1.646512. This is a major improvement but not a formal accuracy pass because R2 remains negative and the AF-k synthetic inlet scale is a diagnostic sweep parameter. It does not prove predictive accuracy, mesh independence, LES improvement, Rhino new-GHA loading, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc41 - Domain-decomposition sensitivity audit
 
 - Generated, compiled, and ran the C005 dx=2 m 4x1x1 domain-decomposition Case E ablation for 48000 FluidX3D steps using the audited MinGW/g++ fallback.

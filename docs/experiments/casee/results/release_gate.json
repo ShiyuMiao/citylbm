@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-09T14:10:20.786695+00:00",
+  "generated_at": "2026-08-09T14:50:36.286215+00:00",
   "release_target": "v0.4.0",
   "formal_release_allowed": false,
   "formal_v0_3_0_allowed": false,
-  "recommended_tag": "v0.4.0-rc41",
+  "recommended_tag": "v0.4.0-rc42",
   "checks": {
     "citylbm_build_passed": true,
     "rhino_loaded_new_gha": false,
@@ -37,30 +37,30 @@
     "nvidia_smi": {
       "command": "nvidia-smi",
       "found": true,
-      "returncode": 0,
-      "stdout": "Sun Aug  9 22:10:20 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     |\n|-----------------------------------------+------------------------+----------------------+\n| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  Tesla P100-PCIE-16GB         TCC   |   00000000:18:00.0 Off |                    0 |\n| N/A   47C    P0             29W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   1  Tesla P100-PCIE-16GB         TCC   |   00000000:51:00.0 Off |                    0 |\n| N/A   44C    P0             28W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   2  Tesla P100-PCIE-16GB         TCC   |   00000000:8A:00.0 Off |                    0 |\n| N/A   44C    P0             26W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   3  Tesla P100-PCIE-16GB         TCC   |   00000000:C3:00.0 Off |                    0 |\n| N/A   78C    P0             35W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n                                                                                         \n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+",
+      "returncode": 15,
+      "stdout": "Unable to determine the device handle for GPU0000:C3:00.0: GPU is lost.  Reboot the system to recover this GPU",
       "stderr": ""
     },
     "fluidx3d_executable": {
       "found": true,
       "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
-      "sha256": "69e72554736ce18bcadecea42b8d5f7c44609b5c2275995f2130cb6aa51538be",
-      "size_bytes": 1062291,
-      "mtime": "2026-08-09T13:55:47.660053+00:00"
+      "sha256": "1cb9eb73ce6d5f28e8e54b482d9ada0f4542a8c8f8ede34e730b03cea14f6aaa",
+      "size_bytes": 1064774,
+      "mtime": "2026-08-09T14:30:12.236142+00:00"
     },
     "citylbm_gha": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.gha",
-      "sha256": "eb2d5e19b6251668b024a9b79d3afaa57fe28a6456af24d658949abf26076cf1",
+      "sha256": "b9ac5522f2991f2d8bb8bff94d13396e342aaaa48a118ef38f06b8dc6248dd39",
       "size_bytes": 1800192,
-      "mtime": "2026-08-09T14:10:19.071066+00:00"
+      "mtime": "2026-08-09T14:50:34.874935+00:00"
     },
     "citylbm_build_log": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-      "sha256": "c48f71e228263b10294c53695307b0cd039b5dff80fef2805c4e6cef94f19314",
+      "sha256": "8b2e976dff22ccd7f520d436c6808c7e6f666740964149c5789176f47dab84e3",
       "size_bytes": 68874,
-      "mtime": "2026-08-09T14:10:19.275139+00:00"
+      "mtime": "2026-08-09T14:50:35.101130+00:00"
     },
     "run_matrix": {
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",

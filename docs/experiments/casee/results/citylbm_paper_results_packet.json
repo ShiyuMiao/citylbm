@@ -1,19 +1,20 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T14:10:29.643764+00:00",
-    "result_count": 24,
+    "generated_at": "2026-08-09T14:50:44.756443+00:00",
+    "result_count": 25,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
       "limitations_ready_negative_validation": 1,
       "paper_ready_default_policy_boundary": 1,
       "paper_ready_reproducibility; blocked formal accuracy release": 1,
-      "ready_for_next_official_followup_run": 1,
+      "blocked_official_followup_preflight": 1,
       "limitations_ready_dx1_feasibility": 1,
       "paper_ready_followup_plan; blocked formal accuracy release": 1,
       "limitations_ready_candidate_result; blocked formal accuracy release": 1,
       "limitations_ready_zorigin_ablation; blocked formal accuracy release": 1,
       "limitations_ready_dx3_low_cost_regression; blocked formal accuracy release": 1,
       "limitations_ready_runtime_decomposition_ablation; blocked formal accuracy release": 1,
+      "limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release": 1,
       "blocked_build_chain_diagnostic": 1,
       "paper_ready_negative_validation_and_limitations": 1,
       "paper_ready": 1,
@@ -26,7 +27,7 @@
       "blocked_formal_release_gate": 1
     },
     "evidence_type_counts": {
-      "newly_run": 18,
+      "newly_run": 19,
       "newly_run + preexisting_artifact": 3,
       "blocked": 1,
       "newly_run + preexisting_artifact + blocked": 2
@@ -84,10 +85,10 @@
     {
       "experiment": "Experiment 2 / AIJ Case E",
       "result_id": "next_official_run_readiness",
-      "claim_readiness": "ready_for_next_official_followup_run",
+      "claim_readiness": "blocked_official_followup_preflight",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/casee_official_run_preflight.json; docs/experiments/casee/results/casee_environment_recovery_runbook.json",
-      "metric_or_status": "official_followup_run_allowed=True; blocked_gates=rhino_gha_load,vs_cpp_build_tools",
+      "metric_or_status": "official_followup_run_allowed=False; blocked_gates=rhino_gha_load,gpu_runtime,vs_cpp_build_tools",
       "paper_use": "Use to document whether the next long official validation run is schedulable on this machine.",
       "limitations": "Runtime readiness evidence only; no new solver output is produced.",
       "software_feedback": "Keep Rhino new-GHA loading and native source compile evidence as operational gates before new formal Case E sweeps."
@@ -98,7 +99,7 @@
       "claim_readiness": "limitations_ready_dx1_feasibility",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/casee_dx1_readiness_audit.json; docs/experiments/casee/results/casee_dx1_readiness_audit.md; docs/experiments/casee/results/casee_dx1_readiness_audit.csv",
-      "metric_or_status": "dx1_readiness=high_risk_blocked_until_dry_run; memory_headroom_ok=False; run_started=False; required_per_gpu_gib=13.79; min_free_gib=15.898",
+      "metric_or_status": "dx1_readiness=high_risk_blocked_until_dry_run; memory_headroom_ok=False; run_started=False; required_per_gpu_gib=13.79; min_free_gib=0.0",
       "paper_use": "Use as a limitations/future-work statement for high-resolution official Case E follow-up planning.",
       "limitations": "No dx=1 FluidX3D solver output was produced; do not claim mesh independence or improved official z=2 m accuracy.",
       "software_feedback": "Keep dx=1 as a user-confirmed high-resolution follow-up path, not a default validation claim."
@@ -109,7 +110,7 @@
       "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/casee_candidate_sweep_plan.json; docs/experiments/casee/results/casee_candidate_sweep_plan.md; docs/experiments/casee/results/casee_candidate_sweep_plan.csv",
-      "metric_or_status": "candidate_count=8; executable_now_count=4; formal_accuracy_claim_supported=False",
+      "metric_or_status": "candidate_count=8; executable_now_count=0; formal_accuracy_claim_supported=False",
       "paper_use": "Use as a pre-registered follow-up sweep plan for improving the official z=2 m R2.",
       "limitations": "Planning evidence only; it does not add solver output or justify changing CityLBM defaults.",
       "software_feedback": "Run candidates in priority order and promote settings only after official raw_trilinear metrics pass the release gate."
@@ -159,12 +160,23 @@
       "software_feedback": "Record domain decomposition in generated run IDs/manifests and treat 4x1x1 as an experimental switch, not a default accuracy setting."
     },
     {
+      "experiment": "Experiment 2 / AIJ Case E",
+      "result_id": "c008_c009_inlet_turbulence_best_negative_candidate",
+      "claim_readiness": "limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md; docs/experiments/casee/results/casee_c009_inlet_k_synthetic_s0p7_20260809_223022_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_run_20260809_223022.log",
+      "metric_or_status": "status=completed_inlet_turbulence_improved_but_negative_r2; best=C009_inlet_k_synthetic_fullplane_s0p70; MAE=14.677544574999999 pp; R2=-0.3598186886134105; Pearson=0.2834105384611786; delta_MAE_vs_zcenter=-6.4338635125 pp; delta_R2_vs_zcenter=1.6465117686055901; metric_gate_passed=False",
+      "paper_use": "Use as the strongest current Case E diagnostic improvement and as evidence that inlet turbulence is a major remaining software target.",
+      "limitations": "R2 remains negative and the AF-k synthetic inlet scale is a diagnostic sweep parameter; it cannot support formal v0.4.0, predictive accuracy, LES improvement, or default promotion.",
+      "software_feedback": "Keep AF-k inlet turbulence default-off until a physically validated inlet model reproduces positive R2 without benchmark-specific scale tuning."
+    },
+    {
       "experiment": "Build-chain recovery / AIJ Case E follow-up",
       "result_id": "build_chain_recovery_status",
       "claim_readiness": "blocked_build_chain_diagnostic",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/build_chain_manifest.json; docs/experiments/casee/results/build_chain_manifest.md; docs/experiments/casee/results/casee_official_run_preflight.json",
-      "metric_or_status": "build_chain_ready=False; operational_with_fallback=True; vs_cpp=blocked; gpp=ready; native_source_compile_path=mingw_gpp_fallback; gpu=ready; dotnet=ready; fluidx3d=ready_for_existing_binary",
+      "metric_or_status": "build_chain_ready=False; operational_with_fallback=False; vs_cpp=blocked; gpp=ready; native_source_compile_path=mingw_gpp_fallback; gpu=blocked; dotnet=ready; fluidx3d=ready_for_existing_binary",
       "paper_use": "Use as environment/build-chain status for explaining remaining official follow-up requirements.",
       "limitations": "Build-chain status is not solver-output evidence and cannot support formal accuracy.",
       "software_feedback": "Keep VS C++ Build Tools recovery and Rhino/GHA load evidence as required operational gates before stronger software-release claims."
@@ -296,7 +308,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc41",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc42",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."
@@ -311,6 +323,7 @@
     "docs/experiments/casee/results/casee_dx1_readiness_audit.json",
     "docs/experiments/casee/results/build_chain_manifest.json",
     "docs/experiments/casee/results/casee_c005_decomposition_audit.json",
+    "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
     "docs/experiments/casee/results/casee_manuscript_section_pack.json",
     "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",

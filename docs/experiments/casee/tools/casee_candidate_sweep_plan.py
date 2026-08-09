@@ -205,10 +205,12 @@ def build_candidates(
     c003_audit = read_json(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
     c004_audit = read_json(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     c005_audit = read_json(RESULTS_DIR / "casee_c005_decomposition_audit.json")
+    c008_audit = read_json(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json")
     c002_completed = c002_audit.get("evidence_type") == "newly_run"
     c003_completed = c003_audit.get("evidence_type") == "newly_run"
     c004_completed = c004_audit.get("evidence_type") == "newly_run"
     c005_completed = c005_audit.get("evidence_type") == "newly_run"
+    c008_completed = c008_audit.get("evidence_type") == "newly_run"
     executable_native = official_followup_allowed and gpu_ready and fluidx_ready and native_source_compile_ready
     source_compile_blockers = [gate for gate in blocked_gates if gate not in {"rhino_gha_load", "vs_cpp_build_tools"}]
     if not gpu_ready:
@@ -484,24 +486,36 @@ def build_candidates(
             candidate_id="C008_full_plane_inlet_turbulence_implementation",
             priority=8,
             candidate_class="requires_implementation",
-            executable_now=False,
-            blocking_gates=["inlet_turbulence_change_not_implemented"],
-            evidence_type="blocked_until_physical_change_exists",
+            executable_now=executable_native,
+            blocking_gates=source_compile_blockers,
+            evidence_type=str(c008_audit.get("evidence_type", "planned_run")) if c008_completed else "blocked_until_physical_change_exists",
             dx_m="2.0",
             steps=">=48000",
             spinup=">=12000",
             sample_dt="<=2000",
-            ground_offset_cells="0 or 1 as pre-registered",
-            origin_z_offset_m="0 for formal run",
-            nu_lbm="pre-registered value",
-            domain_decomposition="2x2x1",
-            command="Implement revised full-plane digital-filter inlet using AF_caseE z,U,k, then generate official z=2 m raw_trilinear Case E.",
+            ground_offset_cells=1,
+            origin_z_offset_m=1.0,
+            nu_lbm=0.001,
+            domain_decomposition="4x1x1",
+            command=(
+                "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 "
+                "--sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 "
+                "--domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane "
+                "--inlet-turbulence-scale 0.70"
+            ),
             expected_artifacts=[
-                "CityLBM source diff",
-                "docs/experiments/casee/results/<candidate>_inlet_audit.png",
-                "docs/experiments/casee/results/<candidate>_official_metrics.csv",
+                "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
+                "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md",
+                "docs/experiments/casee/results/casee_c009_inlet_k_synthetic_s0p7_<stamp>_probe_time_mean.csv",
             ],
-            rationale="Inlet turbulence remains a plausible cause of low correlation and should be tested after a documented physical implementation exists.",
+            rationale=(
+                "Completed: AF-k synthetic full-plane inlet candidates substantially improved official-height MAE/R2/Pearson, "
+                "but R2 remains negative and the scale sweep is diagnostic-only. "
+                f"status={c008_audit.get('status')}; best_R2={((c008_audit.get('best_candidate') or {}).get('candidate_metrics') or {}).get('r2')}; "
+                f"best_MAE={((c008_audit.get('best_candidate') or {}).get('candidate_metrics') or {}).get('mae_pp')}."
+                if c008_completed
+                else "Implement revised full-plane inlet using AF_caseE z,U,k, then generate official z=2 m raw_trilinear Case E."
+            ),
             formal_result_policy=formal_policy,
             pass_condition="Official raw_trilinear metric improves without relying on non-raw sampling or z-height substitution.",
             default_promotion_allowed=False,

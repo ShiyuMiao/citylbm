@@ -1,11 +1,11 @@
 # Case E Remaining Blockers And Remediation Plan
 
-Generated: 2026-08-09T14:10:33.719692+00:00
+Generated: 2026-08-09T14:50:49.112144+00:00
 
 ## Verdict
 
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc41`
+- Recommended tag: `v0.4.0-rc42`
 - Official z=2 m MAE: 21.111408125 pp
 - Official z=2 m R2: -2.006330362229977
 - Official z=2 m Pearson: 0.11575649438573923
@@ -16,7 +16,7 @@ Generated: 2026-08-09T14:10:33.719692+00:00
 |---|---|---|---|---|
 | `B001_official_z2m_metric_gate` | blocked | critical | official_z2m_metric_gate | n=80, height=2 m, sampling=raw_trilinear, MAE clearly below prior near-20 pp level, R2>0, Pearson>0. |
 | `B002_rhino_new_gha_load` | blocked | critical | rhino_loaded_new_gha | Rhino/Grasshopper session demonstrably loads the new tracked GHA, not an old installed copy. |
-| `B003_gpu_runtime` | ready | critical | native_fluidx3d_followup_capacity | nvidia-smi returns 0 and reports the target GPU without GPU-lost errors. |
+| `B003_gpu_runtime` | blocked | critical | native_fluidx3d_followup_capacity | nvidia-smi returns 0 and reports the target GPU without GPU-lost errors. |
 | `B004_vs_cpp_build_tools` | blocked | major | native_fluidx3d_build_capacity | vswhere returns a VC tools installation path and vcvars64.bat/cl.exe are available. |
 | `B005_dx1_high_resolution_run` | not_started | major | mesh_resolution_followup | Completed official z=2 m dx=1 m run with all 80 raw_trilinear probe predictions and complete log. |
 
@@ -40,7 +40,7 @@ Generated: 2026-08-09T14:10:33.719692+00:00
 
 ### B003_gpu_runtime
 
-- Current evidence: nvidia-smi returncode=0; stdout=Sun Aug  9 22:10:24 2026 +-----------------------------------------------------------------------------------------+ | NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     | |---------------------------...
+- Current evidence: nvidia-smi returncode=15; stdout=Unable to determine the device handle for GPU0000:C3:00.0: GPU is lost.  Reboot the system to recover this GPU
 - Required action: Recover the NVIDIA device/driver before any additional long native FluidX3D validation run.
 - Verification: `nvidia-smi`
 - Paper use: Use as an environment blocker statement.
@@ -48,7 +48,7 @@ Generated: 2026-08-09T14:10:33.719692+00:00
 
 ### B004_vs_cpp_build_tools
 
-- Current evidence: VS C++ status=blocked; C: free=6.991 GB
+- Current evidence: VS C++ status=blocked; C: free=6.925 GB
 - Required action: Free enough space on C: or redirect installer cache, approve UAC, and install Visual Studio Build Tools 2022 C++ workload.
 - Verification: `"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`
 - Paper use: Use as build-chain limitation until ready.
@@ -56,7 +56,7 @@ Generated: 2026-08-09T14:10:33.719692+00:00
 
 ### B005_dx1_high_resolution_run
 
-- Current evidence: dx1_readiness=high_risk_blocked_until_dry_run; memory_headroom_ok=False; moderate_required_per_gpu_gib=13.79; gpu_min_free_gib=15.898; run_started=False
+- Current evidence: dx1_readiness=high_risk_blocked_until_dry_run; memory_headroom_ok=False; moderate_required_per_gpu_gib=13.79; gpu_min_free_gib=0.0; run_started=False
 - Required action: Run a user-confirmed dx=1 dry allocation test or adjust domain/decomposition before scheduling a full 48000-step dx=1 official run.
 - Verification: `docs/experiments/casee/results/<dx1_run_log>; docs/experiments/casee/results/<dx1_probe_time_mean.csv>`
 - Paper use: Use current state only as future-work planning.

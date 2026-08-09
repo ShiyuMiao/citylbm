@@ -128,6 +128,7 @@ def build_rows() -> List[Dict[str, Any]]:
     c003_zorigin_ablation = read_json(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
     c004_dx3_low_cost = read_json(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     c005_decomposition = read_json(RESULTS_DIR / "casee_c005_decomposition_audit.json")
+    c008_c009_inlet = read_json(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -736,6 +737,44 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    inlet_best = c008_c009_inlet.get("best_candidate") or {}
+    inlet_metrics = inlet_best.get("candidate_metrics") or {}
+    inlet_delta = inlet_best.get("delta_vs_zcenter_baseline") or {}
+    rows.append(
+        row(
+            feedback_id="SF025",
+            experiment="Experiment 2 / AIJ Case E C008/C009 inlet turbulence",
+            finding=(
+                "The AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, "
+                f"with best MAE={inlet_metrics.get('mae_pp')} pp, R2={inlet_metrics.get('r2')}, and Pearson={inlet_metrics.get('pearson')}, "
+                "but R2 remained negative."
+            ),
+            evidence_type=str(c008_c009_inlet.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "generate_native_casee.py",
+                CASEE_DIR / "tools" / "casee_c008_c009_inlet_turbulence_audit.py",
+                RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json",
+                RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.md",
+                Path(str((inlet_best.get("csv") or {}).get("path", ""))),
+                Path(str((inlet_best.get("run_log") or {}).get("path", ""))),
+            ],
+            decision_class="inlet_turbulence_diagnostic_no_default_promotion",
+            citylbm_status="inlet_turbulence_candidate_improved_but_blocked"
+            if c008_c009_inlet.get("status") == "completed_inlet_turbulence_improved_but_negative_r2"
+            else "inlet_turbulence_audit_missing_or_inconclusive",
+            implementation_evidence=(
+                f"pass_condition_met={c008_c009_inlet.get('pass_condition_met')}; "
+                f"metric_gate_passed={c008_c009_inlet.get('metric_gate_passed')}; "
+                f"delta_mae_vs_zcenter={inlet_delta.get('mae_pp')}; "
+                f"delta_r2_vs_zcenter={inlet_delta.get('r2')}; "
+                f"delta_pearson_vs_zcenter={inlet_delta.get('pearson')}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as evidence that AF k and full-plane inlet turbulence are the strongest current improvement direction.",
+            limitations="Diagnostic scale sweep on one benchmark; R2 remains negative and cannot support formal v0.4.0, LES improvement, or a default accuracy model.",
+        )
+    )
+
     rows.append(
         row(
             feedback_id="SF019",
@@ -781,7 +820,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -791,7 +830,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -880,6 +919,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json"),
             rel(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json"),
             rel(RESULTS_DIR / "casee_c005_decomposition_audit.json"),
+            rel(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json"),
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
             rel(RESULTS_DIR / "casee_manuscript_results_table.json"),

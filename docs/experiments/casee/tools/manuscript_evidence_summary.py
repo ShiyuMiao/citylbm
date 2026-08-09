@@ -66,6 +66,7 @@ def build_claims(
     c003_zorigin_ablation: Dict[str, Any],
     c004_dx3_low_cost: Dict[str, Any],
     c005_decomposition: Dict[str, Any],
+    c008_c009_inlet: Dict[str, Any],
 ) -> List[Dict[str, Any]]:
     baseline_raw = metric_row(probe_modes, "raw_trilinear")
     zcenter_raw = metric_row(zcenter_modes, "raw_trilinear")
@@ -270,6 +271,28 @@ def build_claims(
                 "protocol_risks": "single decomposition ablation; R2 remains negative; Pearson worsened; consistency thresholds failed",
             }
         )
+    if c008_c009_inlet:
+        best = c008_c009_inlet.get("best_candidate", {})
+        candidate = best.get("candidate_metrics", {})
+        delta = best.get("delta_vs_zcenter_baseline", {})
+        claims.append(
+            {
+                "claim_id": "C013",
+                "claim_readiness": "limitations_ready",
+                "evidence_type": c008_c009_inlet.get("evidence_type", "newly_run"),
+                "section": "Results / Inlet turbulence follow-up",
+                "claim": "Using AF_caseE k in a default-off synthetic full-plane inlet substantially improved the official-height raw-trilinear metric, but R2 remained negative.",
+                "supporting_metrics": (
+                    f"status={c008_c009_inlet.get('status')}; best={best.get('candidate_id')}; "
+                    f"MAE={fmt(candidate['mae_pp'])} pp; R2={fmt(candidate['r2'], 6)}; Pearson={fmt(candidate['pearson'], 6)}; "
+                    f"delta_MAE_vs_zcenter={fmt(delta['mae_pp'])} pp; delta_R2_vs_zcenter={fmt(delta['r2'], 6)}"
+                ),
+                "source_paths": "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md",
+                "allowed_use": "Use as the strongest current diagnostic improvement evidence and as motivation for a physically validated inlet-turbulence model.",
+                "forbidden_use": "Do not claim formal predictive accuracy, LES improvement, or default promotion from the synthetic inlet scale sweep.",
+                "protocol_risks": "single benchmark; diagnostic turbulence scale sweep; R2 remains negative; domain decomposition sensitivity remains present",
+            }
+        )
     return claims
 
 
@@ -341,6 +364,7 @@ def main() -> int:
     parser.add_argument("--c003-zorigin-ablation", type=Path, default=RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
     parser.add_argument("--c004-dx3-low-cost", type=Path, default=RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     parser.add_argument("--c005-decomposition", type=Path, default=RESULTS_DIR / "casee_c005_decomposition_audit.json")
+    parser.add_argument("--c008-c009-inlet", type=Path, default=RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json")
     parser.add_argument("--out-csv", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.csv")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_manuscript_evidence_summary.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.json")
@@ -352,6 +376,7 @@ def main() -> int:
     c003_zorigin_ablation = json.loads(args.c003_zorigin_ablation.read_text(encoding="utf-8")) if args.c003_zorigin_ablation.exists() else {}
     c004_dx3_low_cost = json.loads(args.c004_dx3_low_cost.read_text(encoding="utf-8")) if args.c004_dx3_low_cost.exists() else {}
     c005_decomposition = json.loads(args.c005_decomposition.read_text(encoding="utf-8")) if args.c005_decomposition.exists() else {}
+    c008_c009_inlet = json.loads(args.c008_c009_inlet.read_text(encoding="utf-8")) if args.c008_c009_inlet.exists() else {}
     claims = build_claims(
         gate,
         read_csv(args.probe_mode_metrics),
@@ -363,6 +388,7 @@ def main() -> int:
         c003_zorigin_ablation,
         c004_dx3_low_cost,
         c005_decomposition,
+        c008_c009_inlet,
     )
     fieldnames = [
         "claim_id",

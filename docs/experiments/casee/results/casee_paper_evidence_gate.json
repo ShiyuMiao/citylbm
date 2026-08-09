@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-08-09T14:10:34.996264+00:00",
+  "generated_at": "2026-08-09T14:50:50.507318+00:00",
   "paper_evidence_gate_passed": true,
   "metric_gate": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc41",
+    "recommended_tag": "v0.4.0-rc42",
     "official_z2m_r2": -2.006330362229977,
     "official_z2m_mae_pp": 21.111408125,
     "official_z2m_pearson": 0.11575649438573923,
     "formal_metric_is_negative_validation": true
   },
   "claim_matrix": {
-    "claim_count": 12,
+    "claim_count": 13,
     "readiness_counts": {
       "paper_ready": 2,
-      "limitations_ready": 7,
+      "limitations_ready": 8,
       "weaken_claim": 2,
       "blocked": 1
     },
@@ -32,14 +32,14 @@
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_en.md",
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_zh.md"
     ],
-    "checked_nonblank_lines": 318,
+    "checked_nonblank_lines": 320,
     "forbidden_success_claim_violations": [],
     "draft_claim_boundary_passed": true
   },
   "artifact_index": {
     "artifact_index_found": true,
-    "artifact_count": 230,
-    "lightweight_release_asset_count": 185,
+    "artifact_count": 247,
+    "lightweight_release_asset_count": 193,
     "formal_accuracy_claim_supported": false,
     "required_artifacts_present": true,
     "missing_required_artifacts": []
@@ -61,17 +61,18 @@
     "native_source_compile_path": "mingw_gpp_fallback",
     "dotnet_status": "ready",
     "fluidx3d_status": "ready_for_existing_binary",
-    "gpu_status": "ready",
+    "gpu_status": "blocked",
     "uac_blocker_recorded": true,
     "claim_boundary_safe": true
   },
   "casee_official_run_preflight": {
     "preflight_found": true,
-    "official_followup_run_allowed": true,
+    "official_followup_run_allowed": false,
     "formal_release_allowed": false,
-    "claim_readiness": "ready_for_next_official_followup_run",
+    "claim_readiness": "blocked_official_followup_preflight",
     "blocked_gates": [
       "rhino_gha_load",
+      "gpu_runtime",
       "vs_cpp_build_tools"
     ],
     "claim_boundary_safe": true
@@ -93,6 +94,7 @@
     "claim_readiness": "blocked_environment_recovery_runbook",
     "blocked_gates": [
       "rhino_gha_load",
+      "gpu_runtime",
       "vs_cpp_build_tools"
     ],
     "step_count": 7,
@@ -217,7 +219,7 @@
     "candidate_sweep_plan_generated": true,
     "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
     "candidate_count": 8,
-    "executable_now_count": 4,
+    "executable_now_count": 0,
     "formal_accuracy_claim_supported": false,
     "formal_release_allowed": false,
     "claim_boundary_safe": true
@@ -233,7 +235,7 @@
   "citylbm_paper_results_packet": {
     "paper_results_packet_found": true,
     "paper_results_packet_passed": true,
-    "result_count": 24,
+    "result_count": 25,
     "formal_accuracy_claim_supported": false,
     "formal_v0_4_0_allowed": false,
     "required_result_rows_present": {
@@ -283,7 +285,7 @@
     "claim_readiness": "paper_ready_negative_validation_and_limitations",
     "formal_accuracy_claim_supported": false,
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc41",
+    "recommended_tag": "v0.4.0-rc42",
     "check_count": 9,
     "claim_boundary_safe": true
   },
@@ -299,7 +301,7 @@
   "citylbm_software_feedback_matrix": {
     "software_feedback_matrix_found": true,
     "software_feedback_matrix_passed": true,
-    "feedback_count": 24,
+    "feedback_count": 25,
     "all_source_paths_exist": true,
     "no_forbidden_default_promotion": true,
     "formal_accuracy_claim_supported": false,

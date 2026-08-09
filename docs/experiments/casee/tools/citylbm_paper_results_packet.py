@@ -99,6 +99,7 @@ def build_rows() -> List[Dict[str, str]]:
     c003_zorigin_ablation = read_json(CASEE_RESULTS / "casee_c003_zorigin_ablation_audit.json")
     c004_dx3_low_cost = read_json(CASEE_RESULTS / "casee_c004_dx3_low_cost_audit.json")
     c005_decomposition = read_json(CASEE_RESULTS / "casee_c005_decomposition_audit.json")
+    c008_c009_inlet = read_json(CASEE_RESULTS / "casee_c008_c009_inlet_turbulence_audit.json")
     build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -362,6 +363,33 @@ def build_rows() -> List[Dict[str, str]]:
         )
     )
 
+    inlet_best = c008_c009_inlet.get("best_candidate") or {}
+    inlet_metrics = inlet_best.get("candidate_metrics") or {}
+    inlet_delta = inlet_best.get("delta_vs_zcenter_baseline") or {}
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="c008_c009_inlet_turbulence_best_negative_candidate",
+            claim_readiness=str(c008_c009_inlet.get("claim_readiness", "blocked_inlet_turbulence_audit")),
+            evidence_type=str(c008_c009_inlet.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_c008_c009_inlet_turbulence_audit.json"),
+                rel(CASEE_RESULTS / "casee_c008_c009_inlet_turbulence_audit.md"),
+                str((inlet_best.get("csv") or {}).get("path", "")),
+                str((inlet_best.get("run_log") or {}).get("path", "")),
+            ],
+            metric_or_status=(
+                f"status={c008_c009_inlet.get('status')}; best={inlet_best.get('candidate_id')}; "
+                f"MAE={inlet_metrics.get('mae_pp')} pp; R2={inlet_metrics.get('r2')}; Pearson={inlet_metrics.get('pearson')}; "
+                f"delta_MAE_vs_zcenter={inlet_delta.get('mae_pp')} pp; delta_R2_vs_zcenter={inlet_delta.get('r2')}; "
+                f"metric_gate_passed={c008_c009_inlet.get('metric_gate_passed')}"
+            ),
+            paper_use="Use as the strongest current Case E diagnostic improvement and as evidence that inlet turbulence is a major remaining software target.",
+            limitations="R2 remains negative and the AF-k synthetic inlet scale is a diagnostic sweep parameter; it cannot support formal v0.4.0, predictive accuracy, LES improvement, or default promotion.",
+            software_feedback="Keep AF-k inlet turbulence default-off until a physically validated inlet model reproduces positive R2 without benchmark-specific scale tuning.",
+        )
+    )
+
     build_vs = build_chain.get("visual_studio_build_tools_2022_cpp") or {}
     build_gpu = build_chain.get("gpu_runtime") or {}
     build_gpp = build_chain.get("mingw_gpp") or {}
@@ -616,6 +644,7 @@ def main() -> int:
             rel(CASEE_RESULTS / "casee_dx1_readiness_audit.json"),
             rel(CASEE_RESULTS / "build_chain_manifest.json"),
             rel(CASEE_RESULTS / "casee_c005_decomposition_audit.json"),
+            rel(CASEE_RESULTS / "casee_c008_c009_inlet_turbulence_audit.json"),
             rel(CASEE_RESULTS / "casee_manuscript_section_pack.json"),
             rel(PAPER_DRAFTS / "experiment3_claim_verification.csv"),
             rel(PAPER_DRAFTS / "casee_v04_manuscript_section_pack_en.md"),

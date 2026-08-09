@@ -1,12 +1,12 @@
 # Case E Official Run Preflight
 
-Generated: 2026-08-09T14:10:26.127465+00:00
+Generated: 2026-08-09T14:50:41.126860+00:00
 
 ## Verdict
 
-- Official follow-up run allowed now: True
+- Official follow-up run allowed now: False
 - Formal v0.4.0 release allowed: False
-- Claim readiness: `ready_for_next_official_followup_run`
+- Claim readiness: `blocked_official_followup_preflight`
 
 ## Current Official z=2 m Metric
 
@@ -25,7 +25,7 @@ Generated: 2026-08-09T14:10:26.127465+00:00
 | `rhino_gha_load` | blocked | major | Create a real Rhino/Grasshopper load manifest with version/hash screenshot or log evidence. |
 | `dotnet_sdk` | pass | major | Restore the local .NET SDK path or install .NET SDK before rebuilding CityLBM. |
 | `fluidx3d_binary` | pass | critical | Restore or rebuild FluidX3D.exe before scheduling native Case E. |
-| `gpu_runtime` | pass | critical | Recover/reboot the NVIDIA device until nvidia-smi returns 0 without GPU-lost errors. |
+| `gpu_runtime` | blocked | critical | Recover/reboot the NVIDIA device until nvidia-smi returns 0 without GPU-lost errors. |
 | `vs_cpp_build_tools` | blocked | major | Free C: space, approve UAC, and install Visual Studio Build Tools 2022 C++ workload. |
 | `native_source_compile_path` | pass | critical | Provide either VS C++ Build Tools or the documented MinGW/g++ fallback before generating a new FluidX3D setup candidate. |
 | `casea_smoke_regression` | pass | major | Rerun Case A smoke regression after any default solver change. |

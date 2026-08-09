@@ -141,6 +141,8 @@ def generate_setup(
     origin_z_offset_m: float,
     domain_decomp: tuple[int, int, int],
     nu_lbm: float,
+    inlet_turbulence_mode: str,
+    inlet_turbulence_scale: float,
 ) -> str:
     probes = official_probes()
     af = approach_flow()
@@ -174,6 +176,8 @@ def generate_setup(
         f"static const uint CASEE_SAMPLE_DT = {sample_dt}u;",
         f"static const float CASEE_UREF_LBM = {uref_lbm:.10f}f;",
         f"static const float CASEE_WIND_Y = {wind_y:.1f}f;",
+        f"static const int CASEE_INLET_TURBULENCE_MODE = {1 if inlet_turbulence_mode == 'k_synthetic_fullplane' else 0};",
+        f"static const float CASEE_INLET_TURBULENCE_SCALE = {inlet_turbulence_scale:.8f}f;",
         "static const int CASEE_PROBE_N = 80;",
         c_int_array("PROBE_NO", [int(p["No."]) for p in probes]),
         c_array("PROBE_X", [p["x"] for p in probes]),
@@ -183,6 +187,7 @@ def generate_setup(
         f"static const int AF_N = {len(af)};",
         c_array("AF_Z", [p["z"] for p in af]),
         c_array("AF_U_RATIO", [p["u"] / UREF for p in af]),
+        c_array("AF_SIGMA_RATIO", [math.sqrt(max(0.0, 2.0 * p["k"] / 3.0)) / UREF for p in af]),
         "",
         "float clampf_casee(const float v, const float lo, const float hi) { return v<lo ? lo : (v>hi ? hi : v); }",
         "",
@@ -195,6 +200,52 @@ def generate_setup(
         "        }",
         "    }",
         "    return AF_U_RATIO[AF_N-1];",
+        "}",
+        "",
+        "float inlet_sigma_ratio(const float z_m) {",
+        "    if(z_m<=AF_Z[0]) return AF_SIGMA_RATIO[0];",
+        "    for(int i=0; i<AF_N-1; i++) {",
+        "        if(z_m<=AF_Z[i+1]) {",
+        "            const float t = (z_m-AF_Z[i])/(AF_Z[i+1]-AF_Z[i]);",
+        "            return AF_SIGMA_RATIO[i]*(1.0f-t)+AF_SIGMA_RATIO[i+1]*t;",
+        "        }",
+        "    }",
+        "    return AF_SIGMA_RATIO[AF_N-1];",
+        "}",
+        "",
+        "float inlet_synthetic_signal(const uint x, const uint z, const uint step) {",
+        "    const float xf = (float)x;",
+        "    const float zf = (float)z;",
+        "    const float tf = (float)step;",
+        "    const float a = sinf(0.173f*xf + 0.071f*zf + 0.0031f*tf);",
+        "    const float b = sinf(0.047f*xf - 0.131f*zf + 0.0053f*tf + 1.7f);",
+        "    const float c = sinf(0.109f*xf + 0.037f*zf - 0.0047f*tf + 3.1f);",
+        "    return clampf_casee(0.50f*a + 0.30f*b + 0.20f*c, -1.0f, 1.0f);",
+        "}",
+        "",
+        "float inlet_velocity_lbm(const float z_m, const uint x, const uint z, const uint step) {",
+        "    const float base = CASEE_UREF_LBM*inlet_ratio(z_m);",
+        "    if(CASEE_INLET_TURBULENCE_MODE==0 || CASEE_INLET_TURBULENCE_SCALE<=0.0f) return base;",
+        "    const float sigma = CASEE_UREF_LBM*inlet_sigma_ratio(z_m);",
+        "    const float perturbed = base + CASEE_INLET_TURBULENCE_SCALE*sigma*inlet_synthetic_signal(x, z, step);",
+        "    return clampf_casee(perturbed, 0.0f, 0.095f);",
+        "}",
+        "",
+        "void apply_casee_inlet(LBM& lbm, const uint Nx, const uint Ny, const uint Nz, const uint step) {",
+        "    (void)Nx;",
+        "    if(CASEE_INLET_TURBULENCE_MODE==0 || CASEE_INLET_TURBULENCE_SCALE<=0.0f) return;",
+        "    parallel_for(lbm.get_N(), [&](ulong n) {",
+        "        uint x=0u, y=0u, z=0u;",
+        "        lbm.coordinates(n, x, y, z);",
+        "        const bool inlet_cell = CASEE_WIND_Y<0.0f ? y==Ny-1u : y==0u;",
+        "        if(!inlet_cell) return;",
+        "        const float z_m = CASEE_ORIGIN_Z+((float)z+0.5f)*CASEE_DX;",
+        "        const float u = inlet_velocity_lbm(z_m, x, z, step);",
+        "        lbm.u.x[n] = 0.0f;",
+        "        lbm.u.y[n] = CASEE_WIND_Y*u;",
+        "        lbm.u.z[n] = 0.0f;",
+        "    });",
+        "    lbm.u.write_to_device();",
         "}",
         "",
         "float3 sample_u_raw_trilinear(LBM& lbm, const float x_m, const float y_m, const float z_m, int& solid_neighbors) {",
@@ -313,7 +364,7 @@ def generate_setup(
         "        lbm.coordinates(n, x, y, z);",
         "        if(z==0u) { lbm.flags[n]=TYPE_S; return; }",
         "        const float z_m = CASEE_ORIGIN_Z+((float)z+0.5f)*CASEE_DX;",
-        "        const float u = CASEE_UREF_LBM*inlet_ratio(z_m);",
+        "        const float u = inlet_velocity_lbm(z_m, x, z, 0u);",
         "        const bool inlet_cell = CASEE_WIND_Y<0.0f ? y==Ny-1u : y==0u;",
         "        const bool outlet_cell = CASEE_WIND_Y<0.0f ? y==0u : y==Ny-1u;",
         "        if(inlet_cell) { lbm.flags[n]=TYPE_E; lbm.u.y[n] = CASEE_WIND_Y*u; return; }",
@@ -341,6 +392,7 @@ def generate_setup(
         "    while(lbm.get_t()<CASEE_STEPS) {",
         "        const uint remaining = CASEE_STEPS-(uint)lbm.get_t();",
         "        const uint dt = remaining<CASEE_SAMPLE_DT ? remaining : CASEE_SAMPLE_DT;",
+        "        apply_casee_inlet(lbm, Nx, Ny, Nz, (uint)lbm.get_t());",
         "        lbm.run(dt);",
         "        if(lbm.get_t()>=CASEE_SPINUP) {",
         "            lbm.u.read_from_device();",
@@ -415,6 +467,8 @@ def main() -> int:
     parser.add_argument("--domain-y", type=int, default=2)
     parser.add_argument("--domain-z", type=int, default=1)
     parser.add_argument("--nu-lbm", type=float, default=0.01666667)
+    parser.add_argument("--inlet-turbulence-mode", choices=("none", "k_synthetic_fullplane"), default="none")
+    parser.add_argument("--inlet-turbulence-scale", type=float, default=0.0)
     parser.add_argument("--fluidx3d-root", type=Path)
     parser.add_argument("--deploy", action="store_true")
     args = parser.parse_args()
@@ -426,7 +480,11 @@ def main() -> int:
     nu_label = f"nu{args.nu_lbm:g}".replace(".", "p")
     domain_decomp = (args.domain_x, args.domain_y, args.domain_z)
     domain_label = "" if domain_decomp == (2, 2, 1) else f"_dom{args.domain_x}x{args.domain_y}x{args.domain_z}"
-    run_id = f"casee_native_dx{args.dx:g}_{wind_label}_{sgs_label}_{ground_label}_{zoff_label}_{nu_label}{domain_label}_pmodes_steps{args.steps}_spin{args.spinup}"
+    inlet_label = ""
+    if args.inlet_turbulence_mode != "none" or abs(args.inlet_turbulence_scale) > 1e-12:
+        scale_label = f"{args.inlet_turbulence_scale:g}".replace(".", "p").replace("-", "m")
+        inlet_label = f"_inlet_{args.inlet_turbulence_mode}_s{scale_label}"
+    run_id = f"casee_native_dx{args.dx:g}_{wind_label}_{sgs_label}_{ground_label}_{zoff_label}_{nu_label}{domain_label}{inlet_label}_pmodes_steps{args.steps}_spin{args.spinup}"
     case_dir = NATIVE_DIR / run_id
     case_dir.mkdir(parents=True, exist_ok=True)
     setup = generate_setup(
@@ -440,6 +498,8 @@ def main() -> int:
         args.origin_z_offset_m,
         domain_decomp,
         args.nu_lbm,
+        args.inlet_turbulence_mode,
+        args.inlet_turbulence_scale,
     )
     defines = generate_defines(not args.no_subgrid)
     (case_dir / "setup.cpp").write_text(setup, encoding="utf-8")
@@ -461,6 +521,9 @@ def main() -> int:
         "origin_z_offset_m": args.origin_z_offset_m,
         "domain_decomposition": list(domain_decomp),
         "nu_lbm": args.nu_lbm,
+        "inlet_turbulence_mode": args.inlet_turbulence_mode,
+        "inlet_turbulence_scale": args.inlet_turbulence_scale,
+        "inlet_turbulence_uses_af_k": bool(args.inlet_turbulence_mode == "k_synthetic_fullplane" and args.inlet_turbulence_scale > 0.0),
         "validation_height_m": 2.0,
         "probe_count": 80,
         "formal_sampling_mode": "raw_trilinear",

@@ -1,6 +1,6 @@
 # Case E dx=1 m Readiness Audit
 
-Generated: 2026-08-09T14:10:26.388349+00:00
+Generated: 2026-08-09T14:50:41.403011+00:00
 
 ## Verdict
 
@@ -23,10 +23,10 @@ Generated: 2026-08-09T14:10:26.388349+00:00
 
 ## GPU And Memory Summary
 
-- GPU count: 4
-- Minimum free memory: 15.898 GiB
+- GPU count: 0
+- Minimum free memory: 0.0 GiB
 - Current generator moderate per-GPU requirement: 13.79 GiB
-- Current generator moderate headroom: 0.153
+- Current generator moderate headroom: -1.0
 - Current generator conservative per-GPU requirement: 27.58 GiB
 - Conservative padding moderate per-GPU requirement: 68.408 GiB
 
@@ -34,12 +34,12 @@ Generated: 2026-08-09T14:10:26.388349+00:00
 
 | basis | scenario | cells | required/GPU GiB | min free GiB | headroom ok |
 |---|---|---:|---:|---:|---:|
-| current_generator_fixed_domain | optimistic_fp16s_core | 115680000 | 6.895 | 15.898 | True |
-| current_generator_fixed_domain | moderate_fp16s_plus_overhead | 115680000 | 13.79 | 15.898 | False |
-| current_generator_fixed_domain | conservative_runtime_overhead | 115680000 | 27.58 | 15.898 | False |
-| conservative_stl_padding_estimate | optimistic_fp16s_core | 573851376 | 34.204 | 15.898 | False |
-| conservative_stl_padding_estimate | moderate_fp16s_plus_overhead | 573851376 | 68.408 | 15.898 | False |
-| conservative_stl_padding_estimate | conservative_runtime_overhead | 573851376 | 136.817 | 15.898 | False |
+| current_generator_fixed_domain | optimistic_fp16s_core | 115680000 | 6.895 | 0.0 | False |
+| current_generator_fixed_domain | moderate_fp16s_plus_overhead | 115680000 | 13.79 | 0.0 | False |
+| current_generator_fixed_domain | conservative_runtime_overhead | 115680000 | 27.58 | 0.0 | False |
+| conservative_stl_padding_estimate | optimistic_fp16s_core | 573851376 | 34.204 | 0.0 | False |
+| conservative_stl_padding_estimate | moderate_fp16s_plus_overhead | 573851376 | 68.408 | 0.0 | False |
+| conservative_stl_padding_estimate | conservative_runtime_overhead | 573851376 | 136.817 | 0.0 | False |
 
 ## Boundary
 

@@ -1,0 +1,230 @@
+{
+  "generated_at": "2026-08-09T14:50:44.300801+00:00",
+  "audit_id": "casee_c008_c009_inlet_turbulence_audit",
+  "status": "completed_inlet_turbulence_improved_but_negative_r2",
+  "evidence_type": "newly_run",
+  "claim_readiness": "limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release",
+  "formal_release_allowed": false,
+  "formal_accuracy_claim_supported": false,
+  "pass_condition_met": true,
+  "metric_gate_passed": false,
+  "all_protocol_ok": true,
+  "zcenter_baseline_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv",
+    "sha256": "a3ec4396a6722aaf2b7432ea976892423f4d31c528f180fd668731757650bb97",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-01T11:28:45.792455+00:00"
+  },
+  "c005_decomposition_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_c005_dx2_decomp4x1x1_20260809_215600_probe_time_mean.csv",
+    "sha256": "4c9cabb1659556bd9cc6cedd5c568e4f33f2d3f47cafa529a79096fafcea612e",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-09T14:03:20.319161+00:00"
+  },
+  "candidates": [
+    {
+      "candidate_id": "C008_inlet_k_synthetic_fullplane_s0p35",
+      "scale": 0.35,
+      "csv": {
+        "found": true,
+        "path": "docs/experiments/casee/results/casee_c008_inlet_k_synthetic_20260809_221958_probe_time_mean.csv",
+        "sha256": "baf87f728dade46cef9bf71b770f4fbe5340e5afb54352e0bc6e7240be63a73c",
+        "size_bytes": 10071,
+        "mtime_utc": "2026-08-09T14:28:28.969018+00:00"
+      },
+      "run_log": {
+        "found": true,
+        "path": "docs/experiments/casee/results/fluidx3d_c008_inlet_k_synthetic_run_20260809_221958.log",
+        "sha256": "e6c24cdc09cdf0da2f6a593c4db44c5508e2d3296ea62d81cf7e4833714f5ff2",
+        "size_bytes": 1335204,
+        "mtime_utc": "2026-08-09T14:28:29.184786+00:00"
+      },
+      "compile_log": {
+        "found": true,
+        "path": "docs/experiments/casee/results/fluidx3d_c008_inlet_k_synthetic_compile.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0,
+        "mtime_utc": "2026-08-09T14:18:54.434281+00:00"
+      },
+      "compile_err_log": {
+        "found": true,
+        "path": "docs/experiments/casee/results/fluidx3d_c008_inlet_k_synthetic_compile.err.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0,
+        "mtime_utc": "2026-08-09T14:18:54.436073+00:00"
+      },
+      "case_manifest": {
+        "found": true,
+        "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s0p35_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
+        "sha256": "8a93523b871f27f6113ad28c7c1d623950be30d4e80f4419078421c6e6e91431",
+        "size_bytes": 1050,
+        "mtime_utc": "2026-08-09T14:18:46.964912+00:00"
+      },
+      "log_completed_48000": true,
+      "manifest_protocol_ok": true,
+      "candidate_metrics": {
+        "n": 80,
+        "mae_pp": 14.76899495,
+        "rmse_pp": 18.739676815345476,
+        "bias_pp": -4.335300725000001,
+        "r2": -0.3738588496510471,
+        "pearson": 0.28160955502614543,
+        "height_m": 2.0,
+        "sampling_mode": "raw_trilinear",
+        "pred_mean": 0.37914699412499997,
+        "official_mean": 0.422500001375
+      },
+      "delta_vs_zcenter_baseline": {
+        "mae_pp": -6.3424131374999995,
+        "rmse_pp": -8.981355386801962,
+        "bias_pp": 12.0739154125,
+        "r2": 1.6324716075679535,
+        "pearson": 0.1658530735413546
+      },
+      "delta_vs_c005_decomposition": {
+        "mae_pp": -4.957277999999999,
+        "rmse_pp": -7.08001705322642,
+        "bias_pp": 10.886048425000002,
+        "r2": 1.2342162905432135,
+        "pearson": 0.1822942594870796
+      }
+    },
+    {
+      "candidate_id": "C009_inlet_k_synthetic_fullplane_s0p70",
+      "scale": 0.7,
+      "csv": {
+        "found": true,
+        "path": "docs/experiments/casee/results/casee_c009_inlet_k_synthetic_s0p7_20260809_223022_probe_time_mean.csv",
+        "sha256": "18eac851c3002161fc6e6fd674366e641fe6dbb03279149a7f000468d7bb0988",
+        "size_bytes": 10071,
+        "mtime_utc": "2026-08-09T14:45:02.859941+00:00"
+      },
+      "run_log": {
+        "found": true,
+        "path": "docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_run_20260809_223022.log",
+        "sha256": "fdaa08157ddfe5a1483f94fbd64bd7362b3bab6912523df5ce93dff0d50e7cc6",
+        "size_bytes": 2294892,
+        "mtime_utc": "2026-08-09T14:45:03.009666+00:00"
+      },
+      "compile_log": {
+        "found": true,
+        "path": "docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_compile.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0,
+        "mtime_utc": "2026-08-09T14:29:16.251226+00:00"
+      },
+      "compile_err_log": {
+        "found": true,
+        "path": "docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_compile.err.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0,
+        "mtime_utc": "2026-08-09T14:29:16.252997+00:00"
+      },
+      "case_manifest": {
+        "found": true,
+        "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s0p7_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
+        "sha256": "eb51a3cc28e0747b443b1f75d3bdc047935aad29bbe74d70de7ae05a15e7af32",
+        "size_bytes": 1048,
+        "mtime_utc": "2026-08-09T14:29:08.146273+00:00"
+      },
+      "log_completed_48000": true,
+      "manifest_protocol_ok": true,
+      "candidate_metrics": {
+        "n": 80,
+        "mae_pp": 14.677544574999999,
+        "rmse_pp": 18.643675779275984,
+        "bias_pp": -4.5584198,
+        "r2": -0.3598186886134105,
+        "pearson": 0.2834105384611786,
+        "height_m": 2.0,
+        "sampling_mode": "raw_trilinear",
+        "pred_mean": 0.376915803375,
+        "official_mean": 0.422500001375
+      },
+      "delta_vs_zcenter_baseline": {
+        "mae_pp": -6.4338635125,
+        "rmse_pp": -9.077356422871453,
+        "bias_pp": 11.8507963375,
+        "r2": 1.6465117686055901,
+        "pearson": 0.16765405697638774
+      },
+      "delta_vs_c005_decomposition": {
+        "mae_pp": -5.048728375,
+        "rmse_pp": -7.176018089295912,
+        "bias_pp": 10.662929350000002,
+        "r2": 1.24825645158085,
+        "pearson": 0.18409524292211277
+      }
+    }
+  ],
+  "best_candidate": {
+    "candidate_id": "C009_inlet_k_synthetic_fullplane_s0p70",
+    "scale": 0.7,
+    "csv": {
+      "found": true,
+      "path": "docs/experiments/casee/results/casee_c009_inlet_k_synthetic_s0p7_20260809_223022_probe_time_mean.csv",
+      "sha256": "18eac851c3002161fc6e6fd674366e641fe6dbb03279149a7f000468d7bb0988",
+      "size_bytes": 10071,
+      "mtime_utc": "2026-08-09T14:45:02.859941+00:00"
+    },
+    "run_log": {
+      "found": true,
+      "path": "docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_run_20260809_223022.log",
+      "sha256": "fdaa08157ddfe5a1483f94fbd64bd7362b3bab6912523df5ce93dff0d50e7cc6",
+      "size_bytes": 2294892,
+      "mtime_utc": "2026-08-09T14:45:03.009666+00:00"
+    },
+    "compile_log": {
+      "found": true,
+      "path": "docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "mtime_utc": "2026-08-09T14:29:16.251226+00:00"
+    },
+    "compile_err_log": {
+      "found": true,
+      "path": "docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_compile.err.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "mtime_utc": "2026-08-09T14:29:16.252997+00:00"
+    },
+    "case_manifest": {
+      "found": true,
+      "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s0p7_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
+      "sha256": "eb51a3cc28e0747b443b1f75d3bdc047935aad29bbe74d70de7ae05a15e7af32",
+      "size_bytes": 1048,
+      "mtime_utc": "2026-08-09T14:29:08.146273+00:00"
+    },
+    "log_completed_48000": true,
+    "manifest_protocol_ok": true,
+    "candidate_metrics": {
+      "n": 80,
+      "mae_pp": 14.677544574999999,
+      "rmse_pp": 18.643675779275984,
+      "bias_pp": -4.5584198,
+      "r2": -0.3598186886134105,
+      "pearson": 0.2834105384611786,
+      "height_m": 2.0,
+      "sampling_mode": "raw_trilinear",
+      "pred_mean": 0.376915803375,
+      "official_mean": 0.422500001375
+    },
+    "delta_vs_zcenter_baseline": {
+      "mae_pp": -6.4338635125,
+      "rmse_pp": -9.077356422871453,
+      "bias_pp": 11.8507963375,
+      "r2": 1.6465117686055901,
+      "pearson": 0.16765405697638774
+    },
+    "delta_vs_c005_decomposition": {
+      "mae_pp": -5.048728375,
+      "rmse_pp": -7.176018089295912,
+      "bias_pp": 10.662929350000002,
+      "r2": 1.24825645158085,
+      "pearson": 0.18409524292211277
+    }
+  },
+  "boundary": "C008/C009 are completed official-height raw_trilinear candidate runs using a default-off synthetic full-plane inlet based on AF_caseE k. They improve MAE, R2, and Pearson, but R2 remains negative and the turbulence scale is a diagnostic sweep parameter. Use as inlet-turbulence evidence and software-feedback guidance only; do not claim formal v0.4.0, predictive accuracy, mesh independence, or LES improvement."
+}

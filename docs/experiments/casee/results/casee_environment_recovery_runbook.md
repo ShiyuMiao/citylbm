@@ -1,10 +1,10 @@
 # Case E Environment Recovery Runbook
 
-Generated: 2026-08-09T14:10:26.550255+00:00
+Generated: 2026-08-09T14:50:41.571256+00:00
 
 ## Verdict
 
-- Official follow-up run allowed now: True
+- Official follow-up run allowed now: False
 - Formal v0.4.0 release allowed: False
 - Claim readiness: `blocked_environment_recovery_runbook`
 
@@ -21,7 +21,7 @@ Generated: 2026-08-09T14:10:26.550255+00:00
 
 | step | enabled | priority | gate | verification |
 |---|---:|---:|---|---|
-| `REC001_gpu_recovery` | False | 1 | gpu_runtime | `nvidia-smi` |
+| `REC001_gpu_recovery` | True | 1 | gpu_runtime | `nvidia-smi` |
 | `REC002_free_c_drive` | True | 2 | vs_cpp_build_tools | `Get-PSDrive C` |
 | `REC003_install_vs_cpp` | True | 3 | vs_cpp_build_tools | `winget install --id Microsoft.VisualStudio.2022.BuildTools --source winget --accept-package-agreements --accept-source-agreements --silent --location E:\citylbm_buildchain\VSBuildTools --override "--wait --quiet --norestart --installPath E:\citylbm_buildchain\VSBuildTools --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.Component.Windows11SDK.26100"` |
 | `REC004_refresh_build_chain` | True | 4 | build_chain_manifest | `python docs/experiments/casee/tools/build_chain_audit.py` |
@@ -39,7 +39,7 @@ Generated: 2026-08-09T14:10:26.550255+00:00
 
 ### REC002_free_c_drive
 
-- Action: Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 6.991 GB. Workspace build-cache candidates total only 2.282 MB.
+- Action: Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 6.925 GB. Workspace build-cache candidates total only 2.282 MB.
 - Pass condition: C: free space >= 8 GB; workspace cache cleanup alone is not enough if the current value remains near 0.5 GB.
 - Risk boundary: Do not delete user data; record any cleanup outside the repo separately.
 

@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T14:10:32.477147+00:00",
-    "feedback_count": 24,
+    "generated_at": "2026-08-09T14:50:47.800142+00:00",
+    "feedback_count": 25,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -19,6 +19,7 @@
       "diagnostic_ablation_no_default_promotion": 1,
       "low_cost_regression_no_default_promotion": 1,
       "runtime_decomposition_sensitivity_no_default_promotion": 1,
+      "inlet_turbulence_diagnostic_no_default_promotion": 1,
       "followup_sweep_plan": 1
     },
     "citylbm_status_counts": {
@@ -26,7 +27,7 @@
       "formal_release_blocked": 1,
       "implemented": 7,
       "implemented_default_off": 3,
-      "ready_for_next_official_run": 1,
+      "blocked_until_external_recovery": 1,
       "paper_ready_workflow_guidance": 1,
       "paper_ready_with_boundary": 1,
       "blocked_vs_cpp_build_tools": 1,
@@ -37,6 +38,7 @@
       "zorigin_sensitivity_confirmed": 1,
       "dx3_control_completed_positive_correlation": 1,
       "decomposition_sensitivity_detected": 1,
+      "inlet_turbulence_candidate_improved_but_blocked": 1,
       "planned_candidate_matrix": 1
     },
     "required_feedback_rows_present": true,
@@ -126,8 +128,8 @@
       "source_paths": "docs/experiments/casee/results/casee_official_run_preflight.json; docs/experiments/casee/results/casee_environment_recovery_runbook.json; docs/experiments/casee/results/rhino_gha_load_gate.json",
       "source_paths_exist": true,
       "decision_class": "blocked_followup_run",
-      "citylbm_status": "ready_for_next_official_run",
-      "implementation_evidence": "blocked_gates=rhino_gha_load,vs_cpp_build_tools",
+      "citylbm_status": "blocked_until_external_recovery",
+      "implementation_evidence": "blocked_gates=rhino_gha_load,gpu_runtime,vs_cpp_build_tools",
       "default_setting_allowed": false,
       "paper_use": "Use to explain why no new official long run is reported in this rc.",
       "limitations": "Operational readiness evidence only; not solver-output evidence."
@@ -247,7 +249,7 @@
     {
       "feedback_id": "SF015",
       "experiment": "Build-chain recovery / Case E follow-up readiness",
-      "finding": "The current build-chain audit records .NET and FluidX3D as available, GPU runtime as ready, and VS Build Tools C++ as blocked after a winget BuildTools attempt exited 1602 with UAC-related bootstrapper evidence.",
+      "finding": "The current build-chain audit records .NET and FluidX3D as available, GPU runtime as blocked, and VS Build Tools C++ as blocked after a winget BuildTools attempt exited 1602 with UAC-related bootstrapper evidence.",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/tools/build_chain_audit.py; docs/experiments/casee/results/build_chain_manifest.json; docs/experiments/casee/results/build_chain_manifest.md; docs/experiments/casee/results/casee_official_run_preflight.json",
       "source_paths_exist": true,
@@ -261,7 +263,7 @@
     {
       "feedback_id": "SF016",
       "experiment": "Experiment 2 / AIJ Case E dx=1 follow-up readiness",
-      "finding": "The dx=1 m high-resolution official follow-up is a high-risk long-run candidate: readiness=high_risk_blocked_until_dry_run, memory_headroom_ok=False, moderate required per GPU=13.79 GiB, minimum free GPU memory=15.898 GiB.",
+      "finding": "The dx=1 m high-resolution official follow-up is a high-risk long-run candidate: readiness=high_risk_blocked_until_dry_run, memory_headroom_ok=False, moderate required per GPU=13.79 GiB, minimum free GPU memory=0.0 GiB.",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/tools/casee_dx1_readiness_audit.py; docs/experiments/casee/results/casee_dx1_readiness_audit.json; docs/experiments/casee/results/casee_dx1_readiness_audit.md; docs/experiments/casee/results/casee_dx1_readiness_audit.csv",
       "source_paths_exist": true,
@@ -371,6 +373,20 @@
       "limitations": "Single decomposition ablation; R2 remains negative and consistency thresholds failed, so it cannot support formal v0.4.0 or default promotion."
     },
     {
+      "feedback_id": "SF025",
+      "experiment": "Experiment 2 / AIJ Case E C008/C009 inlet turbulence",
+      "finding": "The AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, with best MAE=14.677544574999999 pp, R2=-0.3598186886134105, and Pearson=0.2834105384611786, but R2 remained negative.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/generate_native_casee.py; docs/experiments/casee/tools/casee_c008_c009_inlet_turbulence_audit.py; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md; docs/experiments/casee/results/casee_c009_inlet_k_synthetic_s0p7_20260809_223022_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_run_20260809_223022.log",
+      "source_paths_exist": true,
+      "decision_class": "inlet_turbulence_diagnostic_no_default_promotion",
+      "citylbm_status": "inlet_turbulence_candidate_improved_but_blocked",
+      "implementation_evidence": "pass_condition_met=True; metric_gate_passed=False; delta_mae_vs_zcenter=-6.4338635125; delta_r2_vs_zcenter=1.6465117686055901; delta_pearson_vs_zcenter=0.16765405697638774",
+      "default_setting_allowed": false,
+      "paper_use": "Use as evidence that AF k and full-plane inlet turbulence are the strongest current improvement direction.",
+      "limitations": "Diagnostic scale sweep on one benchmark; R2 remains negative and cannot support formal v0.4.0, LES improvement, or a default accuracy model."
+    },
+    {
       "feedback_id": "SF019",
       "experiment": "Experiment 2 / AIJ Case E official z=2 m follow-up planning",
       "finding": "The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries.",
@@ -379,7 +395,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=8; executable_now_count=4; recommended_tag=v0.4.0-rc41",
+      "implementation_evidence": "candidate_count=8; executable_now_count=0; recommended_tag=v0.4.0-rc42",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."
@@ -398,6 +414,7 @@
     "docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json",
     "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json",
     "docs/experiments/casee/results/casee_c005_decomposition_audit.json",
+    "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",

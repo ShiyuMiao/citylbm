@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-09T14:10:26.127465+00:00",
+  "generated_at": "2026-08-09T14:50:41.126860+00:00",
   "evidence_type": "newly_run",
-  "claim_readiness": "ready_for_next_official_followup_run",
-  "official_followup_run_allowed": true,
+  "claim_readiness": "blocked_official_followup_preflight",
+  "official_followup_run_allowed": false,
   "formal_release_allowed": false,
   "current_official_metric": {
     "n": 80,
@@ -72,7 +72,7 @@
       "paper_policy": "Runtime availability evidence only."
     },
     "gpu_runtime": {
-      "passed": true,
+      "passed": false,
       "severity": "critical",
       "evidence_type": "newly_run",
       "source": "nvidia-smi",
@@ -176,8 +176,8 @@
     "nvidia_smi": {
       "command": "nvidia-smi",
       "found": true,
-      "returncode": 0,
-      "stdout": "Sun Aug  9 22:10:25 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     |\n|-----------------------------------------+------------------------+----------------------+\n| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  Tesla P100-PCIE-16GB         TCC   |   00000000:18:00.0 Off |                    0 |\n| N/A   47C    P0             28W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   1  Tesla P100-PCIE-16GB         TCC   |   00000000:51:00.0 Off |                    0 |\n| N/A   43C    P0             28W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   2  Tesla P100-PCIE-16GB         TCC   |   00000000:8A:00.0 Off |                    0 |\n| N/A   44C    P0             26W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   3  Tesla P100-PCIE-16GB         TCC   |   00000000:C3:00.0 Off |                    0 |\n| N/A   78C    P0             35W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n                                                                                         \n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+",
+      "returncode": 15,
+      "stdout": "Unable to determine the device handle for GPU0000:C3:00.0: GPU is lost.  Reboot the system to recover this GPU",
       "stderr": ""
     },
     "dotnet_version": {
@@ -197,12 +197,12 @@
     "disk": [
       {
         "drive": "C:\\",
-        "free_gb": 6.991,
+        "free_gb": 6.925,
         "total_gb": 194.47
       },
       {
         "drive": "D:\\",
-        "free_gb": 229.31,
+        "free_gb": 229.297,
         "total_gb": 281.627
       },
       {
@@ -224,6 +224,7 @@
   },
   "blocked_gates": [
     "rhino_gha_load",
+    "gpu_runtime",
     "vs_cpp_build_tools"
   ],
   "boundary": "This preflight controls whether another official native Case E follow-up can be scheduled. It is not solver-output evidence, does not change official z=2 m metrics, and does not allow formal v0.4.0."

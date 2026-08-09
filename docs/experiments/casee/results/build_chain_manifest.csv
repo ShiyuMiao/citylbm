@@ -3,4 +3,4 @@ visual_studio_build_tools_2022_cpp,blocked,C:\Program Files (x86)\Microsoft Visu
 dotnet_sdk,ready,E:\citylbm_buildchain\dotnet\dotnet.exe --info,
 mingw_gpp,ready,g++.exe --version,Used only as a native FluidX3D source build fallback when VS/MSBuild is unavailable; this is not accuracy evidence.
 fluidx3d,ready_for_existing_binary,E:\citylbm_buildchain\FluidX3D\bin\FluidX3D.exe,
-gpu_runtime,ready,nvidia-smi,GPU runtime is available for scheduling checks only; it does not improve official Case E metrics.
+gpu_runtime,blocked,nvidia-smi,GPU runtime is available for scheduling checks only; it does not improve official Case E metrics.
