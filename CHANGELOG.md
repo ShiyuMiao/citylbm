@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc44 - CityLBM inlet-turbulence diagnostic controls
+
+- Added default-off Grasshopper `Run Simulation` inputs for `Diagnostic Inlet Turbulence Mode` (`inletT`) and `Diagnostic Inlet Turbulence Scale` (`inletS`).
+- Extended `SimulationSettings` and generated FluidX3D `setup.cpp` output so `k_synthetic_fullplane` can reproduce the AF-k synthetic full-plane inlet diagnostic with time-varying inlet reapplication.
+- Extended generated `citylbm_run_manifest.json` fields and claim-boundary blockers for inlet turbulence diagnostics.
+- Updated default-policy, manifest-output, manifest-schema, and software-feedback gates so inlet turbulence remains an experimental switch and cannot be promoted as a default accuracy model while official z=2 m R2 is negative.
+
+This release candidate feeds the C008-C011 inlet-turbulence finding back into CityLBM as reproducible software capability only. It does not add a new official solver metric, does not change default inlet behavior, and does not permit formal `v0.4.0`.
+
 ## v0.4.0-rc43 - AF-k inlet turbulence scale sweep extension
 
 - Extended the default-off `k_synthetic_fullplane` inlet-turbulence diagnostic sweep with C010 scale 1.00 and C011 scale 1.50.

@@ -761,13 +761,17 @@ def build_rows() -> List[Dict[str, Any]]:
             decision_class="inlet_turbulence_diagnostic_no_default_promotion",
             citylbm_status="inlet_turbulence_candidate_improved_but_blocked"
             if c008_c009_inlet.get("status") == "completed_inlet_turbulence_improved_but_negative_r2"
+            and "Diagnostic Inlet Turbulence Mode" in run_component
+            and "DiagnosticInletTurbulenceMode" in fluidx
+            and "DiagnosticInletTurbulenceScale { get; set; } = 0.0" in fluidx
             else "inlet_turbulence_audit_missing_or_inconclusive",
             implementation_evidence=(
                 f"pass_condition_met={c008_c009_inlet.get('pass_condition_met')}; "
                 f"metric_gate_passed={c008_c009_inlet.get('metric_gate_passed')}; "
                 f"delta_mae_vs_zcenter={inlet_delta.get('mae_pp')}; "
                 f"delta_r2_vs_zcenter={inlet_delta.get('r2')}; "
-                f"delta_pearson_vs_zcenter={inlet_delta.get('pearson')}"
+                f"delta_pearson_vs_zcenter={inlet_delta.get('pearson')}; "
+                "citylbm_default_off_controls=inletT/inletS"
             ),
             default_setting_allowed=False,
             paper_use="Use as evidence that AF k and full-plane inlet turbulence are the strongest current improvement direction.",

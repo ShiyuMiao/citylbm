@@ -1,6 +1,6 @@
 # Case E Default Policy Gate
 
-Generated: 2026-08-09T15:13:20.597104+00:00
+Generated: 2026-08-09T15:26:03.905273+00:00
 
 ## Verdict
 
@@ -24,6 +24,7 @@ Generated: 2026-08-09T15:13:20.597104+00:00
 - Diagnostic Z Origin Offset / zOff vertical-origin sensitivity control.
 - Diagnostic Wall Model / wallModel follow-up control.
 - Diagnostic Roughness Length / z0Wall follow-up control.
+- Diagnostic Inlet Turbulence Mode / inletT and Diagnostic Inlet Turbulence Scale / inletS follow-up controls.
 - nearest_valid, fluid_weighted, vertical_valid_above, and z_plus_half probe sampling.
 - Effective-ground, rough-wall, wall-model, voxelization, and inlet-turbulence follow-up settings until official z=2 m raw_trilinear improvement is proven.
 
@@ -37,15 +38,17 @@ Generated: 2026-08-09T15:13:20.597104+00:00
 | `simulation_settings_z_origin_offset_default_off` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Vertical-origin offset is default-off and cannot redefine official z=2 m. |
 | `simulation_settings_wall_model_default_none` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Diagnostic wall model is default-off and cannot replace the existing wall treatment by default. |
 | `simulation_settings_roughness_default_zero` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Diagnostic roughness length is default-off and cannot become a formal accuracy model without official z=2 m improvement. |
+| `simulation_settings_inlet_turbulence_default_off` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Diagnostic inlet turbulence is default-off and cannot become a formal accuracy model without official z=2 m improvement. |
 | `run_component_casee_preset_default_false` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Case E preset is explicit and opt-in in Grasshopper. |
 | `run_component_nu_input_default_zero` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Diagnostic LBM Nu Override stays off unless the user supplies a positive value. |
 | `run_component_zoff_input_default_zero` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Diagnostic Z Origin Offset stays off unless explicitly set. |
 | `run_component_wall_model_input_default_none` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Diagnostic Wall Model stays at none unless explicitly changed. |
 | `run_component_roughness_input_default_zero` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Diagnostic Roughness Length stays at zero unless explicitly changed. |
+| `run_component_inlet_turbulence_inputs_default_off` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Diagnostic inlet turbulence mode and scale stay off unless explicitly set. |
 | `run_component_claim_gate_output` | True | `CityLBM/src/Components/Simulation/RunSimulationComponent.cs` | Run Simulation exposes the formal accuracy claim boundary directly in Grasshopper. |
 | `manifest_blocks_z_plus_half_formal` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Run manifests forbid diagnostic modes as formal official z=2 m substitutes. |
 | `manifest_formal_accuracy_gate_contract` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Run manifests encode the formal v0.4.0 accuracy-gate contract and keep manifest-only claims blocked. |
-| `manifest_blocks_wall_roughness_formal_defaults` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Run manifests forbid wall-model and roughness diagnostics from becoming default accuracy claims. |
+| `manifest_blocks_wall_roughness_formal_defaults` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Run manifests forbid wall-model, roughness, and inlet-turbulence diagnostics from becoming default accuracy claims. |
 | `native_generator_formal_output_raw` | True | `docs/experiments/casee/tools/generate_native_casee.py` | Native Case E probe CSV keeps predicted_velocity_ratio as the raw formal result. |
 | `native_generator_diagnostic_modes_declared` | True | `docs/experiments/casee/tools/generate_native_casee.py` | Native diagnostic sampling modes are recorded as diagnostics. |
 | `casee_preset_formal_default_raw` | True | `docs/experiments/casee/casee_preset.json` | Case E preset formal validation mode is raw_trilinear. |

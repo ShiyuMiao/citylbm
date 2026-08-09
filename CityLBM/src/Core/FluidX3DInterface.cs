@@ -1708,6 +1708,11 @@ namespace CityLBM.Solver
             bool hasDiagnosticWallModel = !diagnosticWallModel.Equals("none", StringComparison.OrdinalIgnoreCase);
             bool hasDiagnosticRoughnessLength = Math.Abs(settings.DiagnosticRoughnessLengthM) > 1e-12;
             int diagnosticWallModelCode = hasDiagnosticWallModel ? 1 : 0;
+            string diagnosticInletTurbulenceMode = NormalizeDiagnosticInletTurbulenceMode(settings.DiagnosticInletTurbulenceMode);
+            bool hasDiagnosticInletTurbulence = diagnosticInletTurbulenceMode.Equals("k_synthetic_fullplane", StringComparison.OrdinalIgnoreCase)
+                && settings.DiagnosticInletTurbulenceScale > 0.0
+                && settings.InletProfile != null
+                && settings.InletProfile.Count > 0;
 
             sb.AppendLine("void main_setup() {");
             sb.AppendLine($"    // LBM 物理参数 (u_max = {uMax}, tau = {tau_val:F4}, nu = {nu_final:E4})");
@@ -1721,9 +1726,13 @@ namespace CityLBM.Solver
             sb.AppendLine($"    const int citylbm_diagnostic_wall_model_code = {diagnosticWallModelCode};");
             sb.AppendLine($"    const float citylbm_diagnostic_roughness_length_m = {settings.DiagnosticRoughnessLengthM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const bool citylbm_diagnostic_wall_followup_enabled = {BoolJson(hasDiagnosticWallModel || hasDiagnosticRoughnessLength)};");
+            sb.AppendLine("    // Diagnostic inlet turbulence is default-off and remains a Case E follow-up switch.");
+            sb.AppendLine($"    const bool citylbm_diagnostic_inlet_turbulence_enabled = {BoolJson(hasDiagnosticInletTurbulence)};");
+            sb.AppendLine($"    const float citylbm_diagnostic_inlet_turbulence_scale = {settings.DiagnosticInletTurbulenceScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
             sb.AppendLine("    (void)citylbm_diagnostic_wall_model_code;");
             sb.AppendLine("    (void)citylbm_diagnostic_roughness_length_m;");
             sb.AppendLine("    (void)citylbm_diagnostic_wall_followup_enabled;");
+            sb.AppendLine("    (void)citylbm_diagnostic_inlet_turbulence_scale;");
             AppendInletProfileFunction(sb, settings, windDir, referenceLatticeVelocity, scene.WindSpeed);
             sb.AppendLine();
 
@@ -1749,11 +1758,19 @@ namespace CityLBM.Solver
             GenerateProfiledInletOutletCode(sb, windDir, grid);
             sb.AppendLine();
             sb.AppendLine("        // 初始化速度场（入口剖面来流；无剖面时退化为均匀来流）");
-            sb.AppendLine("        float3 citylbm_u = citylbm_inlet_velocity(z);");
+            sb.AppendLine("        float3 citylbm_u = citylbm_inlet_velocity(x, y, z, 0u);");
             sb.AppendLine("        lbm.u.x[n] = citylbm_u.x;");
             sb.AppendLine("        lbm.u.y[n] = citylbm_u.y;");
             sb.AppendLine("        lbm.u.z[n] = citylbm_u.z;");
             sb.AppendLine("    });");
+            sb.AppendLine("    auto citylbm_apply_inlet = [&](const uint step) {");
+            sb.AppendLine("        parallel_for(lbm.get_N(), [&](ulong n) {");
+            sb.AppendLine("            uint x=0u, y=0u, z=0u;");
+            sb.AppendLine("            lbm.coordinates(n, x, y, z);");
+            AppendApplyInletBody(sb, windDir);
+            sb.AppendLine("        });");
+            sb.AppendLine("        lbm.u.write_to_device();");
+            sb.AppendLine("    };");
             sb.AppendLine();
 
             // [FIX] 必须在 voxelize_stl 之前 write_to_device！
@@ -1792,6 +1809,7 @@ namespace CityLBM.Solver
             sb.AppendLine($"    while(lbm.get_t() < {settings.TimeSteps}u) {{");
             sb.AppendLine($"        uint remaining = {settings.TimeSteps}u - (uint)lbm.get_t();");
             sb.AppendLine($"        uint steps_to_run = remaining < {settings.SaveInterval}u ? remaining : {settings.SaveInterval}u;");
+            sb.AppendLine("        if(citylbm_diagnostic_inlet_turbulence_enabled) citylbm_apply_inlet((uint)lbm.get_t());");
             sb.AppendLine("        lbm.run(steps_to_run);");
             sb.AppendLine($"        if(lbm.get_t() < {settings.SpinupSteps}u) {{");
             sb.AppendLine("            print_info(string(\"Spinup step: \") + to_string(lbm.get_t()));");
@@ -1814,47 +1832,119 @@ namespace CityLBM.Solver
         private void AppendInletProfileFunction(StringBuilder sb, SimulationSettings settings, Vector3d windDir, double referenceLatticeVelocity, double referenceSpeed)
         {
             double profileReferenceSpeed = Math.Max(referenceSpeed, 0.001);
+            string diagnosticInletTurbulenceMode = NormalizeDiagnosticInletTurbulenceMode(settings.DiagnosticInletTurbulenceMode);
+            bool hasDiagnosticInletTurbulence = diagnosticInletTurbulenceMode.Equals("k_synthetic_fullplane", StringComparison.OrdinalIgnoreCase)
+                && settings.DiagnosticInletTurbulenceScale > 0.0
+                && settings.InletProfile != null
+                && settings.InletProfile.Count > 0;
             if (settings.InletProfile.Count == 0)
             {
-                sb.AppendLine("    auto citylbm_inlet_velocity = [&](uint z_index) -> float3 { return float3(u_x, u_y, u_z); };");
-                return;
-            }
-
-            if (settings.InletProfile.Count == 1)
-            {
-                double profileScale = settings.InletProfile[0].U / profileReferenceSpeed;
-                sb.AppendLine("    auto citylbm_inlet_velocity = [&](uint z_index) -> float3 {");
-                sb.AppendLine($"        const float profile_scale = {profileScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
-                sb.AppendLine("        return float3(u_x*profile_scale, u_y*profile_scale, u_z*profile_scale);");
+                sb.AppendLine("    auto citylbm_inlet_velocity = [&](uint x_index, uint y_index, uint z_index, uint step) -> float3 {");
+                sb.AppendLine("        (void)x_index; (void)y_index; (void)z_index; (void)step;");
+                sb.AppendLine("        return float3(u_x, u_y, u_z);");
                 sb.AppendLine("    };");
                 return;
             }
 
-            sb.AppendLine("    auto citylbm_inlet_velocity = [&](uint z_index) -> float3 {");
+            sb.AppendLine("    auto citylbm_profile_scale = [&](uint z_index) -> float {");
             sb.AppendLine("        const float z_m = citylbm_origin_z + (static_cast<float>(z_index) + 0.5f) * citylbm_dx;");
             sb.AppendLine("        float profile_scale = 1.0f;");
 
-            for (int i = 0; i < settings.InletProfile.Count - 1; i++)
+            if (settings.InletProfile.Count == 1)
             {
-                var a = settings.InletProfile[i];
-                var b = settings.InletProfile[i + 1];
-                string prefix = i == 0 ? "if" : "else if";
-                sb.AppendLine($"        {prefix}(z_m <= {b.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f) {{");
-                sb.AppendLine($"            const float z0 = {a.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
-                sb.AppendLine($"            const float z1 = {b.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
-                sb.AppendLine($"            const float u0 = {(a.U / profileReferenceSpeed).ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
-                sb.AppendLine($"            const float u1 = {(b.U / profileReferenceSpeed).ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
-                sb.AppendLine("            float t = (z_m-z0)/(z1-z0+1.0e-6f);");
-                sb.AppendLine("            if(t < 0.0f) t = 0.0f;");
-                sb.AppendLine("            if(t > 1.0f) t = 1.0f;");
-                sb.AppendLine("            profile_scale = u0 + (u1-u0)*t;");
+                double profileScale = settings.InletProfile[0].U / profileReferenceSpeed;
+                sb.AppendLine($"        profile_scale = {profileScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+            }
+            else
+            {
+                for (int i = 0; i < settings.InletProfile.Count - 1; i++)
+                {
+                    var a = settings.InletProfile[i];
+                    var b = settings.InletProfile[i + 1];
+                    string prefix = i == 0 ? "if" : "else if";
+                    sb.AppendLine($"        {prefix}(z_m <= {b.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f) {{");
+                    sb.AppendLine($"            const float z0 = {a.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+                    sb.AppendLine($"            const float z1 = {b.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+                    sb.AppendLine($"            const float u0 = {(a.U / profileReferenceSpeed).ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+                    sb.AppendLine($"            const float u1 = {(b.U / profileReferenceSpeed).ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+                    sb.AppendLine("            float t = (z_m-z0)/(z1-z0+1.0e-6f);");
+                    sb.AppendLine("            if(t < 0.0f) t = 0.0f;");
+                    sb.AppendLine("            if(t > 1.0f) t = 1.0f;");
+                    sb.AppendLine("            profile_scale = u0 + (u1-u0)*t;");
+                    sb.AppendLine("        }");
+                }
+                var last = settings.InletProfile[settings.InletProfile.Count - 1];
+                sb.AppendLine("        else {");
+                sb.AppendLine($"            profile_scale = {(last.U / profileReferenceSpeed).ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
                 sb.AppendLine("        }");
             }
+            sb.AppendLine("        return profile_scale;");
+            sb.AppendLine("    };");
 
-            var last = settings.InletProfile[settings.InletProfile.Count - 1];
-            sb.AppendLine("        else {");
-            sb.AppendLine($"            profile_scale = {(last.U / profileReferenceSpeed).ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
-            sb.AppendLine("        }");
+            sb.AppendLine("    auto citylbm_inlet_sigma_ratio = [&](uint z_index) -> float {");
+            sb.AppendLine("        const float z_m = citylbm_origin_z + (static_cast<float>(z_index) + 0.5f) * citylbm_dx;");
+            sb.AppendLine("        float sigma_ratio = 0.0f;");
+            if (settings.InletProfile.Count == 1)
+            {
+                double sigmaRatio = Math.Sqrt(Math.Max(0.0, 2.0 * settings.InletProfile[0].K / 3.0)) / profileReferenceSpeed;
+                sb.AppendLine($"        sigma_ratio = {sigmaRatio.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+            }
+            else
+            {
+                for (int i = 0; i < settings.InletProfile.Count - 1; i++)
+                {
+                    var a = settings.InletProfile[i];
+                    var b = settings.InletProfile[i + 1];
+                    string prefix = i == 0 ? "if" : "else if";
+                    double s0 = Math.Sqrt(Math.Max(0.0, 2.0 * a.K / 3.0)) / profileReferenceSpeed;
+                    double s1 = Math.Sqrt(Math.Max(0.0, 2.0 * b.K / 3.0)) / profileReferenceSpeed;
+                    sb.AppendLine($"        {prefix}(z_m <= {b.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f) {{");
+                    sb.AppendLine($"            const float z0 = {a.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+                    sb.AppendLine($"            const float z1 = {b.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+                    sb.AppendLine($"            const float s0 = {s0.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+                    sb.AppendLine($"            const float s1 = {s1.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+                    sb.AppendLine("            float t = (z_m-z0)/(z1-z0+1.0e-6f);");
+                    sb.AppendLine("            if(t < 0.0f) t = 0.0f;");
+                    sb.AppendLine("            if(t > 1.0f) t = 1.0f;");
+                    sb.AppendLine("            sigma_ratio = s0 + (s1-s0)*t;");
+                    sb.AppendLine("        }");
+                }
+                var last = settings.InletProfile[settings.InletProfile.Count - 1];
+                double lastSigma = Math.Sqrt(Math.Max(0.0, 2.0 * last.K / 3.0)) / profileReferenceSpeed;
+                sb.AppendLine("        else {");
+                sb.AppendLine($"            sigma_ratio = {lastSigma.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+                sb.AppendLine("        }");
+            }
+            sb.AppendLine("        return sigma_ratio;");
+            sb.AppendLine("    };");
+
+            sb.AppendLine("    auto citylbm_synthetic_inlet_signal = [&](uint x_index, uint y_index, uint z_index, uint step) -> float {");
+            sb.AppendLine("        const float xf = static_cast<float>(x_index);");
+            sb.AppendLine("        const float yf = static_cast<float>(y_index);");
+            sb.AppendLine("        const float zf = static_cast<float>(z_index);");
+            sb.AppendLine("        const float tf = static_cast<float>(step);");
+            sb.AppendLine("        const float a = sinf(0.173f*xf + 0.019f*yf + 0.071f*zf + 0.0031f*tf);");
+            sb.AppendLine("        const float b = sinf(0.047f*xf - 0.023f*yf - 0.131f*zf + 0.0053f*tf + 1.7f);");
+            sb.AppendLine("        const float c = sinf(0.109f*xf + 0.011f*yf + 0.037f*zf - 0.0047f*tf + 3.1f);");
+            sb.AppendLine("        float signal = 0.50f*a + 0.30f*b + 0.20f*c;");
+            sb.AppendLine("        if(signal < -1.0f) signal = -1.0f;");
+            sb.AppendLine("        if(signal > 1.0f) signal = 1.0f;");
+            sb.AppendLine("        return signal;");
+            sb.AppendLine("    };");
+
+            sb.AppendLine("    auto citylbm_inlet_velocity = [&](uint x_index, uint y_index, uint z_index, uint step) -> float3 {");
+            sb.AppendLine("        float profile_scale = citylbm_profile_scale(z_index);");
+            if (hasDiagnosticInletTurbulence)
+            {
+                sb.AppendLine("        const float sigma_ratio = citylbm_inlet_sigma_ratio(z_index);");
+                sb.AppendLine("        const float signal = citylbm_synthetic_inlet_signal(x_index, y_index, z_index, step);");
+                sb.AppendLine("        profile_scale += citylbm_diagnostic_inlet_turbulence_scale * sigma_ratio * signal;");
+                sb.AppendLine("        if(profile_scale < 0.02f) profile_scale = 0.02f;");
+            }
+            else
+            {
+                sb.AppendLine("        (void)x_index; (void)y_index; (void)step;");
+            }
             sb.AppendLine($"        const float ux = {(windDir.X * referenceLatticeVelocity).ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f * profile_scale;");
             sb.AppendLine($"        const float uy = {(windDir.Y * referenceLatticeVelocity).ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f * profile_scale;");
             sb.AppendLine($"        const float uz = {(Math.Max(0.0, windDir.Z) * referenceLatticeVelocity).ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f * profile_scale;");
@@ -1862,10 +1952,33 @@ namespace CityLBM.Solver
             sb.AppendLine("    };");
         }
 
+        private void AppendApplyInletBody(StringBuilder sb, Vector3d windDir)
+        {
+            bool xDominant = Math.Abs(windDir.X) >= Math.Abs(windDir.Y);
+            if (xDominant)
+            {
+                bool windFromMinX = windDir.X > 0;
+                string condition = windFromMinX ? "x == 0u" : "x == Nx-1u";
+                sb.AppendLine($"            if({condition}) {{");
+            }
+            else
+            {
+                bool windFromMinY = windDir.Y > 0;
+                string condition = windFromMinY ? "y == 0u" : "y == Ny-1u";
+                sb.AppendLine($"            if({condition}) {{");
+            }
+            sb.AppendLine("                float3 citylbm_in = citylbm_inlet_velocity(x, y, z, step);");
+            sb.AppendLine("                lbm.flags[n] = TYPE_E;");
+            sb.AppendLine("                lbm.u.x[n] = citylbm_in.x;");
+            sb.AppendLine("                lbm.u.y[n] = citylbm_in.y;");
+            sb.AppendLine("                lbm.u.z[n] = citylbm_in.z;");
+            sb.AppendLine("            }");
+        }
+
         private void GenerateProfiledInletOutletCode(StringBuilder sb, Vector3d windDir, CartesianGrid grid)
         {
             bool xDominant = Math.Abs(windDir.X) >= Math.Abs(windDir.Y);
-            string inletAssign = "float3 citylbm_in = citylbm_inlet_velocity(z); lbm.flags[n] = TYPE_E; lbm.u.x[n] = citylbm_in.x; lbm.u.y[n] = citylbm_in.y; lbm.u.z[n] = citylbm_in.z; return;";
+            string inletAssign = "float3 citylbm_in = citylbm_inlet_velocity(x, y, z, 0u); lbm.flags[n] = TYPE_E; lbm.u.x[n] = citylbm_in.x; lbm.u.y[n] = citylbm_in.y; lbm.u.z[n] = citylbm_in.z; return;";
 
             if (xDominant)
             {
@@ -1955,10 +2068,14 @@ namespace CityLBM.Solver
             string diagnosticWallModel = NormalizeDiagnosticWallModel(settings.DiagnosticWallModel);
             bool hasDiagnosticWallModel = !diagnosticWallModel.Equals("none", StringComparison.OrdinalIgnoreCase);
             bool hasDiagnosticRoughnessLength = Math.Abs(settings.DiagnosticRoughnessLengthM) > 1e-12;
+            string diagnosticInletTurbulenceMode = NormalizeDiagnosticInletTurbulenceMode(settings.DiagnosticInletTurbulenceMode);
+            bool hasDiagnosticInletTurbulence = diagnosticInletTurbulenceMode.Equals("k_synthetic_fullplane", StringComparison.OrdinalIgnoreCase)
+                && settings.DiagnosticInletTurbulenceScale > 0.0;
             bool diagnosticSettingsAreDefaultSafe = !hasDiagnosticNuOverride
                 && !hasDiagnosticZOriginOffset
                 && !hasDiagnosticWallModel
-                && !hasDiagnosticRoughnessLength;
+                && !hasDiagnosticRoughnessLength
+                && !hasDiagnosticInletTurbulence;
 
             var sb = new StringBuilder();
             sb.AppendLine("{");
@@ -1974,6 +2091,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    \"diagnostic_z_origin_offset_allowed_as_default_accuracy_model\": false,");
             sb.AppendLine("    \"diagnostic_wall_model_allowed_as_default_accuracy_model\": false,");
             sb.AppendLine("    \"diagnostic_roughness_length_allowed_as_default_accuracy_model\": false,");
+            sb.AppendLine("    \"diagnostic_inlet_turbulence_allowed_as_default_accuracy_model\": false,");
             sb.AppendLine("    \"requires_external_release_gate_pass\": true,");
             sb.AppendLine("    \"paper_readiness\": \"manifest_traceability_only; accuracy_claim_requires_external_release_gate\",");
             sb.AppendLine("    \"paper_allowed_uses\": [\"protocol_traceability\", \"software_identity_traceability\", \"limitations_boundary\"],");
@@ -2007,7 +2125,11 @@ namespace CityLBM.Solver
             sb.AppendLine($"    \"diagnostic_wall_model_is_default\": {BoolJson(!hasDiagnosticWallModel)},");
             sb.AppendLine($"    \"diagnostic_roughness_length_m\": {settings.DiagnosticRoughnessLengthM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"    \"diagnostic_roughness_length_is_default\": {BoolJson(!hasDiagnosticRoughnessLength)},");
-            sb.AppendLine("    \"diagnostic_wall_roughness_changes_solver_defaults\": false");
+            sb.AppendLine("    \"diagnostic_wall_roughness_changes_solver_defaults\": false,");
+            sb.AppendLine($"    \"diagnostic_inlet_turbulence_mode\": \"{EscapeJson(diagnosticInletTurbulenceMode)}\",");
+            sb.AppendLine($"    \"diagnostic_inlet_turbulence_scale\": {settings.DiagnosticInletTurbulenceScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"    \"diagnostic_inlet_turbulence_is_default\": {BoolJson(!hasDiagnosticInletTurbulence)},");
+            sb.AppendLine($"    \"diagnostic_inlet_turbulence_uses_af_k\": {BoolJson(hasDiagnosticInletTurbulence && settings.InletProfile != null && settings.InletProfile.Count > 0)}");
             sb.AppendLine("  },");
             sb.AppendLine("  \"validation\": {");
             sb.AppendLine($"    \"case_condition\": \"{EscapeJson(settings.CaseCondition)}\",");
@@ -2035,6 +2157,9 @@ namespace CityLBM.Solver
             double dx = grid.Dx;
             double height = settings.ValidationHeight;
             bool canAudit = settings.UseAijCaseEPreset && dx > 0.0 && height > 0.0;
+            string diagnosticInletTurbulenceMode = NormalizeDiagnosticInletTurbulenceMode(settings.DiagnosticInletTurbulenceMode);
+            bool hasDiagnosticInletTurbulence = diagnosticInletTurbulenceMode.Equals("k_synthetic_fullplane", StringComparison.OrdinalIgnoreCase)
+                && settings.DiagnosticInletTurbulenceScale > 0.0;
             double effectiveOriginZ = grid.Origin.Z + settings.DiagnosticZOriginOffsetM;
             double gridZFloat = canAudit ? (height - effectiveOriginZ) / dx - 0.5 : 0.0;
             int z0 = canAudit ? (int)Math.Floor(gridZFloat) : 0;
@@ -2060,6 +2185,9 @@ namespace CityLBM.Solver
             sb.AppendLine($"      \"diagnostic_wall_model_is_default\": {BoolJson(NormalizeDiagnosticWallModel(settings.DiagnosticWallModel).Equals("none", StringComparison.OrdinalIgnoreCase))},");
             sb.AppendLine($"      \"diagnostic_roughness_length_m\": {settings.DiagnosticRoughnessLengthM.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"      \"diagnostic_roughness_length_is_default\": {BoolJson(Math.Abs(settings.DiagnosticRoughnessLengthM) <= 1e-12)},");
+            sb.AppendLine($"      \"diagnostic_inlet_turbulence_mode\": \"{EscapeJson(diagnosticInletTurbulenceMode)}\",");
+            sb.AppendLine($"      \"diagnostic_inlet_turbulence_scale\": {settings.DiagnosticInletTurbulenceScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"      \"diagnostic_inlet_turbulence_is_default\": {BoolJson(!hasDiagnosticInletTurbulence)},");
             sb.AppendLine("      \"note\": \"Diagnostic sampling modes help quantify near-wall/probe sensitivity but do not replace official z=2m validation.\"");
             sb.AppendLine("    }");
         }
@@ -2089,7 +2217,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    \"required_formal_sampling_mode\": \"raw_trilinear\",");
             sb.AppendLine("    \"required_metric_trend\": \"MAE clearly below previous near-20pp level; R2 positive; Pearson positive\",");
             sb.AppendLine("    \"diagnostic_substitutes_allowed\": false,");
-            sb.AppendLine("    \"diagnostic_substitutes\": [\"z_plus_half\", \"vertical_valid_above\", \"nearest_valid\", \"fluid_weighted\", \"z_origin_offset\", \"effective_ground_shift\", \"wall_model\", \"roughness_length\"],");
+            sb.AppendLine("    \"diagnostic_substitutes\": [\"z_plus_half\", \"vertical_valid_above\", \"nearest_valid\", \"fluid_weighted\", \"z_origin_offset\", \"effective_ground_shift\", \"wall_model\", \"roughness_length\", \"inlet_turbulence_scale\"],");
             sb.AppendLine("    \"claim_boundary\": \"This manifest is protocol evidence only; formal accuracy requires external release_gate.json metrics from completed official z=2m runs.\"");
             sb.AppendLine("  },");
         }
@@ -2104,6 +2232,16 @@ namespace CityLBM.Solver
             if (string.IsNullOrWhiteSpace(value))
                 return "none";
             return value.Trim();
+        }
+
+        private string NormalizeDiagnosticInletTurbulenceMode(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return "none";
+            string normalized = value.Trim();
+            return normalized.Equals("k_synthetic_fullplane", StringComparison.OrdinalIgnoreCase)
+                ? "k_synthetic_fullplane"
+                : "none";
         }
 
         private string EscapeJson(string value)
@@ -2362,6 +2500,13 @@ namespace CityLBM.Solver
             set { _diagnosticWallModel = string.IsNullOrWhiteSpace(value) ? "none" : value.Trim(); }
         }
         public double DiagnosticRoughnessLengthM { get; set; } = 0.0;
+        private string _diagnosticInletTurbulenceMode = "none";
+        public string DiagnosticInletTurbulenceMode
+        {
+            get { return string.IsNullOrWhiteSpace(_diagnosticInletTurbulenceMode) ? "none" : _diagnosticInletTurbulenceMode.Trim(); }
+            set { _diagnosticInletTurbulenceMode = string.IsNullOrWhiteSpace(value) ? "none" : value.Trim(); }
+        }
+        public double DiagnosticInletTurbulenceScale { get; set; } = 0.0;
         public List<InletProfilePoint> InletProfile { get; set; } = new List<InletProfilePoint>();
 
         public double InletVelocityX { get; set; }
@@ -2463,6 +2608,8 @@ namespace CityLBM.Solver
                 DiagnosticZOriginOffsetM = source.DiagnosticZOriginOffsetM,
                 DiagnosticWallModel = source.DiagnosticWallModel,
                 DiagnosticRoughnessLengthM = source.DiagnosticRoughnessLengthM,
+                DiagnosticInletTurbulenceMode = source.DiagnosticInletTurbulenceMode,
+                DiagnosticInletTurbulenceScale = source.DiagnosticInletTurbulenceScale,
                 InletVelocityX = source.InletVelocityX,
                 InletVelocityY = source.InletVelocityY,
                 InletVelocityZ = source.InletVelocityZ,

@@ -101,6 +101,14 @@ namespace CityLBM.Components.Simulation
                 "Experimental only. Roughness length in meters for wall/ground follow-up audits; default 0 keeps the existing wall treatment and is not a formal validation substitute.",
                 GH_ParamAccess.item, 0.0);
             pManager[14].Optional = true;
+            pManager.AddTextParameter("Diagnostic Inlet Turbulence Mode", "inletT",
+                "Experimental only. Use 'k_synthetic_fullplane' to reproduce the AF-k synthetic full-plane inlet diagnostic; default 'none' keeps the steady inlet.",
+                GH_ParamAccess.item, "none");
+            pManager[15].Optional = true;
+            pManager.AddNumberParameter("Diagnostic Inlet Turbulence Scale", "inletS",
+                "Experimental only. Scale for AF-k synthetic inlet turbulence; default 0 keeps the inlet turbulence diagnostic off and cannot be used as formal validation.",
+                GH_ParamAccess.item, 0.0);
+            pManager[16].Optional = true;
 
             // 全部可选（除 Scene 和 Grid）
             for (int i = 2; i <= 10; i++) pManager[i].Optional = true;
@@ -136,6 +144,8 @@ namespace CityLBM.Components.Simulation
             double diagnosticZOriginOffsetM = 0.0;
             string diagnosticWallModel = "none";
             double diagnosticRoughnessLengthM = 0.0;
+            string diagnosticInletTurbulenceMode = "none";
+            double diagnosticInletTurbulenceScale = 0.0;
 
             if (!DA.GetData(0, ref ghScene)) return;
             if (!DA.GetData(1, ref ghGrid)) return;
@@ -152,6 +162,8 @@ namespace CityLBM.Components.Simulation
             DA.GetData(12, ref diagnosticZOriginOffsetM);
             DA.GetData(13, ref diagnosticWallModel);
             DA.GetData(14, ref diagnosticRoughnessLengthM);
+            DA.GetData(15, ref diagnosticInletTurbulenceMode);
+            DA.GetData(16, ref diagnosticInletTurbulenceScale);
 
             // ── GH 加载期保护 ────────────────────────────────────────────
             // 使用宽限期策略：组件创建后 3 秒内认为 GH 可能还在加载
@@ -257,7 +269,9 @@ namespace CityLBM.Components.Simulation
                 DiagnosticNuLbmOverride = diagnosticNuLbmOverride,
                 DiagnosticZOriginOffsetM = diagnosticZOriginOffsetM,
                 DiagnosticWallModel = diagnosticWallModel,
-                DiagnosticRoughnessLengthM = diagnosticRoughnessLengthM
+                DiagnosticRoughnessLengthM = diagnosticRoughnessLengthM,
+                DiagnosticInletTurbulenceMode = diagnosticInletTurbulenceMode,
+                DiagnosticInletTurbulenceScale = diagnosticInletTurbulenceScale
             };
             settings.SetInletVelocity(scene.WindDirection, scene.WindSpeed);
 
@@ -534,7 +548,7 @@ namespace CityLBM.Components.Simulation
             if (settings != null && settings.UseAijCaseEPreset)
             {
                 string status = caseGeneratedOrRunCompleted ? "case generated" : "case not yet completed";
-                return $"AIJ Case E formal gate ({status}): official ac+N, wind vector (0,-1,0), z=2 m, 80 probes, raw_trilinear only. Diagnostic sampling, z offsets, wall models, and roughness lengths are limitations-only. Formal v0.4.0 requires release_gate.json pass, Case A smoke regression, Rhino new-GHA load, MAE improvement, positive R2, and positive Pearson.";
+                return $"AIJ Case E formal gate ({status}): official ac+N, wind vector (0,-1,0), z=2 m, 80 probes, raw_trilinear only. Diagnostic sampling, z offsets, wall models, roughness lengths, and inlet turbulence scale are limitations-only. Formal v0.4.0 requires release_gate.json pass, Case A smoke regression, Rhino new-GHA load, MAE improvement, positive R2, and positive Pearson.";
             }
             return "Generic CityLBM run: no benchmark accuracy claim is supported without an external validation protocol, completed logs, probe CSV, and release gate.";
         }

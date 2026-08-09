@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T15:13:21.049864+00:00",
+  "generated_at": "2026-08-09T15:26:04.389582+00:00",
   "manifest_contract_version": "casee_manifest_contract_v1",
   "manifest_schema_gate_passed": true,
   "evidence_type": "newly_run",
@@ -57,8 +57,8 @@
       "evidence_type": "newly_run",
       "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
       "schema_area": "wall_roughness_boundary",
-      "paper_use": "Use to document wall/roughness follow-up controls as default-off traceability fields.",
-      "failure_action": "Restore wall/roughness manifest fields and default-promotion blockers."
+      "paper_use": "Use to document wall/roughness/inlet follow-up controls as default-off traceability fields.",
+      "failure_action": "Restore wall/roughness/inlet manifest fields and default-promotion blockers."
     },
     {
       "check_id": "probe_protocol_risk_fields_present",

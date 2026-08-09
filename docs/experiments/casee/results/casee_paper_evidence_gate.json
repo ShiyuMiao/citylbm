@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-09T15:13:26.499674+00:00",
+  "generated_at": "2026-08-09T15:26:09.858846+00:00",
   "paper_evidence_gate_passed": true,
   "metric_gate": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc43",
+    "recommended_tag": "v0.4.0-rc44",
     "official_z2m_r2": -2.006330362229977,
     "official_z2m_mae_pp": 21.111408125,
     "official_z2m_pearson": 0.11575649438573923,
@@ -38,8 +38,8 @@
   },
   "artifact_index": {
     "artifact_index_found": true,
-    "artifact_count": 256,
-    "lightweight_release_asset_count": 196,
+    "artifact_count": 257,
+    "lightweight_release_asset_count": 197,
     "formal_accuracy_claim_supported": false,
     "required_artifacts_present": true,
     "missing_required_artifacts": []
@@ -229,7 +229,7 @@
     "default_policy_gate_passed": true,
     "claim_readiness": "paper_ready_default_policy_boundary",
     "formal_release_allowed": false,
-    "check_count": 22,
+    "check_count": 24,
     "claim_boundary_safe": true
   },
   "citylbm_paper_results_packet": {
@@ -285,7 +285,7 @@
     "claim_readiness": "paper_ready_negative_validation_and_limitations",
     "formal_accuracy_claim_supported": false,
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc43",
+    "recommended_tag": "v0.4.0-rc44",
     "check_count": 9,
     "claim_boundary_safe": true
   },

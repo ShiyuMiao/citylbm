@@ -143,7 +143,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc43.md`
+- `docs/releases/v0.4.0-rc44.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -256,6 +256,15 @@ main next software target, but R2 is still negative and the turbulence scale is
 a diagnostic sweep parameter, so it is not a formal accuracy model. During the
 C010/C011 runs `nvidia-smi` reported GPU3 lost, so FluidX3D was launched on
 devices `0 1 2`; this is recorded as a runtime protocol risk.
+
+CityLBM now exposes the AF-k inlet finding as default-off Grasshopper
+diagnostic controls on `Run Simulation`: `Diagnostic Inlet Turbulence Mode`
+(`inletT`, default `none`) and `Diagnostic Inlet Turbulence Scale` (`inletS`,
+default `0.0`). Setting `inletT=k_synthetic_fullplane` and a positive scale
+generates the synthetic full-plane inlet based on `AF_caseE.csv` k and records
+the setting in `citylbm_run_manifest.json`. This is a reproducibility and
+follow-up switch only; it does not change the default inlet model or make the
+official z=2 m R2 positive.
 
 CityLBM now exposes the corresponding `Diagnostic Z Origin Offset` (`zOff`)
 input on the Grasshopper `Run Simulation` component. The default is 0 m. This

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T15:13:16.105006+00:00",
+  "generated_at": "2026-08-09T15:25:59.317416+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_build_chain_diagnostic",
   "build_chain_ready": false,
@@ -146,15 +146,15 @@
   "disk": [
     {
       "drive": "C:\\",
-      "free_bytes": 7418724352,
+      "free_bytes": 7416885248,
       "total_bytes": 208810242048,
-      "free_gb": 6.909
+      "free_gb": 6.908
     },
     {
       "drive": "D:\\",
-      "free_bytes": 246208933888,
+      "free_bytes": 246204854272,
       "total_bytes": 302394634240,
-      "free_gb": 229.3
+      "free_gb": 229.296
     },
     {
       "drive": "E:\\",

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T15:13:20.597104+00:00",
+  "generated_at": "2026-08-09T15:26:03.905273+00:00",
   "default_policy_gate_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_default_policy_boundary",
@@ -17,6 +17,7 @@
     "Diagnostic Z Origin Offset / zOff vertical-origin sensitivity control.",
     "Diagnostic Wall Model / wallModel follow-up control.",
     "Diagnostic Roughness Length / z0Wall follow-up control.",
+    "Diagnostic Inlet Turbulence Mode / inletT and Diagnostic Inlet Turbulence Scale / inletS follow-up controls.",
     "nearest_valid, fluid_weighted, vertical_valid_above, and z_plus_half probe sampling.",
     "Effective-ground, rough-wall, wall-model, voxelization, and inlet-turbulence follow-up settings until official z=2 m raw_trilinear improvement is proven."
   ],
@@ -76,6 +77,15 @@
       "failure_action": "Restore DiagnosticRoughnessLengthM default to 0.0."
     },
     {
+      "check_id": "simulation_settings_inlet_turbulence_default_off",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "policy_boundary": "Diagnostic inlet turbulence is default-off and cannot become a formal accuracy model without official z=2 m improvement.",
+      "paper_use": "Use to state AF-k inlet turbulence follow-ups are diagnostics only.",
+      "failure_action": "Restore DiagnosticInletTurbulenceMode default to none and DiagnosticInletTurbulenceScale to 0.0."
+    },
+    {
       "check_id": "run_component_casee_preset_default_false",
       "passed": true,
       "evidence_type": "newly_run",
@@ -121,6 +131,15 @@
       "failure_action": "Restore the z0Wall input default to 0.0."
     },
     {
+      "check_id": "run_component_inlet_turbulence_inputs_default_off",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "policy_boundary": "Diagnostic inlet turbulence mode and scale stay off unless explicitly set.",
+      "paper_use": "Use to classify AF-k inlet turbulence as an experimental switch.",
+      "failure_action": "Restore inletT default to none and inletS default to 0.0."
+    },
+    {
       "check_id": "run_component_claim_gate_output",
       "passed": true,
       "evidence_type": "newly_run",
@@ -152,9 +171,9 @@
       "passed": true,
       "evidence_type": "newly_run",
       "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
-      "policy_boundary": "Run manifests forbid wall-model and roughness diagnostics from becoming default accuracy claims.",
-      "paper_use": "Use to state wall/roughness follow-ups are limitations-only until official metrics improve.",
-      "failure_action": "Restore wall/roughness claim-boundary fields in WriteRunManifest."
+      "policy_boundary": "Run manifests forbid wall-model, roughness, and inlet-turbulence diagnostics from becoming default accuracy claims.",
+      "paper_use": "Use to state wall/roughness/inlet follow-ups are limitations-only until official metrics improve.",
+      "failure_action": "Restore wall/roughness/inlet claim-boundary fields in WriteRunManifest."
     },
     {
       "check_id": "native_generator_formal_output_raw",

@@ -132,6 +132,16 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore DiagnosticRoughnessLengthM default to 0.0.",
         ),
         check_row(
+            "simulation_settings_inlet_turbulence_default_off",
+            'DiagnosticInletTurbulenceMode' in fluidx
+            and '"none"' in fluidx
+            and "DiagnosticInletTurbulenceScale { get; set; } = 0.0" in fluidx,
+            FLUIDX,
+            "Diagnostic inlet turbulence is default-off and cannot become a formal accuracy model without official z=2 m improvement.",
+            "Use to state AF-k inlet turbulence follow-ups are diagnostics only.",
+            "Restore DiagnosticInletTurbulenceMode default to none and DiagnosticInletTurbulenceScale to 0.0.",
+        ),
+        check_row(
             "run_component_casee_preset_default_false",
             has_regex(
                 run_component,
@@ -187,6 +197,21 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore the z0Wall input default to 0.0.",
         ),
         check_row(
+            "run_component_inlet_turbulence_inputs_default_off",
+            has_regex(
+                run_component,
+                r'AddTextParameter\("Diagnostic Inlet Turbulence Mode".*?GH_ParamAccess\.item,\s*"none"\)',
+            )
+            and has_regex(
+                run_component,
+                r'AddNumberParameter\("Diagnostic Inlet Turbulence Scale".*?GH_ParamAccess\.item,\s*0\.0\)',
+            ),
+            RUN_COMPONENT,
+            "Diagnostic inlet turbulence mode and scale stay off unless explicitly set.",
+            "Use to classify AF-k inlet turbulence as an experimental switch.",
+            "Restore inletT default to none and inletS default to 0.0.",
+        ),
+        check_row(
             "run_component_claim_gate_output",
             'AddTextParameter("Claim Gate", "Gate"' in run_component
             and "ClaimGateSummary" in run_component
@@ -223,13 +248,15 @@ def build_checks() -> List[Dict[str, Any]]:
             "manifest_blocks_wall_roughness_formal_defaults",
             "diagnostic_wall_model_allowed_as_default_accuracy_model" in fluidx
             and "diagnostic_roughness_length_allowed_as_default_accuracy_model" in fluidx
+            and "diagnostic_inlet_turbulence_allowed_as_default_accuracy_model" in fluidx
             and "diagnostic_wall_roughness_changes_solver_defaults" in fluidx
             and "wall_model" in fluidx
-            and "roughness_length" in fluidx,
+            and "roughness_length" in fluidx
+            and "inlet_turbulence_scale" in fluidx,
             FLUIDX,
-            "Run manifests forbid wall-model and roughness diagnostics from becoming default accuracy claims.",
-            "Use to state wall/roughness follow-ups are limitations-only until official metrics improve.",
-            "Restore wall/roughness claim-boundary fields in WriteRunManifest.",
+            "Run manifests forbid wall-model, roughness, and inlet-turbulence diagnostics from becoming default accuracy claims.",
+            "Use to state wall/roughness/inlet follow-ups are limitations-only until official metrics improve.",
+            "Restore wall/roughness/inlet claim-boundary fields in WriteRunManifest.",
         ),
         check_row(
             "native_generator_formal_output_raw",
@@ -379,6 +406,7 @@ def main() -> int:
             "Diagnostic Z Origin Offset / zOff vertical-origin sensitivity control.",
             "Diagnostic Wall Model / wallModel follow-up control.",
             "Diagnostic Roughness Length / z0Wall follow-up control.",
+            "Diagnostic Inlet Turbulence Mode / inletT and Diagnostic Inlet Turbulence Scale / inletS follow-up controls.",
             "nearest_valid, fluid_weighted, vertical_valid_above, and z_plus_half probe sampling.",
             "Effective-ground, rough-wall, wall-model, voxelization, and inlet-turbulence follow-up settings until official z=2 m raw_trilinear improvement is proven.",
         ],
