@@ -154,15 +154,19 @@ def build_claims(
         },
         {
             "claim_id": "C007",
-            "claim_readiness": "blocked",
+            "claim_readiness": "weaken_claim",
             "evidence_type": "newly_run",
             "section": "Reproducibility / Build chain",
-            "claim": "Visual Studio Build Tools 2022 C++ and GPU runtime are not fully ready for additional long native validation.",
-            "supporting_metrics": f"VS C++ status={vs_cpp.get('status')}; nvidia-smi returncode={gpu.get('returncode')}",
+            "claim": "Visual Studio Build Tools 2022 C++ remains unavailable, but GPU runtime and the audited native-source fallback path are available for additional native validation attempts.",
+            "supporting_metrics": (
+                f"VS C++ status={vs_cpp.get('status')}; "
+                f"native_source_compile_path={build_chain.get('native_source_compile_path')}; "
+                f"nvidia-smi returncode={gpu.get('returncode')}"
+            ),
             "source_paths": "docs/experiments/casee/results/build_chain_manifest.json",
-            "allowed_use": "Use as a reproducibility blocker statement.",
-            "forbidden_use": "Do not claim the native validation chain is fully installed.",
-            "protocol_risks": "VS installation failed; GPU driver/device recovery required",
+            "allowed_use": "Use as a reproducibility limitation and fallback-build statement.",
+            "forbidden_use": "Do not claim the VS C++ build-chain requirement is fully installed.",
+            "protocol_risks": "VS installation failed; fallback compiler evidence does not itself add solver-output accuracy",
         },
         {
             "claim_id": "C008",

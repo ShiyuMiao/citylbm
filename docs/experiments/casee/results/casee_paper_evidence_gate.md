@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-09T12:30:04.201331+00:00
+Generated: 2026-08-09T12:49:22.594436+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc36`
+- Recommended tag: `v0.4.0-rc37`
 
 ## Official z=2 m Metric
 
@@ -18,7 +18,7 @@ Generated: 2026-08-09T12:30:04.201331+00:00
 ## Claim Matrix
 
 - Claims: 8
-- Readiness counts: `{'paper_ready': 2, 'limitations_ready': 3, 'weaken_claim': 1, 'blocked': 2}`
+- Readiness counts: `{'paper_ready': 2, 'limitations_ready': 3, 'weaken_claim': 2, 'blocked': 1}`
 - Blocked release claim present: True
 - Negative validation claim present: True
 - Recommended tag present: True
@@ -27,14 +27,14 @@ Generated: 2026-08-09T12:30:04.201331+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 310
+- Checked nonblank lines: 312
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 188
-- Lightweight release assets: 155
+- Artifact count: 194
+- Lightweight release assets: 161
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -51,6 +51,9 @@ Generated: 2026-08-09T12:30:04.201331+00:00
 - Build chain ready: False
 - Claim readiness: `blocked_build_chain_diagnostic`
 - VS Build Tools C++: `blocked`
+- MinGW/g++ fallback: `ready`
+- Native source compile ready: True
+- Native source compile path: `mingw_gpp_fallback`
 - .NET SDK: `ready`
 - FluidX3D: `ready_for_existing_binary`
 - GPU runtime: `ready`
@@ -90,6 +93,16 @@ Generated: 2026-08-09T12:30:04.201331+00:00
 - Claim readiness: `limitations_ready_failure_mode_atlas`
 - Claim boundary safe: True
 
+## z-center Rerun Consistency
+
+- Rerun found: True
+- Status: `passed_reproduced_failed_metric`
+- 48000-step log complete: True
+- CSV SHA256 equal: True
+- R2: -2.006330362229977
+- Claim readiness: `paper_ready_reproducibility; blocked formal accuracy release`
+- Claim boundary safe: True
+
 ## Candidate Sweep Plan
 
 - Plan found: True
@@ -112,7 +125,7 @@ Generated: 2026-08-09T12:30:04.201331+00:00
 
 - Packet found: True
 - Packet passed: True
-- Result rows: 19
+- Result rows: 20
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 - Claim boundary safe: True
@@ -170,7 +183,7 @@ Generated: 2026-08-09T12:30:04.201331+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 19
+- Feedback rows: 20
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False

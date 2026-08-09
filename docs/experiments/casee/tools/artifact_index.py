@@ -31,6 +31,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc34.md",
     "docs/releases/v0.4.0-rc35.md",
     "docs/releases/v0.4.0-rc36.md",
+    "docs/releases/v0.4.0-rc37.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -94,6 +95,7 @@ TOOL_SCRIPTS = [
     "casee_blocker_remediation_plan.py",
     "casee_next_experiment_runbook.py",
     "casee_candidate_sweep_plan.py",
+    "casee_zcenter_rerun_consistency.py",
     "casee_official_run_preflight.py",
     "casee_dx1_readiness_audit.py",
     "casee_environment_recovery_runbook.py",
@@ -257,6 +259,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "blocked_followup_runbook"
     if "casee_candidate_sweep_plan" in path:
         return "paper_ready_followup_plan"
+    if "casee_zcenter_rerun_consistency" in path or "zcenter_rerun" in path:
+        return "paper_ready_reproducibility_failed_metric"
     if "rhino_gha_load_gate" in path:
         return "blocked_manual_rhino_load"
     if "casee_official_run_preflight" in path:
@@ -307,6 +311,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to document the concrete blockers and next validation actions."
     if readiness == "blocked_followup_runbook":
         return "Use to document future commands and formal-result policy."
+    if readiness == "paper_ready_reproducibility_failed_metric":
+        return "Use to show the current compiled z-center Case E run reproduces the same official z=2 m failure metric."
     if readiness == "blocked_manual_rhino_load":
         return "Use to document the fail-closed Rhino/Grasshopper new-GHA loading gate."
     if readiness == "blocked_official_followup_preflight":
@@ -519,6 +525,9 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_candidate_sweep_plan.json",
                 "casee_candidate_sweep_plan.md",
                 "casee_candidate_sweep_plan.csv",
+                "casee_zcenter_rerun_consistency.json",
+                "casee_zcenter_rerun_consistency.md",
+                "casee_zcenter_rerun_consistency.csv",
                 "plugin_identity_gate.json",
                 "rhino_gha_load_gate.json",
                 "rhino_gha_load_gate.md",
@@ -532,6 +541,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc34.md",
                 "v0.4.0-rc35.md",
                 "v0.4.0-rc36.md",
+                "v0.4.0-rc37.md",
             )
         )
     ]

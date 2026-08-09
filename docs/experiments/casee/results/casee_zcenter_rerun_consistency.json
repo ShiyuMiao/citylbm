@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-08-09T12:49:17.266818+00:00",
+  "status": "passed_reproduced_failed_metric",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_reproducibility; blocked formal accuracy release",
+  "formal_release_allowed": false,
+  "formal_accuracy_claim_supported": false,
+  "baseline_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv",
+    "sha256": "a3ec4396a6722aaf2b7432ea976892423f4d31c528f180fd668731757650bb97",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-01T11:28:45.792455+00:00"
+  },
+  "rerun_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_native_dx2_zcenter_rerun_20260809_203439_probe_time_mean.csv",
+    "sha256": "a3ec4396a6722aaf2b7432ea976892423f4d31c528f180fd668731757650bb97",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-09T12:37:10.158516+00:00"
+  },
+  "rerun_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_dx2_zcenter_rerun_20260809_203439.log",
+    "sha256": "002ea6aa660ad27930f662c6718fce2e2ea85828df5e881ef5ecf6bdd8ac76aa",
+    "size_bytes": 392976,
+    "mtime_utc": "2026-08-09T12:37:10.306800+00:00"
+  },
+  "rerun_err_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_dx2_zcenter_rerun_20260809_203439.err.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "mtime_utc": "2026-08-09T12:34:39.155017+00:00"
+  },
+  "log_completed_48000": true,
+  "csv_sha256_equal": true,
+  "row_count_equal": true,
+  "max_abs_column_delta": {
+    "official_velocity_ratio": 0.0,
+    "predicted_velocity_ratio": 0.0,
+    "nearest_valid_velocity_ratio": 0.0,
+    "fluid_weighted_velocity_ratio": 0.0,
+    "vertical_valid_above_velocity_ratio": 0.0,
+    "z_plus_half_velocity_ratio": 0.0
+  },
+  "rerun_metrics": {
+    "n": 80,
+    "mae_pp": 21.111408125,
+    "rmse_pp": 27.72103208243715,
+    "bias_pp": -16.409215999999997,
+    "r2": -2.006330362229977,
+    "pearson": 0.11575649438573923,
+    "height_m": 2.0,
+    "sampling_mode": "raw_trilinear"
+  },
+  "boundary": "This audit shows the current compiled z-center diagnostic reproduces the same official z=2 m raw_trilinear failure metric. It supports reproducibility and limitations claims only; it does not improve accuracy, does not support mesh independence, and does not allow formal v0.4.0."
+}

@@ -43,6 +43,8 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_failure_mode_atlas.json",
     "docs/experiments/casee/results/casee_failure_mode_atlas.md",
     "docs/experiments/casee/results/casee_failure_mode_atlas.png",
+    "docs/experiments/casee/results/casee_zcenter_rerun_consistency.json",
+    "docs/experiments/casee/results/casee_zcenter_rerun_consistency.md",
     "docs/experiments/casee/results/casee_candidate_sweep_plan.json",
     "docs/experiments/casee/results/casee_candidate_sweep_plan.md",
     "docs/experiments/casee/results/casee_default_policy_gate.json",
@@ -68,7 +70,7 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc36.md",
+    "docs/releases/v0.4.0-rc37.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -269,6 +271,9 @@ def build_chain_status(path: Path) -> Dict[str, Any]:
             "build_chain_ready": False,
             "claim_readiness": "missing",
             "vs_cpp_status": "missing",
+            "gpp_status": "missing",
+            "native_source_compile_ready": False,
+            "native_source_compile_path": "missing",
             "dotnet_status": "missing",
             "fluidx3d_status": "missing",
             "gpu_status": "missing",
@@ -278,15 +283,20 @@ def build_chain_status(path: Path) -> Dict[str, Any]:
     data = json.loads(path.read_text(encoding="utf-8"))
     vs_status = str((data.get("visual_studio_build_tools_2022_cpp") or {}).get("status", ""))
     dotnet_status = str((data.get("dotnet_sdk") or {}).get("status", ""))
+    gpp_status = str((data.get("mingw_gpp") or {}).get("status", ""))
     fluidx3d_status = str((data.get("fluidx3d") or {}).get("status", ""))
     gpu_status = str((data.get("gpu_runtime") or {}).get("status", ""))
     readiness = str(data.get("claim_readiness", ""))
     build_ready = bool(data.get("build_chain_ready"))
+    native_source_compile_ready = bool(data.get("native_source_compile_ready"))
     return {
         "build_chain_found": True,
         "build_chain_ready": build_ready,
         "claim_readiness": readiness,
         "vs_cpp_status": vs_status,
+        "gpp_status": gpp_status,
+        "native_source_compile_ready": native_source_compile_ready,
+        "native_source_compile_path": data.get("native_source_compile_path", ""),
         "dotnet_status": dotnet_status,
         "fluidx3d_status": fluidx3d_status,
         "gpu_status": gpu_status,
@@ -299,7 +309,7 @@ def build_chain_status(path: Path) -> Dict[str, Any]:
             and dotnet_status == "ready"
             and fluidx3d_status == "ready_for_existing_binary"
             and gpu_status in {"ready", "blocked"}
-            and (build_ready or vs_status == "blocked")
+            and (native_source_compile_ready or vs_status == "blocked")
         ),
     }
 
@@ -422,6 +432,38 @@ def candidate_sweep_status(path: Path) -> Dict[str, Any]:
         "formal_release_allowed": data.get("formal_release_allowed"),
         "claim_boundary_safe": data.get("candidate_sweep_plan_generated") is True
         and readiness == "paper_ready_followup_plan; blocked formal accuracy release"
+        and data.get("formal_accuracy_claim_supported") is False
+        and data.get("formal_release_allowed") is False,
+    }
+
+
+def zcenter_rerun_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "rerun_found": False,
+            "status": "missing",
+            "claim_readiness": "missing",
+            "log_completed_48000": False,
+            "csv_sha256_equal": False,
+            "formal_accuracy_claim_supported": None,
+            "formal_release_allowed": None,
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    readiness = str(data.get("claim_readiness", ""))
+    return {
+        "rerun_found": True,
+        "status": data.get("status"),
+        "claim_readiness": readiness,
+        "log_completed_48000": data.get("log_completed_48000"),
+        "csv_sha256_equal": data.get("csv_sha256_equal"),
+        "rerun_metrics": data.get("rerun_metrics", {}),
+        "formal_accuracy_claim_supported": data.get("formal_accuracy_claim_supported"),
+        "formal_release_allowed": data.get("formal_release_allowed"),
+        "claim_boundary_safe": data.get("status") == "passed_reproduced_failed_metric"
+        and readiness == "paper_ready_reproducibility; blocked formal accuracy release"
+        and data.get("log_completed_48000") is True
+        and data.get("csv_sha256_equal") is True
         and data.get("formal_accuracy_claim_supported") is False
         and data.get("formal_release_allowed") is False,
     }
@@ -677,6 +719,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     dx1 = payload["casee_dx1_readiness_audit"]
     recovery = payload["casee_environment_recovery_runbook"]
     atlas = payload["casee_failure_mode_atlas"]
+    zcenter_rerun = payload["casee_zcenter_rerun_consistency"]
     candidate_sweep = payload["casee_candidate_sweep_plan"]
     default_policy = payload["casee_default_policy_gate"]
     paper_packet = payload["citylbm_paper_results_packet"]
@@ -740,6 +783,9 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Build chain ready: {build_chain['build_chain_ready']}",
         f"- Claim readiness: `{build_chain['claim_readiness']}`",
         f"- VS Build Tools C++: `{build_chain['vs_cpp_status']}`",
+        f"- MinGW/g++ fallback: `{build_chain['gpp_status']}`",
+        f"- Native source compile ready: {build_chain['native_source_compile_ready']}",
+        f"- Native source compile path: `{build_chain['native_source_compile_path']}`",
         f"- .NET SDK: `{build_chain['dotnet_status']}`",
         f"- FluidX3D: `{build_chain['fluidx3d_status']}`",
         f"- GPU runtime: `{build_chain['gpu_status']}`",
@@ -778,6 +824,16 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Failure modes: {atlas['failure_mode_count']}",
         f"- Claim readiness: `{atlas['claim_readiness']}`",
         f"- Claim boundary safe: {atlas['claim_boundary_safe']}",
+        "",
+        "## z-center Rerun Consistency",
+        "",
+        f"- Rerun found: {zcenter_rerun['rerun_found']}",
+        f"- Status: `{zcenter_rerun['status']}`",
+        f"- 48000-step log complete: {zcenter_rerun['log_completed_48000']}",
+        f"- CSV SHA256 equal: {zcenter_rerun['csv_sha256_equal']}",
+        f"- R2: {zcenter_rerun.get('rerun_metrics', {}).get('r2')}",
+        f"- Claim readiness: `{zcenter_rerun['claim_readiness']}`",
+        f"- Claim boundary safe: {zcenter_rerun['claim_boundary_safe']}",
         "",
         "## Candidate Sweep Plan",
         "",
@@ -890,6 +946,7 @@ def main() -> int:
     parser.add_argument("--dx1-readiness", type=Path, default=RESULTS_DIR / "casee_dx1_readiness_audit.json")
     parser.add_argument("--recovery", type=Path, default=RESULTS_DIR / "casee_environment_recovery_runbook.json")
     parser.add_argument("--failure-atlas", type=Path, default=RESULTS_DIR / "casee_failure_mode_atlas.json")
+    parser.add_argument("--zcenter-rerun", type=Path, default=RESULTS_DIR / "casee_zcenter_rerun_consistency.json")
     parser.add_argument("--candidate-sweep", type=Path, default=RESULTS_DIR / "casee_candidate_sweep_plan.json")
     parser.add_argument("--default-policy", type=Path, default=RESULTS_DIR / "casee_default_policy_gate.json")
     parser.add_argument("--paper-results-packet", type=Path, default=RESULTS_DIR / "citylbm_paper_results_packet.json")
@@ -915,6 +972,7 @@ def main() -> int:
     dx1_readiness = dx1_readiness_status(args.dx1_readiness)
     recovery = recovery_status(args.recovery)
     atlas = failure_atlas_status(args.failure_atlas)
+    zcenter_rerun = zcenter_rerun_status(args.zcenter_rerun)
     candidate_sweep = candidate_sweep_status(args.candidate_sweep)
     default_policy = default_policy_status(args.default_policy)
     paper_packet = paper_results_packet_status(args.paper_results_packet)
@@ -948,6 +1006,8 @@ def main() -> int:
         and recovery["formal_release_allowed"] is False
         and atlas["atlas_found"]
         and atlas["claim_boundary_safe"]
+        and zcenter_rerun["rerun_found"]
+        and zcenter_rerun["claim_boundary_safe"]
         and candidate_sweep["candidate_sweep_plan_found"]
         and candidate_sweep["claim_boundary_safe"]
         and default_policy["default_policy_gate_found"]
@@ -980,6 +1040,7 @@ def main() -> int:
         "casee_dx1_readiness_audit": dx1_readiness,
         "casee_environment_recovery_runbook": recovery,
         "casee_failure_mode_atlas": atlas,
+        "casee_zcenter_rerun_consistency": zcenter_rerun,
         "casee_candidate_sweep_plan": candidate_sweep,
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_packet,

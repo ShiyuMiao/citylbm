@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-09T12:29:58.634206+00:00",
+  "generated_at": "2026-08-09T12:49:17.439208+00:00",
   "candidate_sweep_plan_generated": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc36",
+  "recommended_tag": "v0.4.0-rc37",
   "current_official_metrics": {
     "n": 80,
     "mae_pp": 21.111408125,
@@ -22,10 +22,10 @@
     {
       "candidate_id": "C001_dx2_zcenter_replicate_best_known",
       "priority": 1,
-      "candidate_class": "baseline_replicate",
+      "candidate_class": "current_compiled_binary_rerun",
       "executable_now": true,
       "blocking_gates": [],
-      "evidence_type": "planned_run",
+      "evidence_type": "planned_or_completed_rerun",
       "dx_m": 2.0,
       "steps": 48000,
       "spinup": 12000,
@@ -33,14 +33,14 @@
       "ground_offset_cells": 1,
       "origin_z_offset_m": 1.0,
       "nu_lbm": 0.001,
-      "domain_decomposition": "2x2x1",
-      "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 2 --domain-y 2 --domain-z 1",
+      "domain_decomposition": "1x1x1",
+      "command": "cd E:/citylbm_buildchain/FluidX3D && ./bin/FluidX3D.exe",
       "expected_artifacts": [
         "docs/experiments/casee/native_cases/<candidate>/citylbm_native_case_manifest.json",
-        "docs/experiments/casee/native_cases/<candidate>/casee_probe_time_mean.csv",
-        "docs/experiments/casee/results/<candidate>_metrics.csv"
+        "docs/experiments/casee/results/casee_native_dx2_zcenter_rerun_<stamp>_probe_time_mean.csv",
+        "docs/experiments/casee/results/casee_zcenter_rerun_consistency.json"
       ],
-      "rationale": "Replicate the current best official baseline before changing implementation; current MAE=21.111408125, R2=-2.006330362229977.",
+      "rationale": "Rerun the currently deployed compiled z-center baseline before changing implementation; current MAE=21.111408125, R2=-2.006330362229977.",
       "formal_result_policy": "Only the completed 80-probe official z=2 m raw_trilinear casee_probe_time_mean.csv may feed release_gate.json. Diagnostic sampling columns and z offsets cannot substitute for the formal result.",
       "pass_condition": "Reproduces n=80 raw_trilinear official z=2 m metrics within audit tolerance.",
       "default_promotion_allowed": false,

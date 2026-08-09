@@ -1,6 +1,6 @@
 # Case E Official Run Preflight
 
-Generated: 2026-08-09T12:29:56.714877+00:00
+Generated: 2026-08-09T12:49:15.523377+00:00
 
 ## Verdict
 
@@ -27,6 +27,7 @@ Generated: 2026-08-09T12:29:56.714877+00:00
 | `fluidx3d_binary` | pass | critical | Restore or rebuild FluidX3D.exe before scheduling native Case E. |
 | `gpu_runtime` | pass | critical | Recover/reboot the NVIDIA device until nvidia-smi returns 0 without GPU-lost errors. |
 | `vs_cpp_build_tools` | blocked | major | Free C: space, approve UAC, and install Visual Studio Build Tools 2022 C++ workload. |
+| `native_source_compile_path` | pass | critical | Provide either VS C++ Build Tools or the documented MinGW/g++ fallback before generating a new FluidX3D setup candidate. |
 | `casea_smoke_regression` | pass | major | Rerun Case A smoke regression after any default solver change. |
 
 ## Boundary

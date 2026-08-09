@@ -41,6 +41,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_dx1_readiness_audit.py`
 - `docs/experiments/casee/tools/casee_environment_recovery_runbook.py`
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
+- `docs/experiments/casee/tools/casee_zcenter_rerun_consistency.py`
 - `docs/experiments/casee/tools/casee_candidate_sweep_plan.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
 - `docs/experiments/casee/tools/casee_manuscript_results_table.py`
@@ -86,6 +87,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_failure_mode_atlas.json`
 - `docs/experiments/casee/results/casee_failure_mode_atlas.md`
 - `docs/experiments/casee/results/casee_failure_mode_atlas.png`
+- `docs/experiments/casee/results/casee_zcenter_rerun_consistency.json`
+- `docs/experiments/casee/results/casee_zcenter_rerun_consistency.md`
+- `docs/experiments/casee/results/casee_zcenter_rerun_consistency.csv`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.json`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.md`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.csv`
@@ -119,7 +123,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc36.md`
+- `docs/releases/v0.4.0-rc37.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -188,18 +192,24 @@ but R2 remains negative. Its best diagnostic sampling mode,
 `vertical_valid_above`, reaches MAE 16.041 pp and Pearson 0.336940, but this is
 still not a formal validation result.
 
+A newly-run 48000-step rerun of the currently compiled z-center setup on
+2026-08-09 reproduced the same official z=2 m raw_trilinear CSV and metrics
+bit-for-bit against the current baseline (`R2=-2.006330`, MAE 21.111 pp). This
+supports repeatability and limitations claims only; it confirms that repeating
+the same compiled baseline is not an accuracy-improvement path.
+
 CityLBM now exposes the corresponding `Diagnostic Z Origin Offset` (`zOff`)
 input on the Grasshopper `Run Simulation` component. The default is 0 m. This
 is an experiment switch for inlet-height and probe-protocol diagnostics, not a
 validated default accuracy model.
 
-Current build-chain audit: .NET SDK 8.0.423 and the existing FluidX3D binary are
-available under `E:\citylbm_buildchain`, and `nvidia-smi` now reports four
-available Tesla P100 GPUs. Visual Studio Build Tools 2022 C++ remains blocked:
-the current `winget` BuildTools 17.14.37 attempt exited 1602 and the Visual
-Studio bootstrapper log reports a possible declined UAC prompt. C: has about
-7 GB free, which remains below the 8 GB operational threshold used by the
-recovery runbook.
+Current build-chain audit: .NET SDK 8.0.423, the existing FluidX3D binary, four
+Tesla P100 GPUs, and the MinGW/g++ fallback are available under the current
+environment. Visual Studio Build Tools 2022 C++ remains blocked: the current
+`winget` BuildTools 17.14.37 attempt exited 1602 and the Visual Studio
+bootstrapper log reports a possible declined UAC prompt. VS remains an
+environment limitation, while new native-source candidates may use the audited
+g++ fallback if the generated setup is rebuilt and the run log is archived.
 
 The dx=1 m high-resolution readiness audit records the exact future generation
 command, the current generator domain (600 x 800 x 241 cells), the conservative
@@ -210,12 +220,11 @@ decomposition, leaving insufficient 25% headroom on the current P100 cards; the
 conservative overhead scenario is not feasible. This is limitations/follow-up
 planning evidence only, not mesh-independence or accuracy evidence.
 
-The candidate sweep plan now ranks the next official z=2 m follow-up attempts:
-baseline replication, longer time-mean stability, z-origin ablation,
-decomposition ablation, dx=1 dry-allocation gating, and implementation-required
-wall/inlet follow-ups. Each candidate records whether it is executable now, the
-blocking gates, the exact native generator command when one exists, expected
-artifacts, and the metric condition required before any default promotion.
+The candidate sweep plan now separates the currently compiled z-center rerun
+from source-recompiled follow-up candidates. New longer-time, z-origin,
+decomposition, dx=1, wall-model, and inlet-turbulence candidates remain governed
+by source-compile, runtime, memory, and formal raw_trilinear metric gates before
+any default promotion.
 
 The manuscript evidence summary now converts Case E outputs into a claim matrix.
 It marks protocol and build/workflow evidence as paper-ready, marks the current

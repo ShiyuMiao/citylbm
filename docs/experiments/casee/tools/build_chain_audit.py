@@ -137,6 +137,12 @@ def write_csv(path: Path, manifest: Dict[str, Any]) -> None:
             "limitation": "",
         },
         {
+            "component": "mingw_gpp",
+            "status": manifest["mingw_gpp"]["status"],
+            "evidence": manifest["mingw_gpp"]["version"].get("command", ""),
+            "limitation": manifest["mingw_gpp"].get("note", ""),
+        },
+        {
             "component": "fluidx3d",
             "status": manifest["fluidx3d"]["status"],
             "evidence": manifest["fluidx3d"]["executable"].get("path", ""),
@@ -159,6 +165,7 @@ def write_csv(path: Path, manifest: Dict[str, Any]) -> None:
 def write_markdown(path: Path, manifest: Dict[str, Any]) -> None:
     vs = manifest["visual_studio_build_tools_2022_cpp"]
     dotnet = manifest["dotnet_sdk"]
+    gpp = manifest["mingw_gpp"]
     fluidx3d = manifest["fluidx3d"]
     gpu = manifest["gpu_runtime"]
     lines = [
@@ -169,8 +176,11 @@ def write_markdown(path: Path, manifest: Dict[str, Any]) -> None:
         "## Verdict",
         "",
         f"- Build chain ready: {manifest['build_chain_ready']}",
+        f"- Operational with fallback: {manifest['build_chain_operational_with_fallback']}",
         f"- Claim readiness: `{manifest['claim_readiness']}`",
         f"- VS Build Tools C++: `{vs['status']}`",
+        f"- MinGW/g++ fallback: `{gpp['status']}`",
+        f"- Native source compile path: `{manifest['native_source_compile_path']}`",
         f"- .NET SDK: `{dotnet['status']}`",
         f"- FluidX3D binary: `{fluidx3d['status']}`",
         f"- GPU runtime: `{gpu['status']}`",
@@ -248,6 +258,8 @@ def main() -> int:
         vs_ready = bool(vs_requires.get("stdout", "").strip())
 
     dotnet_ready = args.dotnet.exists()
+    gpp_version = run_cmd(["g++.exe", "--version"])
+    gpp_ready = bool(gpp_version.get("returncode") == 0)
     fluidx3d_ready = args.fluidx3d_exe.exists()
     nvidia_smi = run_cmd(["nvidia-smi"])
     gpu_ready = nvidia_smi.get("returncode") == 0 and "GPU is lost" not in (nvidia_smi.get("stdout", "") + nvidia_smi.get("stderr", ""))
@@ -259,12 +271,18 @@ def main() -> int:
         "msbuild.exe is not on PATH" if not run_cmd(["msbuild.exe"]).get("found") else "",
         "C: drive free space is below 8 GB; Visual Studio may still require more system-drive cache space" if c_free is not None and c_free < 8.0 else "",
     ]
+    native_source_compile_ready = bool(vs_ready or gpp_ready)
     build_chain_ready = bool(vs_ready and dotnet_ready and fluidx3d_ready and gpu_ready)
+    build_chain_operational_with_fallback = bool(dotnet_ready and native_source_compile_ready and fluidx3d_ready and gpu_ready)
+    native_source_compile_path = "visual_studio_cpp" if vs_ready else ("mingw_gpp_fallback" if gpp_ready else "blocked")
     manifest = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "evidence_type": "newly_run",
         "claim_readiness": "build_chain_ready" if build_chain_ready else "blocked_build_chain_diagnostic",
         "build_chain_ready": build_chain_ready,
+        "build_chain_operational_with_fallback": build_chain_operational_with_fallback,
+        "native_source_compile_ready": native_source_compile_ready,
+        "native_source_compile_path": native_source_compile_path,
         "visual_studio_build_tools_2022_cpp": {
             "status": "ready" if vs_ready else "blocked",
             "vswhere": file_status(vswhere),
@@ -292,6 +310,11 @@ def main() -> int:
             "status": "ready" if dotnet_ready else "blocked",
             "executable": file_status(args.dotnet),
             "info": run_cmd([str(args.dotnet), "--info"]) if dotnet_ready else run_cmd(["dotnet", "--info"]),
+        },
+        "mingw_gpp": {
+            "status": "ready" if gpp_ready else "blocked",
+            "version": gpp_version,
+            "note": "Used only as a native FluidX3D source build fallback when VS/MSBuild is unavailable; this is not accuracy evidence.",
         },
         "fluidx3d": {
             "status": "ready_for_existing_binary" if fluidx3d_ready else "blocked",

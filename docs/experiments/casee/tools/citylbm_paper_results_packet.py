@@ -94,6 +94,7 @@ def build_rows() -> List[Dict[str, str]]:
     preflight = read_json(CASEE_RESULTS / "casee_official_run_preflight.json")
     dx1_readiness = read_json(CASEE_RESULTS / "casee_dx1_readiness_audit.json")
     candidate_sweep = read_json(CASEE_RESULTS / "casee_candidate_sweep_plan.json")
+    zcenter_rerun = read_json(CASEE_RESULTS / "casee_zcenter_rerun_consistency.json")
     build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -162,6 +163,30 @@ def build_rows() -> List[Dict[str, str]]:
         )
     )
 
+    rerun_metrics = zcenter_rerun.get("rerun_metrics") or {}
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="zcenter_rerun_reproduced_failed_metric",
+            claim_readiness=str(zcenter_rerun.get("claim_readiness", "blocked_rerun_consistency")),
+            evidence_type=str(zcenter_rerun.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_zcenter_rerun_consistency.json"),
+                rel(CASEE_RESULTS / "casee_zcenter_rerun_consistency.md"),
+                str((zcenter_rerun.get("rerun_csv") or {}).get("path", "")),
+                str((zcenter_rerun.get("rerun_log") or {}).get("path", "")),
+            ],
+            metric_or_status=(
+                f"status={zcenter_rerun.get('status')}; log_completed_48000={zcenter_rerun.get('log_completed_48000')}; "
+                f"csv_sha256_equal={zcenter_rerun.get('csv_sha256_equal')}; MAE={rerun_metrics.get('mae_pp')} pp; "
+                f"R2={rerun_metrics.get('r2')}; Pearson={rerun_metrics.get('pearson')}"
+            ),
+            paper_use="Use as newly-run reproducibility evidence that the current compiled z-center Case E setup reproduces the same negative official z=2 m metric.",
+            limitations="This reinforces repeatability of the failure; it is not an accuracy improvement and cannot support formal v0.4.0.",
+            software_feedback="Prioritize physical wall/inlet/voxelization changes over more repeats of the same compiled baseline.",
+        )
+    )
+
     out.append(
         row(
             experiment="Experiment 2 / AIJ Case E",
@@ -176,9 +201,9 @@ def build_rows() -> List[Dict[str, str]]:
                 f"official_followup_run_allowed={preflight.get('official_followup_run_allowed')}; "
                 f"blocked_gates={','.join(preflight.get('blocked_gates', []))}"
             ),
-            paper_use="Use to document why the next long official validation run is not yet schedulable on this machine.",
+            paper_use="Use to document whether the next long official validation run is schedulable on this machine.",
             limitations="Runtime readiness evidence only; no new solver output is produced.",
-            software_feedback="Recover GPU runtime, Rhino new-GHA loading, and VS C++ build chain before new formal Case E sweeps.",
+            software_feedback="Keep Rhino new-GHA loading and native source compile evidence as operational gates before new formal Case E sweeps.",
         )
     )
 
@@ -231,6 +256,7 @@ def build_rows() -> List[Dict[str, str]]:
 
     build_vs = build_chain.get("visual_studio_build_tools_2022_cpp") or {}
     build_gpu = build_chain.get("gpu_runtime") or {}
+    build_gpp = build_chain.get("mingw_gpp") or {}
     out.append(
         row(
             experiment="Build-chain recovery / AIJ Case E follow-up",
@@ -244,7 +270,9 @@ def build_rows() -> List[Dict[str, str]]:
             ],
             metric_or_status=(
                 f"build_chain_ready={build_chain.get('build_chain_ready')}; "
-                f"vs_cpp={build_vs.get('status')}; gpu={build_gpu.get('status')}; "
+                f"operational_with_fallback={build_chain.get('build_chain_operational_with_fallback')}; "
+                f"vs_cpp={build_vs.get('status')}; gpp={build_gpp.get('status')}; "
+                f"native_source_compile_path={build_chain.get('native_source_compile_path')}; gpu={build_gpu.get('status')}; "
                 f"dotnet={(build_chain.get('dotnet_sdk') or {}).get('status')}; "
                 f"fluidx3d={(build_chain.get('fluidx3d') or {}).get('status')}"
             ),

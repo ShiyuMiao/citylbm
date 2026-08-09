@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T12:29:56.714877+00:00",
+  "generated_at": "2026-08-09T12:49:15.523377+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "ready_for_next_official_followup_run",
   "official_followup_run_allowed": true,
@@ -87,6 +87,14 @@
       "required_action": "Free C: space, approve UAC, and install Visual Studio Build Tools 2022 C++ workload.",
       "paper_policy": "Native build-chain limitation unless ready."
     },
+    "native_source_compile_path": {
+      "passed": true,
+      "severity": "critical",
+      "evidence_type": "preexisting_artifact",
+      "source": "docs/experiments/casee/results/build_chain_manifest.json",
+      "required_action": "Provide either VS C++ Build Tools or the documented MinGW/g++ fallback before generating a new FluidX3D setup candidate.",
+      "paper_policy": "Required for new source-compiled native FluidX3D candidates; existing-binary reruns must state that boundary."
+    },
     "casea_smoke_regression": {
       "passed": true,
       "severity": "major",
@@ -169,7 +177,7 @@
       "command": "nvidia-smi",
       "found": true,
       "returncode": 0,
-      "stdout": "Sun Aug  9 20:29:56 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     |\n|-----------------------------------------+------------------------+----------------------+\n| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  Tesla P100-PCIE-16GB         TCC   |   00000000:18:00.0 Off |                    0 |\n| N/A   46C    P0             28W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   1  Tesla P100-PCIE-16GB         TCC   |   00000000:51:00.0 Off |                    0 |\n| N/A   42C    P0             28W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   2  Tesla P100-PCIE-16GB         TCC   |   00000000:8A:00.0 Off |                    0 |\n| N/A   42C    P0             26W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   3  Tesla P100-PCIE-16GB         TCC   |   00000000:C3:00.0 Off |                    0 |\n| N/A   68C    P0             32W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n                                                                                         \n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+",
+      "stdout": "Sun Aug  9 20:49:15 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     |\n|-----------------------------------------+------------------------+----------------------+\n| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  Tesla P100-PCIE-16GB         TCC   |   00000000:18:00.0 Off |                    0 |\n| N/A   47C    P0             28W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   1  Tesla P100-PCIE-16GB         TCC   |   00000000:51:00.0 Off |                    0 |\n| N/A   43C    P0             28W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   2  Tesla P100-PCIE-16GB         TCC   |   00000000:8A:00.0 Off |                    0 |\n| N/A   43C    P0             26W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   3  Tesla P100-PCIE-16GB         TCC   |   00000000:C3:00.0 Off |                    0 |\n| N/A   69C    P0             32W /  250W |       9MiB /  16384MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n                                                                                         \n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+",
       "stderr": ""
     },
     "dotnet_version": {
@@ -184,15 +192,17 @@
       "exists": true
     },
     "vs_cpp_status": "blocked",
+    "native_source_compile_ready": true,
+    "native_source_compile_path": "mingw_gpp_fallback",
     "disk": [
       {
         "drive": "C:\\",
-        "free_gb": 7.033,
+        "free_gb": 7.028,
         "total_gb": 194.47
       },
       {
         "drive": "D:\\",
-        "free_gb": 229.325,
+        "free_gb": 229.317,
         "total_gb": 281.627
       },
       {

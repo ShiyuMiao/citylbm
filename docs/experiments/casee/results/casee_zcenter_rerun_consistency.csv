@@ -1,0 +1,2 @@
+audit_id,status,evidence_type,baseline_csv,rerun_csv,log_completed_48000,csv_sha256_equal,max_predicted_ratio_delta,mae_pp,r2,pearson,formal_release_allowed,claim_readiness
+zcenter_rerun_consistency,passed_reproduced_failed_metric,newly_run,docs/experiments/casee/results/casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv,docs/experiments/casee/results/casee_native_dx2_zcenter_rerun_20260809_203439_probe_time_mean.csv,True,True,0.0,21.111408125,-2.006330362229977,0.11575649438573923,False,paper_ready_reproducibility; blocked formal accuracy release

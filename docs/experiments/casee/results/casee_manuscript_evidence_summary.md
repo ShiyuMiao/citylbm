@@ -1,6 +1,6 @@
 # AIJ Case E Manuscript Evidence Summary
 
-Generated: 2026-08-09T12:29:54.632414+00:00
+Generated: 2026-08-09T12:49:13.679561+00:00
 
 ## Current Formal Metric
 
@@ -11,7 +11,7 @@ Generated: 2026-08-09T12:29:54.632414+00:00
 - R2: -2.006330.
 - Pearson: 0.115756.
 - Formal release allowed: False.
-- Recommended tag: `v0.4.0-rc36`.
+- Recommended tag: `v0.4.0-rc37`.
 
 ## Claim Matrix
 
@@ -23,7 +23,7 @@ Generated: 2026-08-09T12:29:54.632414+00:00
 | C004 | limitations_ready | Discussion / Near-wall limitations | Error is concentrated at high protocol-risk probes near walls or solid interpolation corners. | `docs/experiments/casee/results/casee_voxel_probe_audit_groups.csv; docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv` |
 | C005 | limitations_ready | Discussion / Probe sampling diagnostics | Diagnostic sampling can reduce Case E MAE, but no diagnostic mode makes official z=2 m R2 positive. | `docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv` |
 | C006 | paper_ready | Reproducibility / Build | The current CityLBM source builds in Release configuration on the available .NET SDK toolchain. | `docs/experiments/casee/results/citylbm_build_check.log; docs/experiments/casea/results/casea_smoke_regression.json` |
-| C007 | blocked | Reproducibility / Build chain | Visual Studio Build Tools 2022 C++ and GPU runtime are not fully ready for additional long native validation. | `docs/experiments/casee/results/build_chain_manifest.json` |
+| C007 | weaken_claim | Reproducibility / Build chain | Visual Studio Build Tools 2022 C++ remains unavailable, but GPU runtime and the audited native-source fallback path are available for additional native validation attempts. | `docs/experiments/casee/results/build_chain_manifest.json` |
 | C008 | blocked | Release | Formal CityLBM v0.4.0 release is not allowed by the release gate. | `docs/experiments/casee/results/release_gate.json` |
 
 ## Results Paragraph Draft

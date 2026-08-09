@@ -1,6 +1,6 @@
 # Case E Candidate Sweep Plan
 
-Generated: 2026-08-09T12:29:58.634206+00:00
+Generated: 2026-08-09T12:49:17.439208+00:00
 
 ## Verdict
 
@@ -23,7 +23,7 @@ Generated: 2026-08-09T12:29:58.634206+00:00
 
 | priority | candidate | executable now | class | blocking gates | pass condition |
 |---:|---|---:|---|---|---|
-| 1 | `C001_dx2_zcenter_replicate_best_known` | True | baseline_replicate | `` | Reproduces n=80 raw_trilinear official z=2 m metrics within audit tolerance. |
+| 1 | `C001_dx2_zcenter_replicate_best_known` | True | current_compiled_binary_rerun | `` | Reproduces n=80 raw_trilinear official z=2 m metrics within audit tolerance. |
 | 2 | `C002_dx2_longer_mean_stability` | True | time_mean_stability | `` | Pearson remains positive and R2 moves toward zero without diagnostic sampling substitution. |
 | 3 | `C003_dx2_no_zcenter_ablation` | True | protocol_ablation | `` | Shows whether z-origin sensitivity is a diagnostic limitation rather than a stable accuracy fix. |
 | 4 | `C004_dx3_low_cost_direction_check` | True | low_cost_regression | `` | No reversal of Pearson sign and no protocol mismatch in manifest/logs. |

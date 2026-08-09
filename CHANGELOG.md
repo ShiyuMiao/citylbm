@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.4.0-rc37 - z-center rerun reproducibility and native build-chain boundary
+
+- Ran the currently compiled dx=2 m z-center Case E setup for 48000 steps and archived the new run log, stderr log, and probe CSV.
+- Added `casee_zcenter_rerun_consistency.py` to verify the rerun completed 48000 steps and reproduced the baseline official z=2 m raw_trilinear CSV and metrics.
+- Extended `build_chain_audit.py` to record the MinGW/g++ fallback and distinguish VS C++ status from native-source compile readiness.
+- Tightened `casee_official_run_preflight.py` and `casee_candidate_sweep_plan.py` so new generated FluidX3D candidates require an audited source-compile path, while current compiled-binary reruns are treated separately.
+- Integrated the rerun consistency audit into the reproducibility suite, artifact index, paper evidence gate, reproducibility appendix, paper results packet, and software-feedback matrix as SF020.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc37.md`.
+
+This release candidate adds real solver-output reproducibility evidence for the current negative z-center metric. It does not improve official Case E z=2 m R2, prove predictive accuracy, prove mesh independence, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc36 - Candidate sweep plan for official z=2 m follow-up
 
 - Added `casee_candidate_sweep_plan.py` to rank the next AIJ Case E official z=2 m follow-up candidates.

@@ -220,6 +220,8 @@ def main() -> int:
     fluidx3d_exists = args.fluidx3d_exe.exists()
     gpu_ready = bool(nvidia.get("returncode") == 0 and "GPU is lost" not in (nvidia.get("stdout", "") + nvidia.get("stderr", "")))
     vs_status = (build_chain.get("visual_studio_build_tools_2022_cpp") or {}).get("status")
+    native_source_compile_ready = bool(build_chain.get("native_source_compile_ready"))
+    native_source_compile_path = str(build_chain.get("native_source_compile_path", ""))
 
     gates = {
         "official_data_manifest": {
@@ -294,6 +296,14 @@ def main() -> int:
             "required_action": "Free C: space, approve UAC, and install Visual Studio Build Tools 2022 C++ workload.",
             "paper_policy": "Native build-chain limitation unless ready.",
         },
+        "native_source_compile_path": {
+            "passed": native_source_compile_ready,
+            "severity": "critical",
+            "evidence_type": "preexisting_artifact",
+            "source": "docs/experiments/casee/results/build_chain_manifest.json",
+            "required_action": "Provide either VS C++ Build Tools or the documented MinGW/g++ fallback before generating a new FluidX3D setup candidate.",
+            "paper_policy": "Required for new source-compiled native FluidX3D candidates; existing-binary reruns must state that boundary.",
+        },
         "casea_smoke_regression": {
             "passed": bool((release_gate.get("checks") or {}).get("casea_smoke_regression_passed")),
             "severity": "major",
@@ -310,6 +320,7 @@ def main() -> int:
         "dotnet_sdk",
         "fluidx3d_binary",
         "gpu_runtime",
+        "native_source_compile_path",
         "casea_smoke_regression",
     ]
     official_followup_run_allowed = all(gates[item]["passed"] for item in followup_required)
@@ -328,6 +339,8 @@ def main() -> int:
             "dotnet_version": dotnet,
             "fluidx3d_exe": {"path": str(args.fluidx3d_exe), "exists": fluidx3d_exists},
             "vs_cpp_status": vs_status,
+            "native_source_compile_ready": native_source_compile_ready,
+            "native_source_compile_path": native_source_compile_path,
             "disk": disk_status(),
         },
         "blocked_gates": [gate_id for gate_id, gate in gates.items() if not gate["passed"]],

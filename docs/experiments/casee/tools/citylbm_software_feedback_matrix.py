@@ -123,6 +123,7 @@ def build_rows() -> List[Dict[str, Any]]:
     build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
     dx1_readiness = read_json(RESULTS_DIR / "casee_dx1_readiness_audit.json")
     candidate_sweep = read_json(RESULTS_DIR / "casee_candidate_sweep_plan.json")
+    zcenter_rerun = read_json(RESULTS_DIR / "casee_zcenter_rerun_consistency.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -574,6 +575,37 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF020",
+            experiment="Experiment 2 / AIJ Case E z-center rerun",
+            finding=(
+                "A newly-run 48000-step rerun of the currently compiled z-center Case E setup reproduced the same "
+                "official z=2 m raw_trilinear failure metric, so repeating the baseline is not an accuracy-improvement path."
+            ),
+            evidence_type=str(zcenter_rerun.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_zcenter_rerun_consistency.py",
+                RESULTS_DIR / "casee_zcenter_rerun_consistency.json",
+                RESULTS_DIR / "casee_zcenter_rerun_consistency.md",
+                Path(str((zcenter_rerun.get("rerun_csv") or {}).get("path", ""))),
+                Path(str((zcenter_rerun.get("rerun_log") or {}).get("path", ""))),
+            ],
+            decision_class="rerun_reproducibility_guard",
+            citylbm_status="baseline_failure_reproduced"
+            if zcenter_rerun.get("status") == "passed_reproduced_failed_metric"
+            else "missing_or_inconsistent_rerun",
+            implementation_evidence=(
+                f"log_completed_48000={zcenter_rerun.get('log_completed_48000')}; "
+                f"csv_sha256_equal={zcenter_rerun.get('csv_sha256_equal')}; "
+                f"r2={(zcenter_rerun.get('rerun_metrics') or {}).get('r2')}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as reproducibility evidence that the current best compiled diagnostic repeats the negative official z=2 m result.",
+            limitations="Does not improve accuracy, does not support formal v0.4.0, and does not justify promoting diagnostic settings.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF019",
             experiment="Experiment 2 / AIJ Case E official z=2 m follow-up planning",
             finding=(
@@ -617,7 +649,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -627,7 +659,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -711,6 +743,7 @@ def main() -> int:
             rel(RESULTS_DIR / "build_chain_manifest.json"),
             rel(RESULTS_DIR / "casee_dx1_readiness_audit.json"),
             rel(RESULTS_DIR / "casee_candidate_sweep_plan.json"),
+            rel(RESULTS_DIR / "casee_zcenter_rerun_consistency.json"),
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
             rel(RESULTS_DIR / "casee_manuscript_results_table.json"),

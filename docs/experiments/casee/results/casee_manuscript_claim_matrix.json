@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T12:29:54.630581+00:00",
+  "generated_at": "2026-08-09T12:49:13.678720+00:00",
   "claims": [
     {
       "claim_id": "C001",
@@ -75,15 +75,15 @@
     },
     {
       "claim_id": "C007",
-      "claim_readiness": "blocked",
+      "claim_readiness": "weaken_claim",
       "evidence_type": "newly_run",
       "section": "Reproducibility / Build chain",
-      "claim": "Visual Studio Build Tools 2022 C++ and GPU runtime are not fully ready for additional long native validation.",
-      "supporting_metrics": "VS C++ status=blocked; nvidia-smi returncode=0",
+      "claim": "Visual Studio Build Tools 2022 C++ remains unavailable, but GPU runtime and the audited native-source fallback path are available for additional native validation attempts.",
+      "supporting_metrics": "VS C++ status=blocked; native_source_compile_path=mingw_gpp_fallback; nvidia-smi returncode=0",
       "source_paths": "docs/experiments/casee/results/build_chain_manifest.json",
-      "allowed_use": "Use as a reproducibility blocker statement.",
-      "forbidden_use": "Do not claim the native validation chain is fully installed.",
-      "protocol_risks": "VS installation failed; GPU driver/device recovery required"
+      "allowed_use": "Use as a reproducibility limitation and fallback-build statement.",
+      "forbidden_use": "Do not claim the VS C++ build-chain requirement is fully installed.",
+      "protocol_risks": "VS installation failed; fallback compiler evidence does not itself add solver-output accuracy"
     },
     {
       "claim_id": "C008",
@@ -91,7 +91,7 @@
       "evidence_type": "newly_run",
       "section": "Release",
       "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
-      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc36",
+      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc37",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
       "allowed_use": "Use to justify rc-only release status.",
       "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",

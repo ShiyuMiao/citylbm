@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -16,6 +17,7 @@ RESULTS_DIR = CASE_DIR / "results"
 OUT_JSON = RESULTS_DIR / "casee_candidate_sweep_plan.json"
 OUT_CSV = RESULTS_DIR / "casee_candidate_sweep_plan.csv"
 OUT_MD = RESULTS_DIR / "casee_candidate_sweep_plan.md"
+CURRENT_BASELINE_CASE = CASE_DIR / "native_cases" / "casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_pmodes_steps48000_spin12000"
 
 
 FIELDNAMES = [
@@ -51,6 +53,38 @@ def read_json(path: Path) -> Dict[str, Any]:
 
 def rel(path: Path) -> str:
     return path.resolve().relative_to(ROOT).as_posix()
+
+
+def sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def deployed_fluidx3d_root(build_chain: Dict[str, Any]) -> Path | None:
+    exe = ((build_chain.get("fluidx3d") or {}).get("executable") or {}).get("path")
+    if not exe:
+        return None
+    exe_path = Path(str(exe))
+    if exe_path.name.lower() != "fluidx3d.exe":
+        return None
+    if exe_path.parent.name.lower() == "bin":
+        return exe_path.parent.parent
+    return exe_path.parent
+
+
+def deployed_baseline_matches(build_chain: Dict[str, Any]) -> bool:
+    root = deployed_fluidx3d_root(build_chain)
+    if root is None:
+        return False
+    pairs = [
+        (root / "src" / "setup.cpp", CURRENT_BASELINE_CASE / "setup.cpp"),
+        (root / "src" / "defines.hpp", CURRENT_BASELINE_CASE / "defines.hpp"),
+        (root / "buildings.stl", CURRENT_BASELINE_CASE / "buildings.stl"),
+    ]
+    return all(left.exists() and right.exists() and sha256(left) == sha256(right) for left, right in pairs)
 
 
 def csv_value(value: Any) -> str:
@@ -152,6 +186,8 @@ def build_candidates(
     )
     gpu_ready = gpu_status.startswith("ready")
     fluidx_ready = fluidx_status.startswith("ready")
+    native_source_compile_ready = bool(build_chain.get("native_source_compile_ready"))
+    current_binary_rerun_available = bool(official_followup_allowed and gpu_ready and fluidx_ready and deployed_baseline_matches(build_chain))
     dx1_summary = dx1_readiness.get("summary") or {}
     dx1_headroom_ok = dx1_summary.get("dx1_memory_headroom_ok") is True
     common_forbidden = (
@@ -165,23 +201,28 @@ def build_candidates(
     baseline_mae = metrics.get("mae_pp")
     baseline_r2 = metrics.get("r2")
     low_risk_phrase = "failure atlas" if failure_atlas.get("failure_modes") else "current diagnostics"
-    executable_native = official_followup_allowed and gpu_ready and fluidx_ready
-    native_blockers = [gate for gate in blocked_gates if gate not in {"rhino_gha_load", "vs_cpp_build_tools"}]
+    executable_native = official_followup_allowed and gpu_ready and fluidx_ready and native_source_compile_ready
+    source_compile_blockers = [gate for gate in blocked_gates if gate not in {"rhino_gha_load", "vs_cpp_build_tools"}]
     if not gpu_ready:
-        native_blockers.append("gpu_runtime")
+        source_compile_blockers.append("gpu_runtime")
     if not fluidx_ready:
-        native_blockers.append("fluidx3d_binary")
+        source_compile_blockers.append("fluidx3d_binary")
+    if not native_source_compile_ready:
+        source_compile_blockers.append("native_source_compile_path")
     if not official_followup_allowed:
-        native_blockers.append("official_followup_preflight")
+        source_compile_blockers.append("official_followup_preflight")
+    current_binary_blockers = [gate for gate in source_compile_blockers if gate != "native_source_compile_path"]
+    if not current_binary_rerun_available:
+        current_binary_blockers.append("current_deployed_binary_not_matching_baseline")
 
     rows = [
         candidate(
             candidate_id="C001_dx2_zcenter_replicate_best_known",
             priority=1,
-            candidate_class="baseline_replicate",
-            executable_now=executable_native,
-            blocking_gates=native_blockers,
-            evidence_type="planned_run",
+            candidate_class="current_compiled_binary_rerun",
+            executable_now=current_binary_rerun_available,
+            blocking_gates=current_binary_blockers,
+            evidence_type="planned_or_completed_rerun",
             dx_m=2.0,
             steps=48000,
             spinup=12000,
@@ -189,23 +230,15 @@ def build_candidates(
             ground_offset_cells=1,
             origin_z_offset_m=1.0,
             nu_lbm=0.001,
-            domain_decomposition="2x2x1",
-            command=native_command(
-                dx=2,
-                steps=48000,
-                spinup=12000,
-                sample_dt=2000,
-                ground_offset_cells=1,
-                origin_z_offset_m=1.0,
-                nu_lbm=0.001,
-            ),
+            domain_decomposition="1x1x1",
+            command="cd E:/citylbm_buildchain/FluidX3D && ./bin/FluidX3D.exe",
             expected_artifacts=[
                 "docs/experiments/casee/native_cases/<candidate>/citylbm_native_case_manifest.json",
-                "docs/experiments/casee/native_cases/<candidate>/casee_probe_time_mean.csv",
-                "docs/experiments/casee/results/<candidate>_metrics.csv",
+                "docs/experiments/casee/results/casee_native_dx2_zcenter_rerun_<stamp>_probe_time_mean.csv",
+                "docs/experiments/casee/results/casee_zcenter_rerun_consistency.json",
             ],
             rationale=(
-                f"Replicate the current best official baseline before changing implementation; current MAE={baseline_mae}, R2={baseline_r2}."
+                f"Rerun the currently deployed compiled z-center baseline before changing implementation; current MAE={baseline_mae}, R2={baseline_r2}."
             ),
             formal_result_policy=formal_policy,
             pass_condition="Reproduces n=80 raw_trilinear official z=2 m metrics within audit tolerance.",
@@ -217,7 +250,7 @@ def build_candidates(
             priority=2,
             candidate_class="time_mean_stability",
             executable_now=executable_native,
-            blocking_gates=native_blockers,
+            blocking_gates=source_compile_blockers,
             evidence_type="planned_run",
             dx_m=2.0,
             steps=96000,
@@ -251,7 +284,7 @@ def build_candidates(
             priority=3,
             candidate_class="protocol_ablation",
             executable_now=executable_native,
-            blocking_gates=native_blockers,
+            blocking_gates=source_compile_blockers,
             evidence_type="planned_run",
             dx_m=2.0,
             steps=48000,
@@ -285,7 +318,7 @@ def build_candidates(
             priority=4,
             candidate_class="low_cost_regression",
             executable_now=executable_native,
-            blocking_gates=native_blockers,
+            blocking_gates=source_compile_blockers,
             evidence_type="planned_run",
             dx_m=3.0,
             steps=48000,
@@ -319,7 +352,7 @@ def build_candidates(
             priority=5,
             candidate_class="runtime_ablation",
             executable_now=executable_native,
-            blocking_gates=native_blockers,
+            blocking_gates=source_compile_blockers,
             evidence_type="planned_run",
             dx_m=2.0,
             steps=48000,

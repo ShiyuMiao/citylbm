@@ -1,11 +1,12 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T12:29:58.942100+00:00",
-    "result_count": 19,
+    "generated_at": "2026-08-09T12:49:17.719301+00:00",
+    "result_count": 20,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
       "limitations_ready_negative_validation": 1,
       "paper_ready_default_policy_boundary": 1,
+      "paper_ready_reproducibility; blocked formal accuracy release": 1,
       "ready_for_next_official_followup_run": 1,
       "limitations_ready_dx1_feasibility": 1,
       "paper_ready_followup_plan; blocked formal accuracy release": 1,
@@ -21,7 +22,7 @@
       "blocked_formal_release_gate": 1
     },
     "evidence_type_counts": {
-      "newly_run": 13,
+      "newly_run": 14,
       "newly_run + preexisting_artifact": 3,
       "blocked": 1,
       "newly_run + preexisting_artifact + blocked": 2
@@ -67,14 +68,25 @@
     },
     {
       "experiment": "Experiment 2 / AIJ Case E",
+      "result_id": "zcenter_rerun_reproduced_failed_metric",
+      "claim_readiness": "paper_ready_reproducibility; blocked formal accuracy release",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_zcenter_rerun_consistency.json; docs/experiments/casee/results/casee_zcenter_rerun_consistency.md; docs/experiments/casee/results/casee_native_dx2_zcenter_rerun_20260809_203439_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_dx2_zcenter_rerun_20260809_203439.log",
+      "metric_or_status": "status=passed_reproduced_failed_metric; log_completed_48000=True; csv_sha256_equal=True; MAE=21.111408125 pp; R2=-2.006330362229977; Pearson=0.11575649438573923",
+      "paper_use": "Use as newly-run reproducibility evidence that the current compiled z-center Case E setup reproduces the same negative official z=2 m metric.",
+      "limitations": "This reinforces repeatability of the failure; it is not an accuracy improvement and cannot support formal v0.4.0.",
+      "software_feedback": "Prioritize physical wall/inlet/voxelization changes over more repeats of the same compiled baseline."
+    },
+    {
+      "experiment": "Experiment 2 / AIJ Case E",
       "result_id": "next_official_run_readiness",
       "claim_readiness": "ready_for_next_official_followup_run",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/casee_official_run_preflight.json; docs/experiments/casee/results/casee_environment_recovery_runbook.json",
       "metric_or_status": "official_followup_run_allowed=True; blocked_gates=rhino_gha_load,vs_cpp_build_tools",
-      "paper_use": "Use to document why the next long official validation run is not yet schedulable on this machine.",
+      "paper_use": "Use to document whether the next long official validation run is schedulable on this machine.",
       "limitations": "Runtime readiness evidence only; no new solver output is produced.",
-      "software_feedback": "Recover GPU runtime, Rhino new-GHA loading, and VS C++ build chain before new formal Case E sweeps."
+      "software_feedback": "Keep Rhino new-GHA loading and native source compile evidence as operational gates before new formal Case E sweeps."
     },
     {
       "experiment": "Experiment 2 / AIJ Case E",
@@ -104,7 +116,7 @@
       "claim_readiness": "blocked_build_chain_diagnostic",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/build_chain_manifest.json; docs/experiments/casee/results/build_chain_manifest.md; docs/experiments/casee/results/casee_official_run_preflight.json",
-      "metric_or_status": "build_chain_ready=False; vs_cpp=blocked; gpu=ready; dotnet=ready; fluidx3d=ready_for_existing_binary",
+      "metric_or_status": "build_chain_ready=False; operational_with_fallback=True; vs_cpp=blocked; gpp=ready; native_source_compile_path=mingw_gpp_fallback; gpu=ready; dotnet=ready; fluidx3d=ready_for_existing_binary",
       "paper_use": "Use as environment/build-chain status for explaining remaining official follow-up requirements.",
       "limitations": "Build-chain status is not solver-output evidence and cannot support formal accuracy.",
       "software_feedback": "Keep VS C++ Build Tools recovery and Rhino/GHA load evidence as required operational gates before stronger software-release claims."
@@ -236,7 +248,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc36",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc37",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."

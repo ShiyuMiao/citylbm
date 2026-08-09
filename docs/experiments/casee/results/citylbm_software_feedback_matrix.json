@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T12:30:01.767662+00:00",
-    "feedback_count": 19,
+    "generated_at": "2026-08-09T12:49:20.424729+00:00",
+    "feedback_count": 20,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -14,6 +14,7 @@
       "paper_traceability_output": 2,
       "paper_figure_output": 1,
       "software_traceability_gate": 1,
+      "rerun_reproducibility_guard": 1,
       "followup_sweep_plan": 1
     },
     "citylbm_status_counts": {
@@ -27,6 +28,7 @@
       "blocked_vs_cpp_build_tools": 1,
       "blocked_until_user_confirmed_dx1_dry_run": 1,
       "implemented_schema_gate": 1,
+      "baseline_failure_reproduced": 1,
       "planned_candidate_matrix": 1
     },
     "required_feedback_rows_present": true,
@@ -291,6 +293,20 @@
       "limitations": "Schema traceability does not add CFD output, improve official z=2 m metrics, or permit a formal accuracy claim."
     },
     {
+      "feedback_id": "SF020",
+      "experiment": "Experiment 2 / AIJ Case E z-center rerun",
+      "finding": "A newly-run 48000-step rerun of the currently compiled z-center Case E setup reproduced the same official z=2 m raw_trilinear failure metric, so repeating the baseline is not an accuracy-improvement path.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/casee_zcenter_rerun_consistency.py; docs/experiments/casee/results/casee_zcenter_rerun_consistency.json; docs/experiments/casee/results/casee_zcenter_rerun_consistency.md; docs/experiments/casee/results/casee_native_dx2_zcenter_rerun_20260809_203439_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_dx2_zcenter_rerun_20260809_203439.log",
+      "source_paths_exist": true,
+      "decision_class": "rerun_reproducibility_guard",
+      "citylbm_status": "baseline_failure_reproduced",
+      "implementation_evidence": "log_completed_48000=True; csv_sha256_equal=True; r2=-2.006330362229977",
+      "default_setting_allowed": false,
+      "paper_use": "Use as reproducibility evidence that the current best compiled diagnostic repeats the negative official z=2 m result.",
+      "limitations": "Does not improve accuracy, does not support formal v0.4.0, and does not justify promoting diagnostic settings."
+    },
+    {
       "feedback_id": "SF019",
       "experiment": "Experiment 2 / AIJ Case E official z=2 m follow-up planning",
       "finding": "The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries.",
@@ -299,7 +315,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=8; executable_now_count=5; recommended_tag=v0.4.0-rc36",
+      "implementation_evidence": "candidate_count=8; executable_now_count=5; recommended_tag=v0.4.0-rc37",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."
@@ -313,6 +329,7 @@
     "docs/experiments/casee/results/build_chain_manifest.json",
     "docs/experiments/casee/results/casee_dx1_readiness_audit.json",
     "docs/experiments/casee/results/casee_candidate_sweep_plan.json",
+    "docs/experiments/casee/results/casee_zcenter_rerun_consistency.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",
