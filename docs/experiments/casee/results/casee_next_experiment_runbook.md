@@ -1,6 +1,6 @@
 # Case E Next Experiment Runbook
 
-Generated: 2026-08-09T12:49:21.686822+00:00
+Generated: 2026-08-09T13:21:21.093359+00:00
 
 ## Current Official Metric
 
@@ -8,7 +8,7 @@ Generated: 2026-08-09T12:49:21.686822+00:00
 - R2: -2.006330362229977
 - Pearson: 0.11575649438573923
 - Formal release allowed: False
-- Recommended tag: `v0.4.0-rc37`
+- Recommended tag: `v0.4.0-rc38`
 
 ## Command Matrix
 

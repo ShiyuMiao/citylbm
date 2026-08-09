@@ -32,6 +32,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc35.md",
     "docs/releases/v0.4.0-rc36.md",
     "docs/releases/v0.4.0-rc37.md",
+    "docs/releases/v0.4.0-rc38.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -96,6 +97,7 @@ TOOL_SCRIPTS = [
     "casee_next_experiment_runbook.py",
     "casee_candidate_sweep_plan.py",
     "casee_zcenter_rerun_consistency.py",
+    "casee_c002_longer_mean_audit.py",
     "casee_official_run_preflight.py",
     "casee_dx1_readiness_audit.py",
     "casee_environment_recovery_runbook.py",
@@ -261,6 +263,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "paper_ready_followup_plan"
     if "casee_zcenter_rerun_consistency" in path or "zcenter_rerun" in path:
         return "paper_ready_reproducibility_failed_metric"
+    if "casee_c002_longer_mean_audit" in path or "c002_dx2_longer_mean" in path:
+        return "limitations_ready_completed_candidate"
     if "rhino_gha_load_gate" in path:
         return "blocked_manual_rhino_load"
     if "casee_official_run_preflight" in path:
@@ -313,6 +317,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to document future commands and formal-result policy."
     if readiness == "paper_ready_reproducibility_failed_metric":
         return "Use to show the current compiled z-center Case E run reproduces the same official z=2 m failure metric."
+    if readiness == "limitations_ready_completed_candidate":
+        return "Use to show the C002 longer-time-mean candidate was completed and did not improve official z=2 m metrics."
     if readiness == "blocked_manual_rhino_load":
         return "Use to document the fail-closed Rhino/Grasshopper new-GHA loading gate."
     if readiness == "blocked_official_followup_preflight":
@@ -528,6 +534,9 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_zcenter_rerun_consistency.json",
                 "casee_zcenter_rerun_consistency.md",
                 "casee_zcenter_rerun_consistency.csv",
+                "casee_c002_longer_mean_audit.json",
+                "casee_c002_longer_mean_audit.md",
+                "casee_c002_longer_mean_audit.csv",
                 "plugin_identity_gate.json",
                 "rhino_gha_load_gate.json",
                 "rhino_gha_load_gate.md",
@@ -542,6 +551,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc35.md",
                 "v0.4.0-rc36.md",
                 "v0.4.0-rc37.md",
+                "v0.4.0-rc38.md",
             )
         )
     ]

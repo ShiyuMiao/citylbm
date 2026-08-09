@@ -1,0 +1,2 @@
+candidate_id,status,evidence_type,log_completed_96000,probe_count_ok,mae_pp,r2,pearson,delta_mae_pp,delta_r2,delta_pearson,pass_condition_met,formal_release_allowed,claim_readiness
+C002_dx2_longer_mean_stability,completed_no_improvement,newly_run,True,True,22.015022499999997,-2.1851358653077058,-0.0089370077112125,0.9036143749999965,-0.1788055030777289,-0.12469350209695174,False,False,limitations_ready_candidate_result; blocked formal accuracy release

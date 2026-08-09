@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-09T12:49:22.594436+00:00
+Generated: 2026-08-09T13:21:22.308177+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc37`
+- Recommended tag: `v0.4.0-rc38`
 
 ## Official z=2 m Metric
 
@@ -17,8 +17,8 @@ Generated: 2026-08-09T12:49:22.594436+00:00
 
 ## Claim Matrix
 
-- Claims: 8
-- Readiness counts: `{'paper_ready': 2, 'limitations_ready': 3, 'weaken_claim': 2, 'blocked': 1}`
+- Claims: 9
+- Readiness counts: `{'paper_ready': 2, 'limitations_ready': 4, 'weaken_claim': 2, 'blocked': 1}`
 - Blocked release claim present: True
 - Negative validation claim present: True
 - Recommended tag present: True
@@ -33,8 +33,8 @@ Generated: 2026-08-09T12:49:22.594436+00:00
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 194
-- Lightweight release assets: 161
+- Artifact count: 203
+- Lightweight release assets: 167
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -103,12 +103,23 @@ Generated: 2026-08-09T12:49:22.594436+00:00
 - Claim readiness: `paper_ready_reproducibility; blocked formal accuracy release`
 - Claim boundary safe: True
 
+## C002 Longer Time-Mean Audit
+
+- Audit found: True
+- Status: `completed_no_improvement`
+- 96000-step log complete: True
+- Pass condition met: False
+- R2: -2.1851358653077058
+- R2 delta vs baseline: -0.1788055030777289
+- Claim readiness: `limitations_ready_candidate_result; blocked formal accuracy release`
+- Claim boundary safe: True
+
 ## Candidate Sweep Plan
 
 - Plan found: True
 - Plan generated: True
 - Candidate count: 8
-- Executable-now count: 5
+- Executable-now count: 4
 - Claim readiness: `paper_ready_followup_plan; blocked formal accuracy release`
 - Formal accuracy claim supported: False
 - Claim boundary safe: True
@@ -125,7 +136,7 @@ Generated: 2026-08-09T12:49:22.594436+00:00
 
 - Packet found: True
 - Packet passed: True
-- Result rows: 20
+- Result rows: 21
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 - Claim boundary safe: True
@@ -183,7 +194,7 @@ Generated: 2026-08-09T12:49:22.594436+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 20
+- Feedback rows: 21
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False

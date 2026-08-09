@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T12:49:13.678720+00:00",
+  "generated_at": "2026-08-09T13:21:12.481028+00:00",
   "claims": [
     {
       "claim_id": "C001",
@@ -91,11 +91,23 @@
       "evidence_type": "newly_run",
       "section": "Release",
       "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
-      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc37",
+      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc38",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
       "allowed_use": "Use to justify rc-only release status.",
       "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",
       "protocol_risks": "accuracy gate and Rhino-load gate fail"
+    },
+    {
+      "claim_id": "C009",
+      "claim_readiness": "limitations_ready",
+      "evidence_type": "newly_run",
+      "section": "Results / Follow-up candidate audit",
+      "claim": "Extending the dx=2 m z-center candidate to 96000 steps did not improve the official z=2 m Case E metric.",
+      "supporting_metrics": "status=completed_no_improvement; MAE=22.015 pp; R2=-2.185136; Pearson=-0.008937; delta_MAE=0.904 pp; delta_R2=-0.178806",
+      "source_paths": "docs/experiments/casee/results/casee_c002_longer_mean_audit.json; docs/experiments/casee/results/casee_c002_longer_mean_audit.md",
+      "allowed_use": "Use as negative follow-up evidence that longer averaging alone is not the current accuracy bottleneck.",
+      "forbidden_use": "Do not promote C002 settings to CityLBM defaults or claim official z=2 m accuracy improvement.",
+      "protocol_risks": "single follow-up candidate; formal metric remains negative and worsened relative to the z-center baseline"
     }
   ]
 }

@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.0-rc38 - Longer time-mean candidate audit
+
+- Generated, compiled, and ran the C002 dx=2 m z-center Case E follow-up for 96000 FluidX3D steps with spinup 24000 using the audited MinGW/g++ fallback.
+- Archived the C002 run log, stderr log, compile logs, generated native setup, manifest, and 80-probe official z=2 m time-mean CSV.
+- Added `casee_c002_longer_mean_audit.py` to compare the C002 official raw_trilinear metric against the current z-center baseline.
+- Integrated the C002 no-improvement audit into the reproducibility suite, paper evidence gate, artifact index, manuscript claim matrix, paper results packet, and software-feedback matrix as SF021.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc38.md`.
+
+C002 completed but worsened the formal official z=2 m metric: MAE = 22.015 pp, R2 = -2.185136, Pearson = -0.008937. This release candidate adds negative follow-up evidence that longer averaging alone is not the current accuracy bottleneck. It does not improve official Case E z=2 m R2, prove predictive accuracy, prove mesh independence, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc37 - z-center rerun reproducibility and native build-chain boundary
 
 - Ran the currently compiled dx=2 m z-center Case E setup for 48000 steps and archived the new run log, stderr log, and probe CSV.

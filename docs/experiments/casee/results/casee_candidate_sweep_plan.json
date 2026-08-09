@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-09T12:49:17.439208+00:00",
+  "generated_at": "2026-08-09T13:21:16.834651+00:00",
   "candidate_sweep_plan_generated": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc37",
+  "recommended_tag": "v0.4.0-rc38",
   "current_official_metrics": {
     "n": 80,
     "mae_pp": 21.111408125,
@@ -17,14 +17,16 @@
     "sampling_mode": "raw_trilinear"
   },
   "candidate_count": 8,
-  "executable_now_count": 5,
+  "executable_now_count": 4,
   "candidates": [
     {
       "candidate_id": "C001_dx2_zcenter_replicate_best_known",
       "priority": 1,
       "candidate_class": "current_compiled_binary_rerun",
-      "executable_now": true,
-      "blocking_gates": [],
+      "executable_now": false,
+      "blocking_gates": [
+        "current_deployed_binary_not_matching_baseline"
+      ],
       "evidence_type": "planned_or_completed_rerun",
       "dx_m": 2.0,
       "steps": 48000,

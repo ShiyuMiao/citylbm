@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T12:49:20.424729+00:00",
-    "feedback_count": 20,
+    "generated_at": "2026-08-09T13:21:19.760373+00:00",
+    "feedback_count": 21,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -15,6 +15,7 @@
       "paper_figure_output": 1,
       "software_traceability_gate": 1,
       "rerun_reproducibility_guard": 1,
+      "completed_candidate_no_default_promotion": 1,
       "followup_sweep_plan": 1
     },
     "citylbm_status_counts": {
@@ -29,6 +30,7 @@
       "blocked_until_user_confirmed_dx1_dry_run": 1,
       "implemented_schema_gate": 1,
       "baseline_failure_reproduced": 1,
+      "candidate_completed_no_improvement": 1,
       "planned_candidate_matrix": 1
     },
     "required_feedback_rows_present": true,
@@ -307,6 +309,20 @@
       "limitations": "Does not improve accuracy, does not support formal v0.4.0, and does not justify promoting diagnostic settings."
     },
     {
+      "feedback_id": "SF021",
+      "experiment": "Experiment 2 / AIJ Case E C002 longer mean",
+      "finding": "The completed 96000-step C002 longer-time-mean candidate worsened the official z=2 m raw_trilinear metric, so longer averaging alone should not be promoted as a CityLBM accuracy fix.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/casee_c002_longer_mean_audit.py; docs/experiments/casee/results/casee_c002_longer_mean_audit.json; docs/experiments/casee/results/casee_c002_longer_mean_audit.md; docs/experiments/casee/results/casee_c002_dx2_longer_mean_20260809_205343_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c002_dx2_longer_mean_run_20260809_205343.log",
+      "source_paths_exist": true,
+      "decision_class": "completed_candidate_no_default_promotion",
+      "citylbm_status": "candidate_completed_no_improvement",
+      "implementation_evidence": "pass_condition_met=False; r2=-2.1851358653077058; delta_r2=-0.1788055030777289",
+      "default_setting_allowed": false,
+      "paper_use": "Use as candidate-run evidence that longer time averaging did not solve the official z=2 m accuracy failure.",
+      "limitations": "Single candidate run; useful for narrowing the failure mode, not for formal accuracy or mesh-independence claims."
+    },
+    {
       "feedback_id": "SF019",
       "experiment": "Experiment 2 / AIJ Case E official z=2 m follow-up planning",
       "finding": "The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries.",
@@ -315,7 +331,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=8; executable_now_count=5; recommended_tag=v0.4.0-rc37",
+      "implementation_evidence": "candidate_count=8; executable_now_count=4; recommended_tag=v0.4.0-rc38",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."
@@ -330,6 +346,7 @@
     "docs/experiments/casee/results/casee_dx1_readiness_audit.json",
     "docs/experiments/casee/results/casee_candidate_sweep_plan.json",
     "docs/experiments/casee/results/casee_zcenter_rerun_consistency.json",
+    "docs/experiments/casee/results/casee_c002_longer_mean_audit.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",

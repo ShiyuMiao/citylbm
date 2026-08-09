@@ -43,6 +43,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
 - `docs/experiments/casee/tools/casee_zcenter_rerun_consistency.py`
 - `docs/experiments/casee/tools/casee_candidate_sweep_plan.py`
+- `docs/experiments/casee/tools/casee_c002_longer_mean_audit.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
 - `docs/experiments/casee/tools/casee_manuscript_results_table.py`
 - `docs/experiments/casee/tools/casee_manuscript_section_pack.py`
@@ -90,6 +91,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_zcenter_rerun_consistency.json`
 - `docs/experiments/casee/results/casee_zcenter_rerun_consistency.md`
 - `docs/experiments/casee/results/casee_zcenter_rerun_consistency.csv`
+- `docs/experiments/casee/results/casee_c002_longer_mean_audit.json`
+- `docs/experiments/casee/results/casee_c002_longer_mean_audit.md`
+- `docs/experiments/casee/results/casee_c002_longer_mean_audit.csv`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.json`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.md`
 - `docs/experiments/casee/results/casee_candidate_sweep_plan.csv`
@@ -123,7 +127,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc37.md`
+- `docs/releases/v0.4.0-rc38.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -197,6 +201,13 @@ A newly-run 48000-step rerun of the currently compiled z-center setup on
 bit-for-bit against the current baseline (`R2=-2.006330`, MAE 21.111 pp). This
 supports repeatability and limitations claims only; it confirms that repeating
 the same compiled baseline is not an accuracy-improvement path.
+
+A newly-run source-recompiled C002 follow-up extended the dx=2 m z-center
+candidate to 96000 steps with spinup 24000. The run completed and produced the
+80 official z=2 m probe CSV, but it worsened the formal metric: MAE 22.015 pp,
+R2 -2.185136, and Pearson -0.008937. This is negative follow-up evidence that
+longer averaging alone is not the current accuracy bottleneck; it is not a
+CityLBM default setting and does not permit formal `v0.4.0`.
 
 CityLBM now exposes the corresponding `Diagnostic Z Origin Offset` (`zOff`)
 input on the Grasshopper `Run Simulation` component. The default is 0 m. This

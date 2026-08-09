@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T12:49:15.744540+00:00",
+  "generated_at": "2026-08-09T13:21:14.871798+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "limitations_ready_dx1_feasibility",
   "dx1_command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 1 --steps 48000 --spinup 12000 --sample-dt 4000 --ground-offset-cells 1 --origin-z-offset-m 0.5 --nu-lbm 0.001",
@@ -7,7 +7,7 @@
     "command": "nvidia-smi --query-gpu=index,name,memory.total,memory.free,temperature.gpu,utilization.gpu --format=csv,noheader,nounits",
     "found": true,
     "returncode": 0,
-    "stdout": "0, Tesla P100-PCIE-16GB, 16384, 16280, 47, 0\n1, Tesla P100-PCIE-16GB, 16384, 16280, 43, 0\n2, Tesla P100-PCIE-16GB, 16384, 16280, 43, 0\n3, Tesla P100-PCIE-16GB, 16384, 16280, 69, 0",
+    "stdout": "0, Tesla P100-PCIE-16GB, 16384, 16280, 47, 0\n1, Tesla P100-PCIE-16GB, 16384, 16280, 43, 0\n2, Tesla P100-PCIE-16GB, 16384, 16280, 43, 0\n3, Tesla P100-PCIE-16GB, 16384, 16280, 78, 0",
     "stderr": ""
   },
   "gpu_rows": [
@@ -40,7 +40,7 @@
       "name": "Tesla P100-PCIE-16GB",
       "memory_total_mib": 16384.0,
       "memory_free_mib": 16280.0,
-      "temperature_c": 69.0,
+      "temperature_c": 78.0,
       "utilization_gpu_percent": 0.0
     }
   ],

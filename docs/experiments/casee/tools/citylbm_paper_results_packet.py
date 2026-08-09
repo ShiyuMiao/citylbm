@@ -95,6 +95,7 @@ def build_rows() -> List[Dict[str, str]]:
     dx1_readiness = read_json(CASEE_RESULTS / "casee_dx1_readiness_audit.json")
     candidate_sweep = read_json(CASEE_RESULTS / "casee_candidate_sweep_plan.json")
     zcenter_rerun = read_json(CASEE_RESULTS / "casee_zcenter_rerun_consistency.json")
+    c002_longer_mean = read_json(CASEE_RESULTS / "casee_c002_longer_mean_audit.json")
     build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -251,6 +252,31 @@ def build_rows() -> List[Dict[str, str]]:
             paper_use="Use as a pre-registered follow-up sweep plan for improving the official z=2 m R2.",
             limitations="Planning evidence only; it does not add solver output or justify changing CityLBM defaults.",
             software_feedback="Run candidates in priority order and promote settings only after official raw_trilinear metrics pass the release gate.",
+        )
+    )
+
+    c002_metrics = c002_longer_mean.get("candidate_metrics") or {}
+    c002_delta = c002_longer_mean.get("metric_delta_vs_baseline") or {}
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="c002_longer_mean_completed_no_improvement",
+            claim_readiness=str(c002_longer_mean.get("claim_readiness", "blocked_c002_audit")),
+            evidence_type=str(c002_longer_mean.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_c002_longer_mean_audit.json"),
+                rel(CASEE_RESULTS / "casee_c002_longer_mean_audit.md"),
+                str((c002_longer_mean.get("candidate_csv") or {}).get("path", "")),
+                str((c002_longer_mean.get("run_log") or {}).get("path", "")),
+            ],
+            metric_or_status=(
+                f"status={c002_longer_mean.get('status')}; log_completed_96000={c002_longer_mean.get('log_completed_96000')}; "
+                f"MAE={c002_metrics.get('mae_pp')} pp; R2={c002_metrics.get('r2')}; Pearson={c002_metrics.get('pearson')}; "
+                f"delta_MAE={c002_delta.get('mae_pp')} pp; delta_R2={c002_delta.get('r2')}; pass_condition_met={c002_longer_mean.get('pass_condition_met')}"
+            ),
+            paper_use="Use as candidate-run evidence that extending the averaging window alone did not improve the official z=2 m metric.",
+            limitations="Completed candidate result only; it worsened the formal raw_trilinear metric and cannot be used for formal v0.4.0.",
+            software_feedback="Do not promote longer averaging as a default accuracy fix; prioritize wall/inlet/voxelization changes.",
         )
     )
 

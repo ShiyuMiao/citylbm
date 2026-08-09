@@ -198,6 +198,7 @@ def main() -> int:
         ("casee_environment_recovery_runbook", "casee_environment_recovery_runbook.py"),
         ("casee_failure_mode_atlas", "casee_failure_mode_atlas.py"),
         ("casee_zcenter_rerun_consistency", "casee_zcenter_rerun_consistency.py"),
+        ("casee_c002_longer_mean_audit", "casee_c002_longer_mean_audit.py"),
         ("casee_candidate_sweep_plan", "casee_candidate_sweep_plan.py"),
         ("casee_default_policy_gate", "casee_default_policy_gate.py"),
         ("citylbm_paper_results_packet", "citylbm_paper_results_packet.py"),
@@ -227,6 +228,7 @@ def main() -> int:
     recovery = read_json(RESULTS_DIR / "casee_environment_recovery_runbook.json")
     failure_atlas = read_json(RESULTS_DIR / "casee_failure_mode_atlas.json")
     zcenter_rerun = read_json(RESULTS_DIR / "casee_zcenter_rerun_consistency.json")
+    c002_longer_mean = read_json(RESULTS_DIR / "casee_c002_longer_mean_audit.json")
     candidate_sweep_plan = read_json(RESULTS_DIR / "casee_candidate_sweep_plan.json")
     default_policy = read_json(RESULTS_DIR / "casee_default_policy_gate.json")
     paper_results_packet = read_json(RESULTS_DIR / "citylbm_paper_results_packet.json")
@@ -254,6 +256,7 @@ def main() -> int:
         "casee_environment_recovery_runbook": recovery,
         "casee_failure_mode_atlas": failure_atlas,
         "casee_zcenter_rerun_consistency": zcenter_rerun,
+        "casee_c002_longer_mean_audit": c002_longer_mean,
         "casee_candidate_sweep_plan": candidate_sweep_plan,
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_results_packet,

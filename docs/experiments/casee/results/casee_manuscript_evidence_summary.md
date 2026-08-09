@@ -1,6 +1,6 @@
 # AIJ Case E Manuscript Evidence Summary
 
-Generated: 2026-08-09T12:49:13.679561+00:00
+Generated: 2026-08-09T13:21:12.482154+00:00
 
 ## Current Formal Metric
 
@@ -11,7 +11,7 @@ Generated: 2026-08-09T12:49:13.679561+00:00
 - R2: -2.006330.
 - Pearson: 0.115756.
 - Formal release allowed: False.
-- Recommended tag: `v0.4.0-rc37`.
+- Recommended tag: `v0.4.0-rc38`.
 
 ## Claim Matrix
 
@@ -25,6 +25,7 @@ Generated: 2026-08-09T12:49:13.679561+00:00
 | C006 | paper_ready | Reproducibility / Build | The current CityLBM source builds in Release configuration on the available .NET SDK toolchain. | `docs/experiments/casee/results/citylbm_build_check.log; docs/experiments/casea/results/casea_smoke_regression.json` |
 | C007 | weaken_claim | Reproducibility / Build chain | Visual Studio Build Tools 2022 C++ remains unavailable, but GPU runtime and the audited native-source fallback path are available for additional native validation attempts. | `docs/experiments/casee/results/build_chain_manifest.json` |
 | C008 | blocked | Release | Formal CityLBM v0.4.0 release is not allowed by the release gate. | `docs/experiments/casee/results/release_gate.json` |
+| C009 | limitations_ready | Results / Follow-up candidate audit | Extending the dx=2 m z-center candidate to 96000 steps did not improve the official z=2 m Case E metric. | `docs/experiments/casee/results/casee_c002_longer_mean_audit.json; docs/experiments/casee/results/casee_c002_longer_mean_audit.md` |
 
 ## Results Paragraph Draft
 

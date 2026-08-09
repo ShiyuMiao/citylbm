@@ -45,6 +45,8 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_failure_mode_atlas.png",
     "docs/experiments/casee/results/casee_zcenter_rerun_consistency.json",
     "docs/experiments/casee/results/casee_zcenter_rerun_consistency.md",
+    "docs/experiments/casee/results/casee_c002_longer_mean_audit.json",
+    "docs/experiments/casee/results/casee_c002_longer_mean_audit.md",
     "docs/experiments/casee/results/casee_candidate_sweep_plan.json",
     "docs/experiments/casee/results/casee_candidate_sweep_plan.md",
     "docs/experiments/casee/results/casee_default_policy_gate.json",
@@ -469,6 +471,40 @@ def zcenter_rerun_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def c002_longer_mean_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "c002_found": False,
+            "status": "missing",
+            "claim_readiness": "missing",
+            "log_completed_96000": False,
+            "pass_condition_met": None,
+            "formal_accuracy_claim_supported": None,
+            "formal_release_allowed": None,
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    readiness = str(data.get("claim_readiness", ""))
+    return {
+        "c002_found": True,
+        "status": data.get("status"),
+        "claim_readiness": readiness,
+        "log_completed_96000": data.get("log_completed_96000"),
+        "probe_count_ok": data.get("probe_count_ok"),
+        "pass_condition_met": data.get("pass_condition_met"),
+        "candidate_metrics": data.get("candidate_metrics", {}),
+        "metric_delta_vs_baseline": data.get("metric_delta_vs_baseline", {}),
+        "formal_accuracy_claim_supported": data.get("formal_accuracy_claim_supported"),
+        "formal_release_allowed": data.get("formal_release_allowed"),
+        "claim_boundary_safe": data.get("status") in {"completed_no_improvement", "completed_improved_but_gate_blocked"}
+        and readiness == "limitations_ready_candidate_result; blocked formal accuracy release"
+        and data.get("log_completed_96000") is True
+        and data.get("probe_count_ok") is True
+        and data.get("formal_accuracy_claim_supported") is False
+        and data.get("formal_release_allowed") is False,
+    }
+
+
 def default_policy_status(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {
@@ -720,6 +756,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     recovery = payload["casee_environment_recovery_runbook"]
     atlas = payload["casee_failure_mode_atlas"]
     zcenter_rerun = payload["casee_zcenter_rerun_consistency"]
+    c002 = payload["casee_c002_longer_mean_audit"]
     candidate_sweep = payload["casee_candidate_sweep_plan"]
     default_policy = payload["casee_default_policy_gate"]
     paper_packet = payload["citylbm_paper_results_packet"]
@@ -835,6 +872,17 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Claim readiness: `{zcenter_rerun['claim_readiness']}`",
         f"- Claim boundary safe: {zcenter_rerun['claim_boundary_safe']}",
         "",
+        "## C002 Longer Time-Mean Audit",
+        "",
+        f"- Audit found: {c002['c002_found']}",
+        f"- Status: `{c002['status']}`",
+        f"- 96000-step log complete: {c002['log_completed_96000']}",
+        f"- Pass condition met: {c002['pass_condition_met']}",
+        f"- R2: {c002.get('candidate_metrics', {}).get('r2')}",
+        f"- R2 delta vs baseline: {c002.get('metric_delta_vs_baseline', {}).get('r2')}",
+        f"- Claim readiness: `{c002['claim_readiness']}`",
+        f"- Claim boundary safe: {c002['claim_boundary_safe']}",
+        "",
         "## Candidate Sweep Plan",
         "",
         f"- Plan found: {candidate_sweep['candidate_sweep_plan_found']}",
@@ -947,6 +995,7 @@ def main() -> int:
     parser.add_argument("--recovery", type=Path, default=RESULTS_DIR / "casee_environment_recovery_runbook.json")
     parser.add_argument("--failure-atlas", type=Path, default=RESULTS_DIR / "casee_failure_mode_atlas.json")
     parser.add_argument("--zcenter-rerun", type=Path, default=RESULTS_DIR / "casee_zcenter_rerun_consistency.json")
+    parser.add_argument("--c002-longer-mean", type=Path, default=RESULTS_DIR / "casee_c002_longer_mean_audit.json")
     parser.add_argument("--candidate-sweep", type=Path, default=RESULTS_DIR / "casee_candidate_sweep_plan.json")
     parser.add_argument("--default-policy", type=Path, default=RESULTS_DIR / "casee_default_policy_gate.json")
     parser.add_argument("--paper-results-packet", type=Path, default=RESULTS_DIR / "citylbm_paper_results_packet.json")
@@ -973,6 +1022,7 @@ def main() -> int:
     recovery = recovery_status(args.recovery)
     atlas = failure_atlas_status(args.failure_atlas)
     zcenter_rerun = zcenter_rerun_status(args.zcenter_rerun)
+    c002_longer_mean = c002_longer_mean_status(args.c002_longer_mean)
     candidate_sweep = candidate_sweep_status(args.candidate_sweep)
     default_policy = default_policy_status(args.default_policy)
     paper_packet = paper_results_packet_status(args.paper_results_packet)
@@ -1008,6 +1058,8 @@ def main() -> int:
         and atlas["claim_boundary_safe"]
         and zcenter_rerun["rerun_found"]
         and zcenter_rerun["claim_boundary_safe"]
+        and c002_longer_mean["c002_found"]
+        and c002_longer_mean["claim_boundary_safe"]
         and candidate_sweep["candidate_sweep_plan_found"]
         and candidate_sweep["claim_boundary_safe"]
         and default_policy["default_policy_gate_found"]
@@ -1041,6 +1093,7 @@ def main() -> int:
         "casee_environment_recovery_runbook": recovery,
         "casee_failure_mode_atlas": atlas,
         "casee_zcenter_rerun_consistency": zcenter_rerun,
+        "casee_c002_longer_mean_audit": c002_longer_mean,
         "casee_candidate_sweep_plan": candidate_sweep,
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_packet,

@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-08-09T13:21:16.694275+00:00",
+  "candidate_id": "C002_dx2_longer_mean_stability",
+  "status": "completed_no_improvement",
+  "evidence_type": "newly_run",
+  "claim_readiness": "limitations_ready_candidate_result; blocked formal accuracy release",
+  "formal_release_allowed": false,
+  "formal_accuracy_claim_supported": false,
+  "pass_condition_met": false,
+  "log_completed_96000": true,
+  "probe_count_ok": true,
+  "baseline_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv",
+    "sha256": "a3ec4396a6722aaf2b7432ea976892423f4d31c528f180fd668731757650bb97",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-01T11:28:45.792455+00:00"
+  },
+  "candidate_csv": {
+    "found": true,
+    "path": "docs/experiments/casee/results/casee_c002_dx2_longer_mean_20260809_205343_probe_time_mean.csv",
+    "sha256": "79ed81feabb4676897bd48ba5463edce21e3af33f23788d43e989b080df200ea",
+    "size_bytes": 10071,
+    "mtime_utc": "2026-08-09T13:13:22.474245+00:00"
+  },
+  "run_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c002_dx2_longer_mean_run_20260809_205343.log",
+    "sha256": "c5a1c405adc9491707465348f575e426767399fc6762a402561d5ead79d25583",
+    "size_bytes": 3059628,
+    "mtime_utc": "2026-08-09T13:13:22.765216+00:00"
+  },
+  "run_err_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c002_dx2_longer_mean_run_20260809_205343.err.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "mtime_utc": "2026-08-09T12:53:44.045605+00:00"
+  },
+  "compile_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c002_dx2_longer_mean_compile.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "mtime_utc": "2026-08-09T12:52:29.197196+00:00"
+  },
+  "compile_err_log": {
+    "found": true,
+    "path": "docs/experiments/casee/results/fluidx3d_c002_dx2_longer_mean_compile.err.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0,
+    "mtime_utc": "2026-08-09T12:52:29.198315+00:00"
+  },
+  "case_manifest": {
+    "found": true,
+    "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_pmodes_steps96000_spin24000/citylbm_native_case_manifest.json",
+    "sha256": "6622c5eae4a8486aa60fad93288e61909c727561583a35c9ef6c665a04b9e805",
+    "size_bytes": 880,
+    "mtime_utc": "2026-08-09T12:52:15.706318+00:00"
+  },
+  "baseline_metrics": {
+    "n": 80,
+    "mae_pp": 21.111408125,
+    "rmse_pp": 27.72103208243715,
+    "bias_pp": -16.409215999999997,
+    "r2": -2.006330362229977,
+    "pearson": 0.11575649438573923,
+    "height_m": 2.0,
+    "sampling_mode": "raw_trilinear"
+  },
+  "candidate_metrics": {
+    "n": 80,
+    "mae_pp": 22.015022499999997,
+    "rmse_pp": 28.53349858273545,
+    "bias_pp": -17.617840675,
+    "r2": -2.1851358653077058,
+    "pearson": -0.0089370077112125,
+    "height_m": 2.0,
+    "sampling_mode": "raw_trilinear"
+  },
+  "metric_delta_vs_baseline": {
+    "mae_pp": 0.9036143749999965,
+    "rmse_pp": 0.8124665002982994,
+    "bias_pp": -1.208624675000003,
+    "r2": -0.1788055030777289,
+    "pearson": -0.12469350209695174
+  },
+  "boundary": "C002 is a completed official z=2 m raw_trilinear candidate result. It tests longer averaging only. It does not support formal v0.4.0, and it may not be promoted as a default accuracy setting unless the formal release gate later passes."
+}
