@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc45 - Case E inlet-turbulence plateau audit
+
+- Generated, compiled, and ran C012 dx=2 m, z-center, 4x1x1 AF-k synthetic full-plane inlet candidate with scale 2.00 for 48000 FluidX3D steps under the official z=2 m raw_trilinear protocol.
+- Extended the inlet-turbulence audit from C008-C011 to C008-C012 and refreshed the candidate sweep plan, evidence gates, artifact index, manuscript packets, and software-feedback matrix.
+- Recorded that C012 did not improve beyond C011, which keeps C011 as the strongest diagnostic candidate and turns the next software-feedback priority away from blind inlet scale tuning.
+
+C012 produced MAE = 14.386 pp, R2 = -0.330711, Pearson = 0.280090. C011 remains the best diagnostic candidate with MAE = 14.375 pp, R2 = -0.326804, Pearson = 0.285664. This is newly-run plateau/rollback evidence for the AF-k inlet sweep, not a formal accuracy pass. It does not prove predictive accuracy, mesh independence, LES improvement, Rhino new-GHA loading, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc44 - CityLBM inlet-turbulence diagnostic controls
 
 - Added default-off Grasshopper `Run Simulation` inputs for `Diagnostic Inlet Turbulence Mode` (`inletT`) and `Diagnostic Inlet Turbulence Scale` (`inletS`).

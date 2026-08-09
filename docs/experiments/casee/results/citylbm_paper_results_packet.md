@@ -1,6 +1,6 @@
 # CityLBM Paper Results Packet
 
-Generated: 2026-08-09T15:26:04.107979+00:00
+Generated: 2026-08-09T15:41:11.700642+00:00
 
 ## Verdict
 
@@ -68,7 +68,7 @@ Generated: 2026-08-09T15:26:04.107979+00:00
 | Experiment 2 / AIJ Case E | `c003_zorigin_ablation_supports_sensitivity` | limitations_ready_zorigin_ablation; blocked formal accuracy release | The no-z-center ablation worsened the formal metric; it cannot support formal accuracy or a default z-origin model. | Keep z-origin alignment as a diagnostic switch and prioritize physical wall/inlet/voxelization work before default promotion. |
 | Experiment 2 / AIJ Case E | `c004_dx3_low_cost_positive_but_worse` | limitations_ready_dx3_low_cost_regression; blocked formal accuracy release | Positive Pearson is not enough for formal validation; R2 remains negative and worse than the current z-center baseline. | Do not promote dx=3 coarse-grid settings as an accuracy fix; use it as a quick regression/control path. |
 | Experiment 2 / AIJ Case E | `c005_decomposition_improves_mae_r2_but_unstable` | limitations_ready_runtime_decomposition_ablation; blocked formal accuracy release | R2 remains negative, Pearson decreased versus the z-center baseline, and decomposition consistency thresholds failed; no default promotion or formal v0.4.0 claim is supported. | Record domain decomposition in generated run IDs/manifests and treat 4x1x1 as an experimental switch, not a default accuracy setting. |
-| Experiment 2 / AIJ Case E | `c008_c011_inlet_turbulence_best_negative_candidate` | limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release | R2 remains negative and the AF-k synthetic inlet scale is a diagnostic sweep parameter; it cannot support formal v0.4.0, predictive accuracy, LES improvement, or default promotion. | Keep AF-k inlet turbulence default-off until a physically validated inlet model reproduces positive R2 without benchmark-specific scale tuning. |
+| Experiment 2 / AIJ Case E | `c008_c012_inlet_turbulence_best_negative_candidate` | limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release | R2 remains negative and the AF-k synthetic inlet scale is a diagnostic sweep parameter; it cannot support formal v0.4.0, predictive accuracy, LES improvement, or default promotion. | Keep AF-k inlet turbulence default-off until a physically validated inlet model reproduces positive R2 without benchmark-specific scale tuning. |
 | Build-chain recovery / AIJ Case E follow-up | `build_chain_recovery_status` | blocked_build_chain_diagnostic | Build-chain status is not solver-output evidence and cannot support formal accuracy. | Keep VS C++ Build Tools recovery and Rhino/GHA load evidence as required operational gates before stronger software-release claims. |
 | Experiment 2 / AIJ Case E | `casee_manuscript_section_pack` | paper_ready_negative_validation_and_limitations | Generated prose only; it does not add CFD output, improve official z=2 m metrics, or support formal accuracy. | Keep manuscript prose generation downstream of release_gate and manuscript_results_table so claim boundaries stay synchronized. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_M1` | paper_ready | Use within the archived Experiment 3 scope. | Use as design-application workflow evidence, not as Case E accuracy evidence. |

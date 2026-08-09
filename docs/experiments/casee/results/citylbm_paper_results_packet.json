@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T15:26:04.107979+00:00",
+    "generated_at": "2026-08-09T15:41:11.700642+00:00",
     "result_count": 25,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
@@ -161,7 +161,7 @@
     },
     {
       "experiment": "Experiment 2 / AIJ Case E",
-      "result_id": "c008_c011_inlet_turbulence_best_negative_candidate",
+      "result_id": "c008_c012_inlet_turbulence_best_negative_candidate",
       "claim_readiness": "limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md; docs/experiments/casee/results/casee_c011_inlet_k_synthetic_s1p5_20260809_230150_probe_time_mean.csv; docs/experiments/casee/results/fluidx3d_c011_inlet_k_synthetic_s1p5_run_20260809_230150.log",
@@ -308,7 +308,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc44",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc45",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."

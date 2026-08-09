@@ -143,7 +143,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc44.md`
+- `docs/releases/v0.4.0-rc45.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -203,8 +203,9 @@ CFD solver-output evidence.
 The Grasshopper `Run Simulation` component now exposes a `Claim Gate` (`Gate`)
 output next to `Manifest Path`. For Case E runs it reports the official
 validation contract and states that diagnostic sampling, z offsets, wall
-models, and roughness lengths are limitations-only. This output is intended to
-prevent workflow-success from being mistaken for benchmark-accuracy success.
+models, roughness lengths, and inlet turbulence scale are limitations-only.
+This output is intended to prevent workflow-success from being mistaken for
+benchmark-accuracy success.
 
 The z-center lattice diagnostic puts official z=2 m on a dx=2 m lattice center.
 It improves the formal raw_trilinear MAE to 21.111 pp and Pearson to 0.115756,
@@ -247,15 +248,18 @@ to the baseline, and decomposition consistency thresholds failed. It is
 runtime/decomposition sensitivity evidence and a prompt to keep decomposition
 in generated run IDs/manifests, not a default accuracy setting.
 
-Newly-run source-recompiled C008-C011 inlet-turbulence candidates used
+Newly-run source-recompiled C008-C012 inlet-turbulence candidates used
 `AF_caseE.csv` z,U,k to drive a default-off synthetic full-plane inlet. The
 best candidate, C011 with scale 1.50, completed 48000 steps and produced the
 strongest official-height diagnostic result so far: MAE 14.375 pp, R2
 -0.326804, and Pearson 0.285664. This supports AF-k inlet turbulence as the
 main next software target, but R2 is still negative and the turbulence scale is
 a diagnostic sweep parameter, so it is not a formal accuracy model. During the
-C010/C011 runs `nvidia-smi` reported GPU3 lost, so FluidX3D was launched on
-devices `0 1 2`; this is recorded as a runtime protocol risk.
+C010-C012 runs `nvidia-smi` reported GPU3 lost, so FluidX3D was launched on
+devices `0 1 2`; this is recorded as a runtime protocol risk. C012 scale 2.00
+completed but did not improve beyond C011: MAE 14.386 pp, R2 -0.330711, and
+Pearson 0.280090. This makes continued blind scale growth a limitations
+finding rather than a release path.
 
 CityLBM now exposes the AF-k inlet finding as default-off Grasshopper
 diagnostic controls on `Run Simulation`: `Diagnostic Inlet Turbulence Mode`

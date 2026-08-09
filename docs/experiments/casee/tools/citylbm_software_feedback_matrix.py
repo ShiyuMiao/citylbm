@@ -743,9 +743,9 @@ def build_rows() -> List[Dict[str, Any]]:
     rows.append(
         row(
             feedback_id="SF025",
-            experiment="Experiment 2 / AIJ Case E C008-C011 inlet turbulence",
+            experiment="Experiment 2 / AIJ Case E C008-C012 inlet turbulence",
             finding=(
-                "The C008-C011 AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, "
+                "The C008-C012 AF-k synthetic full-plane inlet candidates produced the largest official-height improvement so far, "
                 f"with best MAE={inlet_metrics.get('mae_pp')} pp, R2={inlet_metrics.get('r2')}, and Pearson={inlet_metrics.get('pearson')}, "
                 "but R2 remained negative."
             ),
@@ -775,7 +775,7 @@ def build_rows() -> List[Dict[str, Any]]:
             ),
             default_setting_allowed=False,
             paper_use="Use as evidence that AF k and full-plane inlet turbulence are the strongest current improvement direction.",
-            limitations="Diagnostic scale sweep on one benchmark; R2 remains negative and cannot support formal v0.4.0, LES improvement, or a default accuracy model.",
+            limitations="Diagnostic scale sweep on one benchmark; C012 shows plateau/rollback beyond C011, R2 remains negative, and the result cannot support formal v0.4.0, LES improvement, or a default accuracy model.",
         )
     )
 

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-09T15:26:03.572340+00:00",
-  "audit_id": "casee_c008_c011_inlet_turbulence_sweep_audit",
+  "generated_at": "2026-08-09T15:41:11.238800+00:00",
+  "audit_id": "casee_c008_c012_inlet_turbulence_sweep_audit",
   "status": "completed_inlet_turbulence_improved_but_negative_r2",
   "evidence_type": "newly_run",
   "claim_readiness": "limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release",
@@ -291,6 +291,73 @@
         "r2": 1.281271353151709,
         "pearson": 0.18634883204252256
       }
+    },
+    {
+      "candidate_id": "C012_inlet_k_synthetic_fullplane_s2p00",
+      "scale": 2.0,
+      "csv": {
+        "found": true,
+        "path": "docs/experiments/casee/results/casee_c012_inlet_k_synthetic_s2p0_20260809_233100_probe_time_mean.csv",
+        "sha256": "04c4e2d0b7a482610ca5601f1fd8b10e4f4a8c437580f77e505ff9908479a573",
+        "size_bytes": 10071,
+        "mtime_utc": "2026-08-09T15:36:14.143539+00:00"
+      },
+      "run_log": {
+        "found": true,
+        "path": "docs/experiments/casee/results/fluidx3d_c012_inlet_k_synthetic_s2p0_run_20260809_233100.log",
+        "sha256": "cc9ff0a1056109a4fadcaf4e9b1f5694892e869d446feecdf099f79576f0f446",
+        "size_bytes": 765130,
+        "mtime_utc": "2026-08-09T15:36:14.243859+00:00"
+      },
+      "compile_log": {
+        "found": true,
+        "path": "docs/experiments/casee/results/fluidx3d_c012_inlet_k_synthetic_s2p0_compile.log",
+        "sha256": "79b0b49a8cf12419a0c50b467547582bda7e90d782b04cc37128aba904c232d5",
+        "size_bytes": 1668,
+        "mtime_utc": "2026-08-09T15:31:13.226046+00:00"
+      },
+      "compile_err_log": {
+        "found": true,
+        "path": "docs/experiments/casee/results/fluidx3d_c012_inlet_k_synthetic_s2p0_compile.err.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0,
+        "mtime_utc": "2026-08-09T15:30:59.541990+00:00"
+      },
+      "case_manifest": {
+        "found": true,
+        "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s2_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
+        "sha256": "db3171e35428c393f876dfbf6d39fe0f899928af67eba8a89ca3f6c580c5e2da",
+        "size_bytes": 1046,
+        "mtime_utc": "2026-08-09T15:30:29.758567+00:00"
+      },
+      "log_completed_48000": true,
+      "manifest_protocol_ok": true,
+      "candidate_metrics": {
+        "n": 80,
+        "mae_pp": 14.3858118625,
+        "rmse_pp": 18.443057257917655,
+        "bias_pp": -4.8973386375,
+        "r2": -0.33071101307031925,
+        "pearson": 0.28009027913979595,
+        "height_m": 2.0,
+        "sampling_mode": "raw_trilinear",
+        "pred_mean": 0.373526615,
+        "official_mean": 0.422500001375
+      },
+      "delta_vs_zcenter_baseline": {
+        "mae_pp": -6.7255962249999985,
+        "rmse_pp": -9.277974944229783,
+        "bias_pp": 11.5118775,
+        "r2": 1.6756194441486814,
+        "pearson": 0.1643337976550051
+      },
+      "delta_vs_c005_decomposition": {
+        "mae_pp": -5.340461087499998,
+        "rmse_pp": -7.376636610654241,
+        "bias_pp": 10.324010512500003,
+        "r2": 1.2773641271239413,
+        "pearson": 0.18077498360073013
+      }
     }
   ],
   "best_candidate": {
@@ -360,5 +427,5 @@
       "pearson": 0.18634883204252256
     }
   },
-  "boundary": "C008-C011 are completed official-height raw_trilinear candidate runs using a default-off synthetic full-plane inlet based on AF_caseE k. They improve MAE, R2, and Pearson, but R2 remains negative and the turbulence scale is a diagnostic sweep parameter. Use as inlet-turbulence evidence and software-feedback guidance only; do not claim formal v0.4.0, predictive accuracy, mesh independence, or LES improvement."
+  "boundary": "C008-C012 are completed official-height raw_trilinear candidate runs using a default-off synthetic full-plane inlet based on AF_caseE k. They improve MAE, R2, and Pearson relative to the z-center baseline, but R2 remains negative and the scale sweep shows a plateau/rollback beyond C011. The turbulence scale is a diagnostic sweep parameter. Use as inlet-turbulence evidence and software-feedback guidance only; do not claim formal v0.4.0, predictive accuracy, mesh independence, or LES improvement."
 }

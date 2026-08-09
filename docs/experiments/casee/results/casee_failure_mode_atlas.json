@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-09T15:26:02.268267+00:00",
+  "generated_at": "2026-08-09T15:41:09.845774+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "limitations_ready_failure_mode_atlas",
   "release_gate": {
-    "generated_at": "2026-08-09T15:25:55.681315+00:00",
+    "generated_at": "2026-08-09T15:41:02.775596+00:00",
     "release_target": "v0.4.0",
     "formal_release_allowed": false,
     "formal_v0_3_0_allowed": false,
-    "recommended_tag": "v0.4.0-rc44",
+    "recommended_tag": "v0.4.0-rc45",
     "checks": {
       "citylbm_build_passed": true,
       "rhino_loaded_new_gha": false,
@@ -48,23 +48,23 @@
       "fluidx3d_executable": {
         "found": true,
         "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
-        "sha256": "e7ceb5c652f2a64aa9ea62aeb0a692c7427c0ac7a1eaa0163df5deb09a8d119e",
+        "sha256": "7fe197c3d81151b3324042775e0455a55ce0ad071e6f15c214736f813aeaeaa6",
         "size_bytes": 1064774,
-        "mtime": "2026-08-09T15:01:40.773008+00:00"
+        "mtime": "2026-08-09T15:31:13.529647+00:00"
       },
       "citylbm_gha": {
         "found": true,
         "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\CityLBM\\bin\\Release\\CityLBM.gha",
-        "sha256": "520c8e4a5a6e9b05f3c811e176dea04b177916a85082b36da341ca2387f64b03",
+        "sha256": "ebeaded6ff8e9803f7b3b162e33da3cd1fa4ebdd5cf53d2327dc16be8b86aa07",
         "size_bytes": 1809920,
-        "mtime": "2026-08-09T15:25:54.253917+00:00"
+        "mtime": "2026-08-09T15:41:01.436508+00:00"
       },
       "citylbm_build_log": {
         "found": true,
         "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-        "sha256": "e18f350e4abe048cac20566839d11a46091497f6771ae6cf4e07416a178fd2e5",
+        "sha256": "d37f9c21c507c8d55ad3678cbe7676b36d81039357052e4030bccef0df419ada",
         "size_bytes": 1011,
-        "mtime": "2026-08-09T15:25:54.481252+00:00"
+        "mtime": "2026-08-09T15:41:01.657493+00:00"
       },
       "run_matrix": {
         "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",

@@ -1,6 +1,6 @@
-# C008-C011 Inlet Turbulence Sweep Audit
+# C008-C012 Inlet Turbulence Sweep Audit
 
-Generated: 2026-08-09T15:26:03.572340+00:00
+Generated: 2026-08-09T15:41:11.238800+00:00
 
 ## Verdict
 
@@ -26,4 +26,4 @@ Generated: 2026-08-09T15:26:03.572340+00:00
 
 ## Boundary
 
-C008-C011 are completed official-height raw_trilinear candidate runs using a default-off synthetic full-plane inlet based on AF_caseE k. They improve MAE, R2, and Pearson, but R2 remains negative and the turbulence scale is a diagnostic sweep parameter. Use as inlet-turbulence evidence and software-feedback guidance only; do not claim formal v0.4.0, predictive accuracy, mesh independence, or LES improvement.
+C008-C012 are completed official-height raw_trilinear candidate runs using a default-off synthetic full-plane inlet based on AF_caseE k. They improve MAE, R2, and Pearson relative to the z-center baseline, but R2 remains negative and the scale sweep shows a plateau/rollback beyond C011. The turbulence scale is a diagnostic sweep parameter. Use as inlet-turbulence evidence and software-feedback guidance only; do not claim formal v0.4.0, predictive accuracy, mesh independence, or LES improvement.

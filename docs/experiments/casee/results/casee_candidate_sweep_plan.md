@@ -1,6 +1,6 @@
 # Case E Candidate Sweep Plan
 
-Generated: 2026-08-09T15:26:03.736767+00:00
+Generated: 2026-08-09T15:41:11.376365+00:00
 
 ## Verdict
 
@@ -30,7 +30,7 @@ Generated: 2026-08-09T15:26:03.736767+00:00
 | 5 | `C005_dx2_domain_decomposition_ablation` | False | runtime_ablation | `gpu_runtime; gpu_runtime; official_followup_preflight` | Raw_trilinear metrics remain consistent with C001 within expected numerical variability. |
 | 6 | `C006_dx1_dry_allocation_then_short_smoke` | False | high_resolution_preflight | `user_confirmation_required; dx1_memory_headroom; gpu_memory_headroom_lt_25pct` | Only proceed after dry allocation confirms memory headroom and the user approves a long run. |
 | 7 | `C007_default_off_wall_physics_implementation` | False | requires_implementation | `physical_wall_model_not_implemented` | MAE clearly below the current near-20 pp level, R2>0, Pearson>0, Case A smoke regression passes. |
-| 8 | `C008_C011_full_plane_inlet_turbulence_sweep` | False | requires_implementation | `gpu_runtime; gpu_runtime; official_followup_preflight` | Official raw_trilinear metric improves without relying on non-raw sampling or z-height substitution. |
+| 8 | `C008_C012_full_plane_inlet_turbulence_sweep` | False | requires_implementation | `gpu_runtime; gpu_runtime; official_followup_preflight` | Official raw_trilinear metric improves without relying on non-raw sampling or z-height substitution. |
 
 ## Boundary
 
