@@ -545,6 +545,32 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    rows.append(
+        row(
+            feedback_id="SF018",
+            experiment="Experiment 2 / AIJ Case E manifest schema traceability",
+            finding=(
+                "Generated run manifests need a stable reader-facing schema so Case E protocol fields, "
+                "diagnostic substitute blockers, and paper-forbidden claim classes can be audited without "
+                "reinterpreting solver logs."
+            ),
+            evidence_type="newly_run",
+            source_paths=[
+                CASEE_DIR / "tools" / "citylbm_manifest_schema_gate.py",
+                RESULTS_DIR / "citylbm_manifest_schema_gate.json",
+                RESULTS_DIR / "citylbm_manifest_schema_gate.md",
+                FLUIDX,
+                RUN_COMPONENT,
+            ],
+            decision_class="software_traceability_gate",
+            citylbm_status="implemented_schema_gate",
+            implementation_evidence="citylbm_manifest_schema_gate.py verifies required manifest sections, official Case E contract fields, diagnostic blockers, wall/roughness default-safety fields, and paper-forbidden claims.",
+            default_setting_allowed=False,
+            paper_use="Use as reviewer-facing manifest schema and claim-boundary evidence.",
+            limitations="Schema traceability does not add CFD output, improve official z=2 m metrics, or permit a formal accuracy claim.",
+        )
+    )
+
     return rows
 
 
@@ -563,7 +589,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(

@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T12:09:03.230233+00:00",
-    "feedback_count": 17,
+    "generated_at": "2026-08-09T12:18:35.006807+00:00",
+    "feedback_count": 18,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -12,7 +12,8 @@
       "paper_interpretation_layer": 1,
       "software_traceability_output": 3,
       "paper_traceability_output": 2,
-      "paper_figure_output": 1
+      "paper_figure_output": 1,
+      "software_traceability_gate": 1
     },
     "citylbm_status_counts": {
       "implemented_as_release_gate_requirement": 1,
@@ -23,7 +24,8 @@
       "paper_ready_workflow_guidance": 1,
       "paper_ready_with_boundary": 1,
       "blocked_vs_cpp_build_tools": 1,
-      "blocked_until_user_confirmed_dx1_dry_run": 1
+      "blocked_until_user_confirmed_dx1_dry_run": 1,
+      "implemented_schema_gate": 1
     },
     "required_feedback_rows_present": true,
     "all_source_paths_exist": true,
@@ -271,6 +273,20 @@
       "default_setting_allowed": false,
       "paper_use": "Use as software-feedback evidence that Case E diagnostics were converted into controlled follow-up interfaces.",
       "limitations": "No wall-model or roughness setting is a formal validation result until completed official z=2 m raw_trilinear runs pass the release gate."
+    },
+    {
+      "feedback_id": "SF018",
+      "experiment": "Experiment 2 / AIJ Case E manifest schema traceability",
+      "finding": "Generated run manifests need a stable reader-facing schema so Case E protocol fields, diagnostic substitute blockers, and paper-forbidden claim classes can be audited without reinterpreting solver logs.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/citylbm_manifest_schema_gate.py; docs/experiments/casee/results/citylbm_manifest_schema_gate.json; docs/experiments/casee/results/citylbm_manifest_schema_gate.md; CityLBM/src/Core/FluidX3DInterface.cs; CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "source_paths_exist": true,
+      "decision_class": "software_traceability_gate",
+      "citylbm_status": "implemented_schema_gate",
+      "implementation_evidence": "citylbm_manifest_schema_gate.py verifies required manifest sections, official Case E contract fields, diagnostic blockers, wall/roughness default-safety fields, and paper-forbidden claims.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as reviewer-facing manifest schema and claim-boundary evidence.",
+      "limitations": "Schema traceability does not add CFD output, improve official z=2 m metrics, or permit a formal accuracy claim."
     }
   ],
   "source_artifacts": [

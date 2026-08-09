@@ -47,6 +47,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_paper_results_figure.py`
 - `docs/experiments/casee/tools/citylbm_paper_results_packet.py`
 - `docs/experiments/casee/tools/citylbm_manifest_output_gate.py`
+- `docs/experiments/casee/tools/citylbm_manifest_schema_gate.py`
 - `docs/experiments/casee/tools/citylbm_software_feedback_matrix.py`
 - `docs/experiments/casee/results/casee_native_metric_comparison.csv`
 - `docs/experiments/casee/results/casee_ground_nu_diagnostic_comparison.csv`
@@ -104,6 +105,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_manifest_output_gate.json`
 - `docs/experiments/casee/results/citylbm_manifest_output_gate.md`
 - `docs/experiments/casee/results/citylbm_manifest_output_gate.csv`
+- `docs/experiments/casee/results/citylbm_manifest_schema_gate.json`
+- `docs/experiments/casee/results/citylbm_manifest_schema_gate.md`
+- `docs/experiments/casee/results/citylbm_manifest_schema_gate.csv`
 - `docs/experiments/casee/results/citylbm_software_feedback_matrix.json`
 - `docs/experiments/casee/results/citylbm_software_feedback_matrix.md`
 - `docs/experiments/casee/results/citylbm_software_feedback_matrix.csv`
@@ -111,7 +115,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc34.md`
+- `docs/releases/v0.4.0-rc35.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -161,6 +165,12 @@ Generated run manifests also include a `formal_accuracy_gate` contract for the
 `v0.4.0` line. It records the official Case E `ac+N` z=2 m raw-trilinear
 requirements, Case A/Rhino/release-gate dependencies, and explicitly states
 that the manifest alone cannot authorize a formal accuracy claim.
+
+The `citylbm_manifest_schema_gate.py` audit now verifies that generated run
+manifests keep a stable Case E claim contract: official protocol fields,
+diagnostic substitute blockers, wall/roughness default-safety fields, and
+paper-forbidden claim classes. This is schema/traceability evidence only, not
+CFD solver-output evidence.
 
 The Grasshopper `Run Simulation` component now exposes a `Claim Gate` (`Gate`)
 output next to `Manifest Path`. For Case E runs it reports the official
@@ -282,6 +292,7 @@ python docs/experiments/casee/tools/casee_manuscript_section_pack.py
 python docs/experiments/casee/tools/casee_paper_results_figure.py
 python docs/experiments/casee/tools/citylbm_paper_results_packet.py
 python docs/experiments/casee/tools/citylbm_manifest_output_gate.py
+python docs/experiments/casee/tools/citylbm_manifest_schema_gate.py
 python docs/experiments/casee/tools/citylbm_software_feedback_matrix.py
 python docs/experiments/casee/tools/paper_evidence_gate.py
 ```

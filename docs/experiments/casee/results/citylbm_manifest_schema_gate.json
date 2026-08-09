@@ -1,0 +1,131 @@
+{
+  "generated_at": "2026-08-09T12:18:32.483034+00:00",
+  "manifest_contract_version": "casee_manifest_contract_v1",
+  "manifest_schema_gate_passed": true,
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_manifest_schema_boundary",
+  "formal_accuracy_claim_supported": false,
+  "checks": [
+    {
+      "check_id": "manifest_writer_emits_named_file",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "schema_area": "file_identity",
+      "paper_use": "Use to identify the per-run manifest file in the reproducibility appendix.",
+      "failure_action": "Restore WriteRunManifest output to citylbm_run_manifest.json."
+    },
+    {
+      "check_id": "grasshopper_exposes_manifest_and_claim_gate",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs",
+      "schema_area": "ui_traceability",
+      "paper_use": "Use to show Grasshopper exposes both the manifest path and no-overclaim text.",
+      "failure_action": "Restore Manifest Path and Claim Gate outputs on Run Simulation."
+    },
+    {
+      "check_id": "top_level_manifest_sections_present",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "schema_area": "top_level_sections",
+      "paper_use": "Use to describe the manifest as a complete protocol and evidence-boundary record.",
+      "failure_action": "Restore all required top-level manifest sections."
+    },
+    {
+      "check_id": "official_casee_contract_fields_present",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "schema_area": "formal_casee_contract",
+      "paper_use": "Use to state that generated manifests preserve the official ac+N z=2 m protocol contract.",
+      "failure_action": "Restore official Case E formal accuracy gate fields."
+    },
+    {
+      "check_id": "diagnostic_substitutes_are_blocked",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "schema_area": "diagnostic_boundary",
+      "paper_use": "Use to keep diagnostic sampling, offsets, wall models, and roughness out of formal result claims.",
+      "failure_action": "Restore diagnostic substitute blocking fields."
+    },
+    {
+      "check_id": "wall_roughness_default_safe_fields_present",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "schema_area": "wall_roughness_boundary",
+      "paper_use": "Use to document wall/roughness follow-up controls as default-off traceability fields.",
+      "failure_action": "Restore wall/roughness manifest fields and default-promotion blockers."
+    },
+    {
+      "check_id": "probe_protocol_risk_fields_present",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "schema_area": "probe_protocol_risk",
+      "paper_use": "Use to trace near-wall probe-position risks without redefining official z=2 m validation.",
+      "failure_action": "Restore probe_protocol_risk manifest fields."
+    },
+    {
+      "check_id": "paper_forbidden_claims_present",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "schema_area": "paper_claim_boundary",
+      "paper_use": "Use to show generated manifests carry paper-use limits and forbidden claim classes.",
+      "failure_action": "Restore paper readiness and forbidden-claim fields."
+    },
+    {
+      "check_id": "default_policy_gate_passed",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "docs/experiments/casee/results/casee_default_policy_gate.json",
+      "schema_area": "upstream_gate",
+      "paper_use": "Use to show source defaults remain claim-safe before interpreting manifest schema.",
+      "failure_action": "Run casee_default_policy_gate.py and fix failed default-policy checks."
+    },
+    {
+      "check_id": "manifest_output_gate_passed",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
+      "schema_area": "upstream_gate",
+      "paper_use": "Use to show the UI and manifest output contract is already passing.",
+      "failure_action": "Run citylbm_manifest_output_gate.py and fix failed output checks."
+    },
+    {
+      "check_id": "formal_release_still_blocked_by_metrics",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "docs/experiments/casee/results/release_gate.json",
+      "schema_area": "release_boundary",
+      "paper_use": "Use to prove this schema gate cannot be cited as formal accuracy success.",
+      "failure_action": "Do not publish a formal tag until release_gate.json passes official z=2 m metrics."
+    }
+  ],
+  "required_manifest_sections": [
+    "release_claim_boundary",
+    "formal_accuracy_gate",
+    "grid",
+    "wind",
+    "simulation",
+    "validation",
+    "inputs"
+  ],
+  "required_formal_protocol": {
+    "case_condition": "ac",
+    "wind_direction": "N",
+    "wind_vector": [
+      0.0,
+      -1.0,
+      0.0
+    ],
+    "validation_height_m": 2.0,
+    "probe_count": 80,
+    "formal_sampling_mode": "raw_trilinear"
+  },
+  "boundary": "This gate verifies the static schema and claim contract for generated CityLBM run manifests. It is paper-ready traceability evidence, not CFD solver-output evidence, and it cannot support a formal accuracy claim."
+}

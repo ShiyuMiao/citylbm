@@ -322,6 +322,23 @@ def build_rows() -> List[Dict[str, str]]:
     out.append(
         row(
             experiment="CityLBM v0.4.0 release boundary",
+            result_id="manifest_schema_traceability",
+            claim_readiness="paper_ready_manifest_schema_boundary",
+            evidence_type="newly_run",
+            source_paths=[
+                rel(CASEE_RESULTS / "citylbm_manifest_schema_gate.json"),
+                rel(CASEE_RESULTS / "citylbm_manifest_schema_gate.md"),
+            ],
+            metric_or_status="manifest_schema_gate_passed=true; formal_accuracy_claim_supported=false",
+            paper_use="Use to state that generated run manifests have an auditable Case E protocol and claim-boundary schema.",
+            limitations="Manifest schema evidence does not add CFD output or improve official z=2 m metrics.",
+            software_feedback="Keep manifest schema checks in the release-candidate evidence chain before stronger paper claims.",
+        )
+    )
+
+    out.append(
+        row(
+            experiment="CityLBM v0.4.0 release boundary",
             result_id="formal_release_block",
             claim_readiness="blocked_formal_release_gate",
             evidence_type="newly_run",

@@ -1,11 +1,11 @@
 # CityLBM Paper Results Packet
 
-Generated: 2026-08-09T12:09:00.414364+00:00
+Generated: 2026-08-09T12:18:32.210136+00:00
 
 ## Verdict
 
 - Packet passed: True
-- Result rows: 17
+- Result rows: 18
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 
@@ -20,6 +20,7 @@ Generated: 2026-08-09T12:09:00.414364+00:00
 - paper_ready: 1
 - paper_ready_as_screening: 1
 - paper_ready_default_policy_boundary: 1
+- paper_ready_manifest_schema_boundary: 1
 - paper_ready_negative_result: 1
 - paper_ready_negative_validation_and_limitations: 1
 - paper_ready_with_boundary: 4
@@ -41,6 +42,7 @@ Generated: 2026-08-09T12:09:00.414364+00:00
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_NUMERICAL_PROTOCOL` | paper_ready_with_boundary | paper_ready_with_boundary | FluidX3D numerical parameters are archived for screening-level reproduction; residual convergence, field validation and annual compliance are not claimed. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_FINAL_DISCUSSION` | paper_ready_with_boundary | paper_ready_with_boundary | Final discussion and conclusion paragraphs are mapped to evidence and retain blocked claim boundaries. |
 | Experiment 3 / TUM2TWIN digital-twin application | `figure_table_manual_review_packet` | available_for_manual_review | available_figure_table_callouts=12 | Use as a checklist for manual figure/table selection in the manuscript. |
+| CityLBM v0.4.0 release boundary | `manifest_schema_traceability` | paper_ready_manifest_schema_boundary | manifest_schema_gate_passed=true; formal_accuracy_claim_supported=false | Use to state that generated run manifests have an auditable Case E protocol and claim-boundary schema. |
 
 ## Limitations And Blocked Claims
 
@@ -62,6 +64,7 @@ Generated: 2026-08-09T12:09:00.414364+00:00
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_NUMERICAL_PROTOCOL` | paper_ready_with_boundary | Screening/application evidence only; field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution remain unsupported. | Use as design-application workflow evidence, not as Case E accuracy evidence. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_FINAL_DISCUSSION` | paper_ready_with_boundary | Screening/application evidence only; field validation, annual comfort compliance, pollutant dispersion, GCBTE and CityLBM-GH end-to-end execution remain unsupported. | Use as design-application workflow evidence, not as Case E accuracy evidence. |
 | Experiment 3 / TUM2TWIN digital-twin application | `figure_table_manual_review_packet` | available_for_manual_review | Figure/table availability is not independent validation of CFD accuracy. | Keep release assets lightweight and hash-indexed; large VTK/3DM files should remain external or release assets. |
+| CityLBM v0.4.0 release boundary | `manifest_schema_traceability` | paper_ready_manifest_schema_boundary | Manifest schema evidence does not add CFD output or improve official z=2 m metrics. | Keep manifest schema checks in the release-candidate evidence chain before stronger paper claims. |
 | CityLBM v0.4.0 release boundary | `formal_release_block` | blocked_formal_release_gate | Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass. | Version software as release candidates until the formal gate passes. |
 
 ## Boundary

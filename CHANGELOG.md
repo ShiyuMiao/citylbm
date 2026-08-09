@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc35 - Manifest schema claim-contract gate
+
+- Added `citylbm_manifest_schema_gate.py` to verify the generated `citylbm_run_manifest.json` schema and Case E claim contract from source and upstream gates.
+- The schema gate checks official `ac+N` z=2 m raw-trilinear fields, diagnostic substitute blockers, wall/roughness default-safety fields, probe-protocol risk fields, and paper-forbidden claim classes.
+- Integrated the schema gate into the reproducibility suite, artifact index, paper evidence gate, and reproducibility appendix command/artifact trace.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc35.md`.
+
+This release candidate improves reviewer-facing schema traceability only. It does not add CFD output, improve official Case E z=2 m metrics, change default wall treatment, prove mesh independence, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc34 - Wall and roughness follow-up interface
 
 - Added default-off Grasshopper `Run Simulation` inputs for `Diagnostic Wall Model` (`wallModel`, default `none`) and `Diagnostic Roughness Length` (`z0Wall`, default `0.0 m`).

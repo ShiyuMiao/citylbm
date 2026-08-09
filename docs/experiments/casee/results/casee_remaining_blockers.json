@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-09T12:09:04.455156+00:00",
+  "generated_at": "2026-08-09T12:18:36.224277+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_followup_plan; paper_ready_limitations_support",
   "release_gate_summary": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc34",
+    "recommended_tag": "v0.4.0-rc35",
     "metrics": {
       "n": 80,
       "mae_pp": 21.111408125,
@@ -62,7 +62,7 @@
       "release_gate_check": "native_fluidx3d_followup_capacity",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/build_chain_manifest.json; docs/experiments/casee/results/release_gate.json",
-      "current_evidence": "nvidia-smi returncode=0; stdout=Sun Aug  9 20:08:56 2026 +-----------------------------------------------------------------------------------------+ | NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     | |---------------------------...",
+      "current_evidence": "nvidia-smi returncode=0; stdout=Sun Aug  9 20:18:28 2026 +-----------------------------------------------------------------------------------------+ | NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     | |---------------------------...",
       "required_action": "Recover the NVIDIA device/driver before any additional long native FluidX3D validation run.",
       "verification_command_or_artifact": "nvidia-smi",
       "pass_condition": "nvidia-smi returns 0 and reports the target GPU without GPU-lost errors.",
@@ -76,7 +76,7 @@
       "release_gate_check": "native_fluidx3d_build_capacity",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/build_chain_manifest.json",
-      "current_evidence": "VS C++ status=blocked; C: free=7.048 GB",
+      "current_evidence": "VS C++ status=blocked; C: free=7.042 GB",
       "required_action": "Free enough space on C: or redirect installer cache, approve UAC, and install Visual Studio Build Tools 2022 C++ workload.",
       "verification_command_or_artifact": "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath",
       "pass_condition": "vswhere returns a VC tools installation path and vcvars64.bat/cl.exe are available.",

@@ -1,11 +1,11 @@
 # Case E Remaining Blockers And Remediation Plan
 
-Generated: 2026-08-09T12:09:04.455156+00:00
+Generated: 2026-08-09T12:18:36.224277+00:00
 
 ## Verdict
 
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc34`
+- Recommended tag: `v0.4.0-rc35`
 - Official z=2 m MAE: 21.111408125 pp
 - Official z=2 m R2: -2.006330362229977
 - Official z=2 m Pearson: 0.11575649438573923
@@ -40,7 +40,7 @@ Generated: 2026-08-09T12:09:04.455156+00:00
 
 ### B003_gpu_runtime
 
-- Current evidence: nvidia-smi returncode=0; stdout=Sun Aug  9 20:08:56 2026 +-----------------------------------------------------------------------------------------+ | NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     | |---------------------------...
+- Current evidence: nvidia-smi returncode=0; stdout=Sun Aug  9 20:18:28 2026 +-----------------------------------------------------------------------------------------+ | NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     | |---------------------------...
 - Required action: Recover the NVIDIA device/driver before any additional long native FluidX3D validation run.
 - Verification: `nvidia-smi`
 - Paper use: Use as an environment blocker statement.
@@ -48,7 +48,7 @@ Generated: 2026-08-09T12:09:04.455156+00:00
 
 ### B004_vs_cpp_build_tools
 
-- Current evidence: VS C++ status=blocked; C: free=7.048 GB
+- Current evidence: VS C++ status=blocked; C: free=7.042 GB
 - Required action: Free enough space on C: or redirect installer cache, approve UAC, and install Visual Studio Build Tools 2022 C++ workload.
 - Verification: `"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`
 - Paper use: Use as build-chain limitation until ready.

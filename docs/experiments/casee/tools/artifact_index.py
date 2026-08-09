@@ -29,6 +29,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc32.md",
     "docs/releases/v0.4.0-rc33.md",
     "docs/releases/v0.4.0-rc34.md",
+    "docs/releases/v0.4.0-rc35.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -56,6 +57,7 @@ RESULT_PATTERNS = [
     "casee_paper_results_figure.*",
     "citylbm_paper_results_packet.*",
     "citylbm_manifest_output_gate.*",
+    "citylbm_manifest_schema_gate.*",
     "citylbm_software_feedback_matrix.*",
     "build_chain_manifest.*",
     "plugin_identity_gate.json",
@@ -99,6 +101,7 @@ TOOL_SCRIPTS = [
     "casee_paper_results_figure.py",
     "citylbm_paper_results_packet.py",
     "citylbm_manifest_output_gate.py",
+    "citylbm_manifest_schema_gate.py",
     "citylbm_software_feedback_matrix.py",
     "casee_audit.py",
     "casee_probe_modes_audit.py",
@@ -271,6 +274,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "paper_ready_cross_experiment_results_packet"
     if "citylbm_manifest_output_gate" in path:
         return "paper_ready_manifest_traceability"
+    if "citylbm_manifest_schema_gate" in path:
+        return "paper_ready_manifest_schema_boundary"
     if "citylbm_software_feedback_matrix" in path:
         return "paper_ready_software_feedback_boundary"
     if "paper_evidence_gate" in path or "plugin_identity_gate" in path or "reproducibility_suite" in path:
@@ -496,6 +501,9 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "citylbm_manifest_output_gate.json",
                 "citylbm_manifest_output_gate.md",
                 "citylbm_manifest_output_gate.csv",
+                "citylbm_manifest_schema_gate.json",
+                "citylbm_manifest_schema_gate.md",
+                "citylbm_manifest_schema_gate.csv",
                 "citylbm_software_feedback_matrix.json",
                 "citylbm_software_feedback_matrix.md",
                 "citylbm_software_feedback_matrix.csv",
@@ -514,6 +522,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc32.md",
                 "v0.4.0-rc33.md",
                 "v0.4.0-rc34.md",
+                "v0.4.0-rc35.md",
             )
         )
     ]

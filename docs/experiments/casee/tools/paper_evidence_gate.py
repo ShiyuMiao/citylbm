@@ -59,12 +59,14 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/citylbm_paper_results_packet.md",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.md",
+    "docs/experiments/casee/results/citylbm_manifest_schema_gate.json",
+    "docs/experiments/casee/results/citylbm_manifest_schema_gate.md",
     "docs/experiments/casee/results/citylbm_software_feedback_matrix.json",
     "docs/experiments/casee/results/citylbm_software_feedback_matrix.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc34.md",
+    "docs/releases/v0.4.0-rc35.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -495,6 +497,32 @@ def manifest_output_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def manifest_schema_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "manifest_schema_gate_found": False,
+            "manifest_schema_gate_passed": False,
+            "claim_readiness": "missing",
+            "formal_accuracy_claim_supported": None,
+            "contract_version": "",
+            "check_count": 0,
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    readiness = str(data.get("claim_readiness", ""))
+    return {
+        "manifest_schema_gate_found": True,
+        "manifest_schema_gate_passed": data.get("manifest_schema_gate_passed"),
+        "claim_readiness": readiness,
+        "formal_accuracy_claim_supported": data.get("formal_accuracy_claim_supported"),
+        "contract_version": data.get("manifest_contract_version"),
+        "check_count": len(data.get("checks", [])),
+        "claim_boundary_safe": data.get("manifest_schema_gate_passed") is True
+        and readiness == "paper_ready_manifest_schema_boundary"
+        and data.get("formal_accuracy_claim_supported") is False,
+    }
+
+
 def manuscript_results_table_status(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {
@@ -621,6 +649,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     default_policy = payload["casee_default_policy_gate"]
     paper_packet = payload["citylbm_paper_results_packet"]
     manifest_output = payload["citylbm_manifest_output_gate"]
+    manifest_schema = payload["citylbm_manifest_schema_gate"]
     manuscript_table = payload["casee_manuscript_results_table"]
     section_pack = payload["casee_manuscript_section_pack"]
     paper_figure = payload["casee_paper_results_figure"]
@@ -744,6 +773,16 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Formal accuracy claim supported: {manifest_output['formal_accuracy_claim_supported']}",
         f"- Claim boundary safe: {manifest_output['claim_boundary_safe']}",
         "",
+        "## Manifest Schema Gate",
+        "",
+        f"- Gate found: {manifest_schema['manifest_schema_gate_found']}",
+        f"- Gate passed: {manifest_schema['manifest_schema_gate_passed']}",
+        f"- Contract version: `{manifest_schema['contract_version']}`",
+        f"- Checks: {manifest_schema['check_count']}",
+        f"- Claim readiness: `{manifest_schema['claim_readiness']}`",
+        f"- Formal accuracy claim supported: {manifest_schema['formal_accuracy_claim_supported']}",
+        f"- Claim boundary safe: {manifest_schema['claim_boundary_safe']}",
+        "",
         "## Manuscript Results Table",
         "",
         f"- Table found: {manuscript_table['manuscript_results_table_found']}",
@@ -812,6 +851,7 @@ def main() -> int:
     parser.add_argument("--default-policy", type=Path, default=RESULTS_DIR / "casee_default_policy_gate.json")
     parser.add_argument("--paper-results-packet", type=Path, default=RESULTS_DIR / "citylbm_paper_results_packet.json")
     parser.add_argument("--manifest-output", type=Path, default=RESULTS_DIR / "citylbm_manifest_output_gate.json")
+    parser.add_argument("--manifest-schema", type=Path, default=RESULTS_DIR / "citylbm_manifest_schema_gate.json")
     parser.add_argument("--manuscript-results-table", type=Path, default=RESULTS_DIR / "casee_manuscript_results_table.json")
     parser.add_argument("--manuscript-section-pack", type=Path, default=RESULTS_DIR / "casee_manuscript_section_pack.json")
     parser.add_argument("--paper-results-figure", type=Path, default=RESULTS_DIR / "casee_paper_results_figure_qa.json")
@@ -835,6 +875,7 @@ def main() -> int:
     default_policy = default_policy_status(args.default_policy)
     paper_packet = paper_results_packet_status(args.paper_results_packet)
     manifest_output = manifest_output_status(args.manifest_output)
+    manifest_schema = manifest_schema_status(args.manifest_schema)
     manuscript_table = manuscript_results_table_status(args.manuscript_results_table)
     section_pack = manuscript_section_pack_status(args.manuscript_section_pack)
     paper_figure = paper_results_figure_status(args.paper_results_figure)
@@ -869,6 +910,8 @@ def main() -> int:
         and paper_packet["claim_boundary_safe"]
         and manifest_output["manifest_output_gate_found"]
         and manifest_output["claim_boundary_safe"]
+        and manifest_schema["manifest_schema_gate_found"]
+        and manifest_schema["claim_boundary_safe"]
         and manuscript_table["manuscript_results_table_found"]
         and manuscript_table["claim_boundary_safe"]
         and section_pack["manuscript_section_pack_found"]
@@ -894,6 +937,7 @@ def main() -> int:
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_packet,
         "citylbm_manifest_output_gate": manifest_output,
+        "citylbm_manifest_schema_gate": manifest_schema,
         "casee_manuscript_results_table": manuscript_table,
         "casee_manuscript_section_pack": section_pack,
         "casee_paper_results_figure": paper_figure,

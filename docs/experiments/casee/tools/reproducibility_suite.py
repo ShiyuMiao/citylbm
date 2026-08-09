@@ -195,6 +195,7 @@ def main() -> int:
         ("casee_default_policy_gate", "casee_default_policy_gate.py"),
         ("citylbm_paper_results_packet", "citylbm_paper_results_packet.py"),
         ("citylbm_manifest_output_gate", "citylbm_manifest_output_gate.py"),
+        ("citylbm_manifest_schema_gate", "citylbm_manifest_schema_gate.py"),
         ("casee_manuscript_results_table", "casee_manuscript_results_table.py"),
         ("casee_manuscript_section_pack", "casee_manuscript_section_pack.py"),
         ("casee_paper_results_figure", "casee_paper_results_figure.py"),
@@ -221,6 +222,7 @@ def main() -> int:
     default_policy = read_json(RESULTS_DIR / "casee_default_policy_gate.json")
     paper_results_packet = read_json(RESULTS_DIR / "citylbm_paper_results_packet.json")
     manifest_output_gate = read_json(RESULTS_DIR / "citylbm_manifest_output_gate.json")
+    manifest_schema_gate = read_json(RESULTS_DIR / "citylbm_manifest_schema_gate.json")
     manuscript_results_table = read_json(RESULTS_DIR / "casee_manuscript_results_table.json")
     manuscript_section_pack = read_json(RESULTS_DIR / "casee_manuscript_section_pack.json")
     paper_results_figure = read_json(RESULTS_DIR / "casee_paper_results_figure_qa.json")
@@ -245,6 +247,7 @@ def main() -> int:
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_results_packet,
         "citylbm_manifest_output_gate": manifest_output_gate,
+        "citylbm_manifest_schema_gate": manifest_schema_gate,
         "casee_manuscript_results_table": manuscript_results_table,
         "casee_manuscript_section_pack": manuscript_section_pack,
         "casee_paper_results_figure": paper_results_figure,
