@@ -1,13 +1,13 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T11:43:42.742736+00:00",
-    "feedback_count": 15,
+    "generated_at": "2026-08-09T11:55:42.129971+00:00",
+    "feedback_count": 16,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
       "formal_protocol_default": 1,
       "diagnostic_switch": 2,
-      "blocked_followup_run": 2,
+      "blocked_followup_run": 3,
       "application_workflow_policy": 1,
       "paper_interpretation_layer": 1,
       "software_traceability_output": 3,
@@ -22,7 +22,8 @@
       "ready_for_next_official_run": 1,
       "paper_ready_workflow_guidance": 1,
       "paper_ready_with_boundary": 1,
-      "blocked_vs_cpp_build_tools": 1
+      "blocked_vs_cpp_build_tools": 1,
+      "blocked_until_user_confirmed_dx1_dry_run": 1
     },
     "required_feedback_rows_present": true,
     "all_source_paths_exist": true,
@@ -242,6 +243,20 @@
       "default_setting_allowed": false,
       "paper_use": "Use as environment/build-chain evidence explaining why another full software/native validation loop still requires manual VS C++ recovery.",
       "limitations": "Build-chain readiness does not add CFD output, improve official z=2 m metrics, prove Rhino loaded the new GHA, or permit formal v0.4.0."
+    },
+    {
+      "feedback_id": "SF016",
+      "experiment": "Experiment 2 / AIJ Case E dx=1 follow-up readiness",
+      "finding": "The dx=1 m high-resolution official follow-up is a high-risk long-run candidate: readiness=high_risk_blocked_until_dry_run, memory_headroom_ok=False, moderate required per GPU=13.79 GiB, minimum free GPU memory=15.898 GiB.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/casee_dx1_readiness_audit.py; docs/experiments/casee/results/casee_dx1_readiness_audit.json; docs/experiments/casee/results/casee_dx1_readiness_audit.md; docs/experiments/casee/results/casee_dx1_readiness_audit.csv",
+      "source_paths_exist": true,
+      "decision_class": "blocked_followup_run",
+      "citylbm_status": "blocked_until_user_confirmed_dx1_dry_run",
+      "implementation_evidence": "casee_dx1_readiness_audit.py records the audited dx=1 command, generated-domain dimensions, GPU free memory, memory scenarios, and no-run claim boundary.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as high-resolution follow-up feasibility and limitations evidence.",
+      "limitations": "Readiness evidence only; no dx=1 solver output, no official z=2 m metric improvement, and no mesh-independence claim."
     }
   ],
   "source_artifacts": [
@@ -250,6 +265,7 @@
     "docs/experiments/casee/results/casee_default_policy_gate.json",
     "docs/experiments/casee/results/casee_official_run_preflight.json",
     "docs/experiments/casee/results/build_chain_manifest.json",
+    "docs/experiments/casee/results/casee_dx1_readiness_audit.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",

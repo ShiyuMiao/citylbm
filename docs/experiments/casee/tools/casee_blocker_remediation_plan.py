@@ -70,13 +70,19 @@ def run_exists(rows: List[Dict[str, str]], run_id: str) -> bool:
     return any(row.get("run_id") == run_id and row.get("status", "").startswith("completed") for row in rows)
 
 
-def build_blockers(gate: Dict[str, Any], build_chain: Dict[str, Any], matrix: List[Dict[str, str]]) -> List[Dict[str, Any]]:
+def build_blockers(
+    gate: Dict[str, Any],
+    build_chain: Dict[str, Any],
+    matrix: List[Dict[str, str]],
+    dx1_readiness: Dict[str, Any],
+) -> List[Dict[str, Any]]:
     checks = gate.get("checks", {})
     metrics = gate.get("metrics", {})
     vs_cpp = build_chain.get("visual_studio_build_tools_2022_cpp", {})
     gpu = build_chain.get("gpu_runtime", {}).get("nvidia_smi", {})
     disk_rows = build_chain.get("disk", [])
     c_free = next((row.get("free_gb") for row in disk_rows if row.get("drive") == "C:\\"), "NA")
+    dx1_summary = dx1_readiness.get("summary") or {}
 
     blockers: List[Dict[str, Any]] = [
         {
@@ -155,10 +161,15 @@ def build_blockers(gate: Dict[str, Any], build_chain: Dict[str, Any], matrix: Li
             "status": "not_started" if not run_exists(matrix, "casee_native_dx1_official") else "ready",
             "severity": "major",
             "release_gate_check": "mesh_resolution_followup",
-            "evidence_type": "preexisting_artifact",
-            "source_paths": "docs/experiments/casee/native_fluidx3d_run_matrix.csv; docs/experiments/casee/results/dx1_feasibility_estimate.md",
-            "current_evidence": "Only dx=1 m feasibility exists; no official dx=1 m FluidX3D run is recorded.",
-            "required_action": "After GPU recovery, decide whether dx=1 m is feasible and schedule only if memory/runtime estimates are acceptable.",
+            "evidence_type": "newly_run",
+            "source_paths": "docs/experiments/casee/native_fluidx3d_run_matrix.csv; docs/experiments/casee/results/casee_dx1_readiness_audit.json; docs/experiments/casee/results/casee_dx1_readiness_audit.md",
+            "current_evidence": (
+                f"dx1_readiness={dx1_summary.get('dx1_readiness')}; "
+                f"memory_headroom_ok={dx1_summary.get('dx1_memory_headroom_ok')}; "
+                f"moderate_required_per_gpu_gib={dx1_summary.get('generator_moderate_required_per_gpu_gib')}; "
+                f"gpu_min_free_gib={dx1_summary.get('gpu_min_free_gib')}; run_started={dx1_summary.get('run_started')}"
+            ),
+            "required_action": "Run a user-confirmed dx=1 dry allocation test or adjust domain/decomposition before scheduling a full 48000-step dx=1 official run.",
             "verification_command_or_artifact": "docs/experiments/casee/results/<dx1_run_log>; docs/experiments/casee/results/<dx1_probe_time_mean.csv>",
             "pass_condition": "Completed official z=2 m dx=1 m run with all 80 raw_trilinear probe predictions and complete log.",
             "paper_use": "Use current state only as future-work planning.",
@@ -264,6 +275,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--release-gate", type=Path, default=RESULTS_DIR / "release_gate.json")
     parser.add_argument("--build-chain", type=Path, default=RESULTS_DIR / "build_chain_manifest.json")
+    parser.add_argument("--dx1-readiness", type=Path, default=RESULTS_DIR / "casee_dx1_readiness_audit.json")
     parser.add_argument("--run-matrix", type=Path, default=CASE_DIR / "native_fluidx3d_run_matrix.csv")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_remaining_blockers.json")
     parser.add_argument("--out-csv", type=Path, default=RESULTS_DIR / "casee_remaining_blockers.csv")
@@ -272,8 +284,9 @@ def main() -> int:
 
     gate = read_json(args.release_gate)
     build_chain = read_json(args.build_chain)
+    dx1_readiness = read_json(args.dx1_readiness)
     matrix = read_csv(args.run_matrix)
-    blockers = build_blockers(gate, build_chain, matrix)
+    blockers = build_blockers(gate, build_chain, matrix, dx1_readiness)
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "evidence_type": "newly_run",

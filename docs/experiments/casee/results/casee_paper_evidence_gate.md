@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-09T11:43:44.675073+00:00
+Generated: 2026-08-09T11:55:44.154812+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc32`
+- Recommended tag: `v0.4.0-rc33`
 
 ## Official z=2 m Metric
 
@@ -27,14 +27,14 @@ Generated: 2026-08-09T11:43:44.675073+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 304
+- Checked nonblank lines: 306
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 172
-- Lightweight release assets: 139
+- Artifact count: 177
+- Lightweight release assets: 144
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -65,6 +65,16 @@ Generated: 2026-08-09T11:43:44.675073+00:00
 - Claim readiness: `ready_for_next_official_followup_run`
 - Claim boundary safe: True
 
+## dx=1 Readiness Audit
+
+- Audit found: True
+- Audit passed: True
+- dx=1 readiness: `high_risk_blocked_until_dry_run`
+- Memory headroom ok: False
+- Run started: False
+- Formal accuracy claim supported: False
+- Claim boundary safe: True
+
 ## Environment Recovery Runbook
 
 - Recovery runbook found: True
@@ -92,7 +102,7 @@ Generated: 2026-08-09T11:43:44.675073+00:00
 
 - Packet found: True
 - Packet passed: True
-- Result rows: 16
+- Result rows: 17
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 - Claim boundary safe: True
@@ -140,7 +150,7 @@ Generated: 2026-08-09T11:43:44.675073+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 15
+- Feedback rows: 16
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False

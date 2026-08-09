@@ -35,6 +35,9 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/rhino_gha_load_gate.md",
     "docs/experiments/casee/results/casee_official_run_preflight.json",
     "docs/experiments/casee/results/casee_official_run_preflight.md",
+    "docs/experiments/casee/results/casee_dx1_readiness_audit.json",
+    "docs/experiments/casee/results/casee_dx1_readiness_audit.csv",
+    "docs/experiments/casee/results/casee_dx1_readiness_audit.md",
     "docs/experiments/casee/results/casee_environment_recovery_runbook.json",
     "docs/experiments/casee/results/casee_environment_recovery_runbook.md",
     "docs/experiments/casee/results/casee_failure_mode_atlas.json",
@@ -61,7 +64,7 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc32.md",
+    "docs/releases/v0.4.0-rc33.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -315,6 +318,38 @@ def preflight_status(path: Path) -> Dict[str, Any]:
         "claim_readiness": readiness,
         "blocked_gates": data.get("blocked_gates", []),
         "claim_boundary_safe": readiness in {"blocked_official_followup_preflight", "ready_for_next_official_followup_run"},
+    }
+
+
+def dx1_readiness_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "dx1_readiness_found": False,
+            "dx1_readiness_audit_passed": False,
+            "claim_readiness": "missing",
+            "dx1_readiness": "missing",
+            "run_started": None,
+            "formal_accuracy_claim_supported": None,
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    readiness = str(data.get("claim_readiness", ""))
+    summary = data.get("summary") or {}
+    return {
+        "dx1_readiness_found": True,
+        "dx1_readiness_audit_passed": summary.get("dx1_readiness_audit_passed"),
+        "claim_readiness": readiness,
+        "dx1_readiness": summary.get("dx1_readiness"),
+        "dx1_memory_headroom_ok": summary.get("dx1_memory_headroom_ok"),
+        "run_started": summary.get("run_started"),
+        "run_allowed_without_user_confirmation": summary.get("run_allowed_without_user_confirmation"),
+        "formal_accuracy_claim_supported": summary.get("formal_accuracy_claim_supported"),
+        "claim_boundary_safe": (
+            summary.get("dx1_readiness_audit_passed") is True
+            and readiness == "limitations_ready_dx1_feasibility"
+            and summary.get("run_started") is False
+            and summary.get("formal_accuracy_claim_supported") is False
+        ),
     }
 
 
@@ -580,6 +615,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     rhino = payload["rhino_gha_load_gate"]
     build_chain = payload["build_chain_manifest"]
     preflight = payload["casee_official_run_preflight"]
+    dx1 = payload["casee_dx1_readiness_audit"]
     recovery = payload["casee_environment_recovery_runbook"]
     atlas = payload["casee_failure_mode_atlas"]
     default_policy = payload["casee_default_policy_gate"]
@@ -656,6 +692,16 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Formal release allowed: {preflight['formal_release_allowed']}",
         f"- Claim readiness: `{preflight['claim_readiness']}`",
         f"- Claim boundary safe: {preflight['claim_boundary_safe']}",
+        "",
+        "## dx=1 Readiness Audit",
+        "",
+        f"- Audit found: {dx1['dx1_readiness_found']}",
+        f"- Audit passed: {dx1['dx1_readiness_audit_passed']}",
+        f"- dx=1 readiness: `{dx1['dx1_readiness']}`",
+        f"- Memory headroom ok: {dx1.get('dx1_memory_headroom_ok')}",
+        f"- Run started: {dx1['run_started']}",
+        f"- Formal accuracy claim supported: {dx1['formal_accuracy_claim_supported']}",
+        f"- Claim boundary safe: {dx1['claim_boundary_safe']}",
         "",
         "## Environment Recovery Runbook",
         "",
@@ -760,6 +806,7 @@ def main() -> int:
     parser.add_argument("--rhino-gate", type=Path, default=RESULTS_DIR / "rhino_gha_load_gate.json")
     parser.add_argument("--build-chain", type=Path, default=RESULTS_DIR / "build_chain_manifest.json")
     parser.add_argument("--preflight", type=Path, default=RESULTS_DIR / "casee_official_run_preflight.json")
+    parser.add_argument("--dx1-readiness", type=Path, default=RESULTS_DIR / "casee_dx1_readiness_audit.json")
     parser.add_argument("--recovery", type=Path, default=RESULTS_DIR / "casee_environment_recovery_runbook.json")
     parser.add_argument("--failure-atlas", type=Path, default=RESULTS_DIR / "casee_failure_mode_atlas.json")
     parser.add_argument("--default-policy", type=Path, default=RESULTS_DIR / "casee_default_policy_gate.json")
@@ -782,6 +829,7 @@ def main() -> int:
     rhino = rhino_gate_status(args.rhino_gate)
     build_chain = build_chain_status(args.build_chain)
     preflight = preflight_status(args.preflight)
+    dx1_readiness = dx1_readiness_status(args.dx1_readiness)
     recovery = recovery_status(args.recovery)
     atlas = failure_atlas_status(args.failure_atlas)
     default_policy = default_policy_status(args.default_policy)
@@ -808,6 +856,8 @@ def main() -> int:
         and preflight["preflight_found"]
         and preflight["claim_boundary_safe"]
         and preflight["formal_release_allowed"] is False
+        and dx1_readiness["dx1_readiness_found"]
+        and dx1_readiness["claim_boundary_safe"]
         and recovery["recovery_found"]
         and recovery["claim_boundary_safe"]
         and recovery["formal_release_allowed"] is False
@@ -838,6 +888,7 @@ def main() -> int:
         "rhino_gha_load_gate": rhino,
         "build_chain_manifest": build_chain,
         "casee_official_run_preflight": preflight,
+        "casee_dx1_readiness_audit": dx1_readiness,
         "casee_environment_recovery_runbook": recovery,
         "casee_failure_mode_atlas": atlas,
         "casee_default_policy_gate": default_policy,

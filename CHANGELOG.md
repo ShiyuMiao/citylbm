@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc33 - dx=1 readiness audit
+
+- Added `casee_dx1_readiness_audit.py` to quantify the dx=1 m high-resolution Case E follow-up before launching any long FluidX3D run.
+- The audit records the future dx=1 generation command, current-generator domain dimensions, conservative STL-padding dimensions, GPU free memory, and 256/512/1024 bytes-per-cell memory scenarios.
+- Integrated the dx=1 readiness output into the reproducibility suite, artifact index, paper evidence gate, paper appendix command trace, remaining-blocker plan, next-experiment runbook, cross-experiment paper results packet, and software-feedback matrix as SF016.
+- Updated release evidence pointers to `docs/releases/v0.4.0-rc33.md`.
+
+This release candidate improves high-resolution follow-up planning and limitations traceability only. It does not start a dx=1 FluidX3D run, add solver output, improve official Case E z=2 m metrics, prove mesh independence, prove Rhino loaded the new GHA, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc32 - Build-chain audit refresh
 
 - Attempted Visual Studio Build Tools 2022 C++ installation through `winget` using the BuildTools 17.14.37 package and an `E:\citylbm_buildchain\VSBuildTools` install path.

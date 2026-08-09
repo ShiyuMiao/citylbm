@@ -38,6 +38,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/rhino_gha_load_gate.py`
 - `docs/experiments/casee/tools/build_chain_audit.py`
 - `docs/experiments/casee/tools/casee_official_run_preflight.py`
+- `docs/experiments/casee/tools/casee_dx1_readiness_audit.py`
 - `docs/experiments/casee/tools/casee_environment_recovery_runbook.py`
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
@@ -75,6 +76,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/rhino_gha_load_gate.md`
 - `docs/experiments/casee/results/casee_official_run_preflight.json`
 - `docs/experiments/casee/results/casee_official_run_preflight.md`
+- `docs/experiments/casee/results/casee_dx1_readiness_audit.json`
+- `docs/experiments/casee/results/casee_dx1_readiness_audit.md`
+- `docs/experiments/casee/results/casee_dx1_readiness_audit.csv`
 - `docs/experiments/casee/results/casee_environment_recovery_runbook.json`
 - `docs/experiments/casee/results/casee_environment_recovery_runbook.md`
 - `docs/experiments/casee/results/casee_failure_mode_atlas.json`
@@ -107,7 +111,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md`
 - `docs/experiments/casea/results/casea_smoke_regression.json`
 - `docs/experiments/casea/results/casea_vtk_manifest.csv`
-- `docs/releases/v0.4.0-rc32.md`
+- `docs/releases/v0.4.0-rc33.md`
 
 The current-machine AIJ Case A smoke regression passed as a workflow
 non-regression guard: dx = 3.5 m, 2000 FluidX3D steps, a completed run log, and
@@ -176,6 +180,15 @@ Studio bootstrapper log reports a possible declined UAC prompt. C: has about
 7 GB free, which remains below the 8 GB operational threshold used by the
 recovery runbook.
 
+The dx=1 m high-resolution readiness audit records the exact future generation
+command, the current generator domain (600 x 800 x 241 cells), the conservative
+STL-padding domain estimate, and GPU memory scenarios. It does not start
+FluidX3D or commit a generated dx=1 STL copy. Under the moderate 512 bytes/cell
+scenario, the current generator needs about 13.79 GiB per GPU on a 2 x 2 x 1
+decomposition, leaving insufficient 25% headroom on the current P100 cards; the
+conservative overhead scenario is not feasible. This is limitations/follow-up
+planning evidence only, not mesh-independence or accuracy evidence.
+
 The manuscript evidence summary now converts Case E outputs into a claim matrix.
 It marks protocol and build/workflow evidence as paper-ready, marks the current
 official z=2 m result as a negative validation/limitations result, and blocks
@@ -199,10 +212,10 @@ are reviewer-facing traceability support only; they do not change the official
 z=2 m accuracy result or permit a formal `v0.4.0` tag.
 
 The remaining-blocker remediation plan converts the current release gate,
-build-chain audit, and run matrix into concrete pass conditions for the next
-work cycle. It records the official metric gate failure, Rhino new-GHA loading
-gap, GPU-lost runtime blocker, incomplete Visual Studio C++ build chain, and
-dx=1 m follow-up status as operational blockers rather than accuracy evidence.
+build-chain audit, dx=1 readiness audit, and run matrix into concrete pass
+conditions for the next work cycle. It records the official metric gate failure,
+Rhino new-GHA loading gap, incomplete Visual Studio C++ build chain, and dx=1 m
+follow-up status as operational blockers rather than accuracy evidence.
 
 The next-experiment runbook turns those blockers into a future command matrix
 for preflight checks, dx=2 replication, wall-model and inlet-turbulence

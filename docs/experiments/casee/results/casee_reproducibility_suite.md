@@ -1,12 +1,12 @@
 # Case E Reproducibility Suite
 
-Generated: 2026-08-09T11:43:44.794865+00:00
+Generated: 2026-08-09T11:55:44.269420+00:00
 
 ## Verdict
 
 - Suite passed: True
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc32`
+- Recommended tag: `v0.4.0-rc33`
 
 ## Official z=2 m Metric
 
@@ -16,8 +16,8 @@ Generated: 2026-08-09T11:43:44.794865+00:00
 
 ## Artifact Index
 
-- Artifact count: 172
-- Lightweight release assets: 139
+- Artifact count: 177
+- Lightweight release assets: 144
 - Formal accuracy claim supported: False
 
 ## Build Chain
@@ -25,6 +25,8 @@ Generated: 2026-08-09T11:43:44.794865+00:00
 - Build chain ready: False
 - VS Build Tools C++: `blocked`
 - GPU runtime: `ready`
+- dx=1 readiness: `high_risk_blocked_until_dry_run`
+- dx=1 memory headroom ok: False
 
 ## Commands
 
@@ -38,6 +40,7 @@ Generated: 2026-08-09T11:43:44.794865+00:00
 | rhino_gha_load_gate | 0 | True |
 | build_chain_audit | 0 | True |
 | casee_official_run_preflight | 0 | True |
+| casee_dx1_readiness_audit | 0 | True |
 | casee_environment_recovery_runbook | 0 | True |
 | casee_failure_mode_atlas | 0 | True |
 | casee_default_policy_gate | 0 | True |

@@ -1,11 +1,11 @@
 # Case E Remaining Blockers And Remediation Plan
 
-Generated: 2026-08-09T11:43:43.686621+00:00
+Generated: 2026-08-09T11:55:43.147478+00:00
 
 ## Verdict
 
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc32`
+- Recommended tag: `v0.4.0-rc33`
 - Official z=2 m MAE: 21.111408125 pp
 - Official z=2 m R2: -2.006330362229977
 - Official z=2 m Pearson: 0.11575649438573923
@@ -40,7 +40,7 @@ Generated: 2026-08-09T11:43:43.686621+00:00
 
 ### B003_gpu_runtime
 
-- Current evidence: nvidia-smi returncode=0; stdout=Sun Aug  9 19:43:37 2026 +-----------------------------------------------------------------------------------------+ | NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     | |---------------------------...
+- Current evidence: nvidia-smi returncode=0; stdout=Sun Aug  9 19:55:36 2026 +-----------------------------------------------------------------------------------------+ | NVIDIA-SMI 560.76                 Driver Version: 560.76         CUDA Version: 12.6     | |---------------------------...
 - Required action: Recover the NVIDIA device/driver before any additional long native FluidX3D validation run.
 - Verification: `nvidia-smi`
 - Paper use: Use as an environment blocker statement.
@@ -48,7 +48,7 @@ Generated: 2026-08-09T11:43:43.686621+00:00
 
 ### B004_vs_cpp_build_tools
 
-- Current evidence: VS C++ status=blocked; C: free=7.063 GB
+- Current evidence: VS C++ status=blocked; C: free=7.056 GB
 - Required action: Free enough space on C: or redirect installer cache, approve UAC, and install Visual Studio Build Tools 2022 C++ workload.
 - Verification: `"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`
 - Paper use: Use as build-chain limitation until ready.
@@ -56,8 +56,8 @@ Generated: 2026-08-09T11:43:43.686621+00:00
 
 ### B005_dx1_high_resolution_run
 
-- Current evidence: Only dx=1 m feasibility exists; no official dx=1 m FluidX3D run is recorded.
-- Required action: After GPU recovery, decide whether dx=1 m is feasible and schedule only if memory/runtime estimates are acceptable.
+- Current evidence: dx1_readiness=high_risk_blocked_until_dry_run; memory_headroom_ok=False; moderate_required_per_gpu_gib=13.79; gpu_min_free_gib=15.898; run_started=False
+- Required action: Run a user-confirmed dx=1 dry allocation test or adjust domain/decomposition before scheduling a full 48000-step dx=1 official run.
 - Verification: `docs/experiments/casee/results/<dx1_run_log>; docs/experiments/casee/results/<dx1_probe_time_mean.csv>`
 - Paper use: Use current state only as future-work planning.
 - Forbidden claim: Do not claim mesh independence from dx=2/3 diagnostics.

@@ -92,6 +92,7 @@ def build_rows() -> List[Dict[str, str]]:
     default_policy = read_json(CASEE_RESULTS / "casee_default_policy_gate.json")
     failure_atlas = read_json(CASEE_RESULTS / "casee_failure_mode_atlas.json")
     preflight = read_json(CASEE_RESULTS / "casee_official_run_preflight.json")
+    dx1_readiness = read_json(CASEE_RESULTS / "casee_dx1_readiness_audit.json")
     build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -177,6 +178,31 @@ def build_rows() -> List[Dict[str, str]]:
             paper_use="Use to document why the next long official validation run is not yet schedulable on this machine.",
             limitations="Runtime readiness evidence only; no new solver output is produced.",
             software_feedback="Recover GPU runtime, Rhino new-GHA loading, and VS C++ build chain before new formal Case E sweeps.",
+        )
+    )
+
+    dx1_summary = dx1_readiness.get("summary") or {}
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="dx1_high_resolution_readiness",
+            claim_readiness=str(dx1_readiness.get("claim_readiness", "limitations_ready_dx1_feasibility")),
+            evidence_type=str(dx1_readiness.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_dx1_readiness_audit.json"),
+                rel(CASEE_RESULTS / "casee_dx1_readiness_audit.md"),
+                rel(CASEE_RESULTS / "casee_dx1_readiness_audit.csv"),
+            ],
+            metric_or_status=(
+                f"dx1_readiness={dx1_summary.get('dx1_readiness')}; "
+                f"memory_headroom_ok={dx1_summary.get('dx1_memory_headroom_ok')}; "
+                f"run_started={dx1_summary.get('run_started')}; "
+                f"required_per_gpu_gib={dx1_summary.get('generator_moderate_required_per_gpu_gib')}; "
+                f"min_free_gib={dx1_summary.get('gpu_min_free_gib')}"
+            ),
+            paper_use="Use as a limitations/future-work statement for high-resolution official Case E follow-up planning.",
+            limitations="No dx=1 FluidX3D solver output was produced; do not claim mesh independence or improved official z=2 m accuracy.",
+            software_feedback="Keep dx=1 as a user-confirmed high-resolution follow-up path, not a default validation claim.",
         )
     )
 
@@ -411,6 +437,7 @@ def main() -> int:
             rel(CASEE_RESULTS / "casee_default_policy_gate.json"),
             rel(CASEE_RESULTS / "casee_failure_mode_atlas.json"),
             rel(CASEE_RESULTS / "casee_official_run_preflight.json"),
+            rel(CASEE_RESULTS / "casee_dx1_readiness_audit.json"),
             rel(CASEE_RESULTS / "build_chain_manifest.json"),
             rel(CASEE_RESULTS / "casee_manuscript_section_pack.json"),
             rel(PAPER_DRAFTS / "experiment3_claim_verification.csv"),

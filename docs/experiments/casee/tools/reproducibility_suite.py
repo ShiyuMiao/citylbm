@@ -95,6 +95,7 @@ def write_markdown(payload: Dict[str, Any]) -> None:
     build_chain = payload.get("build_chain_manifest", {})
     vs = build_chain.get("visual_studio_build_tools_2022_cpp", {})
     gpu = build_chain.get("gpu_runtime", {})
+    dx1 = payload.get("casee_dx1_readiness_audit", {}).get("summary", {})
     lines = [
         "# Case E Reproducibility Suite",
         "",
@@ -123,6 +124,8 @@ def write_markdown(payload: Dict[str, Any]) -> None:
         f"- Build chain ready: {build_chain.get('build_chain_ready')}",
         f"- VS Build Tools C++: `{vs.get('status')}`",
         f"- GPU runtime: `{gpu.get('status')}`",
+        f"- dx=1 readiness: `{dx1.get('dx1_readiness')}`",
+        f"- dx=1 memory headroom ok: {dx1.get('dx1_memory_headroom_ok')}",
         "",
         "## Commands",
         "",
@@ -186,6 +189,7 @@ def main() -> int:
         ("rhino_gha_load_gate", "rhino_gha_load_gate.py"),
         ("build_chain_audit", "build_chain_audit.py"),
         ("casee_official_run_preflight", "casee_official_run_preflight.py"),
+        ("casee_dx1_readiness_audit", "casee_dx1_readiness_audit.py"),
         ("casee_environment_recovery_runbook", "casee_environment_recovery_runbook.py"),
         ("casee_failure_mode_atlas", "casee_failure_mode_atlas.py"),
         ("casee_default_policy_gate", "casee_default_policy_gate.py"),
@@ -211,6 +215,7 @@ def main() -> int:
     rhino_gate = read_json(RESULTS_DIR / "rhino_gha_load_gate.json")
     build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
+    dx1_readiness = read_json(RESULTS_DIR / "casee_dx1_readiness_audit.json")
     recovery = read_json(RESULTS_DIR / "casee_environment_recovery_runbook.json")
     failure_atlas = read_json(RESULTS_DIR / "casee_failure_mode_atlas.json")
     default_policy = read_json(RESULTS_DIR / "casee_default_policy_gate.json")
@@ -234,6 +239,7 @@ def main() -> int:
         "rhino_gha_load_gate": rhino_gate,
         "build_chain_manifest": build_chain,
         "casee_official_run_preflight": preflight,
+        "casee_dx1_readiness_audit": dx1_readiness,
         "casee_environment_recovery_runbook": recovery,
         "casee_failure_mode_atlas": failure_atlas,
         "casee_default_policy_gate": default_policy,

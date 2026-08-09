@@ -1,12 +1,13 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T11:43:40.353508+00:00",
-    "result_count": 16,
+    "generated_at": "2026-08-09T11:55:39.738551+00:00",
+    "result_count": 17,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
       "limitations_ready_negative_validation": 1,
       "paper_ready_default_policy_boundary": 1,
       "ready_for_next_official_followup_run": 1,
+      "limitations_ready_dx1_feasibility": 1,
       "blocked_build_chain_diagnostic": 1,
       "paper_ready_negative_validation_and_limitations": 1,
       "paper_ready": 1,
@@ -18,7 +19,7 @@
       "blocked_formal_release_gate": 1
     },
     "evidence_type_counts": {
-      "newly_run": 10,
+      "newly_run": 11,
       "newly_run + preexisting_artifact": 3,
       "blocked": 1,
       "newly_run + preexisting_artifact + blocked": 2
@@ -72,6 +73,17 @@
       "paper_use": "Use to document why the next long official validation run is not yet schedulable on this machine.",
       "limitations": "Runtime readiness evidence only; no new solver output is produced.",
       "software_feedback": "Recover GPU runtime, Rhino new-GHA loading, and VS C++ build chain before new formal Case E sweeps."
+    },
+    {
+      "experiment": "Experiment 2 / AIJ Case E",
+      "result_id": "dx1_high_resolution_readiness",
+      "claim_readiness": "limitations_ready_dx1_feasibility",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_dx1_readiness_audit.json; docs/experiments/casee/results/casee_dx1_readiness_audit.md; docs/experiments/casee/results/casee_dx1_readiness_audit.csv",
+      "metric_or_status": "dx1_readiness=high_risk_blocked_until_dry_run; memory_headroom_ok=False; run_started=False; required_per_gpu_gib=13.79; min_free_gib=15.898",
+      "paper_use": "Use as a limitations/future-work statement for high-resolution official Case E follow-up planning.",
+      "limitations": "No dx=1 FluidX3D solver output was produced; do not claim mesh independence or improved official z=2 m accuracy.",
+      "software_feedback": "Keep dx=1 as a user-confirmed high-resolution follow-up path, not a default validation claim."
     },
     {
       "experiment": "Build-chain recovery / AIJ Case E follow-up",
@@ -200,7 +212,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc32",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc33",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."
@@ -212,6 +224,7 @@
     "docs/experiments/casee/results/casee_default_policy_gate.json",
     "docs/experiments/casee/results/casee_failure_mode_atlas.json",
     "docs/experiments/casee/results/casee_official_run_preflight.json",
+    "docs/experiments/casee/results/casee_dx1_readiness_audit.json",
     "docs/experiments/casee/results/build_chain_manifest.json",
     "docs/experiments/casee/results/casee_manuscript_section_pack.json",
     "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv",

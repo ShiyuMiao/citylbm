@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-09T11:43:43.808761+00:00",
+  "generated_at": "2026-08-09T11:55:43.293325+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_followup_runbook; not_accuracy_evidence",
   "release_gate_summary": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc32",
+    "recommended_tag": "v0.4.0-rc33",
     "metrics": {
       "n": 80,
       "mae_pp": 21.111408125,
@@ -121,14 +121,14 @@
     {
       "runbook_id": "R008_dx1_feasibility_or_generation",
       "stage": "high_resolution_followup",
-      "enabled_now": true,
-      "evidence_type": "newly_run_when_executed",
+      "enabled_now": false,
+      "evidence_type": "blocked_until_dx1_readiness_passes",
       "purpose": "Prepare a dx=1 m official follow-up only if memory/runtime evidence is acceptable.",
-      "trigger_condition": "GPU ready and dx1 feasibility estimate accepted.",
+      "trigger_condition": "GPU ready, dx1 readiness audit memory_headroom_ok=true, and user confirms a dry allocation/full run.",
       "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 1 --steps 48000 --spinup 12000 --sample-dt 4000 --ground-offset-cells 1 --origin-z-offset-m 0.5 --nu-lbm 0.001",
       "expected_artifact": "docs/experiments/casee/native_cases/<dx1_run_id>/citylbm_native_case_manifest.json",
       "formal_result_policy": "No mesh-independence claim until completed dx1 metrics support the trend.",
-      "pass_condition": "Completed dx=1 official z=2 m raw_trilinear run with all 80 probes and complete log.",
+      "pass_condition": "Readiness audit passes, then completed dx=1 official z=2 m raw_trilinear run with all 80 probes and complete log.",
       "forbidden_claim": "Do not claim mesh independence from generated case files or dx=2/3 diagnostics."
     },
     {
@@ -145,6 +145,6 @@
       "forbidden_claim": "Do not cite an unaudited probe CSV as a paper result."
     }
   ],
-  "blocked_command_count": 4,
+  "blocked_command_count": 5,
   "boundary": "Future-run command matrix only; no new CFD accuracy evidence."
 }

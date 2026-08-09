@@ -121,6 +121,7 @@ def build_rows() -> List[Dict[str, Any]]:
     paper_figure = read_json(RESULTS_DIR / "casee_paper_results_figure_qa.json")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
     build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
+    dx1_readiness = read_json(RESULTS_DIR / "casee_dx1_readiness_audit.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -482,6 +483,36 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    dx1_summary = dx1_readiness.get("summary") or {}
+    rows.append(
+        row(
+            feedback_id="SF016",
+            experiment="Experiment 2 / AIJ Case E dx=1 follow-up readiness",
+            finding=(
+                "The dx=1 m high-resolution official follow-up is a high-risk long-run candidate: "
+                f"readiness={dx1_summary.get('dx1_readiness')}, "
+                f"memory_headroom_ok={dx1_summary.get('dx1_memory_headroom_ok')}, "
+                f"moderate required per GPU={dx1_summary.get('generator_moderate_required_per_gpu_gib')} GiB, "
+                f"minimum free GPU memory={dx1_summary.get('gpu_min_free_gib')} GiB."
+            ),
+            evidence_type=str(dx1_readiness.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_dx1_readiness_audit.py",
+                RESULTS_DIR / "casee_dx1_readiness_audit.json",
+                RESULTS_DIR / "casee_dx1_readiness_audit.md",
+                RESULTS_DIR / "casee_dx1_readiness_audit.csv",
+            ],
+            decision_class="blocked_followup_run",
+            citylbm_status="blocked_until_user_confirmed_dx1_dry_run"
+            if dx1_summary.get("dx1_memory_headroom_ok") is not True
+            else "ready_for_user_confirmed_dx1_dry_run",
+            implementation_evidence="casee_dx1_readiness_audit.py records the audited dx=1 command, generated-domain dimensions, GPU free memory, memory scenarios, and no-run claim boundary.",
+            default_setting_allowed=False,
+            paper_use="Use as high-resolution follow-up feasibility and limitations evidence.",
+            limitations="Readiness evidence only; no dx=1 solver output, no official z=2 m metric improvement, and no mesh-independence claim.",
+        )
+    )
+
     return rows
 
 
@@ -500,7 +531,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -592,6 +623,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_default_policy_gate.json"),
             rel(RESULTS_DIR / "casee_official_run_preflight.json"),
             rel(RESULTS_DIR / "build_chain_manifest.json"),
+            rel(RESULTS_DIR / "casee_dx1_readiness_audit.json"),
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
             rel(RESULTS_DIR / "casee_manuscript_results_table.json"),

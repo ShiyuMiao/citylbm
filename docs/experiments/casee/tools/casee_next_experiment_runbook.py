@@ -45,7 +45,7 @@ def write_csv(path: Path, rows: Iterable[Dict[str, Any]]) -> None:
             writer.writerow(row)
 
 
-def command_rows(release_gate: Dict[str, Any], blockers: Dict[str, Any]) -> List[Dict[str, Any]]:
+def command_rows(release_gate: Dict[str, Any], blockers: Dict[str, Any], dx1_readiness: Dict[str, Any]) -> List[Dict[str, Any]]:
     gpu_blocked = any(
         b.get("blocker_id") == "B003_gpu_runtime" and b.get("status") == "blocked"
         for b in blockers.get("blockers", [])
@@ -55,6 +55,8 @@ def command_rows(release_gate: Dict[str, Any], blockers: Dict[str, Any]) -> List
         for b in blockers.get("blockers", [])
     )
     metric_blocked = not bool(release_gate.get("checks", {}).get("official_z2m_metric_gate"))
+    dx1_summary = dx1_readiness.get("summary") or {}
+    dx1_headroom_ok = dx1_summary.get("dx1_memory_headroom_ok") is True
     common_forbidden = "Do not claim predictive accuracy, mesh independence, or formal v0.4.0 readiness from this command alone."
     rows: List[Dict[str, Any]] = [
         {
@@ -151,14 +153,14 @@ def command_rows(release_gate: Dict[str, Any], blockers: Dict[str, Any]) -> List
         {
             "runbook_id": "R008_dx1_feasibility_or_generation",
             "stage": "high_resolution_followup",
-            "enabled_now": not gpu_blocked,
-            "evidence_type": "blocked_until_gpu_ready" if gpu_blocked else "newly_run_when_executed",
+            "enabled_now": (not gpu_blocked) and dx1_headroom_ok,
+            "evidence_type": "blocked_until_dx1_readiness_passes" if not dx1_headroom_ok else "newly_run_when_executed",
             "purpose": "Prepare a dx=1 m official follow-up only if memory/runtime evidence is acceptable.",
-            "trigger_condition": "GPU ready and dx1 feasibility estimate accepted.",
+            "trigger_condition": "GPU ready, dx1 readiness audit memory_headroom_ok=true, and user confirms a dry allocation/full run.",
             "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 1 --steps 48000 --spinup 12000 --sample-dt 4000 --ground-offset-cells 1 --origin-z-offset-m 0.5 --nu-lbm 0.001",
             "expected_artifact": "docs/experiments/casee/native_cases/<dx1_run_id>/citylbm_native_case_manifest.json",
             "formal_result_policy": "No mesh-independence claim until completed dx1 metrics support the trend.",
-            "pass_condition": "Completed dx=1 official z=2 m raw_trilinear run with all 80 probes and complete log.",
+            "pass_condition": "Readiness audit passes, then completed dx=1 official z=2 m raw_trilinear run with all 80 probes and complete log.",
             "forbidden_claim": "Do not claim mesh independence from generated case files or dx=2/3 diagnostics.",
         },
         {
@@ -232,6 +234,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--release-gate", type=Path, default=RESULTS_DIR / "release_gate.json")
     parser.add_argument("--blockers", type=Path, default=RESULTS_DIR / "casee_remaining_blockers.json")
+    parser.add_argument("--dx1-readiness", type=Path, default=RESULTS_DIR / "casee_dx1_readiness_audit.json")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_next_experiment_runbook.json")
     parser.add_argument("--out-csv", type=Path, default=RESULTS_DIR / "casee_next_experiment_runbook.csv")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_next_experiment_runbook.md")
@@ -239,7 +242,8 @@ def main() -> int:
 
     release_gate = read_json(args.release_gate)
     blockers = read_json(args.blockers)
-    rows = command_rows(release_gate, blockers)
+    dx1_readiness = read_json(args.dx1_readiness)
+    rows = command_rows(release_gate, blockers, dx1_readiness)
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "evidence_type": "newly_run",
