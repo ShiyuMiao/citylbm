@@ -1,12 +1,12 @@
 # Case E Reproducibility Suite
 
-Generated: 2026-08-11T00:41:59.204012+00:00
+Generated: 2026-08-11T00:47:34.662004+00:00
 
 ## Verdict
 
 - Suite passed: True
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc51`
+- Recommended tag: `v0.4.0-rc52`
 
 ## Official z=2 m Metric
 
@@ -16,8 +16,8 @@ Generated: 2026-08-11T00:41:59.204012+00:00
 
 ## Artifact Index
 
-- Artifact count: 296
-- Lightweight release assets: 224
+- Artifact count: 301
+- Lightweight release assets: 229
 - Formal accuracy claim supported: False
 
 ## Build Chain
@@ -68,6 +68,8 @@ Generated: 2026-08-11T00:41:59.204012+00:00
 | casee_next_experiment_runbook | 0 | True |
 | artifact_index | 0 | True |
 | paper_evidence_gate | 0 | True |
+| casee_publication_readiness_gate | 0 | True |
+| artifact_index_final | 0 | True |
 | formal_release_gate_expected_block | 1 | True |
 
 ## Boundary

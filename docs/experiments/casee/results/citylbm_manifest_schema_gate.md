@@ -1,6 +1,6 @@
 # CityLBM Manifest Schema Gate
 
-Generated: 2026-08-11T00:41:54.246857+00:00
+Generated: 2026-08-11T00:47:28.423304+00:00
 
 ## Verdict
 

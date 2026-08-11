@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T00:41:56.626852+00:00",
+    "generated_at": "2026-08-11T00:47:30.937240+00:00",
     "feedback_count": 30,
     "decision_class_counts": {
       "default_quality_gate": 1,
@@ -474,7 +474,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc51",
+      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc52",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."

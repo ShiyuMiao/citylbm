@@ -52,6 +52,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_c008_c009_inlet_turbulence_audit.py`
 - `docs/experiments/casee/tools/casee_c014_residual_structure_audit.py`
 - `docs/experiments/casee/tools/casee_claim_support_gate.py`
+- `docs/experiments/casee/tools/casee_publication_readiness_gate.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
 - `docs/experiments/casee/tools/casee_manuscript_results_table.py`
 - `docs/experiments/casee/tools/casee_manuscript_section_pack.py`
@@ -85,8 +86,11 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_c014_residual_top_probes.csv`
 - `docs/experiments/casee/results/casee_claim_support_gate.json`
 - `docs/experiments/casee/results/casee_claim_support_gate.md`
+- `docs/experiments/casee/results/casee_publication_readiness_gate.json`
+- `docs/experiments/casee/results/casee_publication_readiness_gate.md`
 - `docs/experiments/casee/results/casee_remaining_blockers.json`
 - `docs/experiments/casee/results/casee_remaining_blockers.md`
+- `docs/releases/v0.4.0-rc52.md`
 - `docs/releases/v0.4.0-rc51.md`
 - `docs/releases/v0.4.0-rc50.md`
 - `docs/releases/v0.4.0-rc49.md`

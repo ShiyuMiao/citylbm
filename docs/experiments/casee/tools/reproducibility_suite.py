@@ -222,6 +222,8 @@ def main() -> int:
         ("casee_next_experiment_runbook", "casee_next_experiment_runbook.py"),
         ("artifact_index", "artifact_index.py"),
         ("paper_evidence_gate", "paper_evidence_gate.py"),
+        ("casee_publication_readiness_gate", "casee_publication_readiness_gate.py"),
+        ("artifact_index_final", "artifact_index.py"),
     ]:
         steps.append(run_command(name, [python, str(CASE_DIR / "tools" / script)]))
     steps.append(run_command("formal_release_gate_expected_block", [python, str(CASE_DIR / "tools" / "release_gate.py")], expect_release_gate_block=True))

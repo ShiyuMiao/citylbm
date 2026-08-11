@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc52 - Case E publication-readiness gate
+
+- Added `casee_publication_readiness_gate.py` with JSON/CSV/Markdown outputs.
+- Audits ten reviewer-facing questions covering protocol, formal negative validation, diagnostic boundaries, provenance, figures, appendix, software feedback, blockers, scripted reproducibility, and release assets.
+- Integrated the gate into the reproducibility suite and rebuilt the artifact index after it so publication-readiness outputs are hash-indexed.
+
+This is a publication-readiness and reviewer-audit enhancement only. It does not add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc51 - Case E manuscript claim-support gate
 
 - Added `casee_claim_support_gate.py` with JSON/CSV/Markdown outputs.

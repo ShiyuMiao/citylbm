@@ -1,0 +1,162 @@
+{
+  "summary": {
+    "generated_at": "2026-08-11T00:47:33.592110+00:00",
+    "publication_readiness_gate_passed": true,
+    "evidence_type": "newly_run",
+    "claim_readiness": "paper_ready_publication_packet; blocked formal accuracy release",
+    "row_count": 10,
+    "status_counts": {
+      "paper_ready_protocol": 1,
+      "limitations_ready_negative_validation": 1,
+      "paper_ready_claim_boundary": 1,
+      "paper_ready_provenance": 1,
+      "paper_ready_figure": 1,
+      "paper_ready_appendix": 1,
+      "paper_ready_software_boundary": 1,
+      "blocked_formal_release": 1,
+      "paper_ready_scripted_packet": 1,
+      "paper_ready_release_assets": 1
+    },
+    "all_source_paths_exist": true,
+    "formal_release_allowed": false,
+    "recommended_tag": "v0.4.0-rc52",
+    "official_z2m_metrics": {
+      "n": 80,
+      "mae_pp": 21.111408125,
+      "rmse_pp": 27.72103208243715,
+      "bias_pp": -16.409216,
+      "r2": -2.006330362229977,
+      "pearson": 0.11575649438573923,
+      "height_m": 2.0,
+      "sampling_mode": "raw_trilinear"
+    },
+    "paper_evidence_gate_passed": true,
+    "claim_support_gate_passed": true,
+    "figure_gate_passed": true,
+    "suite_passed": true,
+    "formal_accuracy_claim_supported": false,
+    "boundary": "This gate audits whether the current Case E material is publication-ready as a negative-validation and limitations package. It does not add CFD output, improve official metrics, or permit a formal release."
+  },
+  "rows": [
+    {
+      "item_id": "PR001",
+      "reviewer_question": "Is the official AIJ Case E validation protocol explicit and reproducible?",
+      "status": "paper_ready_protocol",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/casee_protocol.md; docs/experiments/casee/results/casee_manuscript_claim_matrix.csv; docs/experiments/casee/results/casee_claim_support_gate.json",
+      "source_paths_exist": true,
+      "paper_location": "Methods / Validation protocol",
+      "allowed_statement": "Case E is evaluated under the official ac+N, z=2 m, 80-probe, raw_trilinear protocol.",
+      "must_not_claim": "Do not infer accuracy success from protocol setup alone."
+    },
+    {
+      "item_id": "PR002",
+      "reviewer_question": "What is the formal official z=2 m result?",
+      "status": "limitations_ready_negative_validation",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/release_gate.json; docs/experiments/casee/results/casee_metrics.csv; docs/experiments/casee/results/casee_validation_report.md",
+      "source_paths_exist": true,
+      "paper_location": "Results / Validation",
+      "allowed_statement": "The formal official z=2 m result remains negative: MAE=21.111408125 pp, R2=-2.006330362229977, Pearson=0.11575649438573923.",
+      "must_not_claim": "Do not claim predictive accuracy, mesh independence, LES improvement, or formal v0.4.0 readiness."
+    },
+    {
+      "item_id": "PR003",
+      "reviewer_question": "Are diagnostic improvements separated from formal validation?",
+      "status": "paper_ready_claim_boundary",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_claim_support_gate.json; docs/experiments/casee/results/casee_claim_support_gate.csv; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c014_residual_structure_audit.json",
+      "source_paths_exist": true,
+      "paper_location": "Results / Diagnostics and Discussion",
+      "allowed_statement": "C014 is the strongest diagnostic candidate, but it remains limitations-only because formal R2 is negative.",
+      "must_not_claim": "Do not report diagnostic sampling, inlet tuning, no-SGS, affine calibration, or residual subsets as official validation."
+    },
+    {
+      "item_id": "PR004",
+      "reviewer_question": "Can a reviewer trace every reported metric to commands, logs, and CSV files?",
+      "status": "paper_ready_provenance",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_solver_run_provenance_ledger.json; docs/experiments/casee/results/casee_solver_run_provenance_ledger.csv; docs/experiments/casee/results/casee_artifact_index.json",
+      "source_paths_exist": true,
+      "paper_location": "Reproducibility appendix",
+      "allowed_statement": "The solver-run ledger maps Case E metrics to run commands/configs, logs, CSV outputs, hashes, and claim boundaries.",
+      "must_not_claim": "Do not use provenance completeness as evidence of accuracy success."
+    },
+    {
+      "item_id": "PR005",
+      "reviewer_question": "Are paper figures source-backed and claim-safe?",
+      "status": "paper_ready_figure",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_paper_results_figure_qa.json; docs/experiments/casee/results/casee_paper_results_figure_source.csv; docs/experiments/casee/results/casee_paper_results_figure.svg; docs/experiments/casee/results/casee_paper_results_figure.png",
+      "source_paths_exist": true,
+      "paper_location": "Figure / Results",
+      "allowed_statement": "The figure can show negative validation and limitations-only diagnostic improvements.",
+      "must_not_claim": "Do not visually imply that diagnostic bars are formal accuracy validation."
+    },
+    {
+      "item_id": "PR006",
+      "reviewer_question": "Is the reproducibility appendix generated from current evidence?",
+      "status": "paper_ready_appendix",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_paper_appendix_manifest.json; academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md; academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
+      "source_paths_exist": true,
+      "paper_location": "Supplementary / Reproducibility appendix",
+      "allowed_statement": "The appendix can document commands, artifacts, release boundary, and environment limitations.",
+      "must_not_claim": "Do not describe the appendix as resolving the official accuracy failure."
+    },
+    {
+      "item_id": "PR007",
+      "reviewer_question": "Has the software feedback been constrained to validated defaults and diagnostic switches?",
+      "status": "paper_ready_software_boundary",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/citylbm_software_feedback_matrix.json; docs/experiments/casee/results/casee_default_policy_gate.json; docs/experiments/casee/results/citylbm_manifest_schema_gate.json",
+      "source_paths_exist": true,
+      "paper_location": "Software implications / Limitations",
+      "allowed_statement": "CityLBM converts evidence into formal defaults, diagnostic-only switches, and release blockers.",
+      "must_not_claim": "Do not promote benchmark-tuned diagnostics to default accuracy models."
+    },
+    {
+      "item_id": "PR008",
+      "reviewer_question": "What still blocks a formal accuracy-oriented release?",
+      "status": "blocked_formal_release",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/release_gate.json; docs/experiments/casee/results/casee_official_run_preflight.json; docs/experiments/casee/results/rhino_gha_load_gate.json; docs/experiments/casee/results/build_chain_manifest.json",
+      "source_paths_exist": true,
+      "paper_location": "Limitations / Future work",
+      "allowed_statement": "Formal release remains blocked by the official z=2 m metric gate, Rhino/GHA load evidence, and current GPU/runtime recovery needs.",
+      "must_not_claim": "Do not create a formal v0.4.0 tag or state that the optimized plugin satisfies research-grade accuracy."
+    },
+    {
+      "item_id": "PR009",
+      "reviewer_question": "Is the entire publication packet reproducible from scripts?",
+      "status": "paper_ready_scripted_packet",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_reproducibility_suite.json; docs/experiments/casee/results/casee_paper_evidence_gate.json; docs/experiments/casee/results/casee_artifact_index.json",
+      "source_paths_exist": true,
+      "paper_location": "Reproducibility statement",
+      "allowed_statement": "The current publication packet is script-generated and passes the paper evidence and claim-support gates.",
+      "must_not_claim": "Do not treat a passing publication gate as a passing CFD accuracy gate."
+    },
+    {
+      "item_id": "PR010",
+      "reviewer_question": "Are release assets lightweight and traceable?",
+      "status": "paper_ready_release_assets",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_artifact_index.json; docs/releases/v0.4.0-rc52.md",
+      "source_paths_exist": true,
+      "paper_location": "Data and code availability",
+      "allowed_statement": "The artifact index records 298 artifacts and 226 lightweight release assets.",
+      "must_not_claim": "Do not commit large VTK/raw geometry duplicates as manuscript evidence."
+    }
+  ],
+  "source_artifacts": [
+    "docs/experiments/casee/results/release_gate.json",
+    "docs/experiments/casee/results/casee_paper_evidence_gate.json",
+    "docs/experiments/casee/results/casee_claim_support_gate.json",
+    "docs/experiments/casee/results/casee_paper_results_figure_qa.json",
+    "docs/experiments/casee/results/casee_paper_appendix_manifest.json",
+    "docs/experiments/casee/results/casee_reproducibility_suite.json",
+    "docs/experiments/casee/results/citylbm_software_feedback_matrix.json",
+    "docs/experiments/casee/results/casee_solver_run_provenance_ledger.json"
+  ]
+}
