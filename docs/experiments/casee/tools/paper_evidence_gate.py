@@ -38,6 +38,9 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/vs_cpp_recovery_gate.json",
     "docs/experiments/casee/results/vs_cpp_recovery_gate.csv",
     "docs/experiments/casee/results/vs_cpp_recovery_gate.md",
+    "docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json",
+    "docs/experiments/casee/results/vs_cpp_system_drive_space_gate.csv",
+    "docs/experiments/casee/results/vs_cpp_system_drive_space_gate.md",
     "docs/experiments/casee/results/vs_cpp_elevated_launcher_gate.json",
     "docs/experiments/casee/results/vs_cpp_elevated_launcher_gate.csv",
     "docs/experiments/casee/results/vs_cpp_elevated_launcher_gate.md",
@@ -121,7 +124,7 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.json",
     "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.csv",
     "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.md",
-    "docs/releases/v0.4.0-rc67.md",
+    "docs/releases/v0.4.0-rc68.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [

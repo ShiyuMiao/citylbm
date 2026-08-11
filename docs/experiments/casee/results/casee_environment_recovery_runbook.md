@@ -1,6 +1,6 @@
 # Case E Environment Recovery Runbook
 
-Generated: 2026-08-11T03:24:14.540108+00:00
+Generated: 2026-08-11T03:32:59.026257+00:00
 
 ## Verdict
 
@@ -39,7 +39,7 @@ Generated: 2026-08-11T03:24:14.540108+00:00
 
 ### REC002_free_c_drive
 
-- Action: Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 4.989 GB. Workspace build-cache candidates total only 2.540 MB.
+- Action: Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 4.982 GB. Workspace build-cache candidates total only 2.540 MB.
 - Pass condition: C: free space >= 8 GB; workspace cache cleanup alone is not enough if the current value remains near 0.5 GB.
 - Risk boundary: Do not delete user data; record any cleanup outside the repo separately.
 

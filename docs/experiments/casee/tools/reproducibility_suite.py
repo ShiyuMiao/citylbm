@@ -307,6 +307,7 @@ def main() -> int:
         ("rhino_gha_load_manifest_schema_gate", "rhino_gha_load_manifest_schema_gate.py"),
         ("manuscript_evidence_summary", "manuscript_evidence_summary.py"),
         ("vs_cpp_recovery_gate", "vs_cpp_recovery_gate.py"),
+        ("vs_cpp_system_drive_space_gate", "vs_cpp_system_drive_space_gate.py"),
         ("vs_cpp_elevated_launcher_gate", "vs_cpp_elevated_launcher_gate.py"),
         ("casee_official_run_preflight", "casee_official_run_preflight.py"),
         ("citylbm_gpu_runtime_failfast_gate", "citylbm_gpu_runtime_failfast_gate.py"),
@@ -365,6 +366,7 @@ def main() -> int:
     build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
     portable_toolchain_gate = read_json(RESULTS_DIR / "citylbm_portable_toolchain_gate.json")
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
+    vs_cpp_system_drive_space = read_json(RESULTS_DIR / "vs_cpp_system_drive_space_gate.json")
     vs_cpp_elevated_launcher = read_json(RESULTS_DIR / "vs_cpp_elevated_launcher_gate.json")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
     gpu_failfast = read_json(RESULTS_DIR / "citylbm_gpu_runtime_failfast_gate.json")
@@ -407,6 +409,7 @@ def main() -> int:
         "build_chain_manifest": build_chain,
         "citylbm_portable_toolchain_gate": portable_toolchain_gate,
         "vs_cpp_recovery_gate": vs_cpp_recovery,
+        "vs_cpp_system_drive_space_gate": vs_cpp_system_drive_space,
         "vs_cpp_elevated_launcher_gate": vs_cpp_elevated_launcher,
         "casee_official_run_preflight": preflight,
         "citylbm_gpu_runtime_failfast_gate": gpu_failfast,

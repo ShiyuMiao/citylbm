@@ -40,6 +40,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_release_asset_manifest.py`
 - `docs/experiments/casee/tools/vs_cpp_recovery_gate.py`
 - `docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1`
+- `docs/experiments/casee/tools/vs_cpp_system_drive_space_gate.py`
 - `docs/experiments/casee/tools/vs_cpp_elevated_launcher_gate.py`
 - `docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1`
 - `docs/experiments/casee/tools/citylbm_gha_install_audit.py`
@@ -100,6 +101,8 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_release_asset_manifest.md`
 - `docs/experiments/casee/results/vs_cpp_recovery_gate.json`
 - `docs/experiments/casee/results/vs_cpp_recovery_gate.md`
+- `docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json`
+- `docs/experiments/casee/results/vs_cpp_system_drive_space_gate.md`
 - `docs/experiments/casee/results/vs_cpp_elevated_launcher_gate.json`
 - `docs/experiments/casee/results/vs_cpp_elevated_launcher_gate.md`
 - `docs/experiments/casee/results/citylbm_gha_install_audit.json`
@@ -120,6 +123,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.md`
 - `docs/experiments/casee/results/casee_orphan_candidate_csv_audit.json`
 - `docs/experiments/casee/results/casee_orphan_candidate_csv_audit.md`
+- `docs/releases/v0.4.0-rc68.md`
 - `docs/releases/v0.4.0-rc67.md`
 - `docs/releases/v0.4.0-rc66.md`
 - `docs/releases/v0.4.0-rc65.md`
@@ -446,6 +450,13 @@ explicitly with `-Launch`, records the post-install verifier
 `python docs/experiments/casee/tools/vs_cpp_recovery_gate.py`, and currently
 refuses to launch because C: free space is below 8 GB. This is build-chain
 recovery traceability only, not CFD accuracy evidence.
+
+The VS C++ system-drive space gate inventories manual cleanup candidates without
+deleting files. On this machine C: has about 4.986 GB free, the configured VS
+C++ preflight threshold is 8 GB, and low-risk cache candidates total about
+0.921 GB, which is not enough to cover the shortfall. VS C++ recovery therefore
+remains blocked until larger manual system-drive cleanup is completed and the
+elevated launcher gate is rerun.
 
 The GHA install audit checks whether the tracked `CityLBM/bin/CityLBM.gha`
 already appears in common Grasshopper Libraries directories with the expected

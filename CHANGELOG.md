@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc68 - VS C++ system-drive space gate
+
+- Added `vs_cpp_system_drive_space_gate.py`, a no-delete system-drive space audit for the Visual Studio Build Tools 2022 C++ recovery path.
+- The audit records current C: free space, the free-space shortfall against the 8 GB preflight threshold, manual cleanup candidates, and the post-cleanup elevated launcher verifier.
+- Integrated the space gate into the reproducibility suite, paper evidence gate, artifact index, and software-feedback matrix as SF045.
+
+This is build-chain operational evidence only. It does not delete files, install Visual Studio Build Tools, recover GPU runtime, run FluidX3D, change solver defaults, or improve official metrics. Current C: free space remains below the threshold, so VS C++ recovery is still space-blocked. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc67 - VS C++ elevated launcher gate
 
 - Added `vs_cpp_buildtools_elevated_launcher.ps1`, a default-audit PowerShell launcher that opens the VS Build Tools recovery script through UAC only when explicitly run with `-Launch`.
