@@ -101,6 +101,7 @@ def build_rows() -> List[Dict[str, str]]:
     c005_decomposition = read_json(CASEE_RESULTS / "casee_c005_decomposition_audit.json")
     c008_c009_inlet = read_json(CASEE_RESULTS / "casee_c008_c009_inlet_turbulence_audit.json")
     c014_residual = read_json(CASEE_RESULTS / "casee_c014_residual_structure_audit.json")
+    solver_ledger = read_json(CASEE_RESULTS / "casee_solver_run_provenance_ledger.json")
     build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -146,6 +147,30 @@ def build_rows() -> List[Dict[str, str]]:
             paper_use="Use as transparent negative validation of the current official z=2 m Case E result.",
             limitations="Do not claim predictive accuracy, mesh independence, LES improvement, or formal v0.4.0 readiness.",
             software_feedback="Accuracy-improvement work should target near-wall, wall-model, inlet turbulence, voxelization, and official probe protocol fidelity.",
+        )
+    )
+
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="solver_run_provenance_ledger",
+            claim_readiness=str(solver_ledger.get("claim_readiness", "blocked_provenance_ledger")),
+            evidence_type=str(solver_ledger.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_solver_run_provenance_ledger.json"),
+                rel(CASEE_RESULTS / "casee_solver_run_provenance_ledger.csv"),
+                rel(CASEE_RESULTS / "casee_solver_run_provenance_ledger.md"),
+            ],
+            metric_or_status=(
+                f"ledger_passed={solver_ledger.get('ledger_passed')}; "
+                f"row_count={solver_ledger.get('row_count')}; "
+                f"solver_run_count={solver_ledger.get('solver_run_count')}; "
+                f"completed_solver_run_count={solver_ledger.get('completed_solver_run_count')}; "
+                f"release_gate_input_count={solver_ledger.get('release_gate_input_count')}"
+            ),
+            paper_use="Use as the appendix-level provenance table linking Case E metrics to commands, logs, CSVs, and claim boundaries.",
+            limitations="The ledger consolidates existing outputs only; it does not add a new CFD run or change official metrics.",
+            software_feedback="Keep command/log/CSV provenance as a required paper evidence layer for every future Case E candidate.",
         )
     )
 

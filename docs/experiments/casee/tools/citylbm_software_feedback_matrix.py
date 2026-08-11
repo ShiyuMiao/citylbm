@@ -131,6 +131,7 @@ def build_rows() -> List[Dict[str, Any]]:
     c008_c009_inlet = read_json(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json")
     c014_residual = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
     c016_leakage_guard = read_json(RESULTS_DIR / "casee_c016_residual_target_leakage_guard.json")
+    solver_ledger = read_json(RESULTS_DIR / "casee_solver_run_provenance_ledger.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -888,6 +889,39 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF029",
+            experiment="Experiment 2 / AIJ Case E solver-run provenance ledger",
+            finding=(
+                "The Case E solver-result evidence now has a consolidated provenance ledger mapping each official-height "
+                "candidate to its command/config, CSV, log, metric values, evidence type, and claim boundary."
+            ),
+            evidence_type=str(solver_ledger.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_solver_run_provenance_ledger.py",
+                RESULTS_DIR / "casee_solver_run_provenance_ledger.json",
+                RESULTS_DIR / "casee_solver_run_provenance_ledger.csv",
+                RESULTS_DIR / "casee_solver_run_provenance_ledger.md",
+                RESULTS_DIR / "release_gate.json",
+            ],
+            decision_class="paper_provenance_ledger",
+            citylbm_status="implemented_paper_traceability"
+            if solver_ledger.get("ledger_passed") is True
+            and solver_ledger.get("formal_accuracy_claim_supported") is False
+            else "ledger_missing_or_failed",
+            implementation_evidence=(
+                f"ledger_passed={solver_ledger.get('ledger_passed')}; "
+                f"row_count={solver_ledger.get('row_count')}; "
+                f"solver_run_count={solver_ledger.get('solver_run_count')}; "
+                f"release_gate_input_count={solver_ledger.get('release_gate_input_count')}"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as the manuscript appendix table linking Case E metrics to commands, logs, CSVs, and claim boundaries.",
+            limitations="The ledger consolidates existing evidence only; it does not add a new solver run or make formal v0.4.0 pass.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF019",
             experiment="Experiment 2 / AIJ Case E official z=2 m follow-up planning",
             finding=(
@@ -931,13 +965,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows

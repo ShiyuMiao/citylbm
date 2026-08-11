@@ -44,6 +44,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc47.md",
     "docs/releases/v0.4.0-rc48.md",
     "docs/releases/v0.4.0-rc49.md",
+    "docs/releases/v0.4.0-rc50.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -628,6 +629,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc47.md",
                 "v0.4.0-rc48.md",
                 "v0.4.0-rc49.md",
+                "v0.4.0-rc50.md",
             )
         )
     ]

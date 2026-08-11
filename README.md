@@ -84,6 +84,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_c014_residual_top_probes.csv`
 - `docs/experiments/casee/results/casee_remaining_blockers.json`
 - `docs/experiments/casee/results/casee_remaining_blockers.md`
+- `docs/releases/v0.4.0-rc50.md`
 - `docs/releases/v0.4.0-rc49.md`
 - `docs/releases/v0.4.0-rc48.md`
 - `docs/releases/v0.4.0-rc47.md`

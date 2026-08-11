@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc50 - Case E solver-run provenance ledger
+
+- Added `casee_solver_run_provenance_ledger.py` with JSON/CSV/Markdown outputs.
+- Integrated the ledger into the reproducibility suite, paper evidence gate, paper results packet, artifact index, and software-feedback matrix as SF029.
+- Consolidated command/config, case manifest, CSV SHA256, FluidX3D log SHA256, metric values, evidence type, and claim boundary for the current Case E solver-result set.
+
+This is a provenance and manuscript-appendix enhancement only. It does not add a new FluidX3D run or change official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc49 - Case E C016 calibration-leakage guard
 
 - Added `casee_c016_residual_target_leakage_guard.py` with JSON/CSV/Markdown outputs.
