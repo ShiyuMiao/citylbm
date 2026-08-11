@@ -1,6 +1,6 @@
 # C003 dx=2 Z-Origin Ablation Audit
 
-Generated: 2026-08-11T02:06:25.384081+00:00
+Generated: 2026-08-11T02:14:23.777912+00:00
 
 ## Verdict
 

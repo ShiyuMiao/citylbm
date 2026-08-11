@@ -9,8 +9,8 @@ namespace CityLBM
     /// </summary>
     public class CityLBMPlugin : GH_AssemblyInfo
     {
-        private const string PluginVersion = "0.4.0-rc";
-        private const string PluginAssemblyVersion = "0.4.0.0";
+        public const string PluginVersion = "0.4.0-rc";
+        public const string PluginAssemblyVersion = "0.4.0.0";
 
         public override string Name
         {

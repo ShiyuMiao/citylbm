@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc61 - Grasshopper plugin identity component
+
+- Added the `Plugin Identity` Grasshopper component under `CityLBM / Results`.
+- The component reports the loaded plugin version, assembly version, GHA path, GHA SHA256, manual manifest template, and explicit claim boundary from inside Grasshopper.
+- Added `citylbm_plugin_identity_component_gate.py` and integrated it into the reproducibility suite, paper evidence gate, artifact index, and software-feedback matrix as SF038.
+
+This is a software identity and manual Rhino/GHA evidence enhancement only. It does not prove Rhino/Grasshopper loaded the plugin in this session, add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc60 - Rhino load evidence kit
 
 - Added `casee_rhino_load_evidence_kit.py` with JSON/CSV/Markdown outputs and a `rhino_gha_load_manifest.template.json`.

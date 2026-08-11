@@ -98,7 +98,11 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
+    "docs/experiments/casee/results/citylbm_plugin_identity_component_gate.json",
+    "docs/experiments/casee/results/citylbm_plugin_identity_component_gate.csv",
+    "docs/experiments/casee/results/citylbm_plugin_identity_component_gate.md",
     "docs/releases/v0.4.0-rc60.md",
+    "docs/releases/v0.4.0-rc61.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [

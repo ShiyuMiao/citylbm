@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-08-11T02:06:18.799699+00:00",
+  "generated_at": "2026-08-11T02:14:17.554344+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "install_ready_pending_manual_rhino_load",
   "install_audit_passed": true,
   "matching_gha_already_staged": true,
   "rhino_loaded_new_gha": false,
-  "expected_tracked_gha_sha256": "b5fb185924d6655d4b72ead253ecfc41488c53b72cc889156c7c31bcdc773418",
+  "expected_tracked_gha_sha256": "2119738904182aed05f5d6e6ae66c683dc45de8b03c51f75bbd045041a3f6f3f",
   "tracked_gha": {
     "found": true,
     "path": "CityLBM/bin/CityLBM.gha",
-    "sha256": "b5fb185924d6655d4b72ead253ecfc41488c53b72cc889156c7c31bcdc773418",
-    "size_bytes": 1818112,
-    "mtime_utc": "2026-08-11T02:06:17.189662+00:00"
+    "sha256": "2119738904182aed05f5d6e6ae66c683dc45de8b03c51f75bbd045041a3f6f3f",
+    "size_bytes": 1823232,
+    "mtime_utc": "2026-08-11T02:14:15.699498+00:00"
   },
   "packaged_gha": {
     "found": true,
     "path": "CityLBM/bin/Release/CityLBM/CityLBM.gha",
-    "sha256": "8ec7e809a509613f56c1ab019b0df698e35a88bf2570f4ec5d67c77fd447d1be",
-    "size_bytes": 188928,
-    "mtime_utc": "2026-08-11T02:06:00.944927+00:00"
+    "sha256": "40f168bd47bed25c4e6d99ac100b758a8a6e49feefed26bf183ee3198b055230",
+    "size_bytes": 194048,
+    "mtime_utc": "2026-08-11T02:13:28.628180+00:00"
   },
   "candidate_library_dirs": [
     "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries",
@@ -35,10 +35,10 @@
       "library_dir_exists": true,
       "path": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries\\CityLBM.gha",
       "found": true,
-      "sha256": "b5fb185924d6655d4b72ead253ecfc41488c53b72cc889156c7c31bcdc773418",
+      "sha256": "2119738904182aed05f5d6e6ae66c683dc45de8b03c51f75bbd045041a3f6f3f",
       "matches_tracked_gha": true,
-      "size_bytes": 1818112,
-      "mtime_utc": "2026-08-11T02:06:17.189662+00:00"
+      "size_bytes": 1823232,
+      "mtime_utc": "2026-08-11T02:14:15.699498+00:00"
     },
     {
       "library_dir": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\McNeel\\Rhinoceros\\8.0\\Plug-ins\\Grasshopper\\Libraries",

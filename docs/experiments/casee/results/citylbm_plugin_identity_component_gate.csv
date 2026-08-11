@@ -1,0 +1,14 @@
+check,passed
+component_source_exists,True
+plugin_public_version_exported,True
+plugin_assembly_version_exported,True
+component_uses_plugin_version_constant,True
+component_uses_assembly_version_constant,True
+component_outputs_gha_path,True
+component_outputs_gha_sha256,True
+component_outputs_manifest_template,True
+component_outputs_claim_boundary,True
+component_computes_sha256,True
+component_manifest_warns_manual_evidence,True
+component_boundary_blocks_accuracy_claims,True
+component_guid_present,True

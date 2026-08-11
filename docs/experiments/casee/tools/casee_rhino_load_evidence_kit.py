@@ -198,10 +198,11 @@ def build_payload() -> Dict[str, Any]:
         "manual_manifest_template": template,
         "checks": checks,
         "manual_steps": [
-            "Open Rhino from one detected Rhino.exe path.",
+        "Open Rhino from one detected Rhino.exe path.",
             "Start Grasshopper and ensure the staged CityLBM GHA is loaded, not an older copy.",
-            "Capture a screenshot or log showing CityLBM version/path/hash.",
-            "Copy rhino_gha_load_manifest.template.json to rhino_gha_load_manifest.json and replace template fields with observed values.",
+            "Place the CityLBM Plugin Identity component and connect its Report, GHA Path, GHA SHA256, and Manifest Template outputs to panels.",
+            "Capture a screenshot or log showing the Plugin Identity component outputs from the Rhino/Grasshopper session.",
+            "Copy rhino_gha_load_manifest.template.json to rhino_gha_load_manifest.json and replace template fields with the observed Plugin Identity component values.",
             "Run python docs/experiments/casee/tools/rhino_gha_load_gate.py and then python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0.",
         ],
         "boundary": (

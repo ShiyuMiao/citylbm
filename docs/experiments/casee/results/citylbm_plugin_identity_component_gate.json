@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-08-11T02:14:17.230698+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_software_identity_component",
+  "plugin_identity_component_gate_passed": true,
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "plugin_public_version": "0.4.0-rc",
+  "plugin_assembly_version": "0.4.0.0",
+  "component_source_path": "CityLBM/src/Components/Results/PluginIdentityComponent.cs",
+  "checks": {
+    "component_source_exists": true,
+    "plugin_public_version_exported": true,
+    "plugin_assembly_version_exported": true,
+    "component_uses_plugin_version_constant": true,
+    "component_uses_assembly_version_constant": true,
+    "component_outputs_gha_path": true,
+    "component_outputs_gha_sha256": true,
+    "component_outputs_manifest_template": true,
+    "component_outputs_claim_boundary": true,
+    "component_computes_sha256": true,
+    "component_manifest_warns_manual_evidence": true,
+    "component_boundary_blocks_accuracy_claims": true,
+    "component_guid_present": true
+  },
+  "boundary": "This gate checks the Grasshopper component that reports loaded plugin identity for manual Rhino evidence. It does not prove Rhino loaded the plugin, does not run CFD, and does not improve official Case E metrics."
+}

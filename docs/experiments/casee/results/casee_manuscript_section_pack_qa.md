@@ -1,6 +1,6 @@
 # Case E Manuscript Section Pack QA
 
-Generated: 2026-08-11T02:06:29.826953+00:00
+Generated: 2026-08-11T02:14:28.277132+00:00
 
 ## Verdict
 
@@ -8,7 +8,7 @@ Generated: 2026-08-11T02:06:29.826953+00:00
 - Claim readiness: `paper_ready_negative_validation_and_limitations`
 - Formal accuracy claim supported: False
 - Formal release allowed: False
-- Recommended tag: `v0.4.0-rc60`
+- Recommended tag: `v0.4.0-rc61`
 
 ## Checks
 

@@ -1,13 +1,13 @@
 # Case E Rhino/GHA Load Evidence Kit
 
-Generated: 2026-08-11T02:06:18.979365+00:00
+Generated: 2026-08-11T02:14:17.747652+00:00
 
 ## Verdict
 
 - Evidence kit ready: True
 - Claim readiness: `author_input_needed_manual_rhino_load`
 - Expected plugin version: `0.4.0-rc`
-- Expected GHA SHA256: `b5fb185924d6655d4b72ead253ecfc41488c53b72cc889156c7c31bcdc773418`
+- Expected GHA SHA256: `2119738904182aed05f5d6e6ae66c683dc45de8b03c51f75bbd045041a3f6f3f`
 
 ## Checks
 
@@ -25,9 +25,10 @@ Generated: 2026-08-11T02:06:18.979365+00:00
 
 1. Open Rhino from one detected Rhino.exe path.
 2. Start Grasshopper and ensure the staged CityLBM GHA is loaded, not an older copy.
-3. Capture a screenshot or log showing CityLBM version/path/hash.
-4. Copy rhino_gha_load_manifest.template.json to rhino_gha_load_manifest.json and replace template fields with observed values.
-5. Run python docs/experiments/casee/tools/rhino_gha_load_gate.py and then python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0.
+3. Place the CityLBM Plugin Identity component and connect its Report, GHA Path, GHA SHA256, and Manifest Template outputs to panels.
+4. Capture a screenshot or log showing the Plugin Identity component outputs from the Rhino/Grasshopper session.
+5. Copy rhino_gha_load_manifest.template.json to rhino_gha_load_manifest.json and replace template fields with the observed Plugin Identity component values.
+6. Run python docs/experiments/casee/tools/rhino_gha_load_gate.py and then python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0.
 
 ## Template
 
@@ -35,13 +36,13 @@ Generated: 2026-08-11T02:06:18.979365+00:00
 
 ```json
 {
-  "checked_at": "2026-08-11T02:06:18.979269+00:00",
+  "checked_at": "2026-08-11T02:14:17.747652+00:00",
   "operator": "manual-operator-name",
   "rhino_version": "paste Rhino About/SystemInfo version string",
   "grasshopper_version": "paste Grasshopper version string",
   "observed_plugin_version": "0.4.0-rc",
   "observed_assembly_version": "0.4.0.0",
-  "observed_gha_sha256": "b5fb185924d6655d4b72ead253ecfc41488c53b72cc889156c7c31bcdc773418",
+  "observed_gha_sha256": "2119738904182aed05f5d6e6ae66c683dc45de8b03c51f75bbd045041a3f6f3f",
   "evidence_artifacts": [
     "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
     "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"
