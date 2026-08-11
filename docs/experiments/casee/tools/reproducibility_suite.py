@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -84,6 +85,45 @@ def copy_release_gha() -> Dict[str, Any]:
         "passed": TRACKED_GHA.exists(),
         "source": str(RELEASE_GHA.relative_to(ROOT).as_posix()),
         "destination": str(TRACKED_GHA.relative_to(ROOT).as_posix()),
+    }
+
+
+def sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def grasshopper_library_dir() -> Path:
+    appdata = Path(os.environ.get("APPDATA", ""))
+    if appdata:
+        return appdata / "Grasshopper" / "Libraries"
+    return Path.home() / "AppData" / "Roaming" / "Grasshopper" / "Libraries"
+
+
+def stage_tracked_gha_for_grasshopper() -> Dict[str, Any]:
+    if not TRACKED_GHA.exists():
+        return {
+            "name": "stage_tracked_gha_for_grasshopper",
+            "passed": False,
+            "message": f"Missing tracked GHA: {TRACKED_GHA}",
+        }
+    target_dir = grasshopper_library_dir()
+    target = target_dir / "CityLBM.gha"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(TRACKED_GHA, target)
+    source_sha = sha256(TRACKED_GHA)
+    target_sha = sha256(target)
+    return {
+        "name": "stage_tracked_gha_for_grasshopper",
+        "passed": source_sha == target_sha,
+        "source": str(TRACKED_GHA.relative_to(ROOT).as_posix()),
+        "destination": str(target),
+        "source_sha256": source_sha,
+        "target_sha256": target_sha,
+        "boundary": "Staging only; Rhino/Grasshopper load evidence remains controlled by rhino_gha_load_gate.py.",
     }
 
 
@@ -189,11 +229,11 @@ def main() -> int:
         )
     )
     for name, script in [
-        ("manuscript_evidence_summary", "manuscript_evidence_summary.py"),
+        ("build_chain_audit", "build_chain_audit.py"),
         ("plugin_identity_gate", "plugin_identity_gate.py"),
         ("rhino_gha_load_gate", "rhino_gha_load_gate.py"),
         ("citylbm_gha_install_audit", "citylbm_gha_install_audit.py"),
-        ("build_chain_audit", "build_chain_audit.py"),
+        ("manuscript_evidence_summary", "manuscript_evidence_summary.py"),
         ("vs_cpp_recovery_gate", "vs_cpp_recovery_gate.py"),
         ("casee_official_run_preflight", "casee_official_run_preflight.py"),
         ("casee_dx1_readiness_audit", "casee_dx1_readiness_audit.py"),
@@ -231,6 +271,9 @@ def main() -> int:
         ("artifact_index_final", "artifact_index.py"),
     ]:
         steps.append(run_command(name, [python, str(CASE_DIR / "tools" / script)]))
+        if name == "build_chain_audit":
+            steps.append(copy_release_gha())
+            steps.append(stage_tracked_gha_for_grasshopper())
     steps.append(run_command("formal_release_gate_expected_block", [python, str(CASE_DIR / "tools" / "release_gate.py")], expect_release_gate_block=True))
 
     release_gate = read_json(RESULTS_DIR / "release_gate.json")

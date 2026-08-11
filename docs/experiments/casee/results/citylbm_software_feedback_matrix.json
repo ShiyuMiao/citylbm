@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T01:39:40.308622+00:00",
+    "generated_at": "2026-08-11T01:58:30.535845+00:00",
     "feedback_count": 36,
     "decision_class_counts": {
       "default_quality_gate": 1,
@@ -528,7 +528,7 @@
       "source_paths_exist": true,
       "decision_class": "paper_release_asset_manifest",
       "citylbm_status": "implemented_release_asset_manifest",
-      "implementation_evidence": "upload_asset_count=66; excluded_or_hash_only_count=20; upload_total_size_bytes=3612904; recommended_tag=v0.4.0-rc58",
+      "implementation_evidence": "upload_asset_count=66; excluded_or_hash_only_count=20; upload_total_size_bytes=3633664; recommended_tag=v0.4.0-rc59",
       "default_setting_allowed": true,
       "paper_use": "Use for release/data-availability traceability and reviewer artifact checks.",
       "limitations": "Release planning only; it does not create a GitHub Release, add CFD output, or permit formal v0.4.0."
@@ -556,7 +556,7 @@
       "source_paths_exist": true,
       "decision_class": "software_gha_staging_audit",
       "citylbm_status": "implemented_gha_staging_audit",
-      "implementation_evidence": "matching_gha_already_staged=False; recommended_library_dir=C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries; tracked_sha=a3a3034308a0d67b8dffb54815d052b19d60c39503df13ddc63532ea6b5823ca",
+      "implementation_evidence": "matching_gha_already_staged=True; recommended_library_dir=C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries; tracked_sha=2f96a89a6293c5e4111bf27448cfc2579751b6b11294d37a2df4167b72c5216b",
       "default_setting_allowed": true,
       "paper_use": "Use as software delivery traceability before manual Rhino/Grasshopper load verification.",
       "limitations": "Staging audit only; it does not copy files automatically, prove Rhino loaded the GHA, run CFD, improve metrics, or permit formal v0.4.0."
@@ -570,7 +570,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc58",
+      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc59",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."

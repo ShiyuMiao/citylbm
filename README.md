@@ -100,6 +100,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/vs_cpp_recovery_gate.md`
 - `docs/experiments/casee/results/citylbm_gha_install_audit.json`
 - `docs/experiments/casee/results/citylbm_gha_install_audit.md`
+- `docs/releases/v0.4.0-rc59.md`
 - `docs/releases/v0.4.0-rc58.md`
 - `docs/releases/v0.4.0-rc57.md`
 - `docs/releases/v0.4.0-rc56.md`
@@ -402,9 +403,9 @@ manual `winget` command but only installs when run explicitly with `-Install`.
 
 The GHA install audit checks whether the tracked `CityLBM/bin/CityLBM.gha`
 already appears in common Grasshopper Libraries directories with the expected
-SHA256. On the current machine no matching staged GHA is detected, so the
-Rhino/GHA load gate remains blocked until a real Rhino/Grasshopper session
-records matching version/hash evidence.
+SHA256. On the current machine the synchronized GHA is staged in the user's
+Grasshopper Libraries directory, but the Rhino/GHA load gate remains blocked
+until a real Rhino/Grasshopper session records matching version/hash evidence.
 
 The manuscript results table converts Case E evidence into paper-facing rows:
 the official z=2 m result is a negative-validation result, the best diagnostic

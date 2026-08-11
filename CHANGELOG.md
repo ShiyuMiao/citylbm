@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc59 - Staged GHA identity reconciliation
+
+- Synchronized `CityLBM/bin/CityLBM.gha` with `CityLBM/bin/Release/CityLBM.gha`.
+- Staged the synchronized GHA into the current user's Grasshopper Libraries directory.
+- Updated the reproducibility suite to stage the current tracked GHA after build-chain regeneration, then re-run the plugin identity, Rhino/GHA load, and GHA install audits.
+
+This is a software-delivery traceability enhancement only. It does not prove Rhino/Grasshopper loaded the plugin, add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc58 - GHA staging/install audit
 
 - Added `citylbm_gha_install_audit.py` with JSON/CSV/Markdown outputs.

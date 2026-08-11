@@ -1,16 +1,16 @@
 # Case E Release Asset Manifest
 
-Generated: 2026-08-11T01:39:43.053104+00:00
+Generated: 2026-08-11T01:58:33.854256+00:00
 
 ## Verdict
 
 - Release asset manifest passed: True
-- Recommended tag: `v0.4.0-rc58`
+- Recommended tag: `v0.4.0-rc59`
 - Formal release allowed: False
 - Formal accuracy claim supported: False
 - Upload assets: 66
 - Excluded/hash-only assets: 20
-- Upload total size bytes: 3615329
+- Upload total size bytes: 3633663
 
 ## Checks
 
@@ -34,72 +34,72 @@ Generated: 2026-08-11T01:39:43.053104+00:00
 
 | path | kind | size | sha256 |
 |---|---|---:|---|
-| `CHANGELOG.md` | markdown_report_or_protocol | 53782 | `3a127dd613948ae489af42a5e7026b1717b7d1755a80c093f27780d52d6b6f39` |
-| `CityLBM/bin/CityLBM.gha` | compiled_plugin | 1818112 | `a3a3034308a0d67b8dffb54815d052b19d60c39503df13ddc63532ea6b5823ca` |
-| `README.md` | markdown_report_or_protocol | 34470 | `946ebde2249a051cb3ff8d5c7f6106dc5c668841d5f32554ad90b83b8d6c785a` |
-| `academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md` | markdown_report_or_protocol | 4944 | `282ecca521cb6e1fe1ef3cb579fb7827fed884a5f33e59ddd6c7dd8256957a80` |
-| `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md` | markdown_report_or_protocol | 13563 | `ebdbb700a9780c86e4f5dcbab9949ecddb50683c69604dd87c294055beb17806` |
-| `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md` | markdown_report_or_protocol | 13092 | `1ab2f859a0c572b35c0126035c24ea7a4dd24e165d112dd658a903639e691ca8` |
+| `CHANGELOG.md` | markdown_report_or_protocol | 54475 | `50a3bcae4ce389077209af467997bfecfe0a7ecbe64f96a32c27972eaa71cee8` |
+| `CityLBM/bin/CityLBM.gha` | compiled_plugin | 1818112 | `2f96a89a6293c5e4111bf27448cfc2579751b6b11294d37a2df4167b72c5216b` |
+| `README.md` | markdown_report_or_protocol | 34546 | `270f5475365c7a14bd7a0f5eb392b9ae10c7a664c9fa2ec48226b0748bcc515e` |
+| `academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md` | markdown_report_or_protocol | 4944 | `0858e810c6043c01507bde744072b8e1c6038fc1d3206cb59671a950254af6f3` |
+| `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md` | markdown_report_or_protocol | 13762 | `2b8b36276cd155b7e337eb641d4c78f0164d4da99e06a9b7c24602ebee52e790` |
+| `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md` | markdown_report_or_protocol | 13291 | `5ad093a5b0cd99e3e8e4ea3bdfd81ed37f3a8d856740d76acf930286f21740d1` |
 | `docs/experiments/casea/results/casea_smoke_regression.json` | json_manifest_or_gate | 536 | `b63ae6c7a4dfe91549b53494bcf4edd31e993c0099047bab45e1edf4ce6e76bf` |
 | `docs/experiments/casea/results/casea_vtk_manifest.csv` | csv_table | 481 | `f17c8707a9db96cd89cc8c86e2eb57a7ae65e82a66713770ec655626491a897c` |
 | `docs/experiments/casee/casee_preset.json` | json_manifest_or_gate | 1424 | `f198694894fc5acb80b97b36c690f238ed43f83b29b2447dfb5f5338ff6cabd4` |
 | `docs/experiments/casee/casee_protocol.md` | markdown_report_or_protocol | 2343 | `f5868f1fb8651acdd60e43b96c6cc7bb7313203cef85fc472ce57f083e0396f2` |
 | `docs/experiments/casee/data_manifest.csv` | csv_table | 2053 | `c868bd407b214ad6d4518f8e0c26b9205282c59e065021511c19a4b244d144a0` |
-| `docs/experiments/casee/evidence_inventory.csv` | csv_table | 27364 | `52e75e4bd46c4fd2a3b828e68fb25f0ed0e2101237447fd852b2ad129fd0903f` |
+| `docs/experiments/casee/evidence_inventory.csv` | csv_table | 27863 | `ff309e5fb6cc50dfed44fa804f3b619229c8b3cf77aeacbe9464016ef6225f75` |
 | `docs/experiments/casee/native_fluidx3d_run_matrix.csv` | csv_table | 2928 | `0ebcb973d6f7064f4e2aee06fcfc43d84d9ba3c8cbd4e4456becd5f7a4c497e5` |
 | `docs/experiments/casee/results/build_chain_manifest.csv` | csv_table | 1385 | `4c6ac845f86052bf32cd3ffb96ad7c48790f9c5f990a664b67197f30ac87ea6b` |
-| `docs/experiments/casee/results/build_chain_manifest.json` | json_manifest_or_gate | 21136 | `c081555f66bbee331a1f14f59c055407b08458df521c73bd5a3f076f63cac950` |
-| `docs/experiments/casee/results/build_chain_manifest.md` | markdown_report_or_protocol | 2075 | `8e8d044037322d9d8427dcbeff473f01a518fce10196ac5842aa8531cf288a8c` |
-| `docs/experiments/casee/results/casee_artifact_index.csv` | csv_table | 125151 | `db0cd89024e3e68a766527e6ce076e9a6f85acc69abd0d7059abf0c84c8401ea` |
-| `docs/experiments/casee/results/casee_artifact_index.json` | json_manifest_or_gate | 216947 | `0ae9d5f8bff8c47af5e8823ef123f2348f167a32749dff293a7f6cc07d56e068` |
-| `docs/experiments/casee/results/casee_artifact_index.md` | markdown_report_or_protocol | 26520 | `0cbfa1821612a0eebe1490f35093f1e1492a819bc82fa3e07426c4a4eb1254f8` |
+| `docs/experiments/casee/results/build_chain_manifest.json` | json_manifest_or_gate | 21135 | `bc88f5f9f53a0560814db3b2ba68b5e43f125a1435e743d5aea53dfde87fd6ff` |
+| `docs/experiments/casee/results/build_chain_manifest.md` | markdown_report_or_protocol | 2074 | `b5d02ab2b7f62d83ead652f90cd65e904fb0121c6bc426f9851e04d466fe854c` |
+| `docs/experiments/casee/results/casee_artifact_index.csv` | csv_table | 125442 | `a54a5ea62af2e4d9a300e9ce1c9b8dfa7651df0a602a490867053d19d1396fca` |
+| `docs/experiments/casee/results/casee_artifact_index.json` | json_manifest_or_gate | 217522 | `ee1cad90270e289e6c2969033c123fe6fa3c8edea29d22d4a8786328ae40abd8` |
+| `docs/experiments/casee/results/casee_artifact_index.md` | markdown_report_or_protocol | 26683 | `1954c6830a9635f02141263b5481f08d9e8a2edba23c66793d9c1dcdd2b7c7c4` |
 | `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.csv` | csv_table | 2346 | `2d3979c42be1d5f5683c09d57c8f2d26fa78d4fb436597a67ed22469ff6ad47c` |
-| `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json` | json_manifest_or_gate | 27454 | `3d9eda381224e97a7a2a0318c4df0d19b3ccf1e084d55382c2065e54f1a6c605` |
-| `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md` | markdown_report_or_protocol | 1378 | `6a3acd720a928c3ab7555e8bb358e08f98e25d6722baebf21c4c6438d04145f3` |
+| `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json` | json_manifest_or_gate | 27454 | `b5fc5b08ccc67d67d842a8e702d8c896f93e01b6c90db61d1d4309a40b4e91fc` |
+| `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md` | markdown_report_or_protocol | 1378 | `1c0ec35f3ed0e451da7123ef0e260c8bdec8574264657b6535d46422e3a4d7df` |
 | `docs/experiments/casee/results/casee_c014_residual_structure_audit.csv` | csv_table | 3516 | `cc2c9a9d21a3f932a03f72f4c4fce0a62a8656f8b72517b8ee07dd32bc761ec9` |
-| `docs/experiments/casee/results/casee_c014_residual_structure_audit.json` | json_manifest_or_gate | 22748 | `1a313d44e7a58b8780328cc2bfc1a4295085fe799530781ddd9665cb075e1396` |
-| `docs/experiments/casee/results/casee_c014_residual_structure_audit.md` | markdown_report_or_protocol | 4087 | `b94e33aae5f704ceeef4daed9ce2ecd0b75dfc6d442d44293f559387b0a5b096` |
-| `docs/experiments/casee/results/casee_claim_support_gate.json` | json_manifest_or_gate | 9320 | `bc005a0eed731a3b7f08df5357dc29c21a19bb3dc7726eb376bc577225aa8f88` |
-| `docs/experiments/casee/results/casee_claim_support_gate.md` | markdown_report_or_protocol | 3027 | `1ff849b65449d3950e85b6b50d847be69d660a4e03f53cc020932ff6b16b45b1` |
-| `docs/experiments/casee/results/casee_default_policy_gate.json` | json_manifest_or_gate | 14808 | `0886f663cfea2ade0879e2267f73a86ae3cfd9c4fa62fa56538e43aff3ec75a4` |
-| `docs/experiments/casee/results/casee_default_policy_gate.md` | markdown_report_or_protocol | 6850 | `3e5f570e5a11bffcbd14dd863937e543093f8d8685279e99b2440740079cf432` |
-| `docs/experiments/casee/results/casee_manuscript_results_table.csv` | csv_table | 3565 | `0760c1b3ae2161ebc3a6cbd590a94a7fb4f5c8e256e5f6eb1ace9e5b432f34ab` |
-| `docs/experiments/casee/results/casee_manuscript_results_table.json` | json_manifest_or_gate | 6806 | `52d8793de0e13c56ff3ad231cc4d45d4d536a5fe2a66f13deb62a88fcdc95357` |
-| `docs/experiments/casee/results/casee_manuscript_results_table.md` | markdown_report_or_protocol | 3276 | `1041764075db0a559d3fba7dd341edbe12f6edc1230b6112b529fc3e8b390189` |
+| `docs/experiments/casee/results/casee_c014_residual_structure_audit.json` | json_manifest_or_gate | 22748 | `28ced654a2398ae0a8c6b498621aec23338b9dcce98e37119ac0e9e3b997dacc` |
+| `docs/experiments/casee/results/casee_c014_residual_structure_audit.md` | markdown_report_or_protocol | 4087 | `f6d4c46ab1846c98b7f6bcd9ddeaf2420a690f80f42822ba1b157018b3e1fd7e` |
+| `docs/experiments/casee/results/casee_claim_support_gate.json` | json_manifest_or_gate | 9320 | `fee232a2a8abf4fd03dd12ecb0e97f111c32ce2618703bfa0e2f00e52d8a737b` |
+| `docs/experiments/casee/results/casee_claim_support_gate.md` | markdown_report_or_protocol | 3027 | `a5db5ac27254cd40718484850a43a154e05d4536b89e9dab96f0c326c7a8b3e2` |
+| `docs/experiments/casee/results/casee_default_policy_gate.json` | json_manifest_or_gate | 14808 | `f46a9790d4350ecc3939d63b1c635b130ee5a957685dc196e50e68b79c3cf204` |
+| `docs/experiments/casee/results/casee_default_policy_gate.md` | markdown_report_or_protocol | 6850 | `80130e93f97cd28a12f8fe63f8b3b89d8b2719545721830cc10fcebe11393087` |
+| `docs/experiments/casee/results/casee_manuscript_results_table.csv` | csv_table | 3565 | `f5cf9b41184d447b4146d49ef2b34a4351b7f5fca5027ee764dc4b833858a623` |
+| `docs/experiments/casee/results/casee_manuscript_results_table.json` | json_manifest_or_gate | 6806 | `ead59d28e34c7f74fe19da93df5e423b10af1138056fdab107013313cd334d3e` |
+| `docs/experiments/casee/results/casee_manuscript_results_table.md` | markdown_report_or_protocol | 3276 | `fb0307efeb93fadce87fb905bd00dffc212c28ef9cf46925ac2441bf3c07ea76` |
 | `docs/experiments/casee/results/casee_metrics.csv` | csv_table | 163 | `a19e0f80d2c68afa7cc1e3fe59dd1e773f5c4e7930b381799d6bdb56e828051b` |
-| `docs/experiments/casee/results/casee_paper_evidence_gate.json` | json_manifest_or_gate | 12139 | `6a671fb6578ebb615aef1908e1268d77efa105d03426ff28234dbe9f21a29378` |
-| `docs/experiments/casee/results/casee_paper_evidence_gate.md` | markdown_report_or_protocol | 7061 | `d813093c111a4c1899d5364b42e68245983e9ba772dc223e9cf669b2d1ed9ee3` |
+| `docs/experiments/casee/results/casee_paper_evidence_gate.json` | json_manifest_or_gate | 12529 | `6800cfdba464cb4c7d577f55248b4e2fada185d5b7401369fdd2df52cbe3a565` |
+| `docs/experiments/casee/results/casee_paper_evidence_gate.md` | markdown_report_or_protocol | 7393 | `d7d820b9e8112e96b53fcc2883af7f75b64291116cbd06275ab3542116ac6778` |
 | `docs/experiments/casee/results/casee_paper_results_figure.png` | figure | 202797 | `fe7e4b5852bd16759b62b00175b9c1e79181ce443782d01b88f1f6543d5cc931` |
-| `docs/experiments/casee/results/casee_paper_results_figure.svg` | figure | 97640 | `8089dad61153e98dbed1e7026fac75319d2ad61bf12670891c16330df8963fa5` |
-| `docs/experiments/casee/results/casee_paper_results_figure_qa.json` | json_manifest_or_gate | 2230 | `c5f2dfd35e64cb55efc98d7a703d6a998e280117da4a853ab5d66126d1d655d4` |
+| `docs/experiments/casee/results/casee_paper_results_figure.svg` | figure | 97640 | `916fdfd8ac8be4086c8cc61220d8b9d43e6b5dca1f0d41f104bf07eb06097cf6` |
+| `docs/experiments/casee/results/casee_paper_results_figure_qa.json` | json_manifest_or_gate | 2230 | `900793a31be0ead77449b431fd1a439daf5fd5e58a503fdad34ac0f6a2e30b21` |
 | `docs/experiments/casee/results/casee_paper_results_figure_source.csv` | csv_table | 1350 | `a4dadabe6de2dac38521d339d0db355d5c1ab8a37128e3cb5f044657e65eb2bb` |
-| `docs/experiments/casee/results/casee_publication_readiness_gate.json` | json_manifest_or_gate | 10640 | `96c840d70b63efb918f37bfdda82d1be572d67be32a189f6cde9661bb7350e55` |
-| `docs/experiments/casee/results/casee_publication_readiness_gate.md` | markdown_report_or_protocol | 4310 | `e1bc4b451cb3cde6f4e3bb07507ab4306d5184cdde27343d108c0f98d2e80e70` |
-| `docs/experiments/casee/results/casee_reproducibility_suite.json` | json_manifest_or_gate | 589080 | `fb514985499a2ad3626d9197b5ac9db75cc6c29d199dd8efdb56274162f11110` |
-| `docs/experiments/casee/results/casee_reproducibility_suite.md` | markdown_report_or_protocol | 2772 | `f1585598698fcfac30563e804f6a876190617a1a47968529320fcce0e5d714dd` |
+| `docs/experiments/casee/results/casee_publication_readiness_gate.json` | json_manifest_or_gate | 10930 | `5c5993c0675a5b516b962c2c94b6b568c34c873eefc7a610f1b1ed271148da88` |
+| `docs/experiments/casee/results/casee_publication_readiness_gate.md` | markdown_report_or_protocol | 4365 | `92546fc9b614d7746e84206cd447727a0912b4f186fd36c50a1640d6467693f7` |
+| `docs/experiments/casee/results/casee_reproducibility_suite.json` | json_manifest_or_gate | 603037 | `f4e7eeb52decf7e5034ab2a01b42d0794d81391f4099319574cafe9950513e27` |
+| `docs/experiments/casee/results/casee_reproducibility_suite.md` | markdown_report_or_protocol | 2814 | `0b5aec034440225d865906a35eec9655c312d14b885870e545b6ba3eb0d76d17` |
 | `docs/experiments/casee/results/casee_solver_run_provenance_ledger.csv` | csv_table | 17562 | `b9736a6b84d48d4a0e4af1eb491f5c84ee8590427bfcc7c37cb20a72eeec405c` |
-| `docs/experiments/casee/results/casee_solver_run_provenance_ledger.json` | json_manifest_or_gate | 28455 | `aaa0ffc57db5c574e78d9b5ac18de6cb183f21b10aedc6315d22236b7b83e5b2` |
-| `docs/experiments/casee/results/casee_solver_run_provenance_ledger.md` | markdown_report_or_protocol | 7206 | `df69c1753385ab82e3622bd443f8c1cda9b074a65ac4a0ec77dfc415a321dc8b` |
-| `docs/experiments/casee/results/casee_validation_report.md` | markdown_report_or_protocol | 6003 | `11c20c3e0693e54df0347b536354635a944db6af450ea4194a4b442b62e7dc02` |
-| `docs/experiments/casee/results/casee_validation_summary.xlsx` | workbook_summary | 16383 | `02f9cb2dca369811ba5f52bb72363897730991e013aec99aa54dabc61b755396` |
-| `docs/experiments/casee/results/citylbm_gha_install_audit.csv` | csv_table | 613 | `4899520a9d833e8c3f2824586335cddaaeaf03938b131799772fb8d7e2f0707f` |
-| `docs/experiments/casee/results/citylbm_gha_install_audit.json` | json_manifest_or_gate | 4226 | `8d99cb0496203d5993034263ba11240ce523d06d6c368962a9d351b8cce70285` |
-| `docs/experiments/casee/results/citylbm_gha_install_audit.md` | markdown_report_or_protocol | 2118 | `69b1d2651282b493bf525b3ec06305b326ca9cd1c73b45ee7a2d31ba3c7ee8f0` |
-| `docs/experiments/casee/results/citylbm_manifest_output_gate.json` | json_manifest_or_gate | 10043 | `0bee6b4685c0d0b5871019af1f7510a6800398adf009f5ab1973fb31272f3824` |
-| `docs/experiments/casee/results/citylbm_manifest_output_gate.md` | markdown_report_or_protocol | 5177 | `f3b12cabd4bc2ffb825df795663a5aa5072a945aa32b8e158e05f15dfd993565` |
-| `docs/experiments/casee/results/citylbm_manifest_schema_gate.json` | json_manifest_or_gate | 6453 | `eca7d8a802b1a6e07f68b92ab02457913020bdc68fb0671a45efc1d405100d24` |
-| `docs/experiments/casee/results/citylbm_manifest_schema_gate.md` | markdown_report_or_protocol | 2106 | `f0aca015a0b1e8625dfa4f2f09b34fb7d500c2452fd379502ea36dec131dad91` |
-| `docs/experiments/casee/results/citylbm_software_feedback_matrix.json` | json_manifest_or_gate | 49534 | `6fdba2b48172c5cb9a61de4a292f81d94f9c50a924a802789d4a295b1977a3b5` |
-| `docs/experiments/casee/results/citylbm_software_feedback_matrix.md` | markdown_report_or_protocol | 20562 | `e1716dee407a223ab64918c935470e32f6f95ce26ef3adcd7bcec7967466776a` |
-| `docs/experiments/casee/results/environment_manifest.json` | json_manifest_or_gate | 3194 | `651d5235341b71007761d1d64c20e8c3c37bbce8dd5305ddc70455e68e4052a6` |
-| `docs/experiments/casee/results/release_gate.json` | json_manifest_or_gate | 4233 | `f757a6cbd43d9676427d2706e1a2d9e558f135376dfc69b8ad921d8e93c5af0f` |
-| `docs/experiments/casee/results/rhino_gha_load_gate.json` | json_manifest_or_gate | 2108 | `37d337f7baec6169cb5ae546615c45b5c2d29d2dd503bfccf075e200411df8af` |
-| `docs/experiments/casee/results/rhino_gha_load_gate.md` | markdown_report_or_protocol | 1903 | `c2206435437da13c2deafbc209728a9b5d818b2fcf50ff21497fa584baf66ad3` |
-| `docs/experiments/casee/results/vs_cpp_buildtools_recovery_probe.json` | json_manifest_or_gate | 3929 | `070d0c2203756a7dc4a517e152ef0080a4c7a704406d9a92eda2727e492e73f7` |
+| `docs/experiments/casee/results/casee_solver_run_provenance_ledger.json` | json_manifest_or_gate | 28455 | `2f0d310f106e6114529ea8f4e652e7c899609b90a6f3f2d1156245897754ced8` |
+| `docs/experiments/casee/results/casee_solver_run_provenance_ledger.md` | markdown_report_or_protocol | 7206 | `1161f34c2ced162033204fcff71ecd851ca429ad37bcfab24c5e11e2816bd368` |
+| `docs/experiments/casee/results/casee_validation_report.md` | markdown_report_or_protocol | 6003 | `75c7ac31d2636ec7333210aabc6ca762e0441566f31ec94a0ecd56901c1ed8fe` |
+| `docs/experiments/casee/results/casee_validation_summary.xlsx` | workbook_summary | 16384 | `4e81ac5bc87565e23693ad35da0f75809a60eacba17f80c4b2e7dac84e0258cd` |
+| `docs/experiments/casee/results/citylbm_gha_install_audit.csv` | csv_table | 781 | `2f6bf5dd73da25816f417846d1f3aa2e624f79ef3044805b65cf89291278fc86` |
+| `docs/experiments/casee/results/citylbm_gha_install_audit.json` | json_manifest_or_gate | 4395 | `c24719b4f959d85d4019d26114bd24ba75b188247c87c54c970e9dad14f848e2` |
+| `docs/experiments/casee/results/citylbm_gha_install_audit.md` | markdown_report_or_protocol | 2246 | `91fea88bb12a4223aa7372dd6745ad7d1d041f7842e53bb6ffdf1597fd6c32e5` |
+| `docs/experiments/casee/results/citylbm_manifest_output_gate.json` | json_manifest_or_gate | 10043 | `858070118fbc0624d0fa56b4b7c1e61f710b2b6e6abb8be3b3e9196bd73a9803` |
+| `docs/experiments/casee/results/citylbm_manifest_output_gate.md` | markdown_report_or_protocol | 5177 | `8697e7bc8808290d1f910b620810c5bce7b065bb5e7cf1cc2969274fadbb8f83` |
+| `docs/experiments/casee/results/citylbm_manifest_schema_gate.json` | json_manifest_or_gate | 6453 | `2843cf6f2b9ef27f1561ebfcafdfe8a7a2498dab5e0b5d9d2fc20e02527038e0` |
+| `docs/experiments/casee/results/citylbm_manifest_schema_gate.md` | markdown_report_or_protocol | 2106 | `0880464be755d2ac0068b8297324cf1e89aefd17c5c8e00ee498b8a632f9f14e` |
+| `docs/experiments/casee/results/citylbm_software_feedback_matrix.json` | json_manifest_or_gate | 49533 | `d7586d22c7527d2105cf3db8651341eaf4911e939c32de92631df3324a39c444` |
+| `docs/experiments/casee/results/citylbm_software_feedback_matrix.md` | markdown_report_or_protocol | 20562 | `6267893495dc7f3f3172da7425270a6f3cf86094682eda7c16c01d361a5653b5` |
+| `docs/experiments/casee/results/environment_manifest.json` | json_manifest_or_gate | 3193 | `7845469d5306ee2ef00643a830b9966e83dceb20d072e631dd1232c31bdbe537` |
+| `docs/experiments/casee/results/release_gate.json` | json_manifest_or_gate | 4232 | `c17f91811a69dbf8a6f21d2cb42ae0a50b163c49c8b19954d7e94b12ccd3c973` |
+| `docs/experiments/casee/results/rhino_gha_load_gate.json` | json_manifest_or_gate | 2108 | `b508f7033628bc4b229be7ac42c4e88347ef5b9b9a4a2b99e5e3bdf8f2d36c58` |
+| `docs/experiments/casee/results/rhino_gha_load_gate.md` | markdown_report_or_protocol | 1903 | `68f73990948d740613e1bb7ef95701585d6c9203e71439b67e6796aa68d35dd3` |
+| `docs/experiments/casee/results/vs_cpp_buildtools_recovery_probe.json` | json_manifest_or_gate | 3929 | `bd19d6719f52e096d4cf079972b7f4448ef768f925f7dd03a3fb6a0c501394d4` |
 | `docs/experiments/casee/results/vs_cpp_recovery_gate.csv` | csv_table | 2083 | `5244e544c1989123754b8bcaff9b7af64af101c01487385cd315ed9689ed35dc` |
-| `docs/experiments/casee/results/vs_cpp_recovery_gate.json` | json_manifest_or_gate | 10329 | `7e5a3e14f737b7897d64e9b947526184e04059b96931fddc1312db7385749e83` |
-| `docs/experiments/casee/results/vs_cpp_recovery_gate.md` | markdown_report_or_protocol | 2108 | `69df1a734b7a0f563c880f5997d3c1e43f93c69b11031c80038b51515d624bd8` |
-| `docs/releases/v0.4.0-rc58.md` | release_notes | 1332 | `71443c8e08f6fe4533e035ca991f29ec0c605e2eb46333405b79da889a6001b9` |
+| `docs/experiments/casee/results/vs_cpp_recovery_gate.json` | json_manifest_or_gate | 10329 | `cfa18c4896d4418f992a4cfbbec275869bcb1363165470eeb862872f2aa3011d` |
+| `docs/experiments/casee/results/vs_cpp_recovery_gate.md` | markdown_report_or_protocol | 2108 | `61ead2bce734c66a089bc944201ab4e1cc3cc81bac890b381f054eb0efe4d51a` |
+| `docs/releases/v0.4.0-rc59.md` | release_notes | 1444 | `5f31dfe46c24aca85d9f06d52763c2eeabd40fcea60f5457f254adca9e43001e` |
 
 ## Boundary
 
