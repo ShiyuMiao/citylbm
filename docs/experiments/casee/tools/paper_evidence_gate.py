@@ -83,10 +83,12 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/citylbm_software_feedback_matrix.md",
     "docs/experiments/casee/results/casee_claim_support_gate.json",
     "docs/experiments/casee/results/casee_claim_support_gate.md",
+    "docs/experiments/casee/results/casee_release_asset_manifest.json",
+    "docs/experiments/casee/results/casee_release_asset_manifest.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc55.md",
+    "docs/releases/v0.4.0-rc56.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -722,6 +724,35 @@ def manifest_output_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def release_asset_manifest_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "release_asset_manifest_found": False,
+            "release_asset_manifest_passed": False,
+            "upload_asset_count": 0,
+            "excluded_or_hash_only_count": 0,
+            "formal_accuracy_claim_supported": None,
+            "recommended_tag": "",
+            "excludes_raw_geometry_and_vtk": False,
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    summary = data.get("summary") or {}
+    checks = summary.get("checks") or {}
+    return {
+        "release_asset_manifest_found": True,
+        "release_asset_manifest_passed": summary.get("release_asset_manifest_passed"),
+        "upload_asset_count": summary.get("upload_asset_count"),
+        "excluded_or_hash_only_count": summary.get("excluded_or_hash_only_count"),
+        "formal_accuracy_claim_supported": summary.get("formal_accuracy_claim_supported"),
+        "recommended_tag": summary.get("recommended_tag"),
+        "excludes_raw_geometry_and_vtk": checks.get("excludes_raw_geometry_and_vtk"),
+        "claim_boundary_safe": summary.get("release_asset_manifest_passed") is True
+        and summary.get("formal_accuracy_claim_supported") is False
+        and checks.get("excludes_raw_geometry_and_vtk") is True,
+    }
+
+
 def manifest_schema_status(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {
@@ -885,6 +916,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     paper_figure = payload["casee_paper_results_figure"]
     software_feedback = payload["citylbm_software_feedback_matrix"]
     claim_support = payload["casee_claim_support_gate"]
+    release_assets = payload["casee_release_asset_manifest"]
     lines = [
         "# Case E Paper Evidence Gate",
         "",
@@ -1124,6 +1156,17 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Forbidden success patterns blocked: {claim_support['forbidden_success_patterns_blocked']}",
         f"- Claim readiness: `{claim_support['claim_readiness']}`",
         f"- Claim boundary safe: {claim_support['claim_boundary_safe']}",
+        "",
+        "## Release Asset Manifest",
+        "",
+        f"- Manifest found: {release_assets['release_asset_manifest_found']}",
+        f"- Manifest passed: {release_assets['release_asset_manifest_passed']}",
+        f"- Recommended tag: `{release_assets['recommended_tag']}`",
+        f"- Upload assets: {release_assets['upload_asset_count']}",
+        f"- Excluded/hash-only assets: {release_assets['excluded_or_hash_only_count']}",
+        f"- Excludes raw geometry and VTK: {release_assets['excludes_raw_geometry_and_vtk']}",
+        f"- Formal accuracy claim supported: {release_assets['formal_accuracy_claim_supported']}",
+        f"- Claim boundary safe: {release_assets['claim_boundary_safe']}",
     ]
     if artifact["missing_required_artifacts"]:
         lines += ["", "Missing required artifacts:"]
@@ -1163,6 +1206,7 @@ def main() -> int:
     parser.add_argument("--paper-results-figure", type=Path, default=RESULTS_DIR / "casee_paper_results_figure_qa.json")
     parser.add_argument("--software-feedback", type=Path, default=RESULTS_DIR / "citylbm_software_feedback_matrix.json")
     parser.add_argument("--claim-support", type=Path, default=RESULTS_DIR / "casee_claim_support_gate.json")
+    parser.add_argument("--release-assets", type=Path, default=RESULTS_DIR / "casee_release_asset_manifest.json")
     parser.add_argument("--draft-glob", default="casee_v04_*.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.json")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.md")
@@ -1193,6 +1237,7 @@ def main() -> int:
     paper_figure = paper_results_figure_status(args.paper_results_figure)
     software_feedback = software_feedback_status(args.software_feedback)
     claim_support = claim_support_status(args.claim_support)
+    release_assets = release_asset_manifest_status(args.release_assets)
     passed = (
         metric["formal_metric_is_negative_validation"]
         and claim["blocked_release_claim_present"]
@@ -1245,6 +1290,8 @@ def main() -> int:
         and software_feedback["claim_boundary_safe"]
         and claim_support["claim_support_gate_found"]
         and claim_support["claim_boundary_safe"]
+        and release_assets["release_asset_manifest_found"]
+        and release_assets["claim_boundary_safe"]
     )
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -1273,6 +1320,7 @@ def main() -> int:
         "casee_paper_results_figure": paper_figure,
         "citylbm_software_feedback_matrix": software_feedback,
         "casee_claim_support_gate": claim_support,
+        "casee_release_asset_manifest": release_assets,
     }
     args.out_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     write_markdown(args.out_md, payload)

@@ -215,12 +215,15 @@ def main() -> int:
         ("casee_manuscript_results_table", "casee_manuscript_results_table.py"),
         ("casee_manuscript_section_pack", "casee_manuscript_section_pack.py"),
         ("casee_paper_results_figure", "casee_paper_results_figure.py"),
+        ("artifact_index_pre_release_assets", "artifact_index.py"),
+        ("casee_release_asset_manifest", "casee_release_asset_manifest.py"),
         ("citylbm_software_feedback_matrix", "citylbm_software_feedback_matrix.py"),
         ("artifact_index_pre_appendix", "artifact_index.py"),
         ("paper_appendix_generator", "paper_appendix_generator.py"),
         ("casee_blocker_remediation_plan", "casee_blocker_remediation_plan.py"),
         ("casee_next_experiment_runbook", "casee_next_experiment_runbook.py"),
         ("artifact_index", "artifact_index.py"),
+        ("casee_release_asset_manifest_final", "casee_release_asset_manifest.py"),
         ("paper_evidence_gate", "paper_evidence_gate.py"),
         ("casee_publication_readiness_gate", "casee_publication_readiness_gate.py"),
         ("artifact_index_final", "artifact_index.py"),
@@ -252,6 +255,7 @@ def main() -> int:
     paper_results_figure = read_json(RESULTS_DIR / "casee_paper_results_figure_qa.json")
     software_feedback_matrix = read_json(RESULTS_DIR / "citylbm_software_feedback_matrix.json")
     artifact_index = read_json(RESULTS_DIR / "casee_artifact_index.json")
+    release_asset_manifest = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
     suite_passed = all(bool(step.get("passed")) for step in steps) and not bool(release_gate.get("formal_release_allowed"))
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -283,6 +287,7 @@ def main() -> int:
         "casee_paper_results_figure": paper_results_figure,
         "citylbm_software_feedback_matrix": software_feedback_matrix,
         "artifact_index": artifact_index,
+        "casee_release_asset_manifest": release_asset_manifest,
     }
     OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     write_markdown(payload)

@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc56 - Case E release asset manifest
+
+- Added `casee_release_asset_manifest.py` with JSON/CSV/Markdown outputs.
+- The manifest separates compiled GHA, reports, CSV/XLSX summaries, figures, manifests, and gates from raw/large hash-only assets.
+- Integrated the release-asset manifest into the reproducibility suite, paper evidence gate, publication-readiness gate, artifact index, and software-feedback matrix as SF034.
+
+This is a release traceability enhancement only. It does not create a GitHub Release, install VS Build Tools C++, recover GPU runtime, add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc55 - Portable plugin build script
 
 - Replaced `CityLBM/build.ps1` with a portable, non-interactive build script.

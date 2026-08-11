@@ -81,10 +81,12 @@ def build_rows() -> List[Dict[str, Any]]:
     figure_gate = read_json(RESULTS_DIR / "casee_paper_results_figure_qa.json")
     appendix = read_json(RESULTS_DIR / "casee_paper_appendix_manifest.json")
     artifact_index = read_json(RESULTS_DIR / "casee_artifact_index.json")
+    release_assets = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
 
     metrics = release_gate.get("metrics") or {}
     claim_summary = claim_gate.get("summary") or {}
     artifact_summary = artifact_index.get("summary") or {}
+    release_asset_summary = release_assets.get("summary") or {}
     release_note = ROOT / "docs" / "releases" / f"{release_gate.get('recommended_tag', 'v0.4.0-rc')}.md"
 
     return [
@@ -229,12 +231,15 @@ def build_rows() -> List[Dict[str, Any]]:
             evidence_type="newly_run",
             source_paths=[
                 RESULTS_DIR / "casee_artifact_index.json",
+                RESULTS_DIR / "casee_release_asset_manifest.json",
                 release_note,
             ],
             paper_location="Data and code availability",
             allowed_statement=(
                 f"The artifact index records {artifact_summary.get('artifact_count')} artifacts and "
-                f"{artifact_summary.get('lightweight_release_asset_count')} lightweight release assets."
+                f"{artifact_summary.get('lightweight_release_asset_count')} lightweight release assets; "
+                f"the curated release manifest selects {release_asset_summary.get('upload_asset_count')} upload assets "
+                f"and keeps {release_asset_summary.get('excluded_or_hash_only_count')} raw/large assets excluded or hash-only."
             ),
             must_not_claim="Do not commit large VTK/raw geometry duplicates as manuscript evidence.",
         ),
@@ -250,6 +255,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     suite = read_json(RESULTS_DIR / "casee_reproducibility_suite.json")
     feedback = read_json(RESULTS_DIR / "citylbm_software_feedback_matrix.json")
     ledger = read_json(RESULTS_DIR / "casee_solver_run_provenance_ledger.json")
+    release_assets = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
 
     metrics = release_gate.get("metrics") or {}
     r2 = metrics.get("r2")
@@ -272,6 +278,8 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         and suite.get("suite_passed") is True
         and (feedback.get("summary") or {}).get("software_feedback_matrix_passed") is True
         and ledger.get("ledger_passed") is True
+        and (release_assets.get("summary") or {}).get("release_asset_manifest_passed") is True
+        and (release_assets.get("summary") or {}).get("formal_accuracy_claim_supported") is False
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -288,6 +296,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         "claim_support_gate_passed": (claim_gate.get("summary") or {}).get("claim_support_gate_passed"),
         "figure_gate_passed": figure_gate.get("figure_gate_passed"),
         "suite_passed": suite.get("suite_passed"),
+        "release_asset_manifest_passed": (release_assets.get("summary") or {}).get("release_asset_manifest_passed"),
         "formal_accuracy_claim_supported": False,
         "boundary": (
             "This gate audits whether the current Case E material is publication-ready as a negative-validation "
@@ -356,6 +365,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_reproducibility_suite.json"),
             rel(RESULTS_DIR / "citylbm_software_feedback_matrix.json"),
             rel(RESULTS_DIR / "casee_solver_run_provenance_ledger.json"),
+            rel(RESULTS_DIR / "casee_release_asset_manifest.json"),
         ],
     }
     OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")

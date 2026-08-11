@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T01:10:37.334862+00:00",
-    "feedback_count": 33,
+    "generated_at": "2026-08-11T01:21:51.947675+00:00",
+    "feedback_count": 34,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -28,6 +28,7 @@
       "paper_claim_support_gate": 1,
       "software_publication_readiness_contract": 1,
       "software_publication_gate_output": 1,
+      "paper_release_asset_manifest": 1,
       "followup_sweep_plan": 1
     },
     "citylbm_status_counts": {
@@ -54,6 +55,7 @@
       "implemented_paper_claim_boundary": 1,
       "implemented_manifest_publication_boundary": 1,
       "implemented_publication_gate_output": 1,
+      "implemented_release_asset_manifest": 1,
       "planned_candidate_matrix": 1
     },
     "required_feedback_rows_present": true,
@@ -514,6 +516,20 @@
       "limitations": "UI traceability only; it does not add solver output, improve official metrics, change defaults, or permit formal v0.4.0."
     },
     {
+      "feedback_id": "SF034",
+      "experiment": "Case E release asset manifest",
+      "finding": "The release upload asset manifest separates compiled GHA, validation reports, CSV/XLSX summaries, figures, data/environment manifests, and paper gates from raw or large hash-only files.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/casee_release_asset_manifest.py; docs/experiments/casee/results/casee_release_asset_manifest.json; docs/experiments/casee/results/casee_release_asset_manifest.csv; docs/experiments/casee/results/casee_release_asset_manifest.md; docs/experiments/casee/results/casee_artifact_index.json",
+      "source_paths_exist": true,
+      "decision_class": "paper_release_asset_manifest",
+      "citylbm_status": "implemented_release_asset_manifest",
+      "implementation_evidence": "upload_asset_count=59; excluded_or_hash_only_count=20; upload_total_size_bytes=3472843; recommended_tag=v0.4.0-rc56",
+      "default_setting_allowed": true,
+      "paper_use": "Use for release/data-availability traceability and reviewer artifact checks.",
+      "limitations": "Release planning only; it does not create a GitHub Release, add CFD output, or permit formal v0.4.0."
+    },
+    {
       "feedback_id": "SF019",
       "experiment": "Experiment 2 / AIJ Case E official z=2 m follow-up planning",
       "finding": "The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries.",
@@ -522,7 +538,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc55",
+      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc56",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."

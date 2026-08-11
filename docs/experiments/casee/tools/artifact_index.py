@@ -50,6 +50,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc53.md",
     "docs/releases/v0.4.0-rc54.md",
     "docs/releases/v0.4.0-rc55.md",
+    "docs/releases/v0.4.0-rc56.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -122,6 +123,7 @@ TOOL_SCRIPTS = [
     "casee_c014_residual_structure_audit.py",
     "casee_claim_support_gate.py",
     "casee_publication_readiness_gate.py",
+    "casee_release_asset_manifest.py",
     "casee_official_run_preflight.py",
     "casee_dx1_readiness_audit.py",
     "casee_environment_recovery_runbook.py",
@@ -313,6 +315,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "paper_ready_claim_support_gate"
     if "casee_publication_readiness_gate" in path:
         return "paper_ready_publication_readiness_gate"
+    if "casee_release_asset_manifest" in path:
+        return "paper_ready_release_asset_manifest"
     if "rhino_gha_load_gate" in path:
         return "blocked_manual_rhino_load"
     if "casee_official_run_preflight" in path:
@@ -381,6 +385,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to map each manuscript claim to allowed paper use, limitations, evidence paths, and forbidden formal-accuracy claims."
     if readiness == "paper_ready_publication_readiness_gate":
         return "Use as a reviewer-facing publication-readiness audit for the negative-validation Case E manuscript package."
+    if readiness == "paper_ready_release_asset_manifest":
+        return "Use as the curated GitHub Release upload asset list with hash-only exclusions for raw/large files."
     if readiness == "blocked_manual_rhino_load":
         return "Use to document the fail-closed Rhino/Grasshopper new-GHA loading gate."
     if readiness == "blocked_official_followup_preflight":
@@ -449,6 +455,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Claim triage only; it does not add CFD output, improve official z=2 m metrics, or permit formal v0.4.0."
     if readiness == "paper_ready_publication_readiness_gate":
         return "Publication-readiness audit only; it does not add CFD output, improve official z=2 m metrics, or permit formal v0.4.0."
+    if readiness == "paper_ready_release_asset_manifest":
+        return "Release upload planning only; it does not create a GitHub Release, add CFD output, or permit formal v0.4.0."
     if readiness == "paper_ready_default_policy_boundary":
         return "Default-policy boundary only; does not improve or replace official z=2 m metrics."
     if readiness == "paper_ready_manuscript_results_table":
@@ -660,6 +668,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc53.md",
                 "v0.4.0-rc54.md",
                 "v0.4.0-rc55.md",
+                "v0.4.0-rc56.md",
             )
         )
     ]

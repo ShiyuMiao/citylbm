@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-11T01:10:37.334862+00:00
+Generated: 2026-08-11T01:21:51.947675+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 33
+- Feedback rows: 34
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -29,6 +29,7 @@ Generated: 2026-08-11T01:10:37.334862+00:00
 - paper_figure_output: 1
 - paper_interpretation_layer: 1
 - paper_provenance_ledger: 1
+- paper_release_asset_manifest: 1
 - paper_traceability_output: 2
 - portable_plugin_build_script: 1
 - rerun_reproducibility_guard: 1
@@ -76,6 +77,7 @@ Generated: 2026-08-11T01:10:37.334862+00:00
 | `SF030` | Experiment 2 / AIJ Case E manuscript claim support | paper_claim_support_gate | implemented_paper_claim_boundary | True | The Case E manuscript claim matrix is now checked by a claim-support gate that separates methods/protocol claims, negative validation, limitations-only diagnostics, reproducibility context, and blocked formal-release claims. |
 | `SF031` | CityLBM manifest publication-readiness contract | software_publication_readiness_contract | implemented_manifest_publication_boundary | True | Generated citylbm_run_manifest.json files now include a publication_readiness_contract that records required external gates and artifacts before a generated case can support manuscript use. |
 | `SF032` | CityLBM Run Simulation publication gate output | software_publication_gate_output | implemented_publication_gate_output | True | Run Simulation now exposes a Publication Gate output beside the Claim Gate so Grasshopper users see manuscript-readiness dependencies at the point of case generation. |
+| `SF034` | Case E release asset manifest | paper_release_asset_manifest | implemented_release_asset_manifest | True | The release upload asset manifest separates compiled GHA, validation reports, CSV/XLSX summaries, figures, data/environment manifests, and paper gates from raw or large hash-only files. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary
@@ -114,6 +116,7 @@ Generated: 2026-08-11T01:10:37.334862+00:00
 | `SF030` | Use as the manuscript claim-support gate before turning Case E evidence into Results, Discussion, or Limitations text. | Claim boundary evidence only; it does not add solver output, improve official metrics, or allow formal v0.4.0. |
 | `SF031` | Use as software traceability evidence that CityLBM generated cases carry publication-readiness dependencies in the manifest. | Manifest contract only; it does not add solver output, improve official metrics, or permit formal v0.4.0. |
 | `SF032` | Use as software traceability evidence that CityLBM surfaces manuscript-readiness boundaries in the plugin UI. | UI traceability only; it does not add solver output, improve official metrics, change defaults, or permit formal v0.4.0. |
+| `SF034` | Use for release/data-availability traceability and reviewer artifact checks. | Release planning only; it does not create a GitHub Release, add CFD output, or permit formal v0.4.0. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 
 ## Boundary

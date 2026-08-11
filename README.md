@@ -37,6 +37,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/generate_native_casee.py`
 - `docs/experiments/casee/tools/release_gate.py`
 - `docs/experiments/casee/tools/paper_evidence_gate.py`
+- `docs/experiments/casee/tools/casee_release_asset_manifest.py`
 - `docs/experiments/casee/tools/rhino_gha_load_gate.py`
 - `docs/experiments/casee/tools/build_chain_audit.py`
 - `docs/experiments/casee/tools/casee_official_run_preflight.py`
@@ -90,6 +91,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_publication_readiness_gate.md`
 - `docs/experiments/casee/results/casee_remaining_blockers.json`
 - `docs/experiments/casee/results/casee_remaining_blockers.md`
+- `docs/experiments/casee/results/casee_release_asset_manifest.json`
+- `docs/experiments/casee/results/casee_release_asset_manifest.md`
+- `docs/releases/v0.4.0-rc56.md`
 - `docs/releases/v0.4.0-rc55.md`
 - `docs/releases/v0.4.0-rc54.md`
 - `docs/releases/v0.4.0-rc53.md`
@@ -373,6 +377,12 @@ diagnostic switches; GPU/Rhino/VS C++ readiness remains a blocked follow-up
 condition; Experiment 3 stays in the digital-twin screening/application layer.
 This matrix is the current basis for software optimization claims, not a formal
 accuracy-upgrade claim.
+
+The release asset manifest defines the lightweight GitHub Release upload set:
+compiled GHA, validation reports, CSV/XLSX summaries, figures, data and
+environment manifests, claim/publication gates, and manuscript support files.
+Raw geometry, VTK output, large logs, and source-data duplicates remain excluded
+or hash-only. This is release traceability only, not CFD accuracy evidence.
 
 The manuscript results table converts Case E evidence into paper-facing rows:
 the official z=2 m result is a negative-validation result, the best diagnostic
