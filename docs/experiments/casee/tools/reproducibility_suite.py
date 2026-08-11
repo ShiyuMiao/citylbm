@@ -203,6 +203,7 @@ def main() -> int:
         ("casee_c004_dx3_low_cost_audit", "casee_c004_dx3_low_cost_audit.py"),
         ("casee_c005_decomposition_audit", "casee_c005_decomposition_audit.py"),
         ("casee_c008_c009_inlet_turbulence_audit", "casee_c008_c009_inlet_turbulence_audit.py"),
+        ("casee_c014_residual_structure_audit", "casee_c014_residual_structure_audit.py"),
         ("casee_candidate_sweep_plan", "casee_candidate_sweep_plan.py"),
         ("casee_default_policy_gate", "casee_default_policy_gate.py"),
         ("citylbm_paper_results_packet", "citylbm_paper_results_packet.py"),
@@ -236,6 +237,7 @@ def main() -> int:
     c003_zorigin_ablation = read_json(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
     c004_dx3_low_cost = read_json(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     candidate_sweep_plan = read_json(RESULTS_DIR / "casee_candidate_sweep_plan.json")
+    c014_residual_structure = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
     default_policy = read_json(RESULTS_DIR / "casee_default_policy_gate.json")
     paper_results_packet = read_json(RESULTS_DIR / "citylbm_paper_results_packet.json")
     manifest_output_gate = read_json(RESULTS_DIR / "citylbm_manifest_output_gate.json")
@@ -265,6 +267,7 @@ def main() -> int:
         "casee_c002_longer_mean_audit": c002_longer_mean,
         "casee_c003_zorigin_ablation_audit": c003_zorigin_ablation,
         "casee_c004_dx3_low_cost_audit": c004_dx3_low_cost,
+        "casee_c014_residual_structure_audit": c014_residual_structure,
         "casee_candidate_sweep_plan": candidate_sweep_plan,
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_results_packet,

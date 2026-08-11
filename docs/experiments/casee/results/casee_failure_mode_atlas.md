@@ -1,6 +1,6 @@
 # Case E Failure-Mode Atlas
 
-Generated: 2026-08-09T16:05:33.523943+00:00
+Generated: 2026-08-11T00:07:04.504421+00:00
 
 ## Verdict
 
@@ -20,6 +20,7 @@ Generated: 2026-08-09T16:05:33.523943+00:00
 | `FM004_near_wall_solid_corner_risk` | active_limitation | critical | low-risk raw MAE=12.435 pp (n=47); high-risk raw MAE=34.589 pp (n=14); solid0 MAE=12.435 pp; solid4 MAE=35.845 pp | Use as the main limitations evidence for near-wall and solid-corner protocol risk. |
 | `FM005_spatial_alignment_unlikely` | diagnostic_checked | moderate | identity Pearson=0.071789, R2=-2.311768; best available transform `flip_y` still has R2=-2.111059 | Use to narrow the error explanation away from a simple x/y convention mistake. |
 | `FM006_runtime_preflight_blocked` | blocked | critical | official_followup_run_allowed=False; blocked=rhino_gha_load,gpu_runtime,vs_cpp_build_tools | Use to explain why no new long-run result was added in this release candidate. |
+| `FM007_velocity_range_compression` | active_limitation | critical | C014 MAE=13.786 pp, R2=-0.229845; post-hoc affine upper-bound R2=0.099203; downstream R2=-0.566325; official high-speed bias=-21.002 pp; official low-speed bias=12.724 pp | Use to explain why the strongest C014 diagnostic improvement is still not paper-grade validation. |
 
 ## Software Feedback
 
@@ -70,6 +71,14 @@ Generated: 2026-08-09T16:05:33.523943+00:00
 - Default policy: Do not run or publish new official results while preflight is blocked.
 - Next verification: Clear GPU, VS C++ and Rhino/GHA evidence, then rerun preflight.
 - Forbidden claim: Do not describe the current environment as ready for more long native validation.
+
+### FM007_velocity_range_compression
+
+- Primary evidence: `docs/experiments/casee/results/casee_c014_residual_structure_audit.json`
+- Software feedback: Prioritize default-off wall/inlet/channel-response candidates that widen the simulated velocity-ratio range.
+- Default policy: No post-hoc calibration, no C014 no-SGS/default promotion, and no formal v0.4.0.
+- Next verification: Implement C016 residual-targeted physics candidate and audit completed official raw_trilinear 80-probe output.
+- Forbidden claim: Do not use affine calibration, z_plus_half, or residual subsets as the formal official z=2 m validation.
 
 ## Boundary
 

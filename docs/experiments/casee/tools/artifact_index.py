@@ -41,6 +41,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc44.md",
     "docs/releases/v0.4.0-rc45.md",
     "docs/releases/v0.4.0-rc46.md",
+    "docs/releases/v0.4.0-rc47.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -110,6 +111,7 @@ TOOL_SCRIPTS = [
     "casee_c004_dx3_low_cost_audit.py",
     "casee_c005_decomposition_audit.py",
     "casee_c008_c009_inlet_turbulence_audit.py",
+    "casee_c014_residual_structure_audit.py",
     "casee_official_run_preflight.py",
     "casee_dx1_readiness_audit.py",
     "casee_environment_recovery_runbook.py",
@@ -295,6 +297,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         or "c015_inlet_k_synthetic" in path
     ):
         return "limitations_ready_inlet_turbulence_improvement"
+    if "casee_c014_residual_structure_audit" in path or "casee_c014_residual_top_probes" in path:
+        return "limitations_ready_residual_structure"
     if "rhino_gha_load_gate" in path:
         return "blocked_manual_rhino_load"
     if "casee_official_run_preflight" in path:
@@ -357,6 +361,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to show the C005 4x1x1 domain-decomposition run improved MAE/R2 but was not reproducibility-consistent or default-promotable."
     if readiness == "limitations_ready_inlet_turbulence_improvement":
         return "Use to show AF-k synthetic full-plane inlet candidates substantially improved official-height MAE/R2/Pearson but still had negative R2."
+    if readiness == "limitations_ready_residual_structure":
+        return "Use to explain why C014 remains non-validating: velocity-ratio range compression, downstream residuals, and high-speed under-recovery."
     if readiness == "blocked_manual_rhino_load":
         return "Use to document the fail-closed Rhino/Grasshopper new-GHA loading gate."
     if readiness == "blocked_official_followup_preflight":
@@ -419,6 +425,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Operational recovery guidance only; does not install tools, run CFD, or improve metrics."
     if readiness == "limitations_ready_failure_mode_atlas":
         return "Synthesis of existing diagnostics only; does not add a new solver result."
+    if readiness == "limitations_ready_residual_structure":
+        return "Residual audit over preexisting C014 solver output only; it does not add a new FluidX3D run or permit formal accuracy claims."
     if readiness == "paper_ready_default_policy_boundary":
         return "Default-policy boundary only; does not improve or replace official z=2 m metrics."
     if readiness == "paper_ready_manuscript_results_table":
@@ -587,6 +595,11 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "casee_c008_c009_inlet_turbulence_audit.json",
                 "casee_c008_c009_inlet_turbulence_audit.md",
                 "casee_c008_c009_inlet_turbulence_audit.csv",
+                "casee_c014_residual_structure_audit.json",
+                "casee_c014_residual_structure_audit.md",
+                "casee_c014_residual_structure_audit.csv",
+                "casee_c014_residual_structure_audit.png",
+                "casee_c014_residual_top_probes.csv",
                 "plugin_identity_gate.json",
                 "rhino_gha_load_gate.json",
                 "rhino_gha_load_gate.md",
@@ -610,6 +623,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc44.md",
                 "v0.4.0-rc45.md",
                 "v0.4.0-rc46.md",
+                "v0.4.0-rc47.md",
             )
         )
     ]

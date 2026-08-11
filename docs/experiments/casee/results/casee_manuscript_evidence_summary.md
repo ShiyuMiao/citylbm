@@ -1,6 +1,6 @@
 # AIJ Case E Manuscript Evidence Summary
 
-Generated: 2026-08-09T16:05:30.082643+00:00
+Generated: 2026-08-11T00:07:01.459151+00:00
 
 ## Current Formal Metric
 
@@ -11,7 +11,7 @@ Generated: 2026-08-09T16:05:30.082643+00:00
 - R2: -2.006330.
 - Pearson: 0.115756.
 - Formal release allowed: False.
-- Recommended tag: `v0.4.0-rc46`.
+- Recommended tag: `v0.4.0-rc47`.
 
 ## Claim Matrix
 
@@ -30,6 +30,7 @@ Generated: 2026-08-09T16:05:30.082643+00:00
 | C011 | limitations_ready | Results / dx=3 control | The dx=3 m low-cost control retained positive Pearson correlation but did not improve the official z=2 m Case E metric. | `docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json; docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md` |
 | C012 | limitations_ready | Results / Runtime decomposition sensitivity | The 4x1x1 domain-decomposition ablation improved MAE and R2 relative to the z-center baseline but remained negative and failed reproducibility-consistency thresholds. | `docs/experiments/casee/results/casee_c005_decomposition_audit.json; docs/experiments/casee/results/casee_c005_decomposition_audit.md` |
 | C013 | limitations_ready | Results / Inlet turbulence follow-up | The C008-C015 AF_caseE-k default-off synthetic full-plane inlet and no-SGS sweep substantially improved the official-height raw-trilinear metric, but R2 remained negative; C014 was best and C015 rolled back. | `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json; docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md` |
+| C014 | limitations_ready | Discussion / Residual structure | The best C014 diagnostic candidate remains non-validating because residuals compress the official velocity-ratio range and remain spatially structured. | `docs/experiments/casee/results/casee_c014_residual_structure_audit.json; docs/experiments/casee/results/casee_c014_residual_structure_audit.md; docs/experiments/casee/results/casee_c014_residual_top_probes.csv` |
 
 ## Results Paragraph Draft
 

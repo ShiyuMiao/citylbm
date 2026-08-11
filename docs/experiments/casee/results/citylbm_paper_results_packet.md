@@ -1,11 +1,11 @@
 # CityLBM Paper Results Packet
 
-Generated: 2026-08-09T16:05:35.483554+00:00
+Generated: 2026-08-11T00:07:07.528821+00:00
 
 ## Verdict
 
 - Packet passed: True
-- Result rows: 25
+- Result rows: 26
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 
@@ -20,6 +20,7 @@ Generated: 2026-08-09T16:05:35.483554+00:00
 - limitations_ready_dx3_low_cost_regression; blocked formal accuracy release: 1
 - limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release: 1
 - limitations_ready_negative_validation: 1
+- limitations_ready_residual_structure; blocked formal accuracy release: 1
 - limitations_ready_runtime_decomposition_ablation; blocked formal accuracy release: 1
 - limitations_ready_zorigin_ablation; blocked formal accuracy release: 1
 - must_state_as_boundary: 1
@@ -39,9 +40,9 @@ Generated: 2026-08-09T16:05:35.483554+00:00
 | experiment | result | readiness | metric/status | paper use |
 |---|---|---|---|---|
 | Experiment 1 / AIJ Case A | `casea_smoke_regression_guard` | paper_ready_workflow_guard | status=passed; steps_complete=True; vtk_outputs=2; timestep_2000_vtk=True | Use as workflow non-regression evidence for the CityLBM/FluidX3D chain. |
-| Experiment 2 / AIJ Case E | `casee_software_policy_boundary` | paper_ready_default_policy_boundary | default_policy_gate_passed=True; failure_modes=6; formal_allowed=False | Use to explain which CityLBM settings are formal defaults and which are diagnostic switches. |
+| Experiment 2 / AIJ Case E | `casee_software_policy_boundary` | paper_ready_default_policy_boundary | default_policy_gate_passed=True; failure_modes=7; formal_allowed=False | Use to explain which CityLBM settings are formal defaults and which are diagnostic switches. |
 | Experiment 2 / AIJ Case E | `zcenter_rerun_reproduced_failed_metric` | paper_ready_reproducibility; blocked formal accuracy release | status=passed_reproduced_failed_metric; log_completed_48000=True; csv_sha256_equal=True; MAE=21.111408125 pp; R2=-2.006330362229977; Pearson=0.11575649438573923 | Use as newly-run reproducibility evidence that the current compiled z-center Case E setup reproduces the same negative official z=2 m metric. |
-| Experiment 2 / AIJ Case E | `candidate_sweep_followup_plan` | paper_ready_followup_plan; blocked formal accuracy release | candidate_count=8; executable_now_count=0; formal_accuracy_claim_supported=False | Use as a pre-registered follow-up sweep plan for improving the official z=2 m R2. |
+| Experiment 2 / AIJ Case E | `candidate_sweep_followup_plan` | paper_ready_followup_plan; blocked formal accuracy release | candidate_count=9; executable_now_count=0; formal_accuracy_claim_supported=False | Use as a pre-registered follow-up sweep plan for improving the official z=2 m R2. |
 | Experiment 2 / AIJ Case E | `casee_manuscript_section_pack` | paper_ready_negative_validation_and_limitations | section_pack_passed=True; formal_accuracy_claim_supported=False; formal_release_allowed=False | Use as ready-to-edit Methods, Results, Diagnostics, Limitations, Software implications, and Release-boundary prose for the negative-validation Case E result. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_M1` | paper_ready | paper_ready | TUM2TWIN layers are separated into visual reference, semantic/collision geometry and CFD/LBM simulation inputs. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_R1` | paper_ready_as_screening | paper_ready_as_screening | S0 baseline pedestrian layer is dominated by low speed, while the upper layer recovers. |
@@ -69,6 +70,7 @@ Generated: 2026-08-09T16:05:35.483554+00:00
 | Experiment 2 / AIJ Case E | `c004_dx3_low_cost_positive_but_worse` | limitations_ready_dx3_low_cost_regression; blocked formal accuracy release | Positive Pearson is not enough for formal validation; R2 remains negative and worse than the current z-center baseline. | Do not promote dx=3 coarse-grid settings as an accuracy fix; use it as a quick regression/control path. |
 | Experiment 2 / AIJ Case E | `c005_decomposition_improves_mae_r2_but_unstable` | limitations_ready_runtime_decomposition_ablation; blocked formal accuracy release | R2 remains negative, Pearson decreased versus the z-center baseline, and decomposition consistency thresholds failed; no default promotion or formal v0.4.0 claim is supported. | Record domain decomposition in generated run IDs/manifests and treat 4x1x1 as an experimental switch, not a default accuracy setting. |
 | Experiment 2 / AIJ Case E | `c008_c015_inlet_turbulence_sgs_best_negative_candidate` | limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release | R2 remains negative and the AF-k synthetic inlet/no-SGS combination is a diagnostic sweep parameter; it cannot support formal v0.4.0, predictive accuracy, LES improvement, mesh independence, or default promotion. | Keep AF-k inlet turbulence and SGS/no-SGS choices default-safe until a physically validated model reproduces positive R2 without benchmark-specific scale tuning. |
+| Experiment 2 / AIJ Case E | `c014_residual_structure_blocks_accuracy_claim` | limitations_ready_residual_structure; blocked formal accuracy release | This is a newly-run audit over preexisting C014 solver output; it does not add a new FluidX3D run, change release_gate.json, or justify post-hoc calibration as validation. | Prioritize default-off wall/inlet/channel-response candidates that recover high-speed probes without overpredicting sheltered low-speed probes. |
 | Build-chain recovery / AIJ Case E follow-up | `build_chain_recovery_status` | blocked_build_chain_diagnostic | Build-chain status is not solver-output evidence and cannot support formal accuracy. | Keep VS C++ Build Tools recovery and Rhino/GHA load evidence as required operational gates before stronger software-release claims. |
 | Experiment 2 / AIJ Case E | `casee_manuscript_section_pack` | paper_ready_negative_validation_and_limitations | Generated prose only; it does not add CFD output, improve official z=2 m metrics, or support formal accuracy. | Keep manuscript prose generation downstream of release_gate and manuscript_results_table so claim boundaries stay synchronized. |
 | Experiment 3 / TUM2TWIN digital-twin application | `module_claim_M1` | paper_ready | Use within the archived Experiment 3 scope. | Use as design-application workflow evidence, not as Case E accuracy evidence. |

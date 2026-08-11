@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-09T16:05:40.989583+00:00
+Generated: 2026-08-11T00:07:12.600024+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc46`
+- Recommended tag: `v0.4.0-rc47`
 
 ## Official z=2 m Metric
 
@@ -17,8 +17,8 @@ Generated: 2026-08-09T16:05:40.989583+00:00
 
 ## Claim Matrix
 
-- Claims: 13
-- Readiness counts: `{'paper_ready': 2, 'limitations_ready': 8, 'weaken_claim': 2, 'blocked': 1}`
+- Claims: 14
+- Readiness counts: `{'paper_ready': 2, 'limitations_ready': 9, 'weaken_claim': 2, 'blocked': 1}`
 - Blocked release claim present: True
 - Negative validation claim present: True
 - Recommended tag present: True
@@ -27,14 +27,14 @@ Generated: 2026-08-09T16:05:40.989583+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 322
+- Checked nonblank lines: 324
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 275
-- Lightweight release assets: 203
+- Artifact count: 282
+- Lightweight release assets: 210
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -89,7 +89,7 @@ Generated: 2026-08-09T16:05:40.989583+00:00
 ## Failure-Mode Atlas
 
 - Atlas found: True
-- Failure modes: 6
+- Failure modes: 7
 - Claim readiness: `limitations_ready_failure_mode_atlas`
 - Claim boundary safe: True
 
@@ -143,7 +143,7 @@ Generated: 2026-08-09T16:05:40.989583+00:00
 
 - Plan found: True
 - Plan generated: True
-- Candidate count: 8
+- Candidate count: 9
 - Executable-now count: 0
 - Claim readiness: `paper_ready_followup_plan; blocked formal accuracy release`
 - Formal accuracy claim supported: False
@@ -161,7 +161,7 @@ Generated: 2026-08-09T16:05:40.989583+00:00
 
 - Packet found: True
 - Packet passed: True
-- Result rows: 25
+- Result rows: 26
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 - Claim boundary safe: True
@@ -219,7 +219,7 @@ Generated: 2026-08-09T16:05:40.989583+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 25
+- Feedback rows: 26
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False

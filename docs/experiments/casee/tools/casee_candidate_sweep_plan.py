@@ -206,11 +206,15 @@ def build_candidates(
     c004_audit = read_json(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     c005_audit = read_json(RESULTS_DIR / "casee_c005_decomposition_audit.json")
     c008_audit = read_json(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json")
+    c014_residual = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
     c002_completed = c002_audit.get("evidence_type") == "newly_run"
     c003_completed = c003_audit.get("evidence_type") == "newly_run"
     c004_completed = c004_audit.get("evidence_type") == "newly_run"
     c005_completed = c005_audit.get("evidence_type") == "newly_run"
     c008_completed = c008_audit.get("evidence_type") == "newly_run"
+    residual_groups = {item.get("group"): item for item in c014_residual.get("groups", [])}
+    residual_affine = (c014_residual.get("affine_upper_bound") or {}).get("metrics") or {}
+    residual_completed = c014_residual.get("status") == "completed_residual_structure_audit"
     executable_native = official_followup_allowed and gpu_ready and fluidx_ready and native_source_compile_ready
     source_compile_blockers = [gate for gate in blocked_gates if gate not in {"rhino_gha_load", "vs_cpp_build_tools"}]
     if not gpu_ready:
@@ -518,6 +522,43 @@ def build_candidates(
             ),
             formal_result_policy=formal_policy,
             pass_condition="Official raw_trilinear metric improves without relying on non-raw sampling or z-height substitution.",
+            default_promotion_allowed=False,
+            forbidden_claim=common_forbidden,
+        ),
+        candidate(
+            candidate_id="C016_residual_targeted_wall_inlet_channel_response",
+            priority=9,
+            candidate_class="requires_implementation",
+            executable_now=False,
+            blocking_gates=["gpu_runtime", "residual_targeted_wall_inlet_channel_response_not_implemented", "official_followup_preflight"],
+            evidence_type="planned_from_residual_audit" if residual_completed else "blocked_until_residual_audit",
+            dx_m="2.0",
+            steps=">=48000",
+            spinup=">=12000",
+            sample_dt="<=2000",
+            ground_offset_cells=1,
+            origin_z_offset_m=1.0,
+            nu_lbm=0.001,
+            domain_decomposition="4x1x1 or pre-registered baseline",
+            command=(
+                "TODO after implementation: generate official z=2 m raw_trilinear Case E with a default-off "
+                "wall/inlet/channel-response option derived from casee_c014_residual_structure_audit.py."
+            ),
+            expected_artifacts=[
+                "docs/experiments/casee/results/casee_c014_residual_structure_audit.json",
+                "docs/experiments/casee/native_cases/<c016>/citylbm_native_case_manifest.json",
+                "docs/experiments/casee/results/<c016>_probe_time_mean.csv",
+                "docs/experiments/casee/results/<c016>_official_metrics.json",
+            ],
+            rationale=(
+                "C014 is the current best diagnostic candidate but residual structure blocks a formal accuracy claim: "
+                f"downstream_R2={(residual_groups.get('downstream_y_lt_0_inferred') or {}).get('r2')}; "
+                f"official_high_bias_pp={(residual_groups.get('official_high_ge_0p6') or {}).get('bias_pp')}; "
+                f"posthoc_affine_upper_bound_R2={residual_affine.get('r2')}. "
+                "The next useful implementation must recover high-speed corridor probes without overpredicting sheltered low-speed probes."
+            ),
+            formal_result_policy=formal_policy,
+            pass_condition="Official raw_trilinear z=2 m R2 becomes positive, Pearson remains positive, MAE stays below C014, and Case A smoke regression passes.",
             default_promotion_allowed=False,
             forbidden_claim=common_forbidden,
         ),

@@ -100,6 +100,7 @@ def build_rows() -> List[Dict[str, str]]:
     c004_dx3_low_cost = read_json(CASEE_RESULTS / "casee_c004_dx3_low_cost_audit.json")
     c005_decomposition = read_json(CASEE_RESULTS / "casee_c005_decomposition_audit.json")
     c008_c009_inlet = read_json(CASEE_RESULTS / "casee_c008_c009_inlet_turbulence_audit.json")
+    c014_residual = read_json(CASEE_RESULTS / "casee_c014_residual_structure_audit.json")
     build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -390,6 +391,34 @@ def build_rows() -> List[Dict[str, str]]:
         )
     )
 
+    c014_metrics = c014_residual.get("c014_metrics") or {}
+    affine_metrics = (c014_residual.get("affine_upper_bound") or {}).get("metrics") or {}
+    residual_groups = {item.get("group"): item for item in c014_residual.get("groups", [])}
+    high_group = residual_groups.get("official_high_ge_0p6", {})
+    downstream_group = residual_groups.get("downstream_y_lt_0_inferred", {})
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="c014_residual_structure_blocks_accuracy_claim",
+            claim_readiness=str(c014_residual.get("claim_readiness", "limitations_ready_residual_structure")),
+            evidence_type=str(c014_residual.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_c014_residual_structure_audit.json"),
+                rel(CASEE_RESULTS / "casee_c014_residual_structure_audit.md"),
+                rel(CASEE_RESULTS / "casee_c014_residual_structure_audit.csv"),
+                rel(CASEE_RESULTS / "casee_c014_residual_top_probes.csv"),
+            ],
+            metric_or_status=(
+                f"C014_MAE={c014_metrics.get('mae_pp')} pp; C014_R2={c014_metrics.get('r2')}; "
+                f"affine_upper_bound_R2={affine_metrics.get('r2')}; "
+                f"downstream_R2={downstream_group.get('r2')}; high_official_bias={high_group.get('bias_pp')} pp"
+            ),
+            paper_use="Use as the main residual-structure explanation for why the best C014 diagnostic candidate is not yet paper-grade validation.",
+            limitations="This is a newly-run audit over preexisting C014 solver output; it does not add a new FluidX3D run, change release_gate.json, or justify post-hoc calibration as validation.",
+            software_feedback="Prioritize default-off wall/inlet/channel-response candidates that recover high-speed probes without overpredicting sheltered low-speed probes.",
+        )
+    )
+
     build_vs = build_chain.get("visual_studio_build_tools_2022_cpp") or {}
     build_gpu = build_chain.get("gpu_runtime") or {}
     build_gpp = build_chain.get("mingw_gpp") or {}
@@ -645,6 +674,7 @@ def main() -> int:
             rel(CASEE_RESULTS / "build_chain_manifest.json"),
             rel(CASEE_RESULTS / "casee_c005_decomposition_audit.json"),
             rel(CASEE_RESULTS / "casee_c008_c009_inlet_turbulence_audit.json"),
+            rel(CASEE_RESULTS / "casee_c014_residual_structure_audit.json"),
             rel(CASEE_RESULTS / "casee_manuscript_section_pack.json"),
             rel(PAPER_DRAFTS / "experiment3_claim_verification.csv"),
             rel(PAPER_DRAFTS / "casee_v04_manuscript_section_pack_en.md"),

@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc47 - Case E C014 residual-structure audit
+
+- Added `casee_c014_residual_structure_audit.py` and generated CSV/JSON/Markdown/PNG residual-structure outputs for the current best C014 official-height diagnostic candidate.
+- Integrated the residual audit into the reproducibility suite, artifact index, failure-mode atlas, candidate sweep plan, manuscript claim matrix, paper results packet, and software-feedback matrix as SF026.
+- Added C016 residual-targeted wall/inlet/channel-response follow-up planning while keeping all such physics changes default-off until completed official z=2 m raw_trilinear evidence passes.
+
+C014 remains the strongest current diagnostic candidate: MAE = 13.786 pp, R2 = -0.229845, Pearson = 0.314966. The residual audit shows downstream R2 = -0.566325, high-official-speed bias = -21.002 pp, low-official-speed bias = +12.724 pp, and a post-hoc affine upper-bound R2 of only 0.099203. This supports limitations and follow-up design only. It does not add a new FluidX3D solver run, prove predictive accuracy, justify affine calibration, promote no-SGS/inlet settings to defaults, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc46 - Case E no-SGS inlet diagnostic improvement
 
 - Generated, compiled, and ran C013-C015 dx=2 m, z-center, 4x1x1 AF-k synthetic full-plane inlet candidates with SUBGRID disabled for 48000 FluidX3D steps under the official z=2 m raw_trilinear protocol.

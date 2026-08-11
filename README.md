@@ -19,11 +19,13 @@ probes. Diagnostic height offsets such as `z_plus_half` or `z+4.5 m` are not
 accepted as formal validation results.
 
 Current newly-run native results do not satisfy the formal accuracy gate. The
-best run so far is a z-center lattice diagnostic dx=2 m run with one
-effective-ground offset cell, `origin_z_offset_m=1.0`, and `nu_lbm=0.001`,
-48000 steps, spinup 12000, raw_trilinear sampling: MAE 21.111 percentage
-points, R2 -2.006330, Pearson 0.115756. These results show directional
-improvement but support a limitations/diagnostic discussion only, not a
+formal release-gate baseline remains the z-center dx=2 m official z=2 m
+raw_trilinear run: MAE 21.111 percentage points, R2 -2.006330, Pearson
+0.115756. The strongest diagnostic candidate so far is C014, a default-off
+no-SGS AF-k synthetic full-plane inlet run at scale 2.00: MAE 13.786
+percentage points, R2 -0.229845, Pearson 0.314966. A residual-structure audit
+shows that even a post-hoc affine upper bound only reaches R2 0.099203, so
+these results support a limitations/diagnostic discussion only, not a
 predictive-accuracy claim or a formal `v0.4.0` release.
 
 Current Case E, release-gate, and manuscript-boundary materials:
@@ -48,6 +50,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_c004_dx3_low_cost_audit.py`
 - `docs/experiments/casee/tools/casee_c005_decomposition_audit.py`
 - `docs/experiments/casee/tools/casee_c008_c009_inlet_turbulence_audit.py`
+- `docs/experiments/casee/tools/casee_c014_residual_structure_audit.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
 - `docs/experiments/casee/tools/casee_manuscript_results_table.py`
 - `docs/experiments/casee/tools/casee_manuscript_section_pack.py`
@@ -76,8 +79,12 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_paper_evidence_gate.json`
 - `docs/experiments/casee/results/casee_paper_evidence_gate.md`
 - `docs/experiments/casee/results/casee_paper_appendix_manifest.json`
+- `docs/experiments/casee/results/casee_c014_residual_structure_audit.json`
+- `docs/experiments/casee/results/casee_c014_residual_structure_audit.md`
+- `docs/experiments/casee/results/casee_c014_residual_top_probes.csv`
 - `docs/experiments/casee/results/casee_remaining_blockers.json`
 - `docs/experiments/casee/results/casee_remaining_blockers.md`
+- `docs/releases/v0.4.0-rc47.md`
 - `docs/experiments/casee/results/casee_next_experiment_runbook.json`
 - `docs/experiments/casee/results/casee_next_experiment_runbook.md`
 - `docs/experiments/casee/results/rhino_gha_load_gate.json`

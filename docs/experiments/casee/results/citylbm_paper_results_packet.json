@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-09T16:05:35.483554+00:00",
-    "result_count": 25,
+    "generated_at": "2026-08-11T00:07:07.528821+00:00",
+    "result_count": 26,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
       "limitations_ready_negative_validation": 1,
@@ -15,6 +15,7 @@
       "limitations_ready_dx3_low_cost_regression; blocked formal accuracy release": 1,
       "limitations_ready_runtime_decomposition_ablation; blocked formal accuracy release": 1,
       "limitations_ready_inlet_turbulence_improvement; blocked formal accuracy release": 1,
+      "limitations_ready_residual_structure; blocked formal accuracy release": 1,
       "blocked_build_chain_diagnostic": 1,
       "paper_ready_negative_validation_and_limitations": 1,
       "paper_ready": 1,
@@ -27,7 +28,7 @@
       "blocked_formal_release_gate": 1
     },
     "evidence_type_counts": {
-      "newly_run": 19,
+      "newly_run": 20,
       "newly_run + preexisting_artifact": 3,
       "blocked": 1,
       "newly_run + preexisting_artifact + blocked": 2
@@ -66,7 +67,7 @@
       "claim_readiness": "paper_ready_default_policy_boundary",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/casee_default_policy_gate.json; docs/experiments/casee/results/casee_failure_mode_atlas.json",
-      "metric_or_status": "default_policy_gate_passed=True; failure_modes=6; formal_allowed=False",
+      "metric_or_status": "default_policy_gate_passed=True; failure_modes=7; formal_allowed=False",
       "paper_use": "Use to explain which CityLBM settings are formal defaults and which are diagnostic switches.",
       "limitations": "Default-policy evidence does not improve or replace the official z=2 m metric.",
       "software_feedback": "Keep raw_trilinear official z=2 m as formal output; keep nuLBM, zOff and non-raw sampling diagnostic-only."
@@ -110,7 +111,7 @@
       "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/casee_candidate_sweep_plan.json; docs/experiments/casee/results/casee_candidate_sweep_plan.md; docs/experiments/casee/results/casee_candidate_sweep_plan.csv",
-      "metric_or_status": "candidate_count=8; executable_now_count=0; formal_accuracy_claim_supported=False",
+      "metric_or_status": "candidate_count=9; executable_now_count=0; formal_accuracy_claim_supported=False",
       "paper_use": "Use as a pre-registered follow-up sweep plan for improving the official z=2 m R2.",
       "limitations": "Planning evidence only; it does not add solver output or justify changing CityLBM defaults.",
       "software_feedback": "Run candidates in priority order and promote settings only after official raw_trilinear metrics pass the release gate."
@@ -169,6 +170,17 @@
       "paper_use": "Use as the strongest current Case E diagnostic improvement and as evidence that inlet turbulence and SGS treatment are major remaining software targets.",
       "limitations": "R2 remains negative and the AF-k synthetic inlet/no-SGS combination is a diagnostic sweep parameter; it cannot support formal v0.4.0, predictive accuracy, LES improvement, mesh independence, or default promotion.",
       "software_feedback": "Keep AF-k inlet turbulence and SGS/no-SGS choices default-safe until a physically validated model reproduces positive R2 without benchmark-specific scale tuning."
+    },
+    {
+      "experiment": "Experiment 2 / AIJ Case E",
+      "result_id": "c014_residual_structure_blocks_accuracy_claim",
+      "claim_readiness": "limitations_ready_residual_structure; blocked formal accuracy release",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_c014_residual_structure_audit.json; docs/experiments/casee/results/casee_c014_residual_structure_audit.md; docs/experiments/casee/results/casee_c014_residual_structure_audit.csv; docs/experiments/casee/results/casee_c014_residual_top_probes.csv",
+      "metric_or_status": "C014_MAE=13.7856467875 pp; C014_R2=-0.22984501828340775; affine_upper_bound_R2=0.09920332706790935; downstream_R2=-0.5663250697292279; high_official_bias=-21.001909272727268 pp",
+      "paper_use": "Use as the main residual-structure explanation for why the best C014 diagnostic candidate is not yet paper-grade validation.",
+      "limitations": "This is a newly-run audit over preexisting C014 solver output; it does not add a new FluidX3D run, change release_gate.json, or justify post-hoc calibration as validation.",
+      "software_feedback": "Prioritize default-off wall/inlet/channel-response candidates that recover high-speed probes without overpredicting sheltered low-speed probes."
     },
     {
       "experiment": "Build-chain recovery / AIJ Case E follow-up",
@@ -308,7 +320,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc46",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc47",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."
@@ -324,6 +336,7 @@
     "docs/experiments/casee/results/build_chain_manifest.json",
     "docs/experiments/casee/results/casee_c005_decomposition_audit.json",
     "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
+    "docs/experiments/casee/results/casee_c014_residual_structure_audit.json",
     "docs/experiments/casee/results/casee_manuscript_section_pack.json",
     "academic-paper-writer/paper-drafts/experiment3_claim_verification.csv",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",

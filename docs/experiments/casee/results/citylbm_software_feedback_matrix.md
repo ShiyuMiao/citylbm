@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-09T16:05:38.272319+00:00
+Generated: 2026-08-11T00:07:10.058788+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 25
+- Feedback rows: 26
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -28,6 +28,7 @@ Generated: 2026-08-09T16:05:38.272319+00:00
 - paper_interpretation_layer: 1
 - paper_traceability_output: 2
 - rerun_reproducibility_guard: 1
+- residual_structure_no_default_promotion: 1
 - runtime_decomposition_sensitivity_no_default_promotion: 1
 - software_traceability_gate: 1
 - software_traceability_output: 3
@@ -60,6 +61,7 @@ Generated: 2026-08-09T16:05:38.272319+00:00
 | `SF023` | Experiment 2 / AIJ Case E C004 dx=3 control | low_cost_regression_no_default_promotion | dx3_control_completed_positive_correlation | False | The completed C004 dx=3 low-cost control kept positive Pearson correlation but worsened MAE and R2, so it is useful as a quick protocol/direction regression rather than an accuracy default. |
 | `SF024` | Experiment 2 / AIJ Case E C005 domain decomposition | runtime_decomposition_sensitivity_no_default_promotion | decomposition_sensitivity_detected | False | The completed C005 dx=2 m 4x1x1 domain-decomposition ablation improved MAE and R2 versus the z-center baseline, but R2 stayed negative, Pearson decreased, and reproducibility-consistency thresholds failed. |
 | `SF025` | Experiment 2 / AIJ Case E C008-C015 inlet turbulence and SGS ablation | inlet_turbulence_diagnostic_no_default_promotion | inlet_turbulence_candidate_improved_but_blocked | False | The C008-C015 AF-k synthetic full-plane inlet and no-SGS ablation candidates produced the largest official-height improvement so far, with best MAE=13.7856467875 pp, R2=-0.22984501828340775, and Pearson=0.31496559664177526, but R2 remained negative. |
+| `SF026` | Experiment 2 / AIJ Case E C014 residual structure | residual_structure_no_default_promotion | residual_structure_identifies_next_physics_target | False | The C014 residual audit shows velocity-ratio range compression: high official-speed probes remain underpredicted, downstream R2=-0.5663250697292279, and even a post-hoc affine upper bound only reaches R2=0.09920332706790935. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary
@@ -90,6 +92,7 @@ Generated: 2026-08-09T16:05:38.272319+00:00
 | `SF023` | Use as low-cost regression evidence that the wind-direction/protocol chain remains positively correlated at dx=3. | R2 remains negative and worse than the current baseline; this does not prove accuracy or mesh independence. |
 | `SF024` | Use as runtime/decomposition sensitivity evidence and as a limited negative diagnostic improvement result. | Single decomposition ablation; R2 remains negative and consistency thresholds failed, so it cannot support formal v0.4.0 or default promotion. |
 | `SF025` | Use as evidence that AF k, full-plane inlet turbulence, and SGS treatment are the strongest current improvement directions. | Diagnostic sweep on one benchmark; C014 no-SGS scale 2.00 is best but R2 remains negative, C015 rolls back, and the result cannot support formal v0.4.0, LES improvement, or a default accuracy model. |
+| `SF026` | Use as residual-structure evidence explaining why the best C014 diagnostic candidate is still not paper-grade validation. | Audit over preexisting C014 solver output; it does not add a new FluidX3D run, change release_gate.json, or justify post-hoc calibration/default promotion. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 
 ## Boundary

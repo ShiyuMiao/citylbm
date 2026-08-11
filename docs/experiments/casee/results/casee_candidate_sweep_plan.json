@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-09T16:05:35.135968+00:00",
+  "generated_at": "2026-08-11T00:07:07.255587+00:00",
   "candidate_sweep_plan_generated": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc46",
+  "recommended_tag": "v0.4.0-rc47",
   "current_official_metrics": {
     "n": 80,
     "mae_pp": 21.111408125,
@@ -16,7 +16,7 @@
     "height_m": 2.0,
     "sampling_mode": "raw_trilinear"
   },
-  "candidate_count": 8,
+  "candidate_count": 9,
   "executable_now_count": 0,
   "candidates": [
     {
@@ -262,6 +262,38 @@
       "rationale": "Completed: C008-C015 AF-k synthetic full-plane inlet and SGS ablation candidates substantially improved official-height MAE/R2/Pearson, but R2 remains negative. C014 no-SGS scale 2.00 is the best diagnostic candidate and C015 scale 2.50 rolls back, so the sweep is diagnostic-only. status=completed_inlet_turbulence_improved_but_negative_r2; best_R2=-0.22984501828340775; best_MAE=13.7856467875.",
       "formal_result_policy": "Only the completed 80-probe official z=2 m raw_trilinear casee_probe_time_mean.csv may feed release_gate.json. Diagnostic sampling columns and z offsets cannot substitute for the formal result.",
       "pass_condition": "Official raw_trilinear metric improves without relying on non-raw sampling or z-height substitution.",
+      "default_promotion_allowed": false,
+      "forbidden_claim": "Do not claim predictive accuracy, mesh independence, LES improvement, or formal v0.4.0 readiness from this candidate unless the official release gate later passes."
+    },
+    {
+      "candidate_id": "C016_residual_targeted_wall_inlet_channel_response",
+      "priority": 9,
+      "candidate_class": "requires_implementation",
+      "executable_now": false,
+      "blocking_gates": [
+        "gpu_runtime",
+        "residual_targeted_wall_inlet_channel_response_not_implemented",
+        "official_followup_preflight"
+      ],
+      "evidence_type": "planned_from_residual_audit",
+      "dx_m": "2.0",
+      "steps": ">=48000",
+      "spinup": ">=12000",
+      "sample_dt": "<=2000",
+      "ground_offset_cells": 1,
+      "origin_z_offset_m": 1.0,
+      "nu_lbm": 0.001,
+      "domain_decomposition": "4x1x1 or pre-registered baseline",
+      "command": "TODO after implementation: generate official z=2 m raw_trilinear Case E with a default-off wall/inlet/channel-response option derived from casee_c014_residual_structure_audit.py.",
+      "expected_artifacts": [
+        "docs/experiments/casee/results/casee_c014_residual_structure_audit.json",
+        "docs/experiments/casee/native_cases/<c016>/citylbm_native_case_manifest.json",
+        "docs/experiments/casee/results/<c016>_probe_time_mean.csv",
+        "docs/experiments/casee/results/<c016>_official_metrics.json"
+      ],
+      "rationale": "C014 is the current best diagnostic candidate but residual structure blocks a formal accuracy claim: downstream_R2=-0.5663250697292279; official_high_bias_pp=-21.001909272727268; posthoc_affine_upper_bound_R2=0.09920332706790935. The next useful implementation must recover high-speed corridor probes without overpredicting sheltered low-speed probes.",
+      "formal_result_policy": "Only the completed 80-probe official z=2 m raw_trilinear casee_probe_time_mean.csv may feed release_gate.json. Diagnostic sampling columns and z offsets cannot substitute for the formal result.",
+      "pass_condition": "Official raw_trilinear z=2 m R2 becomes positive, Pearson remains positive, MAE stays below C014, and Case A smoke regression passes.",
       "default_promotion_allowed": false,
       "forbidden_claim": "Do not claim predictive accuracy, mesh independence, LES improvement, or formal v0.4.0 readiness from this candidate unless the official release gate later passes."
     }

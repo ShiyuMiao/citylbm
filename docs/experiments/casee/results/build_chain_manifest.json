@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T16:05:30.759891+00:00",
+  "generated_at": "2026-08-11T00:07:01.920823+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_build_chain_diagnostic",
   "build_chain_ready": false,
@@ -146,19 +146,19 @@
   "disk": [
     {
       "drive": "C:\\",
-      "free_bytes": 7381876736,
+      "free_bytes": 6731411456,
       "total_bytes": 208810242048,
-      "free_gb": 6.875
+      "free_gb": 6.269
     },
     {
       "drive": "D:\\",
-      "free_bytes": 246206246912,
+      "free_bytes": 246716526592,
       "total_bytes": 302394634240,
-      "free_gb": 229.297
+      "free_gb": 229.773
     },
     {
       "drive": "E:\\",
-      "free_bytes": 870310174720,
+      "free_bytes": 870310162432,
       "total_bytes": 1000203087872,
       "free_gb": 810.54
     },
@@ -176,7 +176,7 @@
     }
   ],
   "environment": {
-    "path": "C:\\Users\\miaoshiyu\\.codex\\tmp\\arg0\\codex-arg0qcHE5O;C:\\Users\\miaoshiyu\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\override;D:\\phoenics\\d_utils\\windfsd.bat;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\bin;E:\\ProgramData\\anaconda3;E:\\ProgramData\\anaconda3\\Scripts;E:\\ProgramData\\anaconda3\\Lib\\site-packages;C:\\Program Files\\Microsoft SQL Server\\120\\Tools\\Binn\\;C:\\Program Files\\Common Files\\Autodesk Shared\\;C:\\Windows\\System32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Users\\miaoshiyu\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\miaoshiyu\\AppData\\Roaming\\Programs\\Zero Install;F:\\citylbm_fluidx3d_workspace\\WinLibs\\mingw64\\bin;D:\\Apps\\ParaView-6.1.1-Windows-Python3.12-msvc2017-AMD64\\bin;E:\\citylbm_buildchain\\dotnet_home\\.dotnet\\tools;E:\\citylbm_buildchain\\userprofile\\.dotnet_home\\.dotnet\\tools;C:\\Users\\miaoshiyu\\.dotnet\\tools;C:\\Users\\miaoshiyu\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\fallback;C:\\Users\\miaoshiyu\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd;C:\\Users\\miaoshiyu\\AppData\\Local\\OpenAI\\Codex\\bin\\fda9f910656130f4;C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.803.5235.0_x64__2p2nqsd0c76g0\\app\\resources"
+    "path": "C:\\Users\\miaoshiyu\\.codex\\tmp\\arg0\\codex-arg0Li2WCF;C:\\Users\\miaoshiyu\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\override;D:\\phoenics\\d_utils\\windfsd.bat;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\bin;E:\\ProgramData\\anaconda3;E:\\ProgramData\\anaconda3\\Scripts;E:\\ProgramData\\anaconda3\\Lib\\site-packages;C:\\Program Files\\Microsoft SQL Server\\120\\Tools\\Binn\\;C:\\Program Files\\Common Files\\Autodesk Shared\\;C:\\Windows\\System32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Users\\miaoshiyu\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\miaoshiyu\\AppData\\Roaming\\Programs\\Zero Install;F:\\citylbm_fluidx3d_workspace\\WinLibs\\mingw64\\bin;D:\\Apps\\ParaView-6.1.1-Windows-Python3.12-msvc2017-AMD64\\bin;E:\\citylbm_buildchain\\dotnet_home\\.dotnet\\tools;E:\\citylbm_buildchain\\userprofile\\.dotnet_home\\.dotnet\\tools;C:\\Users\\miaoshiyu\\.dotnet\\tools;C:\\Users\\miaoshiyu\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\fallback;C:\\Users\\miaoshiyu\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd;C:\\Users\\miaoshiyu\\AppData\\Local\\OpenAI\\Codex\\bin\\ed3ef5e423c11bbd;C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.803.8161.0_x64__2p2nqsd0c76g0\\app\\resources"
   },
   "boundary": "This manifest records build-chain and runtime readiness only. It does not install tools by itself, does not add CFD output, and does not support formal accuracy or v0.4.0 release claims."
 }

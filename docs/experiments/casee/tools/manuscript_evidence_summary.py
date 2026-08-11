@@ -67,6 +67,7 @@ def build_claims(
     c004_dx3_low_cost: Dict[str, Any],
     c005_decomposition: Dict[str, Any],
     c008_c009_inlet: Dict[str, Any],
+    c014_residual: Dict[str, Any],
 ) -> List[Dict[str, Any]]:
     baseline_raw = metric_row(probe_modes, "raw_trilinear")
     zcenter_raw = metric_row(zcenter_modes, "raw_trilinear")
@@ -293,6 +294,31 @@ def build_claims(
                 "protocol_risks": "single benchmark; diagnostic turbulence scale sweep; R2 remains negative; domain decomposition sensitivity remains present",
             }
         )
+    if c014_residual:
+        metrics = c014_residual.get("c014_metrics", {})
+        affine = (c014_residual.get("affine_upper_bound") or {}).get("metrics", {})
+        groups = {row.get("group"): row for row in c014_residual.get("groups", [])}
+        downstream = groups.get("downstream_y_lt_0_inferred", {})
+        high = groups.get("official_high_ge_0p6", {})
+        low = groups.get("official_low_lt_0p3", {})
+        claims.append(
+            {
+                "claim_id": "C014",
+                "claim_readiness": "limitations_ready",
+                "evidence_type": c014_residual.get("evidence_type", "newly_run"),
+                "section": "Discussion / Residual structure",
+                "claim": "The best C014 diagnostic candidate remains non-validating because residuals compress the official velocity-ratio range and remain spatially structured.",
+                "supporting_metrics": (
+                    f"C014_MAE={fmt(metrics['mae_pp'])} pp; C014_R2={fmt(metrics['r2'], 6)}; "
+                    f"affine_upper_bound_R2={fmt(affine['r2'], 6)}; downstream_R2={fmt(downstream['r2'], 6)}; "
+                    f"official_high_bias={fmt(high['bias_pp'])} pp; official_low_bias={fmt(low['bias_pp'])} pp"
+                ),
+                "source_paths": "docs/experiments/casee/results/casee_c014_residual_structure_audit.json; docs/experiments/casee/results/casee_c014_residual_structure_audit.md; docs/experiments/casee/results/casee_c014_residual_top_probes.csv",
+                "allowed_use": "Use as the residual-structure explanation for why the strongest diagnostic improvement is still limitations-only.",
+                "forbidden_use": "Do not report post-hoc affine calibration, z_plus_half, or any residual subset as the formal official z=2 m validation result.",
+                "protocol_risks": "audit over one preexisting solver output; identifies failure structure but does not add a new FluidX3D run",
+            }
+        )
     return claims
 
 
@@ -365,6 +391,7 @@ def main() -> int:
     parser.add_argument("--c004-dx3-low-cost", type=Path, default=RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     parser.add_argument("--c005-decomposition", type=Path, default=RESULTS_DIR / "casee_c005_decomposition_audit.json")
     parser.add_argument("--c008-c009-inlet", type=Path, default=RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json")
+    parser.add_argument("--c014-residual", type=Path, default=RESULTS_DIR / "casee_c014_residual_structure_audit.json")
     parser.add_argument("--out-csv", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.csv")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_manuscript_evidence_summary.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.json")
@@ -377,6 +404,7 @@ def main() -> int:
     c004_dx3_low_cost = json.loads(args.c004_dx3_low_cost.read_text(encoding="utf-8")) if args.c004_dx3_low_cost.exists() else {}
     c005_decomposition = json.loads(args.c005_decomposition.read_text(encoding="utf-8")) if args.c005_decomposition.exists() else {}
     c008_c009_inlet = json.loads(args.c008_c009_inlet.read_text(encoding="utf-8")) if args.c008_c009_inlet.exists() else {}
+    c014_residual = json.loads(args.c014_residual.read_text(encoding="utf-8")) if args.c014_residual.exists() else {}
     claims = build_claims(
         gate,
         read_csv(args.probe_mode_metrics),
@@ -389,6 +417,7 @@ def main() -> int:
         c004_dx3_low_cost,
         c005_decomposition,
         c008_c009_inlet,
+        c014_residual,
     )
     fieldnames = [
         "claim_id",

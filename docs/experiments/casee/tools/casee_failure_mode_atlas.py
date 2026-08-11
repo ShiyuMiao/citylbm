@@ -82,6 +82,7 @@ def build_rows() -> Dict[str, Any]:
     solid_groups = read_csv(RESULTS_DIR / "casee_solid_corner_group_metrics.csv")
     spatial = read_csv(RESULTS_DIR / "casee_spatial_alignment_diagnostic.csv")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
+    c014_residual = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
 
     dx2_base = get_row(native, "run_id", "dx2_yn_sgs_sampledt2000")
     dx2_best = get_row(ground_nu, "run_id", "dx2_gshift1_nu001")
@@ -94,6 +95,12 @@ def build_rows() -> Dict[str, Any]:
     solid4 = get_row(solid_groups, "solid_corner_neighbors_max", "4")
     identity = get_row(spatial, "transform", "identity")
     best_r2 = min(spatial, key=lambda r: abs(as_float(r, "r2") or -999.0), default={})
+    c014_groups = {row.get("group"): row for row in c014_residual.get("groups", [])}
+    c014_metrics = c014_residual.get("c014_metrics", {})
+    c014_affine = (c014_residual.get("affine_upper_bound") or {}).get("metrics", {})
+    c014_downstream = c014_groups.get("downstream_y_lt_0_inferred", {})
+    c014_high = c014_groups.get("official_high_ge_0p6", {})
+    c014_low = c014_groups.get("official_low_lt_0p3", {})
 
     rows = [
         {
@@ -185,6 +192,24 @@ def build_rows() -> Dict[str, Any]:
             "default_policy": "Do not run or publish new official results while preflight is blocked.",
             "next_verification": "Clear GPU, VS C++ and Rhino/GHA evidence, then rerun preflight.",
             "forbidden_claim": "Do not describe the current environment as ready for more long native validation.",
+        },
+        {
+            "failure_mode_id": "FM007_velocity_range_compression",
+            "status": "active_limitation",
+            "severity": "critical",
+            "primary_evidence": "docs/experiments/casee/results/casee_c014_residual_structure_audit.json",
+            "quantitative_signal": (
+                f"C014 MAE={fmt(c014_metrics.get('mae_pp'))} pp, R2={fmt(c014_metrics.get('r2'), 6)}; "
+                f"post-hoc affine upper-bound R2={fmt(c014_affine.get('r2'), 6)}; "
+                f"downstream R2={fmt(c014_downstream.get('r2'), 6)}; "
+                f"official high-speed bias={fmt(c014_high.get('bias_pp'))} pp; "
+                f"official low-speed bias={fmt(c014_low.get('bias_pp'))} pp"
+            ),
+            "paper_use": "Use to explain why the strongest C014 diagnostic improvement is still not paper-grade validation.",
+            "software_feedback": "Prioritize default-off wall/inlet/channel-response candidates that widen the simulated velocity-ratio range.",
+            "default_policy": "No post-hoc calibration, no C014 no-SGS/default promotion, and no formal v0.4.0.",
+            "next_verification": "Implement C016 residual-targeted physics candidate and audit completed official raw_trilinear 80-probe output.",
+            "forbidden_claim": "Do not use affine calibration, z_plus_half, or residual subsets as the formal official z=2 m validation.",
         },
     ]
     return {

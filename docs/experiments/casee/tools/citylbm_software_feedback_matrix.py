@@ -129,6 +129,7 @@ def build_rows() -> List[Dict[str, Any]]:
     c004_dx3_low_cost = read_json(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     c005_decomposition = read_json(RESULTS_DIR / "casee_c005_decomposition_audit.json")
     c008_c009_inlet = read_json(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json")
+    c014_residual = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -779,6 +780,45 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    c014_metrics = c014_residual.get("c014_metrics") or {}
+    affine_metrics = (c014_residual.get("affine_upper_bound") or {}).get("metrics") or {}
+    residual_groups = {item.get("group"): item for item in c014_residual.get("groups", [])}
+    high_group = residual_groups.get("official_high_ge_0p6", {})
+    downstream_group = residual_groups.get("downstream_y_lt_0_inferred", {})
+    rows.append(
+        row(
+            feedback_id="SF026",
+            experiment="Experiment 2 / AIJ Case E C014 residual structure",
+            finding=(
+                "The C014 residual audit shows velocity-ratio range compression: high official-speed probes remain underpredicted, "
+                f"downstream R2={downstream_group.get('r2')}, and even a post-hoc affine upper bound only reaches R2={affine_metrics.get('r2')}."
+            ),
+            evidence_type=str(c014_residual.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_c014_residual_structure_audit.py",
+                RESULTS_DIR / "casee_c014_residual_structure_audit.json",
+                RESULTS_DIR / "casee_c014_residual_structure_audit.md",
+                RESULTS_DIR / "casee_c014_residual_structure_audit.csv",
+                RESULTS_DIR / "casee_c014_residual_top_probes.csv",
+            ],
+            decision_class="residual_structure_no_default_promotion",
+            citylbm_status="residual_structure_identifies_next_physics_target"
+            if c014_residual.get("status") == "completed_residual_structure_audit"
+            and c014_residual.get("formal_accuracy_claim_supported") is False
+            else "residual_structure_audit_missing_or_inconclusive",
+            implementation_evidence=(
+                f"c014_mae={c014_metrics.get('mae_pp')}; "
+                f"c014_r2={c014_metrics.get('r2')}; "
+                f"affine_upper_bound_r2={affine_metrics.get('r2')}; "
+                f"high_official_bias_pp={high_group.get('bias_pp')}; "
+                f"downstream_r2={downstream_group.get('r2')}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as residual-structure evidence explaining why the best C014 diagnostic candidate is still not paper-grade validation.",
+            limitations="Audit over preexisting C014 solver output; it does not add a new FluidX3D run, change release_gate.json, or justify post-hoc calibration/default promotion.",
+        )
+    )
+
     rows.append(
         row(
             feedback_id="SF019",
@@ -824,7 +864,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -834,7 +874,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),

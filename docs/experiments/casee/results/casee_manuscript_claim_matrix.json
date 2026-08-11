@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T16:05:30.079908+00:00",
+  "generated_at": "2026-08-11T00:07:01.458205+00:00",
   "claims": [
     {
       "claim_id": "C001",
@@ -91,7 +91,7 @@
       "evidence_type": "newly_run",
       "section": "Release",
       "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
-      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc46",
+      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc47",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
       "allowed_use": "Use to justify rc-only release status.",
       "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",
@@ -156,6 +156,18 @@
       "allowed_use": "Use as the strongest current diagnostic improvement evidence and as motivation for a physically validated inlet-turbulence model.",
       "forbidden_use": "Do not claim formal predictive accuracy, LES improvement, mesh independence, or default promotion from the synthetic inlet/SGS sweep.",
       "protocol_risks": "single benchmark; diagnostic turbulence scale sweep; R2 remains negative; domain decomposition sensitivity remains present"
+    },
+    {
+      "claim_id": "C014",
+      "claim_readiness": "limitations_ready",
+      "evidence_type": "newly_run",
+      "section": "Discussion / Residual structure",
+      "claim": "The best C014 diagnostic candidate remains non-validating because residuals compress the official velocity-ratio range and remain spatially structured.",
+      "supporting_metrics": "C014_MAE=13.786 pp; C014_R2=-0.229845; affine_upper_bound_R2=0.099203; downstream_R2=-0.566325; official_high_bias=-21.002 pp; official_low_bias=12.724 pp",
+      "source_paths": "docs/experiments/casee/results/casee_c014_residual_structure_audit.json; docs/experiments/casee/results/casee_c014_residual_structure_audit.md; docs/experiments/casee/results/casee_c014_residual_top_probes.csv",
+      "allowed_use": "Use as the residual-structure explanation for why the strongest diagnostic improvement is still limitations-only.",
+      "forbidden_use": "Do not report post-hoc affine calibration, z_plus_half, or any residual subset as the formal official z=2 m validation result.",
+      "protocol_risks": "audit over one preexisting solver output; identifies failure structure but does not add a new FluidX3D run"
     }
   ]
 }
