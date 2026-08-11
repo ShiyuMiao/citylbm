@@ -1713,6 +1713,9 @@ namespace CityLBM.Solver
                 && settings.DiagnosticInletTurbulenceScale > 0.0
                 && settings.InletProfile != null
                 && settings.InletProfile.Count > 0;
+            string diagnosticResidualTargetMode = NormalizeDiagnosticResidualTargetMode(settings.DiagnosticResidualTargetMode);
+            bool hasDiagnosticResidualTarget = !diagnosticResidualTargetMode.Equals("none", StringComparison.OrdinalIgnoreCase)
+                && settings.DiagnosticResidualTargetScale > 0.0;
 
             sb.AppendLine("void main_setup() {");
             sb.AppendLine($"    // LBM 物理参数 (u_max = {uMax}, tau = {tau_val:F4}, nu = {nu_final:E4})");
@@ -1729,10 +1732,15 @@ namespace CityLBM.Solver
             sb.AppendLine("    // Diagnostic inlet turbulence is default-off and remains a Case E follow-up switch.");
             sb.AppendLine($"    const bool citylbm_diagnostic_inlet_turbulence_enabled = {BoolJson(hasDiagnosticInletTurbulence)};");
             sb.AppendLine($"    const float citylbm_diagnostic_inlet_turbulence_scale = {settings.DiagnosticInletTurbulenceScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine("    // Residual-target diagnostics record C014/C016 follow-up intent only; default solver behavior is unchanged.");
+            sb.AppendLine($"    const int citylbm_diagnostic_residual_target_enabled = {(hasDiagnosticResidualTarget ? 1 : 0)};");
+            sb.AppendLine($"    const float citylbm_diagnostic_residual_target_scale = {settings.DiagnosticResidualTargetScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
             sb.AppendLine("    (void)citylbm_diagnostic_wall_model_code;");
             sb.AppendLine("    (void)citylbm_diagnostic_roughness_length_m;");
             sb.AppendLine("    (void)citylbm_diagnostic_wall_followup_enabled;");
             sb.AppendLine("    (void)citylbm_diagnostic_inlet_turbulence_scale;");
+            sb.AppendLine("    (void)citylbm_diagnostic_residual_target_enabled;");
+            sb.AppendLine("    (void)citylbm_diagnostic_residual_target_scale;");
             AppendInletProfileFunction(sb, settings, windDir, referenceLatticeVelocity, scene.WindSpeed);
             sb.AppendLine();
 
@@ -2071,11 +2079,15 @@ namespace CityLBM.Solver
             string diagnosticInletTurbulenceMode = NormalizeDiagnosticInletTurbulenceMode(settings.DiagnosticInletTurbulenceMode);
             bool hasDiagnosticInletTurbulence = diagnosticInletTurbulenceMode.Equals("k_synthetic_fullplane", StringComparison.OrdinalIgnoreCase)
                 && settings.DiagnosticInletTurbulenceScale > 0.0;
+            string diagnosticResidualTargetMode = NormalizeDiagnosticResidualTargetMode(settings.DiagnosticResidualTargetMode);
+            bool hasDiagnosticResidualTarget = !diagnosticResidualTargetMode.Equals("none", StringComparison.OrdinalIgnoreCase)
+                && settings.DiagnosticResidualTargetScale > 0.0;
             bool diagnosticSettingsAreDefaultSafe = !hasDiagnosticNuOverride
                 && !hasDiagnosticZOriginOffset
                 && !hasDiagnosticWallModel
                 && !hasDiagnosticRoughnessLength
-                && !hasDiagnosticInletTurbulence;
+                && !hasDiagnosticInletTurbulence
+                && !hasDiagnosticResidualTarget;
 
             var sb = new StringBuilder();
             sb.AppendLine("{");
@@ -2092,6 +2104,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    \"diagnostic_wall_model_allowed_as_default_accuracy_model\": false,");
             sb.AppendLine("    \"diagnostic_roughness_length_allowed_as_default_accuracy_model\": false,");
             sb.AppendLine("    \"diagnostic_inlet_turbulence_allowed_as_default_accuracy_model\": false,");
+            sb.AppendLine("    \"diagnostic_residual_target_allowed_as_default_accuracy_model\": false,");
             sb.AppendLine("    \"requires_external_release_gate_pass\": true,");
             sb.AppendLine("    \"paper_readiness\": \"manifest_traceability_only; accuracy_claim_requires_external_release_gate\",");
             sb.AppendLine("    \"paper_allowed_uses\": [\"protocol_traceability\", \"software_identity_traceability\", \"limitations_boundary\"],");
@@ -2129,7 +2142,11 @@ namespace CityLBM.Solver
             sb.AppendLine($"    \"diagnostic_inlet_turbulence_mode\": \"{EscapeJson(diagnosticInletTurbulenceMode)}\",");
             sb.AppendLine($"    \"diagnostic_inlet_turbulence_scale\": {settings.DiagnosticInletTurbulenceScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"    \"diagnostic_inlet_turbulence_is_default\": {BoolJson(!hasDiagnosticInletTurbulence)},");
-            sb.AppendLine($"    \"diagnostic_inlet_turbulence_uses_af_k\": {BoolJson(hasDiagnosticInletTurbulence && settings.InletProfile != null && settings.InletProfile.Count > 0)}");
+            sb.AppendLine($"    \"diagnostic_inlet_turbulence_uses_af_k\": {BoolJson(hasDiagnosticInletTurbulence && settings.InletProfile != null && settings.InletProfile.Count > 0)},");
+            sb.AppendLine($"    \"diagnostic_residual_target_mode\": \"{EscapeJson(diagnosticResidualTargetMode)}\",");
+            sb.AppendLine($"    \"diagnostic_residual_target_scale\": {settings.DiagnosticResidualTargetScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"    \"diagnostic_residual_target_is_default\": {BoolJson(!hasDiagnosticResidualTarget)},");
+            sb.AppendLine("    \"diagnostic_residual_target_changes_solver_defaults\": false");
             sb.AppendLine("  },");
             sb.AppendLine("  \"validation\": {");
             sb.AppendLine($"    \"case_condition\": \"{EscapeJson(settings.CaseCondition)}\",");
@@ -2160,6 +2177,9 @@ namespace CityLBM.Solver
             string diagnosticInletTurbulenceMode = NormalizeDiagnosticInletTurbulenceMode(settings.DiagnosticInletTurbulenceMode);
             bool hasDiagnosticInletTurbulence = diagnosticInletTurbulenceMode.Equals("k_synthetic_fullplane", StringComparison.OrdinalIgnoreCase)
                 && settings.DiagnosticInletTurbulenceScale > 0.0;
+            string diagnosticResidualTargetMode = NormalizeDiagnosticResidualTargetMode(settings.DiagnosticResidualTargetMode);
+            bool hasDiagnosticResidualTarget = !diagnosticResidualTargetMode.Equals("none", StringComparison.OrdinalIgnoreCase)
+                && settings.DiagnosticResidualTargetScale > 0.0;
             double effectiveOriginZ = grid.Origin.Z + settings.DiagnosticZOriginOffsetM;
             double gridZFloat = canAudit ? (height - effectiveOriginZ) / dx - 0.5 : 0.0;
             int z0 = canAudit ? (int)Math.Floor(gridZFloat) : 0;
@@ -2188,6 +2208,9 @@ namespace CityLBM.Solver
             sb.AppendLine($"      \"diagnostic_inlet_turbulence_mode\": \"{EscapeJson(diagnosticInletTurbulenceMode)}\",");
             sb.AppendLine($"      \"diagnostic_inlet_turbulence_scale\": {settings.DiagnosticInletTurbulenceScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
             sb.AppendLine($"      \"diagnostic_inlet_turbulence_is_default\": {BoolJson(!hasDiagnosticInletTurbulence)},");
+            sb.AppendLine($"      \"diagnostic_residual_target_mode\": \"{EscapeJson(diagnosticResidualTargetMode)}\",");
+            sb.AppendLine($"      \"diagnostic_residual_target_scale\": {settings.DiagnosticResidualTargetScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
+            sb.AppendLine($"      \"diagnostic_residual_target_is_default\": {BoolJson(!hasDiagnosticResidualTarget)},");
             sb.AppendLine("      \"note\": \"Diagnostic sampling modes help quantify near-wall/probe sensitivity but do not replace official z=2m validation.\"");
             sb.AppendLine("    }");
         }
@@ -2217,7 +2240,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    \"required_formal_sampling_mode\": \"raw_trilinear\",");
             sb.AppendLine("    \"required_metric_trend\": \"MAE clearly below previous near-20pp level; R2 positive; Pearson positive\",");
             sb.AppendLine("    \"diagnostic_substitutes_allowed\": false,");
-            sb.AppendLine("    \"diagnostic_substitutes\": [\"z_plus_half\", \"vertical_valid_above\", \"nearest_valid\", \"fluid_weighted\", \"z_origin_offset\", \"effective_ground_shift\", \"wall_model\", \"roughness_length\", \"inlet_turbulence_scale\"],");
+            sb.AppendLine("    \"diagnostic_substitutes\": [\"z_plus_half\", \"vertical_valid_above\", \"nearest_valid\", \"fluid_weighted\", \"z_origin_offset\", \"effective_ground_shift\", \"wall_model\", \"roughness_length\", \"inlet_turbulence_scale\", \"residual_target_mode\", \"residual_target_scale\"],");
             sb.AppendLine("    \"claim_boundary\": \"This manifest is protocol evidence only; formal accuracy requires external release_gate.json metrics from completed official z=2m runs.\"");
             sb.AppendLine("  },");
         }
@@ -2241,6 +2264,16 @@ namespace CityLBM.Solver
             string normalized = value.Trim();
             return normalized.Equals("k_synthetic_fullplane", StringComparison.OrdinalIgnoreCase)
                 ? "k_synthetic_fullplane"
+                : "none";
+        }
+
+        private string NormalizeDiagnosticResidualTargetMode(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return "none";
+            string normalized = value.Trim();
+            return normalized.Equals("c014_range_compression", StringComparison.OrdinalIgnoreCase)
+                ? "c014_range_compression"
                 : "none";
         }
 
@@ -2507,6 +2540,13 @@ namespace CityLBM.Solver
             set { _diagnosticInletTurbulenceMode = string.IsNullOrWhiteSpace(value) ? "none" : value.Trim(); }
         }
         public double DiagnosticInletTurbulenceScale { get; set; } = 0.0;
+        private string _diagnosticResidualTargetMode = "none";
+        public string DiagnosticResidualTargetMode
+        {
+            get { return string.IsNullOrWhiteSpace(_diagnosticResidualTargetMode) ? "none" : _diagnosticResidualTargetMode.Trim(); }
+            set { _diagnosticResidualTargetMode = string.IsNullOrWhiteSpace(value) ? "none" : value.Trim(); }
+        }
+        public double DiagnosticResidualTargetScale { get; set; } = 0.0;
         public List<InletProfilePoint> InletProfile { get; set; } = new List<InletProfilePoint>();
 
         public double InletVelocityX { get; set; }
@@ -2610,6 +2650,8 @@ namespace CityLBM.Solver
                 DiagnosticRoughnessLengthM = source.DiagnosticRoughnessLengthM,
                 DiagnosticInletTurbulenceMode = source.DiagnosticInletTurbulenceMode,
                 DiagnosticInletTurbulenceScale = source.DiagnosticInletTurbulenceScale,
+                DiagnosticResidualTargetMode = source.DiagnosticResidualTargetMode,
+                DiagnosticResidualTargetScale = source.DiagnosticResidualTargetScale,
                 InletVelocityX = source.InletVelocityX,
                 InletVelocityY = source.InletVelocityY,
                 InletVelocityZ = source.InletVelocityZ,

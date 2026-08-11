@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-11T00:07:07.774111+00:00",
+  "generated_at": "2026-08-11T00:16:50.919147+00:00",
   "manifest_contract_version": "casee_manifest_contract_v1",
   "manifest_schema_gate_passed": true,
   "evidence_type": "newly_run",
@@ -48,17 +48,17 @@
       "evidence_type": "newly_run",
       "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
       "schema_area": "diagnostic_boundary",
-      "paper_use": "Use to keep diagnostic sampling, offsets, wall models, and roughness out of formal result claims.",
+      "paper_use": "Use to keep diagnostic sampling, offsets, wall models, roughness, inlet turbulence, and residual targets out of formal result claims.",
       "failure_action": "Restore diagnostic substitute blocking fields."
     },
     {
-      "check_id": "wall_roughness_default_safe_fields_present",
+      "check_id": "wall_roughness_residual_default_safe_fields_present",
       "passed": true,
       "evidence_type": "newly_run",
       "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
-      "schema_area": "wall_roughness_boundary",
-      "paper_use": "Use to document wall/roughness/inlet follow-up controls as default-off traceability fields.",
-      "failure_action": "Restore wall/roughness/inlet manifest fields and default-promotion blockers."
+      "schema_area": "wall_roughness_residual_boundary",
+      "paper_use": "Use to document wall/roughness/inlet/residual-target follow-up controls as default-off traceability fields.",
+      "failure_action": "Restore wall/roughness/inlet/residual-target manifest fields and default-promotion blockers."
     },
     {
       "check_id": "probe_protocol_risk_fields_present",

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-11T00:07:07.649748+00:00",
+  "generated_at": "2026-08-11T00:16:50.803819+00:00",
   "manifest_output_gate_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_manifest_traceability",
@@ -118,12 +118,12 @@
       "failure_action": "Restore claim-boundary fields in the run manifest."
     },
     {
-      "check_id": "manifest_contains_wall_roughness_followup_fields",
+      "check_id": "manifest_contains_wall_roughness_residual_followup_fields",
       "passed": true,
       "evidence_type": "newly_run",
       "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
-      "paper_use": "Use to show run manifests trace wall/roughness/inlet follow-up switches without promoting solver defaults.",
-      "failure_action": "Restore wall/roughness/inlet follow-up fields in WriteRunManifest."
+      "paper_use": "Use to show run manifests trace wall/roughness/inlet/residual-target follow-up switches without promoting solver defaults.",
+      "failure_action": "Restore wall/roughness/inlet/residual-target follow-up fields in WriteRunManifest."
     },
     {
       "check_id": "manifest_contains_paper_readiness_boundary",

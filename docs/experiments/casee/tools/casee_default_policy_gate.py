@@ -142,6 +142,16 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore DiagnosticInletTurbulenceMode default to none and DiagnosticInletTurbulenceScale to 0.0.",
         ),
         check_row(
+            "simulation_settings_residual_target_default_off",
+            'DiagnosticResidualTargetMode' in fluidx
+            and '"none"' in fluidx
+            and "DiagnosticResidualTargetScale { get; set; } = 0.0" in fluidx,
+            FLUIDX,
+            "Residual-target follow-up metadata is default-off and cannot become a formal accuracy model without official z=2 m improvement.",
+            "Use to state C014/C016 residual-target controls are diagnostics only.",
+            "Restore DiagnosticResidualTargetMode default to none and DiagnosticResidualTargetScale to 0.0.",
+        ),
+        check_row(
             "run_component_casee_preset_default_false",
             has_regex(
                 run_component,
@@ -212,6 +222,21 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore inletT default to none and inletS default to 0.0.",
         ),
         check_row(
+            "run_component_residual_target_inputs_default_off",
+            has_regex(
+                run_component,
+                r'AddTextParameter\("Diagnostic Residual Target Mode".*?GH_ParamAccess\.item,\s*"none"\)',
+            )
+            and has_regex(
+                run_component,
+                r'AddNumberParameter\("Diagnostic Residual Target Scale".*?GH_ParamAccess\.item,\s*0\.0\)',
+            ),
+            RUN_COMPONENT,
+            "Diagnostic residual-target mode and scale stay off unless explicitly set.",
+            "Use to classify C014/C016 residual-target controls as experimental switches.",
+            "Restore residT default to none and residS default to 0.0.",
+        ),
+        check_row(
             "run_component_claim_gate_output",
             'AddTextParameter("Claim Gate", "Gate"' in run_component
             and "ClaimGateSummary" in run_component
@@ -249,14 +274,16 @@ def build_checks() -> List[Dict[str, Any]]:
             "diagnostic_wall_model_allowed_as_default_accuracy_model" in fluidx
             and "diagnostic_roughness_length_allowed_as_default_accuracy_model" in fluidx
             and "diagnostic_inlet_turbulence_allowed_as_default_accuracy_model" in fluidx
+            and "diagnostic_residual_target_allowed_as_default_accuracy_model" in fluidx
             and "diagnostic_wall_roughness_changes_solver_defaults" in fluidx
+            and "diagnostic_residual_target_changes_solver_defaults" in fluidx
             and "wall_model" in fluidx
             and "roughness_length" in fluidx
             and "inlet_turbulence_scale" in fluidx,
             FLUIDX,
-            "Run manifests forbid wall-model, roughness, and inlet-turbulence diagnostics from becoming default accuracy claims.",
-            "Use to state wall/roughness/inlet follow-ups are limitations-only until official metrics improve.",
-            "Restore wall/roughness/inlet claim-boundary fields in WriteRunManifest.",
+            "Run manifests forbid wall-model, roughness, inlet-turbulence, and residual-target diagnostics from becoming default accuracy claims.",
+            "Use to state wall/roughness/inlet/residual-target follow-ups are limitations-only until official metrics improve.",
+            "Restore wall/roughness/inlet/residual-target claim-boundary fields in WriteRunManifest.",
         ),
         check_row(
             "native_generator_formal_output_raw",
@@ -407,6 +434,7 @@ def main() -> int:
             "Diagnostic Wall Model / wallModel follow-up control.",
             "Diagnostic Roughness Length / z0Wall follow-up control.",
             "Diagnostic Inlet Turbulence Mode / inletT and Diagnostic Inlet Turbulence Scale / inletS follow-up controls.",
+            "Diagnostic Residual Target Mode / residT and Diagnostic Residual Target Scale / residS follow-up controls.",
             "nearest_valid, fluid_weighted, vertical_valid_above, and z_plus_half probe sampling.",
             "Effective-ground, rough-wall, wall-model, voxelization, and inlet-turbulence follow-up settings until official z=2 m raw_trilinear improvement is proven.",
         ],

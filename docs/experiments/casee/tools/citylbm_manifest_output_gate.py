@@ -73,7 +73,7 @@ def build_checks() -> List[Dict[str, Any]]:
             "claim_gate_helper_exists",
             "ClaimGateSummary" in component
             and "Formal v0.4.0 requires release_gate.json pass" in component
-            and "inlet turbulence scale are limitations-only" in component,
+            and "residual-target modes are limitations-only" in component,
             RUN_COMPONENT,
             "Use to show the component emits an explicit no-overclaim boundary for Case E runs.",
             "Restore ClaimGateSummary and its formal-release boundary text.",
@@ -149,23 +149,27 @@ def build_checks() -> List[Dict[str, Any]]:
             and "z_plus_half_allowed_as_formal_result" in fluidx
             and "diagnostic_wall_model_allowed_as_default_accuracy_model" in fluidx
             and "diagnostic_roughness_length_allowed_as_default_accuracy_model" in fluidx
-            and "diagnostic_inlet_turbulence_allowed_as_default_accuracy_model" in fluidx,
+            and "diagnostic_inlet_turbulence_allowed_as_default_accuracy_model" in fluidx
+            and "diagnostic_residual_target_allowed_as_default_accuracy_model" in fluidx,
             FLUIDX,
             "Use to show the manifest records formal protocol and diagnostic boundaries.",
             "Restore claim-boundary fields in the run manifest.",
         ),
         check(
-            "manifest_contains_wall_roughness_followup_fields",
+            "manifest_contains_wall_roughness_residual_followup_fields",
             "diagnostic_wall_model" in fluidx
             and "diagnostic_wall_model_is_default" in fluidx
             and "diagnostic_roughness_length_m" in fluidx
             and "diagnostic_wall_roughness_changes_solver_defaults" in fluidx
             and "diagnostic_inlet_turbulence_mode" in fluidx
             and "diagnostic_inlet_turbulence_scale" in fluidx
-            and "diagnostic_inlet_turbulence_allowed_as_default_accuracy_model" in fluidx,
+            and "diagnostic_inlet_turbulence_allowed_as_default_accuracy_model" in fluidx
+            and "diagnostic_residual_target_mode" in fluidx
+            and "diagnostic_residual_target_scale" in fluidx
+            and "diagnostic_residual_target_changes_solver_defaults" in fluidx,
             FLUIDX,
-            "Use to show run manifests trace wall/roughness/inlet follow-up switches without promoting solver defaults.",
-            "Restore wall/roughness/inlet follow-up fields in WriteRunManifest.",
+            "Use to show run manifests trace wall/roughness/inlet/residual-target follow-up switches without promoting solver defaults.",
+            "Restore wall/roughness/inlet/residual-target follow-up fields in WriteRunManifest.",
         ),
         check(
             "manifest_contains_paper_readiness_boundary",

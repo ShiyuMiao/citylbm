@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc48 - Case E residual-target diagnostic hook
+
+- Added default-off Run Simulation inputs `residT` and `residS` for C016 residual-target follow-up metadata.
+- Added `DiagnosticResidualTargetMode` and `DiagnosticResidualTargetScale` to CityLBM settings, generated `setup.cpp` constants, run manifests, and claim-boundary fields.
+- Extended default-policy, manifest-schema, manifest-output, and software-feedback gates so residual-target controls remain diagnostic-only and cannot be promoted to default accuracy settings.
+
+This is software-feedback traceability from the C014 residual-structure audit, not new CFD validation. Official z=2 m formal metrics remain MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756, and formal `v0.4.0` remains blocked. C014 remains only a diagnostic candidate with MAE = 13.786 pp, R2 = -0.229845, Pearson = 0.314966.
+
 ## v0.4.0-rc47 - Case E C014 residual-structure audit
 
 - Added `casee_c014_residual_structure_audit.py` and generated CSV/JSON/Markdown/PNG residual-structure outputs for the current best C014 official-height diagnostic candidate.

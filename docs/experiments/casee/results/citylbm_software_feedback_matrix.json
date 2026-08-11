@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T00:07:10.058788+00:00",
-    "feedback_count": 26,
+    "generated_at": "2026-08-11T00:16:53.195443+00:00",
+    "feedback_count": 27,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -21,13 +21,14 @@
       "runtime_decomposition_sensitivity_no_default_promotion": 1,
       "inlet_turbulence_diagnostic_no_default_promotion": 1,
       "residual_structure_no_default_promotion": 1,
+      "residual_target_hook_no_default_promotion": 1,
       "followup_sweep_plan": 1
     },
     "citylbm_status_counts": {
       "implemented_as_release_gate_requirement": 1,
       "formal_release_blocked": 1,
       "implemented": 7,
-      "implemented_default_off": 3,
+      "implemented_default_off": 4,
       "blocked_until_external_recovery": 1,
       "paper_ready_workflow_guidance": 1,
       "paper_ready_with_boundary": 1,
@@ -403,6 +404,20 @@
       "limitations": "Audit over preexisting C014 solver output; it does not add a new FluidX3D run, change release_gate.json, or justify post-hoc calibration/default promotion."
     },
     {
+      "feedback_id": "SF027",
+      "experiment": "Experiment 2 / AIJ Case E C016 residual-target software hook",
+      "finding": "The C014 residual-structure audit is now represented in CityLBM as a default-off residual-target diagnostic hook (residT/residS) for reproducible follow-up planning, without changing default solver behavior.",
+      "evidence_type": "newly_run",
+      "source_paths": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs; CityLBM/src/Core/FluidX3DInterface.cs; docs/experiments/casee/results/casee_c014_residual_structure_audit.json; docs/experiments/casee/results/casee_default_policy_gate.json; docs/experiments/casee/results/citylbm_manifest_schema_gate.json",
+      "source_paths_exist": true,
+      "decision_class": "residual_target_hook_no_default_promotion",
+      "citylbm_status": "implemented_default_off",
+      "implementation_evidence": "Grasshopper exposes residT/residS with defaults none/0, SimulationSettings defaults remain none/0, generated setup.cpp only records constants, and run manifests set diagnostic_residual_target_changes_solver_defaults=false.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as software-feedback traceability from C014 residual diagnosis to a reproducible C016 follow-up interface.",
+      "limitations": "No new FluidX3D run is added here; residual-target controls are not validation results and cannot justify formal v0.4.0."
+    },
+    {
       "feedback_id": "SF019",
       "experiment": "Experiment 2 / AIJ Case E official z=2 m follow-up planning",
       "finding": "The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries.",
@@ -411,7 +426,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc47",
+      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc48",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."

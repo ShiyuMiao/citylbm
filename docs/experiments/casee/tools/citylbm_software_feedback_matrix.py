@@ -821,6 +821,39 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF027",
+            experiment="Experiment 2 / AIJ Case E C016 residual-target software hook",
+            finding=(
+                "The C014 residual-structure audit is now represented in CityLBM as a default-off residual-target "
+                "diagnostic hook (residT/residS) for reproducible follow-up planning, without changing default solver behavior."
+            ),
+            evidence_type="newly_run",
+            source_paths=[
+                RUN_COMPONENT,
+                FLUIDX,
+                RESULTS_DIR / "casee_c014_residual_structure_audit.json",
+                RESULTS_DIR / "casee_default_policy_gate.json",
+                RESULTS_DIR / "citylbm_manifest_schema_gate.json",
+            ],
+            decision_class="residual_target_hook_no_default_promotion",
+            citylbm_status="implemented_default_off"
+            if "Diagnostic Residual Target Mode" in run_component
+            and "DiagnosticResidualTargetMode" in fluidx
+            and "DiagnosticResidualTargetScale { get; set; } = 0.0" in fluidx
+            and "diagnostic_residual_target_allowed_as_default_accuracy_model" in fluidx
+            else "missing_or_not_default_off",
+            implementation_evidence=(
+                "Grasshopper exposes residT/residS with defaults none/0, SimulationSettings defaults remain none/0, "
+                "generated setup.cpp only records constants, and run manifests set diagnostic_residual_target_changes_solver_defaults=false."
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as software-feedback traceability from C014 residual diagnosis to a reproducible C016 follow-up interface.",
+            limitations="No new FluidX3D run is added here; residual-target controls are not validation results and cannot justify formal v0.4.0.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF019",
             experiment="Experiment 2 / AIJ Case E official z=2 m follow-up planning",
             finding=(
@@ -864,7 +897,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -874,7 +907,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "residual_target_hook_no_default_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),

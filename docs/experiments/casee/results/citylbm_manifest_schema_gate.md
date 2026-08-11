@@ -1,6 +1,6 @@
 # CityLBM Manifest Schema Gate
 
-Generated: 2026-08-11T00:07:07.774111+00:00
+Generated: 2026-08-11T00:16:50.919147+00:00
 
 ## Verdict
 
@@ -19,7 +19,7 @@ Generated: 2026-08-11T00:07:07.774111+00:00
 | `top_level_manifest_sections_present` | True | `top_level_sections` | `CityLBM/src/Core/FluidX3DInterface.cs` |
 | `official_casee_contract_fields_present` | True | `formal_casee_contract` | `CityLBM/src/Core/FluidX3DInterface.cs` |
 | `diagnostic_substitutes_are_blocked` | True | `diagnostic_boundary` | `CityLBM/src/Core/FluidX3DInterface.cs` |
-| `wall_roughness_default_safe_fields_present` | True | `wall_roughness_boundary` | `CityLBM/src/Core/FluidX3DInterface.cs` |
+| `wall_roughness_residual_default_safe_fields_present` | True | `wall_roughness_residual_boundary` | `CityLBM/src/Core/FluidX3DInterface.cs` |
 | `probe_protocol_risk_fields_present` | True | `probe_protocol_risk` | `CityLBM/src/Core/FluidX3DInterface.cs` |
 | `paper_forbidden_claims_present` | True | `paper_claim_boundary` | `CityLBM/src/Core/FluidX3DInterface.cs` |
 | `default_policy_gate_passed` | True | `upstream_gate` | `docs/experiments/casee/results/casee_default_policy_gate.json` |
