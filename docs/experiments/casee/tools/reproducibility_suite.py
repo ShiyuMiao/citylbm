@@ -313,6 +313,7 @@ def main() -> int:
         ("citylbm_gpu_runtime_failfast_gate", "citylbm_gpu_runtime_failfast_gate.py"),
         ("casee_dx1_readiness_audit", "casee_dx1_readiness_audit.py"),
         ("casee_environment_recovery_runbook", "casee_environment_recovery_runbook.py"),
+        ("casee_operational_recovery_dashboard", "casee_operational_recovery_dashboard.py"),
         ("casee_failure_mode_atlas", "casee_failure_mode_atlas.py"),
         ("casee_zcenter_rerun_consistency", "casee_zcenter_rerun_consistency.py"),
         ("casee_c002_longer_mean_audit", "casee_c002_longer_mean_audit.py"),
@@ -372,6 +373,7 @@ def main() -> int:
     gpu_failfast = read_json(RESULTS_DIR / "citylbm_gpu_runtime_failfast_gate.json")
     dx1_readiness = read_json(RESULTS_DIR / "casee_dx1_readiness_audit.json")
     recovery = read_json(RESULTS_DIR / "casee_environment_recovery_runbook.json")
+    operational_recovery_dashboard = read_json(RESULTS_DIR / "casee_operational_recovery_dashboard.json")
     failure_atlas = read_json(RESULTS_DIR / "casee_failure_mode_atlas.json")
     zcenter_rerun = read_json(RESULTS_DIR / "casee_zcenter_rerun_consistency.json")
     c002_longer_mean = read_json(RESULTS_DIR / "casee_c002_longer_mean_audit.json")
@@ -415,6 +417,7 @@ def main() -> int:
         "citylbm_gpu_runtime_failfast_gate": gpu_failfast,
         "casee_dx1_readiness_audit": dx1_readiness,
         "casee_environment_recovery_runbook": recovery,
+        "casee_operational_recovery_dashboard": operational_recovery_dashboard,
         "casee_failure_mode_atlas": failure_atlas,
         "casee_zcenter_rerun_consistency": zcenter_rerun,
         "casee_c002_longer_mean_audit": c002_longer_mean,

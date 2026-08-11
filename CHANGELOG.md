@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc69 - Operational recovery dashboard
+
+- Added `casee_operational_recovery_dashboard.py` to consolidate the ordered recovery path across C: drive space, VS C++ readiness, UAC launch, GPU recovery, Rhino/GHA load evidence, official follow-up preflight, and the formal metric gate.
+- The dashboard records that long FluidX3D runs remain disallowed while system-drive space, GPU runtime, and official preflight blockers remain active.
+- Integrated the dashboard into the reproducibility suite, paper evidence gate, artifact index, and software-feedback matrix as SF046.
+
+This is operational recovery and run-scheduling evidence only. It does not free disk space, install Visual Studio Build Tools, recover GPU runtime, load Rhino, run FluidX3D, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc68 - VS C++ system-drive space gate
 
 - Added `vs_cpp_system_drive_space_gate.py`, a no-delete system-drive space audit for the Visual Studio Build Tools 2022 C++ recovery path.

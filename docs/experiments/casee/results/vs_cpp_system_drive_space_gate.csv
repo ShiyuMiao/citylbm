@@ -1,8 +1,8 @@
 id,path,found,risk,cleanup_owner,size_gb,file_count,dir_count,truncated,candidate_for_manual_cleanup,manual_action
-user_temp,C:\Users\MIAOSH~1\AppData\Local\Temp,True,low,user,0.914,3898,1602,False,True,"Close running installers/apps, then remove stale files from the user temp folder or use Windows Storage cleanup."
+user_temp,C:\Users\MIAOSH~1\AppData\Local\Temp,True,low,user,0.952,3928,1646,False,True,"Close running installers/apps, then remove stale files from the user temp folder or use Windows Storage cleanup."
 nuget_cache,C:\Users\miaoshiyu\.nuget\packages,True,medium,developer,0.159,431,34,False,True,Run `dotnet nuget locals all --clear` only if package re-download is acceptable.
+pip_cache,C:\Users\miaoshiyu\AppData\Local\pip\Cache,True,low,user,0.038,136,277,False,True,Run `python -m pip cache purge` if Python package downloads can be re-fetched.
 windows_update_download,C:\Windows\SoftwareDistribution\Download,True,medium,administrator,0.023,5,8,False,True,Use Windows Settings > System > Storage > Temporary files or Disk Cleanup as Administrator.
+recycle_bin,C:\$Recycle.Bin,True,medium,user,0.015,1732,130,False,True,Review Recycle Bin contents manually before emptying.
 winget_temp_cache,C:\Users\miaoshiyu\AppData\Local\Temp\WinGet,True,low,user,0.004,3,16,False,True,Remove stale WinGet installer cache after confirming no winget install is running.
-pip_cache,C:\Users\miaoshiyu\AppData\Local\pip\Cache,True,low,user,0.002,17,42,False,True,Run `python -m pip cache purge` if Python package downloads can be re-fetched.
-recycle_bin,C:\$Recycle.Bin,True,medium,user,0.0,21,11,False,True,Review Recycle Bin contents manually before emptying.
 delivery_optimization_cache,C:\ProgramData\Microsoft\Windows\DeliveryOptimization\Cache,False,medium,administrator,0.0,0,0,False,False,Use Windows Delivery Optimization cleanup through system Storage settings.

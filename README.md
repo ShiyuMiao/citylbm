@@ -49,6 +49,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_official_run_preflight.py`
 - `docs/experiments/casee/tools/casee_dx1_readiness_audit.py`
 - `docs/experiments/casee/tools/casee_environment_recovery_runbook.py`
+- `docs/experiments/casee/tools/casee_operational_recovery_dashboard.py`
 - `docs/experiments/casee/tools/casee_failure_mode_atlas.py`
 - `docs/experiments/casee/tools/casee_zcenter_rerun_consistency.py`
 - `docs/experiments/casee/tools/casee_candidate_sweep_plan.py`
@@ -121,8 +122,11 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_portable_toolchain_activation.json`
 - `docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.json`
 - `docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.md`
+- `docs/experiments/casee/results/casee_operational_recovery_dashboard.json`
+- `docs/experiments/casee/results/casee_operational_recovery_dashboard.md`
 - `docs/experiments/casee/results/casee_orphan_candidate_csv_audit.json`
 - `docs/experiments/casee/results/casee_orphan_candidate_csv_audit.md`
+- `docs/releases/v0.4.0-rc69.md`
 - `docs/releases/v0.4.0-rc68.md`
 - `docs/releases/v0.4.0-rc67.md`
 - `docs/releases/v0.4.0-rc66.md`
@@ -457,6 +461,13 @@ C++ preflight threshold is 8 GB, and low-risk cache candidates total about
 0.921 GB, which is not enough to cover the shortfall. VS C++ recovery therefore
 remains blocked until larger manual system-drive cleanup is completed and the
 elevated launcher gate is rerun.
+
+The operational recovery dashboard orders the remaining environment and protocol
+blockers into one run-scheduling view: C: space, VS C++ readiness, UAC launch,
+GPU recovery, Rhino/GHA load evidence, official follow-up preflight, and the
+formal metric gate. It currently records that long FluidX3D official follow-up
+runs are not allowed while system-drive space, GPU runtime, and official
+preflight blockers remain active.
 
 The GHA install audit checks whether the tracked `CityLBM/bin/CityLBM.gha`
 already appears in common Grasshopper Libraries directories with the expected

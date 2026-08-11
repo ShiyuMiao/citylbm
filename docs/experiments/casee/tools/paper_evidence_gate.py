@@ -67,6 +67,9 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_dx1_readiness_audit.md",
     "docs/experiments/casee/results/casee_environment_recovery_runbook.json",
     "docs/experiments/casee/results/casee_environment_recovery_runbook.md",
+    "docs/experiments/casee/results/casee_operational_recovery_dashboard.csv",
+    "docs/experiments/casee/results/casee_operational_recovery_dashboard.json",
+    "docs/experiments/casee/results/casee_operational_recovery_dashboard.md",
     "docs/experiments/casee/results/casee_failure_mode_atlas.json",
     "docs/experiments/casee/results/casee_failure_mode_atlas.md",
     "docs/experiments/casee/results/casee_failure_mode_atlas.png",
@@ -124,7 +127,7 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.json",
     "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.csv",
     "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.md",
-    "docs/releases/v0.4.0-rc68.md",
+    "docs/releases/v0.4.0-rc69.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [

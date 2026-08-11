@@ -138,6 +138,7 @@ def build_rows() -> List[Dict[str, Any]]:
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
     vs_cpp_system_drive_space = read_json(RESULTS_DIR / "vs_cpp_system_drive_space_gate.json")
     vs_cpp_elevated_launcher = read_json(RESULTS_DIR / "vs_cpp_elevated_launcher_gate.json")
+    operational_recovery_dashboard = read_json(RESULTS_DIR / "casee_operational_recovery_dashboard.json")
     gha_install = read_json(RESULTS_DIR / "citylbm_gha_install_audit.json")
     rhino_evidence_kit = read_json(RESULTS_DIR / "casee_rhino_load_evidence_kit.json")
     rhino_manifest_schema_gate = read_json(RESULTS_DIR / "rhino_gha_load_manifest_schema_gate.json")
@@ -1211,6 +1212,43 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    operational_recovery_summary = operational_recovery_dashboard.get("summary") or {}
+    rows.append(
+        row(
+            feedback_id="SF046",
+            experiment="Experiment 2 / operational recovery dashboard",
+            finding=(
+                "The blocked Case E recovery path is now consolidated into an ordered dashboard across C: space, "
+                "VS C++ install readiness, UAC launch, GPU recovery, Rhino load evidence, official preflight, "
+                "and the formal metric gate. Long FluidX3D runs remain disallowed until the long-run blockers clear."
+            ),
+            evidence_type=str(operational_recovery_summary.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_operational_recovery_dashboard.py",
+                RESULTS_DIR / "casee_operational_recovery_dashboard.json",
+                RESULTS_DIR / "casee_operational_recovery_dashboard.csv",
+                RESULTS_DIR / "casee_operational_recovery_dashboard.md",
+                RESULTS_DIR / "casee_official_run_preflight.json",
+                RESULTS_DIR / "release_gate.json",
+            ],
+            decision_class="operational_recovery_dashboard_gate",
+            citylbm_status="implemented_operational_recovery_dashboard"
+            if operational_recovery_summary.get("operational_recovery_dashboard_passed") is True
+            and operational_recovery_summary.get("long_fluidx3d_run_allowed") is False
+            and operational_recovery_summary.get("formal_accuracy_claim_supported") is False
+            else "operational_recovery_dashboard_missing_or_failed",
+            implementation_evidence=(
+                f"blocking_step_count={operational_recovery_summary.get('blocking_step_count')}; "
+                f"long_fluidx3d_run_allowed={operational_recovery_summary.get('long_fluidx3d_run_allowed')}; "
+                f"long_run_blockers={operational_recovery_summary.get('long_run_blockers')}; "
+                f"formal_release_allowed={operational_recovery_summary.get('formal_release_allowed')}"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as ordered operational blocker evidence for limitations and reproducibility planning.",
+            limitations="Recovery dashboard only; it does not recover environment state, run CFD, improve metrics, change defaults, or permit formal v0.4.0.",
+        )
+    )
+
     rows.append(
         row(
             feedback_id="SF036",
@@ -1534,13 +1572,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate", "build_chain_uac_launcher_gate", "build_chain_system_drive_space_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "manual_rhino_load_manifest_schema_gate", "software_identity_component", "packaged_gha_identity_component_gate"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate", "build_chain_uac_launcher_gate", "build_chain_system_drive_space_gate", "operational_recovery_dashboard_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "manual_rhino_load_manifest_schema_gate", "software_identity_component", "packaged_gha_identity_component_gate"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
@@ -1627,6 +1665,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_official_run_preflight.json"),
             rel(RESULTS_DIR / "build_chain_manifest.json"),
             rel(RESULTS_DIR / "vs_cpp_system_drive_space_gate.json"),
+            rel(RESULTS_DIR / "casee_operational_recovery_dashboard.json"),
             rel(RESULTS_DIR / "vs_cpp_elevated_launcher_gate.json"),
             rel(RESULTS_DIR / "rhino_gha_load_manifest_schema_gate.json"),
             rel(RESULTS_DIR / "citylbm_portable_toolchain_gate.json"),
