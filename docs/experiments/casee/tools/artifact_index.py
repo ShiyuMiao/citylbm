@@ -60,6 +60,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc62.md",
     "docs/releases/v0.4.0-rc63.md",
     "docs/releases/v0.4.0-rc64.md",
+    "docs/releases/v0.4.0-rc65.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -100,6 +101,7 @@ RESULT_PATTERNS = [
     "rhino_gha_load_gate.*",
     "citylbm_gha_install_audit.*",
     "casee_rhino_load_evidence_kit.*",
+    "rhino_gha_load_manifest_schema_gate.*",
     "rhino_gha_load_manifest.template.json",
     "casee_reproducibility_suite.json",
     "casee_reproducibility_suite.md",
@@ -175,6 +177,7 @@ TOOL_SCRIPTS = [
     "citylbm_plugin_identity_binary_gate.py",
     "rhino_gha_load_gate.py",
     "casee_rhino_load_evidence_kit.py",
+    "rhino_gha_load_manifest_schema_gate.py",
     "reproducibility_suite.py",
     "release_gate.py",
 ]

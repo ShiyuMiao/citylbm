@@ -279,6 +279,7 @@ def main() -> int:
         ("rhino_gha_load_gate", "rhino_gha_load_gate.py"),
         ("citylbm_gha_install_audit", "citylbm_gha_install_audit.py"),
         ("casee_rhino_load_evidence_kit", "casee_rhino_load_evidence_kit.py"),
+        ("rhino_gha_load_manifest_schema_gate", "rhino_gha_load_manifest_schema_gate.py"),
         ("manuscript_evidence_summary", "manuscript_evidence_summary.py"),
         ("vs_cpp_recovery_gate", "vs_cpp_recovery_gate.py"),
         ("casee_official_run_preflight", "casee_official_run_preflight.py"),
@@ -333,6 +334,7 @@ def main() -> int:
     rhino_gate = read_json(RESULTS_DIR / "rhino_gha_load_gate.json")
     gha_install_audit = read_json(RESULTS_DIR / "citylbm_gha_install_audit.json")
     rhino_evidence_kit = read_json(RESULTS_DIR / "casee_rhino_load_evidence_kit.json")
+    rhino_manifest_schema_gate = read_json(RESULTS_DIR / "rhino_gha_load_manifest_schema_gate.json")
     build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
     portable_toolchain_gate = read_json(RESULTS_DIR / "citylbm_portable_toolchain_gate.json")
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
@@ -372,6 +374,7 @@ def main() -> int:
         "rhino_gha_load_gate": rhino_gate,
         "citylbm_gha_install_audit": gha_install_audit,
         "casee_rhino_load_evidence_kit": rhino_evidence_kit,
+        "rhino_gha_load_manifest_schema_gate": rhino_manifest_schema_gate,
         "build_chain_manifest": build_chain,
         "citylbm_portable_toolchain_gate": portable_toolchain_gate,
         "vs_cpp_recovery_gate": vs_cpp_recovery,

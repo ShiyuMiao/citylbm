@@ -137,6 +137,7 @@ def build_rows() -> List[Dict[str, Any]]:
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
     gha_install = read_json(RESULTS_DIR / "citylbm_gha_install_audit.json")
     rhino_evidence_kit = read_json(RESULTS_DIR / "casee_rhino_load_evidence_kit.json")
+    rhino_manifest_schema_gate = read_json(RESULTS_DIR / "rhino_gha_load_manifest_schema_gate.json")
     identity_component_gate = read_json(RESULTS_DIR / "citylbm_plugin_identity_component_gate.json")
     identity_binary_gate = read_json(RESULTS_DIR / "citylbm_plugin_identity_binary_gate.json")
     portable_toolchain_gate = read_json(RESULTS_DIR / "citylbm_portable_toolchain_gate.json")
@@ -1338,6 +1339,42 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF042",
+            experiment="CityLBM Rhino/GHA manual load manifest schema gate",
+            finding=(
+                "The manual Rhino/GHA load manifest now has a schema gate that checks required fields, "
+                "expected plugin version, expected GHA SHA256, and evidence-artifact requirements without treating "
+                "the template itself as load evidence."
+            ),
+            evidence_type=str(rhino_manifest_schema_gate.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "rhino_gha_load_manifest_schema_gate.py",
+                RESULTS_DIR / "rhino_gha_load_manifest_schema_gate.json",
+                RESULTS_DIR / "rhino_gha_load_manifest_schema_gate.csv",
+                RESULTS_DIR / "rhino_gha_load_manifest_schema_gate.md",
+                RESULTS_DIR / "rhino_gha_load_manifest.template.json",
+                RESULTS_DIR / "rhino_gha_load_gate.json",
+            ],
+            decision_class="manual_rhino_load_manifest_schema_gate",
+            citylbm_status="implemented_rhino_load_manifest_schema_gate"
+            if rhino_manifest_schema_gate.get("rhino_load_manifest_schema_gate_passed") is True
+            and rhino_manifest_schema_gate.get("manual_manifest_claim_ready") is False
+            and rhino_manifest_schema_gate.get("formal_accuracy_claim_supported") is False
+            else "rhino_load_manifest_schema_gate_missing_or_failed",
+            implementation_evidence=(
+                f"gate_passed={rhino_manifest_schema_gate.get('rhino_load_manifest_schema_gate_passed')}; "
+                f"manual_manifest_present={rhino_manifest_schema_gate.get('manual_manifest_present')}; "
+                f"manual_manifest_claim_ready={rhino_manifest_schema_gate.get('manual_manifest_claim_ready')}; "
+                f"rhino_loaded_new_gha={rhino_manifest_schema_gate.get('rhino_loaded_new_gha')}"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as reviewer-facing schema evidence for the manual Rhino/GHA load manifest contract.",
+            limitations="Schema gate only; it does not create manual evidence, prove Rhino loaded the plugin, run CFD, improve metrics, or permit formal v0.4.0.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF019",
             experiment="Experiment 2 / AIJ Case E official z=2 m follow-up planning",
             finding=(
@@ -1381,13 +1418,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "software_identity_component", "packaged_gha_identity_component_gate"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "manual_rhino_load_manifest_schema_gate", "software_identity_component", "packaged_gha_identity_component_gate"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
@@ -1473,6 +1510,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_default_policy_gate.json"),
             rel(RESULTS_DIR / "casee_official_run_preflight.json"),
             rel(RESULTS_DIR / "build_chain_manifest.json"),
+            rel(RESULTS_DIR / "rhino_gha_load_manifest_schema_gate.json"),
             rel(RESULTS_DIR / "citylbm_portable_toolchain_gate.json"),
             rel(RESULTS_DIR / "citylbm_gpu_runtime_failfast_gate.json"),
             rel(RESULTS_DIR / "casee_dx1_readiness_audit.json"),

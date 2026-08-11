@@ -1,0 +1,119 @@
+{
+  "generated_at": "2026-08-11T03:01:55.008128+00:00",
+  "evidence_type": "newly_run",
+  "rhino_load_manifest_schema_gate_passed": true,
+  "manual_manifest_present": false,
+  "manual_manifest_claim_ready": false,
+  "claim_readiness": "author_input_needed_manual_rhino_load_manifest",
+  "expected_plugin_public_version": "0.4.0-rc",
+  "expected_tracked_gha_sha256": "944f471b171e7e00e8ee09867b60324669f6f08014039461ba467dca95d9895b",
+  "template_path": "docs/experiments/casee/results/rhino_gha_load_manifest.template.json",
+  "manual_manifest_path": "docs/experiments/casee/results/rhino_gha_load_manifest.json",
+  "template_field_status": [
+    {
+      "field": "checked_at",
+      "present": true,
+      "placeholder_allowed": true,
+      "placeholder_detected": false,
+      "passes": true,
+      "value_preview": "2026-08-11T03:01:54.859870+00:00"
+    },
+    {
+      "field": "operator",
+      "present": true,
+      "placeholder_allowed": true,
+      "placeholder_detected": true,
+      "passes": true,
+      "value_preview": "manual-operator-name"
+    },
+    {
+      "field": "rhino_version",
+      "present": true,
+      "placeholder_allowed": true,
+      "placeholder_detected": true,
+      "passes": true,
+      "value_preview": "paste Rhino About/SystemInfo version string"
+    },
+    {
+      "field": "grasshopper_version",
+      "present": true,
+      "placeholder_allowed": true,
+      "placeholder_detected": true,
+      "passes": true,
+      "value_preview": "paste Grasshopper version string"
+    },
+    {
+      "field": "observed_plugin_version",
+      "present": true,
+      "placeholder_allowed": true,
+      "placeholder_detected": false,
+      "passes": true,
+      "value_preview": "0.4.0-rc"
+    },
+    {
+      "field": "observed_assembly_version",
+      "present": true,
+      "placeholder_allowed": true,
+      "placeholder_detected": false,
+      "passes": true,
+      "value_preview": "0.4.0.0"
+    },
+    {
+      "field": "observed_gha_sha256",
+      "present": true,
+      "placeholder_allowed": true,
+      "placeholder_detected": false,
+      "passes": true,
+      "value_preview": "944f471b171e7e00e8ee09867b60324669f6f08014039461ba467dca95d9895b"
+    },
+    {
+      "field": "evidence_artifacts",
+      "present": true,
+      "placeholder_allowed": true,
+      "placeholder_detected": false,
+      "passes": true,
+      "value_preview": "[\"docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png\", \"docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt\"]"
+    },
+    {
+      "field": "notes",
+      "present": true,
+      "placeholder_allowed": true,
+      "placeholder_detected": true,
+      "passes": true,
+      "value_preview": "Create docs/experiments/casee/results/rhino_gha_load_manifest.json only after a real Rhino/Grasshopper session shows CityLBM loaded from the staged GHA. Do not"
+    }
+  ],
+  "manual_field_status": [],
+  "template_evidence_artifacts": [
+    {
+      "artifact": "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
+      "resolved_path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\rhino_loaded_citylbm_v040rc_screenshot.png",
+      "exists": false,
+      "required_to_exist": false,
+      "passes": true
+    },
+    {
+      "artifact": "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt",
+      "resolved_path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\rhino_loaded_citylbm_v040rc_log.txt",
+      "exists": false,
+      "required_to_exist": false,
+      "passes": true
+    }
+  ],
+  "manual_evidence_artifacts": [],
+  "checks": {
+    "plugin_identity_gate_passed": true,
+    "evidence_kit_ready": true,
+    "template_exists": true,
+    "template_required_fields_present": true,
+    "template_allows_placeholders_only": true,
+    "template_lists_evidence_artifacts": true,
+    "manual_manifest_absent_or_schema_checked": true,
+    "manual_manifest_claim_ready": false,
+    "rhino_load_gate_fail_closed_until_manual_ready": true,
+    "formal_accuracy_claim_not_supported": true
+  },
+  "formal_accuracy_claim_supported": false,
+  "rhino_loaded_new_gha": false,
+  "boundary": "This gate validates the Rhino/GHA manual load manifest schema and evidence-file contract only. It does not create manual evidence, prove Rhino loaded the plugin, run CFD, improve official z=2 m metrics, or permit formal v0.4.0."
+}

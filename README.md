@@ -103,6 +103,8 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_rhino_load_evidence_kit.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_kit.md`
 - `docs/experiments/casee/results/rhino_gha_load_manifest.template.json`
+- `docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.json`
+- `docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.md`
 - `docs/experiments/casee/results/citylbm_plugin_identity_component_gate.json`
 - `docs/experiments/casee/results/citylbm_plugin_identity_component_gate.md`
 - `docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.json`
@@ -112,6 +114,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_portable_toolchain_activation.json`
 - `docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.json`
 - `docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.md`
+- `docs/releases/v0.4.0-rc65.md`
 - `docs/releases/v0.4.0-rc64.md`
 - `docs/releases/v0.4.0-rc63.md`
 - `docs/releases/v0.4.0-rc62.md`
@@ -434,6 +437,12 @@ detects local Rhino executables, verifies the staged GHA SHA256, and writes a
 `rhino_gha_load_manifest.template.json`; the actual
 `rhino_gha_load_manifest.json` must still be produced from a real Rhino/
 Grasshopper session with screenshot or log evidence.
+
+The Rhino load manifest schema gate verifies that this manual manifest contract
+is complete before it can be used as load evidence. It checks required fields,
+the expected plugin version, the expected GHA SHA256, and listed screenshot/log
+artifacts, while keeping the Rhino load gate fail-closed until those real
+artifacts exist.
 
 The `Plugin Identity` Grasshopper component strengthens that manual workflow by
 reporting the loaded plugin version, assembly version, GHA path, SHA256,

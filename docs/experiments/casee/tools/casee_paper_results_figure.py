@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import csv
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
@@ -41,6 +42,19 @@ def rel(path: Path) -> str:
         return path.resolve().relative_to(ROOT).as_posix()
     except ValueError:
         return str(path)
+
+
+def write_text_retry(path: Path, text: str, *, attempts: int = 5, delay_s: float = 0.25) -> None:
+    last_exc: OSError | None = None
+    for _ in range(attempts):
+        try:
+            path.write_text(text, encoding="utf-8")
+            return
+        except OSError as exc:
+            last_exc = exc
+            time.sleep(delay_s)
+    if last_exc is not None:
+        raise last_exc
 
 
 def parse_float(value: Any) -> float:
@@ -268,9 +282,9 @@ def make_figure(rows: List[Dict[str, Any]]) -> None:
     fig.savefig(OUT_SVG, format="svg", bbox_inches="tight")
     fig.savefig(OUT_PNG, format="png", dpi=300, bbox_inches="tight")
     plt.close(fig)
-    OUT_SVG.write_text(
+    write_text_retry(
+        OUT_SVG,
         "\n".join(line.rstrip() for line in OUT_SVG.read_text(encoding="utf-8").splitlines()) + "\n",
-        encoding="utf-8",
     )
 
 
@@ -361,7 +375,7 @@ def write_qa_markdown(payload: Dict[str, Any]) -> None:
         "",
         "This figure is paper-ready for negative validation and limitations discussion only. It must not be used to claim formal Case E predictive accuracy.",
     ]
-    OUT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    write_text_retry(OUT_MD, "\n".join(lines) + "\n")
 
 
 def main() -> int:
@@ -372,7 +386,7 @@ def main() -> int:
     write_source_csv(rows)
     make_figure(rows)
     qa = build_qa(rows)
-    OUT_JSON.write_text(json.dumps(qa, indent=2), encoding="utf-8")
+    write_text_retry(OUT_JSON, json.dumps(qa, indent=2))
     write_qa_markdown(qa)
     print(json.dumps({"figure_gate_passed": qa["figure_gate_passed"], "svg": rel(OUT_SVG)}, indent=2))
     return 0 if qa["figure_gate_passed"] else 1

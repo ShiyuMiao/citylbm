@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-11T02:50:36.385183+00:00",
+  "generated_at": "2026-08-11T03:02:03.655244+00:00",
   "guard_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_protocol_risk_guard",
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc64",
+  "recommended_tag": "v0.4.0-rc65",
   "c014_summary": {
     "n": 80,
     "mae_pp": 13.7856467875,

@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc65 - Rhino load manifest schema gate
+
+- Added `rhino_gha_load_manifest_schema_gate.py` to validate the manual Rhino/GHA load manifest contract.
+- The gate checks required fields, expected plugin version, expected GHA SHA256, and evidence-artifact requirements while keeping `rhino_loaded_new_gha=false` until a real manual manifest and screenshot/log artifacts exist.
+- Integrated the schema gate into the reproducibility suite, paper evidence gate, artifact index, and software-feedback matrix as SF042.
+
+This is manual software-load schema evidence only. It does not create Rhino evidence, prove Rhino/Grasshopper loaded the plugin, add a FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc64 - GPU runtime fail-fast gate
 
 - Added `citylbm_gpu_runtime_failfast_gate.py` to run `nvidia-smi` before scheduling long native FluidX3D Case E work.
