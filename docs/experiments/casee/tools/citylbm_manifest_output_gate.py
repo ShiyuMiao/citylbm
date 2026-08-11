@@ -63,6 +63,13 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore the Claim Gate output parameter.",
         ),
         check(
+            "run_component_has_publication_gate_output",
+            'AddTextParameter("Publication Gate", "Pub"' in component,
+            RUN_COMPONENT,
+            "Use to show Grasshopper exposes the manuscript/publication-readiness boundary beside run status.",
+            "Restore the Publication Gate output parameter.",
+        ),
+        check(
             "manifest_path_helper_exists",
             "ManifestPathForCase" in component and "citylbm_run_manifest.json" in component,
             RUN_COMPONENT,
@@ -79,6 +86,15 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore ClaimGateSummary and its formal-release boundary text.",
         ),
         check(
+            "publication_gate_helper_exists",
+            "PublicationGateSummary" in component
+            and "casee_publication_readiness_gate.json" in component
+            and "solver-run provenance ledger" in component,
+            RUN_COMPONENT,
+            "Use to show the component emits explicit manuscript-readiness dependencies for Case E runs.",
+            "Restore PublicationGateSummary and its publication-readiness boundary text.",
+        ),
+        check(
             "mode0_sets_manifest_output",
             has_regex(component, r"RunMode0_GenerateOnly.*?DA\.SetData\(6,\s*result\.Success\s*\?\s*ManifestPathForCase"),
             RUN_COMPONENT,
@@ -91,6 +107,13 @@ def build_checks() -> List[Dict[str, Any]]:
             RUN_COMPONENT,
             "Use to show Generate Only mode returns the claim-gate boundary.",
             "Set output index 7 after Mode 0 generation.",
+        ),
+        check(
+            "mode0_sets_publication_gate_output",
+            has_regex(component, r"RunMode0_GenerateOnly.*?DA\.SetData\(8,\s*PublicationGateSummary\(settings,\s*result\.Success\)"),
+            RUN_COMPONENT,
+            "Use to show Generate Only mode returns the publication-readiness boundary.",
+            "Set output index 8 after Mode 0 generation.",
         ),
         check(
             "mode1_sets_manifest_output",
@@ -107,6 +130,13 @@ def build_checks() -> List[Dict[str, Any]]:
             "Set output index 7 after Mode 1 execution.",
         ),
         check(
+            "mode1_sets_publication_gate_output",
+            has_regex(component, r"RunMode1_FullAuto.*?DA\.SetData\(8,\s*PublicationGateSummary\(settings,\s*result\.Success\)"),
+            RUN_COMPONENT,
+            "Use to show full-auto mode returns the publication-readiness boundary.",
+            "Set output index 8 after Mode 1 execution.",
+        ),
+        check(
             "mode2_sets_manifest_output",
             has_regex(component, r"RunMode2_DeployOnly.*?DA\.SetData\(6,\s*ManifestPathForCase\(caseDir\)"),
             RUN_COMPONENT,
@@ -121,6 +151,13 @@ def build_checks() -> List[Dict[str, Any]]:
             "Set output index 7 after Mode 2 deployment.",
         ),
         check(
+            "mode2_sets_publication_gate_output",
+            has_regex(component, r"RunMode2_DeployOnly.*?DA\.SetData\(8,\s*PublicationGateSummary\(settings,\s*deployResult\.Success\)"),
+            RUN_COMPONENT,
+            "Use to show deploy-only mode returns the publication-readiness boundary.",
+            "Set output index 8 after Mode 2 deployment.",
+        ),
+        check(
             "async_sets_manifest_output",
             has_regex(component, r"OutputAsyncResult.*?DA\.SetData\(6,\s*result\.Success\s*\?\s*ManifestPathForCase"),
             RUN_COMPONENT,
@@ -133,6 +170,13 @@ def build_checks() -> List[Dict[str, Any]]:
             RUN_COMPONENT,
             "Use to show background mode returns the claim-gate boundary after completion.",
             "Set output index 7 in OutputAsyncResult.",
+        ),
+        check(
+            "async_sets_publication_gate_output",
+            has_regex(component, r"OutputAsyncResult.*?DA\.SetData\(8,\s*result\.Success"),
+            RUN_COMPONENT,
+            "Use to show background mode returns the publication-readiness boundary after completion.",
+            "Set output index 8 in OutputAsyncResult.",
         ),
         check(
             "fluidx_writes_run_manifest",
@@ -259,8 +303,8 @@ def main() -> int:
         "checks": checks,
         "boundary": (
             "This gate verifies software traceability only: Run Simulation exposes the generated "
-            "citylbm_run_manifest.json path, exposes the claim-gate boundary in Grasshopper, "
-            "and records claim-boundary and formal accuracy-gate fields. It does not validate "
+            "citylbm_run_manifest.json path, exposes the claim-gate and publication-gate "
+            "boundaries in Grasshopper, and records claim-boundary and formal accuracy-gate fields. It does not validate "
             "CFD accuracy or Rhino loading of the new GHA."
         ),
     }

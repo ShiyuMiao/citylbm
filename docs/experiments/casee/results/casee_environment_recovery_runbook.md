@@ -1,6 +1,6 @@
 # Case E Environment Recovery Runbook
 
-Generated: 2026-08-11T00:52:31.764575+00:00
+Generated: 2026-08-11T01:02:54.585742+00:00
 
 ## Verdict
 
@@ -13,8 +13,8 @@ Generated: 2026-08-11T00:52:31.764575+00:00
 | path | exists | files | size MB |
 |---|---:|---:|---:|
 | `CityLBM/NuGet` | True | 1 | 0.0 |
-| `CityLBM/bin/Release` | True | 4 | 2.053 |
-| `CityLBM/obj` | True | 14 | 0.279 |
+| `CityLBM/bin/Release` | True | 4 | 2.057 |
+| `CityLBM/obj` | True | 14 | 0.282 |
 | `NuGet` | True | 1 | 0.0 |
 
 ## Recovery Steps
@@ -39,7 +39,7 @@ Generated: 2026-08-11T00:52:31.764575+00:00
 
 ### REC002_free_c_drive
 
-- Action: Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 6.399 GB. Workspace build-cache candidates total only 2.332 MB.
+- Action: Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 6.391 GB. Workspace build-cache candidates total only 2.339 MB.
 - Pass condition: C: free space >= 8 GB; workspace cache cleanup alone is not enough if the current value remains near 0.5 GB.
 - Risk boundary: Do not delete user data; record any cleanup outside the repo separately.
 

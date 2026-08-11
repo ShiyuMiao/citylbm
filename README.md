@@ -90,6 +90,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_publication_readiness_gate.md`
 - `docs/experiments/casee/results/casee_remaining_blockers.json`
 - `docs/experiments/casee/results/casee_remaining_blockers.md`
+- `docs/releases/v0.4.0-rc54.md`
 - `docs/releases/v0.4.0-rc53.md`
 - `docs/releases/v0.4.0-rc52.md`
 - `docs/releases/v0.4.0-rc51.md`

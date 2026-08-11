@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T00:52:40.418538+00:00",
-    "feedback_count": 31,
+    "generated_at": "2026-08-11T01:03:02.917457+00:00",
+    "feedback_count": 32,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -26,6 +26,7 @@
       "paper_provenance_ledger": 1,
       "paper_claim_support_gate": 1,
       "software_publication_readiness_contract": 1,
+      "software_publication_gate_output": 1,
       "followup_sweep_plan": 1
     },
     "citylbm_status_counts": {
@@ -50,6 +51,7 @@
       "implemented_paper_traceability": 1,
       "implemented_paper_claim_boundary": 1,
       "implemented_manifest_publication_boundary": 1,
+      "implemented_publication_gate_output": 1,
       "planned_candidate_matrix": 1
     },
     "required_feedback_rows_present": true,
@@ -482,6 +484,20 @@
       "limitations": "Manifest contract only; it does not add solver output, improve official metrics, or permit formal v0.4.0."
     },
     {
+      "feedback_id": "SF032",
+      "experiment": "CityLBM Run Simulation publication gate output",
+      "finding": "Run Simulation now exposes a Publication Gate output beside the Claim Gate so Grasshopper users see manuscript-readiness dependencies at the point of case generation.",
+      "evidence_type": "newly_run",
+      "source_paths": "CityLBM/src/Components/Simulation/RunSimulationComponent.cs; docs/experiments/casee/tools/citylbm_manifest_output_gate.py; docs/experiments/casee/results/citylbm_manifest_output_gate.json",
+      "source_paths_exist": true,
+      "decision_class": "software_publication_gate_output",
+      "citylbm_status": "implemented_publication_gate_output",
+      "implementation_evidence": "Run Simulation output index 8 records the publication gate and points users to casee_publication_readiness_gate.json, casee_claim_support_gate.json, solver-run provenance ledger, paper figure QA, and the reproducibility suite.",
+      "default_setting_allowed": true,
+      "paper_use": "Use as software traceability evidence that CityLBM surfaces manuscript-readiness boundaries in the plugin UI.",
+      "limitations": "UI traceability only; it does not add solver output, improve official metrics, change defaults, or permit formal v0.4.0."
+    },
+    {
       "feedback_id": "SF019",
       "experiment": "Experiment 2 / AIJ Case E official z=2 m follow-up planning",
       "finding": "The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries.",
@@ -490,7 +506,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc53",
+      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc54",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."

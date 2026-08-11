@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[4]
 CASE_DIR = ROOT / "docs" / "experiments" / "casee"
 RESULTS_DIR = CASE_DIR / "results"
 PAPER_DRAFTS = ROOT / "academic-paper-writer" / "paper-drafts"
+RUN_COMPONENT = ROOT / "CityLBM" / "src" / "Components" / "Simulation" / "RunSimulationComponent.cs"
 
 OUT_JSON = RESULTS_DIR / "casee_publication_readiness_gate.json"
 OUT_CSV = RESULTS_DIR / "casee_publication_readiness_gate.csv"
@@ -185,10 +186,11 @@ def build_rows() -> List[Dict[str, Any]]:
                 RESULTS_DIR / "citylbm_software_feedback_matrix.json",
                 RESULTS_DIR / "casee_default_policy_gate.json",
                 RESULTS_DIR / "citylbm_manifest_schema_gate.json",
+                RUN_COMPONENT,
                 ROOT / "CityLBM" / "src" / "Core" / "FluidX3DInterface.cs",
             ],
             paper_location="Software implications / Limitations",
-            allowed_statement="CityLBM converts evidence into formal defaults, diagnostic-only switches, manifest-level publication dependencies, and release blockers.",
+            allowed_statement="CityLBM converts evidence into formal defaults, diagnostic-only switches, manifest-level publication dependencies, a Run Simulation Publication Gate output, and release blockers.",
             must_not_claim="Do not promote benchmark-tuned diagnostics or manifest publication readiness to default accuracy models.",
         ),
         row(

@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc54 - Run Simulation publication gate output
+
+- Added a `Publication Gate` output to the Grasshopper `Run Simulation` component.
+- The output surfaces manuscript-use dependencies beside the existing manifest and claim-gate outputs.
+- Updated manifest output gate, publication-readiness gate, paper evidence gate, artifact index, and software-feedback matrix as SF032.
+
+This is a plugin UI traceability and claim-boundary enhancement only. It does not add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc53 - Manifest-level publication-readiness contract
 
 - Added `publication_readiness_contract` to generated `citylbm_run_manifest.json` files.

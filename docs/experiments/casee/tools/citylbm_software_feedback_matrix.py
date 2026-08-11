@@ -990,6 +990,37 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF032",
+            experiment="CityLBM Run Simulation publication gate output",
+            finding=(
+                "Run Simulation now exposes a Publication Gate output beside the Claim Gate so "
+                "Grasshopper users see manuscript-readiness dependencies at the point of case generation."
+            ),
+            evidence_type="newly_run",
+            source_paths=[
+                RUN_COMPONENT,
+                CASEE_DIR / "tools" / "citylbm_manifest_output_gate.py",
+                RESULTS_DIR / "citylbm_manifest_output_gate.json",
+            ],
+            decision_class="software_publication_gate_output",
+            citylbm_status="implemented_publication_gate_output"
+            if "Publication Gate" in run_component
+            and "PublicationGateSummary" in run_component
+            and manifest_output.get("manifest_output_gate_passed") is True
+            else "publication_gate_output_missing_or_failed",
+            implementation_evidence=(
+                "Run Simulation output index 8 records the publication gate and points users to "
+                "casee_publication_readiness_gate.json, casee_claim_support_gate.json, solver-run provenance ledger, "
+                "paper figure QA, and the reproducibility suite."
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as software traceability evidence that CityLBM surfaces manuscript-readiness boundaries in the plugin UI.",
+            limitations="UI traceability only; it does not add solver output, improve official metrics, change defaults, or permit formal v0.4.0.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF019",
             experiment="Experiment 2 / AIJ Case E official z=2 m follow-up planning",
             finding=(
@@ -1033,13 +1064,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
