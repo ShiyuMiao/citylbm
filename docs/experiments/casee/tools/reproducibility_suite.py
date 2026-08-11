@@ -9,6 +9,7 @@ import json
 import os
 import shutil
 import subprocess
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -79,7 +80,33 @@ def copy_release_gha() -> Dict[str, Any]:
             "message": f"Missing Release GHA: {RELEASE_GHA}",
         }
     TRACKED_GHA.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(RELEASE_GHA, TRACKED_GHA)
+    source_sha = sha256(RELEASE_GHA)
+    if TRACKED_GHA.exists() and sha256(TRACKED_GHA) == source_sha:
+        return {
+            "name": "sync_tracked_gha",
+            "passed": True,
+            "source": str(RELEASE_GHA.relative_to(ROOT).as_posix()),
+            "destination": str(TRACKED_GHA.relative_to(ROOT).as_posix()),
+            "source_sha256": source_sha,
+            "destination_sha256": source_sha,
+            "message": "Tracked GHA already matches Release build; copy skipped.",
+        }
+    last_error = ""
+    for _ in range(5):
+        try:
+            shutil.copy2(RELEASE_GHA, TRACKED_GHA)
+            break
+        except OSError as exc:
+            last_error = str(exc)
+            time.sleep(0.5)
+    else:
+        return {
+            "name": "sync_tracked_gha",
+            "passed": False,
+            "source": str(RELEASE_GHA.relative_to(ROOT).as_posix()),
+            "destination": str(TRACKED_GHA.relative_to(ROOT).as_posix()),
+            "message": f"Could not copy Release GHA after retries: {last_error}",
+        }
     return {
         "name": "sync_tracked_gha",
         "passed": TRACKED_GHA.exists(),
@@ -255,6 +282,7 @@ def main() -> int:
         ("manuscript_evidence_summary", "manuscript_evidence_summary.py"),
         ("vs_cpp_recovery_gate", "vs_cpp_recovery_gate.py"),
         ("casee_official_run_preflight", "casee_official_run_preflight.py"),
+        ("citylbm_gpu_runtime_failfast_gate", "citylbm_gpu_runtime_failfast_gate.py"),
         ("casee_dx1_readiness_audit", "casee_dx1_readiness_audit.py"),
         ("casee_environment_recovery_runbook", "casee_environment_recovery_runbook.py"),
         ("casee_failure_mode_atlas", "casee_failure_mode_atlas.py"),
@@ -309,6 +337,7 @@ def main() -> int:
     portable_toolchain_gate = read_json(RESULTS_DIR / "citylbm_portable_toolchain_gate.json")
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
+    gpu_failfast = read_json(RESULTS_DIR / "citylbm_gpu_runtime_failfast_gate.json")
     dx1_readiness = read_json(RESULTS_DIR / "casee_dx1_readiness_audit.json")
     recovery = read_json(RESULTS_DIR / "casee_environment_recovery_runbook.json")
     failure_atlas = read_json(RESULTS_DIR / "casee_failure_mode_atlas.json")
@@ -347,6 +376,7 @@ def main() -> int:
         "citylbm_portable_toolchain_gate": portable_toolchain_gate,
         "vs_cpp_recovery_gate": vs_cpp_recovery,
         "casee_official_run_preflight": preflight,
+        "citylbm_gpu_runtime_failfast_gate": gpu_failfast,
         "casee_dx1_readiness_audit": dx1_readiness,
         "casee_environment_recovery_runbook": recovery,
         "casee_failure_mode_atlas": failure_atlas,

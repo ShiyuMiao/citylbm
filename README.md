@@ -110,6 +110,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_portable_toolchain_gate.json`
 - `docs/experiments/casee/results/citylbm_portable_toolchain_gate.md`
 - `docs/experiments/casee/results/citylbm_portable_toolchain_activation.json`
+- `docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.json`
+- `docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.md`
+- `docs/releases/v0.4.0-rc64.md`
 - `docs/releases/v0.4.0-rc63.md`
 - `docs/releases/v0.4.0-rc62.md`
 - `docs/releases/v0.4.0-rc61.md`
@@ -331,9 +334,11 @@ process without changing system PATH by default. Visual Studio Build Tools 2022
 C++ remains blocked: the current shell is not elevated, system-drive free space
 is below the audit threshold, `cl.exe`/`msbuild.exe` are not on PATH, and
 `vswhere` does not find the VC workload. GPU runtime also remains blocked
-because `nvidia-smi` reports `GPU is lost`. These are build/runtime limitations;
-new official long FluidX3D validation runs must wait for GPU recovery, and
-source-recompiled candidates still need a recorded native build path.
+because `nvidia-smi` reports `GPU is lost`. The GPU runtime fail-fast gate
+records this as `long_fluidx3d_run_allowed=false`, so new official long
+FluidX3D validation runs must wait for GPU recovery. These are build/runtime
+limitations; source-recompiled candidates still need a recorded native build
+path.
 
 The dx=1 m high-resolution readiness audit records the exact future generation
 command, the current generator domain (600 x 800 x 241 cells), the conservative
@@ -446,6 +451,11 @@ The portable toolchain activation gate verifies the local portable .NET,
 FluidX3D, and MinGW/g++ paths needed for reproducible builds and native-source
 fallbacks. It does not install VS C++, recover the lost GPU, launch FluidX3D, or
 support an accuracy claim.
+
+The GPU runtime fail-fast gate runs `nvidia-smi` before any new long FluidX3D
+schedule and closes the run gate when the device reports `GPU is lost`. This is
+runtime safety evidence only; it does not recover the device or add solver
+output.
 
 The manuscript results table converts Case E evidence into paper-facing rows:
 the official z=2 m result is a negative-validation result, the best diagnostic

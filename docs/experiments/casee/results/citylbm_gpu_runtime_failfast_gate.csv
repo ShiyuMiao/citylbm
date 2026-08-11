@@ -1,0 +1,6 @@
+check,passed,value,boundary
+nvidia_smi_found,True,nvidia-smi,GPU runtime evidence only.
+gpu_runtime_ready,False,blocked,False blocks new long FluidX3D runs.
+gpu_lost_detected,True,GPU is lost,"Diagnostic blocker, not solver output."
+long_fluidx3d_run_allowed,False,blocked_gpu_runtime_failfast,Must be false while GPU runtime is blocked.
+failfast_gate_passed,True,gate closed correctly,"GPU runtime fail-fast evidence only. This gate runs nvidia-smi and records whether long FluidX3D scheduling must be blocked; it does not run FluidX3D, create solver output, improve official z=2 m metrics, recover the GPU, or permit formal v0.4.0."

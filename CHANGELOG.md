@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc64 - GPU runtime fail-fast gate
+
+- Added `citylbm_gpu_runtime_failfast_gate.py` to run `nvidia-smi` before scheduling long native FluidX3D Case E work.
+- The gate treats a lost GPU as a correct fail-fast block: `gpu_runtime_ready=false` and `long_fluidx3d_run_allowed=false`, while the gate itself passes because it prevents an unsafe long run.
+- Integrated the GPU fail-fast gate into the reproducibility suite, paper evidence gate, artifact index, and software-feedback matrix as SF041.
+
+This is runtime safety and reproducibility evidence only. It does not recover GPU runtime, add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc63 - Portable toolchain activation gate
 
 - Added `citylbm_portable_toolchain_activate.ps1`, an audit-first PowerShell helper that activates local portable .NET, FluidX3D, and MinGW/g++ paths for the current process.
