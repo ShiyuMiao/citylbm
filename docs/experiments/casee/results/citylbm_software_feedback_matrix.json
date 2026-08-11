@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T00:30:38.609467+00:00",
-    "feedback_count": 29,
+    "generated_at": "2026-08-11T00:41:56.626852+00:00",
+    "feedback_count": 30,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -24,6 +24,7 @@
       "residual_target_hook_no_default_promotion": 1,
       "calibration_leakage_guard_no_default_promotion": 1,
       "paper_provenance_ledger": 1,
+      "paper_claim_support_gate": 1,
       "followup_sweep_plan": 1
     },
     "citylbm_status_counts": {
@@ -46,6 +47,7 @@
       "residual_structure_identifies_next_physics_target": 1,
       "implemented_protocol_guard": 1,
       "implemented_paper_traceability": 1,
+      "implemented_paper_claim_boundary": 1,
       "planned_candidate_matrix": 1
     },
     "required_feedback_rows_present": true,
@@ -450,6 +452,20 @@
       "limitations": "The ledger consolidates existing evidence only; it does not add a new solver run or make formal v0.4.0 pass."
     },
     {
+      "feedback_id": "SF030",
+      "experiment": "Experiment 2 / AIJ Case E manuscript claim support",
+      "finding": "The Case E manuscript claim matrix is now checked by a claim-support gate that separates methods/protocol claims, negative validation, limitations-only diagnostics, reproducibility context, and blocked formal-release claims.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/casee_claim_support_gate.py; docs/experiments/casee/results/casee_claim_support_gate.json; docs/experiments/casee/results/casee_claim_support_gate.csv; docs/experiments/casee/results/casee_claim_support_gate.md; docs/experiments/casee/results/casee_manuscript_claim_matrix.csv",
+      "source_paths_exist": true,
+      "decision_class": "paper_claim_support_gate",
+      "citylbm_status": "implemented_paper_claim_boundary",
+      "implementation_evidence": "claim_support_gate_passed=True; claim_count=14; forbidden_success_patterns_blocked=True; formal_release_allowed=False",
+      "default_setting_allowed": true,
+      "paper_use": "Use as the manuscript claim-support gate before turning Case E evidence into Results, Discussion, or Limitations text.",
+      "limitations": "Claim boundary evidence only; it does not add solver output, improve official metrics, or allow formal v0.4.0."
+    },
+    {
       "feedback_id": "SF019",
       "experiment": "Experiment 2 / AIJ Case E official z=2 m follow-up planning",
       "finding": "The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries.",
@@ -458,7 +474,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc50",
+      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc51",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."
@@ -478,6 +494,7 @@
     "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json",
     "docs/experiments/casee/results/casee_c005_decomposition_audit.json",
     "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
+    "docs/experiments/casee/results/casee_claim_support_gate.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",

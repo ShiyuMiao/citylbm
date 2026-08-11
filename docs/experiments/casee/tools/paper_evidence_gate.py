@@ -81,10 +81,12 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/citylbm_manifest_schema_gate.md",
     "docs/experiments/casee/results/citylbm_software_feedback_matrix.json",
     "docs/experiments/casee/results/citylbm_software_feedback_matrix.md",
+    "docs/experiments/casee/results/casee_claim_support_gate.json",
+    "docs/experiments/casee/results/casee_claim_support_gate.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc50.md",
+    "docs/releases/v0.4.0-rc51.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -666,6 +668,32 @@ def software_feedback_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def claim_support_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "claim_support_gate_found": False,
+            "claim_support_gate_passed": False,
+            "claim_boundary_safe": False,
+            "claim_count": 0,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    summary = data.get("summary", {})
+    return {
+        "claim_support_gate_found": True,
+        "claim_support_gate_passed": summary.get("claim_support_gate_passed"),
+        "claim_count": summary.get("claim_count"),
+        "all_source_paths_exist": summary.get("all_source_paths_exist"),
+        "no_formal_accuracy_claims": summary.get("no_formal_accuracy_claims"),
+        "forbidden_success_patterns_blocked": summary.get("forbidden_success_patterns_blocked"),
+        "formal_release_allowed": summary.get("formal_release_allowed"),
+        "claim_readiness": summary.get("claim_readiness"),
+        "claim_boundary_safe": summary.get("claim_support_gate_passed") is True
+        and summary.get("no_formal_accuracy_claims") is True
+        and summary.get("forbidden_success_patterns_blocked") is True
+        and summary.get("formal_release_allowed") is False,
+    }
+
+
 def manifest_output_status(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {
@@ -852,6 +880,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     section_pack = payload["casee_manuscript_section_pack"]
     paper_figure = payload["casee_paper_results_figure"]
     software_feedback = payload["citylbm_software_feedback_matrix"]
+    claim_support = payload["casee_claim_support_gate"]
     lines = [
         "# Case E Paper Evidence Gate",
         "",
@@ -1080,6 +1109,16 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Formal accuracy claim supported: {software_feedback['formal_accuracy_claim_supported']}",
         f"- Formal v0.4.0 allowed: {software_feedback['formal_v0_4_0_allowed']}",
         f"- Claim boundary safe: {software_feedback['claim_boundary_safe']}",
+        "",
+        "## Claim Support Gate",
+        "",
+        f"- Gate found: {claim_support['claim_support_gate_found']}",
+        f"- Gate passed: {claim_support['claim_support_gate_passed']}",
+        f"- Claims checked: {claim_support['claim_count']}",
+        f"- No formal accuracy claims: {claim_support['no_formal_accuracy_claims']}",
+        f"- Forbidden success patterns blocked: {claim_support['forbidden_success_patterns_blocked']}",
+        f"- Claim readiness: `{claim_support['claim_readiness']}`",
+        f"- Claim boundary safe: {claim_support['claim_boundary_safe']}",
     ]
     if artifact["missing_required_artifacts"]:
         lines += ["", "Missing required artifacts:"]
@@ -1118,6 +1157,7 @@ def main() -> int:
     parser.add_argument("--manuscript-section-pack", type=Path, default=RESULTS_DIR / "casee_manuscript_section_pack.json")
     parser.add_argument("--paper-results-figure", type=Path, default=RESULTS_DIR / "casee_paper_results_figure_qa.json")
     parser.add_argument("--software-feedback", type=Path, default=RESULTS_DIR / "citylbm_software_feedback_matrix.json")
+    parser.add_argument("--claim-support", type=Path, default=RESULTS_DIR / "casee_claim_support_gate.json")
     parser.add_argument("--draft-glob", default="casee_v04_*.md")
     parser.add_argument("--out-json", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.json")
     parser.add_argument("--out-md", type=Path, default=RESULTS_DIR / "casee_paper_evidence_gate.md")
@@ -1147,6 +1187,7 @@ def main() -> int:
     section_pack = manuscript_section_pack_status(args.manuscript_section_pack)
     paper_figure = paper_results_figure_status(args.paper_results_figure)
     software_feedback = software_feedback_status(args.software_feedback)
+    claim_support = claim_support_status(args.claim_support)
     passed = (
         metric["formal_metric_is_negative_validation"]
         and claim["blocked_release_claim_present"]
@@ -1197,6 +1238,8 @@ def main() -> int:
         and paper_figure["claim_boundary_safe"]
         and software_feedback["software_feedback_matrix_found"]
         and software_feedback["claim_boundary_safe"]
+        and claim_support["claim_support_gate_found"]
+        and claim_support["claim_boundary_safe"]
     )
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -1224,6 +1267,7 @@ def main() -> int:
         "casee_manuscript_section_pack": section_pack,
         "casee_paper_results_figure": paper_figure,
         "citylbm_software_feedback_matrix": software_feedback,
+        "casee_claim_support_gate": claim_support,
     }
     args.out_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     write_markdown(args.out_md, payload)

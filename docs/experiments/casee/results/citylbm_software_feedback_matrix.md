@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-11T00:30:38.609467+00:00
+Generated: 2026-08-11T00:41:56.626852+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 29
+- Feedback rows: 30
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -25,6 +25,7 @@ Generated: 2026-08-11T00:30:38.609467+00:00
 - formal_protocol_default: 1
 - inlet_turbulence_diagnostic_no_default_promotion: 1
 - low_cost_regression_no_default_promotion: 1
+- paper_claim_support_gate: 1
 - paper_figure_output: 1
 - paper_interpretation_layer: 1
 - paper_provenance_ledger: 1
@@ -68,6 +69,7 @@ Generated: 2026-08-11T00:30:38.609467+00:00
 | `SF027` | Experiment 2 / AIJ Case E C016 residual-target software hook | residual_target_hook_no_default_promotion | implemented_default_off | False | The C014 residual-structure audit is now represented in CityLBM as a default-off residual-target diagnostic hook (residT/residS) for reproducible follow-up planning, without changing default solver behavior. |
 | `SF028` | Experiment 2 / AIJ Case E C016 calibration-leakage guard | calibration_leakage_guard_no_default_promotion | implemented_protocol_guard | False | C016 residual-target work is now protected by a protocol-risk guard: C014 residuals may motivate pre-registered physics hypotheses, but the official 80 RS_caseE targets cannot be used for post-hoc fitting and then reported as validation. |
 | `SF029` | Experiment 2 / AIJ Case E solver-run provenance ledger | paper_provenance_ledger | implemented_paper_traceability | True | The Case E solver-result evidence now has a consolidated provenance ledger mapping each official-height candidate to its command/config, CSV, log, metric values, evidence type, and claim boundary. |
+| `SF030` | Experiment 2 / AIJ Case E manuscript claim support | paper_claim_support_gate | implemented_paper_claim_boundary | True | The Case E manuscript claim matrix is now checked by a claim-support gate that separates methods/protocol claims, negative validation, limitations-only diagnostics, reproducibility context, and blocked formal-release claims. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary
@@ -102,6 +104,7 @@ Generated: 2026-08-11T00:30:38.609467+00:00
 | `SF027` | Use as software-feedback traceability from C014 residual diagnosis to a reproducible C016 follow-up interface. | No new FluidX3D run is added here; residual-target controls are not validation results and cannot justify formal v0.4.0. |
 | `SF028` | Use as protocol-risk control for residual-target follow-up design. | This guard adds no new CFD metric; it prevents calibration leakage and keeps formal v0.4.0 blocked until an independent official run passes. |
 | `SF029` | Use as the manuscript appendix table linking Case E metrics to commands, logs, CSVs, and claim boundaries. | The ledger consolidates existing evidence only; it does not add a new solver run or make formal v0.4.0 pass. |
+| `SF030` | Use as the manuscript claim-support gate before turning Case E evidence into Results, Discussion, or Limitations text. | Claim boundary evidence only; it does not add solver output, improve official metrics, or allow formal v0.4.0. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 
 ## Boundary

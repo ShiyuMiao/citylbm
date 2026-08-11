@@ -102,6 +102,7 @@ def build_rows() -> List[Dict[str, str]]:
     c008_c009_inlet = read_json(CASEE_RESULTS / "casee_c008_c009_inlet_turbulence_audit.json")
     c014_residual = read_json(CASEE_RESULTS / "casee_c014_residual_structure_audit.json")
     solver_ledger = read_json(CASEE_RESULTS / "casee_solver_run_provenance_ledger.json")
+    claim_support = read_json(CASEE_RESULTS / "casee_claim_support_gate.json")
     build_chain = read_json(CASEE_RESULTS / "build_chain_manifest.json")
     section_pack = read_json(CASEE_RESULTS / "casee_manuscript_section_pack.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -171,6 +172,30 @@ def build_rows() -> List[Dict[str, str]]:
             paper_use="Use as the appendix-level provenance table linking Case E metrics to commands, logs, CSVs, and claim boundaries.",
             limitations="The ledger consolidates existing outputs only; it does not add a new CFD run or change official metrics.",
             software_feedback="Keep command/log/CSV provenance as a required paper evidence layer for every future Case E candidate.",
+        )
+    )
+
+    claim_support_summary = claim_support.get("summary") or {}
+    out.append(
+        row(
+            experiment="Experiment 2 / AIJ Case E",
+            result_id="claim_support_gate",
+            claim_readiness=str(claim_support_summary.get("claim_readiness", "blocked_claim_support_gate")),
+            evidence_type=str(claim_support_summary.get("evidence_type", "missing")),
+            source_paths=[
+                rel(CASEE_RESULTS / "casee_claim_support_gate.json"),
+                rel(CASEE_RESULTS / "casee_claim_support_gate.csv"),
+                rel(CASEE_RESULTS / "casee_claim_support_gate.md"),
+            ],
+            metric_or_status=(
+                f"claim_support_gate_passed={claim_support_summary.get('claim_support_gate_passed')}; "
+                f"claim_count={claim_support_summary.get('claim_count')}; "
+                f"no_formal_accuracy_claims={claim_support_summary.get('no_formal_accuracy_claims')}; "
+                f"forbidden_success_patterns_blocked={claim_support_summary.get('forbidden_success_patterns_blocked')}"
+            ),
+            paper_use="Use as a manuscript claim-triage table that separates method/protocol, negative validation, limitations-only diagnostics, and blocked release claims.",
+            limitations="Claim triage only; it does not add CFD output, improve official metrics, or permit formal v0.4.0.",
+            software_feedback="Keep claim-support checks downstream of release_gate and solver provenance before paper drafting.",
         )
     )
 
@@ -700,6 +725,7 @@ def main() -> int:
             rel(CASEE_RESULTS / "casee_c005_decomposition_audit.json"),
             rel(CASEE_RESULTS / "casee_c008_c009_inlet_turbulence_audit.json"),
             rel(CASEE_RESULTS / "casee_c014_residual_structure_audit.json"),
+            rel(CASEE_RESULTS / "casee_claim_support_gate.json"),
             rel(CASEE_RESULTS / "casee_manuscript_section_pack.json"),
             rel(PAPER_DRAFTS / "experiment3_claim_verification.csv"),
             rel(PAPER_DRAFTS / "casee_v04_manuscript_section_pack_en.md"),

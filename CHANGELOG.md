@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc51 - Case E manuscript claim-support gate
+
+- Added `casee_claim_support_gate.py` with JSON/CSV/Markdown outputs.
+- Integrated the gate into the reproducibility suite, paper evidence gate, artifact index, paper results packet, and software-feedback matrix as SF030.
+- Machine-checks the manuscript claim matrix so formal protocol, negative validation, diagnostic limitations, reproducibility context, and blocked formal-release claims remain separated.
+
+This is a claim-control and manuscript-readiness enhancement only. It does not add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc50 - Case E solver-run provenance ledger
 
 - Added `casee_solver_run_provenance_ledger.py` with JSON/CSV/Markdown outputs.

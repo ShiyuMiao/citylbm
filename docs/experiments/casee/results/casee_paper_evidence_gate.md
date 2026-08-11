@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-11T00:30:41.170824+00:00
+Generated: 2026-08-11T00:41:59.077670+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc50`
+- Recommended tag: `v0.4.0-rc51`
 
 ## Official z=2 m Metric
 
@@ -27,14 +27,14 @@ Generated: 2026-08-11T00:30:41.170824+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 326
+- Checked nonblank lines: 328
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 291
-- Lightweight release assets: 219
+- Artifact count: 296
+- Lightweight release assets: 224
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -161,7 +161,7 @@ Generated: 2026-08-11T00:30:41.170824+00:00
 
 - Packet found: True
 - Packet passed: True
-- Result rows: 27
+- Result rows: 28
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
 - Claim boundary safe: True
@@ -219,11 +219,21 @@ Generated: 2026-08-11T00:30:41.170824+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 29
+- Feedback rows: 30
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
 - Formal v0.4.0 allowed: False
+- Claim boundary safe: True
+
+## Claim Support Gate
+
+- Gate found: True
+- Gate passed: True
+- Claims checked: 14
+- No formal accuracy claims: True
+- Forbidden success patterns blocked: True
+- Claim readiness: `paper_ready_claim_support_gate; blocked formal accuracy release`
 - Claim boundary safe: True
 
 No forbidden success-claim violations were found outside negated or forbidden-claim sections.

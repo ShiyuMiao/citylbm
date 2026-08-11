@@ -132,6 +132,7 @@ def build_rows() -> List[Dict[str, Any]]:
     c014_residual = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
     c016_leakage_guard = read_json(RESULTS_DIR / "casee_c016_residual_target_leakage_guard.json")
     solver_ledger = read_json(RESULTS_DIR / "casee_solver_run_provenance_ledger.json")
+    claim_support = read_json(RESULTS_DIR / "casee_claim_support_gate.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -920,6 +921,41 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    claim_support_summary = claim_support.get("summary") or {}
+    rows.append(
+        row(
+            feedback_id="SF030",
+            experiment="Experiment 2 / AIJ Case E manuscript claim support",
+            finding=(
+                "The Case E manuscript claim matrix is now checked by a claim-support gate that separates "
+                "methods/protocol claims, negative validation, limitations-only diagnostics, reproducibility context, "
+                "and blocked formal-release claims."
+            ),
+            evidence_type=str(claim_support_summary.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_claim_support_gate.py",
+                RESULTS_DIR / "casee_claim_support_gate.json",
+                RESULTS_DIR / "casee_claim_support_gate.csv",
+                RESULTS_DIR / "casee_claim_support_gate.md",
+                RESULTS_DIR / "casee_manuscript_claim_matrix.csv",
+            ],
+            decision_class="paper_claim_support_gate",
+            citylbm_status="implemented_paper_claim_boundary"
+            if claim_support_summary.get("claim_support_gate_passed") is True
+            and claim_support_summary.get("no_formal_accuracy_claims") is True
+            else "claim_support_gate_missing_or_failed",
+            implementation_evidence=(
+                f"claim_support_gate_passed={claim_support_summary.get('claim_support_gate_passed')}; "
+                f"claim_count={claim_support_summary.get('claim_count')}; "
+                f"forbidden_success_patterns_blocked={claim_support_summary.get('forbidden_success_patterns_blocked')}; "
+                f"formal_release_allowed={claim_support_summary.get('formal_release_allowed')}"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as the manuscript claim-support gate before turning Case E evidence into Results, Discussion, or Limitations text.",
+            limitations="Claim boundary evidence only; it does not add solver output, improve official metrics, or allow formal v0.4.0.",
+        )
+    )
+
     rows.append(
         row(
             feedback_id="SF019",
@@ -965,13 +1001,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
@@ -1065,6 +1101,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json"),
             rel(RESULTS_DIR / "casee_c005_decomposition_audit.json"),
             rel(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json"),
+            rel(RESULTS_DIR / "casee_claim_support_gate.json"),
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
             rel(RESULTS_DIR / "casee_manuscript_results_table.json"),

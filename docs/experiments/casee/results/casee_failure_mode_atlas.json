@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-11T00:30:31.796689+00:00",
+  "generated_at": "2026-08-11T00:41:50.568538+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "limitations_ready_failure_mode_atlas",
   "release_gate": {
-    "generated_at": "2026-08-11T00:30:26.009709+00:00",
+    "generated_at": "2026-08-11T00:41:45.182268+00:00",
     "release_target": "v0.4.0",
     "formal_release_allowed": false,
     "formal_v0_3_0_allowed": false,
-    "recommended_tag": "v0.4.0-rc50",
+    "recommended_tag": "v0.4.0-rc51",
     "checks": {
       "citylbm_build_passed": true,
       "rhino_loaded_new_gha": false,
@@ -55,16 +55,16 @@
       "citylbm_gha": {
         "found": true,
         "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\CityLBM\\bin\\Release\\CityLBM.gha",
-        "sha256": "51869e69ab27eaaf45c54e3690598cbe4eed54ba98a483ca183cf62f9993b88f",
+        "sha256": "52137c07edc5c6c31386239761404ae1a5972d36c65b9048093f0ce4af1e1be0",
         "size_bytes": 1813504,
-        "mtime": "2026-08-11T00:30:24.820043+00:00"
+        "mtime": "2026-08-11T00:41:43.969752+00:00"
       },
       "citylbm_build_log": {
         "found": true,
         "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-        "sha256": "1dc65c433a8db99ad7122e7c757b2217e996b08031c246114036fb776b27e8bb",
+        "sha256": "1dfc6465a252487250866c6aa17fd54cf601582c55d867594596ef2e1cf779c0",
         "size_bytes": 69986,
-        "mtime": "2026-08-11T00:30:25.002656+00:00"
+        "mtime": "2026-08-11T00:41:44.155281+00:00"
       },
       "run_matrix": {
         "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",

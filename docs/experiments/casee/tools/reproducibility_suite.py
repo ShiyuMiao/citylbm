@@ -206,6 +206,7 @@ def main() -> int:
         ("casee_c014_residual_structure_audit", "casee_c014_residual_structure_audit.py"),
         ("casee_c016_residual_target_leakage_guard", "casee_c016_residual_target_leakage_guard.py"),
         ("casee_solver_run_provenance_ledger", "casee_solver_run_provenance_ledger.py"),
+        ("casee_claim_support_gate", "casee_claim_support_gate.py"),
         ("casee_candidate_sweep_plan", "casee_candidate_sweep_plan.py"),
         ("casee_default_policy_gate", "casee_default_policy_gate.py"),
         ("citylbm_paper_results_packet", "citylbm_paper_results_packet.py"),
