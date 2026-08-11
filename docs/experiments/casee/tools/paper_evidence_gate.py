@@ -36,6 +36,9 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/vs_cpp_recovery_gate.md",
     "docs/experiments/casee/results/rhino_gha_load_gate.json",
     "docs/experiments/casee/results/rhino_gha_load_gate.md",
+    "docs/experiments/casee/results/citylbm_gha_install_audit.json",
+    "docs/experiments/casee/results/citylbm_gha_install_audit.csv",
+    "docs/experiments/casee/results/citylbm_gha_install_audit.md",
     "docs/experiments/casee/results/casee_official_run_preflight.json",
     "docs/experiments/casee/results/casee_official_run_preflight.md",
     "docs/experiments/casee/results/casee_dx1_readiness_audit.json",
@@ -91,7 +94,7 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc57.md",
+    "docs/releases/v0.4.0-rc58.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -282,6 +285,31 @@ def rhino_gate_status(path: Path) -> Dict[str, Any]:
         "claim_readiness": readiness,
         "manual_manifest_present": bool(data.get("manual_manifest_present")),
         "claim_boundary_safe": loaded or readiness == "blocked_manual_rhino_load",
+    }
+
+
+def gha_install_audit_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "gha_install_audit_found": False,
+            "install_audit_passed": False,
+            "matching_gha_already_staged": None,
+            "rhino_loaded_new_gha": None,
+            "claim_readiness": "missing",
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        "gha_install_audit_found": True,
+        "install_audit_passed": data.get("install_audit_passed"),
+        "matching_gha_already_staged": data.get("matching_gha_already_staged"),
+        "rhino_loaded_new_gha": data.get("rhino_loaded_new_gha"),
+        "claim_readiness": data.get("claim_readiness"),
+        "recommended_library_dir": data.get("recommended_library_dir"),
+        "claim_boundary_safe": data.get("install_audit_passed") is True
+        and data.get("formal_accuracy_claim_supported") is False
+        and data.get("formal_release_allowed") is False
+        and data.get("rhino_loaded_new_gha") is False,
     }
 
 
@@ -926,6 +954,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     draft = payload["draft_scan"]
     artifact = payload["artifact_index"]
     rhino = payload["rhino_gha_load_gate"]
+    gha_install = payload["citylbm_gha_install_audit"]
     build_chain = payload["build_chain_manifest"]
     vs_cpp_recovery = payload["vs_cpp_recovery_gate"]
     preflight = payload["casee_official_run_preflight"]
@@ -994,6 +1023,16 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Rhino loaded new GHA: {rhino['rhino_loaded_new_gha']}",
         f"- Claim readiness: `{rhino['claim_readiness']}`",
         f"- Claim boundary safe: {rhino['claim_boundary_safe']}",
+        "",
+        "## CityLBM GHA Install Audit",
+        "",
+        f"- Audit found: {gha_install['gha_install_audit_found']}",
+        f"- Install audit passed: {gha_install['install_audit_passed']}",
+        f"- Matching GHA already staged: {gha_install['matching_gha_already_staged']}",
+        f"- Rhino loaded new GHA: {gha_install['rhino_loaded_new_gha']}",
+        f"- Recommended library dir: `{gha_install['recommended_library_dir']}`",
+        f"- Claim readiness: `{gha_install['claim_readiness']}`",
+        f"- Claim boundary safe: {gha_install['claim_boundary_safe']}",
         "",
         "## Build Chain Manifest",
         "",
@@ -1227,6 +1266,7 @@ def main() -> int:
     parser.add_argument("--claim-matrix", type=Path, default=RESULTS_DIR / "casee_manuscript_claim_matrix.csv")
     parser.add_argument("--artifact-index", type=Path, default=RESULTS_DIR / "casee_artifact_index.json")
     parser.add_argument("--rhino-gate", type=Path, default=RESULTS_DIR / "rhino_gha_load_gate.json")
+    parser.add_argument("--gha-install-audit", type=Path, default=RESULTS_DIR / "citylbm_gha_install_audit.json")
     parser.add_argument("--build-chain", type=Path, default=RESULTS_DIR / "build_chain_manifest.json")
     parser.add_argument("--vs-cpp-recovery", type=Path, default=RESULTS_DIR / "vs_cpp_recovery_gate.json")
     parser.add_argument("--preflight", type=Path, default=RESULTS_DIR / "casee_official_run_preflight.json")
@@ -1259,6 +1299,7 @@ def main() -> int:
     draft = draft_status(sorted(PAPER_DRAFTS_DIR.glob(args.draft_glob)))
     artifact = artifact_index_status(args.artifact_index)
     rhino = rhino_gate_status(args.rhino_gate)
+    gha_install = gha_install_audit_status(args.gha_install_audit)
     build_chain = build_chain_status(args.build_chain)
     vs_cpp_recovery = vs_cpp_recovery_status(args.vs_cpp_recovery)
     preflight = preflight_status(args.preflight)
@@ -1292,6 +1333,8 @@ def main() -> int:
         and artifact["formal_accuracy_claim_supported"] is False
         and rhino["rhino_gate_found"]
         and rhino["claim_boundary_safe"]
+        and gha_install["gha_install_audit_found"]
+        and gha_install["claim_boundary_safe"]
         and build_chain["build_chain_found"]
         and build_chain["claim_boundary_safe"]
         and vs_cpp_recovery["vs_cpp_recovery_gate_found"]
@@ -1345,6 +1388,7 @@ def main() -> int:
         "draft_scan": draft,
         "artifact_index": artifact,
         "rhino_gha_load_gate": rhino,
+        "citylbm_gha_install_audit": gha_install,
         "build_chain_manifest": build_chain,
         "vs_cpp_recovery_gate": vs_cpp_recovery,
         "casee_official_run_preflight": preflight,

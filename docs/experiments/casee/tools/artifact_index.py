@@ -52,6 +52,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc55.md",
     "docs/releases/v0.4.0-rc56.md",
     "docs/releases/v0.4.0-rc57.md",
+    "docs/releases/v0.4.0-rc58.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -86,6 +87,7 @@ RESULT_PATTERNS = [
     "vs_cpp_buildtools_recovery_probe.json",
     "plugin_identity_gate.json",
     "rhino_gha_load_gate.*",
+    "citylbm_gha_install_audit.*",
     "casee_reproducibility_suite.json",
     "casee_reproducibility_suite.md",
     "casee_paper_appendix_manifest.json",
@@ -129,6 +131,7 @@ TOOL_SCRIPTS = [
     "casee_claim_support_gate.py",
     "casee_publication_readiness_gate.py",
     "casee_release_asset_manifest.py",
+    "citylbm_gha_install_audit.py",
     "casee_official_run_preflight.py",
     "casee_dx1_readiness_audit.py",
     "casee_environment_recovery_runbook.py",
@@ -326,6 +329,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "blocked_vs_cpp_recovery_gate"
     if "rhino_gha_load_gate" in path:
         return "blocked_manual_rhino_load"
+    if "citylbm_gha_install_audit" in path:
+        return "blocked_gha_install_audit_pending_manual_load"
     if "casee_official_run_preflight" in path:
         return "blocked_official_followup_preflight"
     if "casee_dx1_readiness_audit" in path:
@@ -398,6 +403,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to document the non-destructive VS C++ Build Tools recovery path and current blockers."
     if readiness == "blocked_manual_rhino_load":
         return "Use to document the fail-closed Rhino/Grasshopper new-GHA loading gate."
+    if readiness == "blocked_gha_install_audit_pending_manual_load":
+        return "Use to document whether the tracked CityLBM GHA is staged or stageable for Grasshopper loading."
     if readiness == "blocked_official_followup_preflight":
         return "Use to document why another official native Case E follow-up run is or is not currently allowed."
     if readiness == "limitations_ready_dx1_feasibility":
@@ -450,6 +457,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Future-run command matrix only; not solver-output evidence."
     if readiness == "blocked_manual_rhino_load":
         return "Manual Rhino/Grasshopper evidence is absent or incomplete; do not state the new GHA was loaded."
+    if readiness == "blocked_gha_install_audit_pending_manual_load":
+        return "Install/staging audit only; it does not copy files automatically, prove Rhino loaded the plugin, run CFD, or permit formal v0.4.0."
     if readiness == "blocked_official_followup_preflight":
         return "Preflight evidence only; does not add solver output or improve the official metric."
     if readiness == "limitations_ready_dx1_feasibility":
@@ -654,6 +663,9 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "plugin_identity_gate.json",
                 "rhino_gha_load_gate.json",
                 "rhino_gha_load_gate.md",
+                "citylbm_gha_install_audit.json",
+                "citylbm_gha_install_audit.csv",
+                "citylbm_gha_install_audit.md",
                 "casee_v04_reproducibility_appendix_en.md",
                 "casee_v04_reproducibility_appendix_zh.md",
                 "casee_manuscript_claim_matrix.csv",
@@ -685,6 +697,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc55.md",
                 "v0.4.0-rc56.md",
                 "v0.4.0-rc57.md",
+                "v0.4.0-rc58.md",
             )
         )
     ]

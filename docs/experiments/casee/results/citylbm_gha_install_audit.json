@@ -1,0 +1,96 @@
+{
+  "generated_at": "2026-08-11T01:39:21.588859+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "install_ready_pending_manual_rhino_load",
+  "install_audit_passed": true,
+  "matching_gha_already_staged": false,
+  "rhino_loaded_new_gha": false,
+  "expected_tracked_gha_sha256": "a3a3034308a0d67b8dffb54815d052b19d60c39503df13ddc63532ea6b5823ca",
+  "tracked_gha": {
+    "found": true,
+    "path": "CityLBM/bin/CityLBM.gha",
+    "sha256": "a3a3034308a0d67b8dffb54815d052b19d60c39503df13ddc63532ea6b5823ca",
+    "size_bytes": 1818112,
+    "mtime_utc": "2026-08-11T01:39:17.151832+00:00"
+  },
+  "packaged_gha": {
+    "found": true,
+    "path": "CityLBM/bin/Release/CityLBM/CityLBM.gha",
+    "sha256": "ada013818fb1359d63cd201716502470d283c979463d7c9226c7661582f18061",
+    "size_bytes": 188928,
+    "mtime_utc": "2026-08-11T01:30:57.915196+00:00"
+  },
+  "candidate_library_dirs": [
+    "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries",
+    "C:\\Users\\miaoshiyu\\AppData\\Roaming\\McNeel\\Rhinoceros\\8.0\\Plug-ins\\Grasshopper\\Libraries",
+    "C:\\Users\\miaoshiyu\\AppData\\Roaming\\McNeel\\Rhinoceros\\7.0\\Plug-ins\\Grasshopper\\Libraries",
+    "C:\\Users\\miaoshiyu\\AppData\\Roaming\\McNeel\\Rhinoceros\\6.0\\Plug-ins\\Grasshopper\\Libraries",
+    "C:\\Users\\miaoshiyu\\AppData\\Local\\McNeel\\Rhinoceros\\8.0\\Plug-ins\\Grasshopper\\Libraries"
+  ],
+  "recommended_library_dir": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries",
+  "recommended_manual_copy_command": "New-Item -ItemType Directory -Force -Path 'C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries' | Out-Null; Copy-Item -LiteralPath 'C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\CityLBM.gha' -Destination 'C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries\\CityLBM.gha' -Force",
+  "installed_candidates": [
+    {
+      "library_dir": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries",
+      "library_dir_exists": false,
+      "path": "",
+      "found": false,
+      "sha256": "",
+      "matches_tracked_gha": false,
+      "size_bytes": null,
+      "mtime_utc": ""
+    },
+    {
+      "library_dir": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\McNeel\\Rhinoceros\\8.0\\Plug-ins\\Grasshopper\\Libraries",
+      "library_dir_exists": false,
+      "path": "",
+      "found": false,
+      "sha256": "",
+      "matches_tracked_gha": false,
+      "size_bytes": null,
+      "mtime_utc": ""
+    },
+    {
+      "library_dir": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\McNeel\\Rhinoceros\\7.0\\Plug-ins\\Grasshopper\\Libraries",
+      "library_dir_exists": false,
+      "path": "",
+      "found": false,
+      "sha256": "",
+      "matches_tracked_gha": false,
+      "size_bytes": null,
+      "mtime_utc": ""
+    },
+    {
+      "library_dir": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\McNeel\\Rhinoceros\\6.0\\Plug-ins\\Grasshopper\\Libraries",
+      "library_dir_exists": false,
+      "path": "",
+      "found": false,
+      "sha256": "",
+      "matches_tracked_gha": false,
+      "size_bytes": null,
+      "mtime_utc": ""
+    },
+    {
+      "library_dir": "C:\\Users\\miaoshiyu\\AppData\\Local\\McNeel\\Rhinoceros\\8.0\\Plug-ins\\Grasshopper\\Libraries",
+      "library_dir_exists": false,
+      "path": "",
+      "found": false,
+      "sha256": "",
+      "matches_tracked_gha": false,
+      "size_bytes": null,
+      "mtime_utc": ""
+    }
+  ],
+  "checks": {
+    "plugin_identity_gate_passed": true,
+    "tracked_gha_exists": true,
+    "tracked_gha_hash_matches_identity_gate": true,
+    "packaged_gha_exists": true,
+    "grasshopper_library_dir_detected_or_recommendable": true,
+    "matching_gha_already_staged": false,
+    "rhino_load_gate_still_fail_closed": true
+  },
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "boundary": "This audit only checks whether the tracked CityLBM.gha is staged or stageable for Grasshopper. It does not copy files automatically, does not prove Rhino loaded the plugin, does not run CFD, and does not support formal accuracy claims."
+}

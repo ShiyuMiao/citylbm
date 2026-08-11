@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-11T01:31:25.242999+00:00",
+  "generated_at": "2026-08-11T01:39:41.693438+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_followup_plan; paper_ready_limitations_support",
   "release_gate_summary": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc57",
+    "recommended_tag": "v0.4.0-rc58",
     "metrics": {
       "n": 80,
       "mae_pp": 21.111408125,
@@ -76,7 +76,7 @@
       "release_gate_check": "native_fluidx3d_build_capacity",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/build_chain_manifest.json",
-      "current_evidence": "VS C++ status=blocked; C: free=4.969 GB",
+      "current_evidence": "VS C++ status=blocked; C: free=5.017 GB",
       "required_action": "Free enough space on C: or redirect installer cache, approve UAC, and install Visual Studio Build Tools 2022 C++ workload.",
       "verification_command_or_artifact": "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath",
       "pass_condition": "vswhere returns a VC tools installation path and vcvars64.bat/cl.exe are available.",

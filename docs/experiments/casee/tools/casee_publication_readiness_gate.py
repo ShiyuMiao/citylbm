@@ -83,6 +83,7 @@ def build_rows() -> List[Dict[str, Any]]:
     artifact_index = read_json(RESULTS_DIR / "casee_artifact_index.json")
     release_assets = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
+    gha_install = read_json(RESULTS_DIR / "citylbm_gha_install_audit.json")
 
     metrics = release_gate.get("metrics") or {}
     claim_summary = claim_gate.get("summary") or {}
@@ -189,11 +190,12 @@ def build_rows() -> List[Dict[str, Any]]:
                 RESULTS_DIR / "citylbm_software_feedback_matrix.json",
                 RESULTS_DIR / "casee_default_policy_gate.json",
                 RESULTS_DIR / "citylbm_manifest_schema_gate.json",
+                RESULTS_DIR / "citylbm_gha_install_audit.json",
                 RUN_COMPONENT,
                 ROOT / "CityLBM" / "src" / "Core" / "FluidX3DInterface.cs",
             ],
             paper_location="Software implications / Limitations",
-            allowed_statement="CityLBM converts evidence into formal defaults, diagnostic-only switches, manifest-level publication dependencies, a Run Simulation Publication Gate output, and release blockers.",
+            allowed_statement="CityLBM converts evidence into formal defaults, diagnostic-only switches, manifest-level publication dependencies, a Run Simulation Publication Gate output, GHA staging audit, and release blockers.",
             must_not_claim="Do not promote benchmark-tuned diagnostics or manifest publication readiness to default accuracy models.",
         ),
         row(
@@ -205,11 +207,12 @@ def build_rows() -> List[Dict[str, Any]]:
                 RESULTS_DIR / "release_gate.json",
                 RESULTS_DIR / "casee_official_run_preflight.json",
                 RESULTS_DIR / "rhino_gha_load_gate.json",
+                RESULTS_DIR / "citylbm_gha_install_audit.json",
                 RESULTS_DIR / "build_chain_manifest.json",
                 RESULTS_DIR / "vs_cpp_recovery_gate.json",
             ],
             paper_location="Limitations / Future work",
-            allowed_statement="Formal release remains blocked by the official z=2 m metric gate, Rhino/GHA load evidence, current GPU/runtime recovery needs, and unresolved VS C++ Build Tools recovery blockers.",
+            allowed_statement="Formal release remains blocked by the official z=2 m metric gate, missing Rhino/GHA load evidence, current GHA staging status, current GPU/runtime recovery needs, and unresolved VS C++ Build Tools recovery blockers.",
             must_not_claim="Do not create a formal v0.4.0 tag or state that the optimized plugin satisfies research-grade accuracy.",
         ),
         row(
@@ -259,6 +262,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ledger = read_json(RESULTS_DIR / "casee_solver_run_provenance_ledger.json")
     release_assets = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
+    gha_install = read_json(RESULTS_DIR / "citylbm_gha_install_audit.json")
 
     metrics = release_gate.get("metrics") or {}
     r2 = metrics.get("r2")
@@ -285,6 +289,8 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         and (release_assets.get("summary") or {}).get("formal_accuracy_claim_supported") is False
         and (vs_cpp_recovery.get("summary") or {}).get("vs_cpp_recovery_gate_passed") is True
         and (vs_cpp_recovery.get("summary") or {}).get("formal_accuracy_claim_supported") is False
+        and gha_install.get("install_audit_passed") is True
+        and gha_install.get("formal_accuracy_claim_supported") is False
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -303,6 +309,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         "suite_passed": suite.get("suite_passed"),
         "release_asset_manifest_passed": (release_assets.get("summary") or {}).get("release_asset_manifest_passed"),
         "vs_cpp_recovery_gate_passed": (vs_cpp_recovery.get("summary") or {}).get("vs_cpp_recovery_gate_passed"),
+        "gha_install_audit_passed": gha_install.get("install_audit_passed"),
         "formal_accuracy_claim_supported": False,
         "boundary": (
             "This gate audits whether the current Case E material is publication-ready as a negative-validation "
@@ -373,6 +380,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_solver_run_provenance_ledger.json"),
             rel(RESULTS_DIR / "casee_release_asset_manifest.json"),
             rel(RESULTS_DIR / "vs_cpp_recovery_gate.json"),
+            rel(RESULTS_DIR / "citylbm_gha_install_audit.json"),
         ],
     }
     OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")

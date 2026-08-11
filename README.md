@@ -40,6 +40,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_release_asset_manifest.py`
 - `docs/experiments/casee/tools/vs_cpp_recovery_gate.py`
 - `docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1`
+- `docs/experiments/casee/tools/citylbm_gha_install_audit.py`
 - `docs/experiments/casee/tools/rhino_gha_load_gate.py`
 - `docs/experiments/casee/tools/build_chain_audit.py`
 - `docs/experiments/casee/tools/casee_official_run_preflight.py`
@@ -97,6 +98,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_release_asset_manifest.md`
 - `docs/experiments/casee/results/vs_cpp_recovery_gate.json`
 - `docs/experiments/casee/results/vs_cpp_recovery_gate.md`
+- `docs/experiments/casee/results/citylbm_gha_install_audit.json`
+- `docs/experiments/casee/results/citylbm_gha_install_audit.md`
+- `docs/releases/v0.4.0-rc58.md`
 - `docs/releases/v0.4.0-rc57.md`
 - `docs/releases/v0.4.0-rc56.md`
 - `docs/releases/v0.4.0-rc55.md`
@@ -395,6 +399,12 @@ VS C++ as blocked because `vswhere` does not find the VC tools workload, the
 current shell is not elevated, C: free space is below the configured threshold,
 and `cl.exe`/`msbuild.exe` are not on PATH. The recovery script records the
 manual `winget` command but only installs when run explicitly with `-Install`.
+
+The GHA install audit checks whether the tracked `CityLBM/bin/CityLBM.gha`
+already appears in common Grasshopper Libraries directories with the expected
+SHA256. On the current machine no matching staged GHA is detected, so the
+Rhino/GHA load gate remains blocked until a real Rhino/Grasshopper session
+records matching version/hash evidence.
 
 The manuscript results table converts Case E evidence into paper-facing rows:
 the official z=2 m result is a negative-validation result, the best diagnostic

@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc58 - GHA staging/install audit
+
+- Added `citylbm_gha_install_audit.py` with JSON/CSV/Markdown outputs.
+- The audit checks common Grasshopper Libraries directories for a `CityLBM*.gha` matching the tracked build SHA256 and records a manual staging command.
+- Integrated the audit into the reproducibility suite, paper evidence gate, publication-readiness gate, artifact index, release asset manifest, and software-feedback matrix as SF036.
+
+This is a software-delivery traceability enhancement only. It does not copy files automatically, prove Rhino/Grasshopper loaded the plugin, add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc57 - VS C++ Build Tools recovery gate
 
 - Added `vs_cpp_buildtools_recovery.ps1`, an audit-only-by-default recovery script for Visual Studio Build Tools 2022 C++.

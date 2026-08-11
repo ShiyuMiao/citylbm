@@ -135,6 +135,7 @@ def build_rows() -> List[Dict[str, Any]]:
     claim_support = read_json(RESULTS_DIR / "casee_claim_support_gate.json")
     release_assets = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
+    gha_install = read_json(RESULTS_DIR / "citylbm_gha_install_audit.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -1127,6 +1128,39 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF036",
+            experiment="CityLBM GHA staging/install audit",
+            finding=(
+                "The tracked CityLBM.gha can now be audited against common Grasshopper Libraries locations, "
+                "with exact SHA256 matching and an explicit manual copy command before any Rhino load claim is made."
+            ),
+            evidence_type=str(gha_install.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "citylbm_gha_install_audit.py",
+                RESULTS_DIR / "citylbm_gha_install_audit.json",
+                RESULTS_DIR / "citylbm_gha_install_audit.csv",
+                RESULTS_DIR / "citylbm_gha_install_audit.md",
+                RESULTS_DIR / "rhino_gha_load_gate.json",
+            ],
+            decision_class="software_gha_staging_audit",
+            citylbm_status="implemented_gha_staging_audit"
+            if gha_install.get("install_audit_passed") is True
+            and gha_install.get("formal_accuracy_claim_supported") is False
+            and gha_install.get("rhino_loaded_new_gha") is False
+            else "gha_staging_audit_missing_or_failed",
+            implementation_evidence=(
+                f"matching_gha_already_staged={gha_install.get('matching_gha_already_staged')}; "
+                f"recommended_library_dir={gha_install.get('recommended_library_dir')}; "
+                f"tracked_sha={gha_install.get('expected_tracked_gha_sha256')}"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as software delivery traceability before manual Rhino/Grasshopper load verification.",
+            limitations="Staging audit only; it does not copy files automatically, prove Rhino loaded the GHA, run CFD, improve metrics, or permit formal v0.4.0.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF019",
             experiment="Experiment 2 / AIJ Case E official z=2 m follow-up planning",
             finding=(
@@ -1170,13 +1204,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate", "software_gha_staging_audit"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows

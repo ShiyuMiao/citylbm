@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-11T01:31:26.657322+00:00
+Generated: 2026-08-11T01:39:43.225786+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc57`
+- Recommended tag: `v0.4.0-rc58`
 
 ## Official z=2 m Metric
 
@@ -27,14 +27,14 @@ Generated: 2026-08-11T01:31:26.657322+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 340
+- Checked nonblank lines: 342
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 316
-- Lightweight release assets: 244
+- Artifact count: 321
+- Lightweight release assets: 249
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -43,6 +43,16 @@ Generated: 2026-08-11T01:31:26.657322+00:00
 - Gate found: True
 - Rhino loaded new GHA: False
 - Claim readiness: `blocked_manual_rhino_load`
+- Claim boundary safe: True
+
+## CityLBM GHA Install Audit
+
+- Audit found: True
+- Install audit passed: True
+- Matching GHA already staged: False
+- Rhino loaded new GHA: False
+- Recommended library dir: `C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries`
+- Claim readiness: `install_ready_pending_manual_rhino_load`
 - Claim boundary safe: True
 
 ## Build Chain Manifest
@@ -230,7 +240,7 @@ Generated: 2026-08-11T01:31:26.657322+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 35
+- Feedback rows: 36
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -251,8 +261,8 @@ Generated: 2026-08-11T01:31:26.657322+00:00
 
 - Manifest found: True
 - Manifest passed: True
-- Recommended tag: `v0.4.0-rc57`
-- Upload assets: 63
+- Recommended tag: `v0.4.0-rc58`
+- Upload assets: 66
 - Excluded/hash-only assets: 20
 - Excludes raw geometry and VTK: True
 - Formal accuracy claim supported: False
