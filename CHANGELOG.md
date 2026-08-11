@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc57 - VS C++ Build Tools recovery gate
+
+- Added `vs_cpp_buildtools_recovery.ps1`, an audit-only-by-default recovery script for Visual Studio Build Tools 2022 C++.
+- Added `vs_cpp_recovery_gate.py` with JSON/CSV/Markdown outputs for VS C++ readiness, elevation, system-drive space, winget availability, exact install command, and blockers.
+- Integrated the recovery gate into the reproducibility suite, paper evidence gate, publication-readiness gate, artifact index, release asset manifest, and software-feedback matrix as SF035.
+
+This is a build-chain recovery enhancement only. It does not install VS Build Tools by default, recover GPU runtime, add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc56 - Case E release asset manifest
 
 - Added `casee_release_asset_manifest.py` with JSON/CSV/Markdown outputs.

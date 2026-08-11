@@ -31,6 +31,9 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/build_chain_manifest.json",
     "docs/experiments/casee/results/build_chain_manifest.csv",
     "docs/experiments/casee/results/build_chain_manifest.md",
+    "docs/experiments/casee/results/vs_cpp_recovery_gate.json",
+    "docs/experiments/casee/results/vs_cpp_recovery_gate.csv",
+    "docs/experiments/casee/results/vs_cpp_recovery_gate.md",
     "docs/experiments/casee/results/rhino_gha_load_gate.json",
     "docs/experiments/casee/results/rhino_gha_load_gate.md",
     "docs/experiments/casee/results/casee_official_run_preflight.json",
@@ -88,7 +91,7 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc56.md",
+    "docs/releases/v0.4.0-rc57.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -333,6 +336,32 @@ def build_chain_status(path: Path) -> Dict[str, Any]:
             and gpu_status in {"ready", "blocked"}
             and (native_source_compile_ready or vs_status == "blocked")
         ),
+    }
+
+
+def vs_cpp_recovery_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "vs_cpp_recovery_gate_found": False,
+            "vs_cpp_recovery_gate_passed": False,
+            "claim_readiness": "missing",
+            "vs_cpp_ready": None,
+            "can_attempt_install_now": None,
+            "blocker_count": 0,
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    summary = data.get("summary") or {}
+    return {
+        "vs_cpp_recovery_gate_found": True,
+        "vs_cpp_recovery_gate_passed": summary.get("vs_cpp_recovery_gate_passed"),
+        "claim_readiness": summary.get("claim_readiness"),
+        "vs_cpp_ready": summary.get("vs_cpp_ready"),
+        "can_attempt_install_now": summary.get("can_attempt_install_now"),
+        "blocker_count": len(summary.get("blockers") or []),
+        "claim_boundary_safe": summary.get("vs_cpp_recovery_gate_passed") is True
+        and summary.get("formal_accuracy_claim_supported") is False
+        and summary.get("formal_release_allowed") is False,
     }
 
 
@@ -898,6 +927,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     artifact = payload["artifact_index"]
     rhino = payload["rhino_gha_load_gate"]
     build_chain = payload["build_chain_manifest"]
+    vs_cpp_recovery = payload["vs_cpp_recovery_gate"]
     preflight = payload["casee_official_run_preflight"]
     dx1 = payload["casee_dx1_readiness_audit"]
     recovery = payload["casee_environment_recovery_runbook"]
@@ -980,6 +1010,16 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- GPU runtime: `{build_chain['gpu_status']}`",
         f"- UAC/1602 blocker recorded: {build_chain['uac_blocker_recorded']}",
         f"- Claim boundary safe: {build_chain['claim_boundary_safe']}",
+        "",
+        "## VS C++ Recovery Gate",
+        "",
+        f"- Gate found: {vs_cpp_recovery['vs_cpp_recovery_gate_found']}",
+        f"- Gate passed: {vs_cpp_recovery['vs_cpp_recovery_gate_passed']}",
+        f"- Claim readiness: `{vs_cpp_recovery['claim_readiness']}`",
+        f"- VS C++ ready: {vs_cpp_recovery['vs_cpp_ready']}",
+        f"- Can attempt install now: {vs_cpp_recovery['can_attempt_install_now']}",
+        f"- Blocker count: {vs_cpp_recovery['blocker_count']}",
+        f"- Claim boundary safe: {vs_cpp_recovery['claim_boundary_safe']}",
         "",
         "## Official Run Preflight",
         "",
@@ -1188,6 +1228,7 @@ def main() -> int:
     parser.add_argument("--artifact-index", type=Path, default=RESULTS_DIR / "casee_artifact_index.json")
     parser.add_argument("--rhino-gate", type=Path, default=RESULTS_DIR / "rhino_gha_load_gate.json")
     parser.add_argument("--build-chain", type=Path, default=RESULTS_DIR / "build_chain_manifest.json")
+    parser.add_argument("--vs-cpp-recovery", type=Path, default=RESULTS_DIR / "vs_cpp_recovery_gate.json")
     parser.add_argument("--preflight", type=Path, default=RESULTS_DIR / "casee_official_run_preflight.json")
     parser.add_argument("--dx1-readiness", type=Path, default=RESULTS_DIR / "casee_dx1_readiness_audit.json")
     parser.add_argument("--recovery", type=Path, default=RESULTS_DIR / "casee_environment_recovery_runbook.json")
@@ -1219,6 +1260,7 @@ def main() -> int:
     artifact = artifact_index_status(args.artifact_index)
     rhino = rhino_gate_status(args.rhino_gate)
     build_chain = build_chain_status(args.build_chain)
+    vs_cpp_recovery = vs_cpp_recovery_status(args.vs_cpp_recovery)
     preflight = preflight_status(args.preflight)
     dx1_readiness = dx1_readiness_status(args.dx1_readiness)
     recovery = recovery_status(args.recovery)
@@ -1252,6 +1294,8 @@ def main() -> int:
         and rhino["claim_boundary_safe"]
         and build_chain["build_chain_found"]
         and build_chain["claim_boundary_safe"]
+        and vs_cpp_recovery["vs_cpp_recovery_gate_found"]
+        and vs_cpp_recovery["claim_boundary_safe"]
         and preflight["preflight_found"]
         and preflight["claim_boundary_safe"]
         and preflight["formal_release_allowed"] is False
@@ -1302,6 +1346,7 @@ def main() -> int:
         "artifact_index": artifact,
         "rhino_gha_load_gate": rhino,
         "build_chain_manifest": build_chain,
+        "vs_cpp_recovery_gate": vs_cpp_recovery,
         "casee_official_run_preflight": preflight,
         "casee_dx1_readiness_audit": dx1_readiness,
         "casee_environment_recovery_runbook": recovery,

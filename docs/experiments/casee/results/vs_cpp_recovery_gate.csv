@@ -1,0 +1,22 @@
+item,status,evidence,limitation
+powershell_probe_ran,True,summary.checks,
+recovery_script_ready,True,summary.checks,
+default_mode_audit_only,True,summary.checks,
+admin_and_space_guards_present,True,summary.checks,
+vs_components_specified,True,summary.checks,
+claim_boundary_safe,True,summary.checks,
+script_found,True,docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1,
+requires_explicit_install_switch,True,docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1,
+has_admin_check,True,docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1,
+has_system_drive_space_check,True,docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1,
+has_vc_workload,True,docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1,
+has_windows_sdk_component,True,docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1,
+has_cmake_component,True,docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1,
+writes_json_probe,True,docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1,
+noninteractive_mode,True,docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1,
+blocker,blocked,PowerShell probe,vswhere does not find Microsoft.VisualStudio.Component.VC.Tools.x86.x64
+blocker,blocked,PowerShell probe,current shell is not elevated; VS Build Tools install requires UAC approval
+blocker,blocked,PowerShell probe,system drive free space is below 8 GB
+blocker,blocked,PowerShell probe,cl.exe is not on PATH
+blocker,blocked,PowerShell probe,msbuild.exe is not on PATH
+recommended_command,manual_action_required,"winget install --id Microsoft.VisualStudio.2022.BuildTools --source winget --accept-package-agreements --accept-source-agreements --silent --location E:\citylbm_buildchain\VSBuildTools --override ""--wait --quiet --norestart --installPath E:\citylbm_buildchain\VSBuildTools --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.Component.Windows11SDK.26100""",Run only from an elevated shell after C: space/UAC blockers are resolved.

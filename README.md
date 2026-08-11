@@ -38,6 +38,8 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/release_gate.py`
 - `docs/experiments/casee/tools/paper_evidence_gate.py`
 - `docs/experiments/casee/tools/casee_release_asset_manifest.py`
+- `docs/experiments/casee/tools/vs_cpp_recovery_gate.py`
+- `docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1`
 - `docs/experiments/casee/tools/rhino_gha_load_gate.py`
 - `docs/experiments/casee/tools/build_chain_audit.py`
 - `docs/experiments/casee/tools/casee_official_run_preflight.py`
@@ -93,6 +95,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_remaining_blockers.md`
 - `docs/experiments/casee/results/casee_release_asset_manifest.json`
 - `docs/experiments/casee/results/casee_release_asset_manifest.md`
+- `docs/experiments/casee/results/vs_cpp_recovery_gate.json`
+- `docs/experiments/casee/results/vs_cpp_recovery_gate.md`
+- `docs/releases/v0.4.0-rc57.md`
 - `docs/releases/v0.4.0-rc56.md`
 - `docs/releases/v0.4.0-rc55.md`
 - `docs/releases/v0.4.0-rc54.md`
@@ -383,6 +388,13 @@ compiled GHA, validation reports, CSV/XLSX summaries, figures, data and
 environment manifests, claim/publication gates, and manuscript support files.
 Raw geometry, VTK output, large logs, and source-data duplicates remain excluded
 or hash-only. This is release traceability only, not CFD accuracy evidence.
+
+The VS C++ recovery gate adds an audit-only-by-default PowerShell recovery
+script for Visual Studio Build Tools 2022 C++. The current machine still reports
+VS C++ as blocked because `vswhere` does not find the VC tools workload, the
+current shell is not elevated, C: free space is below the configured threshold,
+and `cl.exe`/`msbuild.exe` are not on PATH. The recovery script records the
+manual `winget` command but only installs when run explicitly with `-Install`.
 
 The manuscript results table converts Case E evidence into paper-facing rows:
 the official z=2 m result is a negative-validation result, the best diagnostic

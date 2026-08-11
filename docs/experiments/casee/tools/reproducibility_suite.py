@@ -193,6 +193,7 @@ def main() -> int:
         ("plugin_identity_gate", "plugin_identity_gate.py"),
         ("rhino_gha_load_gate", "rhino_gha_load_gate.py"),
         ("build_chain_audit", "build_chain_audit.py"),
+        ("vs_cpp_recovery_gate", "vs_cpp_recovery_gate.py"),
         ("casee_official_run_preflight", "casee_official_run_preflight.py"),
         ("casee_dx1_readiness_audit", "casee_dx1_readiness_audit.py"),
         ("casee_environment_recovery_runbook", "casee_environment_recovery_runbook.py"),
@@ -236,6 +237,7 @@ def main() -> int:
     plugin_gate = read_json(RESULTS_DIR / "plugin_identity_gate.json")
     rhino_gate = read_json(RESULTS_DIR / "rhino_gha_load_gate.json")
     build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
+    vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
     dx1_readiness = read_json(RESULTS_DIR / "casee_dx1_readiness_audit.json")
     recovery = read_json(RESULTS_DIR / "casee_environment_recovery_runbook.json")
@@ -268,6 +270,7 @@ def main() -> int:
         "plugin_identity_gate": plugin_gate,
         "rhino_gha_load_gate": rhino_gate,
         "build_chain_manifest": build_chain,
+        "vs_cpp_recovery_gate": vs_cpp_recovery,
         "casee_official_run_preflight": preflight,
         "casee_dx1_readiness_audit": dx1_readiness,
         "casee_environment_recovery_runbook": recovery,

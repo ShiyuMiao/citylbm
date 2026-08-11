@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-11T01:21:55.273773+00:00
+Generated: 2026-08-11T01:31:26.657322+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc56`
+- Recommended tag: `v0.4.0-rc57`
 
 ## Official z=2 m Metric
 
@@ -27,14 +27,14 @@ Generated: 2026-08-11T01:21:55.273773+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 334
+- Checked nonblank lines: 340
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 309
-- Lightweight release assets: 237
+- Artifact count: 316
+- Lightweight release assets: 244
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -59,6 +59,16 @@ Generated: 2026-08-11T01:21:55.273773+00:00
 - FluidX3D: `ready_for_existing_binary`
 - GPU runtime: `blocked`
 - UAC/1602 blocker recorded: True
+- Claim boundary safe: True
+
+## VS C++ Recovery Gate
+
+- Gate found: True
+- Gate passed: True
+- Claim readiness: `blocked_vs_cpp_recovery_ready_for_manual_install`
+- VS C++ ready: False
+- Can attempt install now: False
+- Blocker count: 5
 - Claim boundary safe: True
 
 ## Official Run Preflight
@@ -220,7 +230,7 @@ Generated: 2026-08-11T01:21:55.273773+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 34
+- Feedback rows: 35
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -241,8 +251,8 @@ Generated: 2026-08-11T01:21:55.273773+00:00
 
 - Manifest found: True
 - Manifest passed: True
-- Recommended tag: `v0.4.0-rc56`
-- Upload assets: 59
+- Recommended tag: `v0.4.0-rc57`
+- Upload assets: 63
 - Excluded/hash-only assets: 20
 - Excludes raw geometry and VTK: True
 - Formal accuracy claim supported: False

@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T01:21:51.947675+00:00",
-    "feedback_count": 34,
+    "generated_at": "2026-08-11T01:31:23.985002+00:00",
+    "feedback_count": 35,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -29,6 +29,7 @@
       "software_publication_readiness_contract": 1,
       "software_publication_gate_output": 1,
       "paper_release_asset_manifest": 1,
+      "build_chain_recovery_gate": 1,
       "followup_sweep_plan": 1
     },
     "citylbm_status_counts": {
@@ -56,6 +57,7 @@
       "implemented_manifest_publication_boundary": 1,
       "implemented_publication_gate_output": 1,
       "implemented_release_asset_manifest": 1,
+      "implemented_vs_cpp_recovery_gate": 1,
       "planned_candidate_matrix": 1
     },
     "required_feedback_rows_present": true,
@@ -524,10 +526,24 @@
       "source_paths_exist": true,
       "decision_class": "paper_release_asset_manifest",
       "citylbm_status": "implemented_release_asset_manifest",
-      "implementation_evidence": "upload_asset_count=59; excluded_or_hash_only_count=20; upload_total_size_bytes=3472843; recommended_tag=v0.4.0-rc56",
+      "implementation_evidence": "upload_asset_count=63; excluded_or_hash_only_count=20; upload_total_size_bytes=3571591; recommended_tag=v0.4.0-rc57",
       "default_setting_allowed": true,
       "paper_use": "Use for release/data-availability traceability and reviewer artifact checks.",
       "limitations": "Release planning only; it does not create a GitHub Release, add CFD output, or permit formal v0.4.0."
+    },
+    {
+      "feedback_id": "SF035",
+      "experiment": "CityLBM VS C++ Build Tools recovery gate",
+      "finding": "The Windows native C++ build-chain recovery path is now scripted and audited, with explicit guards for manual -Install use, elevation, system-drive free space, winget availability, and required VC workload components.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/vs_cpp_buildtools_recovery.ps1; docs/experiments/casee/tools/vs_cpp_recovery_gate.py; docs/experiments/casee/results/vs_cpp_recovery_gate.json; docs/experiments/casee/results/vs_cpp_recovery_gate.csv; docs/experiments/casee/results/vs_cpp_recovery_gate.md",
+      "source_paths_exist": true,
+      "decision_class": "build_chain_recovery_gate",
+      "citylbm_status": "implemented_vs_cpp_recovery_gate",
+      "implementation_evidence": "vs_cpp_ready=False; can_attempt_install_now=False; blocker_count=5; claim_readiness=blocked_vs_cpp_recovery_ready_for_manual_install",
+      "default_setting_allowed": true,
+      "paper_use": "Use as build-chain recovery evidence and to explain why VS C++ remains an operational blocker.",
+      "limitations": "Build-chain recovery only; default script mode does not install tools, recover GPU, run CFD, improve metrics, or permit formal v0.4.0."
     },
     {
       "feedback_id": "SF019",
@@ -538,7 +554,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc56",
+      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc57",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."

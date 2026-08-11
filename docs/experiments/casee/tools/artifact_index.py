@@ -51,6 +51,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc54.md",
     "docs/releases/v0.4.0-rc55.md",
     "docs/releases/v0.4.0-rc56.md",
+    "docs/releases/v0.4.0-rc57.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -81,6 +82,8 @@ RESULT_PATTERNS = [
     "citylbm_manifest_schema_gate.*",
     "citylbm_software_feedback_matrix.*",
     "build_chain_manifest.*",
+    "vs_cpp_recovery_gate.*",
+    "vs_cpp_buildtools_recovery_probe.json",
     "plugin_identity_gate.json",
     "rhino_gha_load_gate.*",
     "casee_reproducibility_suite.json",
@@ -111,6 +114,8 @@ OFFICIAL_DATA_PATTERNS = [
 TOOL_SCRIPTS = [
     "artifact_index.py",
     "build_chain_audit.py",
+    "vs_cpp_recovery_gate.py",
+    "vs_cpp_buildtools_recovery.ps1",
     "casee_blocker_remediation_plan.py",
     "casee_next_experiment_runbook.py",
     "casee_candidate_sweep_plan.py",
@@ -317,6 +322,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "paper_ready_publication_readiness_gate"
     if "casee_release_asset_manifest" in path:
         return "paper_ready_release_asset_manifest"
+    if "vs_cpp_recovery_gate" in path or "vs_cpp_buildtools_recovery" in path:
+        return "blocked_vs_cpp_recovery_gate"
     if "rhino_gha_load_gate" in path:
         return "blocked_manual_rhino_load"
     if "casee_official_run_preflight" in path:
@@ -387,6 +394,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use as a reviewer-facing publication-readiness audit for the negative-validation Case E manuscript package."
     if readiness == "paper_ready_release_asset_manifest":
         return "Use as the curated GitHub Release upload asset list with hash-only exclusions for raw/large files."
+    if readiness == "blocked_vs_cpp_recovery_gate":
+        return "Use to document the non-destructive VS C++ Build Tools recovery path and current blockers."
     if readiness == "blocked_manual_rhino_load":
         return "Use to document the fail-closed Rhino/Grasshopper new-GHA loading gate."
     if readiness == "blocked_official_followup_preflight":
@@ -457,6 +466,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Publication-readiness audit only; it does not add CFD output, improve official z=2 m metrics, or permit formal v0.4.0."
     if readiness == "paper_ready_release_asset_manifest":
         return "Release upload planning only; it does not create a GitHub Release, add CFD output, or permit formal v0.4.0."
+    if readiness == "blocked_vs_cpp_recovery_gate":
+        return "Build-chain recovery evidence only; it does not install tools by default, recover GPU, run CFD, or permit formal v0.4.0."
     if readiness == "paper_ready_default_policy_boundary":
         return "Default-policy boundary only; does not improve or replace official z=2 m metrics."
     if readiness == "paper_ready_manuscript_results_table":
@@ -564,6 +575,10 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "build_chain_manifest.json",
                 "build_chain_manifest.csv",
                 "build_chain_manifest.md",
+                "vs_cpp_recovery_gate.json",
+                "vs_cpp_recovery_gate.csv",
+                "vs_cpp_recovery_gate.md",
+                "vs_cpp_buildtools_recovery_probe.json",
                 "casee_official_run_preflight.json",
                 "casee_official_run_preflight.md",
                 "casee_dx1_readiness_audit.json",
@@ -669,6 +684,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc54.md",
                 "v0.4.0-rc55.md",
                 "v0.4.0-rc56.md",
+                "v0.4.0-rc57.md",
             )
         )
     ]

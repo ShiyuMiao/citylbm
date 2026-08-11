@@ -134,6 +134,7 @@ def build_rows() -> List[Dict[str, Any]]:
     solver_ledger = read_json(RESULTS_DIR / "casee_solver_run_provenance_ledger.json")
     claim_support = read_json(RESULTS_DIR / "casee_claim_support_gate.json")
     release_assets = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
+    vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -1090,6 +1091,40 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    vs_cpp_summary = vs_cpp_recovery.get("summary") or {}
+    rows.append(
+        row(
+            feedback_id="SF035",
+            experiment="CityLBM VS C++ Build Tools recovery gate",
+            finding=(
+                "The Windows native C++ build-chain recovery path is now scripted and audited, with explicit guards for "
+                "manual -Install use, elevation, system-drive free space, winget availability, and required VC workload components."
+            ),
+            evidence_type=str(vs_cpp_summary.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "vs_cpp_buildtools_recovery.ps1",
+                CASEE_DIR / "tools" / "vs_cpp_recovery_gate.py",
+                RESULTS_DIR / "vs_cpp_recovery_gate.json",
+                RESULTS_DIR / "vs_cpp_recovery_gate.csv",
+                RESULTS_DIR / "vs_cpp_recovery_gate.md",
+            ],
+            decision_class="build_chain_recovery_gate",
+            citylbm_status="implemented_vs_cpp_recovery_gate"
+            if vs_cpp_summary.get("vs_cpp_recovery_gate_passed") is True
+            and vs_cpp_summary.get("formal_accuracy_claim_supported") is False
+            else "vs_cpp_recovery_gate_missing_or_failed",
+            implementation_evidence=(
+                f"vs_cpp_ready={vs_cpp_summary.get('vs_cpp_ready')}; "
+                f"can_attempt_install_now={vs_cpp_summary.get('can_attempt_install_now')}; "
+                f"blocker_count={len(vs_cpp_summary.get('blockers') or [])}; "
+                f"claim_readiness={vs_cpp_summary.get('claim_readiness')}"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as build-chain recovery evidence and to explain why VS C++ remains an operational blocker.",
+            limitations="Build-chain recovery only; default script mode does not install tools, recover GPU, run CFD, improve metrics, or permit formal v0.4.0.",
+        )
+    )
+
     rows.append(
         row(
             feedback_id="SF019",
@@ -1135,13 +1170,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows

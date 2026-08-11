@@ -82,6 +82,7 @@ def build_rows() -> List[Dict[str, Any]]:
     appendix = read_json(RESULTS_DIR / "casee_paper_appendix_manifest.json")
     artifact_index = read_json(RESULTS_DIR / "casee_artifact_index.json")
     release_assets = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
+    vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
 
     metrics = release_gate.get("metrics") or {}
     claim_summary = claim_gate.get("summary") or {}
@@ -205,9 +206,10 @@ def build_rows() -> List[Dict[str, Any]]:
                 RESULTS_DIR / "casee_official_run_preflight.json",
                 RESULTS_DIR / "rhino_gha_load_gate.json",
                 RESULTS_DIR / "build_chain_manifest.json",
+                RESULTS_DIR / "vs_cpp_recovery_gate.json",
             ],
             paper_location="Limitations / Future work",
-            allowed_statement="Formal release remains blocked by the official z=2 m metric gate, Rhino/GHA load evidence, and current GPU/runtime recovery needs.",
+            allowed_statement="Formal release remains blocked by the official z=2 m metric gate, Rhino/GHA load evidence, current GPU/runtime recovery needs, and unresolved VS C++ Build Tools recovery blockers.",
             must_not_claim="Do not create a formal v0.4.0 tag or state that the optimized plugin satisfies research-grade accuracy.",
         ),
         row(
@@ -256,6 +258,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     feedback = read_json(RESULTS_DIR / "citylbm_software_feedback_matrix.json")
     ledger = read_json(RESULTS_DIR / "casee_solver_run_provenance_ledger.json")
     release_assets = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
+    vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
 
     metrics = release_gate.get("metrics") or {}
     r2 = metrics.get("r2")
@@ -280,6 +283,8 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         and ledger.get("ledger_passed") is True
         and (release_assets.get("summary") or {}).get("release_asset_manifest_passed") is True
         and (release_assets.get("summary") or {}).get("formal_accuracy_claim_supported") is False
+        and (vs_cpp_recovery.get("summary") or {}).get("vs_cpp_recovery_gate_passed") is True
+        and (vs_cpp_recovery.get("summary") or {}).get("formal_accuracy_claim_supported") is False
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -297,6 +302,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         "figure_gate_passed": figure_gate.get("figure_gate_passed"),
         "suite_passed": suite.get("suite_passed"),
         "release_asset_manifest_passed": (release_assets.get("summary") or {}).get("release_asset_manifest_passed"),
+        "vs_cpp_recovery_gate_passed": (vs_cpp_recovery.get("summary") or {}).get("vs_cpp_recovery_gate_passed"),
         "formal_accuracy_claim_supported": False,
         "boundary": (
             "This gate audits whether the current Case E material is publication-ready as a negative-validation "
@@ -366,6 +372,7 @@ def main() -> int:
             rel(RESULTS_DIR / "citylbm_software_feedback_matrix.json"),
             rel(RESULTS_DIR / "casee_solver_run_provenance_ledger.json"),
             rel(RESULTS_DIR / "casee_release_asset_manifest.json"),
+            rel(RESULTS_DIR / "vs_cpp_recovery_gate.json"),
         ],
     }
     OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")
