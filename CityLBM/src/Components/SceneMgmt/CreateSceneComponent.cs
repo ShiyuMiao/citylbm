@@ -78,7 +78,7 @@ namespace CityLBM.Components.SceneMgmt
             get
             {
                 // TODO: 添加图标
-                return null;
+                return null!;
             }
         }
 

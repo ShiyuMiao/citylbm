@@ -50,6 +50,10 @@ namespace CityLBM.Components.Simulation
                    "Mode 3【推荐】：后台异步运行，GH 内实时显示进度，不弹窗",
                    "CityLBM", "Simulation")
         {
+            _cts = new CancellationTokenSource();
+            _asyncResult = new SolverResult();
+            _refreshTimer = new System.Timers.Timer();
+            _refreshTimer.Stop();
         }
 
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
@@ -138,8 +142,8 @@ namespace CityLBM.Components.Simulation
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             // ── 读取参数 ────────────────────────────────────────────────
-            GH_Scene ghScene = null;
-            GH_CartesianGrid ghGrid = null;
+            GH_Scene ghScene = null!;
+            GH_CartesianGrid ghGrid = null!;
             string fluidX3DPath = "";
             int mode = 3;
             double windSpeedOverride = 0.0;
@@ -474,7 +478,7 @@ namespace CityLBM.Components.Simulation
             }
 
             // 重置状态
-            _asyncResult = null;
+            _asyncResult = null!;
             _asyncRunning = true;
             _asyncProgress = 0;
             lock (_logLock) { _asyncLog.Clear(); }
@@ -638,7 +642,7 @@ namespace CityLBM.Components.Simulation
             {
                 _refreshTimer.Stop();
                 _refreshTimer.Dispose();
-                _refreshTimer = null;
+                _refreshTimer = null!;
             }
         }
 
@@ -708,7 +712,7 @@ namespace CityLBM.Components.Simulation
         // ────────────────────────────────────────────────────────────────
         // 组件元信息
         // ────────────────────────────────────────────────────────────────
-        protected override Bitmap Icon => null;
+        protected override Bitmap Icon => null!;
 
         public override Guid ComponentGuid
             => new Guid("F9A5B3E2-8C4D-4F7A-9B6E-2D5C7A8B9F1D");

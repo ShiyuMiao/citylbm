@@ -150,8 +150,6 @@ namespace CityLBM.Core
         {
             int totalVertices = 0;
             int totalFaces = 0;
-            double totalVolume = 0;
-
             foreach (var mesh in BuildingMeshes)
             {
                 totalVertices += mesh.Vertices.Count;
@@ -159,7 +157,7 @@ namespace CityLBM.Core
                 // 简化计算：假设Mesh是闭合的
                 if (mesh.IsClosed)
                 {
-                    AreaMassProperties amp = AreaMassProperties.Compute(mesh);
+                    AreaMassProperties.Compute(mesh);
                     // 注意：这里只是简化统计
                 }
             }

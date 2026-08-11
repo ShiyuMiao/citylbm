@@ -39,7 +39,7 @@ namespace CityLBM.Components.SceneMgmt
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             // 获取Scene
-            GH_Scene ghScene = null;
+            GH_Scene? ghScene = null;
             if (!DA.GetData(0, ref ghScene) || ghScene == null || !ghScene.IsValid)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "需要有效的场景对象");
@@ -85,7 +85,7 @@ namespace CityLBM.Components.SceneMgmt
         {
             get
             {
-                return null;
+                return null!;
             }
         }
 

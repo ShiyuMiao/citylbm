@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-11T03:43:17.295004+00:00",
-  "recommended_tag": "v0.4.0-rc69",
+  "generated_at": "2026-08-11T06:28:30.881409+00:00",
+  "recommended_tag": "v0.4.0-rc70",
   "plugin_public_version": "0.4.0-rc",
   "plugin_assembly_version": "0.4.0.0",
-  "tracked_gha_sha256": "4ccad3995ea5c6812d96133f50765e4a0f02254ce2c54ebf42487151dc0f2a3b",
-  "release_gha_sha256": "4ccad3995ea5c6812d96133f50765e4a0f02254ce2c54ebf42487151dc0f2a3b",
+  "tracked_gha_sha256": "ea6717db0226f4cd1a95f515cb4556604db6f6b59daf452b9d9bb39abc3e9af3",
+  "release_gha_sha256": "ea6717db0226f4cd1a95f515cb4556604db6f6b59daf452b9d9bb39abc3e9af3",
   "plugin_identity_gate_passed": true,
   "checks": {
     "plugin_public_version_is_rc": true,

@@ -216,7 +216,7 @@ namespace CityLBM.Components.Results
 
         protected override Bitmap Icon
         {
-            get { return null; }
+            get { return null!; }
         }
 
         public override Guid ComponentGuid

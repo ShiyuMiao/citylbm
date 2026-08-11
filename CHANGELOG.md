@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc70 - Nullable-clean plugin rebuild
+
+- Removed nullable-build warnings from the CityLBM Release rebuild path while preserving Case E formal defaults and default-off diagnostic controls.
+- Hardened FluidX3D discovery/result DTOs and VTK readers around null-safe executable lookup, structured-grid origin/spacing parsing, scalar names, and latest-output fallbacks.
+- Rebuilt and packaged tracked `CityLBM/bin/CityLBM.gha` with SHA256 `ea6717db0226f4cd1a95f515cb4556604db6f6b59daf452b9d9bb39abc3e9af3`.
+- Re-ran the default-policy and manifest-schema gates; both passed.
+
+This is software-quality and build-chain evidence only. It does not add a new FluidX3D run, recover GPU runtime, prove Rhino/Grasshopper loaded the new GHA, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc69 - Operational recovery dashboard
 
 - Added `casee_operational_recovery_dashboard.py` to consolidate the ordered recovery path across C: drive space, VS C++ readiness, UAC launch, GPU recovery, Rhino/GHA load evidence, official follow-up preflight, and the formal metric gate.

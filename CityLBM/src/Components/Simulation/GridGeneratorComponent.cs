@@ -34,7 +34,7 @@ namespace CityLBM.Components.Simulation
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            GH_Scene ghScene = null;
+            GH_Scene? ghScene = null;
             double cellSize = 1.0;
 
             if (!DA.GetData(0, ref ghScene)) return;
@@ -69,7 +69,7 @@ namespace CityLBM.Components.Simulation
 
         protected override Bitmap Icon
         {
-            get { return null; }
+            get { return null!; }
         }
 
         public override Guid ComponentGuid

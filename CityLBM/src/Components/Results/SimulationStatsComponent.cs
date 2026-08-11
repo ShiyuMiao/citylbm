@@ -334,7 +334,7 @@ namespace CityLBM.Components.Results
             return sb.ToString();
         }
 
-        protected override Bitmap Icon => null;
+        protected override Bitmap Icon => null!;
 
         public override Guid ComponentGuid
             => new Guid("D4E5F6A7-B8C9-4D0E-A1B2-C3D4E5F6A7B8");

@@ -175,7 +175,7 @@ namespace CityLBM.Components.Results
             if (timeStep == -2)
             {
                 int latestStep = -1;
-                string bestFile = null;
+                string? bestFile = null;
                 foreach (string file in vtkFiles)
                 {
                     try
@@ -873,9 +873,9 @@ namespace CityLBM.Components.Results
                 int expectedPointCount = 0;
                 int rawIdx = 0;
 
-                int[] dims = null;
-                float[] org = null;
-                float[] spc = null;
+                int[]? dims = null;
+                float[]? org = null;
+                float[]? spc = null;
 
                 while ((line = reader.ReadLine()) != null)
                 {
@@ -911,9 +911,9 @@ namespace CityLBM.Components.Results
                             string[] p = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                             if (p.Length >= 4)
                             {
-                                float.TryParse(p[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out org[0]);
-                                float.TryParse(p[2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out org[1]);
-                                float.TryParse(p[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out org[2]);
+                                float.TryParse(p[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out org![0]);
+                                float.TryParse(p[2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out org![1]);
+                                float.TryParse(p[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out org![2]);
                             }
                             continue;
                         }
@@ -922,9 +922,9 @@ namespace CityLBM.Components.Results
                             string[] p = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                             if (p.Length >= 4)
                             {
-                                float.TryParse(p[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out spc[0]);
-                                float.TryParse(p[2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out spc[1]);
-                                float.TryParse(p[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out spc[2]);
+                                float.TryParse(p[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out spc![0]);
+                                float.TryParse(p[2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out spc![1]);
+                                float.TryParse(p[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out spc![2]);
                             }
                             continue;
                         }
@@ -942,7 +942,7 @@ namespace CityLBM.Components.Results
 
                     if (line.StartsWith("POINT_DATA"))
                     {
-                        if (dims != null && result.Points.Count == 0 && expectedPointCount > 0)
+                        if (dims != null && org != null && spc != null && result.Points.Count == 0 && expectedPointCount > 0)
                             GenerateStructuredPoints(result, dims, org, spc, step);
                         readingPoints = false;
                         continue;
@@ -1013,7 +1013,7 @@ namespace CityLBM.Components.Results
                     }
                 }
 
-                if (dims != null && result.Points.Count == 0 && expectedPointCount > 0)
+                if (dims != null && org != null && spc != null && result.Points.Count == 0 && expectedPointCount > 0)
                     GenerateStructuredPoints(result, dims, org, spc, step);
 
                 if (result.RawPointCount == 0)
@@ -1131,7 +1131,7 @@ namespace CityLBM.Components.Results
 
             result.RawPointCount = pointCount;
 
-            List<int> sampledIndices = null;
+            List<int>? sampledIndices = null;
             if (isStructured && pointCount > 0)
                 sampledIndices = GenerateStructuredPoints(result, dimensions, origin, spacing, step);
 
@@ -1277,9 +1277,9 @@ namespace CityLBM.Components.Results
         private string FindLatestOutputDir()
         {
             string baseDir = Path.Combine(Path.GetTempPath(), "CityLBM");
-            if (!Directory.Exists(baseDir)) return null;
+            if (!Directory.Exists(baseDir)) return "";
 
-            string bestDir = null;
+            string bestDir = "";
             DateTime bestTime = DateTime.MinValue;
 
             try
@@ -1489,7 +1489,7 @@ namespace CityLBM.Components.Results
             return 0;
         }
 
-        protected override Bitmap Icon => null;
+        protected override Bitmap Icon => null!;
 
         public override Guid ComponentGuid => new Guid("D6E2F4A8-B1C3-4D5E-9F7A-2B3C4D5E6F7A");
     }

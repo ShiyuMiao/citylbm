@@ -174,7 +174,7 @@ namespace CityLBM.Components.Results
             {
                 // 先从文件名中提取所有时间步，选最大的
                 int latestStep = -1;
-                string bestFile = null;
+                string? bestFile = null;
                 foreach (string file in vtkFiles)
                 {
                     try
@@ -328,8 +328,8 @@ namespace CityLBM.Components.Results
             string header = System.Text.Encoding.ASCII.GetString(buf, 0, n);
             string[] lines = header.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
-            float[] spacing  = null;
-            int[]   dims     = null;
+            float[]? spacing  = null;
+            int[]?   dims     = null;
 
             foreach (string line in lines)
             {
@@ -425,14 +425,14 @@ namespace CityLBM.Components.Results
                 bool readingScalars   = false;
                 bool skipLookupTable  = false;
                 string currentScalar  = "";
-                List<double> currentScalarValues = null;
+                List<double>? currentScalarValues = null;
                 int expectedPointCount = 0;
                 int rawIdx = 0; // 当前读到第几个原始点
 
                 // 用于 STRUCTURED_POINTS 生成坐标
-                int[] dims    = null;
-                float[] org   = null;
-                float[] spc   = null;
+                int[]? dims    = null;
+                float[]? org   = null;
+                float[]? spc   = null;
 
                 while ((line = reader.ReadLine()) != null)
                 {
@@ -474,11 +474,11 @@ namespace CityLBM.Components.Results
                             if (p.Length >= 4)
                             {
                                 float.TryParse(p[1], System.Globalization.NumberStyles.Float,
-                                    System.Globalization.CultureInfo.InvariantCulture, out org[0]);
+                                    System.Globalization.CultureInfo.InvariantCulture, out org![0]);
                                 float.TryParse(p[2], System.Globalization.NumberStyles.Float,
-                                    System.Globalization.CultureInfo.InvariantCulture, out org[1]);
+                                    System.Globalization.CultureInfo.InvariantCulture, out org![1]);
                                 float.TryParse(p[3], System.Globalization.NumberStyles.Float,
-                                    System.Globalization.CultureInfo.InvariantCulture, out org[2]);
+                                    System.Globalization.CultureInfo.InvariantCulture, out org![2]);
                             }
                             continue;
                         }
@@ -488,11 +488,11 @@ namespace CityLBM.Components.Results
                             if (p.Length >= 4)
                             {
                                 float.TryParse(p[1], System.Globalization.NumberStyles.Float,
-                                    System.Globalization.CultureInfo.InvariantCulture, out spc[0]);
+                                    System.Globalization.CultureInfo.InvariantCulture, out spc![0]);
                                 float.TryParse(p[2], System.Globalization.NumberStyles.Float,
-                                    System.Globalization.CultureInfo.InvariantCulture, out spc[1]);
+                                    System.Globalization.CultureInfo.InvariantCulture, out spc![1]);
                                 float.TryParse(p[3], System.Globalization.NumberStyles.Float,
-                                    System.Globalization.CultureInfo.InvariantCulture, out spc[2]);
+                                    System.Globalization.CultureInfo.InvariantCulture, out spc![2]);
                             }
                             continue;
                         }
@@ -508,7 +508,7 @@ namespace CityLBM.Components.Results
 
                         int cap = (expectedPointCount / step) + 1;
                         result.Points     = new List<Point3d>(cap);
-                        result.Velocities = null; // 先清空，等 VECTORS 节再填
+                        result.Velocities = new List<Vector3d>(); // 先清空，等 VECTORS 节再填
 
                         readingPoints     = true;
                         readingVelocities = false;
@@ -521,7 +521,7 @@ namespace CityLBM.Components.Results
                     if (line.StartsWith("POINT_DATA"))
                     {
                         // STRUCTURED_POINTS 在这里才生成坐标（已经知道 dims / org / spc）
-                        if (dims != null && result.Points == null && expectedPointCount > 0)
+                        if (dims != null && org != null && spc != null && result.Points.Count == 0 && expectedPointCount > 0)
                             _ = GenerateStructuredPoints(result, dims, org, spc, step);
 
                         readingPoints = false;
@@ -534,9 +534,9 @@ namespace CityLBM.Components.Results
                         readingVelocities = true;
                         readingScalars    = false;
                         readingPoints     = false;
-                        if (result.Velocities == null)
+                        if (result.Velocities.Count == 0)
                         {
-                            int cap = result.Points != null ? result.Points.Count : 64;
+                            int cap = result.Points.Count > 0 ? result.Points.Count : 64;
                             result.Velocities = new List<Vector3d>(cap);
                         }
                         rawIdx = 0;
@@ -624,7 +624,7 @@ namespace CityLBM.Components.Results
                                 System.Globalization.CultureInfo.InvariantCulture, out double val))
                         {
                             if (rawIdx % step == 0)
-                                currentScalarValues.Add(val);
+                                currentScalarValues!.Add(val);
                             rawIdx++;
                         }
                         continue;
@@ -636,7 +636,7 @@ namespace CityLBM.Components.Results
                     result.Scalars[currentScalar] = currentScalarValues;
 
                 // STRUCTURED_POINTS 如果还没生成坐标（没有 POINT_DATA 节的情况）
-                if (dims != null && result.Points == null && expectedPointCount > 0)
+                if (dims != null && org != null && spc != null && result.Points.Count == 0 && expectedPointCount > 0)
                     _ = GenerateStructuredPoints(result, dims, org, spc, step);
 
                 // 修正原始点数
@@ -719,8 +719,6 @@ namespace CityLBM.Components.Results
 
             // 数据段描述：记录每个段的类型、数据类型和偏移
             var dataSections = new List<DataSection>();
-            int currentSectionStart = -1;
-
             foreach (string rawLine in lines)
             {
                 string t = rawLine.Trim();
@@ -802,7 +800,7 @@ namespace CityLBM.Components.Results
             result.RawPointCount = pointCount;
 
             // ── 第二阶段：生成坐标（结构化网格采样） ────────────────
-            List<int> sampledIndices = null;
+            List<int>? sampledIndices = null;
             if (isStructured && pointCount > 0)
             {
                 sampledIndices = GenerateStructuredPoints(result, dimensions, origin, spacing, step);
@@ -911,7 +909,7 @@ namespace CityLBM.Components.Results
                         // 如果是 SCALARS 被当作向量，也存一份到 Scalars 里
                         if (treatAsVector)
                         {
-                            result.Scalars[section.Name] = result.Velocities
+                            result.Scalars[section.Name ?? "velocity_magnitude"] = result.Velocities
                                 .Select(v => v.Length).ToList();
                         }
                     }
@@ -947,7 +945,7 @@ namespace CityLBM.Components.Results
                                 }
                             }
                         }
-                        result.Scalars[section.Name] = values;
+                        result.Scalars[section.Name ?? "scalar"] = values;
                     }
 
                     filePos += sectionBytes;
@@ -1029,9 +1027,9 @@ namespace CityLBM.Components.Results
         {
             string baseDir = Path.Combine(Path.GetTempPath(), "CityLBM");
             if (!Directory.Exists(baseDir))
-                return null;
+                return "";
 
-            string bestDir = null;
+            string bestDir = "";
             DateTime bestTime = DateTime.MinValue;
 
             try
@@ -1101,7 +1099,7 @@ namespace CityLBM.Components.Results
             return 0;
         }
 
-        protected override Bitmap Icon => null;
+        protected override Bitmap Icon => null!;
 
         public override Guid ComponentGuid
             => new Guid("A3B7C9D2-8E4F-4A5B-9C6D-7E8F9A0B1C2D");

@@ -279,7 +279,7 @@ namespace CityLBM.Core
         public double Dx { get; set; }
         public Point3d Origin { get; set; }
         public BoundingBox DomainBounds { get; set; }
-        public CellFlag[,,] Flags { get; set; }
+        public CellFlag[,,] Flags { get; set; } = new CellFlag[0, 0, 0];
 
         public int TotalCells => Nx * Ny * Nz;
     }

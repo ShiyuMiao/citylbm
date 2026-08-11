@@ -28,6 +28,7 @@ ALWAYS_INCLUDE = {
     "README.md",
     "CHANGELOG.md",
     "CityLBM/bin/CityLBM.gha",
+    "docs/releases/v0.4.0-rc70.md",
     "docs/experiments/casea/results/casea_smoke_regression.json",
     "docs/experiments/casea/results/casea_vtk_manifest.csv",
     "docs/experiments/casee/data_manifest.csv",

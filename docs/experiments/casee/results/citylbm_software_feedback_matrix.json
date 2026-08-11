@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T03:43:34.009534+00:00",
-    "feedback_count": 46,
+    "generated_at": "2026-08-11T06:28:30.964603+00:00",
+    "feedback_count": 47,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -33,6 +33,7 @@
       "build_chain_uac_launcher_gate": 1,
       "build_chain_system_drive_space_gate": 1,
       "operational_recovery_dashboard_gate": 1,
+      "software_quality_no_default_promotion": 1,
       "software_gha_staging_audit": 1,
       "manual_rhino_load_evidence_kit": 1,
       "software_identity_component": 1,
@@ -72,6 +73,7 @@
       "implemented_vs_cpp_elevated_launcher_gate": 1,
       "implemented_vs_cpp_system_drive_space_gate": 1,
       "implemented_operational_recovery_dashboard": 1,
+      "implemented_warning_clean_rebuild": 1,
       "implemented_gha_staging_audit": 1,
       "implemented_rhino_load_evidence_kit": 1,
       "implemented_plugin_identity_component": 1,
@@ -548,7 +550,7 @@
       "source_paths_exist": true,
       "decision_class": "paper_release_asset_manifest",
       "citylbm_status": "implemented_release_asset_manifest",
-      "implementation_evidence": "upload_asset_count=66; excluded_or_hash_only_count=20; upload_total_size_bytes=3864067; recommended_tag=v0.4.0-rc69",
+      "implementation_evidence": "upload_asset_count=67; excluded_or_hash_only_count=20; upload_total_size_bytes=3883064; recommended_tag=v0.4.0-rc69",
       "default_setting_allowed": true,
       "paper_use": "Use for release/data-availability traceability and reviewer artifact checks.",
       "limitations": "Release planning only; it does not create a GitHub Release, add CFD output, or permit formal v0.4.0."
@@ -610,6 +612,20 @@
       "limitations": "Recovery dashboard only; it does not recover environment state, run CFD, improve metrics, change defaults, or permit formal v0.4.0."
     },
     {
+      "feedback_id": "SF047",
+      "experiment": "CityLBM nullable-clean plugin rebuild",
+      "finding": "The rc70 plugin rebuild removes C# nullable warnings and hardens FluidX3D discovery, result DTOs, and VTK readers while keeping Case E diagnostic controls default-off and non-formal.",
+      "evidence_type": "newly_run",
+      "source_paths": "CityLBM/src/Core/FluidX3DInterface.cs; CityLBM/src/Components/Results/ReadVTKComponent.cs; CityLBM/src/Components/Results/VTKCloudVisualizationComponent.cs; docs/releases/v0.4.0-rc70.md; docs/experiments/casee/results/casee_default_policy_gate.json; docs/experiments/casee/results/citylbm_manifest_schema_gate.json; docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.json",
+      "source_paths_exist": true,
+      "decision_class": "software_quality_no_default_promotion",
+      "citylbm_status": "implemented_warning_clean_rebuild",
+      "implementation_evidence": "rebuild_warnings=0; rebuild_errors=0; packaged_gha_sha256=ea6717db0226f4cd1a95f515cb4556604db6f6b59daf452b9d9bb39abc3e9af3; default_policy_gate_passed=True; manifest_schema_gate_passed=True",
+      "default_setting_allowed": true,
+      "paper_use": "Use as software-quality and reproducibility evidence that the plugin builds cleanly before further Case E follow-up runs.",
+      "limitations": "Build-quality evidence only; it does not recover GPU, run FluidX3D, improve official z2m metrics, prove Rhino loaded the new GHA, or permit formal v0.4.0."
+    },
+    {
       "feedback_id": "SF036",
       "experiment": "CityLBM GHA staging/install audit",
       "finding": "The tracked CityLBM.gha can now be audited against common Grasshopper Libraries locations, with exact SHA256 matching and an explicit manual copy command before any Rhino load claim is made.",
@@ -660,7 +676,7 @@
       "source_paths_exist": true,
       "decision_class": "packaged_gha_identity_component_gate",
       "citylbm_status": "implemented_packaged_gha_identity_component_gate",
-      "implementation_evidence": "gate_passed=True; tracked_sha=4ccad3995ea5c6812d96133f50765e4a0f02254ce2c54ebf42487151dc0f2a3b; size_bytes=1823232",
+      "implementation_evidence": "gate_passed=True; tracked_sha=ea6717db0226f4cd1a95f515cb4556604db6f6b59daf452b9d9bb39abc3e9af3; size_bytes=1823744",
       "default_setting_allowed": true,
       "paper_use": "Use as packaged-plugin software identity evidence before manual Rhino/GHA load verification.",
       "limitations": "Packaged GHA string audit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0."

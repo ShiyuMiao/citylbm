@@ -36,10 +36,10 @@ namespace CityLBM.Solver
         public string WorkingDirectory { get; set; }
 
         /// <summary>最近一次部署的 Case 目录</summary>
-        public string LastCaseDirectory { get; private set; }
+        public string LastCaseDirectory { get; private set; } = "";
 
         /// <summary>编译日志</summary>
-        public string BuildLog { get; private set; }
+        public string BuildLog { get; private set; } = "";
 
         #endregion
 
@@ -328,7 +328,7 @@ namespace CityLBM.Solver
         /// 第三步：编译 FluidX3D
         /// 支持 Windows（MSBuild）和 Linux/Mac（make）
         /// </summary>
-        public BuildResult Build(Action<string> progressCallback = null)
+        public BuildResult Build(Action<string>? progressCallback = null)
         {
             var result = new BuildResult { StartTime = DateTime.Now };
 
@@ -385,7 +385,7 @@ namespace CityLBM.Solver
         /// 第四步：运行编译好的 FluidX3D 可执行文件
         /// 启用了 GRAPHICS 模式时会弹出 FluidX3D 渲染窗口
         /// </summary>
-        public SolverResult RunSolver(string outputDir = null)
+        public SolverResult RunSolver(string? outputDir = null)
         {
             var result = new SolverResult { StartTime = DateTime.Now };
 
@@ -397,7 +397,7 @@ namespace CityLBM.Solver
             }
 
             // 找可执行文件
-            string exePath = FindExecutable(FluidX3DPath);
+            string? exePath = FindExecutable(FluidX3DPath);
             if (string.IsNullOrEmpty(exePath))
             {
                 result.Success = false;
@@ -706,7 +706,7 @@ namespace CityLBM.Solver
             }
 
             progressCallback?.Invoke($"[调试] FluidX3D 路径: {FluidX3DPath}");
-            string exePath = FindExecutable(FluidX3DPath);
+            string? exePath = FindExecutable(FluidX3DPath);
             progressCallback?.Invoke($"[调试] 查找 exe 结果: {exePath ?? "未找到"}");
             
             if (string.IsNullOrEmpty(exePath))
@@ -1050,12 +1050,12 @@ namespace CityLBM.Solver
 
         #region Private — Build Methods
 
-        private BuildResult BuildWithMSBuild(string slnFile, Action<string> progressCallback = null)
+        private BuildResult BuildWithMSBuild(string slnFile, Action<string>? progressCallback = null)
         {
             var result = new BuildResult { StartTime = DateTime.Now };
 
             // 查找 MSBuild
-            string msBuildPath = FindMSBuild();
+            string? msBuildPath = FindMSBuild();
             if (string.IsNullOrEmpty(msBuildPath))
             {
                 result.Success = false;
@@ -1072,7 +1072,7 @@ namespace CityLBM.Solver
             {
                 FileName = msBuildPath,
                 Arguments = $"\"{slnFile}\" /t:Rebuild /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset={toolset} /m /nologo /v:minimal",
-                WorkingDirectory = Path.GetDirectoryName(slnFile),
+                WorkingDirectory = Path.GetDirectoryName(slnFile) ?? FluidX3DPath,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -1123,14 +1123,15 @@ namespace CityLBM.Solver
             progressCallback?.Invoke($"[调试] 编译结束，退出码: {result.ExitCode}, Success: {result.Success}");
             if (result.Success)
             {
-                string exePath = FindExecutable(Path.GetDirectoryName(slnFile));
+                string slnDir = Path.GetDirectoryName(slnFile) ?? FluidX3DPath;
+                string? exePath = FindExecutable(slnDir);
                 progressCallback?.Invoke($"[调试] 查找 exe 结果: {exePath ?? "未找到"}");
                 if (string.IsNullOrEmpty(exePath))
                 {
                     result.Success = false;
                     result.ErrorMessage = $"编译成功但未找到 FluidX3D.exe。请检查输出路径。查找位置:\n" +
-                        $"  - {Path.Combine(Path.GetDirectoryName(slnFile), "x64", "Release", "FluidX3D.exe")}\n" +
-                        $"  - {Path.Combine(Path.GetDirectoryName(slnFile), "bin", "Release", "x64", "FluidX3D.exe")}";
+                        $"  - {Path.Combine(slnDir, "x64", "Release", "FluidX3D.exe")}\n" +
+                        $"  - {Path.Combine(slnDir, "bin", "Release", "x64", "FluidX3D.exe")}";
                     progressCallback?.Invoke("[错误] 编译成功但未找到 exe 文件");
                 }
                 else
@@ -1146,7 +1147,7 @@ namespace CityLBM.Solver
             return result;
         }
 
-        private BuildResult BuildWithFallback(BuildResult previous, string failedBuilder, Action<string> progressCallback = null)
+        private BuildResult BuildWithFallback(BuildResult previous, string failedBuilder, Action<string>? progressCallback = null)
         {
             progressCallback?.Invoke($"[Build] {failedBuilder} failed or is unavailable. Trying MinGW/g++ fallback.");
             BuildResult fallback = BuildWithMinGW(FluidX3DPath, progressCallback);
@@ -1158,11 +1159,11 @@ namespace CityLBM.Solver
             return fallback;
         }
 
-        private BuildResult BuildWithMinGW(string sourceDir, Action<string> progressCallback = null)
+        private BuildResult BuildWithMinGW(string sourceDir, Action<string>? progressCallback = null)
         {
             var result = new BuildResult { StartTime = DateTime.Now };
             var sb = new StringBuilder();
-            string gpp = FindGpp();
+            string? gpp = FindGpp();
             if (string.IsNullOrEmpty(gpp))
             {
                 result.Success = false;
@@ -1231,7 +1232,7 @@ namespace CityLBM.Solver
             return result;
         }
 
-        private BuildResult BuildWithMake(string sourceDir, Action<string> progressCallback = null)
+        private BuildResult BuildWithMake(string sourceDir, Action<string>? progressCallback = null)
         {
             var result = new BuildResult { StartTime = DateTime.Now };
             var sb = new StringBuilder();
@@ -1342,7 +1343,7 @@ namespace CityLBM.Solver
             return "v143";
         }
 
-        private string FindMSBuild()
+        private string? FindMSBuild()
         {
             // 常见 MSBuild 路径
             string[] candidates = new[]
@@ -1371,7 +1372,9 @@ namespace CityLBM.Solver
                 };
                 using (var p = Process.Start(startInfo))
                 {
-                    string output = p.StandardOutput.ReadLine();
+                    if (p == null)
+                        return null;
+                    string? output = p.StandardOutput.ReadLine();
                     p.WaitForExit();
                     if (!string.IsNullOrEmpty(output) && File.Exists(output))
                         return output;
@@ -1382,13 +1385,13 @@ namespace CityLBM.Solver
             return null;
         }
 
-        private string FindGpp()
+        private string? FindGpp()
         {
-            string explicitPath = Environment.GetEnvironmentVariable("CITYLBM_GPP_PATH");
+            string? explicitPath = Environment.GetEnvironmentVariable("CITYLBM_GPP_PATH");
             if (!string.IsNullOrWhiteSpace(explicitPath) && File.Exists(explicitPath))
                 return explicitPath;
 
-            string mingwBin = Environment.GetEnvironmentVariable("CITYLBM_MINGW_BIN");
+            string? mingwBin = Environment.GetEnvironmentVariable("CITYLBM_MINGW_BIN");
             if (!string.IsNullOrWhiteSpace(mingwBin))
             {
                 string candidate = Path.Combine(mingwBin, "g++.exe");
@@ -1407,9 +1410,11 @@ namespace CityLBM.Solver
                 };
                 using (var process = Process.Start(startInfo))
                 {
+                    if (process == null)
+                        return null;
                     string output = process.StandardOutput.ReadToEnd();
                     process.WaitForExit();
-                    string first = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+                    string? first = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
                     if (!string.IsNullOrWhiteSpace(first) && File.Exists(first))
                         return first;
                 }
@@ -1426,7 +1431,7 @@ namespace CityLBM.Solver
             return "\"" + value.Replace("\"", "\\\"") + "\"";
         }
 
-        private string FindExecutable(string fluidX3DPath)
+        private string? FindExecutable(string fluidX3DPath)
         {
             string[] candidates = new[]
             {
@@ -1840,12 +1845,12 @@ namespace CityLBM.Solver
         private void AppendInletProfileFunction(StringBuilder sb, SimulationSettings settings, Vector3d windDir, double referenceLatticeVelocity, double referenceSpeed)
         {
             double profileReferenceSpeed = Math.Max(referenceSpeed, 0.001);
+            List<InletProfilePoint> inletProfile = settings.InletProfile ?? new List<InletProfilePoint>();
             string diagnosticInletTurbulenceMode = NormalizeDiagnosticInletTurbulenceMode(settings.DiagnosticInletTurbulenceMode);
             bool hasDiagnosticInletTurbulence = diagnosticInletTurbulenceMode.Equals("k_synthetic_fullplane", StringComparison.OrdinalIgnoreCase)
                 && settings.DiagnosticInletTurbulenceScale > 0.0
-                && settings.InletProfile != null
-                && settings.InletProfile.Count > 0;
-            if (settings.InletProfile.Count == 0)
+                && inletProfile.Count > 0;
+            if (inletProfile.Count == 0)
             {
                 sb.AppendLine("    auto citylbm_inlet_velocity = [&](uint x_index, uint y_index, uint z_index, uint step) -> float3 {");
                 sb.AppendLine("        (void)x_index; (void)y_index; (void)z_index; (void)step;");
@@ -1858,17 +1863,17 @@ namespace CityLBM.Solver
             sb.AppendLine("        const float z_m = citylbm_origin_z + (static_cast<float>(z_index) + 0.5f) * citylbm_dx;");
             sb.AppendLine("        float profile_scale = 1.0f;");
 
-            if (settings.InletProfile.Count == 1)
+            if (inletProfile.Count == 1)
             {
-                double profileScale = settings.InletProfile[0].U / profileReferenceSpeed;
+                double profileScale = inletProfile[0].U / profileReferenceSpeed;
                 sb.AppendLine($"        profile_scale = {profileScale.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
             }
             else
             {
-                for (int i = 0; i < settings.InletProfile.Count - 1; i++)
+                for (int i = 0; i < inletProfile.Count - 1; i++)
                 {
-                    var a = settings.InletProfile[i];
-                    var b = settings.InletProfile[i + 1];
+                    var a = inletProfile[i];
+                    var b = inletProfile[i + 1];
                     string prefix = i == 0 ? "if" : "else if";
                     sb.AppendLine($"        {prefix}(z_m <= {b.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f) {{");
                     sb.AppendLine($"            const float z0 = {a.Z.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
@@ -1881,7 +1886,7 @@ namespace CityLBM.Solver
                     sb.AppendLine("            profile_scale = u0 + (u1-u0)*t;");
                     sb.AppendLine("        }");
                 }
-                var last = settings.InletProfile[settings.InletProfile.Count - 1];
+                var last = inletProfile[inletProfile.Count - 1];
                 sb.AppendLine("        else {");
                 sb.AppendLine($"            profile_scale = {(last.U / profileReferenceSpeed).ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
                 sb.AppendLine("        }");
@@ -1892,17 +1897,17 @@ namespace CityLBM.Solver
             sb.AppendLine("    auto citylbm_inlet_sigma_ratio = [&](uint z_index) -> float {");
             sb.AppendLine("        const float z_m = citylbm_origin_z + (static_cast<float>(z_index) + 0.5f) * citylbm_dx;");
             sb.AppendLine("        float sigma_ratio = 0.0f;");
-            if (settings.InletProfile.Count == 1)
+            if (inletProfile.Count == 1)
             {
-                double sigmaRatio = Math.Sqrt(Math.Max(0.0, 2.0 * settings.InletProfile[0].K / 3.0)) / profileReferenceSpeed;
+                double sigmaRatio = Math.Sqrt(Math.Max(0.0, 2.0 * inletProfile[0].K / 3.0)) / profileReferenceSpeed;
                 sb.AppendLine($"        sigma_ratio = {sigmaRatio.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
             }
             else
             {
-                for (int i = 0; i < settings.InletProfile.Count - 1; i++)
+                for (int i = 0; i < inletProfile.Count - 1; i++)
                 {
-                    var a = settings.InletProfile[i];
-                    var b = settings.InletProfile[i + 1];
+                    var a = inletProfile[i];
+                    var b = inletProfile[i + 1];
                     string prefix = i == 0 ? "if" : "else if";
                     double s0 = Math.Sqrt(Math.Max(0.0, 2.0 * a.K / 3.0)) / profileReferenceSpeed;
                     double s1 = Math.Sqrt(Math.Max(0.0, 2.0 * b.K / 3.0)) / profileReferenceSpeed;
@@ -1917,7 +1922,7 @@ namespace CityLBM.Solver
                     sb.AppendLine("            sigma_ratio = s0 + (s1-s0)*t;");
                     sb.AppendLine("        }");
                 }
-                var last = settings.InletProfile[settings.InletProfile.Count - 1];
+                var last = inletProfile[inletProfile.Count - 1];
                 double lastSigma = Math.Sqrt(Math.Max(0.0, 2.0 * last.K / 3.0)) / profileReferenceSpeed;
                 sb.AppendLine("        else {");
                 sb.AppendLine($"            sigma_ratio = {lastSigma.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f;");
@@ -2162,7 +2167,7 @@ namespace CityLBM.Solver
             sb.AppendLine("  \"inputs\": {");
             sb.AppendLine($"    \"approach_flow_csv\": \"{EscapeJson(settings.ApproachFlowCsvPath)}\",");
             sb.AppendLine($"    \"reference_probe_csv\": \"{EscapeJson(settings.ReferenceProbeCsvPath)}\",");
-            sb.AppendLine($"    \"inlet_profile_points\": {settings.InletProfile.Count},");
+            sb.AppendLine($"    \"inlet_profile_points\": {settings.InletProfile?.Count ?? 0},");
             sb.AppendLine($"    \"cleared_old_output_files\": {clearedOutputFiles}");
             sb.AppendLine("  }");
             sb.AppendLine("}");
@@ -2415,7 +2420,7 @@ namespace CityLBM.Solver
 
             using (StreamReader reader = new StreamReader(vtkPath))
             {
-                string line;
+                string? line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     line = line.Trim();
@@ -2428,7 +2433,7 @@ namespace CityLBM.Solver
 
                         for (int i = 0; i < numPoints; i++)
                         {
-                            string ptLine = reader.ReadLine()?.Trim();
+                            string? ptLine = reader.ReadLine()?.Trim();
                             if (ptLine == null) break;
                             var p = ptLine.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                             if (p.Length >= 3)
@@ -2679,13 +2684,13 @@ namespace CityLBM.Solver
 
         private static string ResolveRepoPath(params string[] parts)
         {
-            string dir = AppDomain.CurrentDomain.BaseDirectory;
+            string dir = AppDomain.CurrentDomain.BaseDirectory ?? "";
             for (int i = 0; i < 8 && !string.IsNullOrEmpty(dir); i++)
             {
                 string candidate = Path.Combine(new[] { dir }.Concat(parts).ToArray());
                 if (File.Exists(candidate))
                     return candidate;
-                dir = Directory.GetParent(dir)?.FullName;
+                dir = Directory.GetParent(dir)?.FullName ?? "";
             }
             return Path.Combine(parts);
         }
@@ -2718,9 +2723,9 @@ namespace CityLBM.Solver
     public class DeployResult
     {
         public bool Success { get; set; }
-        public string CaseDirectory { get; set; }
-        public string Message { get; set; }
-        public string ErrorMessage { get; set; }
+        public string CaseDirectory { get; set; } = "";
+        public string Message { get; set; } = "";
+        public string ErrorMessage { get; set; } = "";
         public List<string> DeployedFiles { get; set; } = new List<string>();
     }
 
@@ -2729,8 +2734,8 @@ namespace CityLBM.Solver
     {
         public bool Success { get; set; }
         public int ExitCode { get; set; }
-        public string Log { get; set; }
-        public string ErrorMessage { get; set; }
+        public string Log { get; set; } = "";
+        public string ErrorMessage { get; set; } = "";
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public TimeSpan Duration => EndTime - StartTime;
@@ -2740,27 +2745,27 @@ namespace CityLBM.Solver
     public class CaseGenerationResult
     {
         public bool Success { get; set; }
-        public string CaseDirectory { get; set; }
-        public string Instructions { get; set; }
-        public string ErrorMessage { get; set; }
+        public string CaseDirectory { get; set; } = "";
+        public string Instructions { get; set; } = "";
+        public string ErrorMessage { get; set; } = "";
         public DateTime StartTime { get; set; }
 
         /// <summary>是否已自动部署到 FluidX3D 目录</summary>
         public bool AutoDeployed { get; set; }
 
         /// <summary>自动部署的消息（成功或失败原因）</summary>
-        public string DeployMessage { get; set; }
+        public string DeployMessage { get; set; } = "";
     }
 
     /// <summary>求解器运行结果</summary>
     public class SolverResult
     {
         public bool Success { get; set; }
-        public string CaseDirectory { get; set; }
-        public string OutputDirectory { get; set; }
+        public string CaseDirectory { get; set; } = "";
+        public string OutputDirectory { get; set; } = "";
         public int ExitCode { get; set; }
-        public string ErrorMessage { get; set; }
-        public string Log { get; set; }
+        public string ErrorMessage { get; set; } = "";
+        public string Log { get; set; } = "";
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public TimeSpan Duration => EndTime - StartTime;
@@ -2769,10 +2774,10 @@ namespace CityLBM.Solver
     /// <summary>VTK 结果数据</summary>
     public class VTKResult
     {
-        public string FilePath { get; set; }
+        public string FilePath { get; set; } = "";
         public int TimeStep { get; set; }
-        public List<Point3d> Points { get; set; }
-        public List<Vector3d> Velocities { get; set; }
+        public List<Point3d> Points { get; set; } = new List<Point3d>();
+        public List<Vector3d> Velocities { get; set; } = new List<Vector3d>();
         public Dictionary<string, List<double>> Scalars { get; set; } = new Dictionary<string, List<double>>();
 
         /// <summary>VTK 文件中的原始点总数（采样前）</summary>

@@ -1251,6 +1251,37 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF047",
+            experiment="CityLBM nullable-clean plugin rebuild",
+            finding=(
+                "The rc70 plugin rebuild removes C# nullable warnings and hardens FluidX3D discovery, "
+                "result DTOs, and VTK readers while keeping Case E diagnostic controls default-off and non-formal."
+            ),
+            evidence_type="newly_run",
+            source_paths=[
+                FLUIDX,
+                ROOT / "CityLBM" / "src" / "Components" / "Results" / "ReadVTKComponent.cs",
+                ROOT / "CityLBM" / "src" / "Components" / "Results" / "VTKCloudVisualizationComponent.cs",
+                ROOT / "docs" / "releases" / "v0.4.0-rc70.md",
+                RESULTS_DIR / "casee_default_policy_gate.json",
+                RESULTS_DIR / "citylbm_manifest_schema_gate.json",
+                RESULTS_DIR / "citylbm_plugin_identity_binary_gate.json",
+            ],
+            decision_class="software_quality_no_default_promotion",
+            citylbm_status="implemented_warning_clean_rebuild",
+            implementation_evidence=(
+                "rebuild_warnings=0; rebuild_errors=0; "
+                "packaged_gha_sha256=ea6717db0226f4cd1a95f515cb4556604db6f6b59daf452b9d9bb39abc3e9af3; "
+                "default_policy_gate_passed=True; manifest_schema_gate_passed=True"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as software-quality and reproducibility evidence that the plugin builds cleanly before further Case E follow-up runs.",
+            limitations="Build-quality evidence only; it does not recover GPU, run FluidX3D, improve official z2m metrics, prove Rhino loaded the new GHA, or permit formal v0.4.0.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF036",
             experiment="CityLBM GHA staging/install audit",
             finding=(
@@ -1572,7 +1603,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(

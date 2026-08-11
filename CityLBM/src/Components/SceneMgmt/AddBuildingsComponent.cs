@@ -35,7 +35,7 @@ namespace CityLBM.Components.SceneMgmt
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             // 获取Scene
-            GH_Scene ghScene = null;
+            GH_Scene? ghScene = null;
             if (!DA.GetData(0, ref ghScene) || ghScene == null || !ghScene.IsValid)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "需要有效的场景对象");
@@ -50,7 +50,7 @@ namespace CityLBM.Components.SceneMgmt
             if (!DA.GetDataList(1, ghMeshes))
             {
                 // 尝试获取单个Mesh
-                GH_Mesh ghMesh = null;
+                GH_Mesh? ghMesh = null;
                 if (DA.GetData(1, ref ghMesh) && ghMesh != null && ghMesh.Value != null)
                 {
                     meshList.Add(ghMesh.Value);
@@ -92,7 +92,7 @@ namespace CityLBM.Components.SceneMgmt
         {
             get
             {
-                return null;
+                return null!;
             }
         }
 

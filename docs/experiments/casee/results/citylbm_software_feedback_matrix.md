@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-11T03:43:34.009534+00:00
+Generated: 2026-08-11T06:28:30.964603+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 46
+- Feedback rows: 47
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -50,6 +50,7 @@ Generated: 2026-08-11T03:43:34.009534+00:00
 - software_identity_component: 1
 - software_publication_gate_output: 1
 - software_publication_readiness_contract: 1
+- software_quality_no_default_promotion: 1
 - software_traceability_gate: 1
 - software_traceability_output: 3
 
@@ -94,6 +95,7 @@ Generated: 2026-08-11T03:43:34.009534+00:00
 | `SF044` | CityLBM VS C++ Build Tools elevated launcher | build_chain_uac_launcher_gate | implemented_vs_cpp_elevated_launcher_gate | True | A default-audit, explicit-UAC launcher now connects the VS C++ recovery script to an administrator install path and records the post-install verifier. The current machine still blocks launch because system-drive free space is below the configured threshold. |
 | `SF045` | CityLBM VS C++ system-drive space preflight | build_chain_system_drive_space_gate | implemented_vs_cpp_system_drive_space_gate | True | The VS C++ recovery chain now has a no-delete system-drive space audit. It records the current C: free-space shortfall, manual cleanup candidates, and the post-cleanup launcher verifier before any elevated installation attempt. |
 | `SF046` | Experiment 2 / operational recovery dashboard | operational_recovery_dashboard_gate | implemented_operational_recovery_dashboard | True | The blocked Case E recovery path is now consolidated into an ordered dashboard across C: space, VS C++ install readiness, UAC launch, GPU recovery, Rhino load evidence, official preflight, and the formal metric gate. Long FluidX3D runs remain disallowed until the long-run blockers clear. |
+| `SF047` | CityLBM nullable-clean plugin rebuild | software_quality_no_default_promotion | implemented_warning_clean_rebuild | True | The rc70 plugin rebuild removes C# nullable warnings and hardens FluidX3D discovery, result DTOs, and VTK readers while keeping Case E diagnostic controls default-off and non-formal. |
 | `SF036` | CityLBM GHA staging/install audit | software_gha_staging_audit | implemented_gha_staging_audit | True | The tracked CityLBM.gha can now be audited against common Grasshopper Libraries locations, with exact SHA256 matching and an explicit manual copy command before any Rhino load claim is made. |
 | `SF037` | CityLBM Rhino/GHA load evidence kit | manual_rhino_load_evidence_kit | implemented_rhino_load_evidence_kit | True | Rhino/Grasshopper load verification now has a fail-closed evidence kit that detects Rhino, checks the staged GHA hash, and writes a manual manifest template without claiming that Rhino loaded the plugin. |
 | `SF038` | CityLBM Plugin Identity Grasshopper component | software_identity_component | implemented_plugin_identity_component | True | CityLBM now exposes a Plugin Identity component that reports the loaded plugin version, assembly version, GHA path, SHA256, manifest template, and explicit claim boundary inside Grasshopper. |
@@ -145,6 +147,7 @@ Generated: 2026-08-11T03:43:34.009534+00:00
 | `SF044` | Use as build-chain recovery traceability and operational-readiness evidence. | UAC launcher only; it does not install VS C++ during the suite, recover GPU runtime, run CFD, improve metrics, or permit formal v0.4.0. |
 | `SF045` | Use as build-chain operational evidence explaining why VS C++ recovery remains space-blocked. | System-drive space audit only; it does not delete files, install VS C++, recover GPU runtime, run CFD, improve metrics, or permit formal v0.4.0. |
 | `SF046` | Use as ordered operational blocker evidence for limitations and reproducibility planning. | Recovery dashboard only; it does not recover environment state, run CFD, improve metrics, change defaults, or permit formal v0.4.0. |
+| `SF047` | Use as software-quality and reproducibility evidence that the plugin builds cleanly before further Case E follow-up runs. | Build-quality evidence only; it does not recover GPU, run FluidX3D, improve official z2m metrics, prove Rhino loaded the new GHA, or permit formal v0.4.0. |
 | `SF036` | Use as software delivery traceability before manual Rhino/Grasshopper load verification. | Staging audit only; it does not copy files automatically, prove Rhino loaded the GHA, run CFD, improve metrics, or permit formal v0.4.0. |
 | `SF037` | Use as manual software-load evidence collection protocol before closing the Rhino/GHA load gate. | Manual evidence kit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0. |
 | `SF038` | Use as in-Grasshopper software identity evidence for manual Rhino/GHA load verification screenshots. | Software identity component only; it does not prove CFD accuracy, run FluidX3D, improve official metrics, or permit formal v0.4.0. |
