@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc60 - Rhino load evidence kit
+
+- Added `casee_rhino_load_evidence_kit.py` with JSON/CSV/Markdown outputs and a `rhino_gha_load_manifest.template.json`.
+- The kit detects local Rhino executables, verifies that the staged `CityLBM.gha` hash matches the tracked release asset, and writes the manual evidence fields required by `rhino_gha_load_gate.py`.
+- Integrated the kit into the reproducibility suite, paper evidence gate, artifact index, and software-feedback matrix as SF037.
+
+This is a manual software-load evidence collection enhancement only. It does not prove Rhino/Grasshopper loaded the plugin, add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc59 - Staged GHA identity reconciliation
 
 - Synchronized `CityLBM/bin/CityLBM.gha` with `CityLBM/bin/Release/CityLBM.gha`.

@@ -54,6 +54,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc57.md",
     "docs/releases/v0.4.0-rc58.md",
     "docs/releases/v0.4.0-rc59.md",
+    "docs/releases/v0.4.0-rc60.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -89,6 +90,8 @@ RESULT_PATTERNS = [
     "plugin_identity_gate.json",
     "rhino_gha_load_gate.*",
     "citylbm_gha_install_audit.*",
+    "casee_rhino_load_evidence_kit.*",
+    "rhino_gha_load_manifest.template.json",
     "casee_reproducibility_suite.json",
     "casee_reproducibility_suite.md",
     "casee_paper_appendix_manifest.json",
@@ -156,6 +159,7 @@ TOOL_SCRIPTS = [
     "paper_evidence_gate.py",
     "plugin_identity_gate.py",
     "rhino_gha_load_gate.py",
+    "casee_rhino_load_evidence_kit.py",
     "reproducibility_suite.py",
     "release_gate.py",
 ]
@@ -700,6 +704,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc57.md",
                 "v0.4.0-rc58.md",
                 "v0.4.0-rc59.md",
+                "v0.4.0-rc60.md",
             )
         )
     ]

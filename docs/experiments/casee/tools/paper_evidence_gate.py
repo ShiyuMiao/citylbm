@@ -39,6 +39,10 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/citylbm_gha_install_audit.json",
     "docs/experiments/casee/results/citylbm_gha_install_audit.csv",
     "docs/experiments/casee/results/citylbm_gha_install_audit.md",
+    "docs/experiments/casee/results/casee_rhino_load_evidence_kit.json",
+    "docs/experiments/casee/results/casee_rhino_load_evidence_kit.csv",
+    "docs/experiments/casee/results/casee_rhino_load_evidence_kit.md",
+    "docs/experiments/casee/results/rhino_gha_load_manifest.template.json",
     "docs/experiments/casee/results/casee_official_run_preflight.json",
     "docs/experiments/casee/results/casee_official_run_preflight.md",
     "docs/experiments/casee/results/casee_dx1_readiness_audit.json",
@@ -94,7 +98,7 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc59.md",
+    "docs/releases/v0.4.0-rc60.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [

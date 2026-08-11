@@ -1,12 +1,12 @@
 # Case E Reproducibility Suite
 
-Generated: 2026-08-11T01:58:35.727941+00:00
+Generated: 2026-08-11T02:06:39.754585+00:00
 
 ## Verdict
 
 - Suite passed: True
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc59`
+- Recommended tag: `v0.4.0-rc60`
 
 ## Official z=2 m Metric
 
@@ -16,8 +16,8 @@ Generated: 2026-08-11T01:58:35.727941+00:00
 
 ## Artifact Index
 
-- Artifact count: 322
-- Lightweight release assets: 250
+- Artifact count: 328
+- Lightweight release assets: 256
 - Formal accuracy claim supported: False
 
 ## Build Chain
@@ -41,6 +41,7 @@ Generated: 2026-08-11T01:58:35.727941+00:00
 | plugin_identity_gate | 0 | True |
 | rhino_gha_load_gate | 0 | True |
 | citylbm_gha_install_audit | 0 | True |
+| casee_rhino_load_evidence_kit | 0 | True |
 | manuscript_evidence_summary | 0 | True |
 | vs_cpp_recovery_gate | 0 | True |
 | casee_official_run_preflight | 0 | True |
