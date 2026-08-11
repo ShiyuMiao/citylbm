@@ -130,6 +130,7 @@ def build_rows() -> List[Dict[str, Any]]:
     c005_decomposition = read_json(RESULTS_DIR / "casee_c005_decomposition_audit.json")
     c008_c009_inlet = read_json(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json")
     c014_residual = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
+    c016_leakage_guard = read_json(RESULTS_DIR / "casee_c016_residual_target_leakage_guard.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -854,6 +855,39 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF028",
+            experiment="Experiment 2 / AIJ Case E C016 calibration-leakage guard",
+            finding=(
+                "C016 residual-target work is now protected by a protocol-risk guard: C014 residuals may motivate "
+                "pre-registered physics hypotheses, but the official 80 RS_caseE targets cannot be used for post-hoc fitting "
+                "and then reported as validation."
+            ),
+            evidence_type=str(c016_leakage_guard.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_c016_residual_target_leakage_guard.py",
+                RESULTS_DIR / "casee_c016_residual_target_leakage_guard.json",
+                RESULTS_DIR / "casee_c016_residual_target_leakage_guard.md",
+                RESULTS_DIR / "casee_c014_residual_structure_audit.json",
+                RESULTS_DIR / "release_gate.json",
+            ],
+            decision_class="calibration_leakage_guard_no_default_promotion",
+            citylbm_status="implemented_protocol_guard"
+            if c016_leakage_guard.get("guard_passed") is True
+            and c016_leakage_guard.get("formal_accuracy_claim_supported") is False
+            else "guard_missing_or_failed",
+            implementation_evidence=(
+                f"guard_passed={c016_leakage_guard.get('guard_passed')}; "
+                f"claim_readiness={c016_leakage_guard.get('claim_readiness')}; "
+                "RS_caseE official targets are blocked as C016 fitting data."
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as protocol-risk control for residual-target follow-up design.",
+            limitations="This guard adds no new CFD metric; it prevents calibration leakage and keeps formal v0.4.0 blocked until an independent official run passes.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF019",
             experiment="Experiment 2 / AIJ Case E official z=2 m follow-up planning",
             finding=(
@@ -897,7 +931,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -907,7 +941,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "residual_target_hook_no_default_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),

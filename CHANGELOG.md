@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc49 - Case E C016 calibration-leakage guard
+
+- Added `casee_c016_residual_target_leakage_guard.py` with JSON/CSV/Markdown outputs.
+- Integrated the guard into the reproducibility suite, candidate sweep plan, paper evidence gate, artifact index, and software-feedback matrix as SF028.
+- Explicitly blocks use of the official 80 `RS_caseE` probes for post-hoc residual fitting or affine calibration claims.
+
+This is a protocol-risk control for C016 follow-up design, not a new FluidX3D result. Official z=2 m formal metrics remain MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756. C014 remains a diagnostic candidate only with MAE = 13.786 pp, R2 = -0.229845, Pearson = 0.314966. Formal `v0.4.0` remains blocked.
+
 ## v0.4.0-rc48 - Case E residual-target diagnostic hook
 
 - Added default-off Run Simulation inputs `residT` and `residS` for C016 residual-target follow-up metadata.

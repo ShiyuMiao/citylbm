@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-11T00:16:53.195443+00:00
+Generated: 2026-08-11T00:23:36.697643+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 27
+- Feedback rows: 28
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -16,6 +16,7 @@ Generated: 2026-08-11T00:16:53.195443+00:00
 - application_workflow_policy: 1
 - blocked_default_accuracy_upgrade: 1
 - blocked_followup_run: 3
+- calibration_leakage_guard_no_default_promotion: 1
 - completed_candidate_no_default_promotion: 1
 - default_quality_gate: 1
 - diagnostic_ablation_no_default_promotion: 1
@@ -64,6 +65,7 @@ Generated: 2026-08-11T00:16:53.195443+00:00
 | `SF025` | Experiment 2 / AIJ Case E C008-C015 inlet turbulence and SGS ablation | inlet_turbulence_diagnostic_no_default_promotion | inlet_turbulence_candidate_improved_but_blocked | False | The C008-C015 AF-k synthetic full-plane inlet and no-SGS ablation candidates produced the largest official-height improvement so far, with best MAE=13.7856467875 pp, R2=-0.22984501828340775, and Pearson=0.31496559664177526, but R2 remained negative. |
 | `SF026` | Experiment 2 / AIJ Case E C014 residual structure | residual_structure_no_default_promotion | residual_structure_identifies_next_physics_target | False | The C014 residual audit shows velocity-ratio range compression: high official-speed probes remain underpredicted, downstream R2=-0.5663250697292279, and even a post-hoc affine upper bound only reaches R2=0.09920332706790935. |
 | `SF027` | Experiment 2 / AIJ Case E C016 residual-target software hook | residual_target_hook_no_default_promotion | implemented_default_off | False | The C014 residual-structure audit is now represented in CityLBM as a default-off residual-target diagnostic hook (residT/residS) for reproducible follow-up planning, without changing default solver behavior. |
+| `SF028` | Experiment 2 / AIJ Case E C016 calibration-leakage guard | calibration_leakage_guard_no_default_promotion | implemented_protocol_guard | False | C016 residual-target work is now protected by a protocol-risk guard: C014 residuals may motivate pre-registered physics hypotheses, but the official 80 RS_caseE targets cannot be used for post-hoc fitting and then reported as validation. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary
@@ -96,6 +98,7 @@ Generated: 2026-08-11T00:16:53.195443+00:00
 | `SF025` | Use as evidence that AF k, full-plane inlet turbulence, and SGS treatment are the strongest current improvement directions. | Diagnostic sweep on one benchmark; C014 no-SGS scale 2.00 is best but R2 remains negative, C015 rolls back, and the result cannot support formal v0.4.0, LES improvement, or a default accuracy model. |
 | `SF026` | Use as residual-structure evidence explaining why the best C014 diagnostic candidate is still not paper-grade validation. | Audit over preexisting C014 solver output; it does not add a new FluidX3D run, change release_gate.json, or justify post-hoc calibration/default promotion. |
 | `SF027` | Use as software-feedback traceability from C014 residual diagnosis to a reproducible C016 follow-up interface. | No new FluidX3D run is added here; residual-target controls are not validation results and cannot justify formal v0.4.0. |
+| `SF028` | Use as protocol-risk control for residual-target follow-up design. | This guard adds no new CFD metric; it prevents calibration leakage and keeps formal v0.4.0 blocked until an independent official run passes. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 
 ## Boundary

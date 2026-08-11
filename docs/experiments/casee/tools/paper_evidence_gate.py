@@ -55,6 +55,8 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_c005_decomposition_audit.md",
     "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
     "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md",
+    "docs/experiments/casee/results/casee_c016_residual_target_leakage_guard.json",
+    "docs/experiments/casee/results/casee_c016_residual_target_leakage_guard.md",
     "docs/experiments/casee/results/casee_candidate_sweep_plan.json",
     "docs/experiments/casee/results/casee_candidate_sweep_plan.md",
     "docs/experiments/casee/results/casee_default_policy_gate.json",
@@ -80,7 +82,7 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc48.md",
+    "docs/releases/v0.4.0-rc49.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [

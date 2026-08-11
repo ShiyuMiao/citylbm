@@ -207,6 +207,7 @@ def build_candidates(
     c005_audit = read_json(RESULTS_DIR / "casee_c005_decomposition_audit.json")
     c008_audit = read_json(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json")
     c014_residual = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
+    c016_leakage_guard = read_json(RESULTS_DIR / "casee_c016_residual_target_leakage_guard.json")
     c002_completed = c002_audit.get("evidence_type") == "newly_run"
     c003_completed = c003_audit.get("evidence_type") == "newly_run"
     c004_completed = c004_audit.get("evidence_type") == "newly_run"
@@ -215,6 +216,7 @@ def build_candidates(
     residual_groups = {item.get("group"): item for item in c014_residual.get("groups", [])}
     residual_affine = (c014_residual.get("affine_upper_bound") or {}).get("metrics") or {}
     residual_completed = c014_residual.get("status") == "completed_residual_structure_audit"
+    c016_guard_passed = c016_leakage_guard.get("guard_passed") is True
     executable_native = official_followup_allowed and gpu_ready and fluidx_ready and native_source_compile_ready
     source_compile_blockers = [gate for gate in blocked_gates if gate not in {"rhino_gha_load", "vs_cpp_build_tools"}]
     if not gpu_ready:
@@ -530,7 +532,12 @@ def build_candidates(
             priority=9,
             candidate_class="requires_implementation",
             executable_now=False,
-            blocking_gates=["gpu_runtime", "residual_targeted_wall_inlet_channel_response_not_implemented", "official_followup_preflight"],
+            blocking_gates=[
+                "gpu_runtime",
+                "residual_targeted_wall_inlet_channel_response_not_implemented",
+                "official_followup_preflight",
+            ]
+            + ([] if c016_guard_passed else ["c016_calibration_leakage_guard_not_passed"]),
             evidence_type="planned_from_residual_audit" if residual_completed else "blocked_until_residual_audit",
             dx_m="2.0",
             steps=">=48000",
@@ -555,7 +562,8 @@ def build_candidates(
                 f"downstream_R2={(residual_groups.get('downstream_y_lt_0_inferred') or {}).get('r2')}; "
                 f"official_high_bias_pp={(residual_groups.get('official_high_ge_0p6') or {}).get('bias_pp')}; "
                 f"posthoc_affine_upper_bound_R2={residual_affine.get('r2')}. "
-                "The next useful implementation must recover high-speed corridor probes without overpredicting sheltered low-speed probes."
+                "The next useful implementation must recover high-speed corridor probes without overpredicting sheltered low-speed probes. "
+                f"C016 leakage guard passed={c016_guard_passed}; official RS targets must not be used for post-hoc calibration."
             ),
             formal_result_policy=formal_policy,
             pass_condition="Official raw_trilinear z=2 m R2 becomes positive, Pearson remains positive, MAE stays below C014, and Case A smoke regression passes.",
@@ -644,6 +652,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_dx1_readiness_audit.json"),
             rel(RESULTS_DIR / "build_chain_manifest.json"),
             rel(RESULTS_DIR / "casee_failure_mode_atlas.json"),
+            rel(RESULTS_DIR / "casee_c016_residual_target_leakage_guard.json"),
         ],
         "boundary": (
             "This plan ranks future official z=2 m follow-up candidates and records their commands, blockers, "
