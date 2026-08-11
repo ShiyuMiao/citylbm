@@ -86,7 +86,7 @@ REQUIRED_ARTIFACTS = [
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
     "docs/experiments/casee/results/plugin_identity_gate.json",
-    "docs/releases/v0.4.0-rc54.md",
+    "docs/releases/v0.4.0-rc55.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [
@@ -291,6 +291,7 @@ def build_chain_status(path: Path) -> Dict[str, Any]:
             "native_source_compile_ready": False,
             "native_source_compile_path": "missing",
             "dotnet_status": "missing",
+            "citylbm_build_script_status": "missing",
             "fluidx3d_status": "missing",
             "gpu_status": "missing",
             "uac_blocker_recorded": False,
@@ -299,6 +300,7 @@ def build_chain_status(path: Path) -> Dict[str, Any]:
     data = json.loads(path.read_text(encoding="utf-8"))
     vs_status = str((data.get("visual_studio_build_tools_2022_cpp") or {}).get("status", ""))
     dotnet_status = str((data.get("dotnet_sdk") or {}).get("status", ""))
+    build_script_status = str((data.get("citylbm_build_script") or {}).get("status", ""))
     gpp_status = str((data.get("mingw_gpp") or {}).get("status", ""))
     fluidx3d_status = str((data.get("fluidx3d") or {}).get("status", ""))
     gpu_status = str((data.get("gpu_runtime") or {}).get("status", ""))
@@ -314,6 +316,7 @@ def build_chain_status(path: Path) -> Dict[str, Any]:
         "native_source_compile_ready": native_source_compile_ready,
         "native_source_compile_path": data.get("native_source_compile_path", ""),
         "dotnet_status": dotnet_status,
+        "citylbm_build_script_status": build_script_status,
         "fluidx3d_status": fluidx3d_status,
         "gpu_status": gpu_status,
         "uac_blocker_recorded": any(
@@ -323,6 +326,7 @@ def build_chain_status(path: Path) -> Dict[str, Any]:
         "claim_boundary_safe": (
             readiness in {"build_chain_ready", "blocked_build_chain_diagnostic"}
             and dotnet_status == "ready"
+            and build_script_status == "ready"
             and fluidx3d_status == "ready_for_existing_binary"
             and gpu_status in {"ready", "blocked"}
             and (native_source_compile_ready or vs_status == "blocked")
@@ -939,6 +943,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Native source compile ready: {build_chain['native_source_compile_ready']}",
         f"- Native source compile path: `{build_chain['native_source_compile_path']}`",
         f"- .NET SDK: `{build_chain['dotnet_status']}`",
+        f"- CityLBM build script: `{build_chain['citylbm_build_script_status']}`",
         f"- FluidX3D: `{build_chain['fluidx3d_status']}`",
         f"- GPU runtime: `{build_chain['gpu_status']}`",
         f"- UAC/1602 blocker recorded: {build_chain['uac_blocker_recorded']}",

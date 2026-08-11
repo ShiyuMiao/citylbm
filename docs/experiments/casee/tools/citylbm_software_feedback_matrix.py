@@ -467,6 +467,7 @@ def build_rows() -> List[Dict[str, Any]]:
 
     build_vs = build_chain.get("visual_studio_build_tools_2022_cpp") or {}
     build_gpu = build_chain.get("gpu_runtime") or {}
+    build_script = build_chain.get("citylbm_build_script") or {}
     rows.append(
         row(
             feedback_id="SF015",
@@ -478,6 +479,7 @@ def build_rows() -> List[Dict[str, Any]]:
             ),
             evidence_type="newly_run",
             source_paths=[
+                ROOT / "CityLBM" / "build.ps1",
                 CASEE_DIR / "tools" / "build_chain_audit.py",
                 RESULTS_DIR / "build_chain_manifest.json",
                 RESULTS_DIR / "build_chain_manifest.md",
@@ -491,6 +493,38 @@ def build_rows() -> List[Dict[str, Any]]:
             default_setting_allowed=False,
             paper_use="Use as environment/build-chain evidence explaining why another full software/native validation loop still requires manual VS C++ recovery.",
             limitations="Build-chain readiness does not add CFD output, improve official z=2 m metrics, prove Rhino loaded the new GHA, or permit formal v0.4.0.",
+        )
+    )
+
+    rows.append(
+        row(
+            feedback_id="SF033",
+            experiment="CityLBM portable plugin build script",
+            finding=(
+                "The CityLBM build script now supports -DotNetPath, CITYLBM_DOTNET, the audited local "
+                "E: build-chain .NET SDK, and -NoPause so the Grasshopper plugin can be rebuilt on the new computer "
+                "even when dotnet is not on PATH."
+            ),
+            evidence_type="newly_run",
+            source_paths=[
+                ROOT / "CityLBM" / "build.ps1",
+                CASEE_DIR / "tools" / "build_chain_audit.py",
+                RESULTS_DIR / "build_chain_manifest.json",
+            ],
+            decision_class="portable_plugin_build_script",
+            citylbm_status="implemented_portable_plugin_build"
+            if build_script.get("status") == "ready"
+            and build_script.get("supports_portable_dotnet") is True
+            and build_script.get("supports_no_pause") is True
+            else "portable_plugin_build_missing_or_failed",
+            implementation_evidence=(
+                f"build_script_status={build_script.get('status')}; "
+                f"smoke_returncode={(build_script.get('smoke_build') or {}).get('returncode')}; "
+                f"packaged_gha_found={((build_script.get('packaged_gha') or {}).get('found'))}"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as reproducible software-build evidence for the CityLBM plugin package.",
+            limitations="Plugin build reproducibility only; it does not install VS C++ Build Tools, recover GPU runtime, add CFD output, or improve official Case E metrics.",
         )
     )
 
@@ -1064,13 +1098,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows

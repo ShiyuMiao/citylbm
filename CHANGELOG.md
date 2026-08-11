@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc55 - Portable plugin build script
+
+- Replaced `CityLBM/build.ps1` with a portable, non-interactive build script.
+- The script now supports `-DotNetPath`, `CITYLBM_DOTNET`, the audited local `E:\citylbm_buildchain\dotnet\dotnet.exe`, PATH fallback, and `-NoPause`.
+- `build_chain_audit.py` now records `citylbm_build_script` smoke-build evidence and the software-feedback matrix records it as SF033.
+
+This is a plugin build-chain reproducibility enhancement only. It does not install VS Build Tools C++, recover GPU runtime, add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc54 - Run Simulation publication gate output
 
 - Added a `Publication Gate` output to the Grasshopper `Run Simulation` component.

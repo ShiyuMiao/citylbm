@@ -1,6 +1,6 @@
 # CityLBM Build-Chain Manifest
 
-Generated: 2026-08-11T01:02:53.168746+00:00
+Generated: 2026-08-11T01:10:26.218989+00:00
 
 ## Verdict
 
@@ -11,6 +11,7 @@ Generated: 2026-08-11T01:02:53.168746+00:00
 - MinGW/g++ fallback: `ready`
 - Native source compile path: `mingw_gpp_fallback`
 - .NET SDK: `ready`
+- CityLBM build script: `ready`
 - FluidX3D binary: `ready_for_existing_binary`
 - GPU runtime: `blocked`
 
@@ -33,8 +34,8 @@ Observed blockers:
 
 | drive | free GB | total bytes |
 |---|---:|---:|
-| `C:\` | 6.391 | 208810242048 |
-| `D:\` | 229.757 | 302394634240 |
+| `C:\` | 6.387 | 208810242048 |
+| `D:\` | 229.755 | 302394634240 |
 | `E:\` | 810.54 | 1000203087872 |
 | `F:\` | 2087.894 | 2901257744384 |
 | `G:\` | 1023.866 | 1099510575104 |

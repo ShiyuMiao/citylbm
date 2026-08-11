@@ -137,6 +137,12 @@ def write_csv(path: Path, manifest: Dict[str, Any]) -> None:
             "limitation": "",
         },
         {
+            "component": "citylbm_build_script",
+            "status": manifest["citylbm_build_script"]["status"],
+            "evidence": manifest["citylbm_build_script"]["smoke_build"].get("command", ""),
+            "limitation": manifest["citylbm_build_script"].get("note", ""),
+        },
+        {
             "component": "mingw_gpp",
             "status": manifest["mingw_gpp"]["status"],
             "evidence": manifest["mingw_gpp"]["version"].get("command", ""),
@@ -165,6 +171,7 @@ def write_csv(path: Path, manifest: Dict[str, Any]) -> None:
 def write_markdown(path: Path, manifest: Dict[str, Any]) -> None:
     vs = manifest["visual_studio_build_tools_2022_cpp"]
     dotnet = manifest["dotnet_sdk"]
+    build_script = manifest["citylbm_build_script"]
     gpp = manifest["mingw_gpp"]
     fluidx3d = manifest["fluidx3d"]
     gpu = manifest["gpu_runtime"]
@@ -182,6 +189,7 @@ def write_markdown(path: Path, manifest: Dict[str, Any]) -> None:
         f"- MinGW/g++ fallback: `{gpp['status']}`",
         f"- Native source compile path: `{manifest['native_source_compile_path']}`",
         f"- .NET SDK: `{dotnet['status']}`",
+        f"- CityLBM build script: `{build_script['status']}`",
         f"- FluidX3D binary: `{fluidx3d['status']}`",
         f"- GPU runtime: `{gpu['status']}`",
         "",
@@ -258,6 +266,40 @@ def main() -> int:
         vs_ready = bool(vs_requires.get("stdout", "").strip())
 
     dotnet_ready = args.dotnet.exists()
+    build_script_path = ROOT / "CityLBM" / "build.ps1"
+    build_script_text = read_text(build_script_path)
+    build_script_supports_portable_dotnet = (
+        "Resolve-CityLBMDotNet" in build_script_text
+        and "CITYLBM_DOTNET" in build_script_text
+        and "E:\\citylbm_buildchain\\dotnet\\dotnet.exe" in build_script_text
+    )
+    build_script_supports_no_pause = "-NoPause" in build_script_text or "[switch]$NoPause" in build_script_text
+    build_script_smoke = run_cmd(
+        [
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(build_script_path),
+            "-DotNetPath",
+            str(args.dotnet),
+            "-NoPause",
+        ],
+        timeout=180,
+    ) if dotnet_ready and build_script_path.exists() else {
+        "command": f"powershell -NoProfile -ExecutionPolicy Bypass -File {build_script_path} -DotNetPath {args.dotnet} -NoPause",
+        "found": build_script_path.exists(),
+        "returncode": None,
+        "stdout": "",
+        "stderr": "dotnet executable or build.ps1 missing",
+    }
+    build_script_ready = (
+        build_script_path.exists()
+        and build_script_supports_portable_dotnet
+        and build_script_supports_no_pause
+        and build_script_smoke.get("returncode") == 0
+    )
     gpp_version = run_cmd(["g++.exe", "--version"])
     gpp_ready = bool(gpp_version.get("returncode") == 0)
     fluidx3d_ready = args.fluidx3d_exe.exists()
@@ -310,6 +352,15 @@ def main() -> int:
             "status": "ready" if dotnet_ready else "blocked",
             "executable": file_status(args.dotnet),
             "info": run_cmd([str(args.dotnet), "--info"]) if dotnet_ready else run_cmd(["dotnet", "--info"]),
+        },
+        "citylbm_build_script": {
+            "status": "ready" if build_script_ready else "blocked",
+            "script": file_status(build_script_path),
+            "supports_portable_dotnet": build_script_supports_portable_dotnet,
+            "supports_no_pause": build_script_supports_no_pause,
+            "smoke_build": build_script_smoke,
+            "packaged_gha": file_status(ROOT / "CityLBM" / "bin" / "Release" / "CityLBM" / "CityLBM.gha"),
+            "note": "Plugin build reproducibility only; this does not provide VS C++ Build Tools, GPU recovery, or CFD accuracy evidence.",
         },
         "mingw_gpp": {
             "status": "ready" if gpp_ready else "blocked",

@@ -1,13 +1,13 @@
 # Case E Publication Readiness Gate
 
-Generated: 2026-08-11T01:03:06.152955+00:00
+Generated: 2026-08-11T01:10:40.859626+00:00
 
 ## Verdict
 
 - Publication readiness gate passed: True
 - Claim readiness: `paper_ready_publication_packet; blocked formal accuracy release`
 - Formal release allowed: False
-- Recommended tag: `v0.4.0-rc54`
+- Recommended tag: `v0.4.0-rc55`
 - Official MAE: 21.111408125 pp
 - Official R2: -2.006330362229977
 - Official Pearson: 0.11575649438573923
@@ -25,7 +25,7 @@ Generated: 2026-08-11T01:03:06.152955+00:00
 | `PR007` | Has the software feedback been constrained to validated defaults, diagnostic switches, and manifest-level publication dependencies? | paper_ready_software_boundary | Software implications / Limitations | CityLBM converts evidence into formal defaults, diagnostic-only switches, manifest-level publication dependencies, a Run Simulation Publication Gate output, and release blockers. | Do not promote benchmark-tuned diagnostics or manifest publication readiness to default accuracy models. |
 | `PR008` | What still blocks a formal accuracy-oriented release? | blocked_formal_release | Limitations / Future work | Formal release remains blocked by the official z=2 m metric gate, Rhino/GHA load evidence, and current GPU/runtime recovery needs. | Do not create a formal v0.4.0 tag or state that the optimized plugin satisfies research-grade accuracy. |
 | `PR009` | Is the entire publication packet reproducible from scripts? | paper_ready_scripted_packet | Reproducibility statement | The current publication packet is script-generated and passes the paper evidence and claim-support gates. | Do not treat a passing publication gate as a passing CFD accuracy gate. |
-| `PR010` | Are release assets lightweight and traceable? | paper_ready_release_assets | Data and code availability | The artifact index records 303 artifacts and 231 lightweight release assets. | Do not commit large VTK/raw geometry duplicates as manuscript evidence. |
+| `PR010` | Are release assets lightweight and traceable? | paper_ready_release_assets | Data and code availability | The artifact index records 304 artifacts and 232 lightweight release assets. | Do not commit large VTK/raw geometry duplicates as manuscript evidence. |
 
 ## Boundary
 

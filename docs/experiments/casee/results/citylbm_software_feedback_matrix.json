@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T01:03:02.917457+00:00",
-    "feedback_count": 32,
+    "generated_at": "2026-08-11T01:10:37.334862+00:00",
+    "feedback_count": 33,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -13,6 +13,7 @@
       "software_traceability_output": 3,
       "paper_traceability_output": 2,
       "paper_figure_output": 1,
+      "portable_plugin_build_script": 1,
       "software_traceability_gate": 1,
       "rerun_reproducibility_guard": 1,
       "completed_candidate_no_default_promotion": 1,
@@ -38,6 +39,7 @@
       "paper_ready_workflow_guidance": 1,
       "paper_ready_with_boundary": 1,
       "blocked_vs_cpp_build_tools": 1,
+      "implemented_portable_plugin_build": 1,
       "blocked_until_user_confirmed_dx1_dry_run": 1,
       "implemented_schema_gate": 1,
       "baseline_failure_reproduced": 1,
@@ -264,7 +266,7 @@
       "experiment": "Build-chain recovery / Case E follow-up readiness",
       "finding": "The current build-chain audit records .NET and FluidX3D as available, GPU runtime as blocked, and VS Build Tools C++ as blocked after a winget BuildTools attempt exited 1602 with UAC-related bootstrapper evidence.",
       "evidence_type": "newly_run",
-      "source_paths": "docs/experiments/casee/tools/build_chain_audit.py; docs/experiments/casee/results/build_chain_manifest.json; docs/experiments/casee/results/build_chain_manifest.md; docs/experiments/casee/results/casee_official_run_preflight.json",
+      "source_paths": "CityLBM/build.ps1; docs/experiments/casee/tools/build_chain_audit.py; docs/experiments/casee/results/build_chain_manifest.json; docs/experiments/casee/results/build_chain_manifest.md; docs/experiments/casee/results/casee_official_run_preflight.json",
       "source_paths_exist": true,
       "decision_class": "blocked_followup_run",
       "citylbm_status": "blocked_vs_cpp_build_tools",
@@ -272,6 +274,20 @@
       "default_setting_allowed": false,
       "paper_use": "Use as environment/build-chain evidence explaining why another full software/native validation loop still requires manual VS C++ recovery.",
       "limitations": "Build-chain readiness does not add CFD output, improve official z=2 m metrics, prove Rhino loaded the new GHA, or permit formal v0.4.0."
+    },
+    {
+      "feedback_id": "SF033",
+      "experiment": "CityLBM portable plugin build script",
+      "finding": "The CityLBM build script now supports -DotNetPath, CITYLBM_DOTNET, the audited local E: build-chain .NET SDK, and -NoPause so the Grasshopper plugin can be rebuilt on the new computer even when dotnet is not on PATH.",
+      "evidence_type": "newly_run",
+      "source_paths": "CityLBM/build.ps1; docs/experiments/casee/tools/build_chain_audit.py; docs/experiments/casee/results/build_chain_manifest.json",
+      "source_paths_exist": true,
+      "decision_class": "portable_plugin_build_script",
+      "citylbm_status": "implemented_portable_plugin_build",
+      "implementation_evidence": "build_script_status=ready; smoke_returncode=0; packaged_gha_found=True",
+      "default_setting_allowed": true,
+      "paper_use": "Use as reproducible software-build evidence for the CityLBM plugin package.",
+      "limitations": "Plugin build reproducibility only; it does not install VS C++ Build Tools, recover GPU runtime, add CFD output, or improve official Case E metrics."
     },
     {
       "feedback_id": "SF016",
@@ -506,7 +522,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc54",
+      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc55",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."

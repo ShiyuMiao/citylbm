@@ -1,82 +1,126 @@
-# CityLBM 编译脚本
+param(
+    [string]$DotNetPath = "",
+    [switch]$NoPause
+)
+
+$ErrorActionPreference = "Stop"
+
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "CityLBM 编译" -ForegroundColor Cyan
+Write-Host "CityLBM build" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 Set-Location $PSScriptRoot
 
-Write-Host "[1/3] 恢复 NuGet 包..." -ForegroundColor Yellow
-dotnet restore
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "✗ 包恢复失败" -ForegroundColor Red
+function Resolve-CityLBMDotNet {
+    param([string]$RequestedPath)
+
+    $candidates = @()
+    if (-not [string]::IsNullOrWhiteSpace($RequestedPath)) {
+        $candidates += $RequestedPath
+    }
+    if (-not [string]::IsNullOrWhiteSpace($env:CITYLBM_DOTNET)) {
+        $candidates += $env:CITYLBM_DOTNET
+    }
+    $candidates += "E:\citylbm_buildchain\dotnet\dotnet.exe"
+    $candidates += "dotnet"
+
+    foreach ($candidate in $candidates) {
+        if ($candidate -eq "dotnet") {
+            $cmd = Get-Command dotnet -ErrorAction SilentlyContinue
+            if ($cmd) { return $cmd.Source }
+            continue
+        }
+        if (Test-Path -LiteralPath $candidate) {
+            return (Resolve-Path -LiteralPath $candidate).Path
+        }
+    }
+
+    throw "No .NET SDK found. Set -DotNetPath or CITYLBM_DOTNET, or install .NET SDK."
+}
+
+try {
+    $dotnet = Resolve-CityLBMDotNet -RequestedPath $DotNetPath
+    Write-Host "Using .NET SDK: $dotnet" -ForegroundColor Cyan
+} catch {
+    Write-Host $_.Exception.Message -ForegroundColor Red
     exit 1
 }
-Write-Host "✓ 包恢复完成" -ForegroundColor Green
+
+Write-Host "[1/3] Restoring NuGet packages..." -ForegroundColor Yellow
+& $dotnet restore
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Restore failed." -ForegroundColor Red
+    exit 1
+}
+Write-Host "Restore completed." -ForegroundColor Green
 Write-Host ""
 
-Write-Host "[2/3] 编译项目 (Release)..." -ForegroundColor Yellow
-dotnet build -c Release --no-restore 2>&1 | ForEach-Object {
+Write-Host "[2/3] Building Release..." -ForegroundColor Yellow
+& $dotnet build -c Release --no-restore 2>&1 | ForEach-Object {
     if ($_ -match "error") {
         Write-Host $_ -ForegroundColor Red
     } elseif ($_ -match "warning") {
         Write-Host $_ -ForegroundColor Yellow
-    } elseif ($_ -match "成功|succeeded") {
+    } elseif ($_ -match "succeeded|Build succeeded") {
         Write-Host $_ -ForegroundColor Green
     } else {
         Write-Host $_
     }
 }
+$buildExitCode = $LASTEXITCODE
 
-if ($LASTEXITCODE -eq 0) {
+if ($buildExitCode -ne 0) {
     Write-Host ""
-    Write-Host "✓ 编译成功！" -ForegroundColor Green
-    Write-Host ""
-    
-    # 检查输出文件
-    $dllPath = "bin\Release\CityLBM.dll"
-    if (Test-Path $dllPath) {
-        $fileInfo = Get-Item $dllPath
-        Write-Host "输出文件:" -ForegroundColor White
-        Write-Host "  路径: $dllPath" -ForegroundColor Cyan
-        Write-Host "  大小: $([math]::Round($fileInfo.Length / 1KB, 2)) KB" -ForegroundColor Cyan
-        Write-Host "  时间: $($fileInfo.LastWriteTime)" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Red
+    Write-Host "Build failed." -ForegroundColor Red
+    Write-Host "========================================" -ForegroundColor Red
+    if (-not $NoPause) {
         Write-Host ""
-        
-        # 创建 .gha 文件
-        $ghaDir = "bin\Release\CityLBM"
-        if (-not (Test-Path $ghaDir)) {
-            New-Item -ItemType Directory -Path $ghaDir -Force | Out-Null
-        }
-        
-        Copy-Item $dllPath "$ghaDir\CityLBM.gha" -Force
-        Write-Host "✓ 已创建: $ghaDir\CityLBM.gha" -ForegroundColor Green
-        
-        # 复制依赖
-        Get-ChildItem "bin\Release\*.dll" | Where-Object { $_.Name -ne "CityLBM.dll" } | ForEach-Object {
-            Copy-Item $_.FullName $ghaDir -Force
-            Write-Host "  复制依赖: $($_.Name)" -ForegroundColor Gray
-        }
-        
-        Write-Host ""
-        Write-Host "========================================" -ForegroundColor Green
-        Write-Host "编译成功！" -ForegroundColor Green
-        Write-Host "========================================" -ForegroundColor Green
-        Write-Host ""
-        Write-Host "安装步骤:" -ForegroundColor White
-        Write-Host "1. 打开 Rhino 7" -ForegroundColor Yellow
-        Write-Host "2. 输入命令: Grasshopper" -ForegroundColor Yellow
-        Write-Host "3. 菜单: File → Special Folders → Components Folder" -ForegroundColor Yellow
-        Write-Host "4. 复制 CityLBM.gha 到打开的文件夹" -ForegroundColor Yellow
-        Write-Host "5. 重启 Grasshopper" -ForegroundColor Yellow
+        Write-Host "Press any key to exit..." -ForegroundColor Gray
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     }
-} else {
-    Write-Host ""
-    Write-Host "========================================" -ForegroundColor Red
-    Write-Host "✗ 编译失败" -ForegroundColor Red
-    Write-Host "========================================" -ForegroundColor Red
+    exit $buildExitCode
 }
 
 Write-Host ""
-Write-Host "按任意键退出..." -ForegroundColor Gray
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+Write-Host "Build completed." -ForegroundColor Green
+Write-Host ""
+
+$dllPath = "bin\Release\CityLBM.dll"
+if (-not (Test-Path -LiteralPath $dllPath)) {
+    Write-Host "Missing output DLL: $dllPath" -ForegroundColor Red
+    exit 1
+}
+
+$fileInfo = Get-Item -LiteralPath $dllPath
+Write-Host "[3/3] Packaging Grasshopper output..." -ForegroundColor Yellow
+Write-Host "Output DLL: $dllPath" -ForegroundColor Cyan
+Write-Host "Size KB: $([math]::Round($fileInfo.Length / 1KB, 2))" -ForegroundColor Cyan
+Write-Host "Updated: $($fileInfo.LastWriteTime)" -ForegroundColor Cyan
+
+$ghaDir = "bin\Release\CityLBM"
+if (-not (Test-Path -LiteralPath $ghaDir)) {
+    New-Item -ItemType Directory -Path $ghaDir -Force | Out-Null
+}
+
+Copy-Item -LiteralPath $dllPath -Destination "$ghaDir\CityLBM.gha" -Force
+Write-Host "Created: $ghaDir\CityLBM.gha" -ForegroundColor Green
+
+Get-ChildItem "bin\Release\*.dll" | Where-Object { $_.Name -ne "CityLBM.dll" } | ForEach-Object {
+    Copy-Item -LiteralPath $_.FullName -Destination $ghaDir -Force
+    Write-Host "Copied dependency: $($_.Name)" -ForegroundColor Gray
+}
+
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Green
+Write-Host "CityLBM build succeeded." -ForegroundColor Green
+Write-Host "========================================" -ForegroundColor Green
+Write-Host ""
+Write-Host "Install: copy bin\Release\CityLBM\CityLBM.gha to the Grasshopper Libraries folder, then restart Grasshopper." -ForegroundColor Yellow
+
+if (-not $NoPause) {
+    Write-Host ""
+    Write-Host "Press any key to exit..." -ForegroundColor Gray
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+}

@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-11T01:03:05.987603+00:00
+Generated: 2026-08-11T01:10:40.654347+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc54`
+- Recommended tag: `v0.4.0-rc55`
 
 ## Official z=2 m Metric
 
@@ -33,8 +33,8 @@ Generated: 2026-08-11T01:03:05.987603+00:00
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 303
-- Lightweight release assets: 231
+- Artifact count: 304
+- Lightweight release assets: 232
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -55,6 +55,7 @@ Generated: 2026-08-11T01:03:05.987603+00:00
 - Native source compile ready: True
 - Native source compile path: `mingw_gpp_fallback`
 - .NET SDK: `ready`
+- CityLBM build script: `ready`
 - FluidX3D: `ready_for_existing_binary`
 - GPU runtime: `blocked`
 - UAC/1602 blocker recorded: True
@@ -219,7 +220,7 @@ Generated: 2026-08-11T01:03:05.987603+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 32
+- Feedback rows: 33
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False

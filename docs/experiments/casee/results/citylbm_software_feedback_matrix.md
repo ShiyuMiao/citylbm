@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-11T01:03:02.917457+00:00
+Generated: 2026-08-11T01:10:37.334862+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 32
+- Feedback rows: 33
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -30,6 +30,7 @@ Generated: 2026-08-11T01:03:02.917457+00:00
 - paper_interpretation_layer: 1
 - paper_provenance_ledger: 1
 - paper_traceability_output: 2
+- portable_plugin_build_script: 1
 - rerun_reproducibility_guard: 1
 - residual_structure_no_default_promotion: 1
 - residual_target_hook_no_default_promotion: 1
@@ -58,6 +59,7 @@ Generated: 2026-08-11T01:03:02.917457+00:00
 | `SF013` | Experiment 2 / AIJ Case E Grasshopper claim boundary | software_traceability_output | implemented | True | Run Simulation now exposes a Claim Gate output so users can see the formal accuracy boundary beside run status and manifest path. |
 | `SF014` | Experiment 2 / AIJ Case E manuscript prose layer | paper_traceability_output | implemented | True | The generated section pack converts gated Case E rows into Methods, Results, Diagnostics, Limitations, Software implications, and Release-boundary prose with explicit evidence notes. |
 | `SF015` | Build-chain recovery / Case E follow-up readiness | blocked_followup_run | blocked_vs_cpp_build_tools | False | The current build-chain audit records .NET and FluidX3D as available, GPU runtime as blocked, and VS Build Tools C++ as blocked after a winget BuildTools attempt exited 1602 with UAC-related bootstrapper evidence. |
+| `SF033` | CityLBM portable plugin build script | portable_plugin_build_script | implemented_portable_plugin_build | True | The CityLBM build script now supports -DotNetPath, CITYLBM_DOTNET, the audited local E: build-chain .NET SDK, and -NoPause so the Grasshopper plugin can be rebuilt on the new computer even when dotnet is not on PATH. |
 | `SF016` | Experiment 2 / AIJ Case E dx=1 follow-up readiness | blocked_followup_run | blocked_until_user_confirmed_dx1_dry_run | False | The dx=1 m high-resolution official follow-up is a high-risk long-run candidate: readiness=high_risk_blocked_until_dry_run, memory_headroom_ok=False, moderate required per GPU=13.79 GiB, minimum free GPU memory=0.0 GiB. |
 | `SF017` | Experiment 2 / AIJ Case E wall and roughness follow-up | diagnostic_switch | implemented_default_off | False | Near-wall underprediction and solid-corner diagnostics justify a default-off wall/roughness follow-up interface, but the official z=2 m raw_trilinear metric has not improved enough to promote any wall model as a default accuracy setting. |
 | `SF018` | Experiment 2 / AIJ Case E manifest schema traceability | software_traceability_gate | implemented_schema_gate | False | Generated run manifests need a stable reader-facing schema so Case E protocol fields, diagnostic substitute blockers, and paper-forbidden claim classes can be audited without reinterpreting solver logs. |
@@ -95,6 +97,7 @@ Generated: 2026-08-11T01:03:02.917457+00:00
 | `SF013` | Use as software misuse-prevention evidence: successful execution is separated from formal benchmark accuracy. | UI claim-boundary text does not add solver output, improve official z=2 m metrics, or prove Rhino loaded the new GHA. |
 | `SF014` | Use as ready-to-edit manuscript prose for negative validation, diagnostic interpretation, limitations, and release-boundary text. | Generated prose does not add CFD output, improve official z=2 m metrics, or support a formal predictive-accuracy claim. |
 | `SF015` | Use as environment/build-chain evidence explaining why another full software/native validation loop still requires manual VS C++ recovery. | Build-chain readiness does not add CFD output, improve official z=2 m metrics, prove Rhino loaded the new GHA, or permit formal v0.4.0. |
+| `SF033` | Use as reproducible software-build evidence for the CityLBM plugin package. | Plugin build reproducibility only; it does not install VS C++ Build Tools, recover GPU runtime, add CFD output, or improve official Case E metrics. |
 | `SF016` | Use as high-resolution follow-up feasibility and limitations evidence. | Readiness evidence only; no dx=1 solver output, no official z=2 m metric improvement, and no mesh-independence claim. |
 | `SF017` | Use as software-feedback evidence that Case E diagnostics were converted into controlled follow-up interfaces. | No wall-model or roughness setting is a formal validation result until completed official z=2 m raw_trilinear runs pass the release gate. |
 | `SF018` | Use as reviewer-facing manifest schema and claim-boundary evidence. | Schema traceability does not add CFD output, improve official z=2 m metrics, or permit a formal accuracy claim. |

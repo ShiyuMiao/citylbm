@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T01:03:00.458775+00:00",
+    "generated_at": "2026-08-11T01:10:34.480902+00:00",
     "manuscript_results_table_passed": true,
     "row_count": 6,
     "formal_accuracy_claim_supported": false,
@@ -107,7 +107,7 @@
       "bias_pp": "",
       "r2": "",
       "pearson": "",
-      "paper_sentence": "The formal release gate remains closed (`formal_release_allowed=False`), and the recommended tag is `v0.4.0-rc54`.",
+      "paper_sentence": "The formal release gate remains closed (`formal_release_allowed=False`), and the recommended tag is `v0.4.0-rc55`.",
       "limitations_sentence": "Formal v0.4.0 must not be created until official z=2 m metrics and load/runtime gates pass.",
       "forbidden_claim": "The current rc is a formal v0.4.0 accuracy release."
     }
