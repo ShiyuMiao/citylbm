@@ -2110,6 +2110,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    \"paper_allowed_uses\": [\"protocol_traceability\", \"software_identity_traceability\", \"limitations_boundary\"],");
             sb.AppendLine("    \"paper_forbidden_claims\": [\"predictive_accuracy_pass\", \"mesh_independence\", \"les_improvement\", \"diagnostic_sampling_as_formal_result\"]");
             sb.AppendLine("  },");
+            AppendPublicationReadinessContract(sb);
             AppendFormalAccuracyGate(sb, settings);
             sb.AppendLine("  \"grid\": {");
             sb.AppendLine($"    \"nx\": {grid.Nx}, \"ny\": {grid.Ny}, \"nz\": {grid.Nz}, \"dx_m\": {grid.Dx.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)},");
@@ -2242,6 +2243,23 @@ namespace CityLBM.Solver
             sb.AppendLine("    \"diagnostic_substitutes_allowed\": false,");
             sb.AppendLine("    \"diagnostic_substitutes\": [\"z_plus_half\", \"vertical_valid_above\", \"nearest_valid\", \"fluid_weighted\", \"z_origin_offset\", \"effective_ground_shift\", \"wall_model\", \"roughness_length\", \"inlet_turbulence_scale\", \"residual_target_mode\", \"residual_target_scale\"],");
             sb.AppendLine("    \"claim_boundary\": \"This manifest is protocol evidence only; formal accuracy requires external release_gate.json metrics from completed official z=2m runs.\"");
+            sb.AppendLine("  },");
+        }
+
+        private void AppendPublicationReadinessContract(StringBuilder sb)
+        {
+            sb.AppendLine("  \"publication_readiness_contract\": {");
+            sb.AppendLine("    \"manifest_claim_role\": \"protocol_and_software_traceability_only\",");
+            sb.AppendLine("    \"publication_ready_as_negative_validation_packet_from_manifest_alone\": false,");
+            sb.AppendLine("    \"requires_publication_readiness_gate_json\": true,");
+            sb.AppendLine("    \"requires_claim_support_gate_json\": true,");
+            sb.AppendLine("    \"requires_solver_run_provenance_ledger\": true,");
+            sb.AppendLine("    \"requires_paper_figure_qa\": true,");
+            sb.AppendLine("    \"requires_reproducibility_suite\": true,");
+            sb.AppendLine("    \"allowed_publication_roles\": [\"methods_protocol_traceability\", \"software_identity_traceability\", \"limitations_boundary_input\"],");
+            sb.AppendLine("    \"manuscript_claim_classes\": [\"protocol\", \"negative_validation\", \"limitations_only_diagnostic\", \"reproducibility_context\", \"blocked_formal_release\"],");
+            sb.AppendLine("    \"publication_forbidden_claims\": [\"formal_accuracy_pass_from_manifest\", \"predictive_accuracy\", \"mesh_independence\", \"les_improvement\", \"diagnostic_candidate_as_formal_result\", \"posthoc_calibration_as_validation\"],");
+            sb.AppendLine("    \"boundary\": \"Publication readiness requires external gates and artifacts; this manifest alone is not CFD accuracy evidence.\"");
             sb.AppendLine("  },");
         }
 

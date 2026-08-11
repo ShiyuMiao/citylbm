@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T00:47:30.937240+00:00",
-    "feedback_count": 30,
+    "generated_at": "2026-08-11T00:52:40.418538+00:00",
+    "feedback_count": 31,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -25,6 +25,7 @@
       "calibration_leakage_guard_no_default_promotion": 1,
       "paper_provenance_ledger": 1,
       "paper_claim_support_gate": 1,
+      "software_publication_readiness_contract": 1,
       "followup_sweep_plan": 1
     },
     "citylbm_status_counts": {
@@ -48,6 +49,7 @@
       "implemented_protocol_guard": 1,
       "implemented_paper_traceability": 1,
       "implemented_paper_claim_boundary": 1,
+      "implemented_manifest_publication_boundary": 1,
       "planned_candidate_matrix": 1
     },
     "required_feedback_rows_present": true,
@@ -466,6 +468,20 @@
       "limitations": "Claim boundary evidence only; it does not add solver output, improve official metrics, or allow formal v0.4.0."
     },
     {
+      "feedback_id": "SF031",
+      "experiment": "CityLBM manifest publication-readiness contract",
+      "finding": "Generated citylbm_run_manifest.json files now include a publication_readiness_contract that records required external gates and artifacts before a generated case can support manuscript use.",
+      "evidence_type": "newly_run",
+      "source_paths": "CityLBM/src/Core/FluidX3DInterface.cs; docs/experiments/casee/tools/citylbm_manifest_output_gate.py; docs/experiments/casee/tools/citylbm_manifest_schema_gate.py; docs/experiments/casee/results/citylbm_manifest_output_gate.json; docs/experiments/casee/results/citylbm_manifest_schema_gate.json",
+      "source_paths_exist": true,
+      "decision_class": "software_publication_readiness_contract",
+      "citylbm_status": "implemented_manifest_publication_boundary",
+      "implementation_evidence": "citylbm_run_manifest.json records publication_readiness_contract, required publication/claim/provenance/figure/suite gates, allowed publication roles, and forbidden publication claims.",
+      "default_setting_allowed": true,
+      "paper_use": "Use as software traceability evidence that CityLBM generated cases carry publication-readiness dependencies in the manifest.",
+      "limitations": "Manifest contract only; it does not add solver output, improve official metrics, or permit formal v0.4.0."
+    },
+    {
       "feedback_id": "SF019",
       "experiment": "Experiment 2 / AIJ Case E official z=2 m follow-up planning",
       "finding": "The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries.",
@@ -474,7 +490,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc52",
+      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc53",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."
@@ -497,6 +513,7 @@
     "docs/experiments/casee/results/casee_claim_support_gate.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
+    "docs/experiments/casee/results/citylbm_manifest_schema_gate.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",
     "docs/experiments/casee/results/casee_manuscript_section_pack.json",
     "docs/experiments/casee/results/casee_paper_results_figure_qa.json",

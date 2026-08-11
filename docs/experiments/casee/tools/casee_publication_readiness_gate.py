@@ -178,17 +178,18 @@ def build_rows() -> List[Dict[str, Any]]:
         ),
         row(
             item_id="PR007",
-            reviewer_question="Has the software feedback been constrained to validated defaults and diagnostic switches?",
+            reviewer_question="Has the software feedback been constrained to validated defaults, diagnostic switches, and manifest-level publication dependencies?",
             status="paper_ready_software_boundary",
             evidence_type="newly_run",
             source_paths=[
                 RESULTS_DIR / "citylbm_software_feedback_matrix.json",
                 RESULTS_DIR / "casee_default_policy_gate.json",
                 RESULTS_DIR / "citylbm_manifest_schema_gate.json",
+                ROOT / "CityLBM" / "src" / "Core" / "FluidX3DInterface.cs",
             ],
             paper_location="Software implications / Limitations",
-            allowed_statement="CityLBM converts evidence into formal defaults, diagnostic-only switches, and release blockers.",
-            must_not_claim="Do not promote benchmark-tuned diagnostics to default accuracy models.",
+            allowed_statement="CityLBM converts evidence into formal defaults, diagnostic-only switches, manifest-level publication dependencies, and release blockers.",
+            must_not_claim="Do not promote benchmark-tuned diagnostics or manifest publication readiness to default accuracy models.",
         ),
         row(
             item_id="PR008",

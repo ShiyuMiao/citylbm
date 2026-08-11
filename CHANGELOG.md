@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc53 - Manifest-level publication-readiness contract
+
+- Added `publication_readiness_contract` to generated `citylbm_run_manifest.json` files.
+- The contract records required external publication, claim-support, provenance, figure-QA, and reproducibility gates before manuscript use.
+- Updated manifest output/schema gates, publication-readiness gate, and software-feedback matrix as SF031.
+
+This is a software traceability and claim-boundary enhancement only. It does not add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc52 - Case E publication-readiness gate
 
 - Added `casee_publication_readiness_gate.py` with JSON/CSV/Markdown outputs.

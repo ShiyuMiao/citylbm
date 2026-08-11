@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-11T00:47:30.937240+00:00
+Generated: 2026-08-11T00:52:40.418538+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 30
+- Feedback rows: 31
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -34,6 +34,7 @@ Generated: 2026-08-11T00:47:30.937240+00:00
 - residual_structure_no_default_promotion: 1
 - residual_target_hook_no_default_promotion: 1
 - runtime_decomposition_sensitivity_no_default_promotion: 1
+- software_publication_readiness_contract: 1
 - software_traceability_gate: 1
 - software_traceability_output: 3
 
@@ -70,6 +71,7 @@ Generated: 2026-08-11T00:47:30.937240+00:00
 | `SF028` | Experiment 2 / AIJ Case E C016 calibration-leakage guard | calibration_leakage_guard_no_default_promotion | implemented_protocol_guard | False | C016 residual-target work is now protected by a protocol-risk guard: C014 residuals may motivate pre-registered physics hypotheses, but the official 80 RS_caseE targets cannot be used for post-hoc fitting and then reported as validation. |
 | `SF029` | Experiment 2 / AIJ Case E solver-run provenance ledger | paper_provenance_ledger | implemented_paper_traceability | True | The Case E solver-result evidence now has a consolidated provenance ledger mapping each official-height candidate to its command/config, CSV, log, metric values, evidence type, and claim boundary. |
 | `SF030` | Experiment 2 / AIJ Case E manuscript claim support | paper_claim_support_gate | implemented_paper_claim_boundary | True | The Case E manuscript claim matrix is now checked by a claim-support gate that separates methods/protocol claims, negative validation, limitations-only diagnostics, reproducibility context, and blocked formal-release claims. |
+| `SF031` | CityLBM manifest publication-readiness contract | software_publication_readiness_contract | implemented_manifest_publication_boundary | True | Generated citylbm_run_manifest.json files now include a publication_readiness_contract that records required external gates and artifacts before a generated case can support manuscript use. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary
@@ -105,6 +107,7 @@ Generated: 2026-08-11T00:47:30.937240+00:00
 | `SF028` | Use as protocol-risk control for residual-target follow-up design. | This guard adds no new CFD metric; it prevents calibration leakage and keeps formal v0.4.0 blocked until an independent official run passes. |
 | `SF029` | Use as the manuscript appendix table linking Case E metrics to commands, logs, CSVs, and claim boundaries. | The ledger consolidates existing evidence only; it does not add a new solver run or make formal v0.4.0 pass. |
 | `SF030` | Use as the manuscript claim-support gate before turning Case E evidence into Results, Discussion, or Limitations text. | Claim boundary evidence only; it does not add solver output, improve official metrics, or allow formal v0.4.0. |
+| `SF031` | Use as software traceability evidence that CityLBM generated cases carry publication-readiness dependencies in the manifest. | Manifest contract only; it does not add solver output, improve official metrics, or permit formal v0.4.0. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 
 ## Boundary

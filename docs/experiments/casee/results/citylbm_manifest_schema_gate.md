@@ -1,6 +1,6 @@
 # CityLBM Manifest Schema Gate
 
-Generated: 2026-08-11T00:47:28.423304+00:00
+Generated: 2026-08-11T00:52:37.557560+00:00
 
 ## Verdict
 
@@ -8,7 +8,7 @@ Generated: 2026-08-11T00:47:28.423304+00:00
 - Evidence type: `newly_run`
 - Claim readiness: `paper_ready_manifest_schema_boundary`
 - Formal accuracy claim supported: False
-- Contract version: `casee_manifest_contract_v1`
+- Contract version: `casee_manifest_contract_v2`
 
 ## Checks
 
@@ -22,6 +22,7 @@ Generated: 2026-08-11T00:47:28.423304+00:00
 | `wall_roughness_residual_default_safe_fields_present` | True | `wall_roughness_residual_boundary` | `CityLBM/src/Core/FluidX3DInterface.cs` |
 | `probe_protocol_risk_fields_present` | True | `probe_protocol_risk` | `CityLBM/src/Core/FluidX3DInterface.cs` |
 | `paper_forbidden_claims_present` | True | `paper_claim_boundary` | `CityLBM/src/Core/FluidX3DInterface.cs` |
+| `publication_readiness_contract_present` | True | `publication_readiness_contract` | `CityLBM/src/Core/FluidX3DInterface.cs` |
 | `default_policy_gate_passed` | True | `upstream_gate` | `docs/experiments/casee/results/casee_default_policy_gate.json` |
 | `manifest_output_gate_passed` | True | `upstream_gate` | `docs/experiments/casee/results/citylbm_manifest_output_gate.json` |
 | `formal_release_still_blocked_by_metrics` | True | `release_boundary` | `docs/experiments/casee/results/release_gate.json` |

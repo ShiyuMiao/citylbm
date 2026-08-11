@@ -182,6 +182,18 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore paper_readiness, paper_allowed_uses, and paper_forbidden_claims in the run manifest.",
         ),
         check(
+            "manifest_contains_publication_readiness_contract",
+            "publication_readiness_contract" in fluidx
+            and "requires_publication_readiness_gate_json" in fluidx
+            and "requires_claim_support_gate_json" in fluidx
+            and "requires_solver_run_provenance_ledger" in fluidx
+            and "publication_ready_as_negative_validation_packet_from_manifest_alone" in fluidx
+            and "formal_accuracy_pass_from_manifest" in fluidx,
+            FLUIDX,
+            "Use to show the generated manifest carries reviewer-facing publication-readiness dependencies without claiming accuracy from the manifest alone.",
+            "Restore publication_readiness_contract fields in the run manifest.",
+        ),
+        check(
             "manifest_contains_formal_accuracy_gate_contract",
             "formal_accuracy_gate" in fluidx
             and "formal_accuracy_claim_allowed_from_manifest_alone" in fluidx

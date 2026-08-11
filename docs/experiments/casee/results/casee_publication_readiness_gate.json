@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-11T00:47:33.592110+00:00",
+    "generated_at": "2026-08-11T00:52:43.629582+00:00",
     "publication_readiness_gate_passed": true,
     "evidence_type": "newly_run",
     "claim_readiness": "paper_ready_publication_packet; blocked formal accuracy release",
@@ -19,7 +19,7 @@
     },
     "all_source_paths_exist": true,
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc52",
+    "recommended_tag": "v0.4.0-rc53",
     "official_z2m_metrics": {
       "n": 80,
       "mae_pp": 21.111408125,
@@ -106,14 +106,14 @@
     },
     {
       "item_id": "PR007",
-      "reviewer_question": "Has the software feedback been constrained to validated defaults and diagnostic switches?",
+      "reviewer_question": "Has the software feedback been constrained to validated defaults, diagnostic switches, and manifest-level publication dependencies?",
       "status": "paper_ready_software_boundary",
       "evidence_type": "newly_run",
-      "source_paths": "docs/experiments/casee/results/citylbm_software_feedback_matrix.json; docs/experiments/casee/results/casee_default_policy_gate.json; docs/experiments/casee/results/citylbm_manifest_schema_gate.json",
+      "source_paths": "docs/experiments/casee/results/citylbm_software_feedback_matrix.json; docs/experiments/casee/results/casee_default_policy_gate.json; docs/experiments/casee/results/citylbm_manifest_schema_gate.json; CityLBM/src/Core/FluidX3DInterface.cs",
       "source_paths_exist": true,
       "paper_location": "Software implications / Limitations",
-      "allowed_statement": "CityLBM converts evidence into formal defaults, diagnostic-only switches, and release blockers.",
-      "must_not_claim": "Do not promote benchmark-tuned diagnostics to default accuracy models."
+      "allowed_statement": "CityLBM converts evidence into formal defaults, diagnostic-only switches, manifest-level publication dependencies, and release blockers.",
+      "must_not_claim": "Do not promote benchmark-tuned diagnostics or manifest publication readiness to default accuracy models."
     },
     {
       "item_id": "PR008",
@@ -142,10 +142,10 @@
       "reviewer_question": "Are release assets lightweight and traceable?",
       "status": "paper_ready_release_assets",
       "evidence_type": "newly_run",
-      "source_paths": "docs/experiments/casee/results/casee_artifact_index.json; docs/releases/v0.4.0-rc52.md",
+      "source_paths": "docs/experiments/casee/results/casee_artifact_index.json; docs/releases/v0.4.0-rc53.md",
       "source_paths_exist": true,
       "paper_location": "Data and code availability",
-      "allowed_statement": "The artifact index records 298 artifacts and 226 lightweight release assets.",
+      "allowed_statement": "The artifact index records 302 artifacts and 230 lightweight release assets.",
       "must_not_claim": "Do not commit large VTK/raw geometry duplicates as manuscript evidence."
     }
   ],

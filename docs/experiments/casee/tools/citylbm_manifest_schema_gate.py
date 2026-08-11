@@ -101,6 +101,7 @@ def build_checks() -> List[Dict[str, Any]]:
                     '"evidence_boundary"',
                     '"diagnostic_settings_are_default_safe"',
                     '"release_claim_boundary"',
+                    '"publication_readiness_contract"',
                     '"formal_accuracy_gate"',
                     '"grid"',
                     '"wind"',
@@ -224,6 +225,30 @@ def build_checks() -> List[Dict[str, Any]]:
             "Restore paper readiness and forbidden-claim fields.",
         ),
         check_row(
+            "publication_readiness_contract_present",
+            all_in(
+                fluidx,
+                [
+                    '"publication_readiness_contract"',
+                    '"manifest_claim_role": "protocol_and_software_traceability_only"',
+                    '"publication_ready_as_negative_validation_packet_from_manifest_alone": false',
+                    '"requires_publication_readiness_gate_json": true',
+                    '"requires_claim_support_gate_json": true',
+                    '"requires_solver_run_provenance_ledger": true',
+                    '"requires_paper_figure_qa": true',
+                    '"requires_reproducibility_suite": true',
+                    '"publication_forbidden_claims"',
+                    '"formal_accuracy_pass_from_manifest"',
+                    '"diagnostic_candidate_as_formal_result"',
+                    '"posthoc_calibration_as_validation"',
+                ],
+            ),
+            FLUIDX,
+            "publication_readiness_contract",
+            "Use to show each generated manifest records the external publication-readiness gates required before manuscript use.",
+            "Restore publication_readiness_contract fields in WriteRunManifest.",
+        ),
+        check_row(
             "default_policy_gate_passed",
             default_policy.get("default_policy_gate_passed") is True,
             DEFAULT_POLICY_GATE,
@@ -308,7 +333,7 @@ def main() -> int:
     passed = all(bool(row["passed"]) for row in checks)
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "manifest_contract_version": "casee_manifest_contract_v1",
+        "manifest_contract_version": "casee_manifest_contract_v2",
         "manifest_schema_gate_passed": passed,
         "evidence_type": "newly_run",
         "claim_readiness": "paper_ready_manifest_schema_boundary" if passed else "blocked_manifest_schema_boundary",
@@ -316,6 +341,7 @@ def main() -> int:
         "checks": checks,
         "required_manifest_sections": [
             "release_claim_boundary",
+            "publication_readiness_contract",
             "formal_accuracy_gate",
             "grid",
             "wind",

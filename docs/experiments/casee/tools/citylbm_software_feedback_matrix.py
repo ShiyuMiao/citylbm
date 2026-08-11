@@ -958,6 +958,38 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF031",
+            experiment="CityLBM manifest publication-readiness contract",
+            finding=(
+                "Generated citylbm_run_manifest.json files now include a publication_readiness_contract "
+                "that records required external gates and artifacts before a generated case can support manuscript use."
+            ),
+            evidence_type="newly_run",
+            source_paths=[
+                FLUIDX,
+                CASEE_DIR / "tools" / "citylbm_manifest_output_gate.py",
+                CASEE_DIR / "tools" / "citylbm_manifest_schema_gate.py",
+                RESULTS_DIR / "citylbm_manifest_output_gate.json",
+                RESULTS_DIR / "citylbm_manifest_schema_gate.json",
+            ],
+            decision_class="software_publication_readiness_contract",
+            citylbm_status="implemented_manifest_publication_boundary"
+            if "publication_readiness_contract" in fluidx
+            and "requires_publication_readiness_gate_json" in fluidx
+            and manifest_output.get("manifest_output_gate_passed") is True
+            else "publication_contract_missing_or_failed",
+            implementation_evidence=(
+                "citylbm_run_manifest.json records publication_readiness_contract, required publication/claim/provenance/figure/suite gates, "
+                "allowed publication roles, and forbidden publication claims."
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as software traceability evidence that CityLBM generated cases carry publication-readiness dependencies in the manifest.",
+            limitations="Manifest contract only; it does not add solver output, improve official metrics, or permit formal v0.4.0.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF019",
             experiment="Experiment 2 / AIJ Case E official z=2 m follow-up planning",
             finding=(
@@ -1001,13 +1033,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
@@ -1104,6 +1136,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_claim_support_gate.json"),
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
+            rel(RESULTS_DIR / "citylbm_manifest_schema_gate.json"),
             rel(RESULTS_DIR / "casee_manuscript_results_table.json"),
             rel(RESULTS_DIR / "casee_manuscript_section_pack.json"),
             rel(RESULTS_DIR / "casee_paper_results_figure_qa.json"),

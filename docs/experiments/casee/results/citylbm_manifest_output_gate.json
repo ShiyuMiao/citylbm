@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-11T00:47:28.269310+00:00",
+  "generated_at": "2026-08-11T00:52:37.422186+00:00",
   "manifest_output_gate_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_manifest_traceability",
@@ -132,6 +132,14 @@
       "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
       "paper_use": "Use to show the manifest records paper-use and forbidden-claim boundaries.",
       "failure_action": "Restore paper_readiness, paper_allowed_uses, and paper_forbidden_claims in the run manifest."
+    },
+    {
+      "check_id": "manifest_contains_publication_readiness_contract",
+      "passed": true,
+      "evidence_type": "newly_run",
+      "source_path": "CityLBM/src/Core/FluidX3DInterface.cs",
+      "paper_use": "Use to show the generated manifest carries reviewer-facing publication-readiness dependencies without claiming accuracy from the manifest alone.",
+      "failure_action": "Restore publication_readiness_contract fields in the run manifest."
     },
     {
       "check_id": "manifest_contains_formal_accuracy_gate_contract",

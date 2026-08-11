@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-11T00:47:33.455840+00:00
+Generated: 2026-08-11T00:52:43.452212+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc52`
+- Recommended tag: `v0.4.0-rc53`
 
 ## Official z=2 m Metric
 
@@ -27,14 +27,14 @@ Generated: 2026-08-11T00:47:33.455840+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 330
+- Checked nonblank lines: 334
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 298
-- Lightweight release assets: 226
+- Artifact count: 302
+- Lightweight release assets: 230
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -170,7 +170,7 @@ Generated: 2026-08-11T00:47:33.455840+00:00
 
 - Gate found: True
 - Gate passed: True
-- Checks: 17
+- Checks: 18
 - Claim readiness: `paper_ready_manifest_traceability`
 - Formal accuracy claim supported: False
 - Claim boundary safe: True
@@ -179,8 +179,8 @@ Generated: 2026-08-11T00:47:33.455840+00:00
 
 - Gate found: True
 - Gate passed: True
-- Contract version: `casee_manifest_contract_v1`
-- Checks: 11
+- Contract version: `casee_manifest_contract_v2`
+- Checks: 12
 - Claim readiness: `paper_ready_manifest_schema_boundary`
 - Formal accuracy claim supported: False
 - Claim boundary safe: True
@@ -219,7 +219,7 @@ Generated: 2026-08-11T00:47:33.455840+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 30
+- Feedback rows: 31
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False

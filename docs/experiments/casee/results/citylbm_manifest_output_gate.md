@@ -1,6 +1,6 @@
 # CityLBM Manifest Output Gate
 
-Generated: 2026-08-11T00:47:28.269310+00:00
+Generated: 2026-08-11T00:52:37.422186+00:00
 
 ## Verdict
 
@@ -29,6 +29,7 @@ Generated: 2026-08-11T00:47:28.269310+00:00
 | `manifest_contains_claim_boundary` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show the manifest records formal protocol and diagnostic boundaries. |
 | `manifest_contains_wall_roughness_residual_followup_fields` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show run manifests trace wall/roughness/inlet/residual-target follow-up switches without promoting solver defaults. |
 | `manifest_contains_paper_readiness_boundary` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show the manifest records paper-use and forbidden-claim boundaries. |
+| `manifest_contains_publication_readiness_contract` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show the generated manifest carries reviewer-facing publication-readiness dependencies without claiming accuracy from the manifest alone. |
 | `manifest_contains_formal_accuracy_gate_contract` | True | `CityLBM/src/Core/FluidX3DInterface.cs` | Use to show each generated run manifest records the formal v0.4.0 accuracy-gate contract. |
 
 ## Boundary
