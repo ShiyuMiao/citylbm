@@ -31,6 +31,10 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/build_chain_manifest.json",
     "docs/experiments/casee/results/build_chain_manifest.csv",
     "docs/experiments/casee/results/build_chain_manifest.md",
+    "docs/experiments/casee/results/citylbm_portable_toolchain_activation.json",
+    "docs/experiments/casee/results/citylbm_portable_toolchain_gate.json",
+    "docs/experiments/casee/results/citylbm_portable_toolchain_gate.csv",
+    "docs/experiments/casee/results/citylbm_portable_toolchain_gate.md",
     "docs/experiments/casee/results/vs_cpp_recovery_gate.json",
     "docs/experiments/casee/results/vs_cpp_recovery_gate.csv",
     "docs/experiments/casee/results/vs_cpp_recovery_gate.md",
@@ -104,7 +108,7 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.json",
     "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.csv",
     "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.md",
-    "docs/releases/v0.4.0-rc62.md",
+    "docs/releases/v0.4.0-rc63.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [

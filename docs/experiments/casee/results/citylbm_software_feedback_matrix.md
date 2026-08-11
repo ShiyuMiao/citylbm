@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-11T02:22:56.928209+00:00
+Generated: 2026-08-11T02:39:52.714602+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 39
+- Feedback rows: 40
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -35,6 +35,7 @@ Generated: 2026-08-11T02:22:56.928209+00:00
 - paper_release_asset_manifest: 1
 - paper_traceability_output: 2
 - portable_plugin_build_script: 1
+- portable_toolchain_activation_gate: 1
 - rerun_reproducibility_guard: 1
 - residual_structure_no_default_promotion: 1
 - residual_target_hook_no_default_promotion: 1
@@ -88,6 +89,7 @@ Generated: 2026-08-11T02:22:56.928209+00:00
 | `SF037` | CityLBM Rhino/GHA load evidence kit | manual_rhino_load_evidence_kit | implemented_rhino_load_evidence_kit | True | Rhino/Grasshopper load verification now has a fail-closed evidence kit that detects Rhino, checks the staged GHA hash, and writes a manual manifest template without claiming that Rhino loaded the plugin. |
 | `SF038` | CityLBM Plugin Identity Grasshopper component | software_identity_component | implemented_plugin_identity_component | True | CityLBM now exposes a Plugin Identity component that reports the loaded plugin version, assembly version, GHA path, SHA256, manifest template, and explicit claim boundary inside Grasshopper. |
 | `SF039` | CityLBM packaged GHA identity-component gate | packaged_gha_identity_component_gate | implemented_packaged_gha_identity_component_gate | True | The tracked packaged CityLBM.gha is now audited for Plugin Identity component markers, including the component name, GHA SHA256 output, manifest-template output, GUID, and accuracy-claim boundary. |
+| `SF040` | CityLBM portable .NET / FluidX3D / MinGW toolchain activation | portable_toolchain_activation_gate | implemented_portable_toolchain_activation_gate | True | The local portable toolchain can now be activated and audited without changing system PATH: portable .NET, the existing FluidX3D binary, and MinGW/g++ are verified while VS C++ and GPU runtime remain explicit blockers. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary
@@ -132,6 +134,7 @@ Generated: 2026-08-11T02:22:56.928209+00:00
 | `SF037` | Use as manual software-load evidence collection protocol before closing the Rhino/GHA load gate. | Manual evidence kit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0. |
 | `SF038` | Use as in-Grasshopper software identity evidence for manual Rhino/GHA load verification screenshots. | Software identity component only; it does not prove CFD accuracy, run FluidX3D, improve official metrics, or permit formal v0.4.0. |
 | `SF039` | Use as packaged-plugin software identity evidence before manual Rhino/GHA load verification. | Packaged GHA string audit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0. |
+| `SF040` | Use as build-chain reproducibility evidence for the local portable toolchain. | Toolchain activation only; it does not install VS C++, recover GPU, run FluidX3D, improve official metrics, or permit formal v0.4.0. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 
 ## Boundary

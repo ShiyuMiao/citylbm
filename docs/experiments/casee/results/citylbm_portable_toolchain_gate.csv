@@ -1,0 +1,7 @@
+component,ready,status,boundary
+portable_toolchain,True,portable_toolchain_ready_with_vs_gpu_boundaries,"Portable toolchain activation evidence only. This gate proves the local portable .NET, FluidX3D binary, and MinGW/g++ paths can be activated for the current process; it does not install VS C++ Build Tools, recover GPU runtime, run FluidX3D, improve official z=2 m metrics, or permit formal v0.4.0."
+dotnet,True,E:\citylbm_buildchain\dotnet\dotnet.exe,Portable .NET evidence only.
+fluidx3d,True,E:\citylbm_buildchain\FluidX3D\bin\FluidX3D.exe,Binary presence only; no solver run.
+mingw_gpp,True,F:\citylbm_fluidx3d_workspace\WinLibs\mingw64\bin\g++.exe,Native compile fallback only.
+visual_studio_cpp,False,blocked,Still governed by VS C++ recovery gate.
+gpu_runtime,False,blocked,Still required before long FluidX3D runs.

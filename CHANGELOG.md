@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc63 - Portable toolchain activation gate
+
+- Added `citylbm_portable_toolchain_activate.ps1`, an audit-first PowerShell helper that activates local portable .NET, FluidX3D, and MinGW/g++ paths for the current process.
+- Added `citylbm_portable_toolchain_gate.py` with JSON/CSV/Markdown outputs to verify that portable .NET SDK 8.0.423, the existing FluidX3D binary, and MinGW/g++ are reachable without changing system PATH by default.
+- Integrated the portable toolchain gate into the reproducibility suite, paper evidence gate, artifact index, and software-feedback matrix as SF040.
+
+This is build-chain reproducibility evidence only. It does not install VS Build Tools C++, recover the lost GPU runtime, add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc62 - Packaged GHA identity-component gate
 
 - Added `citylbm_plugin_identity_binary_gate.py` to audit the tracked packaged `CityLBM/bin/CityLBM.gha` for the `Plugin Identity` component markers.

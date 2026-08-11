@@ -107,6 +107,10 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_plugin_identity_component_gate.md`
 - `docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.json`
 - `docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.md`
+- `docs/experiments/casee/results/citylbm_portable_toolchain_gate.json`
+- `docs/experiments/casee/results/citylbm_portable_toolchain_gate.md`
+- `docs/experiments/casee/results/citylbm_portable_toolchain_activation.json`
+- `docs/releases/v0.4.0-rc63.md`
 - `docs/releases/v0.4.0-rc62.md`
 - `docs/releases/v0.4.0-rc61.md`
 - `docs/releases/v0.4.0-rc60.md`
@@ -320,13 +324,16 @@ input on the Grasshopper `Run Simulation` component. The default is 0 m. This
 is an experiment switch for inlet-height and probe-protocol diagnostics, not a
 validated default accuracy model.
 
-Current build-chain audit: .NET SDK 8.0.423, the existing FluidX3D binary, four
-Tesla P100 GPUs, and the MinGW/g++ fallback are available under the current
-environment. Visual Studio Build Tools 2022 C++ remains blocked: the current
-`winget` BuildTools 17.14.37 attempt exited 1602 and the Visual Studio
-bootstrapper log reports a possible declined UAC prompt. VS remains an
-environment limitation, while new native-source candidates may use the audited
-g++ fallback if the generated setup is rebuilt and the run log is archived.
+Current build-chain audit: portable .NET SDK 8.0.423, the existing FluidX3D
+binary, and the MinGW/g++ fallback are present locally. The portable toolchain
+activation gate records how to activate those paths for the current PowerShell
+process without changing system PATH by default. Visual Studio Build Tools 2022
+C++ remains blocked: the current shell is not elevated, system-drive free space
+is below the audit threshold, `cl.exe`/`msbuild.exe` are not on PATH, and
+`vswhere` does not find the VC workload. GPU runtime also remains blocked
+because `nvidia-smi` reports `GPU is lost`. These are build/runtime limitations;
+new official long FluidX3D validation runs must wait for GPU recovery, and
+source-recompiled candidates still need a recorded native build path.
 
 The dx=1 m high-resolution readiness audit records the exact future generation
 command, the current generator domain (600 x 800 x 241 cells), the conservative
@@ -434,6 +441,11 @@ The packaged GHA identity-component gate then checks the compiled
 tracked GHA hash matches the plugin identity gate. This proves the release
 asset contains the evidence component, but still does not prove a real Rhino/
 Grasshopper session loaded it.
+
+The portable toolchain activation gate verifies the local portable .NET,
+FluidX3D, and MinGW/g++ paths needed for reproducible builds and native-source
+fallbacks. It does not install VS C++, recover the lost GPU, launch FluidX3D, or
+support an accuracy claim.
 
 The manuscript results table converts Case E evidence into paper-facing rows:
 the official z=2 m result is a negative-validation result, the best diagnostic

@@ -133,6 +133,21 @@ def read_json(path: Path) -> Dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def write_publication_gate_provisional_suite(steps: List[Dict[str, Any]]) -> None:
+    payload = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "suite_passed": all(bool(step.get("passed")) for step in steps),
+        "evidence_type": "newly_run",
+        "claim_readiness": "provisional self-reference for publication gate; overwritten by final suite payload",
+        "steps_completed_before_publication_gate": [step.get("name") for step in steps],
+        "boundary": (
+            "This temporary payload lets casee_publication_readiness_gate.py evaluate the current suite "
+            "run instead of a stale previous suite result. It is overwritten by the final full suite output."
+        ),
+    }
+    OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
 def write_markdown(payload: Dict[str, Any]) -> None:
     gate = payload.get("release_gate", {})
     metrics = gate.get("metrics") or {}
@@ -230,6 +245,7 @@ def main() -> int:
     )
     for name, script in [
         ("build_chain_audit", "build_chain_audit.py"),
+        ("citylbm_portable_toolchain_gate", "citylbm_portable_toolchain_gate.py"),
         ("plugin_identity_gate", "plugin_identity_gate.py"),
         ("citylbm_plugin_identity_component_gate", "citylbm_plugin_identity_component_gate.py"),
         ("citylbm_plugin_identity_binary_gate", "citylbm_plugin_identity_binary_gate.py"),
@@ -273,6 +289,8 @@ def main() -> int:
         ("casee_publication_readiness_gate", "casee_publication_readiness_gate.py"),
         ("artifact_index_final", "artifact_index.py"),
     ]:
+        if name == "casee_publication_readiness_gate":
+            write_publication_gate_provisional_suite(steps)
         steps.append(run_command(name, [python, str(CASE_DIR / "tools" / script)]))
         if name == "build_chain_audit":
             steps.append(copy_release_gha())
@@ -288,6 +306,7 @@ def main() -> int:
     gha_install_audit = read_json(RESULTS_DIR / "citylbm_gha_install_audit.json")
     rhino_evidence_kit = read_json(RESULTS_DIR / "casee_rhino_load_evidence_kit.json")
     build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
+    portable_toolchain_gate = read_json(RESULTS_DIR / "citylbm_portable_toolchain_gate.json")
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
     preflight = read_json(RESULTS_DIR / "casee_official_run_preflight.json")
     dx1_readiness = read_json(RESULTS_DIR / "casee_dx1_readiness_audit.json")
@@ -325,6 +344,7 @@ def main() -> int:
         "citylbm_gha_install_audit": gha_install_audit,
         "casee_rhino_load_evidence_kit": rhino_evidence_kit,
         "build_chain_manifest": build_chain,
+        "citylbm_portable_toolchain_gate": portable_toolchain_gate,
         "vs_cpp_recovery_gate": vs_cpp_recovery,
         "casee_official_run_preflight": preflight,
         "casee_dx1_readiness_audit": dx1_readiness,

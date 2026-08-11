@@ -7,6 +7,7 @@ import csv
 import hashlib
 import json
 import subprocess
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Set
@@ -57,6 +58,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc60.md",
     "docs/releases/v0.4.0-rc61.md",
     "docs/releases/v0.4.0-rc62.md",
+    "docs/releases/v0.4.0-rc63.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -87,6 +89,8 @@ RESULT_PATTERNS = [
     "citylbm_manifest_schema_gate.*",
     "citylbm_software_feedback_matrix.*",
     "build_chain_manifest.*",
+    "citylbm_portable_toolchain_activation.json",
+    "citylbm_portable_toolchain_gate.*",
     "vs_cpp_recovery_gate.*",
     "vs_cpp_buildtools_recovery_probe.json",
     "plugin_identity_gate.json",
@@ -124,6 +128,8 @@ OFFICIAL_DATA_PATTERNS = [
 TOOL_SCRIPTS = [
     "artifact_index.py",
     "build_chain_audit.py",
+    "citylbm_portable_toolchain_activate.ps1",
+    "citylbm_portable_toolchain_gate.py",
     "vs_cpp_recovery_gate.py",
     "vs_cpp_buildtools_recovery.ps1",
     "casee_blocker_remediation_plan.py",
@@ -190,6 +196,19 @@ def read_csv(path: Path) -> List[Dict[str, str]]:
         return []
     with path.open("r", newline="", encoding="utf-8-sig") as f:
         return list(csv.DictReader(f))
+
+
+def write_text_retry(path: Path, text: str, *, attempts: int = 5, delay_s: float = 0.25) -> None:
+    last_exc: OSError | None = None
+    for _ in range(attempts):
+        try:
+            path.write_text(text, encoding="utf-8")
+            return
+        except OSError as exc:
+            last_exc = exc
+            time.sleep(delay_s)
+    if last_exc is not None:
+        raise last_exc
 
 
 def tracked_files() -> Set[str]:
@@ -740,7 +759,7 @@ def main() -> int:
         "formal_accuracy_claim_blocker": "official z=2 m metric gate fails; use release_gate.json for current metrics",
     }
     write_csv(OUT_CSV, rows)
-    OUT_JSON.write_text(json.dumps({"summary": summary, "artifacts": rows}, indent=2), encoding="utf-8")
+    write_text_retry(OUT_JSON, json.dumps({"summary": summary, "artifacts": rows}, indent=2))
     write_markdown(OUT_MD, rows, summary)
     print(json.dumps(summary, indent=2))
     return 0

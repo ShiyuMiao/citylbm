@@ -139,6 +139,7 @@ def build_rows() -> List[Dict[str, Any]]:
     rhino_evidence_kit = read_json(RESULTS_DIR / "casee_rhino_load_evidence_kit.json")
     identity_component_gate = read_json(RESULTS_DIR / "citylbm_plugin_identity_component_gate.json")
     identity_binary_gate = read_json(RESULTS_DIR / "citylbm_plugin_identity_binary_gate.json")
+    portable_toolchain_gate = read_json(RESULTS_DIR / "citylbm_portable_toolchain_gate.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
 
     metrics = release_gate.get("metrics") or {}
@@ -1260,6 +1261,45 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    portable_activation = portable_toolchain_gate.get("activation") or {}
+    rows.append(
+        row(
+            feedback_id="SF040",
+            experiment="CityLBM portable .NET / FluidX3D / MinGW toolchain activation",
+            finding=(
+                "The local portable toolchain can now be activated and audited without changing system PATH: "
+                "portable .NET, the existing FluidX3D binary, and MinGW/g++ are verified while VS C++ and GPU "
+                "runtime remain explicit blockers."
+            ),
+            evidence_type=str(portable_toolchain_gate.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "citylbm_portable_toolchain_activate.ps1",
+                CASEE_DIR / "tools" / "citylbm_portable_toolchain_gate.py",
+                RESULTS_DIR / "citylbm_portable_toolchain_activation.json",
+                RESULTS_DIR / "citylbm_portable_toolchain_gate.json",
+                RESULTS_DIR / "citylbm_portable_toolchain_gate.csv",
+                RESULTS_DIR / "citylbm_portable_toolchain_gate.md",
+                RESULTS_DIR / "build_chain_manifest.json",
+            ],
+            decision_class="portable_toolchain_activation_gate",
+            citylbm_status="implemented_portable_toolchain_activation_gate"
+            if portable_toolchain_gate.get("portable_toolchain_gate_passed") is True
+            and portable_toolchain_gate.get("formal_accuracy_claim_supported") is False
+            else "portable_toolchain_activation_gate_missing_or_failed",
+            implementation_evidence=(
+                f"gate_passed={portable_toolchain_gate.get('portable_toolchain_gate_passed')}; "
+                f"portable_toolchain_ready={portable_activation.get('portable_toolchain_ready')}; "
+                f"dotnet={((portable_activation.get('dotnet') or {}).get('ready'))}; "
+                f"fluidx3d={((portable_activation.get('fluidx3d') or {}).get('ready_for_existing_binary'))}; "
+                f"gpp={((portable_activation.get('mingw_gpp') or {}).get('ready'))}; "
+                f"gpu={((portable_activation.get('gpu_runtime') or {}).get('ready'))}"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as build-chain reproducibility evidence for the local portable toolchain.",
+            limitations="Toolchain activation only; it does not install VS C++, recover GPU, run FluidX3D, improve official metrics, or permit formal v0.4.0.",
+        )
+    )
+
     rows.append(
         row(
             feedback_id="SF019",
@@ -1305,13 +1345,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "software_identity_component", "packaged_gha_identity_component_gate"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate", "portable_toolchain_activation_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "software_identity_component", "packaged_gha_identity_component_gate"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
@@ -1397,6 +1437,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_default_policy_gate.json"),
             rel(RESULTS_DIR / "casee_official_run_preflight.json"),
             rel(RESULTS_DIR / "build_chain_manifest.json"),
+            rel(RESULTS_DIR / "citylbm_portable_toolchain_gate.json"),
             rel(RESULTS_DIR / "casee_dx1_readiness_audit.json"),
             rel(RESULTS_DIR / "casee_candidate_sweep_plan.json"),
             rel(RESULTS_DIR / "casee_zcenter_rerun_consistency.json"),

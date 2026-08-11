@@ -1,0 +1,113 @@
+{
+  "generated_at": "2026-08-11T02:39:36.395240+00:00",
+  "evidence_type": "newly_run",
+  "portable_toolchain_gate_passed": true,
+  "claim_readiness": "portable_toolchain_ready",
+  "checks": {
+    "script_exists": true,
+    "activation_returncode_zero": true,
+    "raw_activation_json_written": true,
+    "portable_toolchain_ready": true,
+    "dotnet_ready": true,
+    "fluidx3d_binary_ready": true,
+    "mingw_gpp_ready": true,
+    "install_not_attempted": true,
+    "formal_accuracy_claim_not_supported": true,
+    "boundary_safe": true
+  },
+  "run": {
+    "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\citylbm_portable_toolchain_activate.ps1 -OutJson C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\citylbm_portable_toolchain_activation.json -NoPause",
+    "returncode": 0,
+    "stdout_tail": "                                         \"found\":  false,\n                                         \"command\":  \"cl.exe System.String[]\",\n                                         \"returncode\":  null,\n                                         \"stderr\":  \"not found\"\n                                     }\n                          },\n    \"gpu_runtime\":  {\n                        \"ready\":  false,\n                        \"nvidia_smi\":  {\n                                           \"stdout\":  \"Unable to determine the device handle for GPU0000:C3:00.0: GPU is lost.  Reboot the system to recover this GPU\\n\\n\",\n                                           \"found\":  true,\n                                           \"command\":  \"C:\\\\Windows\\\\System32\\\\nvidia-smi.exe System.String[]\",\n                                           \"returncode\":  15,\n                                           \"stderr\":  \"\"\n                                       }\n                    },\n    \"claim_readiness\":  \"portable_toolchain_ready_with_vs_gpu_boundaries\",\n    \"formal_accuracy_claim_supported\":  false,\n    \"boundary\":  \"This script activates and audits portable local tool paths only. It does not install Visual Studio Build Tools, recover the GPU, run FluidX3D, improve Case E metrics, or support formal v0.4.0.\"\n}",
+    "stderr_tail": ""
+  },
+  "activation": {
+    "generated_at": "2026-08-11T02:39:36.2743981Z",
+    "evidence_type": "newly_run",
+    "install_attempted": false,
+    "persist_user_path_requested": false,
+    "portable_toolchain_ready": true,
+    "process_path_entries_added": [
+      "E:\\citylbm_buildchain\\dotnet",
+      "E:\\citylbm_buildchain\\FluidX3D\\bin",
+      "F:\\citylbm_fluidx3d_workspace\\WinLibs\\mingw64\\bin"
+    ],
+    "dotnet": {
+      "env_CITYLBM_DOTNET": "E:\\citylbm_buildchain\\dotnet\\dotnet.exe",
+      "info": {
+        "stdout": ".NET SDK:\n Version:           8.0.423\n Commit:            62e3aa2c1f\n Workload version:  8.0.400-manifests.a04bdf47\n MSBuild version:   17.11.48+02bf66295\n\n\u8fd0\u884c\u65f6\u73af\u5883:\n OS Name:     Windows\n OS Version:  10.0.26100\n OS Platform: Windows\n RID:         win-x64\n Base Path:   E:\\citylbm_buildchain\\dotnet\\sdk\\8.0.423\\\n\n\u5df2\u5b89\u88c5 .NET \u5de5\u4f5c\u8d1f\u8f7d:\n\u914d\u7f6e\u4e3a\u5728\u5b89\u88c5\u65b0\u6e05\u5355\u65f6\u4f7f\u7528 loose manifests\u3002\n\u6ca1\u6709\u8981\u663e\u793a\u7684\u5df2\u5b89\u88c5\u5de5\u4f5c\u8d1f\u8f7d\u3002\n\nHost:\n  Version:      8.0.29\n  Architecture: x64\n  Commit:       18fd75c847\n\n.NET SDKs installed:\n  8.0.423 [E:\\citylbm_buildchain\\dotnet\\sdk]\n\n.NET runtimes installed:\n  Microsoft.AspNetCore.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.NETCore.App]\n  Microsoft.WindowsDesktop.App 8.0.29 [E:\\citylbm_buildchain\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\n\nOther architectures found:\n  None\n\nEnvironment variables:\n  Not set\n\nglobal.json file:\n  Not found\n\nLearn more:\n  https://aka.ms/dotnet/info\n\nDownload .NET:\n  https://aka.ms/dotnet/download",
+        "found": true,
+        "command": "E:\\citylbm_buildchain\\dotnet\\dotnet.exe System.String[]",
+        "returncode": 0,
+        "stderr": ""
+      },
+      "ready": true,
+      "executable": {
+        "size_bytes": 157480,
+        "found": true,
+        "path": "E:\\citylbm_buildchain\\dotnet\\dotnet.exe",
+        "sha256": "e94c17675054a5dec941971293f08c417756a9a4f78efb4b7f88e312272a07c2"
+      }
+    },
+    "fluidx3d": {
+      "bin_added_to_process_path": true,
+      "env_CITYLBM_FLUIDX3D_EXE": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
+      "ready_for_existing_binary": true,
+      "executable": {
+        "size_bytes": 1064774,
+        "found": true,
+        "path": "E:\\citylbm_buildchain\\FluidX3D\\bin\\FluidX3D.exe",
+        "sha256": "a59e1c526f02ba9ae64dc28d5fbcf2fb200970b1a4ae0e79daba94dddc640891"
+      }
+    },
+    "mingw_gpp": {
+      "bin_added_to_process_path": true,
+      "version": {
+        "stdout": "g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r3) 16.1.0\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n",
+        "found": true,
+        "command": "F:\\citylbm_fluidx3d_workspace\\WinLibs\\mingw64\\bin\\g++.exe System.String[]",
+        "returncode": 0,
+        "stderr": ""
+      },
+      "ready": true,
+      "executable": {
+        "size_bytes": 2414606,
+        "found": true,
+        "path": "F:\\citylbm_fluidx3d_workspace\\WinLibs\\mingw64\\bin\\g++.exe",
+        "sha256": "e0fe91a127f5c7b8c161bf66109818a40a9ca93be94d744a3c1686946a8f63d0"
+      }
+    },
+    "visual_studio_cpp": {
+      "msbuild": {
+        "stdout": "",
+        "found": false,
+        "command": "msbuild.exe System.String[]",
+        "returncode": null,
+        "stderr": "not found"
+      },
+      "ready": false,
+      "cl": {
+        "stdout": "",
+        "found": false,
+        "command": "cl.exe System.String[]",
+        "returncode": null,
+        "stderr": "not found"
+      }
+    },
+    "gpu_runtime": {
+      "ready": false,
+      "nvidia_smi": {
+        "stdout": "Unable to determine the device handle for GPU0000:C3:00.0: GPU is lost.  Reboot the system to recover this GPU\n\n",
+        "found": true,
+        "command": "C:\\Windows\\System32\\nvidia-smi.exe System.String[]",
+        "returncode": 15,
+        "stderr": ""
+      }
+    },
+    "claim_readiness": "portable_toolchain_ready_with_vs_gpu_boundaries",
+    "formal_accuracy_claim_supported": false,
+    "boundary": "This script activates and audits portable local tool paths only. It does not install Visual Studio Build Tools, recover the GPU, run FluidX3D, improve Case E metrics, or support formal v0.4.0."
+  },
+  "formal_accuracy_claim_supported": false,
+  "boundary": "Portable toolchain activation evidence only. This gate proves the local portable .NET, FluidX3D binary, and MinGW/g++ paths can be activated for the current process; it does not install VS C++ Build Tools, recover GPU runtime, run FluidX3D, improve official z=2 m metrics, or permit formal v0.4.0."
+}
