@@ -232,6 +232,7 @@ def main() -> int:
         ("build_chain_audit", "build_chain_audit.py"),
         ("plugin_identity_gate", "plugin_identity_gate.py"),
         ("citylbm_plugin_identity_component_gate", "citylbm_plugin_identity_component_gate.py"),
+        ("citylbm_plugin_identity_binary_gate", "citylbm_plugin_identity_binary_gate.py"),
         ("rhino_gha_load_gate", "rhino_gha_load_gate.py"),
         ("citylbm_gha_install_audit", "citylbm_gha_install_audit.py"),
         ("casee_rhino_load_evidence_kit", "casee_rhino_load_evidence_kit.py"),
@@ -282,6 +283,7 @@ def main() -> int:
     paper_gate = read_json(RESULTS_DIR / "casee_paper_evidence_gate.json")
     plugin_gate = read_json(RESULTS_DIR / "plugin_identity_gate.json")
     plugin_identity_component_gate = read_json(RESULTS_DIR / "citylbm_plugin_identity_component_gate.json")
+    plugin_identity_binary_gate = read_json(RESULTS_DIR / "citylbm_plugin_identity_binary_gate.json")
     rhino_gate = read_json(RESULTS_DIR / "rhino_gha_load_gate.json")
     gha_install_audit = read_json(RESULTS_DIR / "citylbm_gha_install_audit.json")
     rhino_evidence_kit = read_json(RESULTS_DIR / "casee_rhino_load_evidence_kit.json")
@@ -318,6 +320,7 @@ def main() -> int:
         "paper_evidence_gate": paper_gate,
         "plugin_identity_gate": plugin_gate,
         "citylbm_plugin_identity_component_gate": plugin_identity_component_gate,
+        "citylbm_plugin_identity_binary_gate": plugin_identity_binary_gate,
         "rhino_gha_load_gate": rhino_gate,
         "citylbm_gha_install_audit": gha_install_audit,
         "casee_rhino_load_evidence_kit": rhino_evidence_kit,

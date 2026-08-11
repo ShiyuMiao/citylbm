@@ -1,0 +1,15 @@
+kind,name,passed
+gate_check,tracked_gha_exists,True
+gate_check,release_gha_exists,True
+gate_check,tracked_gha_matches_release_gha,True
+gate_check,tracked_gha_matches_plugin_identity_gate,True
+gate_check,source_component_gate_passed,True
+gate_check,all_required_markers_present_in_tracked_gha,True
+binary_marker,PluginIdentityComponent,True
+binary_marker,Plugin Identity,True
+binary_marker,GHA SHA256,True
+binary_marker,Manifest Template,True
+binary_marker,CityLBM Plugin Identity,True
+binary_marker,observed_gha_sha256,True
+binary_marker,not CFD accuracy evidence,True
+binary_marker,7B5126DD-4C5F-4C27-8E4C-142792314E55,True

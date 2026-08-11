@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc62 - Packaged GHA identity-component gate
+
+- Added `citylbm_plugin_identity_binary_gate.py` to audit the tracked packaged `CityLBM/bin/CityLBM.gha` for the `Plugin Identity` component markers.
+- The binary gate checks the packaged GHA SHA256 against the plugin identity gate and confirms the component name, GHA SHA256 output, manifest-template output, GUID, and accuracy-claim boundary are present in the packaged asset.
+- Integrated the binary gate into the reproducibility suite, paper evidence gate, artifact index, and software-feedback matrix as SF039.
+
+This is packaged-plugin software identity evidence only. It does not prove Rhino/Grasshopper loaded the plugin, add a new FluidX3D run, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc61 - Grasshopper plugin identity component
 
 - Added the `Plugin Identity` Grasshopper component under `CityLBM / Results`.

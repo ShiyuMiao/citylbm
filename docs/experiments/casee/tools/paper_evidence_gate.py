@@ -101,8 +101,10 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/citylbm_plugin_identity_component_gate.json",
     "docs/experiments/casee/results/citylbm_plugin_identity_component_gate.csv",
     "docs/experiments/casee/results/citylbm_plugin_identity_component_gate.md",
-    "docs/releases/v0.4.0-rc60.md",
-    "docs/releases/v0.4.0-rc61.md",
+    "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.json",
+    "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.csv",
+    "docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.md",
+    "docs/releases/v0.4.0-rc62.md",
 ]
 
 FORBIDDEN_SUCCESS_PATTERNS = [

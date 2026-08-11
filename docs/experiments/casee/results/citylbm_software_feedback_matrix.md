@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-11T02:14:33.001199+00:00
+Generated: 2026-08-11T02:22:56.928209+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 38
+- Feedback rows: 39
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -27,6 +27,7 @@ Generated: 2026-08-11T02:14:33.001199+00:00
 - inlet_turbulence_diagnostic_no_default_promotion: 1
 - low_cost_regression_no_default_promotion: 1
 - manual_rhino_load_evidence_kit: 1
+- packaged_gha_identity_component_gate: 1
 - paper_claim_support_gate: 1
 - paper_figure_output: 1
 - paper_interpretation_layer: 1
@@ -86,6 +87,7 @@ Generated: 2026-08-11T02:14:33.001199+00:00
 | `SF036` | CityLBM GHA staging/install audit | software_gha_staging_audit | implemented_gha_staging_audit | True | The tracked CityLBM.gha can now be audited against common Grasshopper Libraries locations, with exact SHA256 matching and an explicit manual copy command before any Rhino load claim is made. |
 | `SF037` | CityLBM Rhino/GHA load evidence kit | manual_rhino_load_evidence_kit | implemented_rhino_load_evidence_kit | True | Rhino/Grasshopper load verification now has a fail-closed evidence kit that detects Rhino, checks the staged GHA hash, and writes a manual manifest template without claiming that Rhino loaded the plugin. |
 | `SF038` | CityLBM Plugin Identity Grasshopper component | software_identity_component | implemented_plugin_identity_component | True | CityLBM now exposes a Plugin Identity component that reports the loaded plugin version, assembly version, GHA path, SHA256, manifest template, and explicit claim boundary inside Grasshopper. |
+| `SF039` | CityLBM packaged GHA identity-component gate | packaged_gha_identity_component_gate | implemented_packaged_gha_identity_component_gate | True | The tracked packaged CityLBM.gha is now audited for Plugin Identity component markers, including the component name, GHA SHA256 output, manifest-template output, GUID, and accuracy-claim boundary. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 
 ## Paper Boundary
@@ -129,6 +131,7 @@ Generated: 2026-08-11T02:14:33.001199+00:00
 | `SF036` | Use as software delivery traceability before manual Rhino/Grasshopper load verification. | Staging audit only; it does not copy files automatically, prove Rhino loaded the GHA, run CFD, improve metrics, or permit formal v0.4.0. |
 | `SF037` | Use as manual software-load evidence collection protocol before closing the Rhino/GHA load gate. | Manual evidence kit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0. |
 | `SF038` | Use as in-Grasshopper software identity evidence for manual Rhino/GHA load verification screenshots. | Software identity component only; it does not prove CFD accuracy, run FluidX3D, improve official metrics, or permit formal v0.4.0. |
+| `SF039` | Use as packaged-plugin software identity evidence before manual Rhino/GHA load verification. | Packaged GHA string audit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 
 ## Boundary

@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-08-11T02:22:41.341005+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_packaged_gha_identity_component",
+  "plugin_identity_binary_gate_passed": true,
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "tracked_gha_path": "CityLBM/bin/CityLBM.gha",
+  "release_gha_path": "CityLBM/bin/Release/CityLBM.gha",
+  "tracked_gha_sha256": "5874c50f46704a296f34811492b1acae8fc55a94e700f99afb57f0c52c1f6e07",
+  "release_gha_sha256": "5874c50f46704a296f34811492b1acae8fc55a94e700f99afb57f0c52c1f6e07",
+  "tracked_gha_size_bytes": 1823232,
+  "required_markers": {
+    "PluginIdentityComponent": true,
+    "Plugin Identity": true,
+    "GHA SHA256": true,
+    "Manifest Template": true,
+    "CityLBM Plugin Identity": true,
+    "observed_gha_sha256": true,
+    "not CFD accuracy evidence": true,
+    "7B5126DD-4C5F-4C27-8E4C-142792314E55": true
+  },
+  "checks": {
+    "tracked_gha_exists": true,
+    "release_gha_exists": true,
+    "tracked_gha_matches_release_gha": true,
+    "tracked_gha_matches_plugin_identity_gate": true,
+    "source_component_gate_passed": true,
+    "all_required_markers_present_in_tracked_gha": true
+  },
+  "boundary": "This gate checks that the packaged GHA contains the Plugin Identity component strings. It is software packaging evidence only; it does not prove Rhino loaded the plugin, run CFD, or improve official Case E z=2 m metrics."
+}

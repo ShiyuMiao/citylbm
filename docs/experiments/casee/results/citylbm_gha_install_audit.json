@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-08-11T02:14:17.554344+00:00",
+  "generated_at": "2026-08-11T02:22:41.672826+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "install_ready_pending_manual_rhino_load",
   "install_audit_passed": true,
   "matching_gha_already_staged": true,
   "rhino_loaded_new_gha": false,
-  "expected_tracked_gha_sha256": "2119738904182aed05f5d6e6ae66c683dc45de8b03c51f75bbd045041a3f6f3f",
+  "expected_tracked_gha_sha256": "5874c50f46704a296f34811492b1acae8fc55a94e700f99afb57f0c52c1f6e07",
   "tracked_gha": {
     "found": true,
     "path": "CityLBM/bin/CityLBM.gha",
-    "sha256": "2119738904182aed05f5d6e6ae66c683dc45de8b03c51f75bbd045041a3f6f3f",
+    "sha256": "5874c50f46704a296f34811492b1acae8fc55a94e700f99afb57f0c52c1f6e07",
     "size_bytes": 1823232,
-    "mtime_utc": "2026-08-11T02:14:15.699498+00:00"
+    "mtime_utc": "2026-08-11T02:22:39.667043+00:00"
   },
   "packaged_gha": {
     "found": true,
     "path": "CityLBM/bin/Release/CityLBM/CityLBM.gha",
-    "sha256": "40f168bd47bed25c4e6d99ac100b758a8a6e49feefed26bf183ee3198b055230",
+    "sha256": "3c1041784754c3d28dabc50e1db4ecc5e7ef7353a909f1f9ba98bd8b53706a59",
     "size_bytes": 194048,
-    "mtime_utc": "2026-08-11T02:13:28.628180+00:00"
+    "mtime_utc": "2026-08-11T02:22:22.912656+00:00"
   },
   "candidate_library_dirs": [
     "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries",
@@ -35,10 +35,10 @@
       "library_dir_exists": true,
       "path": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries\\CityLBM.gha",
       "found": true,
-      "sha256": "2119738904182aed05f5d6e6ae66c683dc45de8b03c51f75bbd045041a3f6f3f",
+      "sha256": "5874c50f46704a296f34811492b1acae8fc55a94e700f99afb57f0c52c1f6e07",
       "matches_tracked_gha": true,
       "size_bytes": 1823232,
-      "mtime_utc": "2026-08-11T02:14:15.699498+00:00"
+      "mtime_utc": "2026-08-11T02:22:39.667043+00:00"
     },
     {
       "library_dir": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\McNeel\\Rhinoceros\\8.0\\Plug-ins\\Grasshopper\\Libraries",

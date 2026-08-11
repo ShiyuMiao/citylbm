@@ -105,6 +105,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/rhino_gha_load_manifest.template.json`
 - `docs/experiments/casee/results/citylbm_plugin_identity_component_gate.json`
 - `docs/experiments/casee/results/citylbm_plugin_identity_component_gate.md`
+- `docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.json`
+- `docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.md`
+- `docs/releases/v0.4.0-rc62.md`
 - `docs/releases/v0.4.0-rc61.md`
 - `docs/releases/v0.4.0-rc60.md`
 - `docs/releases/v0.4.0-rc59.md`
@@ -425,6 +428,12 @@ reporting the loaded plugin version, assembly version, GHA path, SHA256,
 manifest template, and claim boundary from inside Grasshopper. Its output can
 be captured in the required Rhino/GHA load screenshot, but it is still software
 identity evidence only and not CFD accuracy evidence.
+
+The packaged GHA identity-component gate then checks the compiled
+`CityLBM/bin/CityLBM.gha` itself for those component markers and confirms the
+tracked GHA hash matches the plugin identity gate. This proves the release
+asset contains the evidence component, but still does not prove a real Rhino/
+Grasshopper session loaded it.
 
 The manuscript results table converts Case E evidence into paper-facing rows:
 the official z=2 m result is a negative-validation result, the best diagnostic
