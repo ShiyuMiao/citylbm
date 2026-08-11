@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-11T03:13:38.141429+00:00
+Generated: 2026-08-11T03:24:24.146279+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 43
+- Feedback rows: 44
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -17,6 +17,7 @@ Generated: 2026-08-11T03:13:38.141429+00:00
 - blocked_default_accuracy_upgrade: 1
 - blocked_followup_run: 3
 - build_chain_recovery_gate: 1
+- build_chain_uac_launcher_gate: 1
 - calibration_leakage_guard_no_default_promotion: 1
 - completed_candidate_no_default_promotion: 1
 - default_quality_gate: 1
@@ -88,6 +89,7 @@ Generated: 2026-08-11T03:13:38.141429+00:00
 | `SF032` | CityLBM Run Simulation publication gate output | software_publication_gate_output | implemented_publication_gate_output | True | Run Simulation now exposes a Publication Gate output beside the Claim Gate so Grasshopper users see manuscript-readiness dependencies at the point of case generation. |
 | `SF034` | Case E release asset manifest | paper_release_asset_manifest | implemented_release_asset_manifest | True | The release upload asset manifest separates compiled GHA, validation reports, CSV/XLSX summaries, figures, data/environment manifests, and paper gates from raw or large hash-only files. |
 | `SF035` | CityLBM VS C++ Build Tools recovery gate | build_chain_recovery_gate | implemented_vs_cpp_recovery_gate | True | The Windows native C++ build-chain recovery path is now scripted and audited, with explicit guards for manual -Install use, elevation, system-drive free space, winget availability, and required VC workload components. |
+| `SF044` | CityLBM VS C++ Build Tools elevated launcher | build_chain_uac_launcher_gate | implemented_vs_cpp_elevated_launcher_gate | True | A default-audit, explicit-UAC launcher now connects the VS C++ recovery script to an administrator install path and records the post-install verifier. The current machine still blocks launch because system-drive free space is below the configured threshold. |
 | `SF036` | CityLBM GHA staging/install audit | software_gha_staging_audit | implemented_gha_staging_audit | True | The tracked CityLBM.gha can now be audited against common Grasshopper Libraries locations, with exact SHA256 matching and an explicit manual copy command before any Rhino load claim is made. |
 | `SF037` | CityLBM Rhino/GHA load evidence kit | manual_rhino_load_evidence_kit | implemented_rhino_load_evidence_kit | True | Rhino/Grasshopper load verification now has a fail-closed evidence kit that detects Rhino, checks the staged GHA hash, and writes a manual manifest template without claiming that Rhino loaded the plugin. |
 | `SF038` | CityLBM Plugin Identity Grasshopper component | software_identity_component | implemented_plugin_identity_component | True | CityLBM now exposes a Plugin Identity component that reports the loaded plugin version, assembly version, GHA path, SHA256, manifest template, and explicit claim boundary inside Grasshopper. |
@@ -136,6 +138,7 @@ Generated: 2026-08-11T03:13:38.141429+00:00
 | `SF032` | Use as software traceability evidence that CityLBM surfaces manuscript-readiness boundaries in the plugin UI. | UI traceability only; it does not add solver output, improve official metrics, change defaults, or permit formal v0.4.0. |
 | `SF034` | Use for release/data-availability traceability and reviewer artifact checks. | Release planning only; it does not create a GitHub Release, add CFD output, or permit formal v0.4.0. |
 | `SF035` | Use as build-chain recovery evidence and to explain why VS C++ remains an operational blocker. | Build-chain recovery only; default script mode does not install tools, recover GPU, run CFD, improve metrics, or permit formal v0.4.0. |
+| `SF044` | Use as build-chain recovery traceability and operational-readiness evidence. | UAC launcher only; it does not install VS C++ during the suite, recover GPU runtime, run CFD, improve metrics, or permit formal v0.4.0. |
 | `SF036` | Use as software delivery traceability before manual Rhino/Grasshopper load verification. | Staging audit only; it does not copy files automatically, prove Rhino loaded the GHA, run CFD, improve metrics, or permit formal v0.4.0. |
 | `SF037` | Use as manual software-load evidence collection protocol before closing the Rhino/GHA load gate. | Manual evidence kit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0. |
 | `SF038` | Use as in-Grasshopper software identity evidence for manual Rhino/GHA load verification screenshots. | Software identity component only; it does not prove CFD accuracy, run FluidX3D, improve official metrics, or permit formal v0.4.0. |

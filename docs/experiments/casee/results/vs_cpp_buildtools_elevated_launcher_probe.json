@@ -1,0 +1,32 @@
+﻿{
+    "generated_at":  "2026-08-11T03:24:13.4726575Z",
+    "evidence_type":  "newly_run",
+    "launch_requested":  false,
+    "launch_attempted":  false,
+    "current_user_is_admin":  false,
+    "system_drive_free_gb":  4.989,
+    "min_system_drive_free_gb":  8,
+    "install_path":  "E:\\citylbm_buildchain\\VSBuildTools",
+    "recovery_script":  {
+                            "size_bytes":  6011,
+                            "found":  true,
+                            "path":  "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\docs\\experiments\\casee\\tools\\vs_cpp_buildtools_recovery.ps1",
+                            "sha256":  "c92585c497d8f4519b3b289e60b564ee45f8c7d4b1fcea1340e71888eba331d3"
+                        },
+    "winget":  {
+                   "found":  true,
+                   "path":  "C:\\Users\\miaoshiyu\\AppData\\Local\\Microsoft\\WindowsApps\\winget.exe",
+                   "version":  "v1.29.280"
+               },
+    "can_launch_elevated_install_now":  false,
+    "recovery_command":  "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\docs\\experiments\\casee\\tools\\vs_cpp_buildtools_recovery.ps1 -Install -InstallPath E:\\citylbm_buildchain\\VSBuildTools -MinSystemDriveFreeGB 8 -NoPause",
+    "blockers":  [
+                     "system drive free space is below 8 GB"
+                 ],
+    "launch_result":  {
+                          "exit_code":  null,
+                          "message":  ""
+                      },
+    "post_install_verification":  "python docs/experiments/casee/tools/vs_cpp_recovery_gate.py",
+    "boundary":  "Default mode is audit-only. Use -Launch only to open a UAC-elevated VS Build Tools recovery process; this does not run CFD, recover GPU runtime, improve Case E metrics, or support formal v0.4.0."
+}

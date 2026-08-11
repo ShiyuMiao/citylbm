@@ -1,6 +1,6 @@
 # VS C++ Build Tools Recovery Gate
 
-Generated: 2026-08-11T03:13:24.473482+00:00
+Generated: 2026-08-11T03:24:12.417711+00:00
 
 ## Verdict
 
@@ -14,7 +14,7 @@ Generated: 2026-08-11T03:13:24.473482+00:00
 
 - PowerShell return code: 0
 - Current user is admin: False
-- System drive free GB: 4.993
+- System drive free GB: 4.989
 - Minimum system drive free GB: 8
 - Install path: `E:\citylbm_buildchain\VSBuildTools`
 

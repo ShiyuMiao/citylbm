@@ -1,0 +1,18 @@
+item,status,evidence,limitation
+powershell_probe_ran,True,summary.checks,
+launcher_script_ready,True,summary.checks,
+audit_mode_did_not_launch,True,summary.checks,
+preflight_blockers_recorded,True,summary.checks,
+post_install_verifier_recorded,True,summary.checks,
+claim_boundary_safe,True,summary.checks,
+script_found,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1,
+recovery_script_found,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1,
+default_mode_audit_only,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1,
+uses_uac_elevation,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1,
+delegates_to_recovery_install,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1,
+has_system_drive_space_guard,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1,
+writes_json_probe,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1,
+records_post_install_verifier,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1,
+has_claim_boundary,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1,
+blocker,blocked,docs/experiments/casee/results/vs_cpp_buildtools_elevated_launcher_probe.json,system drive free space is below 8 GB
+manual_uac_command,manual_action_required,powershell -NoProfile -ExecutionPolicy Bypass -File C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\docs\experiments\casee\tools\vs_cpp_buildtools_recovery.ps1 -Install -InstallPath E:\citylbm_buildchain\VSBuildTools -MinSystemDriveFreeGB 8 -NoPause,Use the launcher with -Launch only after preflight blockers are resolved.

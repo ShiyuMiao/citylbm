@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc67 - VS C++ elevated launcher gate
+
+- Added `vs_cpp_buildtools_elevated_launcher.ps1`, a default-audit PowerShell launcher that opens the VS Build Tools recovery script through UAC only when explicitly run with `-Launch`.
+- Added `vs_cpp_elevated_launcher_gate.py` with JSON/CSV/Markdown outputs and a post-install verifier command for the VS C++ recovery gate.
+- Integrated the elevated launcher gate into the reproducibility suite, paper evidence gate, artifact index, and software-feedback matrix as SF044.
+
+This is build-chain recovery traceability only. It does not install Visual Studio Build Tools during the suite, recover GPU runtime, run FluidX3D, change solver defaults, or improve official metrics. The current machine still blocks elevated launch because C: free space is below 8 GB. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc66 - Local orphan candidate CSV audit
 
 - Added `casee_orphan_candidate_csv_audit.py` to inventory local untracked native Case E candidate `casee_probe_time_mean.csv` files by hash and metric summary.

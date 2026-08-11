@@ -136,6 +136,7 @@ def build_rows() -> List[Dict[str, Any]]:
     claim_support = read_json(RESULTS_DIR / "casee_claim_support_gate.json")
     release_assets = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
+    vs_cpp_elevated_launcher = read_json(RESULTS_DIR / "vs_cpp_elevated_launcher_gate.json")
     gha_install = read_json(RESULTS_DIR / "citylbm_gha_install_audit.json")
     rhino_evidence_kit = read_json(RESULTS_DIR / "casee_rhino_load_evidence_kit.json")
     rhino_manifest_schema_gate = read_json(RESULTS_DIR / "rhino_gha_load_manifest_schema_gate.json")
@@ -1133,6 +1134,45 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    vs_cpp_launcher_summary = vs_cpp_elevated_launcher.get("summary") or {}
+    rows.append(
+        row(
+            feedback_id="SF044",
+            experiment="CityLBM VS C++ Build Tools elevated launcher",
+            finding=(
+                "A default-audit, explicit-UAC launcher now connects the VS C++ recovery script to an administrator "
+                "install path and records the post-install verifier. The current machine still blocks launch because "
+                "system-drive free space is below the configured threshold."
+            ),
+            evidence_type=str(vs_cpp_launcher_summary.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "vs_cpp_buildtools_elevated_launcher.ps1",
+                CASEE_DIR / "tools" / "vs_cpp_elevated_launcher_gate.py",
+                CASEE_DIR / "tools" / "vs_cpp_buildtools_recovery.ps1",
+                RESULTS_DIR / "vs_cpp_elevated_launcher_gate.json",
+                RESULTS_DIR / "vs_cpp_elevated_launcher_gate.csv",
+                RESULTS_DIR / "vs_cpp_elevated_launcher_gate.md",
+                RESULTS_DIR / "vs_cpp_buildtools_elevated_launcher_probe.json",
+            ],
+            decision_class="build_chain_uac_launcher_gate",
+            citylbm_status="implemented_vs_cpp_elevated_launcher_gate"
+            if vs_cpp_launcher_summary.get("vs_cpp_elevated_launcher_gate_passed") is True
+            and vs_cpp_launcher_summary.get("launch_attempted") is False
+            and vs_cpp_launcher_summary.get("formal_accuracy_claim_supported") is False
+            else "vs_cpp_elevated_launcher_gate_missing_or_failed",
+            implementation_evidence=(
+                f"gate_passed={vs_cpp_launcher_summary.get('vs_cpp_elevated_launcher_gate_passed')}; "
+                f"can_launch_elevated_install_now={vs_cpp_launcher_summary.get('can_launch_elevated_install_now')}; "
+                f"launch_attempted={vs_cpp_launcher_summary.get('launch_attempted')}; "
+                f"blocker_count={len(vs_cpp_launcher_summary.get('blockers') or [])}; "
+                f"post_install_verification={vs_cpp_launcher_summary.get('post_install_verification')}"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as build-chain recovery traceability and operational-readiness evidence.",
+            limitations="UAC launcher only; it does not install VS C++ during the suite, recover GPU runtime, run CFD, improve metrics, or permit formal v0.4.0.",
+        )
+    )
+
     rows.append(
         row(
             feedback_id="SF036",
@@ -1456,13 +1496,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "manual_rhino_load_manifest_schema_gate", "software_identity_component", "packaged_gha_identity_component_gate"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate", "build_chain_uac_launcher_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "manual_rhino_load_manifest_schema_gate", "software_identity_component", "packaged_gha_identity_component_gate"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
@@ -1548,6 +1588,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_default_policy_gate.json"),
             rel(RESULTS_DIR / "casee_official_run_preflight.json"),
             rel(RESULTS_DIR / "build_chain_manifest.json"),
+            rel(RESULTS_DIR / "vs_cpp_elevated_launcher_gate.json"),
             rel(RESULTS_DIR / "rhino_gha_load_manifest_schema_gate.json"),
             rel(RESULTS_DIR / "citylbm_portable_toolchain_gate.json"),
             rel(RESULTS_DIR / "citylbm_gpu_runtime_failfast_gate.json"),
