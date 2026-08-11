@@ -130,6 +130,7 @@ def build_rows() -> List[Dict[str, Any]]:
     c005_decomposition = read_json(RESULTS_DIR / "casee_c005_decomposition_audit.json")
     c008_c009_inlet = read_json(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json")
     c014_residual = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
+    orphan_candidate_csv_audit = read_json(RESULTS_DIR / "casee_orphan_candidate_csv_audit.json")
     c016_leakage_guard = read_json(RESULTS_DIR / "casee_c016_residual_target_leakage_guard.json")
     solver_ledger = read_json(RESULTS_DIR / "casee_solver_run_provenance_ledger.json")
     claim_support = read_json(RESULTS_DIR / "casee_claim_support_gate.json")
@@ -1373,6 +1374,43 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    orphan_summary = orphan_candidate_csv_audit.get("summary") or {}
+    rows.append(
+        row(
+            feedback_id="SF043",
+            experiment="Experiment 2 / local orphan native candidate CSV audit",
+            finding=(
+                "Local untracked native candidate CSVs are now inventoried by hash and metric summary before any "
+                "paper use. The best raw candidate remains negative, and no candidate is formal-result eligible "
+                "because complete run logs are absent."
+            ),
+            evidence_type=str(orphan_summary.get("evidence_type", orphan_candidate_csv_audit.get("evidence_type", "missing"))),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_orphan_candidate_csv_audit.py",
+                RESULTS_DIR / "casee_orphan_candidate_csv_audit.json",
+                RESULTS_DIR / "casee_orphan_candidate_csv_audit.csv",
+                RESULTS_DIR / "casee_orphan_candidate_csv_audit.md",
+                RESULTS_DIR / "casee_candidate_sweep_plan.json",
+            ],
+            decision_class="local_orphan_candidate_no_default_promotion",
+            citylbm_status="implemented_orphan_candidate_csv_audit"
+            if orphan_summary.get("orphan_candidate_csv_audit_passed") is True
+            and orphan_summary.get("any_formal_result_allowed") is False
+            and orphan_summary.get("formal_accuracy_claim_supported") is False
+            else "orphan_candidate_csv_audit_missing_or_failed",
+            implementation_evidence=(
+                f"candidate_csv_count={orphan_summary.get('candidate_csv_count')}; "
+                f"best_raw_mae_pp={orphan_summary.get('best_raw_mae_pp')}; "
+                f"best_raw_r2={orphan_summary.get('best_raw_r2')}; "
+                f"formal_raw_candidates_with_logs={orphan_summary.get('formal_raw_candidates_with_logs')}; "
+                f"any_formal_result_allowed={orphan_summary.get('any_formal_result_allowed')}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as local candidate inventory and protocol-risk evidence only.",
+            limitations="The raw candidate CSVs are local/untracked and lack complete run logs; do not use them as formal validation, default-promotion evidence, or formal v0.4.0 support.",
+        )
+    )
+
     rows.append(
         row(
             feedback_id="SF019",
@@ -1418,7 +1456,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -1428,7 +1466,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "local_orphan_candidate_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -1515,6 +1553,7 @@ def main() -> int:
             rel(RESULTS_DIR / "citylbm_gpu_runtime_failfast_gate.json"),
             rel(RESULTS_DIR / "casee_dx1_readiness_audit.json"),
             rel(RESULTS_DIR / "casee_candidate_sweep_plan.json"),
+            rel(RESULTS_DIR / "casee_orphan_candidate_csv_audit.json"),
             rel(RESULTS_DIR / "casee_zcenter_rerun_consistency.json"),
             rel(RESULTS_DIR / "casee_c002_longer_mean_audit.json"),
             rel(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json"),

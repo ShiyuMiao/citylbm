@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc66 - Local orphan candidate CSV audit
+
+- Added `casee_orphan_candidate_csv_audit.py` to inventory local untracked native Case E candidate `casee_probe_time_mean.csv` files by hash and metric summary.
+- The audit records that four local candidate CSVs exist, but none has complete run-log provenance and the best raw official z=2 m candidate still has negative R2.
+- Integrated the orphan-candidate audit into the reproducibility suite, paper evidence gate, artifact index, and software-feedback matrix as SF043.
+
+This is local candidate inventory and protocol-risk evidence only. It does not commit the raw CSVs, prove a completed FluidX3D run without logs, update `release_gate.json`, change solver defaults, or improve official metrics. Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc65 - Rhino load manifest schema gate
 
 - Added `rhino_gha_load_manifest_schema_gate.py` to validate the manual Rhino/GHA load manifest contract.

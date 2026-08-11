@@ -28,6 +28,32 @@ OUT_JSON = RESULTS_DIR / "casee_reproducibility_suite.json"
 OUT_MD = RESULTS_DIR / "casee_reproducibility_suite.md"
 
 
+def write_text_retry(path: Path, text: str, *, encoding: str = "utf-8", attempts: int = 6) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    last_error: Optional[OSError] = None
+    for attempt in range(attempts):
+        try:
+            path.write_text(text, encoding=encoding)
+            return
+        except OSError as exc:
+            last_error = exc
+            time.sleep(0.2 * (attempt + 1))
+    tmp_path = path.with_name(f".{path.name}.tmp-{os.getpid()}")
+    try:
+        tmp_path.write_text(text, encoding=encoding)
+        tmp_path.replace(path)
+        return
+    except OSError:
+        if tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
+        if last_error is not None:
+            raise last_error
+        raise
+
+
 def run_command(
     name: str,
     args: List[str],
@@ -53,8 +79,7 @@ def run_command(
     stdout = proc.stdout
     stderr = proc.stderr
     if stdout_path is not None:
-        stdout_path.parent.mkdir(parents=True, exist_ok=True)
-        stdout_path.write_text(stdout + stderr, encoding="utf-8")
+        write_text_retry(stdout_path, stdout + stderr)
     passed = proc.returncode == 0
     if expect_release_gate_block:
         passed = proc.returncode != 0 and "formal_release_allowed=False" in stdout
@@ -172,7 +197,7 @@ def write_publication_gate_provisional_suite(steps: List[Dict[str, Any]]) -> Non
             "run instead of a stale previous suite result. It is overwritten by the final full suite output."
         ),
     }
-    OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    write_text_retry(OUT_JSON, json.dumps(payload, indent=2))
 
 
 def write_markdown(payload: Dict[str, Any]) -> None:
@@ -227,7 +252,7 @@ def write_markdown(payload: Dict[str, Any]) -> None:
         "",
         "This suite proves that the current rc evidence chain is reproducible and claim-safe. It intentionally treats the formal release gate as blocked while official z=2 m R2 remains negative.",
     ]
-    OUT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    write_text_retry(OUT_MD, "\n".join(lines) + "\n")
 
 
 def main() -> int:
@@ -294,6 +319,7 @@ def main() -> int:
         ("casee_c005_decomposition_audit", "casee_c005_decomposition_audit.py"),
         ("casee_c008_c009_inlet_turbulence_audit", "casee_c008_c009_inlet_turbulence_audit.py"),
         ("casee_c014_residual_structure_audit", "casee_c014_residual_structure_audit.py"),
+        ("casee_orphan_candidate_csv_audit", "casee_orphan_candidate_csv_audit.py"),
         ("casee_c016_residual_target_leakage_guard", "casee_c016_residual_target_leakage_guard.py"),
         ("casee_solver_run_provenance_ledger", "casee_solver_run_provenance_ledger.py"),
         ("casee_claim_support_gate", "casee_claim_support_gate.py"),
@@ -349,6 +375,7 @@ def main() -> int:
     c004_dx3_low_cost = read_json(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     candidate_sweep_plan = read_json(RESULTS_DIR / "casee_candidate_sweep_plan.json")
     c014_residual_structure = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
+    orphan_candidate_csv_audit = read_json(RESULTS_DIR / "casee_orphan_candidate_csv_audit.json")
     default_policy = read_json(RESULTS_DIR / "casee_default_policy_gate.json")
     paper_results_packet = read_json(RESULTS_DIR / "citylbm_paper_results_packet.json")
     manifest_output_gate = read_json(RESULTS_DIR / "citylbm_manifest_output_gate.json")
@@ -388,6 +415,7 @@ def main() -> int:
         "casee_c003_zorigin_ablation_audit": c003_zorigin_ablation,
         "casee_c004_dx3_low_cost_audit": c004_dx3_low_cost,
         "casee_c014_residual_structure_audit": c014_residual_structure,
+        "casee_orphan_candidate_csv_audit": orphan_candidate_csv_audit,
         "casee_candidate_sweep_plan": candidate_sweep_plan,
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_results_packet,
@@ -400,7 +428,7 @@ def main() -> int:
         "artifact_index": artifact_index,
         "casee_release_asset_manifest": release_asset_manifest,
     }
-    OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    write_text_retry(OUT_JSON, json.dumps(payload, indent=2))
     write_markdown(payload)
     print(json.dumps({"suite_passed": suite_passed, "out_json": str(OUT_JSON)}, indent=2))
     return 0 if suite_passed else 1

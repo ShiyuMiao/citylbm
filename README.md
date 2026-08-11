@@ -114,6 +114,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_portable_toolchain_activation.json`
 - `docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.json`
 - `docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.md`
+- `docs/experiments/casee/results/casee_orphan_candidate_csv_audit.json`
+- `docs/experiments/casee/results/casee_orphan_candidate_csv_audit.md`
+- `docs/releases/v0.4.0-rc66.md`
 - `docs/releases/v0.4.0-rc65.md`
 - `docs/releases/v0.4.0-rc64.md`
 - `docs/releases/v0.4.0-rc63.md`
@@ -357,6 +360,12 @@ from source-recompiled follow-up candidates. New longer-time, z-origin,
 decomposition, dx=1, wall-model, and inlet-turbulence candidates remain governed
 by source-compile, runtime, memory, and formal raw_trilinear metric gates before
 any default promotion.
+
+The orphan candidate CSV audit inventories local untracked native
+`casee_probe_time_mean.csv` files by SHA256 and metric summary. The current
+local candidates remain limitations-only: no complete run logs are present, the
+best raw official z=2 m candidate still has negative R2, and no candidate is
+eligible for default promotion or formal release-gate replacement.
 
 The manuscript evidence summary now converts Case E outputs into a claim matrix.
 It marks protocol and build/workflow evidence as paper-ready, marks the current
