@@ -65,6 +65,9 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "citylbm_stg_max_fraction = 0.420000f");
                 Require(setup, "syntheticTurbulentInlet");
                 Require(setup, "applySyntheticTurbulentInlet");
+                Require(setup, "initialize all TYPE_E boundary velocities");
+                Require(setup, "if(lbm.flags[n] != TYPE_E) return;");
+                Require(setup, "float3 u_e = windProfile(z);");
                 Require(metadata, "divergence-reduced spectral modes");
                 Require(metadata, "projected normal to synthetic wave vectors");
                 Require(metadata, "component RMS target sigma=sqrt(2k/3)");
@@ -79,6 +82,7 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "ApproxFrontalBlockageRatio");
                 Require(metadata, "blockage_diagnostic_ok_verify_against_aij");
                 Require(metadata, "diagnostic_clearance_thresholds_satisfied");
+                Require(metadata, "avoid zero-speed boundary damping");
                 Require(audit, "diagnostic_clearance_ok_verify_against_aij");
 
                 Console.WriteLine("Codegen smoke passed.");

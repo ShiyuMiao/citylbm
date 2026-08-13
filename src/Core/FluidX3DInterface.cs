@@ -1895,6 +1895,8 @@ namespace CityLBM.Solver
             sb.AppendLine("    // 原因：FluidX3D 的 voxelize_mesh_on_device() 内部在 !initialized 时");
             sb.AppendLine("    // 会调用 u.read_from_device()，把 GPU 端的 u（此时还是 reset(0) 的零值）");
             sb.AppendLine("    // 覆盖到 CPU 端，导致之前 parallel_for 设置的速度全部丢失！");
+            AppendEquilibriumBoundaryVelocityInitialization(sb, scene.WindProfile);
+            sb.AppendLine();
             sb.AppendLine("    lbm.flags.write_to_device();");
             sb.AppendLine("    lbm.u.write_to_device();");
             sb.AppendLine();
@@ -2076,6 +2078,31 @@ namespace CityLBM.Solver
             }
             sb.AppendLine("        // 顶面：自由出流");
             sb.AppendLine("        if(z == Nz-1u) { lbm.flags[n] = TYPE_E; return; }");
+        }
+
+        private void AppendEquilibriumBoundaryVelocityInitialization(StringBuilder sb, WindProfileType windProfile)
+        {
+            sb.AppendLine("    // CityLBM v0.3.0 validation fix: initialize all TYPE_E boundary velocities.");
+            sb.AppendLine("    // Without this pass, outlet/lateral/top TYPE_E nodes can keep zero velocity after the boundary return path,");
+            sb.AppendLine("    // which may add artificial damping and contribute to systematic speed-ratio underprediction.");
+            sb.AppendLine("    parallel_for(lbm.get_N(), [&](ulong n) {");
+            sb.AppendLine("        if(lbm.flags[n] != TYPE_E) return;");
+            sb.AppendLine("        uint x=0u, y=0u, z=0u;");
+            sb.AppendLine("        lbm.coordinates(n, x, y, z);");
+            if (windProfile == WindProfileType.Uniform)
+            {
+                sb.AppendLine("        lbm.u.x[n] = u_x;");
+                sb.AppendLine("        lbm.u.y[n] = u_y;");
+                sb.AppendLine("        lbm.u.z[n] = u_z;");
+            }
+            else
+            {
+                sb.AppendLine("        float3 u_e = windProfile(z);");
+                sb.AppendLine("        lbm.u.x[n] = u_e.x;");
+                sb.AppendLine("        lbm.u.y[n] = u_e.y;");
+                sb.AppendLine("        lbm.u.z[n] = u_e.z;");
+            }
+            sb.AppendLine("    });");
         }
 
         #endregion
@@ -2546,10 +2573,10 @@ namespace CityLBM.Solver
                 GroundFace = "Z-",
                 BoundaryTypes = new BoundaryTypesRecord
                 {
-                    Inlet = "TYPE_E velocity profile",
-                    Outlet = "TYPE_E pressure/free-outflow approximation",
-                    Lateral = "TYPE_E slip/free approximation",
-                    Top = "TYPE_E",
+                    Inlet = "TYPE_E velocity profile; boundary velocity initialized from mean profile",
+                    Outlet = "TYPE_E pressure/free-outflow approximation; velocity initialized from mean profile to avoid zero-speed boundary damping",
+                    Lateral = "TYPE_E slip/free approximation; velocity initialized from mean profile",
+                    Top = "TYPE_E; velocity initialized from mean profile",
                     Ground = "TYPE_S no-slip; no rough-wall function",
                     Buildings = "TYPE_S no-slip"
                 },
@@ -2669,6 +2696,7 @@ namespace CityLBM.Solver
             }
 
             yield return "Boundary conditions are simplified TYPE_E inlet/outlet/lateral/top approximations and must be checked against the AIJ wind-tunnel protocol.";
+            yield return "CityLBM initializes all TYPE_E boundary velocities from the mean wind profile before device upload to avoid zero-speed outlet/lateral/top boundary damping.";
             yield return "BoundaryProtocolAudit records inlet/outlet/lateral/top faces and clearances, but its diagnostic thresholds are not a substitute for the official AIJ boundary/blockage protocol.";
             yield return "Ground is currently TYPE_S no-slip without a rough-wall or wall-function model; AF profile roughness is not the same as an aerodynamic rough-wall boundary.";
 

@@ -83,6 +83,9 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Domain extents in `H`: upstream, downstream, lateral and top clearance.
 - Approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate.
 - Boundary mode and boundary-source justification.
+- `TYPE_E` boundary velocity initialization policy. CityLBM v0.3.0 generated cases initialize outlet, lateral and top
+  `TYPE_E` nodes from the mean wind profile before device upload to avoid zero-speed boundary damping; archive the
+  generated `setup.cpp` evidence for native and CityLBM parity runs.
 - Wall/roughness treatment: no-slip, rough-wall function, precursor/recycling, roughness blocks, or other documented
   approach.
 - Inlet turbulence method: off, STG-lite, synthetic-eddy, digital-filter, recycling-rescaling or precursor.
