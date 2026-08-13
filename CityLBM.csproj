@@ -65,4 +65,8 @@
     <Copy SourceFiles="@(IconFiles)" DestinationFolder="$(OutputPath)\Icons" />
   </Target>
 
+  <Target Name="CopyGrasshopperAssembly" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(TargetDir)CityLBM.gha" />
+  </Target>
+
 </Project>
