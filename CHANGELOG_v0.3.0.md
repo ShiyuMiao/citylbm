@@ -13,6 +13,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `case_metadata.json` records wind profile, velocity scaling, k status, grid and run settings.
 - `Read VTK` reports whether metadata-driven velocity scaling was applied.
 - `Read VTK` adds `Average Last N` so validation workflows can output an explicit multi-frame time-averaged velocity field instead of a single instantaneous VTK frame.
+- `Read VTK` now reports averaged-field stability diagnostics: mean speed, mean/max pointwise speed standard deviation,
+  and mean/max relative fluctuation across the averaged VTK frames.
 - `case_metadata.json` records protocol-risk fields: simplified boundary-condition summary, expected VTK frame count, required averaging, and validation-readiness status.
 - `Run Simulation` no longer falls back to the legacy bundled v0.5.0 solver when no external FluidX3D path is provided; controlled validation must use an explicit external FluidX3D baseline.
 - `Run Simulation` adds an optional experimental `Synthetic Inlet` control for CustomTable profiles with `k`.
@@ -24,7 +26,7 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   probe-projection risk and systematic-bias gate so the known `-34 pp` underprediction pattern is treated as a protocol
   blocker rather than a tuning target.
 - `docs/validation_metrics_template.csv` now includes run-evidence fields for source time steps, compared velocity component,
-  boundary summary, synthetic inlet method, native baseline id, probe mapping distances and protocol gate.
+  averaged-field stability, boundary summary, synthetic inlet method, native baseline id, probe mapping distances and protocol gate.
 - `Data Probe` now appends validation-audit outputs for `Uref`-based speed ratio, streamwise ratio, nearest VTK-sample
   distance and per-probe CSV rows without changing the existing first five outputs.
 - Each generated case now also writes `native_fluidx3d_baseline_manifest.json` and `.md` so native FluidX3D and

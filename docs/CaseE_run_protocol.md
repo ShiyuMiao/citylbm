@@ -48,6 +48,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - VTK files are newly generated for the current run directory, not copied from older experiments.
 - Post-processing reads the final averaged velocity field, not an initial transient.
   In `Read VTK`, set `Average Last N > 0` and record the actual averaged source time steps printed in the Info output.
+  Also archive the reported mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation.
+  A short window with large residual fluctuation is diagnostic only and must not be treated as paper-grade time averaging.
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
 - The probe audit table must contain official point number, original coordinate, CFD interpolation cell, interpolation
   distance, compared velocity component and failure flag.
@@ -73,6 +75,7 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Regression slope and intercept
 - Maximum absolute error
 - Grid spacing, steps, averaging window and VTK frame list
+- Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
 - Mean probe distance and maximum probe distance
 - Native FluidX3D baseline run id or archive path
 - Protocol gate from `validation_protocol_audit.json`

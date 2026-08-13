@@ -3166,6 +3166,21 @@ namespace CityLBM.Solver
         /// <summary>Number of VTK frames used when this result is a time-averaged field.</summary>
         public int AveragedFrameCount { get; set; }
 
+        /// <summary>Mean speed magnitude of the averaged velocity field.</summary>
+        public double MeanSpeed { get; set; } = double.NaN;
+
+        /// <summary>Mean pointwise speed standard deviation across averaged frames.</summary>
+        public double MeanSpeedStdDev { get; set; } = double.NaN;
+
+        /// <summary>Maximum pointwise speed standard deviation across averaged frames.</summary>
+        public double MaxSpeedStdDev { get; set; } = double.NaN;
+
+        /// <summary>Mean speed standard deviation divided by mean speed.</summary>
+        public double MeanSpeedStdDevRatio { get; set; } = double.NaN;
+
+        /// <summary>Maximum speed standard deviation divided by mean speed.</summary>
+        public double MaxSpeedStdDevRatio { get; set; } = double.NaN;
+
         /// <summary>Source time steps used when this result is a time-averaged field.</summary>
         public List<int> SourceTimeSteps { get; set; } = new List<int>();
 

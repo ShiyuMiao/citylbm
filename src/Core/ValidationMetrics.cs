@@ -105,7 +105,12 @@ namespace CityLBM.Core
                 return null;
 
             int n = first.Points.Count;
+            if (n == 0 || first.Velocities.Count != n)
+                return null;
+
             var sum = new Vector3d[n];
+            var speedSums = new double[n];
+            var speedSqSums = new double[n];
             int validFrames = 0;
 
             foreach (var result in results)
@@ -116,12 +121,39 @@ namespace CityLBM.Core
                     return null;
 
                 for (int i = 0; i < n; i++)
+                {
                     sum[i] += result.Velocities[i];
+                    double speed = result.Velocities[i].Length;
+                    speedSums[i] += speed;
+                    speedSqSums[i] += speed * speed;
+                }
                 validFrames++;
             }
 
             if (validFrames == 0)
                 return null;
+
+            var averagedVelocities = sum.Select(v => v / validFrames).ToList();
+            double meanSpeed = averagedVelocities.Count > 0
+                ? averagedVelocities.Average(v => v.Length)
+                : double.NaN;
+            double meanSpeedStdDev = double.NaN;
+            double maxSpeedStdDev = double.NaN;
+            if (validFrames > 1 && n > 0)
+            {
+                double stdSum = 0.0;
+                double stdMax = 0.0;
+                for (int i = 0; i < n; i++)
+                {
+                    double mean = speedSums[i] / validFrames;
+                    double variance = Math.Max(0.0, speedSqSums[i] / validFrames - mean * mean);
+                    double std = Math.Sqrt(variance);
+                    stdSum += std;
+                    if (std > stdMax) stdMax = std;
+                }
+                meanSpeedStdDev = stdSum / n;
+                maxSpeedStdDev = stdMax;
+            }
 
             return new VTKResult
             {
@@ -129,9 +161,18 @@ namespace CityLBM.Core
                 TimeStep = results.Max(r => r.TimeStep),
                 RawPointCount = first.RawPointCount,
                 Points = new List<Point3d>(first.Points),
-                Velocities = sum.Select(v => v / validFrames).ToList(),
+                Velocities = averagedVelocities,
                 Scalars = new Dictionary<string, List<double>>(),
                 AveragedFrameCount = validFrames,
+                MeanSpeed = meanSpeed,
+                MeanSpeedStdDev = meanSpeedStdDev,
+                MaxSpeedStdDev = maxSpeedStdDev,
+                MeanSpeedStdDevRatio = IsFinite(meanSpeed) && IsFinite(meanSpeedStdDev) && Math.Abs(meanSpeed) > 1.0e-12
+                    ? meanSpeedStdDev / meanSpeed
+                    : double.NaN,
+                MaxSpeedStdDevRatio = IsFinite(meanSpeed) && IsFinite(maxSpeedStdDev) && Math.Abs(meanSpeed) > 1.0e-12
+                    ? maxSpeedStdDev / meanSpeed
+                    : double.NaN,
                 SourceTimeSteps = results
                     .Where(r => r != null)
                     .Select(r => r.TimeStep)

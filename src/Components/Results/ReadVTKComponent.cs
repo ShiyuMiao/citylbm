@@ -540,9 +540,19 @@ namespace CityLBM.Components.Results
             string sourceSteps = results.Count == 1 && results[0].SourceTimeSteps != null && results[0].SourceTimeSteps.Count > 0
                 ? string.Join(", ", results[0].SourceTimeSteps)
                 : "";
+            string averagingStabilityInfo = "";
+            if (averageLastN > 0 && results.Count == 1 && averagedFrameCount > 0)
+            {
+                var averaged = results[0];
+                averagingStabilityInfo =
+                    $"平均速度:   {FormatMetric(averaged.MeanSpeed)} m/s\n" +
+                    $"速度标准差: mean={FormatMetric(averaged.MeanSpeedStdDev)} m/s, max={FormatMetric(averaged.MaxSpeedStdDev)} m/s\n" +
+                    $"相对波动:   mean={FormatPercent(averaged.MeanSpeedStdDevRatio)}, max={FormatPercent(averaged.MaxSpeedStdDevRatio)}\n";
+            }
             string averagingInfo = averageLastN > 0
                 ? $"时间平均:   已对最后 {averagedFrameCount} 个可用 VTK 帧执行逐点平均\n" +
-                  (sourceSteps.Length > 0 ? $"平均帧:     {sourceSteps}\n" : "")
+                  (sourceSteps.Length > 0 ? $"平均帧:     {sourceSteps}\n" : "") +
+                  averagingStabilityInfo
                 : "时间平均:   未启用（当前输出可能是瞬时场）\n";
 
             return $"读取了 {results.Count} 个 VTK 文件\n" +
@@ -553,6 +563,20 @@ namespace CityLBM.Components.Results
                    $"采样策略:   {stepDesc}\n" +
                    averagingInfo +
                    $"时间步范围: {results.Min(r => r.TimeStep)} → {results.Max(r => r.TimeStep)}";
+        }
+
+        private string FormatMetric(double value)
+        {
+            return double.IsNaN(value) || double.IsInfinity(value)
+                ? "NaN"
+                : value.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        private string FormatPercent(double value)
+        {
+            return double.IsNaN(value) || double.IsInfinity(value)
+                ? "NaN"
+                : (100.0 * value).ToString("F2", System.Globalization.CultureInfo.InvariantCulture) + "%";
         }
 
         private List<string> SelectLastNVtkFiles(List<string> vtkFiles, int count)
