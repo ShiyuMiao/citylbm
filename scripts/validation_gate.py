@@ -68,6 +68,15 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--allow-summary-only-probe-metrics",
+        action="store_true",
+        help=(
+            "Diagnostic override only: allow coordinate, normalization and compared-component "
+            "checks to rely on a summary metrics row when the per-probe Data Probe audit CSV "
+            "is missing. Paper-grade validation should not use this flag."
+        ),
+    )
+    parser.add_argument(
         "--allow-diagnostic",
         action="store_true",
         help="Return exit code 0 for diagnostic-only packages while still reporting FAIL gates.",
@@ -602,6 +611,27 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Run and archive a paired native FluidX3D baseline using an explicit complete source tree with setup/defines/lbm source hashes, then compare the same setup, grid, averaging and probes.",
     )
 
+    probe_total, probe_failed, probe_error = read_probe_counts(probe_path)
+    probe_audit_traceable = probe_total is not None and probe_total > 0
+    probe_summary_override = args.allow_summary_only_probe_metrics
+    probe_traceability_status = (
+        PASS
+        if probe_audit_traceable
+        else (WARN if probe_summary_override else FAIL)
+    )
+    add_gate(
+        gates,
+        "probe_audit_traceability",
+        probe_traceability_status,
+        (
+            f"probe_audit={probe_path or 'missing'}; probe_total={probe_total}; "
+            f"probe_failed={probe_failed}; allow_summary_only_probe_metrics={probe_summary_override}; "
+            f"{probe_error or ''}"
+        ).strip(),
+        "Export the Data Probe audit CSV with official probe IDs, x/y/z, Uref, wind vector, compared_component, nearest_distance and tolerance.",
+    )
+    detailed_probe_audit_ok = probe_audit_traceable or probe_summary_override
+
     normalization_valid = as_bool(get_any(metrics, ["normalization_valid", "NormalizationValid"]))
     wind_valid = as_bool(get_any(metrics, ["wind_direction_valid", "WindDirectionValid"]))
     uref = as_float(get_any(metrics, ["Uref_mps", "Uref", "U_ref"]))
@@ -628,7 +658,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         gates,
         "coordinate_normalization",
         PASS
-        if normalization_valid is True
+        if detailed_probe_audit_ok
+        and normalization_valid is True
         and wind_valid is True
         and uref_ok
         and wind_vector_ok
@@ -641,7 +672,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"wind_vector={metric_wind_vector}; expected_wind_vector={expected_wind_vector}; "
             f"wind_vector_unit_delta={wind_delta}; wind_vector_tolerance={args.wind_vector_tolerance}; "
             f"max_official_coordinate_delta_m={coord_delta}; required <= {args.max_official_coordinate_delta_m}; "
-            f"official_coordinate_delta_count={coord_delta_count}; valid_n={valid_metric_count}"
+            f"official_coordinate_delta_count={coord_delta_count}; valid_n={valid_metric_count}; "
+            f"probe_audit_traceable={probe_audit_traceable}; "
+            f"allow_summary_only_probe_metrics={probe_summary_override}"
         ),
         "Audit Uref/Zref, wind sign, compared component and RS probe coordinate transform.",
     )
@@ -655,6 +688,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     else:
         unique_components = [c for c in metric_component.split(";") if c] if ";" in metric_component else ([metric_component] if metric_component else [])
     component_consistent = (
+        detailed_probe_audit_ok
+        and
         (component_gate == "pass" or component_gate == "")
         and len(unique_components) == 1
         and bool(unique_components[0])
@@ -669,14 +704,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"metrics_component_gate={component_gate or 'missing'}; "
             f"probe_components={';'.join(unique_components) or 'missing'}; "
             f"expected={expected_component or 'not_set'}; "
-            f"probe_valid_component_count={probe_valid_component_count}; {probe_component_error or ''}"
+            f"probe_valid_component_count={probe_valid_component_count}; "
+            f"probe_audit_traceable={probe_audit_traceable}; "
+            f"allow_summary_only_probe_metrics={probe_summary_override}; "
+            f"{probe_component_error or ''}"
         ).strip(),
         "Use one explicit Data Probe Compared Component for all official probes and match it to the AIJ table definition.",
     )
 
     valid_n = as_int(get_any(metrics, ["valid_n", "ValidN"]))
     failed_n = as_int(get_any(metrics, ["failed_n", "FailedN"]))
-    probe_total, probe_failed, probe_error = read_probe_counts(probe_path)
     if probe_total is not None:
         valid_n = probe_total - (probe_failed or 0)
         failed_n = probe_failed
@@ -686,8 +723,17 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     add_gate(
         gates,
         "probe_mapping",
-        PASS if failure_fraction is not None and failure_fraction <= args.max_probe_failure_fraction else FAIL,
-        f"valid_n={valid_n}; failed_n={failed_n}; failure_fraction={failure_fraction}; {probe_error or ''}".strip(),
+        PASS
+        if detailed_probe_audit_ok
+        and failure_fraction is not None
+        and failure_fraction <= args.max_probe_failure_fraction
+        else FAIL,
+        (
+            f"valid_n={valid_n}; failed_n={failed_n}; failure_fraction={failure_fraction}; "
+            f"probe_audit_traceable={probe_audit_traceable}; "
+            f"allow_summary_only_probe_metrics={probe_summary_override}; "
+            f"{probe_error or ''}"
+        ).strip(),
         "Export Data Probe audit CSV and fix tolerance/projection until official probes map reliably.",
     )
 
@@ -784,6 +830,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "expected_wind_vector": args.expected_wind_vector,
             "wind_vector_tolerance": args.wind_vector_tolerance,
             "allow_velocity_only_inlet": args.allow_velocity_only_inlet,
+            "allow_summary_only_probe_metrics": args.allow_summary_only_probe_metrics,
         },
         "artifacts": {
             "case_metadata": str(metadata_path) if metadata_path else "",

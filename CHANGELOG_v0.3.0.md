@@ -81,6 +81,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   and `lbm.cpp`; a metrics row can no longer self-report `native_baseline_gate=pass` without this evidence.
 - `scripts/validation_gate.py` now also requires `native_fluidx3d_baseline_id` in the metrics row to match the manifest
   `BaselineId`, preventing copied or manually mistyped native-baseline labels from passing the evidence gate.
+- `scripts/validation_gate.py` now requires the per-probe `Data Probe` audit CSV for coordinate, normalization and
+  compared-component traceability. Summary-only metrics are allowed only through an explicit diagnostic override and
+  should not be used for paper-grade validation claims.
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.
