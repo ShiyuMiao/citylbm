@@ -580,11 +580,26 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         or metadata.get("SyntheticTurbulentInletDistributionTreatment")
         or ""
     )
+    inlet_profile_gate = str(get_any(metrics, ["inlet_profile_gate"]) or "").strip().lower()
+    inlet_u_profile_gate = str(get_any(metrics, ["inlet_u_profile_gate"]) or "").strip().lower()
+    inlet_k_profile_gate = str(get_any(metrics, ["inlet_k_profile_gate"]) or "").strip().lower()
+    inlet_profile_frame_count = as_int(get_any(metrics, ["inlet_profile_frame_count"]))
+    inlet_profile_source_steps = str(get_any(metrics, ["inlet_profile_source_time_steps"]) or "").strip()
+    inlet_u_mae_ratio = as_float(get_any(metrics, ["inlet_u_mae_ratio"]))
+    inlet_k_mae_ratio = as_float(get_any(metrics, ["inlet_k_mae_ratio"]))
     empty_u_bias = as_float(get_any(metrics, ["empty_tunnel_U_bias_ratio", "empty_tunnel_u_bias_ratio"]))
     empty_k_bias = as_float(get_any(metrics, ["empty_tunnel_k_bias_ratio", "empty_tunnel_K_bias_ratio"]))
     empty_gate = str(get_any(metrics, ["empty_tunnel_gate", "inlet_k_preservation_gate"]) or "").strip().lower()
+    inlet_profile_pass = (
+        inlet_profile_gate == "pass"
+        and inlet_u_profile_gate == "pass"
+        and inlet_k_profile_gate == "pass"
+        and inlet_profile_frame_count is not None
+        and inlet_profile_frame_count >= args.min_avg_frames
+    )
     empty_tunnel_pass = (
-        empty_gate == "pass"
+        inlet_profile_pass
+        or empty_gate == "pass"
         or (
             empty_u_bias is not None
             and abs(empty_u_bias) <= args.max_empty_tunnel_u_bias_ratio
@@ -608,11 +623,27 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         inlet_gate_status = FAIL
     add_gate(
         gates,
+        "inlet_profile_preservation",
+        PASS if inlet_profile_pass else FAIL,
+        (
+            f"inlet_profile_gate={inlet_profile_gate or 'missing'}; "
+            f"inlet_u_profile_gate={inlet_u_profile_gate or 'missing'}; "
+            f"inlet_k_profile_gate={inlet_k_profile_gate or 'missing'}; "
+            f"inlet_profile_frame_count={inlet_profile_frame_count}; required >= {args.min_avg_frames}; "
+            f"inlet_profile_source_time_steps={inlet_profile_source_steps or 'missing'}; "
+            f"inlet_u_mae_ratio={inlet_u_mae_ratio}; inlet_k_mae_ratio={inlet_k_mae_ratio}"
+        ),
+        "Run scripts/audit_inlet_profile_from_vtk.py on real post-spinup VTK frames and pass U(z)/k(z) preservation before paper-grade validation.",
+    )
+
+    add_gate(
+        gates,
         "inlet_turbulence",
         inlet_gate_status,
         (
             f"inlet_turbulence_k={inlet_status}; inlet_distribution_consistency={distribution_status}; "
-            f"treatment={inlet_treatment or 'missing'}; empty_tunnel_gate={empty_gate or 'missing'}; "
+            f"treatment={inlet_treatment or 'missing'}; inlet_profile_gate={inlet_profile_gate or 'missing'}; "
+            f"empty_tunnel_gate={empty_gate or 'missing'}; "
             f"empty_tunnel_U_bias_ratio={empty_u_bias}; empty_tunnel_k_bias_ratio={empty_k_bias}; "
             f"allow_velocity_only_inlet={args.allow_velocity_only_inlet}"
         ),

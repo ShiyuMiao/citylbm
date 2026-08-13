@@ -29,7 +29,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
 1. Empty-tunnel gate.
    The empty-tunnel run must preserve both mean velocity and turbulent kinetic energy before any building run is
    promoted. Record `U_MAE`, `U_RMSE`, `U_bias`, `k_MAE`, `k_RMSE`, `k_bias`, the post-spinup sample count and the
-   inlet-turbulence method.
+   inlet-turbulence method. Generate these fields from real `u-*.vtk` frames with
+   `scripts/audit_inlet_profile_from_vtk.py`; do not hand-enter them without an archived profile-audit JSON.
 
 2. Building Case A gate.
    Run the building case only after the empty-tunnel gate passes or after the protocol is explicitly marked as
@@ -105,6 +106,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Inlet distribution treatment: macroscopic velocity only, equilibrium/distribution reconstruction, precursor field, or
   other archived method.
 - Inlet `U` and `k` preservation metrics from the empty tunnel.
+- Inlet/empty-tunnel profile-audit JSON and CSV from real post-spinup VTK frames, including the selected plane, source
+  VTK steps, `U_MAE_ratio`, `U_bias_ratio`, `k_MAE_ratio`, `k_bias_ratio`, and the `inlet_profile_gate`.
 - Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept, max absolute error,
   `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
 - Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance, compared-component consistency and
@@ -123,14 +126,16 @@ If metrics are produced from Grasshopper `Data Probe`, build the metrics row fir
 ```powershell
 python scripts\audit_native_run.py <run_dir> --metadata <case_metadata.json> --solver-log <solver.log> --average-last-n 10 --mean-speed-stddev-ratio <ratio> --max-speed-stddev-ratio <ratio> --out <native_run_audit.json>
 
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
+python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
+
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
 
 For a CityLBM-driven parity run, change `--software citylbm` and keep the same metrics/probe schema. A passing paper-grade
 record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,
 `native_baseline_gate=pass`, `lbm_stability_gate=solver_log_no_stability_warnings`,
 `solver_stability_warnings=none`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
-zero failed probes, bounded mean-velocity bias/RMSE, and reported `k` bias. If the gate returns `FAIL`, the run is
+`inlet_profile_gate=pass`, zero failed probes, bounded mean-velocity bias/RMSE, and reported `k` bias. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
 The command intentionally omits `--allow-velocity-only-inlet`; add that flag only for explicitly labelled diagnostic
 STG-lite sensitivity runs, not for the native FluidX3D baseline or a paper-grade CityLBM equivalence claim.

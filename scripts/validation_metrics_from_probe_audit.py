@@ -92,6 +92,14 @@ TEMPLATE_FIELDS = [
     "synthetic_correlation_length_m",
     "inlet_length_scale_source",
     "inlet_length_scale_gate",
+    "inlet_profile_audit",
+    "inlet_profile_frame_count",
+    "inlet_profile_source_time_steps",
+    "inlet_profile_gate",
+    "inlet_u_profile_gate",
+    "inlet_u_mae_ratio",
+    "inlet_k_profile_gate",
+    "inlet_k_mae_ratio",
     "empty_tunnel_gate",
     "empty_tunnel_U_bias_ratio",
     "empty_tunnel_k_bias_ratio",
@@ -144,6 +152,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--comparison-out", help="Optional per-probe comparison CSV.")
     parser.add_argument("--metadata", help="Optional case_metadata.json.")
     parser.add_argument("--read-vtk-audit", help="Optional Read VTK Averaging Audit JSON.")
+    parser.add_argument("--inlet-profile-audit", help="Optional inlet/empty-tunnel profile audit JSON from audit_inlet_profile_from_vtk.py.")
     parser.add_argument("--case", default="", help="Case label to write and optionally filter official rows.")
     parser.add_argument("--wind-direction", default="", help="Wind direction label to write and optionally filter official rows.")
     parser.add_argument("--software", default="citylbm")
@@ -435,6 +444,11 @@ def audit_field(audit: Dict[str, Any], key: str) -> str:
     return ""
 
 
+def audit_gate(audit: Dict[str, Any], key: str) -> str:
+    value = audit.get(key)
+    return str(value).strip().lower() if value not in (None, "") else ""
+
+
 def main() -> int:
     args = parse_args()
     probe_path = Path(args.probe_audit).resolve()
@@ -443,6 +457,7 @@ def main() -> int:
     comparison_path = Path(args.comparison_out).resolve() if args.comparison_out else None
     metadata = read_json(Path(args.metadata).resolve() if args.metadata else None)
     read_vtk_audit = read_json(Path(args.read_vtk_audit).resolve() if args.read_vtk_audit else None)
+    inlet_profile_audit = read_json(Path(args.inlet_profile_audit).resolve() if args.inlet_profile_audit else None)
 
     probe_rows = read_csv(probe_path)
     official_rows = filter_official(read_csv(official_path), args.case, args.wind_direction)
@@ -620,6 +635,15 @@ def main() -> int:
     max_speed_stddev = args.max_speed_stddev if args.max_speed_stddev is not None else audit_float(read_vtk_audit, "max_speed_stddev_mps")
     mean_speed_stddev_ratio = args.mean_speed_stddev_ratio if args.mean_speed_stddev_ratio is not None else audit_float(read_vtk_audit, "mean_speed_stddev_ratio")
     max_speed_stddev_ratio = args.max_speed_stddev_ratio if args.max_speed_stddev_ratio is not None else audit_float(read_vtk_audit, "max_speed_stddev_ratio")
+    inlet_profile_gate = audit_gate(inlet_profile_audit, "inlet_profile_gate")
+    inlet_u_profile_gate = audit_gate(inlet_profile_audit, "inlet_u_profile_gate")
+    inlet_k_profile_gate = audit_gate(inlet_profile_audit, "inlet_k_profile_gate")
+    inlet_u_mae_ratio = audit_float(inlet_profile_audit, "U_MAE_ratio")
+    inlet_k_mae_ratio = audit_float(inlet_profile_audit, "k_MAE_ratio")
+    inlet_u_bias_ratio = audit_float(inlet_profile_audit, "U_bias_ratio")
+    inlet_k_bias_ratio = audit_float(inlet_profile_audit, "k_bias_ratio")
+    inlet_k_mae = audit_float(inlet_profile_audit, "k_MAE_m2s2")
+    inlet_k_bias = audit_float(inlet_profile_audit, "k_bias_m2s2")
     metrics = {field: "" for field in TEMPLATE_FIELDS}
     metrics.update(
         {
@@ -693,9 +717,17 @@ def main() -> int:
             "synthetic_correlation_length_m": metadata_field(metadata, "SyntheticTurbulenceCorrelationLengthM"),
             "inlet_length_scale_source": metadata_field(metadata, "SyntheticTurbulentInletLengthScaleSource"),
             "inlet_length_scale_gate": metadata_field(metadata, "SyntheticTurbulentInletLengthScaleGate"),
-            "empty_tunnel_gate": args.empty_tunnel_gate,
-            "empty_tunnel_U_bias_ratio": args.empty_tunnel_u_bias_ratio,
-            "empty_tunnel_k_bias_ratio": args.empty_tunnel_k_bias_ratio,
+            "inlet_profile_audit": str(Path(args.inlet_profile_audit).resolve()) if args.inlet_profile_audit else "",
+            "inlet_profile_frame_count": fmt(audit_int(inlet_profile_audit, "frame_count")),
+            "inlet_profile_source_time_steps": audit_source_steps(inlet_profile_audit),
+            "inlet_profile_gate": inlet_profile_gate,
+            "inlet_u_profile_gate": inlet_u_profile_gate,
+            "inlet_u_mae_ratio": fmt(inlet_u_mae_ratio),
+            "inlet_k_profile_gate": inlet_k_profile_gate,
+            "inlet_k_mae_ratio": fmt(inlet_k_mae_ratio),
+            "empty_tunnel_gate": args.empty_tunnel_gate or inlet_profile_gate,
+            "empty_tunnel_U_bias_ratio": args.empty_tunnel_u_bias_ratio or fmt(inlet_u_bias_ratio),
+            "empty_tunnel_k_bias_ratio": args.empty_tunnel_k_bias_ratio or fmt(inlet_k_bias_ratio),
             "native_fluidx3d_baseline_id": args.native_baseline_id,
             "native_baseline_gate": args.native_baseline_gate,
             "probe_mapping_table": str(probe_path),
@@ -724,10 +756,10 @@ def main() -> int:
             "U_scaled_RMSE_ratio": fmt(scaled_rmse),
             "U_scaled_improvement_ratio": fmt(scaled_improvement),
             "bias_diagnosis": bias_diagnosis,
-            "k_MAE_m2s2": args.k_mae,
+            "k_MAE_m2s2": args.k_mae or fmt(inlet_k_mae),
             "k_RMSE_m2s2": args.k_rmse,
-            "k_bias_m2s2": args.k_bias,
-            "k_bias_ratio": args.k_bias_ratio,
+            "k_bias_m2s2": args.k_bias or fmt(inlet_k_bias),
+            "k_bias_ratio": args.k_bias_ratio or fmt(inlet_k_bias_ratio),
             "systematic_bias_flag": systematic_flag,
             "protocol_gate": metrics_protocol_gate,
             "notes": (

@@ -91,15 +91,26 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Added `scripts/audit_native_run.py` to turn a native FluidX3D run directory into a reusable audit JSON containing VTK
   frame hashes, selected final time steps, time-averaging gate fields, solver-log stability warning status and LBM
   stability metadata for downstream metrics/gate checks.
+- Added `scripts/audit_inlet_profile_from_vtk.py` to read real post-spinup `u-*.vtk` frames, sample an inlet or
+  empty-tunnel cross-plane, reconstruct time-mean streamwise `U(z)` and temporal-variance `k(z)`, and compare both
+  against the official AF table. This replaces hand-filled empty-tunnel `U/k` evidence with an archived JSON/CSV audit.
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.
+- `scripts/validation_metrics_from_probe_audit.py` can now ingest the inlet-profile audit JSON and write
+  `inlet_profile_gate`, `inlet_u_profile_gate`, `inlet_k_profile_gate`, `inlet_u_mae_ratio` and `inlet_k_mae_ratio`
+  into the standard metrics row.
+- `scripts/validation_gate.py` now has a separate `inlet_profile_preservation` gate. Paper-grade validation fails when
+  real VTK frames do not prove that the requested AF `U(z)` and `k(z)` are preserved at the inlet/empty-tunnel audit
+  plane.
 - Probe-derived metrics now preserve the actual `Uref` used by `Data Probe` and read `WindDirectionUnitVector` from
   `case_metadata.json`, so wind/normalization evidence is not lost during validation-gate reporting.
 
 ## Remaining scientific work
 
 - Native FluidX3D Case A strict baseline must be run with the same geometry, inflow, averaging window and measurement extraction.
+- The inlet-profile audit must be run on newly generated native and CityLBM VTK sequences; without this JSON, high probe
+  R2 is not enough to diagnose whether the solver preserved the official AF `U/k` inlet.
 - If native FluidX3D is significantly closer to AIJ measurements, the same settings must be ported into CityLBM.
 - Case E should then be run with dx=2-3 m, long time averaging and the official AF/RS files.
 - The new default `10000/500` run is still a minimum validation workflow, not final stationarity proof; paper runs must

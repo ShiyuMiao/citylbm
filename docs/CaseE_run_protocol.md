@@ -58,6 +58,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - `validation_protocol_audit.json` and `validation_protocol_audit.md` exist in both case root and output directory.
   Treat any `risk` or `fail` item as a blocker for paper-grade validation claims until resolved or explicitly justified.
 - VTK files are newly generated for the current run directory, not copied from older experiments.
+- The AF inlet profile must be verified from real post-spinup VTK frames before probe accuracy is interpreted. Run
+  `scripts\audit_inlet_profile_from_vtk.py` on the output VTK sequence, compare against `AF_caseE.csv`, and archive the
+  resulting `inlet_profile_audit.json` and `.csv`. This audit checks that `Wind Profile=3` actually preserved both
+  `U(z)` and the AF third-column `k(m2/s2)` statistics at the selected inlet/empty-tunnel plane.
 - Post-processing reads the final averaged velocity field, not an initial transient.
   In `Read VTK`, set `Average Last N > 0` and archive the `Averaging Audit` JSON output.
   This JSON records the actual averaged frame count, source time steps, mean speed, mean/max pointwise speed standard
@@ -95,7 +99,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Convert the `Data Probe` audit table and official `RS_caseE.csv` subset into a standard metrics row:
 
 ```powershell
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
+python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
+
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
 ```
 
 - Run the machine gate after postprocessing:
@@ -131,6 +137,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Compared component consistency gate, unique compared components and official coordinate-delta coverage count
 - Native FluidX3D baseline run id or archive path
 - Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
+- Inlet profile preservation audit: selected plane, source VTK steps, `inlet_profile_gate`, `inlet_u_profile_gate`,
+  `inlet_k_profile_gate`, `inlet_u_mae_ratio`, and `inlet_k_mae_ratio`
 - Native baseline gate and `validation_gate_report.json`
 - Protocol gate from `validation_protocol_audit.json`
 - Systematic bias flag and `bias_diagnosis`. If mean bias remains around `-0.20` to `-0.35` speed-ratio units, do not
