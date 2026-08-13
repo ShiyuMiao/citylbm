@@ -1,10 +1,10 @@
 ﻿{
-    "generated_at":  "2026-08-13T05:12:35.5045639Z",
+    "generated_at":  "2026-08-13T05:32:12.8161442Z",
     "evidence_type":  "newly_run",
     "launch_requested":  false,
     "launch_attempted":  false,
     "current_user_is_admin":  false,
-    "system_drive_free_gb":  1.499,
+    "system_drive_free_gb":  1.501,
     "min_system_drive_free_gb":  8,
     "install_path":  "E:\\citylbm_buildchain\\VSBuildTools",
     "recovery_script":  {

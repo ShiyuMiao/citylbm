@@ -35,6 +35,7 @@ ALWAYS_INCLUDE = {
     "docs/releases/v0.4.0-rc74.md",
     "docs/releases/v0.4.0-rc75.md",
     "docs/releases/v0.4.0-rc76.md",
+    "docs/releases/v0.4.0-rc77.md",
     "docs/experiments/casea/results/casea_smoke_regression.json",
     "docs/experiments/casea/results/casea_vtk_manifest.csv",
     "docs/experiments/casee/data_manifest.csv",

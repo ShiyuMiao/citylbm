@@ -1,13 +1,13 @@
 # Rhino/GHA Load Gate
 
-Generated: 2026-08-13T05:12:26.591152+00:00
+Generated: 2026-08-13T05:32:04.439333+00:00
 
 ## Verdict
 
 - Rhino loaded new GHA: False
 - Claim readiness: `blocked_manual_rhino_load`
 - Expected plugin version: `0.4.0-rc`
-- Expected GHA SHA256: `b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e`
+- Expected GHA SHA256: `504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39`
 
 ## Checks
 
@@ -43,7 +43,7 @@ Missing manifest fields:
   "grasshopper_version": "Grasshopper version string",
   "observed_plugin_version": "0.4.0-rc",
   "observed_assembly_version": "0.4.0.0",
-  "observed_gha_sha256": "b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
+  "observed_gha_sha256": "504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39",
   "evidence_artifacts": [
     "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
     "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"

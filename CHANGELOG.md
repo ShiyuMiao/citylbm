@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc77 - Build-chain recheck artifact refresh
+
+- Re-ran the CityLBM build-chain audit with the portable `E:\citylbm_buildchain` .NET SDK and refreshed the tracked `CityLBM.gha` artifact.
+- Recorded that portable .NET, FluidX3D, and MinGW/g++ are available, while Visual Studio Build Tools C++ remains blocked by administrator/UAC and low C: drive space constraints.
+- Kept GPU runtime recovery and official Case E z=2 m accuracy improvement as blockers; this rc does not change the formal validation metric.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc76 - Workspace hygiene gate
 
 - Added a workspace hygiene gate that keeps local build caches, solver logs, native scratch CSVs, and visualization scratch scripts out of the curated Case E release evidence chain.

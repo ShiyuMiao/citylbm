@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T05:12:56.687182+00:00",
+  "generated_at": "2026-08-13T05:32:35.046018+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_reproducibility_appendix; blocked formal accuracy release",
   "outputs": {
@@ -16,7 +16,7 @@
     "docs/experiments/casee/results/casee_manuscript_section_pack.json"
   ],
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc76",
+  "recommended_tag": "v0.4.0-rc77",
   "official_z2m_metrics": {
     "n": 80,
     "mae_pp": 21.111408125,

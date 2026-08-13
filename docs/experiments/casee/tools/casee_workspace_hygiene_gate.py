@@ -40,6 +40,7 @@ EXPECTED_UNTRACKED_EVIDENCE = {
     "docs/experiments/casee/results/casee_workspace_hygiene_gate.csv",
     "docs/experiments/casee/results/casee_workspace_hygiene_gate.md",
     "docs/releases/v0.4.0-rc76.md",
+    "docs/releases/v0.4.0-rc77.md",
 }
 
 FORBIDDEN_TRACKED_SUFFIXES = (".vtk", ".vtu", ".vti", ".vtp", ".stl", ".3dm")

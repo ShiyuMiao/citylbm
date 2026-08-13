@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-13T05:12:24.028600+00:00",
+  "generated_at": "2026-08-13T05:32:01.927848+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready for build reproducibility; not CFD accuracy evidence",
   "citylbm_build_hash_stability_gate_passed": true,
   "build_repeat_count": 2,
   "repeated_build_hash_stable": true,
   "tracked_release_nested_hashes_equal": true,
-  "final_tracked_gha_sha256": "b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
+  "final_tracked_gha_sha256": "504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39",
   "dotnet": {
     "found": true,
     "path": "E:\\citylbm_buildchain\\dotnet\\dotnet.exe",
@@ -25,61 +25,61 @@
     {
       "index": 1,
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\build.ps1 -DotNetPath E:\\citylbm_buildchain\\dotnet\\dotnet.exe -NoPause",
-      "started_at": "2026-08-13T05:12:11.269468+00:00",
-      "ended_at": "2026-08-13T05:12:17.642276+00:00",
+      "started_at": "2026-08-13T05:31:49.113658+00:00",
+      "ended_at": "2026-08-13T05:31:55.269714+00:00",
       "returncode": 0,
-      "stdout_tail": "    0 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:03.47\n\nBuild completed.\n\n[3/3] Packaging Grasshopper output...\nOutput GHA: bin\\Release\\CityLBM.gha\nSize KB: 1781\nUpdated: 08/13/2026 13:12:17\ndistributable already up to date: bin\\CityLBM.gha\nnested GHA already up to date: bin\\Release\\CityLBM\\CityLBM.gha\n\n========================================\nCityLBM build succeeded.\n========================================\n\nInstall: copy bin\\CityLBM.gha to the Grasshopper Libraries folder, then restart Grasshopper.",
+      "stdout_tail": "    0 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:03.49\n\nBuild completed.\n\n[3/3] Packaging Grasshopper output...\nOutput GHA: bin\\Release\\CityLBM.gha\nSize KB: 1781\nUpdated: 08/13/2026 13:31:54\ndistributable already up to date: bin\\CityLBM.gha\nnested GHA already up to date: bin\\Release\\CityLBM\\CityLBM.gha\n\n========================================\nCityLBM build succeeded.\n========================================\n\nInstall: copy bin\\CityLBM.gha to the Grasshopper Libraries folder, then restart Grasshopper.",
       "stderr_tail": "",
       "tracked_gha": {
         "found": true,
         "path": "CityLBM/bin/CityLBM.gha",
-        "sha256": "b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
+        "sha256": "504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39",
         "size_bytes": 1823744,
-        "mtime_utc": "2026-08-13T05:08:11.369738+00:00"
+        "mtime_utc": "2026-08-13T05:23:41.126617+00:00"
       },
       "release_gha": {
         "found": true,
         "path": "CityLBM/bin/Release/CityLBM.gha",
-        "sha256": "b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
+        "sha256": "504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39",
         "size_bytes": 1823744,
-        "mtime_utc": "2026-08-13T05:12:17.158184+00:00"
+        "mtime_utc": "2026-08-13T05:31:54.839986+00:00"
       },
       "nested_gha": {
         "found": true,
         "path": "CityLBM/bin/Release/CityLBM/CityLBM.gha",
-        "sha256": "b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
+        "sha256": "504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39",
         "size_bytes": 1823744,
-        "mtime_utc": "2026-08-13T05:08:11.369738+00:00"
+        "mtime_utc": "2026-08-13T05:23:41.126617+00:00"
       }
     },
     {
       "index": 2,
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\build.ps1 -DotNetPath E:\\citylbm_buildchain\\dotnet\\dotnet.exe -NoPause",
-      "started_at": "2026-08-13T05:12:17.656864+00:00",
-      "ended_at": "2026-08-13T05:12:23.975537+00:00",
+      "started_at": "2026-08-13T05:31:55.297702+00:00",
+      "ended_at": "2026-08-13T05:32:01.876972+00:00",
       "returncode": 0,
-      "stdout_tail": "    0 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:03.56\n\nBuild completed.\n\n[3/3] Packaging Grasshopper output...\nOutput GHA: bin\\Release\\CityLBM.gha\nSize KB: 1781\nUpdated: 08/13/2026 13:12:23\ndistributable already up to date: bin\\CityLBM.gha\nnested GHA already up to date: bin\\Release\\CityLBM\\CityLBM.gha\n\n========================================\nCityLBM build succeeded.\n========================================\n\nInstall: copy bin\\CityLBM.gha to the Grasshopper Libraries folder, then restart Grasshopper.",
+      "stdout_tail": "    0 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:03.78\n\nBuild completed.\n\n[3/3] Packaging Grasshopper output...\nOutput GHA: bin\\Release\\CityLBM.gha\nSize KB: 1781\nUpdated: 08/13/2026 13:32:01\ndistributable already up to date: bin\\CityLBM.gha\nnested GHA already up to date: bin\\Release\\CityLBM\\CityLBM.gha\n\n========================================\nCityLBM build succeeded.\n========================================\n\nInstall: copy bin\\CityLBM.gha to the Grasshopper Libraries folder, then restart Grasshopper.",
       "stderr_tail": "",
       "tracked_gha": {
         "found": true,
         "path": "CityLBM/bin/CityLBM.gha",
-        "sha256": "b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
+        "sha256": "504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39",
         "size_bytes": 1823744,
-        "mtime_utc": "2026-08-13T05:08:11.369738+00:00"
+        "mtime_utc": "2026-08-13T05:23:41.126617+00:00"
       },
       "release_gha": {
         "found": true,
         "path": "CityLBM/bin/Release/CityLBM.gha",
-        "sha256": "b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
+        "sha256": "504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39",
         "size_bytes": 1823744,
-        "mtime_utc": "2026-08-13T05:12:23.562560+00:00"
+        "mtime_utc": "2026-08-13T05:32:01.330459+00:00"
       },
       "nested_gha": {
         "found": true,
         "path": "CityLBM/bin/Release/CityLBM/CityLBM.gha",
-        "sha256": "b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
+        "sha256": "504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39",
         "size_bytes": 1823744,
-        "mtime_utc": "2026-08-13T05:08:11.369738+00:00"
+        "mtime_utc": "2026-08-13T05:23:41.126617+00:00"
       }
     }
   ],
@@ -87,8 +87,8 @@
     "staged": true,
     "source": "CityLBM/bin/CityLBM.gha",
     "target": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries\\CityLBM.gha",
-    "source_sha256": "b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
-    "target_sha256": "b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
+    "source_sha256": "504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39",
+    "target_sha256": "504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39",
     "hashes_match": true
   },
   "formal_accuracy_claim_supported": false,
