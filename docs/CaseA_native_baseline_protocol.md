@@ -76,7 +76,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
    record wind-vector components, `wind_direction_valid` and `normalization_valid` so speed-ratio and streamwise-ratio
    comparisons remain traceable. The validation metrics must record `compared_component_consistency_gate`,
    `compared_component_unique_values` and `official_coordinate_delta_count`; every valid probe must use one explicit
-   component and must have an official coordinate-delta check.
+   component and must have an official coordinate-delta check. Native FluidX3D runs that bypass Grasshopper must use
+   `scripts/probe_vtk_points.py` to emit the same Data-Probe-compatible audit CSV before metrics are built.
 
 8. Promotion gate.
    CityLBM may inherit native FluidX3D settings only after native Case A has a passing or explicitly bounded diagnostic
@@ -127,6 +128,8 @@ If metrics are produced from Grasshopper `Data Probe`, build the metrics row fir
 python scripts\audit_native_run.py <run_dir> --metadata <case_metadata.json> --solver-log <solver.log> --average-last-n 10 --out <native_run_audit.json>
 
 python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
+
+python scripts\probe_vtk_points.py <run_dir>\output --official <RS-caseA.csv> --case CaseA --wind-direction-label <direction> --wind-direction 1,0,0 --u-ref <Uref> --compared-component speed_ratio --tolerance <probe_tolerance_m> --average-last-n 10 --out <probe_audit.csv>
 
 python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
