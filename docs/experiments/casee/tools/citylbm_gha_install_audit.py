@@ -15,7 +15,7 @@ from typing import Any, Dict, List
 ROOT = Path(__file__).resolve().parents[4]
 RESULTS_DIR = ROOT / "docs" / "experiments" / "casee" / "results"
 TRACKED_GHA = ROOT / "CityLBM" / "bin" / "CityLBM.gha"
-PACKAGED_GHA = ROOT / "CityLBM" / "bin" / "Release" / "CityLBM" / "CityLBM.gha"
+PACKAGED_GHA = ROOT / "CityLBM" / "bin" / "Release" / "CityLBM.gha"
 PLUGIN_IDENTITY_GATE = RESULTS_DIR / "plugin_identity_gate.json"
 RHINO_LOAD_GATE = RESULTS_DIR / "rhino_gha_load_gate.json"
 OUT_JSON = RESULTS_DIR / "citylbm_gha_install_audit.json"

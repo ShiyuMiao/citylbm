@@ -1,6 +1,6 @@
 # Rhino/GHA Load Manifest Schema Gate
 
-Generated: 2026-08-11T03:43:18.149605+00:00
+Generated: 2026-08-13T04:06:53.165014+00:00
 
 ## Verdict
 
@@ -15,7 +15,7 @@ Generated: 2026-08-11T03:43:18.149605+00:00
 | check | passed |
 |---|---:|
 | `plugin_identity_gate_passed` | True |
-| `evidence_kit_ready` | True |
+| `evidence_kit_ready` | False |
 | `template_exists` | True |
 | `template_required_fields_present` | True |
 | `template_allows_placeholders_only` | True |

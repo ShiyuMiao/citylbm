@@ -1282,6 +1282,37 @@ def build_rows() -> List[Dict[str, Any]]:
 
     rows.append(
         row(
+            feedback_id="SF048",
+            experiment="CityLBM canonical GHA packaging path",
+            finding=(
+                "The rc71 build script packages the merged Release GHA and synchronizes the tracked "
+                "distributable from that canonical artifact, eliminating the earlier unmerged nested GHA ambiguity."
+            ),
+            evidence_type="newly_run",
+            source_paths=[
+                ROOT / "CityLBM" / "build.ps1",
+                CASEE_DIR / "tools" / "build_chain_audit.py",
+                CASEE_DIR / "tools" / "citylbm_gha_install_audit.py",
+                ROOT / "CityLBM" / "bin" / "CityLBM.gha",
+                ROOT / "CityLBM" / "bin" / "Release" / "CityLBM.gha",
+                ROOT / "docs" / "releases" / "v0.4.0-rc71.md",
+                RESULTS_DIR / "plugin_identity_gate.json",
+                RESULTS_DIR / "citylbm_gha_install_audit.json",
+            ],
+            decision_class="software_packaging_traceability_no_accuracy_promotion",
+            citylbm_status="implemented_canonical_gha_packaging_path",
+            implementation_evidence=(
+                "build_ps1_uses_merged_release_gha=True; tracked_release_nested_sha_equal=True; "
+                "packaged_gha_sha256=79ee34f1ef7632404944943c897e7dbedaa2b1262686651027ff0482dfd85118"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as software-distribution traceability evidence for the exact GHA artifact used in reviewer-facing installation steps.",
+            limitations="Packaging-path evidence only; it does not stage the GHA, prove Rhino loaded it, run CFD, improve official metrics, or permit formal v0.4.0.",
+        )
+    )
+
+    rows.append(
+        row(
             feedback_id="SF036",
             experiment="CityLBM GHA staging/install audit",
             finding=(
@@ -1603,13 +1634,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate", "build_chain_uac_launcher_gate", "build_chain_system_drive_space_gate", "operational_recovery_dashboard_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "manual_rhino_load_manifest_schema_gate", "software_identity_component", "packaged_gha_identity_component_gate"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "build_chain_recovery_gate", "build_chain_uac_launcher_gate", "build_chain_system_drive_space_gate", "operational_recovery_dashboard_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "manual_rhino_load_manifest_schema_gate", "software_identity_component", "packaged_gha_identity_component_gate", "software_packaging_traceability_no_accuracy_promotion"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows

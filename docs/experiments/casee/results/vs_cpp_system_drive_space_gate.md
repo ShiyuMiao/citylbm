@@ -1,17 +1,17 @@
 # VS C++ System Drive Space Gate
 
-Generated: 2026-08-11T03:43:21.037628+00:00
+Generated: 2026-08-13T04:00:46.555396+00:00
 
 ## Verdict
 
 - Gate passed: True
 - Claim readiness: `space_preflight_blocked_manual_cleanup_needed`
 - System drive: `C:`
-- Free space: 4.842 GB
+- Free space: 1.53 GB
 - Required free space: 8.0 GB
-- Additional free space needed: 3.158 GB
+- Additional free space needed: 6.47 GB
 - Ready for VS C++ elevated launcher: False
-- Low-risk candidate total: 0.994 GB
+- Low-risk candidate total: 0.967 GB
 - Low-risk cleanup could cover shortfall: False
 - Deletion attempted: False
 - Formal accuracy claim supported: False
@@ -20,12 +20,12 @@ Generated: 2026-08-11T03:43:21.037628+00:00
 
 | id | risk | owner | found | size GB | manual action |
 |---|---|---|---:|---:|---|
-| `user_temp` | low | user | True | 0.952 | Close running installers/apps, then remove stale files from the user temp folder or use Windows Storage cleanup. |
+| `windows_update_download` | medium | administrator | True | 5.142 | Use Windows Settings > System > Storage > Temporary files or Disk Cleanup as Administrator. |
+| `user_temp` | low | user | True | 0.915 | Close running installers/apps, then remove stale files from the user temp folder or use Windows Storage cleanup. |
 | `nuget_cache` | medium | developer | True | 0.159 | Run `dotnet nuget locals all --clear` only if package re-download is acceptable. |
-| `pip_cache` | low | user | True | 0.038 | Run `python -m pip cache purge` if Python package downloads can be re-fetched. |
-| `windows_update_download` | medium | administrator | True | 0.023 | Use Windows Settings > System > Storage > Temporary files or Disk Cleanup as Administrator. |
-| `recycle_bin` | medium | user | True | 0.015 | Review Recycle Bin contents manually before emptying. |
+| `pip_cache` | low | user | True | 0.048 | Run `python -m pip cache purge` if Python package downloads can be re-fetched. |
 | `winget_temp_cache` | low | user | True | 0.004 | Remove stale WinGet installer cache after confirming no winget install is running. |
+| `recycle_bin` | medium | user | True | 0.0 | Review Recycle Bin contents manually before emptying. |
 | `delivery_optimization_cache` | medium | administrator | False | 0.0 | Use Windows Delivery Optimization cleanup through system Storage settings. |
 
 ## Next Verification

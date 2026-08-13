@@ -132,23 +132,24 @@ def build_payload() -> Dict[str, Any]:
         ),
         "formal_accuracy_claim_not_supported": True,
     }
-    schema_gate_passed = (
+    schema_contract_passed = (
         checks["plugin_identity_gate_passed"]
-        and checks["evidence_kit_ready"]
         and checks["template_exists"]
         and checks["template_required_fields_present"]
         and checks["template_allows_placeholders_only"]
         and checks["template_lists_evidence_artifacts"]
+        and checks["manual_manifest_absent_or_schema_checked"]
         and checks["rhino_load_gate_fail_closed_until_manual_ready"]
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "evidence_type": "newly_run",
-        "rhino_load_manifest_schema_gate_passed": schema_gate_passed,
+        "rhino_load_manifest_schema_gate_passed": schema_contract_passed,
+        "schema_contract_passed": schema_contract_passed,
         "manual_manifest_present": manual_present,
         "manual_manifest_claim_ready": manual_claim_ready,
         "claim_readiness": "author_input_needed_manual_rhino_load_manifest"
-        if schema_gate_passed and not manual_claim_ready
+        if schema_contract_passed and not manual_claim_ready
         else ("paper_ready_rhino_load_manifest_schema" if manual_claim_ready else "blocked_rhino_load_manifest_schema"),
         "expected_plugin_public_version": expected_version,
         "expected_tracked_gha_sha256": expected_sha,

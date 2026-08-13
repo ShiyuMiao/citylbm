@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc71 - Canonical GHA packaging path
+
+- Fixed `CityLBM/build.ps1` so the packaged Grasshopper artifact is the merged `bin/Release/CityLBM.gha`, not an unmerged DLL copied into `bin/Release/CityLBM/CityLBM.gha`.
+- The build script now synchronizes the tracked distributable `CityLBM/bin/CityLBM.gha` from the merged Release GHA.
+- Updated build-chain and GHA install audits to use the canonical Release GHA path.
+- Rebuilt and packaged tracked `CityLBM/bin/CityLBM.gha` with SHA256 `79ee34f1ef7632404944943c897e7dbedaa2b1262686651027ff0482dfd85118`.
+
+This is software-packaging and reproducibility evidence only. It does not stage the GHA into Grasshopper Libraries, prove Rhino loaded the plugin, run FluidX3D, improve official z=2 m metrics, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc70 - Nullable-clean plugin rebuild
 
 - Removed nullable-build warnings from the CityLBM Release rebuild path while preserving Case E formal defaults and default-off diagnostic controls.

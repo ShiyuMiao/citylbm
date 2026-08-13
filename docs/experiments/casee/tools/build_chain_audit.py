@@ -359,7 +359,7 @@ def main() -> int:
             "supports_portable_dotnet": build_script_supports_portable_dotnet,
             "supports_no_pause": build_script_supports_no_pause,
             "smoke_build": build_script_smoke,
-            "packaged_gha": file_status(ROOT / "CityLBM" / "bin" / "Release" / "CityLBM" / "CityLBM.gha"),
+            "packaged_gha": file_status(ROOT / "CityLBM" / "bin" / "Release" / "CityLBM.gha"),
             "note": "Plugin build reproducibility only; this does not provide VS C++ Build Tools, GPU recovery, or CFD accuracy evidence.",
         },
         "mingw_gpp": {
