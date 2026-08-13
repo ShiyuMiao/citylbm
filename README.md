@@ -53,6 +53,12 @@ probe rows, observed-speed group summaries, and under-prediction fractions for
 limitations and error-mechanism discussion. This is residual-diagnostic support
 only and cannot be used as a substitute for official z=2 m validation.
 
+The rc95 evidence update adds a repository-level `casee_official_residual_paper_table.py`
+script. It regenerates JSON/CSV/Markdown residual tables from
+`casee_probe_residuals.csv` so manuscript Results/Limitations can cite a
+command-generated official z=2 m table independent of the Grasshopper UI. It
+does not run FluidX3D, change the official metric, or permit formal `v0.4.0`.
+
 Current Case E, release-gate, and manuscript-boundary materials:
 
 - `docs/experiments/casee/data_manifest.csv`
@@ -84,6 +90,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/tools/casee_c005_decomposition_audit.py`
 - `docs/experiments/casee/tools/casee_c008_c009_inlet_turbulence_audit.py`
 - `docs/experiments/casee/tools/casee_c014_residual_structure_audit.py`
+- `docs/experiments/casee/tools/casee_official_residual_paper_table.py`
 - `docs/experiments/casee/tools/casee_claim_support_gate.py`
 - `docs/experiments/casee/tools/casee_publication_readiness_gate.py`
 - `docs/experiments/casee/tools/casee_default_policy_gate.py`
@@ -117,6 +124,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_c014_residual_structure_audit.json`
 - `docs/experiments/casee/results/casee_c014_residual_structure_audit.md`
 - `docs/experiments/casee/results/casee_c014_residual_top_probes.csv`
+- `docs/experiments/casee/results/casee_official_residual_paper_table.json`
+- `docs/experiments/casee/results/casee_official_residual_paper_table.csv`
+- `docs/experiments/casee/results/casee_official_residual_paper_table.md`
 - `docs/experiments/casee/results/casee_claim_support_gate.json`
 - `docs/experiments/casee/results/casee_claim_support_gate.md`
 - `docs/experiments/casee/results/casee_publication_readiness_gate.json`
@@ -172,6 +182,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/releases/v0.4.0-rc92.md`
 - `docs/releases/v0.4.0-rc93.md`
 - `docs/releases/v0.4.0-rc94.md`
+- `docs/releases/v0.4.0-rc95.md`
 - `docs/releases/v0.4.0-rc87.md`
 - `docs/releases/v0.4.0-rc88.md`
 - `docs/releases/v0.4.0-rc86.md`

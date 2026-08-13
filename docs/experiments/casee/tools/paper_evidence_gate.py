@@ -213,6 +213,9 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.json",
     "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.csv",
     "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.md",
+    "docs/experiments/casee/results/casee_official_residual_paper_table.json",
+    "docs/experiments/casee/results/casee_official_residual_paper_table.csv",
+    "docs/experiments/casee/results/casee_official_residual_paper_table.md",
     "docs/releases/v0.4.0-rc69.md",
 ]
 
@@ -880,6 +883,44 @@ def software_feedback_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def official_residual_paper_table_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "official_residual_paper_table_found": False,
+            "official_residual_paper_table_passed": False,
+            "claim_boundary_safe": False,
+            "formal_accuracy_claim_supported": None,
+            "formal_release_allowed": None,
+            "top_residual_count": 0,
+            "group_row_count": 0,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    metrics = data.get("metrics") or {}
+    checks = data.get("checks") or {}
+    return {
+        "official_residual_paper_table_found": True,
+        "official_residual_paper_table_passed": data.get("official_residual_paper_table_passed"),
+        "claim_readiness": data.get("claim_readiness"),
+        "formal_accuracy_claim_supported": data.get("formal_accuracy_claim_supported"),
+        "formal_release_allowed": data.get("formal_release_allowed"),
+        "n": metrics.get("n"),
+        "r2": metrics.get("r2"),
+        "mae_pp": metrics.get("mae_pp"),
+        "raw_trilinear": checks.get("raw_trilinear"),
+        "height_z2m": checks.get("height_z2m"),
+        "formal_metric_gate_failed": checks.get("formal_metric_gate_failed"),
+        "top_residual_count": len(data.get("top_residual_rows") or []),
+        "group_row_count": len(data.get("group_rows") or []),
+        "claim_boundary_safe": data.get("official_residual_paper_table_passed") is True
+        and data.get("claim_readiness") == "limitations_ready_official_residual_paper_table"
+        and data.get("formal_accuracy_claim_supported") is False
+        and data.get("formal_release_allowed") is False
+        and checks.get("raw_trilinear") is True
+        and checks.get("height_z2m") is True
+        and checks.get("formal_metric_gate_failed") is True,
+    }
+
+
 def claim_support_status(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {
@@ -1123,6 +1164,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     manuscript_table = payload["casee_manuscript_results_table"]
     section_pack = payload["casee_manuscript_section_pack"]
     paper_figure = payload["casee_paper_results_figure"]
+    official_residual_table = payload["casee_official_residual_paper_table"]
     software_feedback = payload["citylbm_software_feedback_matrix"]
     claim_support = payload["casee_claim_support_gate"]
     release_assets = payload["casee_release_asset_manifest"]
@@ -1366,6 +1408,23 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Formal accuracy claim supported: {paper_figure['formal_accuracy_claim_supported']}",
         f"- Claim boundary safe: {paper_figure['claim_boundary_safe']}",
         "",
+        "## Official Residual Paper Table",
+        "",
+        f"- Table found: {official_residual_table['official_residual_paper_table_found']}",
+        f"- Table passed: {official_residual_table['official_residual_paper_table_passed']}",
+        f"- Claim readiness: `{official_residual_table['claim_readiness']}`",
+        f"- n: {official_residual_table['n']}",
+        f"- MAE: {official_residual_table['mae_pp']} pp",
+        f"- R2: {official_residual_table['r2']}",
+        f"- Top residual rows: {official_residual_table['top_residual_count']}",
+        f"- Group rows: {official_residual_table['group_row_count']}",
+        f"- raw_trilinear: {official_residual_table['raw_trilinear']}",
+        f"- height z=2 m: {official_residual_table['height_z2m']}",
+        f"- Formal metric gate failed: {official_residual_table['formal_metric_gate_failed']}",
+        f"- Formal accuracy claim supported: {official_residual_table['formal_accuracy_claim_supported']}",
+        f"- Formal release allowed: {official_residual_table['formal_release_allowed']}",
+        f"- Claim boundary safe: {official_residual_table['claim_boundary_safe']}",
+        "",
         "## Software Feedback Matrix",
         "",
         f"- Matrix found: {software_feedback['software_feedback_matrix_found']}",
@@ -1446,6 +1505,7 @@ def main() -> int:
     parser.add_argument("--manuscript-results-table", type=Path, default=RESULTS_DIR / "casee_manuscript_results_table.json")
     parser.add_argument("--manuscript-section-pack", type=Path, default=RESULTS_DIR / "casee_manuscript_section_pack.json")
     parser.add_argument("--paper-results-figure", type=Path, default=RESULTS_DIR / "casee_paper_results_figure_qa.json")
+    parser.add_argument("--official-residual-paper-table", type=Path, default=RESULTS_DIR / "casee_official_residual_paper_table.json")
     parser.add_argument("--software-feedback", type=Path, default=RESULTS_DIR / "citylbm_software_feedback_matrix.json")
     parser.add_argument("--claim-support", type=Path, default=RESULTS_DIR / "casee_claim_support_gate.json")
     parser.add_argument("--release-assets", type=Path, default=RESULTS_DIR / "casee_release_asset_manifest.json")
@@ -1480,6 +1540,7 @@ def main() -> int:
     manuscript_table = manuscript_results_table_status(args.manuscript_results_table)
     section_pack = manuscript_section_pack_status(args.manuscript_section_pack)
     paper_figure = paper_results_figure_status(args.paper_results_figure)
+    official_residual_paper_table = official_residual_paper_table_status(args.official_residual_paper_table)
     software_feedback = software_feedback_status(args.software_feedback)
     claim_support = claim_support_status(args.claim_support)
     release_assets = release_asset_manifest_status(args.release_assets)
@@ -1537,6 +1598,8 @@ def main() -> int:
         and section_pack["claim_boundary_safe"]
         and paper_figure["paper_results_figure_found"]
         and paper_figure["claim_boundary_safe"]
+        and official_residual_paper_table["official_residual_paper_table_found"]
+        and official_residual_paper_table["claim_boundary_safe"]
         and software_feedback["software_feedback_matrix_found"]
         and software_feedback["claim_boundary_safe"]
         and claim_support["claim_support_gate_found"]
@@ -1572,6 +1635,7 @@ def main() -> int:
         "casee_manuscript_results_table": manuscript_table,
         "casee_manuscript_section_pack": section_pack,
         "casee_paper_results_figure": paper_figure,
+        "casee_official_residual_paper_table": official_residual_paper_table,
         "citylbm_software_feedback_matrix": software_feedback,
         "casee_claim_support_gate": claim_support,
         "casee_release_asset_manifest": release_assets,

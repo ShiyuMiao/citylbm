@@ -151,6 +151,7 @@ def build_rows() -> List[Dict[str, Any]]:
     c005_decomposition = read_json(RESULTS_DIR / "casee_c005_decomposition_audit.json")
     c008_c009_inlet = read_json(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json")
     c014_residual = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
+    official_residual_paper_table = read_json(RESULTS_DIR / "casee_official_residual_paper_table.json")
     orphan_candidate_csv_audit = read_json(RESULTS_DIR / "casee_orphan_candidate_csv_audit.json")
     research_accuracy_gap = read_json(RESULTS_DIR / "casee_research_accuracy_gap_gate.json")
     accuracy_action_plan = read_json(RESULTS_DIR / "casee_accuracy_action_plan_gate.json")
@@ -2670,6 +2671,43 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    rows.append(
+        row(
+            feedback_id="SF077",
+            experiment="Experiment 2 / Case E official residual paper table",
+            finding=(
+                "A repository-level official z=2 m residual paper table is generated from "
+                "casee_probe_residuals.csv, including top residual probes, protocol checks, group summaries, "
+                "and under-fraction rows for limitations reporting."
+            ),
+            evidence_type=str(official_residual_paper_table.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_official_residual_paper_table.py",
+                RESULTS_DIR / "casee_official_residual_paper_table.json",
+                RESULTS_DIR / "casee_official_residual_paper_table.csv",
+                RESULTS_DIR / "casee_official_residual_paper_table.md",
+                RESULTS_DIR / "casee_probe_residuals.csv",
+                RESULTS_DIR / "casee_validation_report.md",
+            ],
+            decision_class="paper_residual_table_no_accuracy_promotion",
+            citylbm_status="implemented_official_residual_paper_table"
+            if official_residual_paper_table.get("official_residual_paper_table_passed") is True
+            and official_residual_paper_table.get("formal_accuracy_claim_supported") is False
+            and official_residual_paper_table.get("formal_release_allowed") is False
+            else "official_residual_paper_table_missing_or_failed",
+            implementation_evidence=(
+                f"table_passed={official_residual_paper_table.get('official_residual_paper_table_passed')}; "
+                f"claim_readiness={official_residual_paper_table.get('claim_readiness')}; "
+                f"top_rows={len(official_residual_paper_table.get('top_residual_rows') or [])}; "
+                f"group_rows={len(official_residual_paper_table.get('group_rows') or [])}; "
+                f"formal_metric_gate_failed={((official_residual_paper_table.get('checks') or {}).get('formal_metric_gate_failed'))}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use in Results/Limitations as a command-generated table explaining residual concentration in the official negative validation.",
+            limitations="Paper table only; it does not run FluidX3D, improve official z2m metrics, support calibration-as-validation, promote defaults, or permit formal v0.4.0.",
+        )
+    )
+
     return rows
 
 
@@ -2688,7 +2726,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053", "SF054", "SF055", "SF056", "SF057", "SF058", "SF059", "SF060", "SF061", "SF062", "SF063", "SF064", "SF065", "SF066", "SF067", "SF068", "SF069", "SF070", "SF071", "SF072", "SF073", "SF074", "SF075", "SF076"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053", "SF054", "SF055", "SF056", "SF057", "SF058", "SF059", "SF060", "SF061", "SF062", "SF063", "SF064", "SF065", "SF066", "SF067", "SF068", "SF069", "SF070", "SF071", "SF072", "SF073", "SF074", "SF075", "SF076", "SF077"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -2698,7 +2736,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "local_orphan_candidate_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion", "native_wall_followup_codegen_no_accuracy_promotion", "native_inlet_followup_codegen_no_accuracy_promotion", "native_c016_residual_target_codegen_no_accuracy_promotion", "native_codegen_smoke_regression_no_accuracy_promotion", "runbook_codegen_preflight_no_accuracy_promotion", "default_promotion_gate_no_accuracy_promotion", "manual_rhino_load_evidence_packet_no_accuracy_promotion", "research_accuracy_gap_no_default_promotion", "accuracy_action_plan_no_default_promotion", "software_accuracy_action_plan_component_no_accuracy_promotion", "packaged_accuracy_action_plan_component_no_accuracy_promotion", "software_paper_claim_card_component_no_accuracy_promotion", "packaged_paper_claim_card_component_no_accuracy_promotion", "software_remediation_plan_component_no_accuracy_promotion", "packaged_remediation_plan_component_no_accuracy_promotion", "software_official_metric_gate_component_no_accuracy_promotion", "packaged_official_metric_gate_component_no_accuracy_promotion", "software_official_metrics_from_csv_component_no_accuracy_promotion", "packaged_official_metrics_from_csv_component_no_accuracy_promotion", "software_official_residual_diagnostics_component_no_accuracy_promotion", "packaged_official_residual_diagnostics_component_no_accuracy_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "paper_residual_table_no_accuracy_promotion", "local_orphan_candidate_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion", "native_wall_followup_codegen_no_accuracy_promotion", "native_inlet_followup_codegen_no_accuracy_promotion", "native_c016_residual_target_codegen_no_accuracy_promotion", "native_codegen_smoke_regression_no_accuracy_promotion", "runbook_codegen_preflight_no_accuracy_promotion", "default_promotion_gate_no_accuracy_promotion", "manual_rhino_load_evidence_packet_no_accuracy_promotion", "research_accuracy_gap_no_default_promotion", "accuracy_action_plan_no_default_promotion", "software_accuracy_action_plan_component_no_accuracy_promotion", "packaged_accuracy_action_plan_component_no_accuracy_promotion", "software_paper_claim_card_component_no_accuracy_promotion", "packaged_paper_claim_card_component_no_accuracy_promotion", "software_remediation_plan_component_no_accuracy_promotion", "packaged_remediation_plan_component_no_accuracy_promotion", "software_official_metric_gate_component_no_accuracy_promotion", "packaged_official_metric_gate_component_no_accuracy_promotion", "software_official_metrics_from_csv_component_no_accuracy_promotion", "packaged_official_metrics_from_csv_component_no_accuracy_promotion", "software_official_residual_diagnostics_component_no_accuracy_promotion", "packaged_official_residual_diagnostics_component_no_accuracy_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -2801,6 +2839,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json"),
             rel(RESULTS_DIR / "casee_c005_decomposition_audit.json"),
             rel(RESULTS_DIR / "casee_c008_c009_inlet_turbulence_audit.json"),
+            rel(RESULTS_DIR / "casee_official_residual_paper_table.json"),
             rel(RESULTS_DIR / "casee_claim_support_gate.json"),
             rel(RESULTS_DIR / "citylbm_paper_results_packet.json"),
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T13:55:21.943854+00:00",
+  "generated_at": "2026-08-13T14:14:18.619156+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_environment_recovery_runbook",
   "official_followup_run_allowed": false,
@@ -18,12 +18,12 @@
     },
     {
       "drive": "D:\\",
-      "free_gb": 229.627,
+      "free_gb": 229.621,
       "total_gb": 281.627
     },
     {
       "drive": "E:\\",
-      "free_gb": 811.029,
+      "free_gb": 811.025,
       "total_gb": 931.512
     },
     {

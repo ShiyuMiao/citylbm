@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T13:55:52.151417+00:00",
+    "generated_at": "2026-08-13T14:14:49.600604+00:00",
     "evidence_type": "newly_run",
     "postrun_official_audit_handoff_passed": true,
     "candidate_structurally_admissible": false,
@@ -8,7 +8,7 @@
     "official_audit_command": "python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0 --predicted <new_casee_probe_time_mean.csv>",
     "formal_result_allowed_now": false,
     "formal_accuracy_claim_supported": false,
-    "release_gate_recommended_tag": "v0.4.0-rc94",
+    "release_gate_recommended_tag": "v0.4.0-rc95",
     "release_gate_formal_allowed": false,
     "runbook_postrun_policy_present": true,
     "orphan_audit_candidate_count": 0,

@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-13T13:55:57.995459+00:00
+Generated: 2026-08-13T14:14:56.922027+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc94`
+- Recommended tag: `v0.4.0-rc95`
 
 ## Official z=2 m Metric
 
@@ -27,14 +27,14 @@ Generated: 2026-08-13T13:55:57.995459+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 426
+- Checked nonblank lines: 430
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 512
-- Lightweight release assets: 442
+- Artifact count: 517
+- Lightweight release assets: 447
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -237,11 +237,28 @@ Generated: 2026-08-13T13:55:57.995459+00:00
 - Formal accuracy claim supported: False
 - Claim boundary safe: True
 
+## Official Residual Paper Table
+
+- Table found: True
+- Table passed: True
+- Claim readiness: `limitations_ready_official_residual_paper_table`
+- n: 80
+- MAE: 21.111408125 pp
+- R2: -2.006330362229977
+- Top residual rows: 10
+- Group rows: 8
+- raw_trilinear: True
+- height z=2 m: True
+- Formal metric gate failed: True
+- Formal accuracy claim supported: False
+- Formal release allowed: False
+- Claim boundary safe: True
+
 ## Software Feedback Matrix
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 76
+- Feedback rows: 77
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -262,8 +279,8 @@ Generated: 2026-08-13T13:55:57.995459+00:00
 
 - Manifest found: True
 - Manifest passed: True
-- Recommended tag: `v0.4.0-rc94`
-- Upload assets: 179
+- Recommended tag: `v0.4.0-rc95`
+- Upload assets: 183
 - Excluded/hash-only assets: 20
 - Excludes raw geometry and VTK: True
 - Formal accuracy claim supported: False

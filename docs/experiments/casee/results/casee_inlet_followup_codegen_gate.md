@@ -1,6 +1,6 @@
 # Case E Inlet Follow-up Codegen Gate
 
-Generated: 2026-08-13T13:55:28.109861+00:00
+Generated: 2026-08-13T14:14:24.936631+00:00
 
 ## Verdict
 

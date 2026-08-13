@@ -1,11 +1,11 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T13:55:57.824144+00:00",
+    "generated_at": "2026-08-13T14:14:56.725080+00:00",
     "evidence_type": "newly_run",
     "workspace_hygiene_gate_passed": true,
     "ignored_local_artifact_count": 4,
     "allowed_untracked_local_artifact_count": 0,
-    "expected_untracked_evidence_pending_commit_count": 10,
+    "expected_untracked_evidence_pending_commit_count": 5,
     "unexpected_untracked_count": 0,
     "tracked_forbidden_count": 0,
     "formal_accuracy_claim_supported": false,
@@ -256,12 +256,6 @@
     },
     {
       "status_code": " M",
-      "path": "docs/experiments/casee/results/casee_environment_recovery_runbook.csv",
-      "classification": "tracked_or_staged_change",
-      "release_risk": "controlled"
-    },
-    {
-      "status_code": " M",
       "path": "docs/experiments/casee/results/casee_environment_recovery_runbook.json",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
@@ -407,6 +401,18 @@
     {
       "status_code": " M",
       "path": "docs/experiments/casee/results/casee_paper_appendix_manifest.json",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": " M",
+      "path": "docs/experiments/casee/results/casee_paper_evidence_gate.json",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": " M",
+      "path": "docs/experiments/casee/results/casee_paper_evidence_gate.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
@@ -701,6 +707,24 @@
     {
       "status_code": " M",
       "path": "docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_component_gate.json",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": " M",
+      "path": "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.json",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": " M",
+      "path": "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.md",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": " M",
+      "path": "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_component_gate.json",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
@@ -1072,61 +1096,31 @@
     },
     {
       "status_code": "??",
-      "path": "CityLBM/src/Components/Results/CaseEOfficialResidualDiagnosticsComponent.cs",
+      "path": "docs/experiments/casee/results/casee_official_residual_paper_table.csv",
       "classification": "expected_untracked_evidence_pending_commit",
       "release_risk": "manual_review_required"
     },
     {
       "status_code": "??",
-      "path": "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.csv",
+      "path": "docs/experiments/casee/results/casee_official_residual_paper_table.json",
       "classification": "expected_untracked_evidence_pending_commit",
       "release_risk": "manual_review_required"
     },
     {
       "status_code": "??",
-      "path": "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.json",
+      "path": "docs/experiments/casee/results/casee_official_residual_paper_table.md",
       "classification": "expected_untracked_evidence_pending_commit",
       "release_risk": "manual_review_required"
     },
     {
       "status_code": "??",
-      "path": "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.md",
+      "path": "docs/experiments/casee/tools/casee_official_residual_paper_table.py",
       "classification": "expected_untracked_evidence_pending_commit",
       "release_risk": "manual_review_required"
     },
     {
       "status_code": "??",
-      "path": "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_component_gate.csv",
-      "classification": "expected_untracked_evidence_pending_commit",
-      "release_risk": "manual_review_required"
-    },
-    {
-      "status_code": "??",
-      "path": "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_component_gate.json",
-      "classification": "expected_untracked_evidence_pending_commit",
-      "release_risk": "manual_review_required"
-    },
-    {
-      "status_code": "??",
-      "path": "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_component_gate.md",
-      "classification": "expected_untracked_evidence_pending_commit",
-      "release_risk": "manual_review_required"
-    },
-    {
-      "status_code": "??",
-      "path": "docs/experiments/casee/tools/citylbm_casee_official_residual_diagnostics_binary_gate.py",
-      "classification": "expected_untracked_evidence_pending_commit",
-      "release_risk": "manual_review_required"
-    },
-    {
-      "status_code": "??",
-      "path": "docs/experiments/casee/tools/citylbm_casee_official_residual_diagnostics_component_gate.py",
-      "classification": "expected_untracked_evidence_pending_commit",
-      "release_risk": "manual_review_required"
-    },
-    {
-      "status_code": "??",
-      "path": "docs/releases/v0.4.0-rc94.md",
+      "path": "docs/releases/v0.4.0-rc95.md",
       "classification": "expected_untracked_evidence_pending_commit",
       "release_risk": "manual_review_required"
     },

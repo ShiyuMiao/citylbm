@@ -1,6 +1,6 @@
 # AIJ Case E Reproducibility Appendix
 
-Generated: 2026-08-13T13:55:51.673030+00:00
+Generated: 2026-08-13T14:14:49.103725+00:00
 
 ## Section Contract
 
@@ -30,7 +30,7 @@ The current official z = 2 m Case E result is MAE = 21.111 percentage points, RM
 - Paper evidence gate passed: True.
 - Plugin identity gate passed: True.
 - Formal v0.4.0 release allowed: False.
-- Recommended tag: `v0.4.0-rc94`.
+- Recommended tag: `v0.4.0-rc95`.
 - CityLBM build passed: True.
 - Case A smoke regression passed: True.
 - Rhino loaded new GHA: False.
@@ -58,6 +58,8 @@ The current official z = 2 m Case E result is MAE = 21.111 percentage points, RM
 - `citylbm_casee_official_metric_gate_binary_gate` (passed, returncode=0): `python E:\citylbm_rc89_work\docs\experiments\casee\tools\citylbm_casee_official_metric_gate_binary_gate.py`
 - `citylbm_casee_official_metrics_from_csv_component_gate` (passed, returncode=0): `python E:\citylbm_rc89_work\docs\experiments\casee\tools\citylbm_casee_official_metrics_from_csv_component_gate.py`
 - `citylbm_casee_official_metrics_from_csv_binary_gate` (passed, returncode=0): `python E:\citylbm_rc89_work\docs\experiments\casee\tools\citylbm_casee_official_metrics_from_csv_binary_gate.py`
+- `citylbm_casee_official_residual_diagnostics_component_gate` (passed, returncode=0): `python E:\citylbm_rc89_work\docs\experiments\casee\tools\citylbm_casee_official_residual_diagnostics_component_gate.py`
+- `citylbm_casee_official_residual_diagnostics_binary_gate` (passed, returncode=0): `python E:\citylbm_rc89_work\docs\experiments\casee\tools\citylbm_casee_official_residual_diagnostics_binary_gate.py`
 - `rhino_gha_load_gate` (passed, returncode=0): `python docs/experiments/casee/tools/rhino_gha_load_gate.py`
 - `citylbm_gha_install_audit` (passed, returncode=0): `python E:\citylbm_rc89_work\docs\experiments\casee\tools\citylbm_gha_install_audit.py`
 - `casee_rhino_load_evidence_kit` (passed, returncode=0): `python E:\citylbm_rc89_work\docs\experiments\casee\tools\casee_rhino_load_evidence_kit.py`
@@ -127,24 +129,24 @@ The current official z = 2 m Case E result is MAE = 21.111 percentage points, RM
 
 | artifact | role | readiness | sha256 |
 |---|---|---|---|
-| `CityLBM/bin/CityLBM.gha` | lightweight_release_asset | paper_ready_software_identity | `bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a` |
-| `academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md` | lightweight_release_asset | paper_ready_reproducibility | `d3d9d44b004ddbc148ab76e06b1b1660b9b28bce4335f757bba3168409971cae` |
-| `docs/experiments/casee/results/build_chain_manifest.json` | lightweight_release_asset | paper_ready_reproducibility | `871c5e0e84c3424fa6234e4c5778709c08e4385f22543622fa159a5c1335bc40` |
-| `docs/experiments/casee/results/build_chain_manifest.md` | lightweight_release_asset | paper_ready_reproducibility | `7fb9013e7f1fbeb4ecf2de1cae49918791c2f18b942efb150aa78380f887ae30` |
-| `docs/experiments/casee/results/casee_c002_longer_mean_audit.json` | lightweight_release_asset | limitations_ready_completed_candidate | `16e6f2d30698a60f0a9b7e9b1c4ddf0e49e24dcc49ca4de77c86584c4b293448` |
-| `docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json` | lightweight_release_asset | limitations_ready_zorigin_ablation | `d8dffd6d1f2bf66235e675fac119adbe84c03ade83117c10d74a0a1707604f04` |
-| `docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json` | lightweight_release_asset | limitations_ready_dx3_low_cost_regression | `5362fe7ea6c59e815cd953fbdb988874ae97ac99f12f4582df3252065d238b3d` |
-| `docs/experiments/casee/results/casee_c005_decomposition_audit.json` | lightweight_release_asset | limitations_ready_decomposition_sensitivity | `d3132d5cca8b4f97c06255ad11219f65e5a1e1aee1bae9018a22ee2ffeb49552` |
-| `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json` | lightweight_release_asset | limitations_ready_inlet_turbulence_improvement | `16ca8a266fcc5130108888114879358a2afa718ced67478267c05e7ead627187` |
-| `docs/experiments/casee/results/casee_candidate_sweep_plan.json` | lightweight_release_asset | paper_ready_followup_plan | `234200411ae85f27923ca3e74f40c7dcb32673431bda7be7f8aa3301ac488aa2` |
-| `docs/experiments/casee/results/casee_default_policy_gate.json` | lightweight_release_asset | paper_ready_default_policy_boundary | `25b2dea9bb2fd363725fb672b3c2415f8042ce6c19fcd09d3d5592a5ce0b2458` |
-| `docs/experiments/casee/results/casee_dx1_readiness_audit.json` | lightweight_release_asset | limitations_ready_dx1_feasibility | `fe25bd13b95244124ed54bd51aa00841f427f29b5994f9b17020015566817623` |
-| `docs/experiments/casee/results/casee_dx1_readiness_audit.md` | lightweight_release_asset | limitations_ready_dx1_feasibility | `e81ac9e872340bf988fc2267cd57cbc60a10e9d14e2afb1de47ac1c56374eb53` |
-| `docs/experiments/casee/results/casee_environment_recovery_runbook.json` | lightweight_release_asset | blocked_environment_recovery_runbook | `ed62262252f5eec7c40303ee575fb532e66471c043bc93db140fd8aa2ab9ceac` |
-| `docs/experiments/casee/results/casee_failure_mode_atlas.json` | lightweight_release_asset | limitations_ready_failure_mode_atlas | `c9f046bcee7140f2f179646da344d94d5a7db73aef816079146c44c8e1a4ef35` |
-| `docs/experiments/casee/results/casee_manuscript_claim_matrix.csv` | lightweight_release_asset | paper_ready_reproducibility | `3bb2e392f9215d84c3d5d7054e48bfaa83c759a8f29bbb9553ffa13e595f5963` |
-| `docs/experiments/casee/results/casee_manuscript_results_table.json` | lightweight_release_asset | paper_ready_manuscript_results_table | `35e1c7cd83c3351c26236cdeb33b2231dc6c96c130e2a94bed928dcc00085ee8` |
-| `docs/experiments/casee/results/casee_manuscript_section_pack.json` | lightweight_release_asset | paper_ready_section_pack_negative_validation | `25d9a99a48943ad6eaa382adafeb1227e8b6750b44abbb1e7a079c4b9e61d291` |
+| `CityLBM/bin/CityLBM.gha` | lightweight_release_asset | paper_ready_software_identity | `5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0` |
+| `academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md` | lightweight_release_asset | paper_ready_reproducibility | `4b91589919d81620d7be6fce7aaba7b3ba94dbf441f168aaf135ec9c75af6961` |
+| `docs/experiments/casee/results/build_chain_manifest.json` | lightweight_release_asset | paper_ready_reproducibility | `ea3d7baf2f84ee202f51ecab69e72698acdbc78249446b8601649d7667fe0ebb` |
+| `docs/experiments/casee/results/build_chain_manifest.md` | lightweight_release_asset | paper_ready_reproducibility | `07abbc3c9c27ff9db2147cd61bc8c029cde290c2421373d591d07491df25b0fb` |
+| `docs/experiments/casee/results/casee_c002_longer_mean_audit.json` | lightweight_release_asset | limitations_ready_completed_candidate | `786c9d7d049556fba6547ea3585dead976ad3812ea7817b7e66a70017410b515` |
+| `docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json` | lightweight_release_asset | limitations_ready_zorigin_ablation | `afee8d437338f20baeab445fe48a3627b0174f2db6a05deffb70c07142f07216` |
+| `docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json` | lightweight_release_asset | limitations_ready_dx3_low_cost_regression | `8a654b1f3f332dab72c2d6e1bf4be41b5267c7c2d9e372ac51a4b9e743b635b0` |
+| `docs/experiments/casee/results/casee_c005_decomposition_audit.json` | lightweight_release_asset | limitations_ready_decomposition_sensitivity | `1c81d18b43ece28ef765413dfdfa89b1523f2c7f0e94af2e8b3788004bb96986` |
+| `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json` | lightweight_release_asset | limitations_ready_inlet_turbulence_improvement | `cfa18ce137608efb55c2012de691ab3e64fcef2561838f1ec7b6460f4220483b` |
+| `docs/experiments/casee/results/casee_candidate_sweep_plan.json` | lightweight_release_asset | paper_ready_followup_plan | `533f3c40cde78c7a9412773e7486c8a1be800b823c49474c8b599126f13a8a6b` |
+| `docs/experiments/casee/results/casee_default_policy_gate.json` | lightweight_release_asset | paper_ready_default_policy_boundary | `b61addf7d8b7b6c6fb7b93e37efda9695947b91577fdb5351117743d348f9229` |
+| `docs/experiments/casee/results/casee_dx1_readiness_audit.json` | lightweight_release_asset | limitations_ready_dx1_feasibility | `25bf7874019389bcb81d4bc8eeec9fa5deca6a5a0c7207aac33c21d30e1bbc9b` |
+| `docs/experiments/casee/results/casee_dx1_readiness_audit.md` | lightweight_release_asset | limitations_ready_dx1_feasibility | `d5e99b5eedf99200822b793ea49ca2f99a417df6363701423c69c77ebe13f4ae` |
+| `docs/experiments/casee/results/casee_environment_recovery_runbook.json` | lightweight_release_asset | blocked_environment_recovery_runbook | `42cf2a5c798e967647f047d2fe24ca0abb2ac9434bec149b0a768fce39f897ea` |
+| `docs/experiments/casee/results/casee_failure_mode_atlas.json` | lightweight_release_asset | limitations_ready_failure_mode_atlas | `4b08e9ca9b0c7a692839d118a3971e7e0324242669648956b62fb0149266695b` |
+| `docs/experiments/casee/results/casee_manuscript_claim_matrix.csv` | lightweight_release_asset | paper_ready_reproducibility | `00f783e64504bd782684bb7ace4307e3dadb772170959cb5bc4ec1c11d4952b4` |
+| `docs/experiments/casee/results/casee_manuscript_results_table.json` | lightweight_release_asset | paper_ready_manuscript_results_table | `c80eef5a35754722b2a9d4501c237e1aaab4b0db88b0b27a4227921702d65628` |
+| `docs/experiments/casee/results/casee_manuscript_section_pack.json` | lightweight_release_asset | paper_ready_section_pack_negative_validation | `6fa35ccf0ed76bc143b90d2063252def56839a83a7e613e14d3b3d8245316daa` |
 
 ## Claim Readiness Summary
 

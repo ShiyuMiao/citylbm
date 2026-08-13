@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-13T13:55:57.995459+00:00",
+  "generated_at": "2026-08-13T14:14:56.922027+00:00",
   "paper_evidence_gate_passed": true,
   "metric_gate": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc94",
+    "recommended_tag": "v0.4.0-rc95",
     "official_z2m_r2": -2.006330362229977,
     "official_z2m_mae_pp": 21.111408125,
     "official_z2m_pearson": 0.11575649438573923,
@@ -32,14 +32,14 @@
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_en.md",
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_zh.md"
     ],
-    "checked_nonblank_lines": 426,
+    "checked_nonblank_lines": 430,
     "forbidden_success_claim_violations": [],
     "draft_claim_boundary_passed": true
   },
   "artifact_index": {
     "artifact_index_found": true,
-    "artifact_count": 512,
-    "lightweight_release_asset_count": 442,
+    "artifact_count": 517,
+    "lightweight_release_asset_count": 447,
     "formal_accuracy_claim_supported": false,
     "required_artifacts_present": true,
     "missing_required_artifacts": []
@@ -317,7 +317,7 @@
     "claim_readiness": "paper_ready_negative_validation_and_limitations",
     "formal_accuracy_claim_supported": false,
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc94",
+    "recommended_tag": "v0.4.0-rc95",
     "check_count": 9,
     "claim_boundary_safe": true
   },
@@ -330,10 +330,26 @@
     "missing_bundle_paths": [],
     "claim_boundary_safe": true
   },
+  "casee_official_residual_paper_table": {
+    "official_residual_paper_table_found": true,
+    "official_residual_paper_table_passed": true,
+    "claim_readiness": "limitations_ready_official_residual_paper_table",
+    "formal_accuracy_claim_supported": false,
+    "formal_release_allowed": false,
+    "n": 80,
+    "r2": -2.006330362229977,
+    "mae_pp": 21.111408125,
+    "raw_trilinear": true,
+    "height_z2m": true,
+    "formal_metric_gate_failed": true,
+    "top_residual_count": 10,
+    "group_row_count": 8,
+    "claim_boundary_safe": true
+  },
   "citylbm_software_feedback_matrix": {
     "software_feedback_matrix_found": true,
     "software_feedback_matrix_passed": true,
-    "feedback_count": 76,
+    "feedback_count": 77,
     "all_source_paths_exist": true,
     "no_forbidden_default_promotion": true,
     "formal_accuracy_claim_supported": false,
@@ -354,10 +370,10 @@
   "casee_release_asset_manifest": {
     "release_asset_manifest_found": true,
     "release_asset_manifest_passed": true,
-    "upload_asset_count": 179,
+    "upload_asset_count": 183,
     "excluded_or_hash_only_count": 20,
     "formal_accuracy_claim_supported": false,
-    "recommended_tag": "v0.4.0-rc94",
+    "recommended_tag": "v0.4.0-rc95",
     "excludes_raw_geometry_and_vtk": true,
     "claim_boundary_safe": true
   }

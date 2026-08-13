@@ -1,6 +1,6 @@
 # CityLBM Case E Official Metric Gate Binary Gate
 
-Generated: 2026-08-13T13:55:02.142406+00:00
+Generated: 2026-08-13T14:13:59.045786+00:00
 
 ## Verdict
 
@@ -9,7 +9,7 @@ Generated: 2026-08-13T13:55:02.142406+00:00
 - Formal accuracy claim supported: False
 - Default setting allowed: False
 - Tracked GHA: `CityLBM/bin/CityLBM.gha`
-- Tracked GHA SHA256: `bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a`
+- Tracked GHA SHA256: `5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0`
 
 ## Checks
 

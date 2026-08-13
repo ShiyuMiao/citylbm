@@ -1,6 +1,6 @@
 # C002 dx=2 Longer Time-Mean Audit
 
-Generated: 2026-08-13T13:55:23.874971+00:00
+Generated: 2026-08-13T14:14:20.473722+00:00
 
 ## Verdict
 

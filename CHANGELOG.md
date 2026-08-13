@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc95 - Official residual paper table
+
+- Added `casee_official_residual_paper_table.py` to regenerate official z=2 m residual paper tables from `casee_probe_residuals.csv`.
+- The outputs include JSON/CSV/Markdown tables with protocol checks, top residual probes, official-speed groups, solid-corner risk groups, windward/leeward proxy rows, and under-fraction summaries.
+- Integrated the table into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, workspace hygiene gate, and software-feedback matrix as SF077.
+
+This release candidate improves manuscript residual-table traceability only. It does not run FluidX3D, create a new probe CSV, update `release_gate.json`, improve official Case E z=2 m metrics, promote defaults, or support formal `v0.4.0`, predictive accuracy, mesh-independence, LES improvement, or calibration-as-validation claims.
+
 ## v0.4.0-rc94 - Grasshopper official residual diagnostics
 
 - Added a Grasshopper `Case E Official Residual Diagnostics` component under `CityLBM > Results`.

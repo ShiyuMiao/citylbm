@@ -1,12 +1,12 @@
 # Case E Reproducibility Suite
 
-Generated: 2026-08-13T13:55:59.866413+00:00
+Generated: 2026-08-13T14:14:58.803962+00:00
 
 ## Verdict
 
 - Suite passed: True
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc94`
+- Recommended tag: `v0.4.0-rc95`
 
 ## Official z=2 m Metric
 
@@ -16,8 +16,8 @@ Generated: 2026-08-13T13:55:59.866413+00:00
 
 ## Artifact Index
 
-- Artifact count: 512
-- Lightweight release assets: 442
+- Artifact count: 517
+- Lightweight release assets: 447
 - Formal accuracy claim supported: False
 
 ## Build Chain
@@ -79,6 +79,7 @@ Generated: 2026-08-13T13:55:59.866413+00:00
 | casee_c005_decomposition_audit | 0 | True |
 | casee_c008_c009_inlet_turbulence_audit | 0 | True |
 | casee_c014_residual_structure_audit | 0 | True |
+| casee_official_residual_paper_table | 0 | True |
 | casee_orphan_candidate_csv_audit | 0 | True |
 | casee_c016_residual_target_leakage_guard | 0 | True |
 | casee_solver_run_provenance_ledger | 0 | True |

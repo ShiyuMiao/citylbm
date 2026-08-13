@@ -1,6 +1,6 @@
 # Case E Runbook Codegen Preflight
 
-Generated: 2026-08-13T13:55:37.587706+00:00
+Generated: 2026-08-13T14:14:34.502647+00:00
 
 ## Verdict
 

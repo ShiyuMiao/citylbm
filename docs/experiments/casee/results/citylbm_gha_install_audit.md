@@ -1,6 +1,6 @@
 # CityLBM GHA Install Audit
 
-Generated: 2026-08-13T13:55:03.123650+00:00
+Generated: 2026-08-13T14:14:00.027064+00:00
 
 ## Verdict
 
@@ -8,7 +8,7 @@ Generated: 2026-08-13T13:55:03.123650+00:00
 - Matching GHA already staged: False
 - Rhino loaded new GHA: False
 - Claim readiness: `install_audited_staging_blocked_by_disk_space`
-- Expected GHA SHA256: `bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a`
+- Expected GHA SHA256: `5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0`
 
 ## Checks
 

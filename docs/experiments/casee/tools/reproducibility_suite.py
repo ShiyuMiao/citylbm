@@ -375,6 +375,7 @@ def main() -> int:
         ("casee_c005_decomposition_audit", "casee_c005_decomposition_audit.py"),
         ("casee_c008_c009_inlet_turbulence_audit", "casee_c008_c009_inlet_turbulence_audit.py"),
         ("casee_c014_residual_structure_audit", "casee_c014_residual_structure_audit.py"),
+        ("casee_official_residual_paper_table", "casee_official_residual_paper_table.py"),
         ("casee_orphan_candidate_csv_audit", "casee_orphan_candidate_csv_audit.py"),
         ("casee_c016_residual_target_leakage_guard", "casee_c016_residual_target_leakage_guard.py"),
         ("casee_solver_run_provenance_ledger", "casee_solver_run_provenance_ledger.py"),
@@ -472,6 +473,7 @@ def main() -> int:
     native_codegen_smoke = read_json(RESULTS_DIR / "casee_native_codegen_smoke_gate.json")
     runbook_codegen_preflight = read_json(RESULTS_DIR / "casee_runbook_codegen_preflight.json")
     c014_residual_structure = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
+    official_residual_paper_table = read_json(RESULTS_DIR / "casee_official_residual_paper_table.json")
     orphan_candidate_csv_audit = read_json(RESULTS_DIR / "casee_orphan_candidate_csv_audit.json")
     default_policy = read_json(RESULTS_DIR / "casee_default_policy_gate.json")
     default_promotion = read_json(RESULTS_DIR / "casee_default_promotion_gate.json")
@@ -534,6 +536,7 @@ def main() -> int:
         "casee_c003_zorigin_ablation_audit": c003_zorigin_ablation,
         "casee_c004_dx3_low_cost_audit": c004_dx3_low_cost,
         "casee_c014_residual_structure_audit": c014_residual_structure,
+        "casee_official_residual_paper_table": official_residual_paper_table,
         "casee_orphan_candidate_csv_audit": orphan_candidate_csv_audit,
         "casee_research_accuracy_gap_gate": research_accuracy_gap,
         "casee_accuracy_action_plan_gate": accuracy_action_plan,

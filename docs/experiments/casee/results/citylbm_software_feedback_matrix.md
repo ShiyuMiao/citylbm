@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-13T13:55:49.911411+00:00
+Generated: 2026-08-13T14:14:47.354075+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 76
+- Feedback rows: 77
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -54,6 +54,7 @@ Generated: 2026-08-13T13:55:49.911411+00:00
 - paper_provenance_ledger: 1
 - paper_release_asset_manifest: 1
 - paper_release_bundle_no_accuracy_promotion: 1
+- paper_residual_table_no_accuracy_promotion: 1
 - paper_traceability_output: 2
 - portable_plugin_build_script: 1
 - portable_toolchain_activation_gate: 1
@@ -163,6 +164,7 @@ Generated: 2026-08-13T13:55:49.911411+00:00
 | `SF074` | Experiment 2 / packaged CityLBM Case E official CSV metric calculator | packaged_official_metrics_from_csv_component_no_accuracy_promotion | implemented_packaged_casee_official_metrics_from_csv_component | False | The packaged CityLBM GHA is audited for the Case E Official Metrics From CSV component markers, including official CSV columns, metric rows, threshold rows, protocol checks, and release-gate boundary strings. |
 | `SF075` | Experiment 2 / CityLBM plugin Case E official residual diagnostics | software_official_residual_diagnostics_component_no_accuracy_promotion | implemented_casee_official_residual_diagnostics_component | False | CityLBM now exposes a Grasshopper Case E Official Residual Diagnostics component that reports top absolute-residual probes, observed-speed group summaries, under-prediction fractions, and protocol risks from a supplied official probe CSV. |
 | `SF076` | Experiment 2 / packaged CityLBM Case E official residual diagnostics | packaged_official_residual_diagnostics_component_no_accuracy_promotion | implemented_packaged_casee_official_residual_diagnostics_component | False | The packaged CityLBM GHA is audited for the Case E Official Residual Diagnostics component markers, including top residual rows, observed-speed groups, risk rows, and forbidden-claim boundary strings. |
+| `SF077` | Experiment 2 / Case E official residual paper table | paper_residual_table_no_accuracy_promotion | implemented_official_residual_paper_table | False | A repository-level official z=2 m residual paper table is generated from casee_probe_residuals.csv, including top residual probes, protocol checks, group summaries, and under-fraction rows for limitations reporting. |
 
 ## Paper Boundary
 
@@ -244,6 +246,7 @@ Generated: 2026-08-13T13:55:49.911411+00:00
 | `SF074` | Use as packaged-plugin evidence that the release asset contains the official CSV metric calculator. | Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0. |
 | `SF075` | Use as plugin-side residual-structure evidence for explaining why official Case E z=2 m validation remains negative. | Residual diagnostics only; it does not run FluidX3D, improve official z2m metrics, prove Rhino load, promote defaults, or permit formal v0.4.0. |
 | `SF076` | Use as packaged-plugin evidence that the release asset contains the residual diagnostics component. | Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0. |
+| `SF077` | Use in Results/Limitations as a command-generated table explaining residual concentration in the official negative validation. | Paper table only; it does not run FluidX3D, improve official z2m metrics, support calibration-as-validation, promote defaults, or permit formal v0.4.0. |
 
 ## Boundary
 

@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T13:55:49.911411+00:00",
-    "feedback_count": 76,
+    "generated_at": "2026-08-13T14:14:47.354075+00:00",
+    "feedback_count": 77,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -71,7 +71,8 @@
       "software_official_metrics_from_csv_component_no_accuracy_promotion": 1,
       "packaged_official_metrics_from_csv_component_no_accuracy_promotion": 1,
       "software_official_residual_diagnostics_component_no_accuracy_promotion": 1,
-      "packaged_official_residual_diagnostics_component_no_accuracy_promotion": 1
+      "packaged_official_residual_diagnostics_component_no_accuracy_promotion": 1,
+      "paper_residual_table_no_accuracy_promotion": 1
     },
     "citylbm_status_counts": {
       "implemented_as_release_gate_requirement": 1,
@@ -140,7 +141,8 @@
       "implemented_casee_official_metrics_from_csv_component": 1,
       "implemented_packaged_casee_official_metrics_from_csv_component": 1,
       "implemented_casee_official_residual_diagnostics_component": 1,
-      "implemented_packaged_casee_official_residual_diagnostics_component": 1
+      "implemented_packaged_casee_official_residual_diagnostics_component": 1,
+      "implemented_official_residual_paper_table": 1
     },
     "required_feedback_rows_present": true,
     "all_source_paths_exist": true,
@@ -608,7 +610,7 @@
       "source_paths_exist": true,
       "decision_class": "paper_release_asset_manifest",
       "citylbm_status": "implemented_release_asset_manifest",
-      "implementation_evidence": "upload_asset_count=179; excluded_or_hash_only_count=20; upload_total_size_bytes=4881664; recommended_tag=v0.4.0-rc94",
+      "implementation_evidence": "upload_asset_count=183; excluded_or_hash_only_count=20; upload_total_size_bytes=4948047; recommended_tag=v0.4.0-rc95",
       "default_setting_allowed": true,
       "paper_use": "Use for release/data-availability traceability and reviewer artifact checks.",
       "limitations": "Release planning only; it does not create a GitHub Release, add CFD output, or permit formal v0.4.0."
@@ -706,7 +708,7 @@
       "source_paths_exist": true,
       "decision_class": "software_staged_gha_traceability_no_accuracy_promotion",
       "citylbm_status": "staged_gha_traceability_missing_or_failed",
-      "implementation_evidence": "matching_gha_already_staged=False; recommended_library_dir=C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries; tracked_sha=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a; rhino_loaded_new_gha=False",
+      "implementation_evidence": "matching_gha_already_staged=False; recommended_library_dir=C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries; tracked_sha=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0; rhino_loaded_new_gha=False",
       "default_setting_allowed": true,
       "paper_use": "Use as reviewer-facing software installation traceability before manual Rhino/Grasshopper process-load verification.",
       "limitations": "Staged-GHA evidence only; it does not prove Rhino loaded the plugin, run CFD, improve metrics, change defaults, or permit formal v0.4.0."
@@ -720,7 +722,7 @@
       "source_paths_exist": true,
       "decision_class": "software_build_hash_stability_no_accuracy_promotion",
       "citylbm_status": "implemented_build_hash_stability_gate",
-      "implementation_evidence": "build_repeat_count=2; repeated_build_hash_stable=True; final_tracked_gha_sha256=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a; grasshopper_staged=False",
+      "implementation_evidence": "build_repeat_count=2; repeated_build_hash_stable=True; final_tracked_gha_sha256=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0; grasshopper_staged=False",
       "default_setting_allowed": true,
       "paper_use": "Use as software-package reproducibility evidence for reviewer installation and artifact traceability.",
       "limitations": "Build-hash stability evidence only; it does not prove Rhino loaded the plugin, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0."
@@ -734,7 +736,7 @@
       "source_paths_exist": true,
       "decision_class": "paper_release_bundle_no_accuracy_promotion",
       "citylbm_status": "implemented_release_bundle_gate",
-      "implementation_evidence": "bundled_asset_count=179; bundle_size_bytes=1378083; bundle_sha256=b8633314732ed03cf9cc7f50d6dd100c4c52d37d39c757df429783858b3e5fa2; raw_or_large_files_excluded=True",
+      "implementation_evidence": "bundled_asset_count=183; bundle_size_bytes=1388842; bundle_sha256=05fe501b7bb5eed9d4452a1b6008b98929966b0f667f5b168fffc4aa9a3a9f5b; raw_or_large_files_excluded=True",
       "default_setting_allowed": true,
       "paper_use": "Use as reviewer-facing release packaging evidence for the lightweight Case E artifact set.",
       "limitations": "Release-bundle evidence only; it does not create a GitHub Release, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0."
@@ -748,7 +750,7 @@
       "source_paths_exist": true,
       "decision_class": "github_publication_state_no_accuracy_promotion",
       "citylbm_status": "implemented_github_publication_state_gate",
-      "implementation_evidence": "audited_tag=v0.4.0-rc93; recommended_tag=v0.4.0-rc94; remote_tag_visible=True; github_release_exists=False; gh_cli_available=False; can_create_release_now=False",
+      "implementation_evidence": "audited_tag=v0.4.0-rc94; recommended_tag=v0.4.0-rc95; remote_tag_visible=True; github_release_exists=False; gh_cli_available=False; can_create_release_now=False",
       "default_setting_allowed": true,
       "paper_use": "Use as publication-state traceability for the accuracy-diagnostic rc artifact chain.",
       "limitations": "Publication-state evidence only; it does not create a GitHub Release, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0."
@@ -776,7 +778,7 @@
       "source_paths_exist": true,
       "decision_class": "software_gha_staging_audit",
       "citylbm_status": "implemented_gha_staging_audit",
-      "implementation_evidence": "matching_gha_already_staged=False; recommended_library_dir=C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries; tracked_sha=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a",
+      "implementation_evidence": "matching_gha_already_staged=False; recommended_library_dir=C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries; tracked_sha=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0",
       "default_setting_allowed": true,
       "paper_use": "Use as software delivery traceability before manual Rhino/Grasshopper load verification.",
       "limitations": "Staging audit only; it does not prove Rhino loaded the GHA, run CFD, improve metrics, or permit formal v0.4.0."
@@ -790,7 +792,7 @@
       "source_paths_exist": true,
       "decision_class": "manual_rhino_load_evidence_kit",
       "citylbm_status": "rhino_load_evidence_kit_missing_or_failed",
-      "implementation_evidence": "kit_ready=False; rhino_detected=True; matching_gha_staged=False; expected_sha=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a",
+      "implementation_evidence": "kit_ready=False; rhino_detected=True; matching_gha_staged=False; expected_sha=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0",
       "default_setting_allowed": true,
       "paper_use": "Use as manual software-load evidence collection protocol before closing the Rhino/GHA load gate.",
       "limitations": "Manual evidence kit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0."
@@ -818,7 +820,7 @@
       "source_paths_exist": true,
       "decision_class": "packaged_gha_identity_component_gate",
       "citylbm_status": "implemented_packaged_gha_identity_component_gate",
-      "implementation_evidence": "gate_passed=True; tracked_sha=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a; size_bytes=1895936",
+      "implementation_evidence": "gate_passed=True; tracked_sha=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0; size_bytes=1895936",
       "default_setting_allowed": true,
       "paper_use": "Use as packaged-plugin software identity evidence before manual Rhino/GHA load verification.",
       "limitations": "Packaged GHA string audit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0."
@@ -888,7 +890,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc94",
+      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc95",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."
@@ -930,7 +932,7 @@
       "source_paths_exist": true,
       "decision_class": "native_wall_followup_codegen_no_accuracy_promotion",
       "citylbm_status": "implemented_default_off_native_wall_followup_codegen",
-      "implementation_evidence": "gate_passed=True; candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc94",
+      "implementation_evidence": "gate_passed=True; candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc95",
       "default_setting_allowed": false,
       "paper_use": "Use as pre-registered software implementation evidence for the next wall/ground official follow-up.",
       "limitations": "Code-generation evidence only; no wall/ground follow-up run has completed, no R2 changed, and no wall setting can be promoted before an official z2m release-gate pass."
@@ -944,7 +946,7 @@
       "source_paths_exist": true,
       "decision_class": "native_inlet_followup_codegen_no_accuracy_promotion",
       "citylbm_status": "implemented_default_off_native_inlet_followup_codegen",
-      "implementation_evidence": "gate_passed=True; candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc94",
+      "implementation_evidence": "gate_passed=True; candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc95",
       "default_setting_allowed": false,
       "paper_use": "Use as pre-registered software implementation evidence for the next AF-k inlet/no-SGS official follow-up.",
       "limitations": "Code-generation and planning evidence only; no new inlet follow-up run has completed, no R2 changed, and no inlet/SGS setting can be promoted before an official z2m release-gate pass."
@@ -958,7 +960,7 @@
       "source_paths_exist": true,
       "decision_class": "native_c016_residual_target_codegen_no_accuracy_promotion",
       "citylbm_status": "implemented_default_off_native_c016_residual_target_codegen",
-      "implementation_evidence": "gate_passed=True; leakage_guard_passed=True; candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc94",
+      "implementation_evidence": "gate_passed=True; leakage_guard_passed=True; candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc95",
       "default_setting_allowed": false,
       "paper_use": "Use as pre-registered software implementation evidence for the next C016 official follow-up.",
       "limitations": "Code-generation and planning evidence only; no C016 FluidX3D run has completed, no R2 changed, no RS_caseE fitting is allowed, and residual-target settings cannot be promoted before an official z2m release-gate pass."
@@ -1014,7 +1016,7 @@
       "source_paths_exist": true,
       "decision_class": "manual_rhino_load_evidence_packet_no_accuracy_promotion",
       "citylbm_status": "rhino_load_evidence_packet_gate_missing_or_failed",
-      "implementation_evidence": "packet_gate_passed=False; manual_claim_ready=False; rhino_loaded_new_gha=False; expected_sha=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a",
+      "implementation_evidence": "packet_gate_passed=False; manual_claim_ready=False; rhino_loaded_new_gha=False; expected_sha=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0",
       "default_setting_allowed": false,
       "paper_use": "Use as a software-load protocol-risk mitigation showing exactly how old-GHA contamination is prevented before formal claims.",
       "limitations": "Manual evidence packet only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official metrics, or permit formal v0.4.0."
@@ -1028,7 +1030,7 @@
       "source_paths_exist": true,
       "decision_class": "research_accuracy_gap_no_default_promotion",
       "citylbm_status": "implemented_research_accuracy_gap_gate",
-      "implementation_evidence": "gap_gate_passed=True; mae_gap=6.1114081250000005; r2_gap=2.006330362229977; recommended_tag=v0.4.0-rc94",
+      "implementation_evidence": "gap_gate_passed=True; mae_gap=6.1114081250000005; r2_gap=2.006330362229977; recommended_tag=v0.4.0-rc95",
       "default_setting_allowed": false,
       "paper_use": "Use as quantitative limitations evidence for how far the current official result remains from project accuracy release criteria.",
       "limitations": "Gap quantification only; it does not run FluidX3D, improve metrics, prove research-grade accuracy, or permit formal v0.4.0."
@@ -1042,7 +1044,7 @@
       "source_paths_exist": true,
       "decision_class": "accuracy_action_plan_no_default_promotion",
       "citylbm_status": "implemented_accuracy_action_plan_gate",
-      "implementation_evidence": "action_plan_passed=True; enabled_now_count=4; official_followup_action_count=3; recommended_tag=v0.4.0-rc94",
+      "implementation_evidence": "action_plan_passed=True; enabled_now_count=4; official_followup_action_count=3; recommended_tag=v0.4.0-rc95",
       "default_setting_allowed": false,
       "paper_use": "Use as a reviewer-facing bridge from current accuracy limitations to the next official CFD actions and software policy.",
       "limitations": "Action-plan evidence only; it does not run FluidX3D, improve metrics, or permit formal v0.4.0."
@@ -1070,7 +1072,7 @@
       "source_paths_exist": true,
       "decision_class": "packaged_accuracy_action_plan_component_no_accuracy_promotion",
       "citylbm_status": "implemented_packaged_casee_accuracy_action_plan_component",
-      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a; tracked_matches_release=True; markers_present=True",
+      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0; tracked_matches_release=True; markers_present=True",
       "default_setting_allowed": false,
       "paper_use": "Use as packaged-plugin evidence that the release asset contains the action-plan component.",
       "limitations": "Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0."
@@ -1098,7 +1100,7 @@
       "source_paths_exist": true,
       "decision_class": "packaged_paper_claim_card_component_no_accuracy_promotion",
       "citylbm_status": "implemented_packaged_casee_paper_claim_card_component",
-      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a; tracked_matches_release=True; markers_present=True",
+      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0; tracked_matches_release=True; markers_present=True",
       "default_setting_allowed": false,
       "paper_use": "Use as packaged-plugin evidence that the release asset contains the paper claim-card component.",
       "limitations": "Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0."
@@ -1126,7 +1128,7 @@
       "source_paths_exist": true,
       "decision_class": "packaged_remediation_plan_component_no_accuracy_promotion",
       "citylbm_status": "implemented_packaged_casee_remediation_plan_component",
-      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a; tracked_matches_release=True; markers_present=True",
+      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0; tracked_matches_release=True; markers_present=True",
       "default_setting_allowed": false,
       "paper_use": "Use as packaged-plugin evidence that the release asset contains the remediation-plan component.",
       "limitations": "Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0."
@@ -1154,7 +1156,7 @@
       "source_paths_exist": true,
       "decision_class": "packaged_official_metric_gate_component_no_accuracy_promotion",
       "citylbm_status": "implemented_packaged_casee_official_metric_gate_component",
-      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a; tracked_matches_release=True; markers_present=True",
+      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0; tracked_matches_release=True; markers_present=True",
       "default_setting_allowed": false,
       "paper_use": "Use as packaged-plugin evidence that the release asset contains the official metric-gate component.",
       "limitations": "Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0."
@@ -1182,7 +1184,7 @@
       "source_paths_exist": true,
       "decision_class": "packaged_official_metrics_from_csv_component_no_accuracy_promotion",
       "citylbm_status": "implemented_packaged_casee_official_metrics_from_csv_component",
-      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a; tracked_matches_release=True; markers_present=True",
+      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0; tracked_matches_release=True; markers_present=True",
       "default_setting_allowed": false,
       "paper_use": "Use as packaged-plugin evidence that the release asset contains the official CSV metric calculator.",
       "limitations": "Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0."
@@ -1210,10 +1212,24 @@
       "source_paths_exist": true,
       "decision_class": "packaged_official_residual_diagnostics_component_no_accuracy_promotion",
       "citylbm_status": "implemented_packaged_casee_official_residual_diagnostics_component",
-      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a; tracked_matches_release=True; markers_present=True",
+      "implementation_evidence": "binary_gate_passed=True; tracked_gha_sha256=5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0; tracked_matches_release=True; markers_present=True",
       "default_setting_allowed": false,
       "paper_use": "Use as packaged-plugin evidence that the release asset contains the residual diagnostics component.",
       "limitations": "Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0."
+    },
+    {
+      "feedback_id": "SF077",
+      "experiment": "Experiment 2 / Case E official residual paper table",
+      "finding": "A repository-level official z=2 m residual paper table is generated from casee_probe_residuals.csv, including top residual probes, protocol checks, group summaries, and under-fraction rows for limitations reporting.",
+      "evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/tools/casee_official_residual_paper_table.py; docs/experiments/casee/results/casee_official_residual_paper_table.json; docs/experiments/casee/results/casee_official_residual_paper_table.csv; docs/experiments/casee/results/casee_official_residual_paper_table.md; docs/experiments/casee/results/casee_probe_residuals.csv; docs/experiments/casee/results/casee_validation_report.md",
+      "source_paths_exist": true,
+      "decision_class": "paper_residual_table_no_accuracy_promotion",
+      "citylbm_status": "implemented_official_residual_paper_table",
+      "implementation_evidence": "table_passed=True; claim_readiness=limitations_ready_official_residual_paper_table; top_rows=10; group_rows=8; formal_metric_gate_failed=True",
+      "default_setting_allowed": false,
+      "paper_use": "Use in Results/Limitations as a command-generated table explaining residual concentration in the official negative validation.",
+      "limitations": "Paper table only; it does not run FluidX3D, improve official z2m metrics, support calibration-as-validation, promote defaults, or permit formal v0.4.0."
     }
   ],
   "source_artifacts": [
@@ -1243,6 +1259,7 @@
     "docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json",
     "docs/experiments/casee/results/casee_c005_decomposition_audit.json",
     "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
+    "docs/experiments/casee/results/casee_official_residual_paper_table.json",
     "docs/experiments/casee/results/casee_claim_support_gate.json",
     "docs/experiments/casee/results/citylbm_paper_results_packet.json",
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",

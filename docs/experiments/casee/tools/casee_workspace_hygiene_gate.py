@@ -97,6 +97,10 @@ EXPECTED_UNTRACKED_EVIDENCE = {
     "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.json",
     "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.csv",
     "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.md",
+    "docs/experiments/casee/tools/casee_official_residual_paper_table.py",
+    "docs/experiments/casee/results/casee_official_residual_paper_table.json",
+    "docs/experiments/casee/results/casee_official_residual_paper_table.csv",
+    "docs/experiments/casee/results/casee_official_residual_paper_table.md",
     "docs/releases/v0.4.0-rc76.md",
     "docs/releases/v0.4.0-rc77.md",
     "docs/releases/v0.4.0-rc78.md",
@@ -106,6 +110,7 @@ EXPECTED_UNTRACKED_EVIDENCE = {
     "docs/releases/v0.4.0-rc92.md",
     "docs/releases/v0.4.0-rc93.md",
     "docs/releases/v0.4.0-rc94.md",
+    "docs/releases/v0.4.0-rc95.md",
 }
 
 FORBIDDEN_TRACKED_SUFFIXES = (".vtk", ".vtu", ".vti", ".vtp", ".stl", ".3dm")

@@ -90,6 +90,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc92.md",
     "docs/releases/v0.4.0-rc93.md",
     "docs/releases/v0.4.0-rc94.md",
+    "docs/releases/v0.4.0-rc95.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -219,6 +220,7 @@ TOOL_SCRIPTS = [
     "casee_c005_decomposition_audit.py",
     "casee_c008_c009_inlet_turbulence_audit.py",
     "casee_c014_residual_structure_audit.py",
+    "casee_official_residual_paper_table.py",
     "casee_claim_support_gate.py",
     "casee_publication_readiness_gate.py",
     "casee_release_asset_manifest.py",
@@ -452,6 +454,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "limitations_ready_inlet_turbulence_improvement"
     if "casee_c014_residual_structure_audit" in path or "casee_c014_residual_top_probes" in path:
         return "limitations_ready_residual_structure"
+    if "casee_official_residual_paper_table" in path:
+        return "limitations_ready_official_residual_paper_table"
     if "casee_claim_support_gate" in path:
         return "paper_ready_claim_support_gate"
     if "casee_publication_readiness_gate" in path:
@@ -538,6 +542,8 @@ def paper_use(path: str, readiness: str) -> str:
         return "Use to show AF-k synthetic full-plane inlet candidates substantially improved official-height MAE/R2/Pearson but still had negative R2."
     if readiness == "limitations_ready_residual_structure":
         return "Use to explain why C014 remains non-validating: velocity-ratio range compression, downstream residuals, and high-speed under-recovery."
+    if readiness == "limitations_ready_official_residual_paper_table":
+        return "Use as a command-generated official z=2 m residual table for Results/Limitations residual-structure reporting."
     if readiness == "paper_ready_claim_support_gate":
         return "Use to map each manuscript claim to allowed paper use, limitations, evidence paths, and forbidden formal-accuracy claims."
     if readiness == "paper_ready_publication_readiness_gate":
@@ -614,6 +620,8 @@ def limitations(path: str, readiness: str) -> str:
         return "Synthesis of existing diagnostics only; does not add a new solver result."
     if readiness == "limitations_ready_residual_structure":
         return "Residual audit over preexisting C014 solver output only; it does not add a new FluidX3D run or permit formal accuracy claims."
+    if readiness == "limitations_ready_official_residual_paper_table":
+        return "Repository-level residual table only; it does not run FluidX3D, improve official z=2 m metrics, or permit formal v0.4.0."
     if readiness == "paper_ready_claim_support_gate":
         return "Claim triage only; it does not add CFD output, improve official z=2 m metrics, or permit formal v0.4.0."
     if readiness == "paper_ready_publication_readiness_gate":

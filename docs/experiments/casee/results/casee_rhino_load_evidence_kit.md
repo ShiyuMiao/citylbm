@@ -1,13 +1,13 @@
 # Case E Rhino/GHA Load Evidence Kit
 
-Generated: 2026-08-13T13:55:03.273592+00:00
+Generated: 2026-08-13T14:14:00.188111+00:00
 
 ## Verdict
 
 - Evidence kit ready: False
 - Claim readiness: `blocked_rhino_evidence_kit`
 - Expected plugin version: `0.4.0-rc`
-- Expected GHA SHA256: `bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a`
+- Expected GHA SHA256: `5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0`
 
 ## Checks
 
@@ -36,13 +36,13 @@ Generated: 2026-08-13T13:55:03.273592+00:00
 
 ```json
 {
-  "checked_at": "2026-08-13T13:55:03.273474+00:00",
+  "checked_at": "2026-08-13T14:14:00.188111+00:00",
   "operator": "manual-operator-name",
   "rhino_version": "paste Rhino About/SystemInfo version string",
   "grasshopper_version": "paste Grasshopper version string",
   "observed_plugin_version": "0.4.0-rc",
   "observed_assembly_version": "0.4.0.0",
-  "observed_gha_sha256": "bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a",
+  "observed_gha_sha256": "5dd119b4c86fcc2fb36ef5e1bbc8f09b3fc403ce42bcf52542588bca7b997af0",
   "evidence_artifacts": [
     "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
     "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T13:55:32.361319+00:00",
+  "generated_at": "2026-08-13T14:14:29.227928+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_codegen_smoke; no_solver_run",
   "native_codegen_smoke_gate_passed": true,
