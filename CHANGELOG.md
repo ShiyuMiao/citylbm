@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc73 - Deterministic GHA build stability gate
+
+- Enabled deterministic C# build metadata and fixed plugin assembly/file/informational versions for the `0.4.0-rc` line.
+- Removed ILRepack parallel merging from the packaged GHA build path and pinned the merged assembly version to `0.4.0.0`.
+- Added a two-build hash stability gate for `CityLBM.gha`.
+- Verified repeated Release builds now produce stable tracked/release/nested GHA SHA256 `654fa02d2b5790c011b7edf096516950022f52a2cc858f0023943675ee9497ba`.
+
+This is software-build reproducibility evidence only. It does not prove Rhino/Grasshopper loaded the plugin, run FluidX3D, improve official z=2 m metrics, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc72 - Grasshopper GHA staging evidence
 
 - Staged the current tracked `CityLBM/bin/CityLBM.gha` into the user's Grasshopper Libraries directory.

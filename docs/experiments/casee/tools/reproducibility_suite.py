@@ -297,6 +297,7 @@ def main() -> int:
     )
     for name, script in [
         ("build_chain_audit", "build_chain_audit.py"),
+        ("citylbm_build_hash_stability_gate", "citylbm_build_hash_stability_gate.py"),
         ("citylbm_portable_toolchain_gate", "citylbm_portable_toolchain_gate.py"),
         ("plugin_identity_gate", "plugin_identity_gate.py"),
         ("citylbm_plugin_identity_component_gate", "citylbm_plugin_identity_component_gate.py"),
@@ -365,6 +366,7 @@ def main() -> int:
     rhino_evidence_kit = read_json(RESULTS_DIR / "casee_rhino_load_evidence_kit.json")
     rhino_manifest_schema_gate = read_json(RESULTS_DIR / "rhino_gha_load_manifest_schema_gate.json")
     build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
+    build_hash_stability = read_json(RESULTS_DIR / "citylbm_build_hash_stability_gate.json")
     portable_toolchain_gate = read_json(RESULTS_DIR / "citylbm_portable_toolchain_gate.json")
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
     vs_cpp_system_drive_space = read_json(RESULTS_DIR / "vs_cpp_system_drive_space_gate.json")
@@ -409,6 +411,7 @@ def main() -> int:
         "casee_rhino_load_evidence_kit": rhino_evidence_kit,
         "rhino_gha_load_manifest_schema_gate": rhino_manifest_schema_gate,
         "build_chain_manifest": build_chain,
+        "citylbm_build_hash_stability_gate": build_hash_stability,
         "citylbm_portable_toolchain_gate": portable_toolchain_gate,
         "vs_cpp_recovery_gate": vs_cpp_recovery,
         "vs_cpp_system_drive_space_gate": vs_cpp_system_drive_space,

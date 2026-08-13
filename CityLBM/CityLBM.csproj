@@ -7,6 +7,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <PathMap>$(MSBuildProjectDirectory)=/src/CityLBM</PathMap>
+    <AssemblyVersion>0.4.0.0</AssemblyVersion>
+    <FileVersion>0.4.0.0</FileVersion>
+    <InformationalVersion>0.4.0-rc</InformationalVersion>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>bin\</OutputPath>
     <!-- Grasshopper 插件配置 -->
@@ -97,7 +103,7 @@
     <!-- 检查 ILRepack 是否存在 -->
     <Error Condition="!Exists('$(IlRepackPath)')" Text="ILRepack not found. Run: dotnet add package ILRepack --version 2.0.33" />
     <!-- 合并依赖到 GHA -->
-    <Exec Command="&quot;$(IlRepackPath)&quot; /out:&quot;$(TargetDir)CityLBM.merged.dll&quot; &quot;$(TargetDir)CityLBM.dll&quot; &quot;$(NugetCache)\newtonsoft.json\13.0.3\lib\netstandard2.0\Newtonsoft.Json.dll&quot; &quot;$(NugetCache)\nlog\5.2.0\lib\netstandard2.0\NLog.dll&quot; /wildcards /parallel /union" />
+    <Exec Command="&quot;$(IlRepackPath)&quot; /out:&quot;$(TargetDir)CityLBM.merged.dll&quot; &quot;$(TargetDir)CityLBM.dll&quot; &quot;$(NugetCache)\newtonsoft.json\13.0.3\lib\netstandard2.0\Newtonsoft.Json.dll&quot; &quot;$(NugetCache)\nlog\5.2.0\lib\netstandard2.0\NLog.dll&quot; /wildcards /union /ndebug /ver:0.4.0.0" />
     <!-- 替换为合并后的文件 -->
     <Delete Files="$(TargetDir)CityLBM.gha" />
     <Move SourceFiles="$(TargetDir)CityLBM.merged.dll" DestinationFiles="$(TargetDir)CityLBM.gha" />

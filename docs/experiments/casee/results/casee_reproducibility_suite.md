@@ -1,12 +1,12 @@
 # Case E Reproducibility Suite
 
-Generated: 2026-08-13T04:19:19.610900+00:00
+Generated: 2026-08-13T04:27:42.626545+00:00
 
 ## Verdict
 
 - Suite passed: True
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc72`
+- Recommended tag: `v0.4.0-rc73`
 
 ## Official z=2 m Metric
 
@@ -16,8 +16,8 @@ Generated: 2026-08-13T04:19:19.610900+00:00
 
 ## Artifact Index
 
-- Artifact count: 380
-- Lightweight release assets: 308
+- Artifact count: 385
+- Lightweight release assets: 313
 - Formal accuracy claim supported: False
 
 ## Build Chain
@@ -36,6 +36,7 @@ Generated: 2026-08-13T04:19:19.610900+00:00
 | build_chain_audit | 0 | True |
 | sync_tracked_gha |  | True |
 | stage_tracked_gha_for_grasshopper |  | True |
+| citylbm_build_hash_stability_gate | 0 | True |
 | citylbm_portable_toolchain_gate | 0 | True |
 | plugin_identity_gate | 0 | True |
 | citylbm_plugin_identity_component_gate | 0 | True |

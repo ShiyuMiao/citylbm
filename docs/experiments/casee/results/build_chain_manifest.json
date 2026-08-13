@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T04:18:52.236288+00:00",
+  "generated_at": "2026-08-13T04:27:02.665262+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_build_chain_diagnostic",
   "build_chain_ready": false,
@@ -126,15 +126,15 @@
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\build.ps1 -DotNetPath E:\\citylbm_buildchain\\dotnet\\dotnet.exe -NoPause",
       "found": true,
       "returncode": 0,
-      "stdout": "========================================\nCityLBM build\n========================================\n\nUsing .NET SDK: E:\\citylbm_buildchain\\dotnet\\dotnet.exe\n[1/3] Restoring NuGet packages...\n  \u6b63\u5728\u786e\u5b9a\u8981\u8fd8\u539f\u7684\u9879\u76ee\u2026\n  \u6240\u6709\u9879\u76ee\u5747\u662f\u6700\u65b0\u7684\uff0c\u65e0\u6cd5\u8fd8\u539f\u3002\nRestore completed.\n\n[2/3] Building Release...\n  CityLBM -> C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.dll\n  \u5df2\u751f\u6210 CityLBM.gha\n  ------------- IL Repack Arguments -------------\n  /out:C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.merged.dll C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.dll C:\\Users\\miaoshiyu\\.nuget\\packages\\newtonsoft.json\\13.0.3\\lib\\netstandard2.0\\Newtonsoft.Json.dll C:\\Users\\miaoshiyu\\.nuget\\packages\\nlog\\5.2.0\\lib\\netstandard2.0\\NLog.dll /wildcards /parallel /union\n  -----------------------------------------------\n  Wrote C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.merged.dll\n  \u5df2\u5408\u5e76\u4f9d\u8d56\u5230 CityLBM.gha\n\n\u5df2\u6210\u529f\u751f\u6210\u3002\n    0 \u4e2a\u8b66\u544a\n    0 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:03.91\n\nBuild completed.\n\n[3/3] Packaging Grasshopper output...\nOutput GHA: bin\\Release\\CityLBM.gha\nSize KB: 1781\nUpdated: 08/13/2026 12:18:51\nUpdated distributable: bin\\CityLBM.gha\nCreated: bin\\Release\\CityLBM\\CityLBM.gha\n\n========================================\nCityLBM build succeeded.\n========================================\n\nInstall: copy bin\\CityLBM.gha to the Grasshopper Libraries folder, then restart Grasshopper.",
+      "stdout": "========================================\nCityLBM build\n========================================\n\nUsing .NET SDK: E:\\citylbm_buildchain\\dotnet\\dotnet.exe\n[1/3] Restoring NuGet packages...\n  \u6b63\u5728\u786e\u5b9a\u8981\u8fd8\u539f\u7684\u9879\u76ee\u2026\n  \u6240\u6709\u9879\u76ee\u5747\u662f\u6700\u65b0\u7684\uff0c\u65e0\u6cd5\u8fd8\u539f\u3002\nRestore completed.\n\n[2/3] Building Release...\n  CityLBM -> C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.dll\n  \u5df2\u751f\u6210 CityLBM.gha\n  ------------- IL Repack Arguments -------------\n  /out:C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.merged.dll C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.dll C:\\Users\\miaoshiyu\\.nuget\\packages\\newtonsoft.json\\13.0.3\\lib\\netstandard2.0\\Newtonsoft.Json.dll C:\\Users\\miaoshiyu\\.nuget\\packages\\nlog\\5.2.0\\lib\\netstandard2.0\\NLog.dll /wildcards /union /ndebug /ver:0.4.0.0\n  -----------------------------------------------\n  Wrote C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.merged.dll\n  \u5df2\u5408\u5e76\u4f9d\u8d56\u5230 CityLBM.gha\n\n\u5df2\u6210\u529f\u751f\u6210\u3002\n    0 \u4e2a\u8b66\u544a\n    0 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:03.49\n\nBuild completed.\n\n[3/3] Packaging Grasshopper output...\nOutput GHA: bin\\Release\\CityLBM.gha\nSize KB: 1781\nUpdated: 08/13/2026 12:27:02\nUpdated distributable: bin\\CityLBM.gha\nCreated: bin\\Release\\CityLBM\\CityLBM.gha\n\n========================================\nCityLBM build succeeded.\n========================================\n\nInstall: copy bin\\CityLBM.gha to the Grasshopper Libraries folder, then restart Grasshopper.",
       "stderr": ""
     },
     "packaged_gha": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.gha",
-      "sha256": "0781aafe2041fdd68d73c80fd4872aa59f3dfafb94777e8630b6dfa1ba32c3c4",
+      "sha256": "654fa02d2b5790c011b7edf096516950022f52a2cc858f0023943675ee9497ba",
       "size_bytes": 1823744,
-      "mtime": "2026-08-13T04:18:51.786346+00:00"
+      "mtime": "2026-08-13T04:27:02.278247+00:00"
     },
     "note": "Plugin build reproducibility only; this does not provide VS C++ Build Tools, GPU recovery, or CFD accuracy evidence."
   },
@@ -173,15 +173,15 @@
   "disk": [
     {
       "drive": "C:\\",
-      "free_bytes": 1632804864,
+      "free_bytes": 1632931840,
       "total_bytes": 208810242048,
       "free_gb": 1.521
     },
     {
       "drive": "D:\\",
-      "free_bytes": 246595153920,
+      "free_bytes": 246592516096,
       "total_bytes": 302394634240,
-      "free_gb": 229.66
+      "free_gb": 229.657
     },
     {
       "drive": "E:\\",

@@ -68,6 +68,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc70.md",
     "docs/releases/v0.4.0-rc71.md",
     "docs/releases/v0.4.0-rc72.md",
+    "docs/releases/v0.4.0-rc73.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -97,6 +98,7 @@ RESULT_PATTERNS = [
     "citylbm_manifest_output_gate.*",
     "citylbm_manifest_schema_gate.*",
     "citylbm_software_feedback_matrix.*",
+    "citylbm_build_hash_stability_gate.*",
     "build_chain_manifest.*",
     "citylbm_portable_toolchain_activation.json",
     "citylbm_portable_toolchain_gate.*",
@@ -144,6 +146,7 @@ OFFICIAL_DATA_PATTERNS = [
 TOOL_SCRIPTS = [
     "artifact_index.py",
     "build_chain_audit.py",
+    "citylbm_build_hash_stability_gate.py",
     "citylbm_portable_toolchain_activate.ps1",
     "citylbm_portable_toolchain_gate.py",
     "vs_cpp_recovery_gate.py",
@@ -758,6 +761,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc70.md",
                 "v0.4.0-rc71.md",
                 "v0.4.0-rc72.md",
+                "v0.4.0-rc73.md",
             )
         )
     ]

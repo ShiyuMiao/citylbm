@@ -1,6 +1,6 @@
 # CityLBM Manifest Output Gate
 
-Generated: 2026-08-13T04:19:11.515151+00:00
+Generated: 2026-08-13T04:27:34.436152+00:00
 
 ## Verdict
 
