@@ -74,6 +74,10 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "citylbm_stg_max_fraction = 0.420000f");
                 Require(setup, "syntheticTurbulentInlet");
                 Require(setup, "applySyntheticTurbulentInlet");
+                Require(setup, "GRAPHICS mode uses the same STG refresh loop as batch mode");
+                Require(setup, "steps_to_run = remaining < citylbm_stg_update_interval ? remaining : citylbm_stg_update_interval");
+                Require(setup, "if(lbm.flags[n] == TYPE_E &&");
+                Require(setup, "lbm.flags.read_from_device();");
                 Require(setup, "initialize all TYPE_E boundary velocities");
                 Require(setup, "if(lbm.flags[n] != TYPE_E) return;");
                 Require(setup, "float3 u_e = windProfile(z);");
@@ -82,7 +86,7 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "component RMS target sigma=sqrt(2k/3)");
                 Require(metadata, "\"SyntheticTurbulenceUpdateInterval\": 7");
                 Require(metadata, "\"SyntheticTurbulenceMaxFractionOfMean\": 0.42");
-                Require(metadata, "velocity_field_only_no_distribution_function_reconstruction");
+                Require(metadata, "refreshed on TYPE_E inlet nodes in batch and graphics modes");
                 Require(metadata, "\"ExpectedVtkFrameCount\": 10");
                 Require(metadata, "\"TimeAveragingRunGate\": \"pass_minimum_frame_count\"");
                 Require(metadata, "Mode 1/2/3 require ExpectedVtkFrameCount");

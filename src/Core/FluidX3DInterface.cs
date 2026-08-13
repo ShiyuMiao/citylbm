@@ -1970,7 +1970,20 @@ namespace CityLBM.Solver
             sb.AppendLine("    // 交互式图形模式：lbm.run() 内部自动渲染每一帧");
             sb.AppendLine("    // 按键：P=暂停/继续, Esc=退出");
             sb.AppendLine("    lbm.graphics.visualization_modes = VIS_FLAG_SURFACE|VIS_Q_CRITERION;");
-            sb.AppendLine($"    lbm.run({settings.TimeSteps}u);  // 持续模拟直到 TimeSteps");
+            if (syntheticInletActive)
+            {
+                sb.AppendLine("    // CityLBM v0.3.0 validation fix: GRAPHICS mode uses the same STG refresh loop as batch mode.");
+                sb.AppendLine($"    while(lbm.get_t() < {settings.TimeSteps}u) {{");
+                sb.AppendLine($"        uint remaining = {settings.TimeSteps}u - (uint)lbm.get_t();");
+                sb.AppendLine("        uint steps_to_run = remaining < citylbm_stg_update_interval ? remaining : citylbm_stg_update_interval;");
+                sb.AppendLine("        applySyntheticTurbulentInlet((uint)lbm.get_t());");
+                sb.AppendLine("        lbm.run(steps_to_run);");
+                sb.AppendLine("    }");
+            }
+            else
+            {
+                sb.AppendLine($"    lbm.run({settings.TimeSteps}u);  // 持续模拟直到 TimeSteps");
+            }
             sb.AppendLine("#else // 非 GRAPHICS 模式：手动循环 + VTK 输出");
             sb.AppendLine($"    lbm.run(0u);  // 初始化（0步）");
             sb.AppendLine();
@@ -2315,11 +2328,13 @@ namespace CityLBM.Solver
 
             sb.AppendLine("    auto applySyntheticTurbulentInlet = [&](uint t_step) {");
             sb.AppendLine("        // Velocity-field-only refresh for diagnostic turbulent-inlet runs.");
+            sb.AppendLine("        // Refresh only TYPE_E inlet nodes so solid ground/building flags are not overwritten.");
+            sb.AppendLine("        lbm.flags.read_from_device();");
             sb.AppendLine("        lbm.u.read_from_device();");
             sb.AppendLine("        parallel_for(lbm.get_N(), [&](ulong n) {");
             sb.AppendLine("            uint x=0u, y=0u, z=0u;");
             sb.AppendLine("            lbm.coordinates(n, x, y, z);");
-            sb.AppendLine($"            if({inletCondition}) {{");
+            sb.AppendLine($"            if(lbm.flags[n] == TYPE_E && {inletCondition}) {{");
             sb.AppendLine("                float3 u_in = syntheticTurbulentInlet(x, y, z, t_step);");
             sb.AppendLine("                lbm.u.x[n] = u_in.x;");
             sb.AppendLine("                lbm.u.y[n] = u_in.y;");
@@ -2405,7 +2420,7 @@ namespace CityLBM.Solver
                         ? "component RMS target sigma=sqrt(2k/3); spectral normalization sqrt(6/mode_count) accounts for sinusoidal variance and projected-component energy"
                         : "none",
                     SyntheticTurbulentInletDistributionTreatment = syntheticActive
-                        ? "velocity_field_only_no_distribution_function_reconstruction"
+                        ? "velocity_field_only_no_distribution_function_reconstruction; refreshed on TYPE_E inlet nodes in batch and graphics modes"
                         : "none",
                     SyntheticTurbulentInletPaperGradeStatus = syntheticActive
                         ? "diagnostic_only_until_distribution_reconstruction_or_native_k_preservation_gate_passes"
@@ -2732,7 +2747,7 @@ namespace CityLBM.Solver
                 if (syntheticActive)
                 {
                     yield return "AF k column drives an experimental STG-lite spectral inlet, but this is not a full digital-filter, precursor/recycling, or Reynolds-stress inflow.";
-                    yield return "STG-lite inlet refreshes macroscopic lbm.u values only; distribution functions are not reconstructed, so k preservation must be proven by an empty-tunnel native baseline before paper-grade validation.";
+                    yield return "STG-lite inlet refreshes macroscopic lbm.u values on TYPE_E inlet nodes in both batch and graphics modes; distribution functions are not reconstructed, so k preservation must be proven by an empty-tunnel native baseline before paper-grade validation.";
                 }
                 else
                 {
@@ -2989,7 +3004,7 @@ namespace CityLBM.Solver
                 Key = "inlet_turbulence_k",
                 Status = syntheticActive ? "partial" : (hasK ? "risk" : "fail"),
                 Evidence = syntheticActive
-                    ? "AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet and record velocity-field-only treatment."
+                    ? "AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet, refresh TYPE_E inlet nodes in batch/graphics modes and record velocity-field-only treatment."
                     : (hasK ? "AF k column is present but only metadata/profile arrays are guaranteed." : "No usable k column found in CustomWindProfile."),
                 Risk = syntheticActive
                     ? "STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and does not reconstruct distribution functions."
