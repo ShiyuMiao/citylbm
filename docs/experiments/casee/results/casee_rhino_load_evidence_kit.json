@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-08-13T11:04:11.532046+00:00",
+  "generated_at": "2026-08-13T11:21:06.005266+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "author_input_needed_manual_rhino_load",
   "rhino_load_evidence_kit_ready": true,
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
   "expected_plugin_public_version": "0.4.0-rc",
-  "expected_tracked_gha_sha256": "e116a5c2d827aea5022de48ab2c2b9c48caad3326de5b2d1069ad448ca73171d",
+  "expected_tracked_gha_sha256": "90e2a84115958130bd3adb63c8c13f60b3df12fcfd30d54e633b44900e47fc48",
   "tracked_gha": {
     "found": true,
     "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\CityLBM.gha",
-    "sha256": "e116a5c2d827aea5022de48ab2c2b9c48caad3326de5b2d1069ad448ca73171d",
+    "sha256": "90e2a84115958130bd3adb63c8c13f60b3df12fcfd30d54e633b44900e47fc48",
     "size_bytes": 1838080,
-    "mtime_utc": "2026-08-13T11:00:13.175943+00:00"
+    "mtime_utc": "2026-08-13T11:18:13.508946+00:00"
   },
   "rhino_candidates": [
     {
@@ -56,7 +56,7 @@
       "kind": "staged_gha",
       "path": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries\\CityLBM.gha",
       "found": true,
-      "sha256": "e116a5c2d827aea5022de48ab2c2b9c48caad3326de5b2d1069ad448ca73171d",
+      "sha256": "90e2a84115958130bd3adb63c8c13f60b3df12fcfd30d54e633b44900e47fc48",
       "matches_expected": true,
       "note": "candidate staged GHA"
     },
@@ -87,13 +87,13 @@
   ],
   "manual_manifest_template_path": "docs/experiments/casee/results/rhino_gha_load_manifest.template.json",
   "manual_manifest_template": {
-    "checked_at": "2026-08-13T11:04:11.531890+00:00",
+    "checked_at": "2026-08-13T11:21:06.005266+00:00",
     "operator": "manual-operator-name",
     "rhino_version": "paste Rhino About/SystemInfo version string",
     "grasshopper_version": "paste Grasshopper version string",
     "observed_plugin_version": "0.4.0-rc",
     "observed_assembly_version": "0.4.0.0",
-    "observed_gha_sha256": "e116a5c2d827aea5022de48ab2c2b9c48caad3326de5b2d1069ad448ca73171d",
+    "observed_gha_sha256": "90e2a84115958130bd3adb63c8c13f60b3df12fcfd30d54e633b44900e47fc48",
     "evidence_artifacts": [
       "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
       "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"

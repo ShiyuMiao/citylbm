@@ -1,11 +1,11 @@
 {
-  "checked_at": "2026-08-13T11:04:11.531890+00:00",
+  "checked_at": "2026-08-13T11:21:06.005266+00:00",
   "operator": "manual-operator-name",
   "rhino_version": "paste Rhino About/SystemInfo version string",
   "grasshopper_version": "paste Grasshopper version string",
   "observed_plugin_version": "0.4.0-rc",
   "observed_assembly_version": "0.4.0.0",
-  "observed_gha_sha256": "e116a5c2d827aea5022de48ab2c2b9c48caad3326de5b2d1069ad448ca73171d",
+  "observed_gha_sha256": "90e2a84115958130bd3adb63c8c13f60b3df12fcfd30d54e633b44900e47fc48",
   "evidence_artifacts": [
     "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
     "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"

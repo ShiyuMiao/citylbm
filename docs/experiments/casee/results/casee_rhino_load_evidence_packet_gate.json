@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T11:04:11.790363+00:00",
+  "generated_at": "2026-08-13T11:21:06.308441+00:00",
   "evidence_type": "newly_run",
   "rhino_load_evidence_packet_gate_passed": true,
   "manual_rhino_load_claim_ready": false,
@@ -8,7 +8,7 @@
   "expected_manifest_path": "docs/experiments/casee/results/rhino_gha_load_manifest.expected.json",
   "manual_manifest_path": "docs/experiments/casee/results/rhino_gha_load_manifest.json",
   "expected_plugin_public_version": "0.4.0-rc",
-  "expected_gha_sha256": "e116a5c2d827aea5022de48ab2c2b9c48caad3326de5b2d1069ad448ca73171d",
+  "expected_gha_sha256": "90e2a84115958130bd3adb63c8c13f60b3df12fcfd30d54e633b44900e47fc48",
   "expected_gha_path": "CityLBM/bin/CityLBM.gha",
   "manual_manifest_status": {
     "manual_manifest_present": false,
@@ -44,7 +44,7 @@
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
   "expected_manifest": {
-    "packet_generated_at": "2026-08-13T11:04:11.789682+00:00",
+    "packet_generated_at": "2026-08-13T11:21:06.307201+00:00",
     "evidence_type": "newly_run",
     "purpose": "Expected values and required manual evidence for a real Rhino/Grasshopper CityLBM load check.",
     "manual_manifest_path": "docs/experiments/casee/results/rhino_gha_load_manifest.json",
@@ -63,7 +63,7 @@
     "expected_plugin_public_version": "0.4.0-rc",
     "expected_assembly_version": "0.4.0.0",
     "expected_gha_path": "CityLBM/bin/CityLBM.gha",
-    "expected_gha_sha256": "e116a5c2d827aea5022de48ab2c2b9c48caad3326de5b2d1069ad448ca73171d",
+    "expected_gha_sha256": "90e2a84115958130bd3adb63c8c13f60b3df12fcfd30d54e633b44900e47fc48",
     "required_evidence_artifacts": [
       "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
       "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"

@@ -28,6 +28,12 @@ shows that even a post-hoc affine upper bound only reaches R2 0.099203, so
 these results support a limitations/diagnostic discussion only, not a
 predictive-accuracy claim or a formal `v0.4.0` release.
 
+The rc87 research-accuracy gap gate quantifies the remaining official gap using
+the current project release threshold (`MAE < 15 pp`, `R2 > 0`, `Pearson > 0`):
+the formal official result is still 6.111 pp above the MAE threshold and 2.006330
+below positive R2. These are limitations and next-experiment planning numbers,
+not evidence of research-grade accuracy.
+
 Current Case E, release-gate, and manuscript-boundary materials:
 
 - `docs/experiments/casee/data_manifest.csv`
@@ -122,9 +128,12 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_runbook_codegen_preflight.md`
 - `docs/experiments/casee/results/casee_default_promotion_gate.json`
 - `docs/experiments/casee/results/casee_default_promotion_gate.md`
+- `docs/experiments/casee/results/casee_research_accuracy_gap_gate.json`
+- `docs/experiments/casee/results/casee_research_accuracy_gap_gate.md`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
 - `docs/experiments/casee/results/rhino_gha_load_manifest.expected.json`
+- `docs/releases/v0.4.0-rc87.md`
 - `docs/releases/v0.4.0-rc86.md`
 - `docs/releases/v0.4.0-rc85.md`
 - `docs/releases/v0.4.0-rc84.md`
@@ -235,6 +244,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_default_promotion_gate.json`
 - `docs/experiments/casee/results/casee_default_promotion_gate.md`
 - `docs/experiments/casee/results/casee_default_promotion_gate.csv`
+- `docs/experiments/casee/results/casee_research_accuracy_gap_gate.json`
+- `docs/experiments/casee/results/casee_research_accuracy_gap_gate.md`
+- `docs/experiments/casee/results/casee_research_accuracy_gap_gate.csv`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.csv`
@@ -571,6 +583,11 @@ The manuscript results table converts Case E evidence into paper-facing rows:
 the official z=2 m result is a negative-validation result, the best diagnostic
 sampling and near-wall risk rows are limitations-only, and the release boundary
 row blocks any formal `v0.4.0` accuracy claim.
+
+The research accuracy gap gate turns that boundary into explicit deltas against
+the current release metric threshold. It reports the official MAE and R2 gaps,
+keeps C014 and diagnostic sampling in limitations-only roles, and records that
+no diagnostic candidate or post-hoc upper bound authorizes default promotion.
 
 The paper results figure exports that table into an editable SVG, PNG preview,
 source CSV, and QA manifest. It is suitable for a negative-validation and

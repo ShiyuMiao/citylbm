@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc87 - Research accuracy gap gate
+
+- Added `casee_research_accuracy_gap_gate.py` to quantify the current official Case E gap to the project release metric threshold.
+- The gate reports the formal official MAE gap to `<15 pp`, the R2 gap to positive, and separates formal, diagnostic, and post-hoc upper-bound rows before any default promotion or paper-grade accuracy claim.
+- Integrated the gap gate into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF063.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc86 - Rhino load evidence packet gate
 
 - Added `casee_rhino_load_evidence_packet_gate.py` to package the manual Rhino/GHA load evidence requirements into an expected manifest, checklist CSV, and Markdown handoff.

@@ -86,12 +86,14 @@ MM,docs/experiments/casee/results/casee_remaining_blockers.json,tracked_or_stage
 MM,docs/experiments/casee/results/casee_remaining_blockers.md,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/results/casee_reproducibility_suite.json,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/results/casee_reproducibility_suite.md,tracked_or_staged_change,controlled
+A ,docs/experiments/casee/results/casee_research_accuracy_gap_gate.csv,tracked_or_staged_change,controlled
+AM,docs/experiments/casee/results/casee_research_accuracy_gap_gate.json,tracked_or_staged_change,controlled
+AM,docs/experiments/casee/results/casee_research_accuracy_gap_gate.md,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/results/casee_rhino_load_evidence_kit.csv,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_rhino_load_evidence_kit.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_rhino_load_evidence_kit.md,tracked_or_staged_change,controlled
-A ,docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.csv,tracked_or_staged_change,controlled
-AM,docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json,tracked_or_staged_change,controlled
-AM,docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md,tracked_or_staged_change,controlled
+MM,docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json,tracked_or_staged_change,controlled
+MM,docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_runbook_codegen_preflight.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_runbook_codegen_preflight.md,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_solver_run_provenance_ledger.json,tracked_or_staged_change,controlled
@@ -143,7 +145,7 @@ MM,docs/experiments/casee/results/plugin_identity_gate.json,tracked_or_staged_ch
 MM,docs/experiments/casee/results/release_gate.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/rhino_gha_load_gate.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/rhino_gha_load_gate.md,tracked_or_staged_change,controlled
-AM,docs/experiments/casee/results/rhino_gha_load_manifest.expected.json,tracked_or_staged_change,controlled
+MM,docs/experiments/casee/results/rhino_gha_load_manifest.expected.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/rhino_gha_load_manifest.template.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.csv,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.json,tracked_or_staged_change,controlled
@@ -159,11 +161,11 @@ MM,docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json,tracked_or
 MM,docs/experiments/casee/results/vs_cpp_system_drive_space_gate.md,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/artifact_index.py,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/casee_release_asset_manifest.py,tracked_or_staged_change,controlled
-A ,docs/experiments/casee/tools/casee_rhino_load_evidence_packet_gate.py,tracked_or_staged_change,controlled
+A ,docs/experiments/casee/tools/casee_research_accuracy_gap_gate.py,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/citylbm_software_feedback_matrix.py,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/paper_evidence_gate.py,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/reproducibility_suite.py,tracked_or_staged_change,controlled
-A ,docs/releases/v0.4.0-rc86.md,tracked_or_staged_change,controlled
+A ,docs/releases/v0.4.0-rc87.md,tracked_or_staged_change,controlled
 !!,.workbuddy/,ignored_local_artifact,controlled
 !!,CityLBM/NuGet/,ignored_local_artifact,forbidden_tracked_build_cache
 !!,CityLBM/bin/Release/,ignored_local_artifact,forbidden_tracked_build_cache

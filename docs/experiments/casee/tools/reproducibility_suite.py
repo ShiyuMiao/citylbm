@@ -337,6 +337,7 @@ def main() -> int:
         ("casee_c016_residual_target_leakage_guard", "casee_c016_residual_target_leakage_guard.py"),
         ("casee_solver_run_provenance_ledger", "casee_solver_run_provenance_ledger.py"),
         ("casee_claim_support_gate", "casee_claim_support_gate.py"),
+        ("casee_research_accuracy_gap_gate", "casee_research_accuracy_gap_gate.py"),
         ("casee_candidate_sweep_plan", "casee_candidate_sweep_plan.py"),
         ("casee_default_policy_gate", "casee_default_policy_gate.py"),
         ("casee_default_promotion_gate", "casee_default_promotion_gate.py"),
@@ -409,6 +410,7 @@ def main() -> int:
     c002_longer_mean = read_json(RESULTS_DIR / "casee_c002_longer_mean_audit.json")
     c003_zorigin_ablation = read_json(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
     c004_dx3_low_cost = read_json(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
+    research_accuracy_gap = read_json(RESULTS_DIR / "casee_research_accuracy_gap_gate.json")
     candidate_sweep_plan = read_json(RESULTS_DIR / "casee_candidate_sweep_plan.json")
     wall_followup_codegen = read_json(RESULTS_DIR / "casee_wall_followup_codegen_gate.json")
     inlet_followup_codegen = read_json(RESULTS_DIR / "casee_inlet_followup_codegen_gate.json")
@@ -469,6 +471,7 @@ def main() -> int:
         "casee_c004_dx3_low_cost_audit": c004_dx3_low_cost,
         "casee_c014_residual_structure_audit": c014_residual_structure,
         "casee_orphan_candidate_csv_audit": orphan_candidate_csv_audit,
+        "casee_research_accuracy_gap_gate": research_accuracy_gap,
         "casee_candidate_sweep_plan": candidate_sweep_plan,
         "casee_wall_followup_codegen_gate": wall_followup_codegen,
         "casee_inlet_followup_codegen_gate": inlet_followup_codegen,
