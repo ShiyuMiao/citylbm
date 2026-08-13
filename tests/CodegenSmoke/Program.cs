@@ -34,10 +34,14 @@ namespace CityLBM.CodegenSmoke
                     SyntheticTurbulenceMaxFractionOfMean = 0.42
                 };
 
-                var solver = new FluidX3DInterface("__no_fluidx3d_autodetect__");
+                string fakeFluidX3DRoot = CreateFakeFluidX3DSourceTree("fake_fluidx3d_source");
+                var solver = new FluidX3DInterface(fakeFluidX3DRoot);
                 string caseDir = Path.Combine(Path.GetTempPath(), "CityLBM", "stg_codegen_smoke");
                 Directory.CreateDirectory(caseDir);
                 Directory.CreateDirectory(Path.Combine(caseDir, "output"));
+                string setupPath = Path.Combine(caseDir, "setup.cpp");
+                string definesPath = Path.Combine(caseDir, "defines.hpp");
+                string stlPath = Path.Combine(caseDir, "buildings.stl");
 
                 InvokePrivate(
                     solver,
@@ -45,15 +49,20 @@ namespace CityLBM.CodegenSmoke
                     scene,
                     grid,
                     settings,
-                    Path.Combine(caseDir, "setup.cpp"),
+                    setupPath,
                     "buildings.stl",
                     "output");
+                InvokePrivate(solver, "GenerateDefinesHpp", grid, settings, definesPath, true);
+                File.WriteAllText(stlPath, "solid smoke\nendsolid smoke\n");
+                InvokePrivate(solver, "SaveDomainOrigin", caseDir, grid.Origin, grid.DomainBounds, grid.Nx, grid.Ny, grid.Nz, grid.Dx);
                 InvokePrivate(solver, "SaveCaseMetadata", caseDir, scene, grid, settings);
                 InvokePrivate(solver, "SaveValidationProtocolAudit", caseDir, scene, grid, settings);
+                InvokePrivate(solver, "SaveNativeFluidX3DBaselineManifest", caseDir, scene, grid, settings, setupPath, definesPath, stlPath);
 
-                string setup = File.ReadAllText(Path.Combine(caseDir, "setup.cpp"));
+                string setup = File.ReadAllText(setupPath);
                 string metadata = File.ReadAllText(Path.Combine(caseDir, "case_metadata.json"));
                 string audit = File.ReadAllText(Path.Combine(caseDir, "validation_protocol_audit.json"));
+                string nativeManifest = File.ReadAllText(Path.Combine(caseDir, "native_fluidx3d_baseline_manifest.json"));
 
                 Require(setup, "profile_k_lbm[profile_count]");
                 Require(setup, "citylbm_stg_mode_count");
@@ -76,6 +85,11 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "velocity_field_only_no_distribution_function_reconstruction");
                 Require(audit, "inlet_distribution_consistency");
                 Require(audit, "STG-lite");
+                Require(nativeManifest, "NativeFluidX3DPathExplicitlyProvided");
+                Require(nativeManifest, "NativeFluidX3DSourceValidation");
+                Require(nativeManifest, "Native FluidX3D original setup");
+                Require(nativeManifest, "Native FluidX3D lbm.hpp");
+                Require(nativeManifest, "auto-detected paths are not sufficient evidence");
                 Require(metadata, "ClearanceChecks");
                 Require(metadata, "DomainContainsBuildings");
                 Require(metadata, "BlockageDiagnostics");
@@ -84,6 +98,8 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "diagnostic_clearance_thresholds_satisfied");
                 Require(metadata, "avoid zero-speed boundary damping");
                 Require(audit, "diagnostic_clearance_ok_verify_against_aij");
+
+                TestFluidX3DSourceValidation();
 
                 Console.WriteLine("Codegen smoke passed.");
                 Console.WriteLine(caseDir);
@@ -143,6 +159,44 @@ namespace CityLBM.CodegenSmoke
         {
             if (!text.Contains(expected))
                 throw new InvalidOperationException("Generated case missing: " + expected);
+        }
+
+        private static void TestFluidX3DSourceValidation()
+        {
+            string root = CreateFakeFluidX3DSourceTree("fake_fluidx3d_source_validation");
+
+            var valid = FluidX3DInterface.ValidateFluidX3DSourcePath(root, out string validMessage);
+            if (!valid.IsValid || !valid.HasMakefile || !valid.HasSetupCpp || !valid.HasLbmHpp || !valid.HasLbmCpp)
+                throw new InvalidOperationException("Valid fake FluidX3D source path was rejected: " + validMessage);
+
+            var explicitSolver = new FluidX3DInterface(root);
+            if (!explicitSolver.HasExplicitFluidX3DPath)
+                throw new InvalidOperationException("Explicit FluidX3D path was not recorded.");
+
+            var autoSolver = new FluidX3DInterface("");
+            if (autoSolver.HasExplicitFluidX3DPath)
+                throw new InvalidOperationException("Empty FluidX3D path was incorrectly recorded as explicit.");
+
+            string incompleteRoot = Path.Combine(Path.GetTempPath(), "CityLBM", "fake_fluidx3d_incomplete");
+            Directory.CreateDirectory(Path.Combine(incompleteRoot, "src"));
+            File.WriteAllText(Path.Combine(incompleteRoot, "Makefile"), "# fake build file");
+            var invalid = FluidX3DInterface.ValidateFluidX3DSourcePath(incompleteRoot, out string invalidMessage);
+            if (invalid.IsValid || !invalidMessage.Contains("src/setup.cpp"))
+                throw new InvalidOperationException("Incomplete FluidX3D source path was not rejected.");
+        }
+
+        private static string CreateFakeFluidX3DSourceTree(string name)
+        {
+            string root = Path.Combine(Path.GetTempPath(), "CityLBM", name);
+            string src = Path.Combine(root, "src");
+            Directory.CreateDirectory(src);
+
+            File.WriteAllText(Path.Combine(root, "Makefile"), "# fake build file");
+            File.WriteAllText(Path.Combine(src, "setup.cpp"), "// setup");
+            File.WriteAllText(Path.Combine(src, "defines.hpp"), "// defines");
+            File.WriteAllText(Path.Combine(src, "lbm.hpp"), "// lbm hpp");
+            File.WriteAllText(Path.Combine(src, "lbm.cpp"), "// lbm cpp");
+            return root;
         }
     }
 }

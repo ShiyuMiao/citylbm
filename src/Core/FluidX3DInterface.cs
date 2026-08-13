@@ -35,6 +35,9 @@ namespace CityLBM.Solver
         /// <summary>FluidX3D 源码根目录（包含 FluidX3D.sln 或 Makefile）</summary>
         public string FluidX3DPath { get; set; }
 
+        /// <summary>True when the user explicitly supplied FluidX3DPath instead of auto-detection.</summary>
+        public bool HasExplicitFluidX3DPath { get; private set; }
+
         /// <summary>临时工作目录（存放生成的 Case 文件）</summary>
         public string WorkingDirectory { get; set; }
 
@@ -51,6 +54,7 @@ namespace CityLBM.Solver
         public FluidX3DInterface(string fluidX3DPath = "")
         {
             FluidX3DPath = fluidX3DPath?.Trim().TrimEnd('\\', '/') ?? "";
+            HasExplicitFluidX3DPath = !string.IsNullOrEmpty(FluidX3DPath);
             
             // 如果未提供路径，尝试自动检测
             if (string.IsNullOrEmpty(FluidX3DPath))
@@ -304,17 +308,61 @@ namespace CityLBM.Solver
         /// </summary>
         private bool IsValidFluidX3DPath(string path)
         {
+            return ValidateFluidX3DSourcePath(path, out _).IsValid;
+        }
+
+        public FluidX3DSourceValidation ValidateFluidX3DSourcePath(out string message)
+        {
+            var validation = ValidateFluidX3DSourcePath(FluidX3DPath, out message);
+            return validation;
+        }
+
+        public static FluidX3DSourceValidation ValidateFluidX3DSourcePath(string path, out string message)
+        {
             if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
-                return false;
+            {
+                message = "FluidX3D source path is empty or does not exist.";
+                return FluidX3DSourceValidation.Invalid(path, message);
+            }
             
-            // 检查关键文件/目录
             bool hasSln = File.Exists(Path.Combine(path, "FluidX3D.sln"));
             bool hasMakefile = File.Exists(Path.Combine(path, "Makefile"));
+            bool hasCMakeLists = File.Exists(Path.Combine(path, "CMakeLists.txt"));
             bool hasSrcDir = Directory.Exists(Path.Combine(path, "src"));
             bool hasSetupCpp = File.Exists(Path.Combine(path, "src", "setup.cpp"));
+            bool hasDefinesHpp = File.Exists(Path.Combine(path, "src", "defines.hpp"));
+            bool hasLbmHpp = File.Exists(Path.Combine(path, "src", "lbm.hpp"));
+            bool hasLbmCpp = File.Exists(Path.Combine(path, "src", "lbm.cpp"));
+            bool hasBuildFile = hasSln || hasMakefile || hasCMakeLists;
             
-            // 有效的 FluidX3D 目录应该包含解决方案文件或 Makefile，以及 src 目录
-            return (hasSln || hasMakefile) && hasSrcDir;
+            var missing = new List<string>();
+            if (!hasBuildFile) missing.Add("FluidX3D.sln/Makefile/CMakeLists.txt");
+            if (!hasSrcDir) missing.Add("src/");
+            if (!hasSetupCpp) missing.Add("src/setup.cpp");
+            if (!hasDefinesHpp) missing.Add("src/defines.hpp");
+            if (!hasLbmHpp) missing.Add("src/lbm.hpp");
+            if (!hasLbmCpp) missing.Add("src/lbm.cpp");
+
+            bool valid = missing.Count == 0;
+            message = valid
+                ? "FluidX3D source path is valid for controlled native-baseline deployment."
+                : "FluidX3D source path is not a complete deployable source tree; missing: " + string.Join(", ", missing);
+
+            return new FluidX3DSourceValidation
+            {
+                Path = path ?? "",
+                IsValid = valid,
+                Message = message,
+                HasSolution = hasSln,
+                HasMakefile = hasMakefile,
+                HasCMakeLists = hasCMakeLists,
+                HasSrcDirectory = hasSrcDir,
+                HasSetupCpp = hasSetupCpp,
+                HasDefinesHpp = hasDefinesHpp,
+                HasLbmHpp = hasLbmHpp,
+                HasLbmCpp = hasLbmCpp,
+                MissingRequiredItems = missing
+            };
         }
 
         #endregion
@@ -426,20 +474,15 @@ namespace CityLBM.Solver
         {
             var result = new DeployResult { CaseDirectory = caseDir };
 
-            if (string.IsNullOrEmpty(FluidX3DPath) || !Directory.Exists(FluidX3DPath))
+            var sourceValidation = ValidateFluidX3DSourcePath(out string validationMessage);
+            if (!sourceValidation.IsValid)
             {
                 result.Success = false;
-                result.ErrorMessage = $"FluidX3D 路径无效或不存在：\"{FluidX3DPath}\"\n请确保已设置正确的 FluidX3D 源码目录。";
+                result.ErrorMessage = $"FluidX3D source path is invalid for controlled validation: \"{FluidX3DPath}\"\n{validationMessage}";
                 return result;
             }
 
             string fluidSrcDir = Path.Combine(FluidX3DPath, "src");
-            if (!Directory.Exists(fluidSrcDir))
-            {
-                result.Success = false;
-                result.ErrorMessage = $"找不到 FluidX3D/src 目录：\"{fluidSrcDir}\"\n请确认这是正确的 FluidX3D 源码根目录。";
-                return result;
-            }
 
             try
             {
@@ -947,8 +990,8 @@ namespace CityLBM.Solver
                 result.Success = true;
                 result.CaseDirectory = caseDir;
 
-                // 若提供了 FluidX3D 路径，自动部署文件（步骤 1-4）
-                bool autoDeploy = !string.IsNullOrWhiteSpace(FluidX3DPath) && Directory.Exists(FluidX3DPath);
+                // Only deploy automatically when the user explicitly supplied a validated source path.
+                bool autoDeploy = HasExplicitFluidX3DPath && ValidateFluidX3DSourcePath(out _).IsValid;
                 if (autoDeploy)
                 {
                     var deployResult = DeployToFluidX3D(caseDir);
@@ -2757,6 +2800,10 @@ namespace CityLBM.Solver
                 string validationAuditPath = Path.Combine(caseDir, "validation_protocol_audit.json");
                 var requiredSourceFiles = new[]
                 {
+                    BuildBaselineSourceFile("Native FluidX3D original setup", Path.Combine(FluidX3DPath ?? "", "src", "setup.cpp")),
+                    BuildBaselineSourceFile("Native FluidX3D original defines", Path.Combine(FluidX3DPath ?? "", "src", "defines.hpp")),
+                    BuildBaselineSourceFile("Native FluidX3D lbm.hpp", Path.Combine(FluidX3DPath ?? "", "src", "lbm.hpp")),
+                    BuildBaselineSourceFile("Native FluidX3D lbm.cpp", Path.Combine(FluidX3DPath ?? "", "src", "lbm.cpp")),
                     BuildBaselineSourceFile("FluidX3D setup", setupPath),
                     BuildBaselineSourceFile("FluidX3D defines", definesPath),
                     BuildBaselineSourceFile("Building geometry", stlPath),
@@ -2765,6 +2812,7 @@ namespace CityLBM.Solver
                     BuildBaselineSourceFile("Validation protocol audit", validationAuditPath)
                 };
                 var boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
+                var sourceValidation = ValidateFluidX3DSourcePath(out string sourceValidationMessage);
 
                 var manifest = new
                 {
@@ -2775,6 +2823,10 @@ namespace CityLBM.Solver
                     Purpose = "Paired native FluidX3D baseline protocol for separating solver/protocol error from CityLBM integration error.",
                     Gate = "required_before_paper_grade_accuracy_claim",
                     CaseDirectory = caseDir,
+                    NativeFluidX3DSourcePath = FluidX3DPath ?? "",
+                    NativeFluidX3DPathExplicitlyProvided = HasExplicitFluidX3DPath,
+                    NativeFluidX3DSourceValidation = sourceValidation,
+                    NativeFluidX3DSourceValidationMessage = sourceValidationMessage,
                     RequiredSourceFiles = requiredSourceFiles,
                     SharedRunConditions = new
                     {
@@ -2820,6 +2872,7 @@ namespace CityLBM.Solver
                     },
                     AcceptanceBlocks = new[]
                     {
+                        "Use an explicitly supplied FluidX3D source path; auto-detected paths are not sufficient evidence for a controlled baseline.",
                         "Do not claim CityLBM accuracy if native FluidX3D has not been run from the same archived case.",
                         "Do not tune parameters while mean speed-ratio bias remains about -0.20 to -0.35 without first auditing inlet turbulence, boundary treatment, wind-direction sign, probe projection and Uref normalization.",
                         "Do not use R2 alone as a reliability criterion.",
@@ -3363,6 +3416,33 @@ namespace CityLBM.Solver
         public bool Exists { get; set; }
         public string HashAlgorithm { get; set; }
         public string Sha256 { get; set; }
+    }
+
+    public class FluidX3DSourceValidation
+    {
+        public string Path { get; set; }
+        public bool IsValid { get; set; }
+        public string Message { get; set; }
+        public bool HasSolution { get; set; }
+        public bool HasMakefile { get; set; }
+        public bool HasCMakeLists { get; set; }
+        public bool HasSrcDirectory { get; set; }
+        public bool HasSetupCpp { get; set; }
+        public bool HasDefinesHpp { get; set; }
+        public bool HasLbmHpp { get; set; }
+        public bool HasLbmCpp { get; set; }
+        public IList<string> MissingRequiredItems { get; set; }
+
+        public static FluidX3DSourceValidation Invalid(string path, string message)
+        {
+            return new FluidX3DSourceValidation
+            {
+                Path = path ?? "",
+                IsValid = false,
+                Message = message ?? "",
+                MissingRequiredItems = new List<string>()
+            };
+        }
     }
 
     internal class BoundaryProtocolAudit

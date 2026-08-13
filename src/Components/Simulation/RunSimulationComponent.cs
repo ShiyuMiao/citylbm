@@ -61,14 +61,15 @@ namespace CityLBM.Components.Simulation
 
             // 可选：FluidX3D 源码路径
             pManager.AddTextParameter("FluidX3D Path", "FX3D",
-                "FluidX3D 源码根目录（包含 FluidX3D.sln 或 Makefile）\n" +
-                "留空则自动检测常见安装位置。",
+                "FluidX3D source root for controlled validation. Required for Mode 1/2/3.\n" +
+                "Must contain FluidX3D.sln/Makefile/CMakeLists.txt and src/setup.cpp, src/defines.hpp, src/lbm.hpp, src/lbm.cpp.\n" +
+                "Leave empty only for Mode 0 case generation.",
                 GH_ParamAccess.item, "");
 
             // 模式
             pManager.AddIntegerParameter("Mode", "M",
                 "运行模式：\n" +
-                "  0 = 生成 Case 文件（若提供 FX3D 路径则自动部署 + 生成一键脚本）\n" +
+                "  0 = 生成 Case 文件（若显式提供有效 FX3D 路径则部署 + 生成一键脚本）\n" +
                 "  1 = 自动部署 + 编译 + 运行（同步，GH 界面暂时无响应）\n" +
                 "  2 = 仅部署到 FluidX3D 源码（不编译）\n" +
                 "  3 = 全自动后台运行【推荐】（异步，不弹窗，GH 内实时显示进度）",
@@ -355,15 +356,45 @@ namespace CityLBM.Components.Simulation
         // ────────────────────────────────────────────────────────────────
         // Mode 1: 自动部署 + 编译 + 运行（同步，会阻塞 GH 界面）
         // ────────────────────────────────────────────────────────────────
+        private bool RequireExplicitFluidX3DSourcePath(IGH_DataAccess DA, FluidX3DInterface solver, string modeName)
+        {
+            if (!solver.HasExplicitFluidX3DPath)
+            {
+                string message = modeName + " validation runs require an explicit FX3D input path. " +
+                                 "Auto-detected FluidX3D paths are disabled for v0.3.0 controlled baselines.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                DA.SetData(0, "");
+                DA.SetData(1, "");
+                DA.SetData(2, false);
+                DA.SetData(3, message);
+                DA.SetData(4, 0);
+                DA.SetData(5, "");
+                return false;
+            }
+
+            var validation = solver.ValidateFluidX3DSourcePath(out string validationMessage);
+            if (!validation.IsValid)
+            {
+                string message = modeName + " requires a complete native FluidX3D source tree at FX3D.\n" +
+                                 validationMessage + "\nPath: " + solver.FluidX3DPath;
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                DA.SetData(0, "");
+                DA.SetData(1, "");
+                DA.SetData(2, false);
+                DA.SetData(3, message);
+                DA.SetData(4, 0);
+                DA.SetData(5, "");
+                return false;
+            }
+
+            return true;
+        }
+
         private void RunMode1_FullAuto(IGH_DataAccess DA,
             FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
         {
-            if (string.IsNullOrWhiteSpace(solver.FluidX3DPath))
+            if (!RequireExplicitFluidX3DSourcePath(DA, solver, "Mode 1"))
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                    "Mode 1 需要设置 FluidX3D 源码路径（FX3D 输入），或确保 FluidX3D 安装在常见位置以便自动检测。\n建议改用 Mode 3（后台异步，不阻塞界面）。");
-                DA.SetData(2, false);
-                DA.SetData(3, "错误：未找到 FluidX3D 路径。请设置 FX3D 输入或安装到默认位置。");
                 return;
             }
             
@@ -396,11 +427,8 @@ namespace CityLBM.Components.Simulation
         private void RunMode2_DeployOnly(IGH_DataAccess DA,
             FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
         {
-            if (string.IsNullOrWhiteSpace(solver.FluidX3DPath))
+            if (!RequireExplicitFluidX3DSourcePath(DA, solver, "Mode 2"))
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Mode 2 需要设置 FluidX3D 源码路径（FX3D 输入），或确保 FluidX3D 安装在常见位置以便自动检测。");
-                DA.SetData(2, false);
-                DA.SetData(3, "错误：未找到 FluidX3D 路径。请设置 FX3D 输入或安装到默认位置。");
                 return;
             }
             
@@ -443,17 +471,8 @@ namespace CityLBM.Components.Simulation
         private void RunMode3_AsyncBackground(IGH_DataAccess DA,
             FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
         {
-            if (string.IsNullOrWhiteSpace(solver.FluidX3DPath))
+            if (!RequireExplicitFluidX3DSourcePath(DA, solver, "Mode 3"))
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                    "Mode 3 validation runs require an explicit external FluidX3D source path. " +
-                    "The legacy bundled v0.5.0 fallback is disabled for v0.3.0 validation because it is not the controlled baseline.");
-                DA.SetData(0, "");
-                DA.SetData(1, "");
-                DA.SetData(2, false);
-                DA.SetData(3, "错误：未找到 FluidX3D 路径。请在 FX3D 输入端指定原生 FluidX3D 源码根目录。v0.3.0 验证不再自动使用旧 bundled solver。");
-                DA.SetData(4, 0);
-                DA.SetData(5, "");
                 return;
             }
             

@@ -11,6 +11,9 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Evidence status in this repository: protocol-ready, not newly run.
 - Required platform: native FluidX3D source tree with `FluidX3D.sln` or `makefile`, not the placeholder
   `src/Resources/FluidX3D/FluidX3D.source.zip`.
+- For CityLBM v0.3.0 validation runs, the `Run Simulation / FX3D` input must be explicitly set. Mode 1/2/3 reject
+  auto-detected paths. The path must contain `FluidX3D.sln`, `Makefile` or `CMakeLists.txt`, plus `src/setup.cpp`,
+  `src/defines.hpp`, `src/lbm.hpp` and `src/lbm.cpp`.
 
 ## Inputs
 
@@ -82,6 +85,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
 ## Minimum Settings To Archive
 
 - FluidX3D source path and source hash or commit.
+- CityLBM `native_fluidx3d_baseline_manifest.json` with `NativeFluidX3DPathExplicitlyProvided=true` and a passing
+  `NativeFluidX3DSourceValidation` record.
 - `setup.cpp`, `defines.hpp`, `buildings.stl`, run log and postprocess script hashes.
 - `dx`, lattice dimensions, `tau`, target Reynolds number, velocity set and LES/subgrid settings.
 - Domain extents in `H`: upstream, downstream, lateral and top clearance.

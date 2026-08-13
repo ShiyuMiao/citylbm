@@ -32,6 +32,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Do not compare a single early VTK frame as a final result.
 - CityLBM v0.3.0 validation runs must use an explicit external FluidX3D source path in `Run Simulation / FX3D`.
   The legacy bundled v0.5.0 fallback is disabled for controlled validation because it is not the baseline.
+  Mode 1/2/3 reject auto-detected paths for validation. The FX3D path must point to a deployable native source root
+  containing `FluidX3D.sln`, `Makefile` or `CMakeLists.txt`, plus `src/setup.cpp`, `src/defines.hpp`, `src/lbm.hpp` and
+  `src/lbm.cpp`. Mode 0 may still generate a case without FX3D for offline preparation, but that is not a run.
 
 ## Required checks before accepting a run
 
@@ -78,6 +81,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   native FluidX3D baseline, including SHA256 hashes for the generated source/metadata files. Treat the manifest gate
   `required_before_paper_grade_accuracy_claim` as blocking until the native baseline and CityLBM-driven run are compared
   with the same VTK averaging and probe audit table.
+  The manifest also records whether the FluidX3D source path was explicitly supplied and whether the original native
+  source tree passed the required-file check. If `NativeFluidX3DPathExplicitlyProvided=false` or source validation fails,
+  the run cannot be used as the native baseline for paper claims.
 - Convert the `Data Probe` audit table and official `RS_caseE.csv` subset into a standard metrics row:
 
 ```powershell

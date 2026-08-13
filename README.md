@@ -23,7 +23,9 @@ v0.3.0 reads and converts the `k(m2/s2)` column and can optionally use it for an
 
 ## FluidX3D requirement
 
-The Grasshopper plugin can be installed and the case-generation workflow can run directly in Rhino/Grasshopper. A real solver run still needs a valid local FluidX3D path unless a verified bundled executable is present in the user's installation. In `Run Simulation`, set `FluidX3D Path` to a FluidX3D source root that contains `FluidX3D.sln` or `Makefile` and `src/setup.cpp`.
+The Grasshopper plugin can be installed and the case-generation workflow can run directly in Rhino/Grasshopper. `Mode 0 = Generate Case` can be used without compiling or running FluidX3D. A controlled native or CityLBM-driven solver run still requires the user to set `Run Simulation / FluidX3D Path` explicitly; v0.3.0 does not treat auto-detected paths as paper-grade baseline evidence.
+
+The `FluidX3D Path` input must point to a complete deployable FluidX3D source root containing `FluidX3D.sln`, `Makefile` or `CMakeLists.txt`, plus `src/setup.cpp`, `src/defines.hpp`, `src/lbm.hpp` and `src/lbm.cpp`.
 
 Use `Mode 0 = Generate Case` to check Grasshopper wiring without compiling or running FluidX3D.
 
