@@ -428,6 +428,13 @@ def audit_source_steps(audit: Dict[str, Any]) -> str:
     return ""
 
 
+def audit_field(audit: Dict[str, Any], key: str) -> str:
+    value = audit.get(key)
+    if value not in (None, ""):
+        return str(value)
+    return ""
+
+
 def main() -> int:
     args = parse_args()
     probe_path = Path(args.probe_audit).resolve()
@@ -652,8 +659,8 @@ def main() -> int:
             "velocity_set": metadata_field(metadata, "VelocitySet"),
             "les_model": metadata_field(metadata, "LesModel"),
             "smagorinsky_cs": metadata_field(metadata, "SmagorinskyCs"),
-            "solver_stability_warnings": args.solver_stability_warnings or metadata_field(metadata, "SolverStabilityWarnings"),
-            "lbm_stability_gate": args.lbm_stability_gate or metadata_field(metadata, "LbmStabilityGate"),
+            "solver_stability_warnings": args.solver_stability_warnings or audit_field(read_vtk_audit, "solver_stability_warnings") or metadata_field(metadata, "SolverStabilityWarnings"),
+            "lbm_stability_gate": args.lbm_stability_gate or audit_field(read_vtk_audit, "lbm_stability_gate") or metadata_field(metadata, "LbmStabilityGate"),
             "normalization_valid": csv_bool(normalization_gate_value),
             "velocity_component": compared_component,
             "compared_component_consistency_gate": component_consistency_gate,

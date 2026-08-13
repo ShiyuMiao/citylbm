@@ -64,6 +64,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   deviation, mean/max relative fluctuation, the available VTK frame count, whether the selected frames are the last
   available window, and whether source time steps are strictly increasing and uniformly spaced.
   A short window with large residual fluctuation is diagnostic only and must not be treated as paper-grade time averaging.
+  For native FluidX3D runs outside Grasshopper, run `scripts\audit_native_run.py` on the run directory and pass its JSON
+  to `validation_metrics_from_probe_audit.py --read-vtk-audit`. This records VTK frame hashes, selected final time steps,
+  solver-log stability warnings and LBM stability fields in the same schema used by the `Read VTK` audit output.
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
 - The probe audit table must contain official point number, original coordinate, interpolation distance,
   compared velocity component, compared value, wind-vector components, `wind_direction_valid`, `normalization_valid`,

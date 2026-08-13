@@ -88,6 +88,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   evidence: target lattice velocity, estimated Mach number, `tau`, `nu_lbm`, physical viscosity, Reynolds number,
   velocity set, LES/subgrid model and solver-log stability warnings. A generated case is not enough; the machine gate
   requires runtime stability evidence before treating native FluidX3D or CityLBM results as paper-grade.
+- Added `scripts/audit_native_run.py` to turn a native FluidX3D run directory into a reusable audit JSON containing VTK
+  frame hashes, selected final time steps, time-averaging gate fields, solver-log stability warning status and LBM
+  stability metadata for downstream metrics/gate checks.
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.

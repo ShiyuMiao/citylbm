@@ -121,7 +121,9 @@ python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluid
 If metrics are produced from Grasshopper `Data Probe`, build the metrics row first:
 
 ```powershell
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --read-vtk-audit <read_vtk_averaging_audit.json> --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
+python scripts\audit_native_run.py <run_dir> --metadata <case_metadata.json> --solver-log <solver.log> --average-last-n 10 --mean-speed-stddev-ratio <ratio> --max-speed-stddev-ratio <ratio> --out <native_run_audit.json>
+
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
 
 For a CityLBM-driven parity run, change `--software citylbm` and keep the same metrics/probe schema. A passing paper-grade
