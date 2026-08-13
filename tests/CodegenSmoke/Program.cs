@@ -69,6 +69,9 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "sqrtf(6.0f / (float)citylbm_stg_mode_count)");
                 Require(setup, "citylbm_mode_amplitude");
                 Require(setup, "ak*kx");
+                Require(setup, "Taylor frozen-turbulence advection");
+                Require(setup, "float advected_x = (float)x - dir_x * mean_mag * (float)t_step;");
+                Require(setup, "float phase = kx * advected_x + ky * advected_y + kz * advected_z;");
                 Require(setup, "Target component RMS follows isotropic k");
                 Require(setup, "citylbm_stg_update_interval = 7u");
                 Require(setup, "citylbm_stg_max_fraction = 0.420000f");
@@ -82,6 +85,7 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "if(lbm.flags[n] != TYPE_E) return;");
                 Require(setup, "float3 u_e = windProfile(z);");
                 Require(metadata, "divergence-reduced spectral modes");
+                Require(metadata, "Taylor frozen-turbulence phase advection");
                 Require(metadata, "projected normal to synthetic wave vectors");
                 Require(metadata, "component RMS target sigma=sqrt(2k/3)");
                 Require(metadata, "\"SyntheticTurbulenceUpdateInterval\": 7");

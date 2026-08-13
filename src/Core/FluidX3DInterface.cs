@@ -2254,6 +2254,7 @@ namespace CityLBM.Solver
 
             sb.AppendLine();
             sb.AppendLine("    // CityLBM STG-lite inlet: deterministic spectral synthetic fluctuations from isotropic k.");
+            sb.AppendLine("    // Temporal evolution uses Taylor frozen-turbulence advection along the local mean wind.");
             sb.AppendLine("    // Per-mode fluctuation vectors are projected normal to their wave vector to reduce non-physical divergence.");
             sb.AppendLine("    // This is a diagnostic approximation, not a full digital-filter/SEM/precursor inlet with Reynolds-stress tensors.");
             sb.AppendLine("    // It updates macroscopic inlet velocity fields only; distribution functions are not reconstructed here.");
@@ -2286,7 +2287,9 @@ namespace CityLBM.Solver
             sb.AppendLine("        float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);");
             sb.AppendLine("        float cap = citylbm_stg_max_fraction * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
             sb.AppendLine("        if(sigma > cap) sigma = cap;");
-            sb.AppendLine("        float t_cell = (float)(t_step / citylbm_stg_update_interval);");
+            sb.AppendLine("        float advected_x = (float)x - dir_x * mean_mag * (float)t_step;");
+            sb.AppendLine("        float advected_y = (float)y - dir_y * mean_mag * (float)t_step;");
+            sb.AppendLine("        float advected_z = (float)z_cell - dir_z * mean_mag * (float)t_step;");
             sb.AppendLine("        float fluct_x = 0.0f, fluct_y = 0.0f, fluct_z = 0.0f;");
             sb.AppendLine("        for(int m=0; m<citylbm_stg_mode_count; m++) {");
             sb.AppendLine("            float kx = citylbm_mode_wave(m, 0);");
@@ -2300,7 +2303,7 @@ namespace CityLBM.Solver
             sb.AppendLine("            if(kk > 1.0e-12f) { ax -= ak*kx/kk; ay -= ak*ky/kk; az -= ak*kz/kk; }");
             sb.AppendLine("            float aa = sqrtf(ax*ax + ay*ay + az*az);");
             sb.AppendLine("            if(aa > 1.0e-6f) { ax /= aa; ay /= aa; az /= aa; }");
-            sb.AppendLine("            float phase = kx * (float)x + ky * (float)y + kz * (float)z_cell + 0.071f * (float)(m + 1) * t_cell;");
+            sb.AppendLine("            float phase = kx * advected_x + ky * advected_y + kz * advected_z;");
             sb.AppendLine("            float wave = sinf(phase + citylbm_mode_phase(m, 1));");
             sb.AppendLine("            fluct_x += ax * wave;");
             sb.AppendLine("            fluct_y += ay * wave;");
@@ -2411,7 +2414,10 @@ namespace CityLBM.Solver
                     SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
                     SyntheticTurbulentInletInjected = syntheticActive,
                     SyntheticTurbulentInletMethod = syntheticActive
-                        ? "STG-lite deterministic divergence-reduced spectral modes with isotropic k; not digital-filter, precursor, or Reynolds-stress inflow"
+                        ? "STG-lite deterministic divergence-reduced spectral modes with isotropic k and Taylor frozen-turbulence advection; not digital-filter, precursor, or Reynolds-stress inflow"
+                        : "none",
+                    SyntheticTurbulentInletTemporalTreatment = syntheticActive
+                        ? "Taylor frozen-turbulence phase advection by local mean LBM velocity along the wind vector"
                         : "none",
                     SyntheticTurbulentInletDivergenceTreatment = syntheticActive
                         ? "per-mode fluctuation amplitudes projected normal to synthetic wave vectors"
@@ -2757,7 +2763,7 @@ namespace CityLBM.Solver
             {
                 if (syntheticActive)
                 {
-                    yield return "AF k column drives an experimental STG-lite spectral inlet, but this is not a full digital-filter, precursor/recycling, or Reynolds-stress inflow.";
+                    yield return "AF k column drives an experimental STG-lite spectral inlet with Taylor frozen-turbulence temporal advection, but this is not a full digital-filter, precursor/recycling, or Reynolds-stress inflow.";
                     yield return "STG-lite inlet refreshes macroscopic lbm.u values on TYPE_E inlet nodes in both batch and graphics modes; distribution functions are not reconstructed, so k preservation must be proven by an empty-tunnel native baseline before paper-grade validation.";
                 }
                 else
@@ -2894,6 +2900,9 @@ namespace CityLBM.Solver
                         SyntheticTurbulentInletLengthScaleGate = IsSyntheticTurbulentInletActive(scene, settings)
                             ? "diagnostic_only_missing_official_or_precursor_length_scale"
                             : "not_applicable",
+                        SyntheticTurbulentInletTemporalTreatment = IsSyntheticTurbulentInletActive(scene, settings)
+                            ? "Taylor frozen-turbulence phase advection by local mean LBM velocity along the wind vector"
+                            : "none",
                         InletDistributionTreatment = IsSyntheticTurbulentInletActive(scene, settings)
                             ? "velocity_field_only_no_distribution_function_reconstruction"
                             : "not_active",
@@ -3047,10 +3056,10 @@ namespace CityLBM.Solver
                 Key = "inlet_turbulence_k",
                 Status = syntheticActive ? "partial" : (hasK ? "risk" : "fail"),
                 Evidence = syntheticActive
-                    ? "AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet, refresh TYPE_E inlet nodes in batch/graphics modes and record velocity-field-only treatment."
+                    ? "AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet, advect spectral phases using Taylor frozen-turbulence, refresh TYPE_E inlet nodes in batch/graphics modes and record velocity-field-only treatment."
                     : (hasK ? "AF k column is present but only metadata/profile arrays are guaranteed." : "No usable k column found in CustomWindProfile."),
                 Risk = syntheticActive
-                    ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence, uses a user-selected correlation length of {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m), and does not reconstruct distribution functions."
+                    ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and frozen-turbulence advection, uses a user-selected correlation length of {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m), and does not reconstruct distribution functions."
                     : "Missing or inactive turbulent inlet can cause systematic underprediction of pedestrian-level velocity ratios.",
                 RequiredNextAction = syntheticActive
                     ? "Run empty-tunnel and building native FluidX3D baselines proving downstream U/k preservation and replace/user-justify the inlet length scale before paper claims."
