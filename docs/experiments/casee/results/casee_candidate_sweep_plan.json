@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-13T11:39:22.411108+00:00",
+  "generated_at": "2026-08-13T12:12:04.460677+00:00",
   "candidate_sweep_plan_generated": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_followup_plan; blocked formal accuracy release",
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc88",
+  "recommended_tag": "v0.4.0-rc89",
   "current_official_metrics": {
     "n": 80,
     "mae_pp": 21.111408125,

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T11:39:17.848284+00:00",
+  "generated_at": "2026-08-13T12:12:01.661236+00:00",
   "audit_id": "casee_c008_c015_inlet_turbulence_sgs_sweep_audit",
   "status": "completed_inlet_turbulence_improved_but_negative_r2",
   "evidence_type": "newly_run",
@@ -14,14 +14,14 @@
     "path": "docs/experiments/casee/results/casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv",
     "sha256": "a3ec4396a6722aaf2b7432ea976892423f4d31c528f180fd668731757650bb97",
     "size_bytes": 10071,
-    "mtime_utc": "2026-08-01T11:28:45.792455+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.254528+00:00"
   },
   "c005_decomposition_csv": {
     "found": true,
     "path": "docs/experiments/casee/results/casee_c005_dx2_decomp4x1x1_20260809_215600_probe_time_mean.csv",
     "sha256": "4c9cabb1659556bd9cc6cedd5c568e4f33f2d3f47cafa529a79096fafcea612e",
     "size_bytes": 10071,
-    "mtime_utc": "2026-08-09T14:03:20.319161+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.211874+00:00"
   },
   "candidates": [
     {
@@ -32,35 +32,35 @@
         "path": "docs/experiments/casee/results/casee_c008_inlet_k_synthetic_20260809_221958_probe_time_mean.csv",
         "sha256": "baf87f728dade46cef9bf71b770f4fbe5340e5afb54352e0bc6e7240be63a73c",
         "size_bytes": 10071,
-        "mtime_utc": "2026-08-09T14:28:28.969018+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.214413+00:00"
       },
       "run_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c008_inlet_k_synthetic_run_20260809_221958.log",
         "sha256": "e6c24cdc09cdf0da2f6a593c4db44c5508e2d3296ea62d81cf7e4833714f5ff2",
         "size_bytes": 1335204,
-        "mtime_utc": "2026-08-09T14:28:29.184786+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.374581+00:00"
       },
       "compile_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c008_inlet_k_synthetic_compile.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T14:18:54.434281+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.367938+00:00"
       },
       "compile_err_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c008_inlet_k_synthetic_compile.err.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T14:18:54.436073+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.367938+00:00"
       },
       "case_manifest": {
         "found": true,
         "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s0p35_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
         "sha256": "8a93523b871f27f6113ad28c7c1d623950be30d4e80f4419078421c6e6e91431",
         "size_bytes": 1050,
-        "mtime_utc": "2026-08-09T14:18:46.964912+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.158145+00:00"
       },
       "log_completed_48000": true,
       "manifest_protocol_ok": true,
@@ -100,35 +100,35 @@
         "path": "docs/experiments/casee/results/casee_c009_inlet_k_synthetic_s0p7_20260809_223022_probe_time_mean.csv",
         "sha256": "18eac851c3002161fc6e6fd674366e641fe6dbb03279149a7f000468d7bb0988",
         "size_bytes": 10071,
-        "mtime_utc": "2026-08-09T14:45:02.859941+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.214716+00:00"
       },
       "run_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_run_20260809_223022.log",
         "sha256": "fdaa08157ddfe5a1483f94fbd64bd7362b3bab6912523df5ce93dff0d50e7cc6",
         "size_bytes": 2294892,
-        "mtime_utc": "2026-08-09T14:45:03.009666+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.387174+00:00"
       },
       "compile_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_compile.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T14:29:16.251226+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.375089+00:00"
       },
       "compile_err_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c009_inlet_k_synthetic_s0p7_compile.err.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T14:29:16.252997+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.374581+00:00"
       },
       "case_manifest": {
         "found": true,
         "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s0p7_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
         "sha256": "eb51a3cc28e0747b443b1f75d3bdc047935aad29bbe74d70de7ae05a15e7af32",
         "size_bytes": 1048,
-        "mtime_utc": "2026-08-09T14:29:08.146273+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.158522+00:00"
       },
       "log_completed_48000": true,
       "manifest_protocol_ok": true,
@@ -168,35 +168,35 @@
         "path": "docs/experiments/casee/results/casee_c010_inlet_k_synthetic_s1p0_20260809_225516_probe_time_mean.csv",
         "sha256": "7ff56343a267ec338f96ada792825ca7f552f87d739c3dc9d325df115b56df15",
         "size_bytes": 10071,
-        "mtime_utc": "2026-08-09T15:00:03.553569+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.215126+00:00"
       },
       "run_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c010_inlet_k_synthetic_s1p0_run_20260809_225516.log",
         "sha256": "43d8094f1e5ecea30ce4567e967a064d4b76c9a917448fde806796f1330146e6",
         "size_bytes": 757840,
-        "mtime_utc": "2026-08-09T15:00:03.731414+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.391871+00:00"
       },
       "compile_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c010_inlet_k_synthetic_s1p0_compile.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T14:54:08.881029+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.387798+00:00"
       },
       "compile_err_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c010_inlet_k_synthetic_s1p0_compile.err.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T14:54:08.882431+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.387724+00:00"
       },
       "case_manifest": {
         "found": true,
         "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s1_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
         "sha256": "273e1b48f311c72f3170aa4394a8d7cfc4324a6d9c54a2ab802c6a6d5b7030e3",
         "size_bytes": 1046,
-        "mtime_utc": "2026-08-09T14:53:49.054858+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.159478+00:00"
       },
       "log_completed_48000": true,
       "manifest_protocol_ok": true,
@@ -236,35 +236,35 @@
         "path": "docs/experiments/casee/results/casee_c011_inlet_k_synthetic_s1p5_20260809_230150_probe_time_mean.csv",
         "sha256": "0af60b42bba9b9033657d4b3302b59124b5e7df09419f12c587b4bd846483877",
         "size_bytes": 10071,
-        "mtime_utc": "2026-08-09T15:06:52.951135+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.215339+00:00"
       },
       "run_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c011_inlet_k_synthetic_s1p5_run_20260809_230150.log",
         "sha256": "238a710d0b801427536f32d427a235579b485e6e8ffc6bf1614a918f546a10cd",
         "size_bytes": 795586,
-        "mtime_utc": "2026-08-09T15:06:53.075611+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.397592+00:00"
       },
       "compile_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c011_inlet_k_synthetic_s1p5_compile.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T15:00:43.747913+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.392392+00:00"
       },
       "compile_err_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c011_inlet_k_synthetic_s1p5_compile.err.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T15:00:43.749742+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.392042+00:00"
       },
       "case_manifest": {
         "found": true,
         "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s1p5_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
         "sha256": "d2ef0341f843f79657a83fd22dda23ba8e4fd8f5b97e70f22d624b1555680797",
         "size_bytes": 1048,
-        "mtime_utc": "2026-08-09T15:00:43.559343+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.160216+00:00"
       },
       "log_completed_48000": true,
       "manifest_protocol_ok": true,
@@ -304,35 +304,35 @@
         "path": "docs/experiments/casee/results/casee_c012_inlet_k_synthetic_s2p0_20260809_233100_probe_time_mean.csv",
         "sha256": "04c4e2d0b7a482610ca5601f1fd8b10e4f4a8c437580f77e505ff9908479a573",
         "size_bytes": 10071,
-        "mtime_utc": "2026-08-09T15:36:14.143539+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.215545+00:00"
       },
       "run_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c012_inlet_k_synthetic_s2p0_run_20260809_233100.log",
         "sha256": "cc9ff0a1056109a4fadcaf4e9b1f5694892e869d446feecdf099f79576f0f446",
         "size_bytes": 765130,
-        "mtime_utc": "2026-08-09T15:36:14.243859+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.401627+00:00"
       },
       "compile_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c012_inlet_k_synthetic_s2p0_compile.log",
         "sha256": "79b0b49a8cf12419a0c50b467547582bda7e90d782b04cc37128aba904c232d5",
         "size_bytes": 1668,
-        "mtime_utc": "2026-08-09T15:31:13.226046+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.398287+00:00"
       },
       "compile_err_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c012_inlet_k_synthetic_s2p0_compile.err.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T15:30:59.541990+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.397999+00:00"
       },
       "case_manifest": {
         "found": true,
         "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s2_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
         "sha256": "db3171e35428c393f876dfbf6d39fe0f899928af67eba8a89ca3f6c580c5e2da",
         "size_bytes": 1046,
-        "mtime_utc": "2026-08-09T15:30:29.758567+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.160540+00:00"
       },
       "log_completed_48000": true,
       "manifest_protocol_ok": true,
@@ -372,35 +372,35 @@
         "path": "docs/experiments/casee/results/casee_c013_inlet_k_synthetic_s1p5_nosgs_20260809_234500_probe_time_mean.csv",
         "sha256": "9491fe03ced750b94f195c56ef9b6e233a32d529006a8467b1b0039427c2d9d1",
         "size_bytes": 10071,
-        "mtime_utc": "2026-08-09T15:49:40.249134+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.215714+00:00"
       },
       "run_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c013_inlet_k_synthetic_s1p5_nosgs_run_20260809_234500.log",
         "sha256": "a193430bfacde4bdb38631b21b06c17fd85c35fe9e8e749fb789a6d6c63b91c2",
         "size_bytes": 753628,
-        "mtime_utc": "2026-08-09T15:49:40.370502+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.405460+00:00"
       },
       "compile_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c013_inlet_k_synthetic_s1p5_nosgs_compile.log",
         "sha256": "c6d5f192bdac76f09ab4b054b26227fa77fd60d57e10adcca6e455371ad92517",
         "size_bytes": 1668,
-        "mtime_utc": "2026-08-09T15:44:40.668027+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.402349+00:00"
       },
       "compile_err_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c013_inlet_k_synthetic_s1p5_nosgs_compile.err.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T15:44:26.734255+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.401627+00:00"
       },
       "case_manifest": {
         "found": true,
         "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s1p5_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
         "sha256": "8ed39a37d0a7adce6fcaab01375ad0c29e2b9a7e451314d5799e5a1a017702fc",
         "size_bytes": 1051,
-        "mtime_utc": "2026-08-09T15:44:19.026495+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.152391+00:00"
       },
       "log_completed_48000": true,
       "manifest_protocol_ok": true,
@@ -440,35 +440,35 @@
         "path": "docs/experiments/casee/results/casee_c014_inlet_k_synthetic_s2p0_nosgs_20260809_235100_probe_time_mean.csv",
         "sha256": "5d8334347f3fd5fa012cfcbdfc88ee08d6e253f426c1a1fb44737c4cc2bd47c1",
         "size_bytes": 10071,
-        "mtime_utc": "2026-08-09T15:55:40.230961+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.215714+00:00"
       },
       "run_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c014_inlet_k_synthetic_s2p0_nosgs_run_20260809_235100.log",
         "sha256": "9a686e4f27bf7ca80396b82fe13539eb3809146779168c4982daa3fd78b6a7d3",
         "size_bytes": 775498,
-        "mtime_utc": "2026-08-09T15:55:40.337974+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.411029+00:00"
       },
       "compile_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c014_inlet_k_synthetic_s2p0_nosgs_compile.log",
         "sha256": "9772a5425ca229d2fe002dead2dc1b3b5c676cead0f7a26ddad5a1dcede50c12",
         "size_bytes": 1668,
-        "mtime_utc": "2026-08-09T15:50:37.482911+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.406134+00:00"
       },
       "compile_err_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c014_inlet_k_synthetic_s2p0_nosgs_compile.err.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T15:50:23.659653+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.405917+00:00"
       },
       "case_manifest": {
         "found": true,
         "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s2_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
         "sha256": "018485107ce67def30887bb123aab3fd05c6b176e358806cfe6f809f2e999ee0",
         "size_bytes": 1049,
-        "mtime_utc": "2026-08-09T15:50:16.019237+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.153397+00:00"
       },
       "log_completed_48000": true,
       "manifest_protocol_ok": true,
@@ -508,35 +508,35 @@
         "path": "docs/experiments/casee/results/casee_c015_inlet_k_synthetic_s2p5_nosgs_20260810_000000_probe_time_mean.csv",
         "sha256": "da367553dc3b8eea22d00b926e5f1917342dfeec504120e33e72938662859f76",
         "size_bytes": 10071,
-        "mtime_utc": "2026-08-09T16:01:22.750031+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.226604+00:00"
       },
       "run_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c015_inlet_k_synthetic_s2p5_nosgs_run_20260810_000000.log",
         "sha256": "584d85fe0f4b69dbe09f9ed3a513a84f348e340a17db4cb4115ac6b15e8b206c",
         "size_bytes": 737590,
-        "mtime_utc": "2026-08-09T16:01:22.856553+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.414770+00:00"
       },
       "compile_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c015_inlet_k_synthetic_s2p5_nosgs_compile.log",
         "sha256": "7b4ba730b9018304bd49ff27ce0d810f192df5c9db9a21fe9252b7a42c2867cf",
         "size_bytes": 1668,
-        "mtime_utc": "2026-08-09T15:56:35.286866+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.411488+00:00"
       },
       "compile_err_log": {
         "found": true,
         "path": "docs/experiments/casee/results/fluidx3d_c015_inlet_k_synthetic_s2p5_nosgs_compile.err.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "size_bytes": 0,
-        "mtime_utc": "2026-08-09T15:56:21.543367+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.411243+00:00"
       },
       "case_manifest": {
         "found": true,
         "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s2p5_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
         "sha256": "3f9c60d0091e2374ddea0250d8c72a76f3b07ff88f57db89b6e98c795c77f759",
         "size_bytes": 1051,
-        "mtime_utc": "2026-08-09T15:56:13.638976+00:00"
+        "mtime_utc": "2026-08-13T11:57:15.154182+00:00"
       },
       "log_completed_48000": true,
       "manifest_protocol_ok": true,
@@ -577,35 +577,35 @@
       "path": "docs/experiments/casee/results/casee_c014_inlet_k_synthetic_s2p0_nosgs_20260809_235100_probe_time_mean.csv",
       "sha256": "5d8334347f3fd5fa012cfcbdfc88ee08d6e253f426c1a1fb44737c4cc2bd47c1",
       "size_bytes": 10071,
-      "mtime_utc": "2026-08-09T15:55:40.230961+00:00"
+      "mtime_utc": "2026-08-13T11:57:15.215714+00:00"
     },
     "run_log": {
       "found": true,
       "path": "docs/experiments/casee/results/fluidx3d_c014_inlet_k_synthetic_s2p0_nosgs_run_20260809_235100.log",
       "sha256": "9a686e4f27bf7ca80396b82fe13539eb3809146779168c4982daa3fd78b6a7d3",
       "size_bytes": 775498,
-      "mtime_utc": "2026-08-09T15:55:40.337974+00:00"
+      "mtime_utc": "2026-08-13T11:57:15.411029+00:00"
     },
     "compile_log": {
       "found": true,
       "path": "docs/experiments/casee/results/fluidx3d_c014_inlet_k_synthetic_s2p0_nosgs_compile.log",
       "sha256": "9772a5425ca229d2fe002dead2dc1b3b5c676cead0f7a26ddad5a1dcede50c12",
       "size_bytes": 1668,
-      "mtime_utc": "2026-08-09T15:50:37.482911+00:00"
+      "mtime_utc": "2026-08-13T11:57:15.406134+00:00"
     },
     "compile_err_log": {
       "found": true,
       "path": "docs/experiments/casee/results/fluidx3d_c014_inlet_k_synthetic_s2p0_nosgs_compile.err.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "size_bytes": 0,
-      "mtime_utc": "2026-08-09T15:50:23.659653+00:00"
+      "mtime_utc": "2026-08-13T11:57:15.405917+00:00"
     },
     "case_manifest": {
       "found": true,
       "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_k_synthetic_fullplane_s2_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
       "sha256": "018485107ce67def30887bb123aab3fd05c6b176e358806cfe6f809f2e999ee0",
       "size_bytes": 1049,
-      "mtime_utc": "2026-08-09T15:50:16.019237+00:00"
+      "mtime_utc": "2026-08-13T11:57:15.153397+00:00"
     },
     "log_completed_48000": true,
     "manifest_protocol_ok": true,

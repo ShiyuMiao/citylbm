@@ -1,14 +1,14 @@
 # CityLBM GHA Install Audit
 
-Generated: 2026-08-13T11:38:56.204519+00:00
+Generated: 2026-08-13T12:11:40.022063+00:00
 
 ## Verdict
 
 - Install audit passed: True
-- Matching GHA already staged: True
+- Matching GHA already staged: False
 - Rhino loaded new GHA: False
-- Claim readiness: `install_ready_pending_manual_rhino_load`
-- Expected GHA SHA256: `cad61c4081ff7c111de2f427cacd03adc4cc76b1083c5f03f1452460dc16cb0f`
+- Claim readiness: `install_audited_staging_blocked_by_disk_space`
+- Expected GHA SHA256: `13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79`
 
 ## Checks
 
@@ -19,7 +19,8 @@ Generated: 2026-08-13T11:38:56.204519+00:00
 | `tracked_gha_hash_matches_identity_gate` | True |
 | `packaged_gha_exists` | True |
 | `grasshopper_library_dir_detected_or_recommendable` | True |
-| `matching_gha_already_staged` | True |
+| `tracked_gha_stageable_or_already_staged` | False |
+| `matching_gha_already_staged` | False |
 | `rhino_load_gate_still_fail_closed` | True |
 
 ## Recommended Manual Copy Command
@@ -27,14 +28,14 @@ Generated: 2026-08-13T11:38:56.204519+00:00
 Run only when you want to stage the current tracked GHA for Grasshopper:
 
 ```powershell
-New-Item -ItemType Directory -Force -Path 'C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries' | Out-Null; Copy-Item -LiteralPath 'C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\CityLBM\bin\CityLBM.gha' -Destination 'C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries\CityLBM.gha' -Force
+New-Item -ItemType Directory -Force -Path 'C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries' | Out-Null; Copy-Item -LiteralPath 'E:\citylbm_rc89_work\CityLBM\bin\CityLBM.gha' -Destination 'C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries\CityLBM.gha' -Force
 ```
 
 ## Installed Candidates
 
 | library dir | found | matches tracked GHA | path | sha256 |
 |---|---:|---:|---|---|
-| `C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries` | True | True | `C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries\CityLBM.gha` | `cad61c4081ff7c111de2f427cacd03adc4cc76b1083c5f03f1452460dc16cb0f` |
+| `C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries` | False | False | `` | `` |
 | `C:\Users\miaoshiyu\AppData\Roaming\McNeel\Rhinoceros\8.0\Plug-ins\Grasshopper\Libraries` | False | False | `` | `` |
 | `C:\Users\miaoshiyu\AppData\Roaming\McNeel\Rhinoceros\7.0\Plug-ins\Grasshopper\Libraries` | False | False | `` | `` |
 | `C:\Users\miaoshiyu\AppData\Roaming\McNeel\Rhinoceros\6.0\Plug-ins\Grasshopper\Libraries` | False | False | `` | `` |

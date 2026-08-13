@@ -1,15 +1,20 @@
   正在确定要还原的项目…
+E:\citylbm_rc89_work\CityLBM\CityLBM.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。
   所有项目均是最新的，无法还原。
-  CityLBM -> C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\CityLBM\bin\Release\CityLBM.dll
+E:\citylbm_rc89_work\CityLBM\CityLBM.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。
+  CityLBM -> E:\citylbm_rc89_work\CityLBM\bin\Release\CityLBM.dll
   已生成 CityLBM.gha
   ------------- IL Repack Arguments -------------
-  /out:C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\CityLBM\bin\Release\CityLBM.merged.dll C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\CityLBM\bin\Release\CityLBM.dll C:\Users\miaoshiyu\.nuget\packages\newtonsoft.json\13.0.3\lib\netstandard2.0\Newtonsoft.Json.dll C:\Users\miaoshiyu\.nuget\packages\nlog\5.2.0\lib\netstandard2.0\NLog.dll /wildcards /union /ndebug /ver:0.4.0.0
+  /out:E:\citylbm_rc89_work\CityLBM\bin\Release\CityLBM.merged.dll E:\citylbm_rc89_work\CityLBM\bin\Release\CityLBM.dll C:\Users\miaoshiyu\.nuget\packages\newtonsoft.json\13.0.3\lib\netstandard2.0\Newtonsoft.Json.dll C:\Users\miaoshiyu\.nuget\packages\nlog\5.2.0\lib\netstandard2.0\NLog.dll /wildcards /union /ndebug /ver:0.4.0.0
   -----------------------------------------------
-  Wrote C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\CityLBM\bin\Release\CityLBM.merged.dll
+  Wrote E:\citylbm_rc89_work\CityLBM\bin\Release\CityLBM.merged.dll
   已合并依赖到 CityLBM.gha
 
 已成功生成。
-    0 个警告
+
+E:\citylbm_rc89_work\CityLBM\CityLBM.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。
+E:\citylbm_rc89_work\CityLBM\CityLBM.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。
+    2 个警告
     0 个错误
 
-已用时间 00:00:04.40
+已用时间 00:00:04.73

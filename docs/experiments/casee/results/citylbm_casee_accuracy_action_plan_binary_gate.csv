@@ -1,0 +1,23 @@
+kind,name,passed
+gate_check,tracked_gha_exists,True
+gate_check,release_gha_exists,True
+gate_check,tracked_gha_matches_release_gha,True
+gate_check,source_component_gate_passed,True
+gate_check,all_required_markers_present_in_tracked_gha,True
+binary_marker,CaseEAccuracyActionPlanComponent,True
+binary_marker,Case E Accuracy Action Plan,True
+binary_marker,MAE Gap pp,True
+binary_marker,R2 Gap,True
+binary_marker,Next Actions,True
+binary_marker,default_setting_allowed: false,True
+binary_marker,predictive accuracy,True
+binary_marker,mesh independence,True
+binary_marker,LES improvement,True
+binary_marker,formal v0.4.0,True
+binary_marker,post-hoc affine,True
+binary_marker,A001,True
+binary_marker,A004,True
+binary_marker,A005,True
+binary_marker,A006,True
+binary_marker,A008,True
+binary_marker,862C4BA3-B4EC-4E33-88CA-0F7345708B68,True

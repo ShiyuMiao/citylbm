@@ -1,7 +1,7 @@
 component,status,evidence,limitation
 visual_studio_build_tools_2022_cpp,blocked,C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath,winget returned 1602 during the current attempt; Visual Studio bootstrapper log reported possible declined UAC prompt; vswhere does not find Microsoft.VisualStudio.Component.VC.Tools.x86.x64; cl.exe is not on PATH; msbuild.exe is not on PATH; C: drive free space is below 8 GB; Visual Studio may still require more system-drive cache space
 dotnet_sdk,ready,E:\citylbm_buildchain\dotnet\dotnet.exe --info,
-citylbm_build_script,ready,powershell -NoProfile -ExecutionPolicy Bypass -File C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\CityLBM\build.ps1 -DotNetPath E:\citylbm_buildchain\dotnet\dotnet.exe -NoPause,"Plugin build reproducibility only; this does not provide VS C++ Build Tools, GPU recovery, or CFD accuracy evidence."
+citylbm_build_script,ready,powershell -NoProfile -ExecutionPolicy Bypass -File E:\citylbm_rc89_work\CityLBM\build.ps1 -DotNetPath E:\citylbm_buildchain\dotnet\dotnet.exe -NoPause,"Plugin build reproducibility only; this does not provide VS C++ Build Tools, GPU recovery, or CFD accuracy evidence."
 mingw_gpp,ready,g++.exe --version,Used only as a native FluidX3D source build fallback when VS/MSBuild is unavailable; this is not accuracy evidence.
 fluidx3d,ready_for_existing_binary,E:\citylbm_buildchain\FluidX3D\bin\FluidX3D.exe,
 gpu_runtime,blocked,nvidia-smi,GPU runtime is available for scheduling checks only; it does not improve official Case E metrics.

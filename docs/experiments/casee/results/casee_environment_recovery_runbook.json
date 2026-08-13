@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T11:39:15.046101+00:00",
+  "generated_at": "2026-08-13T12:11:58.868907+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_environment_recovery_runbook",
   "official_followup_run_allowed": false,
@@ -12,17 +12,17 @@
   "disk": [
     {
       "drive": "C:\\",
-      "free_gb": 0.006,
+      "free_gb": 0.001,
       "total_gb": 194.47
     },
     {
       "drive": "D:\\",
-      "free_gb": 229.626,
+      "free_gb": 229.618,
       "total_gb": 281.627
     },
     {
       "drive": "E:\\",
-      "free_gb": 811.378,
+      "free_gb": 811.045,
       "total_gb": 931.512
     },
     {
@@ -38,30 +38,30 @@
   ],
   "workspace_cleanup_candidates": [
     {
-      "path": "CityLBM/NuGet",
-      "exists": true,
-      "file_count": 1,
+      "path": "E:/citylbm_rc89_work/CityLBM/NuGet",
+      "exists": false,
+      "file_count": 0,
       "size_bytes": 0,
       "size_mb": 0.0
     },
     {
       "path": "CityLBM/bin/Release",
       "exists": true,
-      "file_count": 5,
-      "size_bytes": 4039764,
-      "size_mb": 3.853
+      "file_count": 4,
+      "size_bytes": 3963112,
+      "size_mb": 3.78
     },
     {
       "path": "CityLBM/obj",
       "exists": true,
       "file_count": 14,
-      "size_bytes": 318879,
-      "size_mb": 0.304
+      "size_bytes": 325331,
+      "size_mb": 0.31
     },
     {
-      "path": "NuGet",
-      "exists": true,
-      "file_count": 1,
+      "path": "E:/citylbm_rc89_work/NuGet",
+      "exists": false,
+      "file_count": 0,
       "size_bytes": 0,
       "size_mb": 0.0
     }
@@ -82,7 +82,7 @@
       "enabled": true,
       "priority": 2,
       "blocking_gate": "vs_cpp_build_tools",
-      "action": "Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 0.006 GB. Workspace build-cache candidates total only 4.157 MB.",
+      "action": "Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 0.001 GB. Workspace build-cache candidates total only 4.090 MB.",
       "verification_command": "Get-PSDrive C",
       "pass_condition": "C: free space >= 8 GB; workspace cache cleanup alone is not enough if the current value remains near 0.5 GB.",
       "risk_boundary": "Do not delete user data; record any cleanup outside the repo separately."

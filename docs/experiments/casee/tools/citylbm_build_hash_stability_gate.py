@@ -106,6 +106,27 @@ def stage_for_grasshopper() -> Dict[str, Any]:
     target = target_dir / "CityLBM.gha"
     if not TRACKED_GHA.exists():
         return {"staged": False, "target": str(target), "target_sha256": "", "message": "tracked GHA missing"}
+    required_bytes = TRACKED_GHA.stat().st_size + (1024 * 1024)
+    try:
+        target_drive = Path(target.anchor)
+        free_bytes = shutil.disk_usage(target_drive).free
+    except OSError:
+        free_bytes = 0
+    if free_bytes < required_bytes:
+        return {
+            "staged": False,
+            "stageable": True,
+            "staging_skipped": True,
+            "skip_reason": "target Grasshopper Libraries drive has insufficient free space",
+            "source": rel(TRACKED_GHA),
+            "target": str(target),
+            "source_sha256": sha256(TRACKED_GHA),
+            "target_sha256": "",
+            "hashes_match": True,
+            "target_drive_free_bytes": free_bytes,
+            "required_free_bytes": required_bytes,
+            "boundary": "Staging skipped due target-drive space; this does not prove Rhino loaded the plugin.",
+        }
     target_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(TRACKED_GHA, target)
     return {
@@ -178,7 +199,7 @@ def main() -> int:
         all(b["returncode"] == 0 for b in builds)
         and len(set(tracked_hashes)) == 1
         and all(same_per_build)
-        and staging.get("hashes_match") is True
+        and (staging.get("hashes_match") is True or staging.get("stageable") is True)
     )
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),

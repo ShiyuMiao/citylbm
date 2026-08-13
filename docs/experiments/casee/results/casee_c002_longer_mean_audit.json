@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T11:39:16.976162+00:00",
+  "generated_at": "2026-08-13T12:12:00.760821+00:00",
   "candidate_id": "C002_dx2_longer_mean_stability",
   "status": "completed_no_improvement",
   "evidence_type": "newly_run",
@@ -14,49 +14,49 @@
     "path": "docs/experiments/casee/results/casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv",
     "sha256": "a3ec4396a6722aaf2b7432ea976892423f4d31c528f180fd668731757650bb97",
     "size_bytes": 10071,
-    "mtime_utc": "2026-08-01T11:28:45.792455+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.254528+00:00"
   },
   "candidate_csv": {
     "found": true,
     "path": "docs/experiments/casee/results/casee_c002_dx2_longer_mean_20260809_205343_probe_time_mean.csv",
     "sha256": "79ed81feabb4676897bd48ba5463edce21e3af33f23788d43e989b080df200ea",
     "size_bytes": 10071,
-    "mtime_utc": "2026-08-09T13:13:22.474245+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.207748+00:00"
   },
   "run_log": {
     "found": true,
     "path": "docs/experiments/casee/results/fluidx3d_c002_dx2_longer_mean_run_20260809_205343.log",
     "sha256": "c5a1c405adc9491707465348f575e426767399fc6762a402561d5ead79d25583",
     "size_bytes": 3059628,
-    "mtime_utc": "2026-08-09T13:13:22.765216+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.356115+00:00"
   },
   "run_err_log": {
     "found": true,
     "path": "docs/experiments/casee/results/fluidx3d_c002_dx2_longer_mean_run_20260809_205343.err.log",
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "size_bytes": 0,
-    "mtime_utc": "2026-08-09T12:53:44.045605+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.342037+00:00"
   },
   "compile_log": {
     "found": true,
     "path": "docs/experiments/casee/results/fluidx3d_c002_dx2_longer_mean_compile.log",
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "size_bytes": 0,
-    "mtime_utc": "2026-08-09T12:52:29.197196+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.341876+00:00"
   },
   "compile_err_log": {
     "found": true,
     "path": "docs/experiments/casee/results/fluidx3d_c002_dx2_longer_mean_compile.err.log",
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "size_bytes": 0,
-    "mtime_utc": "2026-08-09T12:52:29.198315+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.341388+00:00"
   },
   "case_manifest": {
     "found": true,
     "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_pmodes_steps96000_spin24000/citylbm_native_case_manifest.json",
     "sha256": "6622c5eae4a8486aa60fad93288e61909c727561583a35c9ef6c665a04b9e805",
     "size_bytes": 880,
-    "mtime_utc": "2026-08-09T12:52:15.706318+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.163170+00:00"
   },
   "baseline_metrics": {
     "n": 80,

@@ -1,8 +1,8 @@
 id,path,found,risk,cleanup_owner,size_gb,file_count,dir_count,truncated,candidate_for_manual_cleanup,manual_action
 windows_update_download,C:\Windows\SoftwareDistribution\Download,True,medium,administrator,4.876,250001,16936,True,True,Use Windows Settings > System > Storage > Temporary files or Disk Cleanup as Administrator.
-user_temp,C:\Users\MIAOSH~1\AppData\Local\Temp,True,low,user,0.915,3909,1320,False,True,"Close running installers/apps, then remove stale files from the user temp folder or use Windows Storage cleanup."
 nuget_cache,C:\Users\miaoshiyu\.nuget\packages,True,medium,developer,0.159,431,34,False,True,Run `dotnet nuget locals all --clear` only if package re-download is acceptable.
 pip_cache,C:\Users\miaoshiyu\AppData\Local\pip\Cache,True,low,user,0.048,156,314,False,True,Run `python -m pip cache purge` if Python package downloads can be re-fetched.
 winget_temp_cache,C:\Users\miaoshiyu\AppData\Local\Temp\WinGet,True,low,user,0.004,3,16,False,True,Remove stale WinGet installer cache after confirming no winget install is running.
 recycle_bin,C:\$Recycle.Bin,True,medium,user,0.0,1,11,False,True,Review Recycle Bin contents manually before emptying.
+user_temp,E:\citylbm_tmp,True,low,user,0.0,0,41,False,False,"Close running installers/apps, then remove stale files from the user temp folder or use Windows Storage cleanup."
 delivery_optimization_cache,C:\ProgramData\Microsoft\Windows\DeliveryOptimization\Cache,False,medium,administrator,0.0,0,0,False,False,Use Windows Delivery Optimization cleanup through system Storage settings.

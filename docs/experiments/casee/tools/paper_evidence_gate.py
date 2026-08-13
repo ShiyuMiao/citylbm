@@ -177,6 +177,12 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.json",
     "docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.csv",
     "docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.md",
+    "docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_component_gate.json",
+    "docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_component_gate.csv",
+    "docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_component_gate.md",
+    "docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.json",
+    "docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.csv",
+    "docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.md",
     "docs/releases/v0.4.0-rc69.md",
 ]
 
@@ -386,6 +392,7 @@ def gha_install_audit_status(path: Path) -> Dict[str, Any]:
         "gha_install_audit_found": True,
         "install_audit_passed": data.get("install_audit_passed"),
         "matching_gha_already_staged": data.get("matching_gha_already_staged"),
+        "staging_blocked_by_disk_space": data.get("staging_blocked_by_disk_space"),
         "rhino_loaded_new_gha": data.get("rhino_loaded_new_gha"),
         "claim_readiness": data.get("claim_readiness"),
         "recommended_library_dir": data.get("recommended_library_dir"),
@@ -1142,6 +1149,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Audit found: {gha_install['gha_install_audit_found']}",
         f"- Install audit passed: {gha_install['install_audit_passed']}",
         f"- Matching GHA already staged: {gha_install['matching_gha_already_staged']}",
+        f"- Staging blocked by disk space: {gha_install.get('staging_blocked_by_disk_space')}",
         f"- Rhino loaded new GHA: {gha_install['rhino_loaded_new_gha']}",
         f"- Recommended library dir: `{gha_install['recommended_library_dir']}`",
         f"- Claim readiness: `{gha_install['claim_readiness']}`",

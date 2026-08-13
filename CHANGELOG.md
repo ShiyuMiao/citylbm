@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc89 - Grasshopper accuracy action-plan component
+
+- Added a Grasshopper `Case E Accuracy Action Plan` component under `CityLBM > Results`.
+- The component reports the current official z=2 m MAE/R2/Pearson, MAE/R2 gaps to the release threshold, ordered next actions, and forbidden-claim boundary inside the plugin workflow.
+- Added source and packaged-GHA gates for the component and integrated them into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF065-SF066.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc88 - Accuracy action plan gate
 
 - Added `casee_accuracy_action_plan_gate.py` to convert the quantified Case E accuracy gap into ordered next actions.

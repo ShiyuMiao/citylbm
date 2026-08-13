@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T11:39:17.532044+00:00",
+  "generated_at": "2026-08-13T12:12:01.357350+00:00",
   "candidate_id": "C005_dx2_domain_decomposition_ablation",
   "status": "completed_decomposition_sensitivity_warning",
   "evidence_type": "newly_run",
@@ -19,49 +19,49 @@
     "path": "docs/experiments/casee/results/casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv",
     "sha256": "a3ec4396a6722aaf2b7432ea976892423f4d31c528f180fd668731757650bb97",
     "size_bytes": 10071,
-    "mtime_utc": "2026-08-01T11:28:45.792455+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.254528+00:00"
   },
   "candidate_csv": {
     "found": true,
     "path": "docs/experiments/casee/results/casee_c005_dx2_decomp4x1x1_20260809_215600_probe_time_mean.csv",
     "sha256": "4c9cabb1659556bd9cc6cedd5c568e4f33f2d3f47cafa529a79096fafcea612e",
     "size_bytes": 10071,
-    "mtime_utc": "2026-08-09T14:03:20.319161+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.211874+00:00"
   },
   "run_log": {
     "found": true,
     "path": "docs/experiments/casee/results/fluidx3d_c005_dx2_decomp4x1x1_run_20260809_215600.log",
     "sha256": "496ec61cb4840e39a8a25ce293057e7dcaf70dfa96b0acd3df5be8b0e342106a",
     "size_bytes": 564075,
-    "mtime_utc": "2026-08-09T14:03:20.528587+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.367938+00:00"
   },
   "run_err_log": {
     "found": true,
     "path": "docs/experiments/casee/results/fluidx3d_c005_dx2_decomp4x1x1_run_20260809_215600.err.log",
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "size_bytes": 0,
-    "mtime_utc": "2026-08-09T13:56:00.183218+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.362629+00:00"
   },
   "compile_log": {
     "found": true,
     "path": "docs/experiments/casee/results/fluidx3d_c005_dx2_decomp4x1x1_compile.log",
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "size_bytes": 0,
-    "mtime_utc": "2026-08-09T13:54:56.792669+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.362524+00:00"
   },
   "compile_err_log": {
     "found": true,
     "path": "docs/experiments/casee/results/fluidx3d_c005_dx2_decomp4x1x1_compile.err.log",
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "size_bytes": 0,
-    "mtime_utc": "2026-08-09T13:54:56.798973+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.362402+00:00"
   },
   "case_manifest": {
     "found": true,
     "path": "docs/experiments/casee/native_cases/casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_dom4x1x1_pmodes_steps48000_spin12000/citylbm_native_case_manifest.json",
     "sha256": "c6cb88498aed76b041d885f84ea70078529e30b620d7ad77178f13bf4cfd031d",
     "size_bytes": 889,
-    "mtime_utc": "2026-08-09T13:54:34.422222+00:00"
+    "mtime_utc": "2026-08-13T11:57:15.161469+00:00"
   },
   "zcenter_baseline_metrics": {
     "n": 80,

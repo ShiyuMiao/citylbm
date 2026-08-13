@@ -1,6 +1,6 @@
 # Case E Native Codegen Smoke Gate
 
-Generated: 2026-08-13T11:39:27.213524+00:00
+Generated: 2026-08-13T12:12:09.274230+00:00
 
 ## Verdict
 
@@ -12,10 +12,10 @@ Generated: 2026-08-13T11:39:27.213524+00:00
 
 | case | passed | manifest path length | cleanup | run id |
 |---|---:|---:|---:|---|
-| `default_off_baseline` | True | 187 | True | `casee_native_dx4_yn_sgs_gshift1_zoff2_nu0p001_pmodes_steps10_spin0` |
-| `inlet_afk_nosgs` | True | 213 | True | `casee_native_dx4_yn_nosgs_gshift1_zoff2_nu0p001_dom1x1x1_inlet_afkfp_s2_pmodes_steps10_spin0` |
-| `wall_voxel_dilation` | True | 215 | True | `casee_native_dx4_yn_sgs_gshift1_zoff2_nu0p001_dom1x1x1_wall_vd_dil1_damp0_pmodes_steps10_spin0` |
-| `c016_residual_channel_response` | True | 224 | True | `casee_native_dx4_yn_nosgs_gshift1_zoff2_nu0p001_dom1x1x1_inlet_afkfp_s2_rt_c014_s1_pmodes_steps10_spin0` |
+| `default_off_baseline` | True | 157 | True | `casee_native_dx4_yn_sgs_gshift1_zoff2_nu0p001_pmodes_steps10_spin0` |
+| `inlet_afk_nosgs` | True | 183 | True | `casee_native_dx4_yn_nosgs_gshift1_zoff2_nu0p001_dom1x1x1_inlet_afkfp_s2_pmodes_steps10_spin0` |
+| `wall_voxel_dilation` | True | 185 | True | `casee_native_dx4_yn_sgs_gshift1_zoff2_nu0p001_dom1x1x1_wall_vd_dil1_damp0_pmodes_steps10_spin0` |
+| `c016_residual_channel_response` | True | 194 | True | `casee_native_dx4_yn_nosgs_gshift1_zoff2_nu0p001_dom1x1x1_inlet_afkfp_s2_rt_c014_s1_pmodes_steps10_spin0` |
 
 ## Boundary
 

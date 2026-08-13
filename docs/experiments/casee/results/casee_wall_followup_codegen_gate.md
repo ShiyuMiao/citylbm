@@ -1,6 +1,6 @@
 # Case E Wall Follow-up Codegen Gate
 
-Generated: 2026-08-13T11:39:22.826433+00:00
+Generated: 2026-08-13T12:12:04.895709+00:00
 
 ## Verdict
 

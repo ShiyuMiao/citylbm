@@ -1,15 +1,15 @@
 # Case E Rhino/GHA Load Evidence Packet Gate
 
-Generated: 2026-08-13T11:38:56.688639+00:00
+Generated: 2026-08-13T12:11:40.512846+00:00
 
 ## Verdict
 
-- Packet gate passed: True
+- Packet gate passed: False
 - Manual Rhino load claim-ready: False
 - Rhino loaded new GHA: False
-- Claim readiness: `author_input_needed_manual_rhino_load_packet`
+- Claim readiness: `blocked_rhino_load_evidence_packet`
 - Expected plugin version: `0.4.0-rc`
-- Expected GHA SHA256: `cad61c4081ff7c111de2f427cacd03adc4cc76b1083c5f03f1452460dc16cb0f`
+- Expected GHA SHA256: `13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79`
 
 ## Checklist
 
@@ -18,7 +18,7 @@ Generated: 2026-08-13T11:38:56.688639+00:00
 | `RGLP-A01` | `automated_prerequisite` | True | Plugin Identity gate passed for the packaged CityLBM GHA. |
 | `RGLP-A02` | `automated_prerequisite` | True | Tracked GHA exists and has a SHA256 expected value. |
 | `RGLP-A03` | `automated_prerequisite` | True | Current tracked GHA is staged in a Grasshopper Libraries directory. |
-| `RGLP-A04` | `automated_prerequisite` | True | Rhino manual evidence kit is ready. |
+| `RGLP-A04` | `automated_prerequisite` | False | Rhino manual evidence kit is ready. |
 | `RGLP-A05` | `automated_prerequisite` | True | Manual manifest schema gate passes fail-closed. |
 | `RGLP-M01` | `manual_required` | False | Create rhino_gha_load_manifest.json from a real Rhino/Grasshopper session. |
 | `RGLP-M02` | `manual_required` | False | Screenshot/log artifacts listed in the manual manifest exist. |

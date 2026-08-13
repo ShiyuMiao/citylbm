@@ -15,4 +15,4 @@ writes_json_probe,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_l
 records_post_install_verifier,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1,
 has_claim_boundary,True,docs/experiments/casee/tools/vs_cpp_buildtools_elevated_launcher.ps1,
 blocker,blocked,docs/experiments/casee/results/vs_cpp_buildtools_elevated_launcher_probe.json,system drive free space is below 8 GB
-manual_uac_command,manual_action_required,powershell -NoProfile -ExecutionPolicy Bypass -File C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\docs\experiments\casee\tools\vs_cpp_buildtools_recovery.ps1 -Install -InstallPath E:\citylbm_buildchain\VSBuildTools -MinSystemDriveFreeGB 8 -NoPause,Use the launcher with -Launch only after preflight blockers are resolved.
+manual_uac_command,manual_action_required,powershell -NoProfile -ExecutionPolicy Bypass -File E:\citylbm_rc89_work\docs\experiments\casee\tools\vs_cpp_buildtools_recovery.ps1 -Install -InstallPath E:\citylbm_buildchain\VSBuildTools -MinSystemDriveFreeGB 8 -NoPause,Use the launcher with -Launch only after preflight blockers are resolved.

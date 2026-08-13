@@ -1,6 +1,6 @@
 # CityLBM Build-Chain Manifest
 
-Generated: 2026-08-13T11:38:38.206201+00:00
+Generated: 2026-08-13T12:11:21.153110+00:00
 
 ## Verdict
 
@@ -20,7 +20,7 @@ Generated: 2026-08-13T11:38:38.206201+00:00
 - Command: `winget install --id Microsoft.VisualStudio.2022.BuildTools --source winget --accept-package-agreements --accept-source-agreements --silent --location E:\citylbm_buildchain\VSBuildTools --override "--wait --quiet --norestart --installPath E:\citylbm_buildchain\VSBuildTools --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.Component.Windows11SDK.26100"`
 - Exit code: 1602
 - Winget log: `C:\Users\miaoshiyu\AppData\Local\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir\WinGet-2026-08-09-19-33-00.669.log`
-- VS bootstrapper log: `C:\Users\MIAOSH~1\AppData\Local\Temp\dd_vs_BuildTools_decompression_log.txt`
+- VS bootstrapper log: `C:\Users\miaoshiyu\AppData\Local\Temp\dd_vs_BuildTools_decompression_log.txt`
 
 Observed blockers:
 - winget returned 1602 during the current attempt
@@ -34,9 +34,9 @@ Observed blockers:
 
 | drive | free GB | total bytes |
 |---|---:|---:|
-| `C:\` | 0.006 | 208810242048 |
-| `D:\` | 229.626 | 302394634240 |
-| `E:\` | 811.378 | 1000203087872 |
+| `C:\` | 0.002 | 208810242048 |
+| `D:\` | 229.618 | 302394634240 |
+| `E:\` | 811.045 | 1000203087872 |
 | `F:\` | 2087.681 | 2901257744384 |
 | `G:\` | 1023.866 | 1099510575104 |
 

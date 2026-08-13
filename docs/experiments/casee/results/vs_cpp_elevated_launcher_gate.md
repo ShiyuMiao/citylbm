@@ -1,6 +1,6 @@
 # VS C++ Elevated Launcher Gate
 
-Generated: 2026-08-13T11:39:13.807489+00:00
+Generated: 2026-08-13T12:11:57.634572+00:00
 
 ## Verdict
 
@@ -23,7 +23,7 @@ Generated: 2026-08-13T11:39:13.807489+00:00
 
 ## Current Preflight
 
-- System drive free GB: 0.006
+- System drive free GB: 0.001
 - Minimum system drive free GB: 8
 - Current user is admin: False
 - Install path: `E:\citylbm_buildchain\VSBuildTools`

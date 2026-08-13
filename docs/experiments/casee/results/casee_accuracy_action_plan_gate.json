@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-13T11:39:22.257235+00:00",
+  "generated_at": "2026-08-13T12:12:04.300171+00:00",
   "evidence_type": "newly_run",
   "accuracy_action_plan_gate_passed": true,
   "claim_readiness": "paper_ready_action_plan; blocked formal accuracy release",
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc88",
+  "recommended_tag": "v0.4.0-rc89",
   "enabled_now_count": 4,
   "official_followup_action_count": 3,
   "rows": [

@@ -138,9 +138,12 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_research_accuracy_gap_gate.md`
 - `docs/experiments/casee/results/casee_accuracy_action_plan_gate.json`
 - `docs/experiments/casee/results/casee_accuracy_action_plan_gate.md`
+- `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_component_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
 - `docs/experiments/casee/results/rhino_gha_load_manifest.expected.json`
+- `docs/releases/v0.4.0-rc89.md`
 - `docs/releases/v0.4.0-rc87.md`
 - `docs/releases/v0.4.0-rc88.md`
 - `docs/releases/v0.4.0-rc86.md`
@@ -259,6 +262,12 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_accuracy_action_plan_gate.json`
 - `docs/experiments/casee/results/casee_accuracy_action_plan_gate.md`
 - `docs/experiments/casee/results/casee_accuracy_action_plan_gate.csv`
+- `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_component_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_component_gate.md`
+- `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_component_gate.csv`
+- `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.md`
+- `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.csv`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.csv`
@@ -580,6 +589,18 @@ The packaged GHA identity-component gate then checks the compiled
 tracked GHA hash matches the plugin identity gate. This proves the release
 asset contains the evidence component, but still does not prove a real Rhino/
 Grasshopper session loaded it.
+
+The `Case E Accuracy Action Plan` Grasshopper component exposes the current
+official z=2 m gap directly in the plugin workflow: MAE 21.111 pp, R2
+-2.006330, Pearson 0.115756, plus the ordered actions needed before another
+formal accuracy claim can be considered. It is a workflow and claim-boundary
+component only; it does not change solver numerics, promote diagnostic
+settings to defaults, run FluidX3D, or make `v0.4.0` publishable.
+
+The packaged GHA action-plan gate checks the compiled `CityLBM/bin/CityLBM.gha`
+for that component's metric-gap outputs, action IDs, and forbidden-claim
+strings. This proves the release asset contains the component, but it still
+does not prove Rhino loaded it or improve official Case E accuracy.
 
 The portable toolchain activation gate verifies the local portable .NET,
 FluidX3D, and MinGW/g++ paths needed for reproducible builds and native-source

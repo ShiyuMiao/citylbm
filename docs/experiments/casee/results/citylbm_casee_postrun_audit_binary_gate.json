@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T11:38:55.937154+00:00",
+  "generated_at": "2026-08-13T12:11:39.387497+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_packaged_casee_postrun_audit_component",
   "casee_postrun_audit_binary_gate_passed": true,
@@ -7,9 +7,9 @@
   "formal_release_allowed": false,
   "tracked_gha_path": "CityLBM/bin/CityLBM.gha",
   "release_gha_path": "CityLBM/bin/Release/CityLBM.gha",
-  "tracked_gha_sha256": "cad61c4081ff7c111de2f427cacd03adc4cc76b1083c5f03f1452460dc16cb0f",
-  "release_gha_sha256": "cad61c4081ff7c111de2f427cacd03adc4cc76b1083c5f03f1452460dc16cb0f",
-  "tracked_gha_size_bytes": 1838080,
+  "tracked_gha_sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
+  "release_gha_sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
+  "tracked_gha_size_bytes": 1844736,
   "required_markers": {
     "CaseEPostRunAuditComponent": true,
     "Case E Post-run Audit": true,

@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-13T11:39:45.424979+00:00
+Generated: 2026-08-13T12:12:26.616404+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 64
+- Feedback rows: 66
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -41,6 +41,7 @@ Generated: 2026-08-13T11:39:45.424979+00:00
 - native_inlet_followup_codegen_no_accuracy_promotion: 1
 - native_wall_followup_codegen_no_accuracy_promotion: 1
 - operational_recovery_dashboard_gate: 1
+- packaged_accuracy_action_plan_component_no_accuracy_promotion: 1
 - packaged_gha_identity_component_gate: 1
 - paper_claim_support_gate: 1
 - paper_figure_output: 1
@@ -58,6 +59,7 @@ Generated: 2026-08-13T11:39:45.424979+00:00
 - residual_target_hook_no_default_promotion: 1
 - runbook_codegen_preflight_no_accuracy_promotion: 1
 - runtime_decomposition_sensitivity_no_default_promotion: 1
+- software_accuracy_action_plan_component_no_accuracy_promotion: 1
 - software_build_hash_stability_no_accuracy_promotion: 1
 - software_gha_staging_audit: 1
 - software_identity_component: 1
@@ -114,13 +116,13 @@ Generated: 2026-08-13T11:39:45.424979+00:00
 | `SF046` | Experiment 2 / operational recovery dashboard | operational_recovery_dashboard_gate | implemented_operational_recovery_dashboard | True | The blocked Case E recovery path is now consolidated into an ordered dashboard across C: space, VS C++ install readiness, UAC launch, GPU recovery, Rhino load evidence, official preflight, and the formal metric gate. Long FluidX3D runs remain disallowed until the long-run blockers clear. |
 | `SF047` | CityLBM nullable-clean plugin rebuild | software_quality_no_default_promotion | implemented_warning_clean_rebuild | True | The rc70 plugin rebuild removes C# nullable warnings and hardens FluidX3D discovery, result DTOs, and VTK readers while keeping Case E diagnostic controls default-off and non-formal. |
 | `SF048` | CityLBM canonical GHA packaging path | software_packaging_traceability_no_accuracy_promotion | implemented_canonical_gha_packaging_path | True | The rc71 build script packages the merged Release GHA and synchronizes the tracked distributable from that canonical artifact, eliminating the earlier unmerged nested GHA ambiguity. |
-| `SF049` | CityLBM staged Grasshopper GHA artifact | software_staged_gha_traceability_no_accuracy_promotion | implemented_staged_gha_traceability | True | The current tracked CityLBM.gha has been staged into the user's Grasshopper Libraries directory with a SHA256 match to the canonical tracked GHA, closing the install-staging gap while keeping Rhino process-load evidence fail-closed. |
+| `SF049` | CityLBM staged Grasshopper GHA artifact | software_staged_gha_traceability_no_accuracy_promotion | staged_gha_traceability_missing_or_failed | True | The current tracked CityLBM.gha has been staged into the user's Grasshopper Libraries directory with a SHA256 match to the canonical tracked GHA, closing the install-staging gap while keeping Rhino process-load evidence fail-closed. |
 | `SF050` | CityLBM deterministic GHA build stability | software_build_hash_stability_no_accuracy_promotion | implemented_build_hash_stability_gate | True | The rc73 build path now enables deterministic compiler metadata and uses a serial ILRepack merge so two consecutive Release builds produce the same packaged CityLBM.gha SHA256. |
 | `SF051` | Case E lightweight release bundle | paper_release_bundle_no_accuracy_promotion | implemented_release_bundle_gate | True | The rc74 release bundle gate packages the curated lightweight upload assets into a deterministic zip and verifies each bundled file against the release asset manifest hash. |
 | `SF052` | GitHub publication state gate | github_publication_state_no_accuracy_promotion | implemented_github_publication_state_gate | True | The rc75 publication gate records the latest completed local rc tag, confirms whether it is visible on GitHub, checks GitHub Release existence, and records whether the local gh CLI can create a release from the lightweight bundle. |
 | `SF053` | Case E workspace hygiene gate | workspace_hygiene_no_accuracy_promotion | implemented_workspace_hygiene_gate | True | The rc76 workspace hygiene gate classifies ignored local build caches, native candidate CSVs, runtime logs, and visualization scratch files so they cannot be mistaken for curated release assets or paper-ready official results. |
 | `SF036` | CityLBM GHA staging/install audit | software_gha_staging_audit | implemented_gha_staging_audit | True | The tracked CityLBM.gha can now be audited against common Grasshopper Libraries locations, with exact SHA256 matching and an explicit manual copy command before any Rhino load claim is made. |
-| `SF037` | CityLBM Rhino/GHA load evidence kit | manual_rhino_load_evidence_kit | implemented_rhino_load_evidence_kit | True | Rhino/Grasshopper load verification now has a fail-closed evidence kit that detects Rhino, checks the staged GHA hash, and writes a manual manifest template without claiming that Rhino loaded the plugin. |
+| `SF037` | CityLBM Rhino/GHA load evidence kit | manual_rhino_load_evidence_kit | rhino_load_evidence_kit_missing_or_failed | True | Rhino/Grasshopper load verification now has a fail-closed evidence kit that detects Rhino, checks the staged GHA hash, and writes a manual manifest template without claiming that Rhino loaded the plugin. |
 | `SF038` | CityLBM Plugin Identity Grasshopper component | software_identity_component | implemented_plugin_identity_component | True | CityLBM now exposes a Plugin Identity component that reports the loaded plugin version, assembly version, GHA path, SHA256, manifest template, and explicit claim boundary inside Grasshopper. |
 | `SF039` | CityLBM packaged GHA identity-component gate | packaged_gha_identity_component_gate | implemented_packaged_gha_identity_component_gate | True | The tracked packaged CityLBM.gha is now audited for Plugin Identity component markers, including the component name, GHA SHA256 output, manifest-template output, GUID, and accuracy-claim boundary. |
 | `SF040` | CityLBM portable .NET / FluidX3D / MinGW toolchain activation | portable_toolchain_activation_gate | implemented_portable_toolchain_activation_gate | True | The local portable toolchain can now be activated and audited without changing system PATH: portable .NET, the existing FluidX3D binary, and MinGW/g++ are verified while VS C++ and GPU runtime remain explicit blockers. |
@@ -136,9 +138,11 @@ Generated: 2026-08-13T11:39:45.424979+00:00
 | `SF059` | Experiment 2 / native Case E codegen smoke regression | native_codegen_smoke_regression_no_accuracy_promotion | implemented_native_codegen_smoke_regression | False | The native Case E generator now has a short smoke gate covering default, AF-k/noSGS inlet, voxel-dilation wall, and C016 residual-target configurations; it also verifies manifest path length and cleanup after exposing the Windows long-path risk. |
 | `SF060` | Experiment 2 / next-run runbook native codegen preflight | runbook_codegen_preflight_no_accuracy_promotion | implemented_runbook_codegen_preflight | False | The next-run official follow-up commands R005, R006, R007, R008, and R010 are now machine-preflighted by executing only their native case-generation step, verifying official manifest fields, diagnostic-default blockers, path length, and cleanup before any long solver run. |
 | `SF061` | Experiment 2 / Case E default-promotion gate | default_promotion_gate_no_accuracy_promotion | implemented_default_promotion_gate | False | A dedicated default-promotion gate now converts the official metric, Case A, Rhino/GHA load, raw-trilinear protocol, no-fitting, and traceability requirements into per-setting blockers so diagnostic controls cannot silently become CityLBM defaults. |
-| `SF062` | Experiment 2 / Case E Rhino load evidence packet gate | manual_rhino_load_evidence_packet_no_accuracy_promotion | implemented_rhino_load_evidence_packet_gate | False | The Rhino/GHA manual load handoff now has a packet gate that writes expected version, path, SHA256, screenshot/log requirements, post-capture commands, and forbidden interpretations while remaining fail-closed until a real Rhino/Grasshopper manifest and artifacts exist. |
+| `SF062` | Experiment 2 / Case E Rhino load evidence packet gate | manual_rhino_load_evidence_packet_no_accuracy_promotion | rhino_load_evidence_packet_gate_missing_or_failed | False | The Rhino/GHA manual load handoff now has a packet gate that writes expected version, path, SHA256, screenshot/log requirements, post-capture commands, and forbidden interpretations while remaining fail-closed until a real Rhino/Grasshopper manifest and artifacts exist. |
 | `SF063` | Experiment 2 / Case E research accuracy gap gate | research_accuracy_gap_no_default_promotion | implemented_research_accuracy_gap_gate | False | A dedicated gap gate now quantifies how far the official z=2 m result remains from the current project release threshold and separates formal, diagnostic, and post-hoc upper-bound rows before any paper-grade accuracy claim or default promotion can be considered. |
 | `SF064` | Experiment 2 / Case E accuracy action plan gate | accuracy_action_plan_no_default_promotion | implemented_accuracy_action_plan_gate | False | The quantified accuracy gap is now converted into an ordered action plan that separates release safety, Rhino/GHA evidence, environment recovery, wall-model follow-up, AF-k/no-SGS follow-up, C016 channel-response follow-up, post-run audit, and post-hoc calibration rejection. |
+| `SF065` | Experiment 2 / CityLBM plugin Case E accuracy action-plan component | software_accuracy_action_plan_component_no_accuracy_promotion | implemented_casee_accuracy_action_plan_component | False | CityLBM now exposes the quantified official z=2 m accuracy gap and ordered next actions inside Grasshopper so users see the R2/MAE blocker before interpreting Case E outputs. |
+| `SF066` | Experiment 2 / packaged CityLBM Case E accuracy action-plan component | packaged_accuracy_action_plan_component_no_accuracy_promotion | implemented_packaged_casee_accuracy_action_plan_component | False | The packaged CityLBM GHA is audited for the Case E Accuracy Action Plan component markers, including metric-gap outputs, action IDs, and forbidden-claim boundary strings. |
 
 ## Paper Boundary
 
@@ -208,6 +212,8 @@ Generated: 2026-08-13T11:39:45.424979+00:00
 | `SF062` | Use as a software-load protocol-risk mitigation showing exactly how old-GHA contamination is prevented before formal claims. | Manual evidence packet only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official metrics, or permit formal v0.4.0. |
 | `SF063` | Use as quantitative limitations evidence for how far the current official result remains from project accuracy release criteria. | Gap quantification only; it does not run FluidX3D, improve metrics, prove research-grade accuracy, or permit formal v0.4.0. |
 | `SF064` | Use as a reviewer-facing bridge from current accuracy limitations to the next official CFD actions and software policy. | Action-plan evidence only; it does not run FluidX3D, improve metrics, or permit formal v0.4.0. |
+| `SF065` | Use as software workflow evidence that the plugin exposes current accuracy blockers and next actions to Grasshopper users. | Plugin component evidence only; it does not run FluidX3D, compute a new R2, improve official z2m metrics, promote defaults, or permit formal v0.4.0. |
+| `SF066` | Use as packaged-plugin evidence that the release asset contains the action-plan component. | Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0. |
 
 ## Boundary
 

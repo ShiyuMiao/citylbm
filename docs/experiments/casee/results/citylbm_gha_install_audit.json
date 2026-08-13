@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-08-13T11:38:56.204519+00:00",
+  "generated_at": "2026-08-13T12:11:40.022063+00:00",
   "evidence_type": "newly_run",
-  "claim_readiness": "install_ready_pending_manual_rhino_load",
+  "claim_readiness": "install_audited_staging_blocked_by_disk_space",
   "install_audit_passed": true,
-  "matching_gha_already_staged": true,
+  "matching_gha_already_staged": false,
   "rhino_loaded_new_gha": false,
-  "expected_tracked_gha_sha256": "cad61c4081ff7c111de2f427cacd03adc4cc76b1083c5f03f1452460dc16cb0f",
+  "expected_tracked_gha_sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
   "tracked_gha": {
     "found": true,
     "path": "CityLBM/bin/CityLBM.gha",
-    "sha256": "cad61c4081ff7c111de2f427cacd03adc4cc76b1083c5f03f1452460dc16cb0f",
-    "size_bytes": 1838080,
-    "mtime_utc": "2026-08-13T11:35:49.352987+00:00"
+    "sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
+    "size_bytes": 1844736,
+    "mtime_utc": "2026-08-13T11:59:18.985769+00:00"
   },
   "packaged_gha": {
     "found": true,
     "path": "CityLBM/bin/Release/CityLBM.gha",
-    "sha256": "cad61c4081ff7c111de2f427cacd03adc4cc76b1083c5f03f1452460dc16cb0f",
-    "size_bytes": 1838080,
-    "mtime_utc": "2026-08-13T11:38:52.437107+00:00"
+    "sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
+    "size_bytes": 1844736,
+    "mtime_utc": "2026-08-13T12:11:35.810194+00:00"
   },
   "candidate_library_dirs": [
     "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries",
@@ -28,17 +28,20 @@
     "C:\\Users\\miaoshiyu\\AppData\\Local\\McNeel\\Rhinoceros\\8.0\\Plug-ins\\Grasshopper\\Libraries"
   ],
   "recommended_library_dir": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries",
-  "recommended_manual_copy_command": "New-Item -ItemType Directory -Force -Path 'C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries' | Out-Null; Copy-Item -LiteralPath 'C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\CityLBM.gha' -Destination 'C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries\\CityLBM.gha' -Force",
+  "recommended_library_dir_free_bytes": 1482752,
+  "required_free_bytes_for_copy": 2893312,
+  "staging_blocked_by_disk_space": true,
+  "recommended_manual_copy_command": "New-Item -ItemType Directory -Force -Path 'C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries' | Out-Null; Copy-Item -LiteralPath 'E:\\citylbm_rc89_work\\CityLBM\\bin\\CityLBM.gha' -Destination 'C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries\\CityLBM.gha' -Force",
   "installed_candidates": [
     {
       "library_dir": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries",
       "library_dir_exists": true,
-      "path": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries\\CityLBM.gha",
-      "found": true,
-      "sha256": "cad61c4081ff7c111de2f427cacd03adc4cc76b1083c5f03f1452460dc16cb0f",
-      "matches_tracked_gha": true,
-      "size_bytes": 1838080,
-      "mtime_utc": "2026-08-13T11:35:49.352987+00:00"
+      "path": "",
+      "found": false,
+      "sha256": "",
+      "matches_tracked_gha": false,
+      "size_bytes": null,
+      "mtime_utc": ""
     },
     {
       "library_dir": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\McNeel\\Rhinoceros\\8.0\\Plug-ins\\Grasshopper\\Libraries",
@@ -87,7 +90,8 @@
     "tracked_gha_hash_matches_identity_gate": true,
     "packaged_gha_exists": true,
     "grasshopper_library_dir_detected_or_recommendable": true,
-    "matching_gha_already_staged": true,
+    "tracked_gha_stageable_or_already_staged": false,
+    "matching_gha_already_staged": false,
     "rhino_load_gate_still_fail_closed": true
   },
   "formal_accuracy_claim_supported": false,

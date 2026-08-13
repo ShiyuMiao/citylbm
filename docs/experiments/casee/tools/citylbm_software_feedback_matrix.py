@@ -18,6 +18,7 @@ PAPER_DRAFTS = ROOT / "academic-paper-writer" / "paper-drafts"
 FLUIDX = ROOT / "CityLBM" / "src" / "Core" / "FluidX3DInterface.cs"
 RUN_COMPONENT = ROOT / "CityLBM" / "src" / "Components" / "Simulation" / "RunSimulationComponent.cs"
 POSTRUN_AUDIT_COMPONENT = ROOT / "CityLBM" / "src" / "Components" / "Results" / "CaseEPostRunAuditComponent.cs"
+ACCURACY_ACTION_PLAN_COMPONENT = ROOT / "CityLBM" / "src" / "Components" / "Results" / "CaseEAccuracyActionPlanComponent.cs"
 REPRO_SUITE = CASEE_DIR / "tools" / "reproducibility_suite.py"
 RELEASE_GATE_SCRIPT = CASEE_DIR / "tools" / "casee_audit.py"
 
@@ -112,6 +113,7 @@ def build_rows() -> List[Dict[str, Any]]:
     fluidx = read_text(FLUIDX)
     run_component = read_text(RUN_COMPONENT)
     postrun_audit_component = read_text(POSTRUN_AUDIT_COMPONENT)
+    accuracy_action_plan_component = read_text(ACCURACY_ACTION_PLAN_COMPONENT)
     suite = read_text(REPRO_SUITE)
     audit = read_text(RELEASE_GATE_SCRIPT)
     release_gate = read_json(RESULTS_DIR / "release_gate.json")
@@ -162,6 +164,8 @@ def build_rows() -> List[Dict[str, Any]]:
     identity_binary_gate = read_json(RESULTS_DIR / "citylbm_plugin_identity_binary_gate.json")
     postrun_audit_component_gate = read_json(RESULTS_DIR / "citylbm_casee_postrun_audit_component_gate.json")
     postrun_audit_binary_gate = read_json(RESULTS_DIR / "citylbm_casee_postrun_audit_binary_gate.json")
+    accuracy_action_plan_component_gate = read_json(RESULTS_DIR / "citylbm_casee_accuracy_action_plan_component_gate.json")
+    accuracy_action_plan_binary_gate = read_json(RESULTS_DIR / "citylbm_casee_accuracy_action_plan_binary_gate.json")
     portable_toolchain_gate = read_json(RESULTS_DIR / "citylbm_portable_toolchain_gate.json")
     gpu_failfast_gate = read_json(RESULTS_DIR / "citylbm_gpu_runtime_failfast_gate.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -2209,6 +2213,78 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    rows.append(
+        row(
+            feedback_id="SF065",
+            experiment="Experiment 2 / CityLBM plugin Case E accuracy action-plan component",
+            finding=(
+                "CityLBM now exposes the quantified official z=2 m accuracy gap and ordered next actions "
+                "inside Grasshopper so users see the R2/MAE blocker before interpreting Case E outputs."
+            ),
+            evidence_type=str(accuracy_action_plan_component_gate.get("evidence_type", "missing")),
+            source_paths=[
+                ACCURACY_ACTION_PLAN_COMPONENT,
+                CASEE_DIR / "tools" / "citylbm_casee_accuracy_action_plan_component_gate.py",
+                RESULTS_DIR / "citylbm_casee_accuracy_action_plan_component_gate.json",
+                RESULTS_DIR / "citylbm_casee_accuracy_action_plan_component_gate.csv",
+                RESULTS_DIR / "citylbm_casee_accuracy_action_plan_component_gate.md",
+                RESULTS_DIR / "casee_accuracy_action_plan_gate.json",
+                RESULTS_DIR / "casee_research_accuracy_gap_gate.json",
+            ],
+            decision_class="software_accuracy_action_plan_component_no_accuracy_promotion",
+            citylbm_status="implemented_casee_accuracy_action_plan_component"
+            if accuracy_action_plan_component_gate.get("casee_accuracy_action_plan_component_gate_passed") is True
+            and accuracy_action_plan_component_gate.get("formal_accuracy_claim_supported") is False
+            and accuracy_action_plan_component_gate.get("default_setting_allowed") is False
+            else "casee_accuracy_action_plan_component_missing_or_failed",
+            implementation_evidence=(
+                f"source_gate_passed={accuracy_action_plan_component_gate.get('casee_accuracy_action_plan_component_gate_passed')}; "
+                f"component_has_mae_gap={'MAE Gap pp' in accuracy_action_plan_component}; "
+                f"component_has_r2_gap={'R2 Gap' in accuracy_action_plan_component}; "
+                f"component_has_action_ids={all(action_id in accuracy_action_plan_component for action_id in ['A001', 'A004', 'A005', 'A006', 'A008'])}; "
+                f"component_blocks_defaults={'default_setting_allowed: false' in accuracy_action_plan_component}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as software workflow evidence that the plugin exposes current accuracy blockers and next actions to Grasshopper users.",
+            limitations="Plugin component evidence only; it does not run FluidX3D, compute a new R2, improve official z2m metrics, promote defaults, or permit formal v0.4.0.",
+        )
+    )
+
+    rows.append(
+        row(
+            feedback_id="SF066",
+            experiment="Experiment 2 / packaged CityLBM Case E accuracy action-plan component",
+            finding=(
+                "The packaged CityLBM GHA is audited for the Case E Accuracy Action Plan component markers, "
+                "including metric-gap outputs, action IDs, and forbidden-claim boundary strings."
+            ),
+            evidence_type=str(accuracy_action_plan_binary_gate.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "citylbm_casee_accuracy_action_plan_binary_gate.py",
+                RESULTS_DIR / "citylbm_casee_accuracy_action_plan_binary_gate.json",
+                RESULTS_DIR / "citylbm_casee_accuracy_action_plan_binary_gate.csv",
+                RESULTS_DIR / "citylbm_casee_accuracy_action_plan_binary_gate.md",
+                ROOT / "CityLBM" / "bin" / "CityLBM.gha",
+                ROOT / "CityLBM" / "bin" / "Release" / "CityLBM.gha",
+            ],
+            decision_class="packaged_accuracy_action_plan_component_no_accuracy_promotion",
+            citylbm_status="implemented_packaged_casee_accuracy_action_plan_component"
+            if accuracy_action_plan_binary_gate.get("casee_accuracy_action_plan_binary_gate_passed") is True
+            and accuracy_action_plan_binary_gate.get("formal_accuracy_claim_supported") is False
+            and accuracy_action_plan_binary_gate.get("default_setting_allowed") is False
+            else "casee_accuracy_action_plan_binary_gate_missing_or_failed",
+            implementation_evidence=(
+                f"binary_gate_passed={accuracy_action_plan_binary_gate.get('casee_accuracy_action_plan_binary_gate_passed')}; "
+                f"tracked_gha_sha256={accuracy_action_plan_binary_gate.get('tracked_gha_sha256')}; "
+                f"tracked_matches_release={((accuracy_action_plan_binary_gate.get('checks') or {}).get('tracked_gha_matches_release_gha'))}; "
+                f"markers_present={((accuracy_action_plan_binary_gate.get('checks') or {}).get('all_required_markers_present_in_tracked_gha'))}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as packaged-plugin evidence that the release asset contains the action-plan component.",
+            limitations="Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0.",
+        )
+    )
+
     return rows
 
 
@@ -2227,7 +2303,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053", "SF054", "SF055", "SF056", "SF057", "SF058", "SF059", "SF060", "SF061", "SF062", "SF063", "SF064"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053", "SF054", "SF055", "SF056", "SF057", "SF058", "SF059", "SF060", "SF061", "SF062", "SF063", "SF064", "SF065", "SF066"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -2237,7 +2313,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "local_orphan_candidate_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion", "native_wall_followup_codegen_no_accuracy_promotion", "native_inlet_followup_codegen_no_accuracy_promotion", "native_c016_residual_target_codegen_no_accuracy_promotion", "native_codegen_smoke_regression_no_accuracy_promotion", "runbook_codegen_preflight_no_accuracy_promotion", "default_promotion_gate_no_accuracy_promotion", "manual_rhino_load_evidence_packet_no_accuracy_promotion", "research_accuracy_gap_no_default_promotion", "accuracy_action_plan_no_default_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "local_orphan_candidate_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion", "native_wall_followup_codegen_no_accuracy_promotion", "native_inlet_followup_codegen_no_accuracy_promotion", "native_c016_residual_target_codegen_no_accuracy_promotion", "native_codegen_smoke_regression_no_accuracy_promotion", "runbook_codegen_preflight_no_accuracy_promotion", "default_promotion_gate_no_accuracy_promotion", "manual_rhino_load_evidence_packet_no_accuracy_promotion", "research_accuracy_gap_no_default_promotion", "accuracy_action_plan_no_default_promotion", "software_accuracy_action_plan_component_no_accuracy_promotion", "packaged_accuracy_action_plan_component_no_accuracy_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),

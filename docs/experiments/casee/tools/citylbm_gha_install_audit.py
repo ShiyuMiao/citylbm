@@ -7,6 +7,7 @@ import csv
 import hashlib
 import json
 import os
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
@@ -129,6 +130,13 @@ def installed_candidates(expected_sha: str) -> List[Dict[str, Any]]:
     return rows
 
 
+def target_drive_free_bytes(path: Path) -> int:
+    try:
+        return shutil.disk_usage(Path(path.anchor)).free
+    except OSError:
+        return 0
+
+
 def powershell_copy_command(target_dir: Path) -> str:
     source = str(TRACKED_GHA)
     target = str(target_dir / "CityLBM.gha")
@@ -146,6 +154,10 @@ def build_payload() -> Dict[str, Any]:
     matching = [row for row in candidates if row["matches_tracked_gha"]]
     existing_dirs = [path for path in candidate_library_dirs() if path.exists()]
     recommended_dir = existing_dirs[0] if existing_dirs else candidate_library_dirs()[0]
+    tracked_size = TRACKED_GHA.stat().st_size if TRACKED_GHA.exists() else 0
+    required_free_bytes = tracked_size + (1024 * 1024)
+    recommended_free_bytes = target_drive_free_bytes(recommended_dir)
+    gha_stageable = recommended_dir is not None and (bool(matching) or recommended_free_bytes >= required_free_bytes)
     checks = {
         "plugin_identity_gate_passed": plugin_gate.get("plugin_identity_gate_passed") is True,
         "tracked_gha_exists": TRACKED_GHA.exists(),
@@ -154,6 +166,7 @@ def build_payload() -> Dict[str, Any]:
         and sha256(TRACKED_GHA).lower() == expected_sha.lower(),
         "packaged_gha_exists": PACKAGED_GHA.exists(),
         "grasshopper_library_dir_detected_or_recommendable": recommended_dir is not None,
+        "tracked_gha_stageable_or_already_staged": gha_stageable,
         "matching_gha_already_staged": bool(matching),
         "rhino_load_gate_still_fail_closed": rhino_gate.get("rhino_loaded_new_gha") is False
         and rhino_gate.get("claim_readiness") == "blocked_manual_rhino_load",
@@ -165,10 +178,15 @@ def build_payload() -> Dict[str, Any]:
         and checks["grasshopper_library_dir_detected_or_recommendable"]
         and checks["rhino_load_gate_still_fail_closed"]
     )
+    claim_readiness = (
+        "install_audited_staging_blocked_by_disk_space"
+        if recommended_free_bytes < required_free_bytes and not bool(matching)
+        else "install_ready_pending_manual_rhino_load"
+    )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "evidence_type": "newly_run",
-        "claim_readiness": "install_ready_pending_manual_rhino_load",
+        "claim_readiness": claim_readiness,
         "install_audit_passed": install_audit_passed,
         "matching_gha_already_staged": bool(matching),
         "rhino_loaded_new_gha": False,
@@ -177,6 +195,9 @@ def build_payload() -> Dict[str, Any]:
         "packaged_gha": file_status(PACKAGED_GHA),
         "candidate_library_dirs": [str(path) for path in candidate_library_dirs()],
         "recommended_library_dir": str(recommended_dir),
+        "recommended_library_dir_free_bytes": recommended_free_bytes,
+        "required_free_bytes_for_copy": required_free_bytes,
+        "staging_blocked_by_disk_space": recommended_free_bytes < required_free_bytes and not bool(matching),
         "recommended_manual_copy_command": powershell_copy_command(recommended_dir),
         "installed_candidates": candidates,
         "checks": checks,

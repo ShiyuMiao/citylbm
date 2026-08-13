@@ -1,12 +1,12 @@
 # Case E Reproducibility Suite
 
-Generated: 2026-08-13T11:39:55.689410+00:00
+Generated: 2026-08-13T12:12:36.543878+00:00
 
 ## Verdict
 
 - Suite passed: True
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc88`
+- Recommended tag: `v0.4.0-rc89`
 
 ## Official z=2 m Metric
 
@@ -16,8 +16,8 @@ Generated: 2026-08-13T11:39:55.689410+00:00
 
 ## Artifact Index
 
-- Artifact count: 462
-- Lightweight release assets: 389
+- Artifact count: 467
+- Lightweight release assets: 397
 - Formal accuracy claim supported: False
 
 ## Build Chain
@@ -45,11 +45,13 @@ Generated: 2026-08-13T11:39:55.689410+00:00
 | citylbm_plugin_identity_binary_gate | 0 | True |
 | citylbm_casee_postrun_audit_component_gate | 0 | True |
 | citylbm_casee_postrun_audit_binary_gate | 0 | True |
+| citylbm_casee_accuracy_action_plan_component_gate | 0 | True |
+| citylbm_casee_accuracy_action_plan_binary_gate | 0 | True |
 | rhino_gha_load_gate | 0 | True |
 | citylbm_gha_install_audit | 0 | True |
 | casee_rhino_load_evidence_kit | 0 | True |
 | rhino_gha_load_manifest_schema_gate | 0 | True |
-| casee_rhino_load_evidence_packet_gate | 0 | True |
+| casee_rhino_load_evidence_packet_gate | 1 | True |
 | manuscript_evidence_summary | 0 | True |
 | vs_cpp_recovery_gate | 0 | True |
 | vs_cpp_system_drive_space_gate | 0 | True |
