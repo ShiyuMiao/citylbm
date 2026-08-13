@@ -14,13 +14,14 @@
 - Added protocol-risk metadata for boundary conditions, VTK frame count and validation-readiness status.
 - Disabled the legacy bundled v0.5.0 fallback for controlled validation runs; users must provide an explicit external FluidX3D path.
 - Added optional experimental `Run Simulation / Synthetic Inlet` inputs for CustomTable profiles with `k`.
-- Generated FluidX3D cases can now use `k` for bounded SEM-lite synthetic-eddy inlet perturbations, with request/injection status and parameters recorded in `case_metadata.json`.
+- Generated FluidX3D cases can now use `k` for bounded STG-lite spectral inlet perturbations, with request/injection status and parameters recorded in `case_metadata.json`.
 - Synthetic inlet runs now refresh inlet perturbations at `SyntheticTurbulenceUpdateInterval` instead of tying updates to the VTK save interval.
 - Added generated `validation_protocol_audit.json/.md` so validation runs explicitly report inlet, boundary, averaging, coordinate, normalization and grid-resolution readiness.
+- Added `scripts/validation_gate.py` to fail run packages that lack paper-grade evidence for averaging, inlet U/k preservation, native baseline linkage, probe mapping, coordinate normalization or bounded error metrics.
 
 ### Known limits
 
-- The SEM-lite inlet is not a full digital-filter, precursor/recycling, or Reynolds-stress turbulent inflow and still requires native FluidX3D compile/run verification and sensitivity testing.
+- The STG-lite inlet is not a full digital-filter, precursor/recycling, or Reynolds-stress turbulent inflow and still requires native FluidX3D compile/run verification and sensitivity testing.
 - Boundary conditions are still simplified and must be audited against the AIJ wind-tunnel setup.
 - Case E has not been completed as a formal SCI-level validation run on this PC in this branch.
 - Final publishable accuracy still requires native FluidX3D Case A baseline, grid sensitivity, time averaging and measured-data comparison.

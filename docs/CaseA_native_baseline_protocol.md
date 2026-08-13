@@ -81,6 +81,20 @@ AIJ Case E is treated as a paper-grade validation experiment.
   error.
 - Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance and compared component.
 
+## Machine Gate
+
+After every native FluidX3D or CityLBM-driven Case A run, execute the repository gate before using metrics in a paper:
+
+```powershell
+python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluidx3d --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --out <run_dir>\validation_gate_report.json
+```
+
+For a CityLBM-driven parity run, change `--software citylbm` and keep the same metrics/probe schema. A passing paper-grade
+record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,
+`native_baseline_gate=pass`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
+zero failed probes, bounded mean-velocity bias/RMSE, and reported `k` bias. If the gate returns `FAIL`, the run is
+diagnostic only even if selected plots look reasonable.
+
 ## Current Blockers
 
 - The repository-embedded `src/Resources/FluidX3D/FluidX3D.source.zip` is a placeholder and cannot establish a native

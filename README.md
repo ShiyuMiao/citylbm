@@ -14,6 +14,7 @@ CityLBM is a Grasshopper workflow plugin for urban wind simulation with FluidX3D
 - Writes `case_metadata.json` and schema-tagged `domain_origin.json` for post-processing traceability.
 - Adds VTK reader metadata checks so velocity units are explicit in Grasshopper output.
 - Adds reusable validation metrics utilities for MAE, RMSE, bias, R2 and regression slope/intercept.
+- Adds `scripts/validation_gate.py` to prevent smoke/diagnostic runs from being reported as paper-grade AIJ validation.
 
 ## Important limitation
 
@@ -36,6 +37,12 @@ Use `Mode 0 = Generate Case` to check Grasshopper wiring without compiling or ru
 - Pedestrian validation height: `z=2 m`
 
 See `docs/CaseE_run_protocol.md` for the strict validation procedure.
+
+After postprocessing, run the machine gate before using AIJ metrics in a manuscript:
+
+```powershell
+python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --out <run_dir>\validation_gate_report.json
+```
 
 ## Build
 

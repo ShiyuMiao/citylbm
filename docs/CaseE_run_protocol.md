@@ -71,6 +71,14 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   native FluidX3D baseline, including SHA256 hashes for the generated source/metadata files. Treat the manifest gate
   `required_before_paper_grade_accuracy_claim` as blocking until the native baseline and CityLBM-driven run are compared
   with the same VTK averaging and probe audit table.
+- Run the machine gate after postprocessing:
+
+```powershell
+python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --out <run_dir>\validation_gate_report.json
+```
+
+  The gate must pass before Case E is described as paper-grade validation. A failed gate means the run remains
+  diagnostic, even if Rhino/Grasshopper visualization and screenshots are complete.
 
 ## Metrics to report
 
@@ -85,6 +93,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Inlet/outlet/lateral/top boundary faces and upstream/downstream/lateral/top clearances in building-height units
 - Mean probe distance and maximum probe distance
 - Native FluidX3D baseline run id or archive path
+- Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
+- Native baseline gate and `validation_gate_report.json`
 - Protocol gate from `validation_protocol_audit.json`
 - Systematic bias flag. If mean bias remains around `-0.20` to `-0.35` speed-ratio units, do not tune parameters first;
   audit inlet turbulence, boundary treatment, wind-direction sign, probe projection and Uref normalization.

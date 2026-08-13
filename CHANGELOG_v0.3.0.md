@@ -57,6 +57,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `docs/CaseA_native_baseline_protocol.md` defines the native FluidX3D Case A promotion gate: empty-tunnel `U/k`
   preservation, inlet distribution-consistency treatment, post-spinup averaging, official probe IDs, tolerance-based
   probe mapping and CityLBM-vs-native equivalence must be archived before Case E is promoted as SCI-grade validation.
+- `scripts/validation_gate.py` now audits completed run packages and fails diagnostic-only evidence that lacks metrics,
+  empty-tunnel `U/k` preservation, native baseline linkage, valid wind/normalization flags, probe mapping, time averaging
+  or bounded mean/k errors.
 
 ## Remaining scientific work
 

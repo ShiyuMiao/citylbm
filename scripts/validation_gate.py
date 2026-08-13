@@ -1,0 +1,466 @@
+#!/usr/bin/env python3
+"""Audit CityLBM/FluidX3D validation run artifacts before paper claims.
+
+This script does not run CFD. It checks whether an existing run package has the
+minimum evidence needed before AIJ Case A/E metrics can be treated as validation
+evidence rather than a smoke or diagnostic run.
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import math
+import sys
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Tuple
+
+
+PASS = "PASS"
+FAIL = "FAIL"
+WARN = "WARN"
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Gate a CityLBM/FluidX3D AIJ validation run package."
+    )
+    parser.add_argument("run_dir", help="Case root or output directory to audit.")
+    parser.add_argument(
+        "--metrics",
+        help="Validation metrics CSV/JSON. Defaults to the newest matching file in run_dir.",
+    )
+    parser.add_argument(
+        "--probe-audit",
+        help="Optional probe audit CSV from Data Probe.",
+    )
+    parser.add_argument("--case", default="", help="Expected case label, e.g. CaseA or CaseE.")
+    parser.add_argument("--software", default="", help="Expected software label, e.g. native-fluidx3d or citylbm.")
+    parser.add_argument("--min-avg-frames", type=int, default=10)
+    parser.add_argument("--max-u-bias-ratio", type=float, default=0.15)
+    parser.add_argument("--max-u-rmse-ratio", type=float, default=0.30)
+    parser.add_argument("--min-u-r2", type=float, default=0.70)
+    parser.add_argument("--min-slope", type=float, default=0.70)
+    parser.add_argument("--max-slope", type=float, default=1.30)
+    parser.add_argument("--max-intercept-abs", type=float, default=0.20)
+    parser.add_argument("--max-k-bias-ratio", type=float, default=0.30)
+    parser.add_argument("--max-empty-tunnel-u-bias-ratio", type=float, default=0.05)
+    parser.add_argument("--max-empty-tunnel-k-bias-ratio", type=float, default=0.15)
+    parser.add_argument("--max-probe-failure-fraction", type=float, default=0.0)
+    parser.add_argument(
+        "--allow-diagnostic",
+        action="store_true",
+        help="Return exit code 0 for diagnostic-only packages while still reporting FAIL gates.",
+    )
+    parser.add_argument("--out", help="Optional JSON report path.")
+    return parser.parse_args()
+
+
+def read_json(path: Optional[Path]) -> Dict[str, Any]:
+    if not path or not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8-sig") as handle:
+        return json.load(handle)
+
+
+def read_metrics(path: Optional[Path]) -> Tuple[Dict[str, Any], Optional[Path]]:
+    if not path or not path.exists():
+        return {}, path
+    if path.suffix.lower() == ".json":
+        data = read_json(path)
+        if isinstance(data, dict):
+            return data, path
+        return {}, path
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        return {}, path
+    return rows[-1], path
+
+
+def find_first(base: Path, names: Iterable[str]) -> Optional[Path]:
+    for name in names:
+        candidate = base / name
+        if candidate.exists():
+            return candidate
+    parent = base.parent
+    if parent != base:
+        for name in names:
+            candidate = parent / name
+            if candidate.exists():
+                return candidate
+    return None
+
+
+def find_metrics(base: Path) -> Optional[Path]:
+    patterns = [
+        "*validation_metrics*.csv",
+        "*metrics*.csv",
+        "*validation*.csv",
+        "*validation_metrics*.json",
+        "*metrics*.json",
+    ]
+    candidates: List[Path] = []
+    for root in [base, base.parent]:
+        if root.exists():
+            for pattern in patterns:
+                candidates.extend(root.glob(pattern))
+    if not candidates:
+        return None
+    return max(candidates, key=lambda p: p.stat().st_mtime)
+
+
+def as_float(value: Any) -> Optional[float]:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        if math.isnan(float(value)) or math.isinf(float(value)):
+            return None
+        return float(value)
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        parsed = float(text)
+    except ValueError:
+        return None
+    if math.isnan(parsed) or math.isinf(parsed):
+        return None
+    return parsed
+
+
+def as_int(value: Any) -> Optional[int]:
+    number = as_float(value)
+    if number is None:
+        return None
+    return int(round(number))
+
+
+def as_bool(value: Any) -> Optional[bool]:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    text = str(value).strip().lower()
+    if text in {"true", "1", "yes", "y", "pass", "valid"}:
+        return True
+    if text in {"false", "0", "no", "n", "fail", "invalid"}:
+        return False
+    return None
+
+
+def get_any(mapping: Dict[str, Any], keys: Iterable[str]) -> Any:
+    for key in keys:
+        if key in mapping and mapping[key] not in (None, ""):
+            return mapping[key]
+    return None
+
+
+def add_gate(gates: List[Dict[str, Any]], key: str, status: str, evidence: str, required: str = "") -> None:
+    gates.append(
+        {
+            "key": key,
+            "status": status,
+            "evidence": evidence,
+            "required_next_action": required,
+        }
+    )
+
+
+def load_protocol_items(audit: Dict[str, Any]) -> List[Dict[str, Any]]:
+    if not audit:
+        return []
+    if isinstance(audit.get("Items"), list):
+        return audit["Items"]
+    if isinstance(audit.get("items"), list):
+        return audit["items"]
+    if isinstance(audit, list):
+        return audit
+    return []
+
+
+def protocol_status(items: List[Dict[str, Any]], key: str) -> Optional[str]:
+    for item in items:
+        if str(item.get("Key") or item.get("key") or "") == key:
+            return str(item.get("Status") or item.get("status") or "").lower()
+    return None
+
+
+def read_probe_counts(path: Optional[Path]) -> Tuple[Optional[int], Optional[int], Optional[str]]:
+    if not path or not path.exists():
+        return None, None, "probe audit CSV not found"
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        return 0, 0, "probe audit CSV has no rows"
+    failed = 0
+    for row in rows:
+        failed_flag = as_bool(get_any(row, ["failed", "Failed", "out_of_tolerance", "OutOfTolerance"]))
+        status = str(get_any(row, ["status", "Status", "validation_status", "ValidationStatus"]) or "").lower()
+        if failed_flag is True or "fail" in status or "out" in status:
+            failed += 1
+    return len(rows), failed, None
+
+
+def source_frame_count(metrics: Dict[str, Any]) -> Optional[int]:
+    direct = as_int(get_any(metrics, ["averaging_window", "AverageLastN", "average_last_n"]))
+    if direct:
+        return direct
+    source_steps = get_any(metrics, ["source_time_steps", "SourceTimeSteps", "source_steps"])
+    if source_steps:
+        text = str(source_steps).strip()
+        if not text:
+            return None
+        separators = [",", ";", " "]
+        parts = [text]
+        for sep in separators:
+            if sep in text:
+                parts = [p for p in text.replace(";", ",").replace(" ", ",").split(",") if p.strip()]
+                break
+        return len(parts)
+    return None
+
+
+def build_report(args: argparse.Namespace) -> Dict[str, Any]:
+    run_dir = Path(args.run_dir).resolve()
+    metadata_path = find_first(run_dir, ["case_metadata.json"])
+    audit_path = find_first(run_dir, ["validation_protocol_audit.json"])
+    manifest_path = find_first(run_dir, ["native_fluidx3d_baseline_manifest.json"])
+    metrics_path = Path(args.metrics).resolve() if args.metrics else find_metrics(run_dir)
+    probe_path = Path(args.probe_audit).resolve() if args.probe_audit else None
+
+    metadata = read_json(metadata_path)
+    audit = read_json(audit_path)
+    manifest = read_json(manifest_path)
+    metrics, metrics_path = read_metrics(metrics_path)
+    items = load_protocol_items(audit)
+    gates: List[Dict[str, Any]] = []
+
+    add_gate(
+        gates,
+        "artifact_presence",
+        PASS if metadata_path and audit_path and metrics_path and metrics else FAIL,
+        f"metadata={metadata_path or 'missing'}; audit={audit_path or 'missing'}; metrics={metrics_path or 'missing'}",
+        "Archive case_metadata.json, validation_protocol_audit.json and metrics CSV/JSON for every run.",
+    )
+
+    frame_count = source_frame_count(metrics)
+    if frame_count is None:
+        expected = as_int(metadata.get("ExpectedVtkFrameCount"))
+        frame_count = expected
+        frame_source = "case_metadata expected frame count"
+    else:
+        frame_source = "metrics source_time_steps/averaging_window"
+    add_gate(
+        gates,
+        "time_averaging",
+        PASS if frame_count is not None and frame_count >= args.min_avg_frames else FAIL,
+        f"{frame_source}: {frame_count}; required >= {args.min_avg_frames}",
+        "Rerun or postprocess with at least the required post-spinup averaged VTK/probe frames.",
+    )
+
+    boundary_gate = str(
+        get_any(metrics, ["boundary_protocol_gate", "BoundaryProtocolGate"])
+        or get_any(metadata.get("BoundaryProtocolAudit", {}), ["Gate"])
+        or ""
+    )
+    add_gate(
+        gates,
+        "boundary_protocol",
+        PASS if boundary_gate == "diagnostic_clearance_ok_verify_against_aij" else FAIL,
+        f"boundary_protocol_gate={boundary_gate or 'missing'}",
+        "Fix domain extents/model placement or archive a justified AIJ-equivalent boundary protocol.",
+    )
+
+    inlet_status = protocol_status(items, "inlet_turbulence_k")
+    distribution_status = protocol_status(items, "inlet_distribution_consistency")
+    inlet_treatment = str(
+        get_any(metrics, ["inlet_distribution_treatment"])
+        or metadata.get("SyntheticTurbulentInletDistributionTreatment")
+        or ""
+    )
+    empty_u_bias = as_float(get_any(metrics, ["empty_tunnel_U_bias_ratio", "empty_tunnel_u_bias_ratio"]))
+    empty_k_bias = as_float(get_any(metrics, ["empty_tunnel_k_bias_ratio", "empty_tunnel_K_bias_ratio"]))
+    empty_gate = str(get_any(metrics, ["empty_tunnel_gate", "inlet_k_preservation_gate"]) or "").strip().lower()
+    empty_tunnel_pass = (
+        empty_gate == "pass"
+        or (
+            empty_u_bias is not None
+            and abs(empty_u_bias) <= args.max_empty_tunnel_u_bias_ratio
+            and empty_k_bias is not None
+            and abs(empty_k_bias) <= args.max_empty_tunnel_k_bias_ratio
+        )
+    )
+    treatment_distribution_consistent = any(
+        token in inlet_treatment.lower()
+        for token in ["distribution_consistent", "precursor", "digital-filter", "digital_filter", "recycling"]
+    )
+    treatment_velocity_only = "velocity_field_only" in inlet_treatment.lower()
+    inlet_gate_status = PASS
+    if distribution_status in {"fail"}:
+        inlet_gate_status = FAIL
+    elif treatment_velocity_only:
+        inlet_gate_status = WARN if empty_tunnel_pass else FAIL
+    elif distribution_status == "risk" and not (treatment_distribution_consistent and empty_tunnel_pass):
+        inlet_gate_status = WARN if empty_tunnel_pass else FAIL
+    add_gate(
+        gates,
+        "inlet_turbulence",
+        inlet_gate_status,
+        (
+            f"inlet_turbulence_k={inlet_status}; inlet_distribution_consistency={distribution_status}; "
+            f"treatment={inlet_treatment or 'missing'}; empty_tunnel_gate={empty_gate or 'missing'}; "
+            f"empty_tunnel_U_bias_ratio={empty_u_bias}; empty_tunnel_k_bias_ratio={empty_k_bias}"
+        ),
+        "Pass empty-tunnel U/k preservation or replace velocity-only inlet with distribution-consistent DFM/SEM/precursor/recycling.",
+    )
+
+    native_id = str(get_any(metrics, ["native_fluidx3d_baseline_id"]) or manifest.get("BaselineId") or "")
+    native_status = protocol_status(items, "native_fluidx3d_baseline")
+    native_gate = str(get_any(metrics, ["native_baseline_gate", "native_fluidx3d_baseline_gate"]) or "").strip().lower()
+    add_gate(
+        gates,
+        "native_baseline",
+        PASS if native_id and native_gate == "pass" else FAIL,
+        f"native_fluidx3d_baseline_id={native_id or 'missing'}; protocol_status={native_status or 'missing'}; native_baseline_gate={native_gate or 'missing'}",
+        "Run and archive a paired native FluidX3D baseline using the same setup, grid, averaging and probes.",
+    )
+
+    normalization_valid = as_bool(get_any(metrics, ["normalization_valid", "NormalizationValid"]))
+    wind_valid = as_bool(get_any(metrics, ["wind_direction_valid", "WindDirectionValid"]))
+    add_gate(
+        gates,
+        "coordinate_normalization",
+        PASS if normalization_valid is True and wind_valid is True else FAIL,
+        f"normalization_valid={normalization_valid}; wind_direction_valid={wind_valid}",
+        "Audit Uref/Zref, wind sign, compared component and RS probe coordinate transform.",
+    )
+
+    valid_n = as_int(get_any(metrics, ["valid_n", "ValidN"]))
+    failed_n = as_int(get_any(metrics, ["failed_n", "FailedN"]))
+    probe_total, probe_failed, probe_error = read_probe_counts(probe_path)
+    if probe_total is not None:
+        valid_n = probe_total - (probe_failed or 0)
+        failed_n = probe_failed
+    failure_fraction = None
+    if valid_n is not None and failed_n is not None and valid_n + failed_n > 0:
+        failure_fraction = failed_n / float(valid_n + failed_n)
+    add_gate(
+        gates,
+        "probe_mapping",
+        PASS if failure_fraction is not None and failure_fraction <= args.max_probe_failure_fraction else FAIL,
+        f"valid_n={valid_n}; failed_n={failed_n}; failure_fraction={failure_fraction}; {probe_error or ''}".strip(),
+        "Export Data Probe audit CSV and fix tolerance/projection until official probes map reliably.",
+    )
+
+    u_bias = as_float(get_any(metrics, ["U_bias_ratio", "U_bias_Uref", "U_bias"]))
+    u_rmse = as_float(get_any(metrics, ["U_RMSE_ratio", "U_RMSE_Uref", "U_RMSE"]))
+    u_r2 = as_float(get_any(metrics, ["U_R2", "R2"]))
+    slope = as_float(get_any(metrics, ["U_regression_slope", "slope"]))
+    intercept = as_float(get_any(metrics, ["U_regression_intercept", "intercept"]))
+    accuracy_pass = (
+        u_bias is not None
+        and abs(u_bias) <= args.max_u_bias_ratio
+        and u_rmse is not None
+        and u_rmse <= args.max_u_rmse_ratio
+        and u_r2 is not None
+        and u_r2 >= args.min_u_r2
+        and slope is not None
+        and args.min_slope <= slope <= args.max_slope
+        and intercept is not None
+        and abs(intercept) <= args.max_intercept_abs
+    )
+    add_gate(
+        gates,
+        "mean_velocity_accuracy",
+        PASS if accuracy_pass else FAIL,
+        (
+            f"U_bias_ratio={u_bias}; U_RMSE_ratio={u_rmse}; U_R2={u_r2}; "
+            f"slope={slope}; intercept={intercept}"
+        ),
+        "Do not promote to paper-grade validation until bias, RMSE, R2, slope and intercept all meet thresholds.",
+    )
+
+    k_bias_ratio = as_float(get_any(metrics, ["k_bias_ratio", "K_bias_ratio"]))
+    if k_bias_ratio is None:
+        k_status = FAIL
+        k_evidence = "k_bias_ratio=missing"
+    else:
+        k_status = PASS if abs(k_bias_ratio) <= args.max_k_bias_ratio else FAIL
+        k_evidence = f"k_bias_ratio={k_bias_ratio}; required abs <= {args.max_k_bias_ratio}"
+    add_gate(
+        gates,
+        "k_preservation_or_accuracy",
+        k_status,
+        k_evidence,
+        "For turbulent-inflow validation, report k metrics from empty-tunnel and building probes.",
+    )
+
+    systematic_flag = str(get_any(metrics, ["systematic_bias_flag"]) or "").strip().lower()
+    add_gate(
+        gates,
+        "systematic_bias",
+        FAIL if systematic_flag in {"true", "1", "yes", "fail", "risk", "underprediction"} else PASS,
+        f"systematic_bias_flag={systematic_flag or 'missing/false'}",
+        "Investigate protocol/physics setup before tuning if a systematic low-bias flag is present.",
+    )
+
+    failing = [gate for gate in gates if gate["status"] == FAIL]
+    warnings = [gate for gate in gates if gate["status"] == WARN]
+    verdict = FAIL if failing else (WARN if warnings else PASS)
+    return {
+        "schema": "citylbm.validation_gate.v1",
+        "run_dir": str(run_dir),
+        "case": args.case,
+        "software": args.software,
+        "verdict": verdict,
+        "paper_grade": verdict == PASS,
+        "gates": gates,
+        "thresholds": {
+            "min_avg_frames": args.min_avg_frames,
+            "max_u_bias_ratio": args.max_u_bias_ratio,
+            "max_u_rmse_ratio": args.max_u_rmse_ratio,
+            "min_u_r2": args.min_u_r2,
+            "min_slope": args.min_slope,
+            "max_slope": args.max_slope,
+            "max_intercept_abs": args.max_intercept_abs,
+            "max_k_bias_ratio": args.max_k_bias_ratio,
+            "max_empty_tunnel_u_bias_ratio": args.max_empty_tunnel_u_bias_ratio,
+            "max_empty_tunnel_k_bias_ratio": args.max_empty_tunnel_k_bias_ratio,
+            "max_probe_failure_fraction": args.max_probe_failure_fraction,
+        },
+        "artifacts": {
+            "case_metadata": str(metadata_path) if metadata_path else "",
+            "validation_protocol_audit": str(audit_path) if audit_path else "",
+            "native_fluidx3d_baseline_manifest": str(manifest_path) if manifest_path else "",
+            "metrics": str(metrics_path) if metrics_path else "",
+            "probe_audit": str(probe_path) if probe_path else "",
+        },
+    }
+
+
+def print_report(report: Dict[str, Any]) -> None:
+    print(f"Validation gate verdict: {report['verdict']}")
+    print(f"Paper-grade evidence: {report['paper_grade']}")
+    for gate in report["gates"]:
+        print(f"- [{gate['status']}] {gate['key']}: {gate['evidence']}")
+        if gate["status"] != PASS and gate["required_next_action"]:
+            print(f"  next: {gate['required_next_action']}")
+
+
+def main() -> int:
+    args = parse_args()
+    report = build_report(args)
+    if args.out:
+        out_path = Path(args.out).resolve()
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    print_report(report)
+    if report["verdict"] == PASS or args.allow_diagnostic:
+        return 0
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())
