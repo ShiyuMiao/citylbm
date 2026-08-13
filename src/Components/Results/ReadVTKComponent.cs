@@ -27,6 +27,9 @@ namespace CityLBM.Components.Results
         private string  _cachedKey;          // vtkPath + step + timeStep 的组合键
         private double  _cachedSpacing;      // 上次检测到的网格间距
         private string  _cachedInfo;         // 上次的 Info 输出
+        private const int MinimumValidationAverageFrames = 10;
+        private const double MaxValidationMeanSpeedStdDevRatio = 0.05;
+        private const double MaxValidationPointSpeedStdDevRatio = 0.20;
         
         // 场景追踪：检测场景变化以自动更新 VTK 路径
         private string  _lastSceneName;      // 上次处理的场景名称
@@ -512,6 +515,14 @@ namespace CityLBM.Components.Results
                 fullInfo += AppendWindProfileInfo(physicalScene, allPoints);
             if (allVelocities.Count > 0)
                 fullInfo += AppendVelocityStats(allVelocities);
+
+            var averagingGate = BuildAveragingGateAudit(results, averageLastN, allAvailableTimeSteps);
+            if (averagingGate.Gate != "pass")
+            {
+                string reason = string.Join("; ", averagingGate.Reasons);
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    $"Time averaging is diagnostic, not paper-grade: {reason}");
+            }
             
             // 添加坐标变换日志
             fullInfo += "\n\n=== 坐标变换日志 ===\n" + transformLog;
@@ -549,6 +560,7 @@ namespace CityLBM.Components.Results
             bool selectedLastWindow = averageLastN > 0 && IsLastWindow(sourceSteps, availableSteps);
             bool sourceStepsStrictlyIncreasing = IsStrictlyIncreasing(sourceSteps);
             bool sourceStepSpacingUniform = HasUniformStepSpacing(sourceSteps);
+            var gateAudit = BuildAveragingGateAudit(safeResults, averageLastN, availableSteps);
             var audit = new Dictionary<string, object>
             {
                 { "schema_version", 1 },
@@ -574,10 +586,63 @@ namespace CityLBM.Components.Results
                 { "max_speed_stddev_mps", averaged != null ? JsonMetric(averaged.MaxSpeedStdDev) : null },
                 { "mean_speed_stddev_ratio", averaged != null ? JsonMetric(averaged.MeanSpeedStdDevRatio) : null },
                 { "max_speed_stddev_ratio", averaged != null ? JsonMetric(averaged.MaxSpeedStdDevRatio) : null },
-                { "time_averaging_gate_hint", BuildAveragingGateHint(averageLastN, averagedFrameCount) }
+                { "time_averaging_gate_hint", BuildAveragingGateHint(averageLastN, averagedFrameCount) },
+                { "minimum_validation_average_frames", MinimumValidationAverageFrames },
+                { "max_mean_speed_stddev_ratio", MaxValidationMeanSpeedStdDevRatio },
+                { "max_point_speed_stddev_ratio", MaxValidationPointSpeedStdDevRatio },
+                { "time_averaging_gate", gateAudit.Gate },
+                { "time_averaging_gate_reasons", gateAudit.Reasons },
+                { "time_averaging_gate_reasons_csv", string.Join(";", gateAudit.Reasons) }
             };
 
             return Newtonsoft.Json.JsonConvert.SerializeObject(audit, Newtonsoft.Json.Formatting.Indented);
+        }
+
+        private AveragingGateAudit BuildAveragingGateAudit(List<VTKResult> results, int averageLastN, IList<int> allAvailableTimeSteps)
+        {
+            var safeResults = results ?? new List<VTKResult>();
+            VTKResult averaged = safeResults.Count == 1 ? safeResults[0] : null;
+            bool hasAveragedField = averageLastN > 0 && averaged != null && averaged.AveragedFrameCount > 0;
+            int averagedFrameCount = hasAveragedField ? averaged.AveragedFrameCount : 0;
+            List<int> availableSteps = (allAvailableTimeSteps ?? new List<int>())
+                .Distinct()
+                .OrderBy(t => t)
+                .ToList();
+            List<int> sourceSteps = hasAveragedField && averaged.SourceTimeSteps != null && averaged.SourceTimeSteps.Count > 0
+                ? averaged.SourceTimeSteps.OrderBy(t => t).ToList()
+                : safeResults
+                    .Where(r => r != null)
+                    .Select(r => r.TimeStep)
+                    .Distinct()
+                    .OrderBy(t => t)
+                    .ToList();
+
+            bool selectedLastWindow = averageLastN > 0 && IsLastWindow(sourceSteps, availableSteps);
+            bool sourceStepsStrictlyIncreasing = IsStrictlyIncreasing(sourceSteps);
+            bool sourceStepSpacingUniform = HasUniformStepSpacing(sourceSteps);
+            var reasons = new List<string>();
+            if (averageLastN <= 0)
+                reasons.Add("averaging_disabled");
+            if (averagedFrameCount < MinimumValidationAverageFrames)
+                reasons.Add($"averaged_frame_count_below_{MinimumValidationAverageFrames}");
+            if (!selectedLastWindow)
+                reasons.Add("not_last_available_window");
+            if (!sourceStepsStrictlyIncreasing)
+                reasons.Add("source_steps_not_strictly_increasing");
+            if (!sourceStepSpacingUniform)
+                reasons.Add("source_step_spacing_not_uniform");
+            if (averaged != null && !double.IsNaN(averaged.MeanSpeedStdDevRatio) &&
+                averaged.MeanSpeedStdDevRatio > MaxValidationMeanSpeedStdDevRatio)
+                reasons.Add("mean_speed_stddev_ratio_above_0.05");
+            if (averaged != null && !double.IsNaN(averaged.MaxSpeedStdDevRatio) &&
+                averaged.MaxSpeedStdDevRatio > MaxValidationPointSpeedStdDevRatio)
+                reasons.Add("max_speed_stddev_ratio_above_0.20");
+
+            return new AveragingGateAudit
+            {
+                Gate = reasons.Count == 0 ? "pass" : "diagnostic_only",
+                Reasons = reasons
+            };
         }
 
         private string BuildAveragingGateHint(int averageLastN, int averagedFrameCount)
@@ -761,6 +826,12 @@ namespace CityLBM.Components.Results
         // ══════════════════════════════════════════════════════════════
         // 探测网格间距（只读头部，不读完整数据）
         // ══════════════════════════════════════════════════════════════
+
+        private class AveragingGateAudit
+        {
+            public string Gate { get; set; }
+            public List<string> Reasons { get; set; } = new List<string>();
+        }
 
         private struct VTKGridInfo
         {

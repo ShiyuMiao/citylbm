@@ -357,6 +357,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     selected_last_window = as_bool(get_any(metrics, ["selected_last_window", "SelectedLastWindow"]))
     source_steps_increasing = as_bool(get_any(metrics, ["source_steps_strictly_increasing", "SourceStepsStrictlyIncreasing"]))
     source_spacing_uniform = as_bool(get_any(metrics, ["source_step_spacing_uniform", "SourceStepSpacingUniform"]))
+    metrics_time_gate = str(get_any(metrics, ["time_averaging_gate", "TimeAveragingGate"]) or "").strip().lower()
+    metrics_time_gate_reasons = str(get_any(metrics, ["time_averaging_gate_reasons", "TimeAveragingGateReasons"]) or "").strip()
     mean_speed_stddev_ratio = as_float(get_any(metrics, ["mean_speed_stddev_ratio", "MeanSpeedStdDevRatio"]))
     max_speed_stddev_ratio = as_float(get_any(metrics, ["max_speed_stddev_ratio", "MaxSpeedStdDevRatio"]))
     mean_speed_stable = (
@@ -376,6 +378,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and source_last_step is not None
         and latest_available_step is not None
         and source_last_step == latest_available_step
+        and metrics_time_gate in {"", "pass"}
         and mean_speed_stable
         and point_speed_stable
     )
@@ -389,6 +392,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_last_step={source_last_step}; latest_available_step={latest_available_step}; "
             f"selected_last_window={selected_last_window}; source_steps_strictly_increasing={source_steps_increasing}; "
             f"source_step_spacing_uniform={source_spacing_uniform}; "
+            f"metrics_time_averaging_gate={metrics_time_gate or 'missing'}; "
+            f"metrics_time_averaging_gate_reasons={metrics_time_gate_reasons or 'none'}; "
             f"mean_speed_stddev_ratio={mean_speed_stddev_ratio}; required <= {args.max_mean_speed_stddev_ratio}; "
             f"max_speed_stddev_ratio={max_speed_stddev_ratio}; required <= {args.max_point_speed_stddev_ratio}"
         ),
