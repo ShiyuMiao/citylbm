@@ -53,11 +53,14 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   Also archive the reported mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation.
   A short window with large residual fluctuation is diagnostic only and must not be treated as paper-grade time averaging.
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
-- The probe audit table must contain official point number, original coordinate, CFD interpolation cell, interpolation
-  distance, compared velocity component and failure flag.
-- In `Data Probe`, connect `Uref=3.928296` and `Wind Direction=(0,-1,0)`, then archive the appended outputs
-  `Speed Ratio`, `Streamwise Ratio`, `Nearest Distance` and `Audit CSV`. These outputs are diagnostic only:
-  `Uref` is used for validation ratios and must not be used to replace `AF_caseE.csv`.
+- The probe audit table must contain official point number, original coordinate, interpolation distance,
+  compared velocity component, compared value, tolerance, out-of-tolerance flag and failure flag.
+- In `Data Probe`, connect `Uref=3.928296`, `Wind Direction=(0,-1,0)`, `Probe IDs` from the official `RS_caseE.csv`
+  point-number field, `Tolerance` from the run protocol, and `Compared Component`.
+  Use `speed_ratio` when comparing with AIJ velocity-ratio magnitudes; use `streamwise_ratio` only if the validation
+  table is explicitly defined as along-wind signed velocity. Archive the appended outputs `Speed Ratio`,
+  `Streamwise Ratio`, `Nearest Distance`, `Audit CSV`, `Validation Status`, `Compared Value` and `Probe ID`.
+  These outputs are diagnostic only: `Uref` is used for validation ratios and must not be used to replace `AF_caseE.csv`.
 - A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
   extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
 - `case_metadata.json` must be archived with the run. It records the boundary-condition summary, expected VTK frame count,

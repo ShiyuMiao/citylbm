@@ -28,6 +28,11 @@ namespace CityLBM.Components.Results
 
         // 探针位置缓存（用于检测变化）
         private List<Point3d> _lastProbePositions = new List<Point3d>();
+        private Vector3d _lastWindDirection = Vector3d.Unset;
+        private double _lastUref = double.NaN;
+        private string _lastProbeIdKey = null;
+        private string _lastComparedComponent = null;
+        private double _lastProbeTolerance = double.NaN;
         private bool _forceUpdate = true;
 
         public ProbeComponent()
@@ -78,10 +83,25 @@ namespace CityLBM.Components.Results
                 "Reference velocity for validation ratios. Used for probe post-processing only; it does not replace the inlet profile.",
                 GH_ParamAccess.item, 0.0);
 
+            pManager.AddTextParameter("Probe IDs", "IDs",
+                "Optional official measurement point IDs. Used only in validation audit rows.",
+                GH_ParamAccess.list);
+
+            pManager.AddNumberParameter("Tolerance", "Tol",
+                "Optional probe-to-VTK nearest sample tolerance in model units. Values > 0 flag out-of-tolerance probes.",
+                GH_ParamAccess.item, 0.0);
+
+            pManager.AddTextParameter("Compared Component", "Comp",
+                "Validation component written to the audit table: speed_ratio, streamwise_ratio, speed, streamwise, x, y or z.",
+                GH_ParamAccess.item, "speed_ratio");
+
             pManager[3].Optional = true;
             pManager[4].Optional = true;
             pManager[7].Optional = true;
             pManager[8].Optional = true;
+            pManager[9].Optional = true;
+            pManager[10].Optional = true;
+            pManager[11].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
@@ -120,6 +140,18 @@ namespace CityLBM.Components.Results
             pManager.AddTextParameter("Audit CSV", "CSV",
                 "Per-probe audit rows for validation: coordinates, velocity components, ratios, interpolation distance and method.",
                 GH_ParamAccess.list);
+
+            pManager.AddTextParameter("Validation Status", "Status",
+                "Per-probe validation status: ok, fail_no_vtk_neighbor, fail_out_of_tolerance or fail_invalid_compared_value.",
+                GH_ParamAccess.list);
+
+            pManager.AddNumberParameter("Compared Value", "CV",
+                "Per-probe value for the selected Compared Component.",
+                GH_ParamAccess.list);
+
+            pManager.AddTextParameter("Probe ID", "ID",
+                "Official or generated probe ID used in the audit table.",
+                GH_ParamAccess.list);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -133,6 +165,9 @@ namespace CityLBM.Components.Results
             bool showVectors = true;
             bool enablePreview = true;
             double uref = 0.0;
+            List<string> probeIds = new List<string>();
+            double probeTolerance = 0.0;
+            string comparedComponentInput = "speed_ratio";
 
             if (!DA.GetDataList(0, fieldPoints) || fieldPoints.Count == 0)
             {
@@ -164,6 +199,15 @@ namespace CityLBM.Components.Results
             Vector3d windDirection = Vector3d.Zero;
             DA.GetData(7, ref windDirection);
             DA.GetData(8, ref uref);
+            DA.GetDataList(9, probeIds);
+            DA.GetData(10, ref probeTolerance);
+            DA.GetData(11, ref comparedComponentInput);
+            if (probeTolerance < 0)
+            {
+                probeTolerance = 0.0;
+            }
+
+            string comparedComponent = NormalizeComparedComponent(comparedComponentInput);
             bool hasWindDirection = windDirection.IsValid && windDirection.Length > 1e-9;
             if (hasWindDirection)
             {
@@ -187,9 +231,15 @@ namespace CityLBM.Components.Results
 
             // 检测探针位置是否变化
             bool probesMoved = HaveProbesMoved(probePoints);
+            bool validationConfigChanged = HasValidationConfigChanged(
+                windDirection,
+                uref,
+                probeIds,
+                comparedComponent,
+                probeTolerance);
 
             // 如果数据或探针位置变化，需要重新计算
-            if (dataChanged || probesMoved || _forceUpdate)
+            if (dataChanged || probesMoved || validationConfigChanged || _forceUpdate)
             {
                 _forceUpdate = false;
 
@@ -263,9 +313,12 @@ namespace CityLBM.Components.Results
                 var speedRatios = new List<double>();
                 var streamwiseRatios = new List<double>();
                 var nearestDistances = new List<double>();
+                var validationStatuses = new List<string>();
+                var comparedValues = new List<double>();
+                var outputProbeIds = new List<string>();
                 var auditRows = new List<string>
                 {
-                    "probe_index,x,y,z,u,v,w,speed,streamwise_velocity,Uref,speed_ratio,streamwise_ratio,nearest_distance,nearby_point_count,method"
+                    "probe_id,probe_index,x,y,z,u,v,w,speed,streamwise_velocity,Uref,speed_ratio,streamwise_ratio,nearest_distance,nearby_point_count,method,compared_component,compared_value,tolerance,out_of_tolerance,failed"
                 };
 
                 foreach (var result in probeResults)
@@ -296,9 +349,46 @@ namespace CityLBM.Components.Results
                         }
                     }
 
+                    string probeId = GetProbeId(probeIds, result.Index);
+                    double comparedValue = GetComparedValue(result, streamwiseVelocity, uref, comparedComponent);
+                    bool outOfTolerance = probeTolerance > 0.0 &&
+                        (!IsFinite(result.NearestDistance) || result.NearestDistance > probeTolerance);
+                    bool failed = result.NearbyPointCount <= 0 || outOfTolerance || !IsFinite(comparedValue);
+                    string validationStatus = GetValidationStatus(result, outOfTolerance, comparedValue);
+
                     speedRatios.Add(speedRatio);
                     streamwiseRatios.Add(streamwiseRatio);
-                    auditRows.Add(FormatAuditRow(result, streamwiseVelocity, uref, speedRatio, streamwiseRatio));
+                    validationStatuses.Add(validationStatus);
+                    comparedValues.Add(comparedValue);
+                    outputProbeIds.Add(probeId);
+                    auditRows.Add(FormatAuditRow(
+                        result,
+                        probeId,
+                        streamwiseVelocity,
+                        uref,
+                        speedRatio,
+                        streamwiseRatio,
+                        comparedComponent,
+                        comparedValue,
+                        probeTolerance,
+                        outOfTolerance,
+                        failed));
+                }
+
+                int failedCount = 0;
+                foreach (string status in validationStatuses)
+                {
+                    if (!string.Equals(status, "ok", StringComparison.OrdinalIgnoreCase))
+                    {
+                        failedCount++;
+                    }
+                }
+
+                if (failedCount > 0)
+                {
+                    AddRuntimeMessage(
+                        GH_RuntimeMessageLevel.Warning,
+                        $"{failedCount} probe(s) failed validation audit. Check VTK coverage, probe tolerance, and selected compared component.");
                 }
 
                 DA.SetDataList(0, infoList);
@@ -310,9 +400,13 @@ namespace CityLBM.Components.Results
                 DA.SetDataList(6, streamwiseRatios);
                 DA.SetDataList(7, nearestDistances);
                 DA.SetDataList(8, auditRows);
+                DA.SetDataList(9, validationStatuses);
+                DA.SetDataList(10, comparedValues);
+                DA.SetDataList(11, outputProbeIds);
 
                 // 更新缓存
                 _lastProbePositions = new List<Point3d>(probePoints);
+                StoreValidationConfig(windDirection, uref, probeIds, comparedComponent, probeTolerance);
             }
             else
             {
@@ -382,6 +476,43 @@ namespace CityLBM.Components.Results
             return false;
         }
 
+        private bool HasValidationConfigChanged(
+            Vector3d windDirection,
+            double uref,
+            List<string> probeIds,
+            string comparedComponent,
+            double probeTolerance)
+        {
+            string probeIdKey = string.Join("|", probeIds ?? new List<string>());
+
+            if (!_lastWindDirection.IsValid || (_lastWindDirection - windDirection).Length > 1e-9)
+                return true;
+            if (Math.Abs(_lastUref - uref) > 1e-12)
+                return true;
+            if (!string.Equals(_lastProbeIdKey, probeIdKey, StringComparison.Ordinal))
+                return true;
+            if (!string.Equals(_lastComparedComponent, comparedComponent, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (Math.Abs(_lastProbeTolerance - probeTolerance) > 1e-12)
+                return true;
+
+            return false;
+        }
+
+        private void StoreValidationConfig(
+            Vector3d windDirection,
+            double uref,
+            List<string> probeIds,
+            string comparedComponent,
+            double probeTolerance)
+        {
+            _lastWindDirection = windDirection;
+            _lastUref = uref;
+            _lastProbeIdKey = string.Join("|", probeIds ?? new List<string>());
+            _lastComparedComponent = comparedComponent;
+            _lastProbeTolerance = probeTolerance;
+        }
+
         /// <summary>
         /// 在指定位置测量风场数据
         /// </summary>
@@ -424,12 +555,19 @@ namespace CityLBM.Components.Results
         /// </summary>
         private static string FormatAuditRow(
             ProbeMeasurement result,
+            string probeId,
             double streamwiseVelocity,
             double uref,
             double speedRatio,
-            double streamwiseRatio)
+            double streamwiseRatio,
+            string comparedComponent,
+            double comparedValue,
+            double probeTolerance,
+            bool outOfTolerance,
+            bool failed)
         {
             return string.Join(",",
+                EscapeCsv(probeId),
                 result.Index + 1,
                 FormatDouble(result.Position.X),
                 FormatDouble(result.Position.Y),
@@ -444,7 +582,113 @@ namespace CityLBM.Components.Results
                 FormatDouble(streamwiseRatio),
                 FormatDouble(result.NearestDistance),
                 result.NearbyPointCount,
-                result.InterpolationMethod);
+                EscapeCsv(result.InterpolationMethod),
+                EscapeCsv(comparedComponent),
+                FormatDouble(comparedValue),
+                FormatDouble(probeTolerance),
+                outOfTolerance ? "true" : "false",
+                failed ? "true" : "false");
+        }
+
+        private static string GetProbeId(List<string> probeIds, int index)
+        {
+            if (probeIds != null && index >= 0 && index < probeIds.Count && !string.IsNullOrWhiteSpace(probeIds[index]))
+            {
+                return probeIds[index].Trim();
+            }
+
+            return (index + 1).ToString(CultureInfo.InvariantCulture);
+        }
+
+        private static string NormalizeComparedComponent(string component)
+        {
+            string value = (component ?? string.Empty).Trim().ToLowerInvariant();
+            switch (value)
+            {
+                case "speed":
+                case "speed_magnitude":
+                case "magnitude":
+                case "mag":
+                    return "speed";
+                case "streamwise":
+                case "wind":
+                case "along_wind":
+                    return "streamwise";
+                case "streamwise_ratio":
+                case "wind_ratio":
+                case "along_wind_ratio":
+                    return "streamwise_ratio";
+                case "x":
+                case "u":
+                case "u_x":
+                    return "x";
+                case "y":
+                case "v":
+                case "u_y":
+                    return "y";
+                case "z":
+                case "w":
+                case "u_z":
+                    return "z";
+                case "speed_ratio":
+                case "ratio":
+                default:
+                    return "speed_ratio";
+            }
+        }
+
+        private static double GetComparedValue(
+            ProbeMeasurement result,
+            double streamwiseVelocity,
+            double uref,
+            string comparedComponent)
+        {
+            switch (NormalizeComparedComponent(comparedComponent))
+            {
+                case "speed":
+                    return result.Speed;
+                case "streamwise":
+                    return streamwiseVelocity;
+                case "streamwise_ratio":
+                    return uref > 0.0 && IsFinite(streamwiseVelocity) ? streamwiseVelocity / uref : double.NaN;
+                case "x":
+                    return result.Velocity.X;
+                case "y":
+                    return result.Velocity.Y;
+                case "z":
+                    return result.Velocity.Z;
+                case "speed_ratio":
+                default:
+                    return uref > 0.0 ? result.Speed / uref : double.NaN;
+            }
+        }
+
+        private static string GetValidationStatus(ProbeMeasurement result, bool outOfTolerance, double comparedValue)
+        {
+            if (result.NearbyPointCount <= 0)
+                return "fail_no_vtk_neighbor";
+            if (outOfTolerance)
+                return "fail_out_of_tolerance";
+            if (!IsFinite(comparedValue))
+                return "fail_invalid_compared_value";
+
+            return "ok";
+        }
+
+        private static bool IsFinite(double value)
+        {
+            return !double.IsNaN(value) && !double.IsInfinity(value);
+        }
+
+        private static string EscapeCsv(string value)
+        {
+            if (value == null)
+                return string.Empty;
+
+            if (value.IndexOfAny(new[] { ',', '"', '\r', '\n' }) < 0)
+                return value;
+
+            return "\"" + value.Replace("\"", "\"\"") + "\"";
         }
 
         private static string FormatDouble(double value)
