@@ -41,6 +41,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `Data Probe` now accepts optional official probe IDs, a probe-to-VTK tolerance and an explicit compared component.
   Its audit CSV records the selected comparison value and flags probes with no VTK neighbor, invalid comparison value
   or out-of-tolerance mapping.
+- `Data Probe` audit CSV now records the wind-vector components, `wind_direction_valid` and `normalization_valid`, so
+  speed-ratio and streamwise-ratio comparisons can be traced instead of inferred from the GH canvas.
 - `Data Probe` spatial hashing now uses floor-based cell indices for negative coordinates and applies the configured
   search radius as a real distance filter. This fixes probe-neighbor ambiguity for AIJ domains with negative `x/y`
   coordinates and makes the nearest-distance/tolerance audit meaningful.

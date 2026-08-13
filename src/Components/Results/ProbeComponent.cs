@@ -218,6 +218,18 @@ namespace CityLBM.Components.Results
                 windDirection = Vector3d.Zero;
             }
 
+            if (comparedComponent.Contains("ratio") && uref <= 0.0)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    "Compared Component uses a ratio but Uref <= 0. Set the official Uref used by the AIJ table.");
+            }
+
+            if (comparedComponent.Contains("streamwise") && !hasWindDirection)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    "Compared Component uses streamwise velocity but Wind Direction is missing or invalid.");
+            }
+
             // 验证数据一致性
             if (fieldPoints.Count != fieldVelocities.Count)
             {
@@ -318,7 +330,7 @@ namespace CityLBM.Components.Results
                 var outputProbeIds = new List<string>();
                 var auditRows = new List<string>
                 {
-                    "probe_id,probe_index,x,y,z,u,v,w,speed,streamwise_velocity,Uref,speed_ratio,streamwise_ratio,nearest_distance,nearby_point_count,method,compared_component,compared_value,tolerance,out_of_tolerance,failed"
+                    "probe_id,probe_index,x,y,z,u,v,w,speed,wind_x,wind_y,wind_z,wind_direction_valid,streamwise_velocity,Uref,normalization_valid,speed_ratio,streamwise_ratio,nearest_distance,nearby_point_count,method,compared_component,compared_value,tolerance,out_of_tolerance,failed"
                 };
 
                 foreach (var result in probeResults)
@@ -364,6 +376,8 @@ namespace CityLBM.Components.Results
                     auditRows.Add(FormatAuditRow(
                         result,
                         probeId,
+                        windDirection,
+                        hasWindDirection,
                         streamwiseVelocity,
                         uref,
                         speedRatio,
@@ -556,6 +570,8 @@ namespace CityLBM.Components.Results
         private static string FormatAuditRow(
             ProbeMeasurement result,
             string probeId,
+            Vector3d windDirection,
+            bool hasWindDirection,
             double streamwiseVelocity,
             double uref,
             double speedRatio,
@@ -576,8 +592,13 @@ namespace CityLBM.Components.Results
                 FormatDouble(result.Velocity.Y),
                 FormatDouble(result.Velocity.Z),
                 FormatDouble(result.Speed),
+                FormatDouble(hasWindDirection ? windDirection.X : double.NaN),
+                FormatDouble(hasWindDirection ? windDirection.Y : double.NaN),
+                FormatDouble(hasWindDirection ? windDirection.Z : double.NaN),
+                hasWindDirection ? "true" : "false",
                 FormatDouble(streamwiseVelocity),
                 FormatDouble(uref),
+                uref > 0.0 ? "true" : "false",
                 FormatDouble(speedRatio),
                 FormatDouble(streamwiseRatio),
                 FormatDouble(result.NearestDistance),
