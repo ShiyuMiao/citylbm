@@ -1,10 +1,11 @@
 {
-  "generated_at": "2026-08-13T12:11:58.868907+00:00",
+  "generated_at": "2026-08-13T12:33:32.759279+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_environment_recovery_runbook",
   "official_followup_run_allowed": false,
   "formal_release_allowed": false,
   "blocked_gates": [
+    "official_data_manifest",
     "rhino_gha_load",
     "gpu_runtime",
     "vs_cpp_build_tools"
@@ -12,17 +13,17 @@
   "disk": [
     {
       "drive": "C:\\",
-      "free_gb": 0.001,
+      "free_gb": 0.0,
       "total_gb": 194.47
     },
     {
       "drive": "D:\\",
-      "free_gb": 229.618,
+      "free_gb": 229.619,
       "total_gb": 281.627
     },
     {
       "drive": "E:\\",
-      "free_gb": 811.045,
+      "free_gb": 811.042,
       "total_gb": 931.512
     },
     {
@@ -48,15 +49,15 @@
       "path": "CityLBM/bin/Release",
       "exists": true,
       "file_count": 4,
-      "size_bytes": 3963112,
-      "size_mb": 3.78
+      "size_bytes": 3991572,
+      "size_mb": 3.807
     },
     {
       "path": "CityLBM/obj",
       "exists": true,
       "file_count": 14,
-      "size_bytes": 325331,
-      "size_mb": 0.31
+      "size_bytes": 335359,
+      "size_mb": 0.32
     },
     {
       "path": "E:/citylbm_rc89_work/NuGet",
@@ -82,7 +83,7 @@
       "enabled": true,
       "priority": 2,
       "blocking_gate": "vs_cpp_build_tools",
-      "action": "Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 0.001 GB. Workspace build-cache candidates total only 4.090 MB.",
+      "action": "Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 0.0 GB. Workspace build-cache candidates total only 4.127 MB.",
       "verification_command": "Get-PSDrive C",
       "pass_condition": "C: free space >= 8 GB; workspace cache cleanup alone is not enough if the current value remains near 0.5 GB.",
       "risk_boundary": "Do not delete user data; record any cleanup outside the repo separately."

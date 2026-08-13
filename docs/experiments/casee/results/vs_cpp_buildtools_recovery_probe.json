@@ -1,11 +1,11 @@
 ﻿{
-    "generated_at":  "2026-08-13T12:11:42.8746606Z",
+    "generated_at":  "2026-08-13T12:33:17.2376643Z",
     "evidence_type":  "newly_run",
     "install_requested":  false,
     "install_attempted":  false,
     "vs_cpp_ready":  false,
     "current_user_is_admin":  false,
-    "system_drive_free_gb":  0.001,
+    "system_drive_free_gb":  0,
     "min_system_drive_free_gb":  8,
     "install_path":  "E:\\citylbm_buildchain\\VSBuildTools",
     "recommended_command":  "winget install --id Microsoft.VisualStudio.2022.BuildTools --source winget --accept-package-agreements --accept-source-agreements --silent --location E:\\citylbm_buildchain\\VSBuildTools --override \"--wait --quiet --norestart --installPath E:\\citylbm_buildchain\\VSBuildTools --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.Component.Windows11SDK.26100\"",
@@ -42,7 +42,7 @@
     "winget":  {
                    "found":  true,
                    "path":  "C:\\Users\\miaoshiyu\\AppData\\Local\\Microsoft\\WindowsApps\\winget.exe",
-                   "version":  "Windows 程序包管理器 v1.29.280"
+                   "version":  "Program \u0027winget.exe\u0027 failed to run: The file cannot be accessed by the systemAt E:\\citylbm_rc89_work\\docs\\experiments\\casee\\tools\\vs_cpp_buildtools_recovery.ps1:25 char:21\r\n+         $version = (\u0026 $Name 2\u003e\u00261 | Select-Object -First 1) -join \"`n\"\r\n+                     ~~~~~~~~~~~~."
                },
     "cl":  {
                "found":  false,

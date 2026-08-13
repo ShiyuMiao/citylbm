@@ -1,6 +1,6 @@
 # C014 Residual Structure Audit
 
-Generated: 2026-08-13T12:12:03.219511+00:00
+Generated: 2026-08-13T12:33:37.206496+00:00
 
 ## Verdict
 

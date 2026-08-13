@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-08-13T12:11:40.196994+00:00",
+  "generated_at": "2026-08-13T12:33:15.046954+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_rhino_evidence_kit",
   "rhino_load_evidence_kit_ready": false,
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
   "expected_plugin_public_version": "0.4.0-rc",
-  "expected_tracked_gha_sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
+  "expected_tracked_gha_sha256": "f89944de26daa6c54b6791cdbeec6bac1c3b0d3463f70de2fe253bfd475bdcfc",
   "tracked_gha": {
     "found": true,
     "path": "E:\\citylbm_rc89_work\\CityLBM\\bin\\CityLBM.gha",
-    "sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
-    "size_bytes": 1844736,
-    "mtime_utc": "2026-08-13T11:59:18.985769+00:00"
+    "sha256": "f89944de26daa6c54b6791cdbeec6bac1c3b0d3463f70de2fe253bfd475bdcfc",
+    "size_bytes": 1853952,
+    "mtime_utc": "2026-08-13T12:29:39.484119+00:00"
   },
   "rhino_candidates": [
     {
@@ -87,13 +87,13 @@
   ],
   "manual_manifest_template_path": "docs/experiments/casee/results/rhino_gha_load_manifest.template.json",
   "manual_manifest_template": {
-    "checked_at": "2026-08-13T12:11:40.196790+00:00",
+    "checked_at": "2026-08-13T12:33:15.046498+00:00",
     "operator": "manual-operator-name",
     "rhino_version": "paste Rhino About/SystemInfo version string",
     "grasshopper_version": "paste Grasshopper version string",
     "observed_plugin_version": "0.4.0-rc",
     "observed_assembly_version": "0.4.0.0",
-    "observed_gha_sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
+    "observed_gha_sha256": "f89944de26daa6c54b6791cdbeec6bac1c3b0d3463f70de2fe253bfd475bdcfc",
     "evidence_artifacts": [
       "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
       "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"

@@ -1,6 +1,6 @@
 # Case E Failure-Mode Atlas
 
-Generated: 2026-08-13T12:12:00.205528+00:00
+Generated: 2026-08-13T12:33:34.185516+00:00
 
 ## Verdict
 
@@ -19,7 +19,7 @@ Generated: 2026-08-13T12:12:00.205528+00:00
 | `FM003_probe_sampling_sensitivity` | diagnostic_only | major | raw MAE=21.111 pp, R2=-2.006330; vertical_valid_above MAE=16.041 pp, R2=-0.554717; z_plus_half MAE=18.761 pp, R2=-1.222132 | Use only as a probe-protocol sensitivity limitation. |
 | `FM004_near_wall_solid_corner_risk` | active_limitation | critical | low-risk raw MAE=12.435 pp (n=47); high-risk raw MAE=34.589 pp (n=14); solid0 MAE=12.435 pp; solid4 MAE=35.845 pp | Use as the main limitations evidence for near-wall and solid-corner protocol risk. |
 | `FM005_spatial_alignment_unlikely` | diagnostic_checked | moderate | identity Pearson=0.071789, R2=-2.311768; best available transform `flip_y` still has R2=-2.111059 | Use to narrow the error explanation away from a simple x/y convention mistake. |
-| `FM006_runtime_preflight_blocked` | blocked | critical | official_followup_run_allowed=False; blocked=rhino_gha_load,gpu_runtime,vs_cpp_build_tools | Use to explain why no new long-run result was added in this release candidate. |
+| `FM006_runtime_preflight_blocked` | blocked | critical | official_followup_run_allowed=False; blocked=official_data_manifest,rhino_gha_load,gpu_runtime,vs_cpp_build_tools | Use to explain why no new long-run result was added in this release candidate. |
 | `FM007_velocity_range_compression` | active_limitation | critical | C014 MAE=13.786 pp, R2=-0.229845; post-hoc affine upper-bound R2=0.099203; downstream R2=-0.566325; official high-speed bias=-21.002 pp; official low-speed bias=12.724 pp | Use to explain why the strongest C014 diagnostic improvement is still not paper-grade validation. |
 
 ## Software Feedback

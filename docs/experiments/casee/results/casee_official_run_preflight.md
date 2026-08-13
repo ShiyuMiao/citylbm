@@ -1,6 +1,6 @@
 # Case E Official Run Preflight
 
-Generated: 2026-08-13T12:11:58.210227+00:00
+Generated: 2026-08-13T12:33:32.169277+00:00
 
 ## Verdict
 
@@ -18,7 +18,7 @@ Generated: 2026-08-13T12:11:58.210227+00:00
 
 | gate | status | severity | required action |
 |---|---:|---|---|
-| `official_data_manifest` | pass | critical | Re-download and hash-check Zenodo Case E files if this fails. |
+| `official_data_manifest` | blocked | critical | Re-download and hash-check Zenodo Case E files if this fails. |
 | `official_probe_protocol` | pass | critical | Keep formal validation locked to ac+N z=2 m with 80 raw_trilinear probes. |
 | `citylbm_build` | pass | critical | Run reproducibility_suite.py or dotnet build until the Release build passes. |
 | `plugin_identity` | pass | major | Regenerate plugin_identity_gate.py after rebuilding CityLBM.gha. |

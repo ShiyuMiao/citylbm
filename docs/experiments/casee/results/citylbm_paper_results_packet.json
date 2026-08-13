@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T12:12:14.585978+00:00",
+    "generated_at": "2026-08-13T12:33:48.557449+00:00",
     "result_count": 28,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
@@ -113,7 +113,7 @@
       "claim_readiness": "blocked_official_followup_preflight",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/casee_official_run_preflight.json; docs/experiments/casee/results/casee_environment_recovery_runbook.json",
-      "metric_or_status": "official_followup_run_allowed=False; blocked_gates=rhino_gha_load,gpu_runtime,vs_cpp_build_tools",
+      "metric_or_status": "official_followup_run_allowed=False; blocked_gates=official_data_manifest,rhino_gha_load,gpu_runtime,vs_cpp_build_tools",
       "paper_use": "Use to document whether the next long official validation run is schedulable on this machine.",
       "limitations": "Runtime readiness evidence only; no new solver output is produced.",
       "software_feedback": "Keep Rhino new-GHA loading and native source compile evidence as operational gates before new formal Case E sweeps."
@@ -344,7 +344,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc89",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc90",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."

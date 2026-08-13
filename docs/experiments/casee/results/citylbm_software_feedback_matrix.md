@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-13T12:12:26.616404+00:00
+Generated: 2026-08-13T12:34:00.302165+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 66
+- Feedback rows: 68
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -43,6 +43,7 @@ Generated: 2026-08-13T12:12:26.616404+00:00
 - operational_recovery_dashboard_gate: 1
 - packaged_accuracy_action_plan_component_no_accuracy_promotion: 1
 - packaged_gha_identity_component_gate: 1
+- packaged_paper_claim_card_component_no_accuracy_promotion: 1
 - paper_claim_support_gate: 1
 - paper_figure_output: 1
 - paper_interpretation_layer: 1
@@ -64,6 +65,7 @@ Generated: 2026-08-13T12:12:26.616404+00:00
 - software_gha_staging_audit: 1
 - software_identity_component: 1
 - software_packaging_traceability_no_accuracy_promotion: 1
+- software_paper_claim_card_component_no_accuracy_promotion: 1
 - software_postrun_audit_component_no_accuracy_promotion: 1
 - software_publication_gate_output: 1
 - software_publication_readiness_contract: 1
@@ -143,6 +145,8 @@ Generated: 2026-08-13T12:12:26.616404+00:00
 | `SF064` | Experiment 2 / Case E accuracy action plan gate | accuracy_action_plan_no_default_promotion | implemented_accuracy_action_plan_gate | False | The quantified accuracy gap is now converted into an ordered action plan that separates release safety, Rhino/GHA evidence, environment recovery, wall-model follow-up, AF-k/no-SGS follow-up, C016 channel-response follow-up, post-run audit, and post-hoc calibration rejection. |
 | `SF065` | Experiment 2 / CityLBM plugin Case E accuracy action-plan component | software_accuracy_action_plan_component_no_accuracy_promotion | implemented_casee_accuracy_action_plan_component | False | CityLBM now exposes the quantified official z=2 m accuracy gap and ordered next actions inside Grasshopper so users see the R2/MAE blocker before interpreting Case E outputs. |
 | `SF066` | Experiment 2 / packaged CityLBM Case E accuracy action-plan component | packaged_accuracy_action_plan_component_no_accuracy_promotion | implemented_packaged_casee_accuracy_action_plan_component | False | The packaged CityLBM GHA is audited for the Case E Accuracy Action Plan component markers, including metric-gap outputs, action IDs, and forbidden-claim boundary strings. |
+| `SF067` | Experiment 2 / CityLBM plugin Case E paper claim-card component | software_paper_claim_card_component_no_accuracy_promotion | implemented_casee_paper_claim_card_component | False | CityLBM now exposes a Grasshopper Case E Paper Claim Card component that separates paper-ready negative-validation statements, limitations, forbidden claims, and evidence paths. |
+| `SF068` | Experiment 2 / packaged CityLBM Case E paper claim-card component | packaged_paper_claim_card_component_no_accuracy_promotion | implemented_packaged_casee_paper_claim_card_component | False | The packaged CityLBM GHA is audited for the Case E Paper Claim Card component markers, including paper-ready claims, limitations, forbidden claims, and evidence-path outputs. |
 
 ## Paper Boundary
 
@@ -214,6 +218,8 @@ Generated: 2026-08-13T12:12:26.616404+00:00
 | `SF064` | Use as a reviewer-facing bridge from current accuracy limitations to the next official CFD actions and software policy. | Action-plan evidence only; it does not run FluidX3D, improve metrics, or permit formal v0.4.0. |
 | `SF065` | Use as software workflow evidence that the plugin exposes current accuracy blockers and next actions to Grasshopper users. | Plugin component evidence only; it does not run FluidX3D, compute a new R2, improve official z2m metrics, promote defaults, or permit formal v0.4.0. |
 | `SF066` | Use as packaged-plugin evidence that the release asset contains the action-plan component. | Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0. |
+| `SF067` | Use as plugin-side paper-writing support that keeps Case E claims within the verified negative-validation boundary. | Plugin component evidence only; it does not run FluidX3D, compute a new R2, improve official z2m metrics, promote defaults, or permit formal v0.4.0. |
+| `SF068` | Use as packaged-plugin evidence that the release asset contains the paper claim-card component. | Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0. |
 
 ## Boundary
 

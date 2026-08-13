@@ -52,10 +52,20 @@ EXPECTED_UNTRACKED_EVIDENCE = {
     "docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.json",
     "docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.csv",
     "docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.md",
+    "CityLBM/src/Components/Results/CaseEPaperClaimCardComponent.cs",
+    "docs/experiments/casee/tools/citylbm_casee_paper_claim_card_component_gate.py",
+    "docs/experiments/casee/tools/citylbm_casee_paper_claim_card_binary_gate.py",
+    "docs/experiments/casee/results/citylbm_casee_paper_claim_card_component_gate.json",
+    "docs/experiments/casee/results/citylbm_casee_paper_claim_card_component_gate.csv",
+    "docs/experiments/casee/results/citylbm_casee_paper_claim_card_component_gate.md",
+    "docs/experiments/casee/results/citylbm_casee_paper_claim_card_binary_gate.json",
+    "docs/experiments/casee/results/citylbm_casee_paper_claim_card_binary_gate.csv",
+    "docs/experiments/casee/results/citylbm_casee_paper_claim_card_binary_gate.md",
     "docs/releases/v0.4.0-rc76.md",
     "docs/releases/v0.4.0-rc77.md",
     "docs/releases/v0.4.0-rc78.md",
     "docs/releases/v0.4.0-rc89.md",
+    "docs/releases/v0.4.0-rc90.md",
 }
 
 FORBIDDEN_TRACKED_SUFFIXES = (".vtk", ".vtu", ".vti", ".vtp", ".stl", ".3dm")

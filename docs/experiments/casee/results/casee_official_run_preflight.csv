@@ -1,5 +1,5 @@
 gate_id,status,severity,evidence_type,source,required_action,paper_policy
-official_data_manifest,pass,critical,newly_run,docs/experiments/casee/data_manifest.csv,Re-download and hash-check Zenodo Case E files if this fails.,Protocol input evidence only.
+official_data_manifest,blocked,critical,newly_run,docs/experiments/casee/data_manifest.csv,Re-download and hash-check Zenodo Case E files if this fails.,Protocol input evidence only.
 official_probe_protocol,pass,critical,newly_run,docs/experiments/casee/official_data/RS_caseE.csv,Keep formal validation locked to ac+N z=2 m with 80 raw_trilinear probes.,Required for any official metric claim.
 citylbm_build,pass,critical,preexisting_artifact,docs/experiments/casee/results/release_gate.json,Run reproducibility_suite.py or dotnet build until the Release build passes.,Build evidence only.
 plugin_identity,pass,major,preexisting_artifact,docs/experiments/casee/results/plugin_identity_gate.json,Regenerate plugin_identity_gate.py after rebuilding CityLBM.gha.,Software identity evidence only.

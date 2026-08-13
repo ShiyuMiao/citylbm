@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T12:11:58.210227+00:00",
+  "generated_at": "2026-08-13T12:33:32.169277+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_official_followup_preflight",
   "official_followup_run_allowed": false,
@@ -16,7 +16,7 @@
   },
   "gates": {
     "official_data_manifest": {
-      "passed": true,
+      "passed": false,
       "severity": "critical",
       "evidence_type": "newly_run",
       "source": "docs/experiments/casee/data_manifest.csv",
@@ -105,7 +105,7 @@
     }
   },
   "official_data": {
-    "ready": true,
+    "ready": false,
     "file_checks": [
       {
         "file_name": "AF_caseE.csv",
@@ -147,7 +147,7 @@
         "file_name": "readme_caseE.md",
         "path": "docs/experiments/casee/official_data/readme_caseE.md",
         "exists": true,
-        "sha256_matches_manifest": true,
+        "sha256_matches_manifest": false,
         "md5_verified": true,
         "size_bytes_manifest": "3624",
         "downloaded_at": "2026-07-30T18:58:09+08:00"
@@ -197,17 +197,17 @@
     "disk": [
       {
         "drive": "C:\\",
-        "free_gb": 0.001,
+        "free_gb": 0.0,
         "total_gb": 194.47
       },
       {
         "drive": "D:\\",
-        "free_gb": 229.618,
+        "free_gb": 229.619,
         "total_gb": 281.627
       },
       {
         "drive": "E:\\",
-        "free_gb": 811.045,
+        "free_gb": 811.042,
         "total_gb": 931.512
       },
       {
@@ -223,6 +223,7 @@
     ]
   },
   "blocked_gates": [
+    "official_data_manifest",
     "rhino_gha_load",
     "gpu_runtime",
     "vs_cpp_build_tools"

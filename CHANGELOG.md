@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc90 - Grasshopper paper claim-card component
+
+- Added a Grasshopper `Case E Paper Claim Card` component under `CityLBM > Results`.
+- The component exports paper-ready negative-validation statements, limitations, forbidden claims, and evidence paths for AIJ Case E official z=2 m reporting.
+- Added source and packaged-GHA gates for the component and integrated them into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF067-SF068.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc89 - Grasshopper accuracy action-plan component
 
 - Added a Grasshopper `Case E Accuracy Action Plan` component under `CityLBM > Results`.

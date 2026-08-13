@@ -25,16 +25,16 @@
   "citylbm_gha": {
     "found": true,
     "path": "E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.gha",
-    "sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
-    "size_bytes": 1844736,
-    "mtime": "2026-08-13T12:11:08.872041+00:00"
+    "sha256": "f89944de26daa6c54b6791cdbeec6bac1c3b0d3463f70de2fe253bfd475bdcfc",
+    "size_bytes": 1853952,
+    "mtime": "2026-08-13T12:32:44.148920+00:00"
   },
   "citylbm_build_log": {
     "found": true,
     "path": "E:\\citylbm_rc89_work\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-    "sha256": "064e19791933ce3db0b1ba21bea58a5e2ee4d0e16c389df9114fe0846f71a89e",
+    "sha256": "954c8e3d0c73e142b5dd9ad7789b7d94083658442288f2fc2f126980285ad33e",
     "size_bytes": 1464,
-    "mtime": "2026-08-13T12:11:09.142231+00:00"
+    "mtime": "2026-08-13T12:32:44.362849+00:00"
   },
   "run_matrix": {
     "path": "E:\\citylbm_rc89_work\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",

@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-13T12:12:34.776631+00:00",
+  "generated_at": "2026-08-13T12:34:07.888845+00:00",
   "paper_evidence_gate_passed": true,
   "metric_gate": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc89",
+    "recommended_tag": "v0.4.0-rc90",
     "official_z2m_r2": -2.006330362229977,
     "official_z2m_mae_pp": 21.111408125,
     "official_z2m_pearson": 0.11575649438573923,
@@ -32,14 +32,14 @@
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_en.md",
       "academic-paper-writer/paper-drafts/casee_v04_results_limitations_zh.md"
     ],
-    "checked_nonblank_lines": 410,
+    "checked_nonblank_lines": 414,
     "forbidden_success_claim_violations": [],
     "draft_claim_boundary_passed": true
   },
   "artifact_index": {
     "artifact_index_found": true,
-    "artifact_count": 467,
-    "lightweight_release_asset_count": 397,
+    "artifact_count": 476,
+    "lightweight_release_asset_count": 406,
     "formal_accuracy_claim_supported": false,
     "required_artifacts_present": true,
     "missing_required_artifacts": []
@@ -91,6 +91,7 @@
     "formal_release_allowed": false,
     "claim_readiness": "blocked_official_followup_preflight",
     "blocked_gates": [
+      "official_data_manifest",
       "rhino_gha_load",
       "gpu_runtime",
       "vs_cpp_build_tools"
@@ -113,6 +114,7 @@
     "formal_release_allowed": false,
     "claim_readiness": "blocked_environment_recovery_runbook",
     "blocked_gates": [
+      "official_data_manifest",
       "rhino_gha_load",
       "gpu_runtime",
       "vs_cpp_build_tools"
@@ -315,7 +317,7 @@
     "claim_readiness": "paper_ready_negative_validation_and_limitations",
     "formal_accuracy_claim_supported": false,
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc89",
+    "recommended_tag": "v0.4.0-rc90",
     "check_count": 9,
     "claim_boundary_safe": true
   },
@@ -331,7 +333,7 @@
   "citylbm_software_feedback_matrix": {
     "software_feedback_matrix_found": true,
     "software_feedback_matrix_passed": true,
-    "feedback_count": 66,
+    "feedback_count": 68,
     "all_source_paths_exist": true,
     "no_forbidden_default_promotion": true,
     "formal_accuracy_claim_supported": false,
@@ -352,10 +354,10 @@
   "casee_release_asset_manifest": {
     "release_asset_manifest_found": true,
     "release_asset_manifest_passed": true,
-    "upload_asset_count": 144,
+    "upload_asset_count": 151,
     "excluded_or_hash_only_count": 20,
     "formal_accuracy_claim_supported": false,
-    "recommended_tag": "v0.4.0-rc89",
+    "recommended_tag": "v0.4.0-rc90",
     "excludes_raw_geometry_and_vtk": true,
     "claim_boundary_safe": true
   }

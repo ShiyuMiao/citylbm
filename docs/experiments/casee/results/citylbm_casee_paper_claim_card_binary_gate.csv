@@ -1,0 +1,21 @@
+kind,name,passed
+gate_check,tracked_gha_exists,True
+gate_check,release_gha_exists,True
+gate_check,tracked_gha_matches_release_gha,True
+gate_check,source_component_gate_passed,True
+gate_check,all_required_markers_present_in_tracked_gha,True
+binary_marker,CaseEPaperClaimCardComponent,True
+binary_marker,Case E Paper Claim Card,True
+binary_marker,Paper Ready Claims,True
+binary_marker,Limitations,True
+binary_marker,Forbidden Claims,True
+binary_marker,Evidence Paths,True
+binary_marker,negative-validation result,True
+binary_marker,Do not claim predictive accuracy,True
+binary_marker,Do not claim mesh independence,True
+binary_marker,Do not claim LES improvement,True
+binary_marker,Do not claim formal v0.4.0 release readiness,True
+binary_marker,post-hoc affine calibration,True
+binary_marker,casee_paper_evidence_gate.json,True
+binary_marker,citylbm_software_feedback_matrix.json,True
+binary_marker,BA36730E-EEE4-4DB6-A360-61F889517DF1,True

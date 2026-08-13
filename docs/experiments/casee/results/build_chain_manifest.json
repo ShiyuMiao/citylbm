@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T12:11:21.153110+00:00",
+  "generated_at": "2026-08-13T12:32:56.151071+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_build_chain_diagnostic",
   "build_chain_ready": false,
@@ -126,15 +126,15 @@
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File E:\\citylbm_rc89_work\\CityLBM\\build.ps1 -DotNetPath E:\\citylbm_buildchain\\dotnet\\dotnet.exe -NoPause",
       "found": true,
       "returncode": 0,
-      "stdout": "========================================\nCityLBM build\n========================================\n\nUsing .NET SDK: E:\\citylbm_buildchain\\dotnet\\dotnet.exe\n[1/3] Restoring NuGet packages...\n  \u6b63\u5728\u786e\u5b9a\u8981\u8fd8\u539f\u7684\u9879\u76ee\u2026\nE:\\citylbm_rc89_work\\CityLBM\\CityLBM.csproj : warning NU1900: \u83b7\u53d6\u5305\u6f0f\u6d1e\u6570\u636e\u65f6\u51fa\u9519: \u65e0\u6cd5\u52a0\u8f7d\u6e90 https://api.nuget.org/v3/index.json \u7684\u670d\u52a1\u7d22\u5f15\u3002 [E:\\citylbm_rc89_work\\CityLBM\\CityLBM.sln]\n  \u6240\u6709\u9879\u76ee\u5747\u662f\u6700\u65b0\u7684\uff0c\u65e0\u6cd5\u8fd8\u539f\u3002\nRestore completed.\n\n[2/3] Building Release...\nE:\\citylbm_rc89_work\\CityLBM\\CityLBM.csproj : warning NU1900: \u83b7\u53d6\u5305\u6f0f\u6d1e\u6570\u636e\u65f6\u51fa\u9519: \u65e0\u6cd5\u52a0\u8f7d\u6e90 https://api.nuget.org/v3/index.json \u7684\u670d\u52a1\u7d22\u5f15\u3002\n  CityLBM -> E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.dll\n  \u5df2\u751f\u6210 CityLBM.gha\n  ------------- IL Repack Arguments -------------\n  /out:E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.merged.dll E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.dll C:\\Users\\miaoshiyu\\.nuget\\packages\\newtonsoft.json\\13.0.3\\lib\\netstandard2.0\\Newtonsoft.Json.dll C:\\Users\\miaoshiyu\\.nuget\\packages\\nlog\\5.2.0\\lib\\netstandard2.0\\NLog.dll /wildcards /union /ndebug /ver:0.4.0.0\n  -----------------------------------------------\n  Wrote E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.merged.dll\n  \u5df2\u5408\u5e76\u4f9d\u8d56\u5230 CityLBM.gha\n\n\u5df2\u6210\u529f\u751f\u6210\u3002\n\nE:\\citylbm_rc89_work\\CityLBM\\CityLBM.csproj : warning NU1900: \u83b7\u53d6\u5305\u6f0f\u6d1e\u6570\u636e\u65f6\u51fa\u9519: \u65e0\u6cd5\u52a0\u8f7d\u6e90 https://api.nuget.org/v3/index.json \u7684\u670d\u52a1\u7d22\u5f15\u3002\n    1 \u4e2a\u8b66\u544a\n    0 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:04.03\n\nBuild completed.\n\n[3/3] Packaging Grasshopper output...\nOutput GHA: bin\\Release\\CityLBM.gha\nSize KB: 1801.5\nUpdated: 08/13/2026 20:11:20\ndistributable already up to date: bin\\CityLBM.gha\nnested GHA already up to date: bin\\Release\\CityLBM\\CityLBM.gha\n\n========================================\nCityLBM build succeeded.\n========================================\n\nInstall: copy bin\\CityLBM.gha to the Grasshopper Libraries folder, then restart Grasshopper.",
+      "stdout": "========================================\nCityLBM build\n========================================\n\nUsing .NET SDK: E:\\citylbm_buildchain\\dotnet\\dotnet.exe\n[1/3] Restoring NuGet packages...\n  \u6b63\u5728\u786e\u5b9a\u8981\u8fd8\u539f\u7684\u9879\u76ee\u2026\nE:\\citylbm_rc89_work\\CityLBM\\CityLBM.csproj : warning NU1900: \u83b7\u53d6\u5305\u6f0f\u6d1e\u6570\u636e\u65f6\u51fa\u9519: \u65e0\u6cd5\u52a0\u8f7d\u6e90 https://api.nuget.org/v3/index.json \u7684\u670d\u52a1\u7d22\u5f15\u3002 [E:\\citylbm_rc89_work\\CityLBM\\CityLBM.sln]\n  \u6240\u6709\u9879\u76ee\u5747\u662f\u6700\u65b0\u7684\uff0c\u65e0\u6cd5\u8fd8\u539f\u3002\nRestore completed.\n\n[2/3] Building Release...\nE:\\citylbm_rc89_work\\CityLBM\\CityLBM.csproj : warning NU1900: \u83b7\u53d6\u5305\u6f0f\u6d1e\u6570\u636e\u65f6\u51fa\u9519: \u65e0\u6cd5\u52a0\u8f7d\u6e90 https://api.nuget.org/v3/index.json \u7684\u670d\u52a1\u7d22\u5f15\u3002\n  CityLBM -> E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.dll\n  \u5df2\u751f\u6210 CityLBM.gha\n  ------------- IL Repack Arguments -------------\n  /out:E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.merged.dll E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.dll C:\\Users\\miaoshiyu\\.nuget\\packages\\newtonsoft.json\\13.0.3\\lib\\netstandard2.0\\Newtonsoft.Json.dll C:\\Users\\miaoshiyu\\.nuget\\packages\\nlog\\5.2.0\\lib\\netstandard2.0\\NLog.dll /wildcards /union /ndebug /ver:0.4.0.0\n  -----------------------------------------------\n  Wrote E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.merged.dll\n  \u5df2\u5408\u5e76\u4f9d\u8d56\u5230 CityLBM.gha\n\n\u5df2\u6210\u529f\u751f\u6210\u3002\n\nE:\\citylbm_rc89_work\\CityLBM\\CityLBM.csproj : warning NU1900: \u83b7\u53d6\u5305\u6f0f\u6d1e\u6570\u636e\u65f6\u51fa\u9519: \u65e0\u6cd5\u52a0\u8f7d\u6e90 https://api.nuget.org/v3/index.json \u7684\u670d\u52a1\u7d22\u5f15\u3002\n    1 \u4e2a\u8b66\u544a\n    0 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:04.12\n\nBuild completed.\n\n[3/3] Packaging Grasshopper output...\nOutput GHA: bin\\Release\\CityLBM.gha\nSize KB: 1810.5\nUpdated: 08/13/2026 20:32:55\ndistributable already up to date: bin\\CityLBM.gha\nnested GHA already up to date: bin\\Release\\CityLBM\\CityLBM.gha\n\n========================================\nCityLBM build succeeded.\n========================================\n\nInstall: copy bin\\CityLBM.gha to the Grasshopper Libraries folder, then restart Grasshopper.",
       "stderr": ""
     },
     "packaged_gha": {
       "found": true,
       "path": "E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.gha",
-      "sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
-      "size_bytes": 1844736,
-      "mtime": "2026-08-13T12:11:20.449644+00:00"
+      "sha256": "f89944de26daa6c54b6791cdbeec6bac1c3b0d3463f70de2fe253bfd475bdcfc",
+      "size_bytes": 1853952,
+      "mtime": "2026-08-13T12:32:55.459150+00:00"
     },
     "note": "Plugin build reproducibility only; this does not provide VS C++ Build Tools, GPU recovery, or CFD accuracy evidence."
   },
@@ -173,21 +173,21 @@
   "disk": [
     {
       "drive": "C:\\",
-      "free_bytes": 1683456,
+      "free_bytes": 0,
       "total_bytes": 208810242048,
-      "free_gb": 0.002
+      "free_gb": 0.0
     },
     {
       "drive": "D:\\",
-      "free_bytes": 246550851584,
+      "free_bytes": 246551900160,
       "total_bytes": 302394634240,
-      "free_gb": 229.618
+      "free_gb": 229.619
     },
     {
       "drive": "E:\\",
-      "free_bytes": 870852538368,
+      "free_bytes": 870849232896,
       "total_bytes": 1000203087872,
-      "free_gb": 811.045
+      "free_gb": 811.042
     },
     {
       "drive": "F:\\",

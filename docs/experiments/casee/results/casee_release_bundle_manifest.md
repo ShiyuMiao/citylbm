@@ -1,44 +1,44 @@
 # Case E Release Bundle Gate
 
-Generated: 2026-08-13T12:12:30.662345+00:00
+Generated: 2026-08-13T12:34:04.349349+00:00
 
 ## Verdict
 
 - Bundle gate passed: True
-- Recommended tag: `v0.4.0-rc89`
+- Recommended tag: `v0.4.0-rc90`
 - Formal release allowed: False
 - Formal accuracy claim supported: False
 - Bundle path: `docs/experiments/casee/results/casee_release_bundle.zip`
-- Bundle size bytes: 1317408
-- Bundle SHA256: `86b9499c3ebcc8c624479c46c189ffc75754f8fb1a3ed2d041f7f3abb7dde8cb`
-- Bundled assets: 144
+- Bundle size bytes: 1329443
+- Bundle SHA256: `ab6f4ee2ac7aa98a4c941cdb9c46b00562c357ec2f86c6e342fcf69dff710af0`
+- Bundled assets: 151
 - Raw/large files excluded: True
 
 ## Bundled Assets
 
 | path | kind | size | sha256 ok |
 |---|---|---:|---:|
-| `CHANGELOG.md` | markdown_report_or_protocol | 77136 | True |
-| `CityLBM/bin/CityLBM.gha` | compiled_plugin | 1844736 | True |
-| `README.md` | markdown_report_or_protocol | 47628 | True |
+| `CHANGELOG.md` | markdown_report_or_protocol | 77758 | True |
+| `CityLBM/bin/CityLBM.gha` | compiled_plugin | 1853952 | True |
+| `README.md` | markdown_report_or_protocol | 49009 | True |
 | `academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md` | markdown_report_or_protocol | 4944 | True |
-| `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md` | markdown_report_or_protocol | 18316 | True |
-| `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md` | markdown_report_or_protocol | 17845 | True |
+| `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md` | markdown_report_or_protocol | 18676 | True |
+| `academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md` | markdown_report_or_protocol | 18205 | True |
 | `docs/experiments/casea/results/casea_smoke_regression.json` | json_manifest_or_gate | 536 | True |
 | `docs/experiments/casea/results/casea_vtk_manifest.csv` | csv_table | 481 | True |
 | `docs/experiments/casee/casee_preset.json` | json_manifest_or_gate | 1466 | True |
 | `docs/experiments/casee/casee_protocol.md` | markdown_report_or_protocol | 2395 | True |
 | `docs/experiments/casee/data_manifest.csv` | csv_table | 2053 | True |
-| `docs/experiments/casee/evidence_inventory.csv` | csv_table | 43111 | True |
+| `docs/experiments/casee/evidence_inventory.csv` | csv_table | 43704 | True |
 | `docs/experiments/casee/native_fluidx3d_run_matrix.csv` | csv_table | 2940 | True |
 | `docs/experiments/casee/results/build_chain_manifest.csv` | csv_table | 1329 | True |
-| `docs/experiments/casee/results/build_chain_manifest.json` | json_manifest_or_gate | 21190 | True |
-| `docs/experiments/casee/results/build_chain_manifest.md` | markdown_report_or_protocol | 2076 | True |
-| `docs/experiments/casee/results/casee_accuracy_action_plan_gate.csv` | csv_table | 6378 | True |
-| `docs/experiments/casee/results/casee_accuracy_action_plan_gate.json` | json_manifest_or_gate | 10884 | True |
-| `docs/experiments/casee/results/casee_accuracy_action_plan_gate.md` | markdown_report_or_protocol | 1563 | True |
-| `docs/experiments/casee/results/casee_artifact_index.csv` | csv_table | 174668 | True |
-| `docs/experiments/casee/results/casee_artifact_index.json` | json_manifest_or_gate | 307928 | True |
+| `docs/experiments/casee/results/build_chain_manifest.json` | json_manifest_or_gate | 21182 | True |
+| `docs/experiments/casee/results/build_chain_manifest.md` | markdown_report_or_protocol | 2074 | True |
+| `docs/experiments/casee/results/casee_accuracy_action_plan_gate.csv` | csv_table | 6447 | True |
+| `docs/experiments/casee/results/casee_accuracy_action_plan_gate.json` | json_manifest_or_gate | 10953 | True |
+| `docs/experiments/casee/results/casee_accuracy_action_plan_gate.md` | markdown_report_or_protocol | 1632 | True |
+| `docs/experiments/casee/results/casee_artifact_index.csv` | csv_table | 178856 | True |
+| `docs/experiments/casee/results/casee_artifact_index.json` | json_manifest_or_gate | 314672 | True |
 | `docs/experiments/casee/results/casee_artifact_index.md` | markdown_report_or_protocol | 28640 | True |
 | `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.csv` | csv_table | 2346 | True |
 | `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json` | json_manifest_or_gate | 27454 | True |
@@ -66,7 +66,7 @@ Generated: 2026-08-13T12:12:30.662345+00:00
 | `docs/experiments/casee/results/casee_native_codegen_smoke_gate.csv` | csv_table | 724 | True |
 | `docs/experiments/casee/results/casee_native_codegen_smoke_gate.json` | json_manifest_or_gate | 6579 | True |
 | `docs/experiments/casee/results/casee_native_codegen_smoke_gate.md` | markdown_report_or_protocol | 1227 | True |
-| `docs/experiments/casee/results/casee_paper_evidence_gate.json` | json_manifest_or_gate | 13061 | True |
+| `docs/experiments/casee/results/casee_paper_evidence_gate.json` | json_manifest_or_gate | 13009 | True |
 | `docs/experiments/casee/results/casee_paper_evidence_gate.md` | markdown_report_or_protocol | 7670 | True |
 | `docs/experiments/casee/results/casee_paper_results_figure.png` | figure | 202797 | True |
 | `docs/experiments/casee/results/casee_paper_results_figure.svg` | figure | 97640 | True |
@@ -75,10 +75,10 @@ Generated: 2026-08-13T12:12:30.662345+00:00
 | `docs/experiments/casee/results/casee_postrun_official_audit_handoff.csv` | csv_table | 531 | True |
 | `docs/experiments/casee/results/casee_postrun_official_audit_handoff.json` | json_manifest_or_gate | 2131 | True |
 | `docs/experiments/casee/results/casee_postrun_official_audit_handoff.md` | markdown_report_or_protocol | 1128 | True |
-| `docs/experiments/casee/results/casee_publication_readiness_gate.json` | json_manifest_or_gate | 10967 | True |
-| `docs/experiments/casee/results/casee_publication_readiness_gate.md` | markdown_report_or_protocol | 4367 | True |
-| `docs/experiments/casee/results/casee_reproducibility_suite.json` | json_manifest_or_gate | 1063125 | True |
-| `docs/experiments/casee/results/casee_reproducibility_suite.md` | markdown_report_or_protocol | 4603 | True |
+| `docs/experiments/casee/results/casee_publication_readiness_gate.json` | json_manifest_or_gate | 10964 | True |
+| `docs/experiments/casee/results/casee_publication_readiness_gate.md` | markdown_report_or_protocol | 4366 | True |
+| `docs/experiments/casee/results/casee_reproducibility_suite.json` | json_manifest_or_gate | 1078297 | True |
+| `docs/experiments/casee/results/casee_reproducibility_suite.md` | markdown_report_or_protocol | 4715 | True |
 | `docs/experiments/casee/results/casee_research_accuracy_gap_gate.csv` | csv_table | 2103 | True |
 | `docs/experiments/casee/results/casee_research_accuracy_gap_gate.json` | json_manifest_or_gate | 5131 | True |
 | `docs/experiments/casee/results/casee_research_accuracy_gap_gate.md` | markdown_report_or_protocol | 1227 | True |
@@ -99,11 +99,11 @@ Generated: 2026-08-13T12:12:30.662345+00:00
 | `docs/experiments/casee/results/casee_wall_followup_codegen_gate.csv` | csv_table | 620 | True |
 | `docs/experiments/casee/results/casee_wall_followup_codegen_gate.json` | json_manifest_or_gate | 1483 | True |
 | `docs/experiments/casee/results/casee_wall_followup_codegen_gate.md` | markdown_report_or_protocol | 1228 | True |
-| `docs/experiments/casee/results/casee_workspace_hygiene_gate.csv` | csv_table | 20233 | True |
-| `docs/experiments/casee/results/casee_workspace_hygiene_gate.json` | json_manifest_or_gate | 41974 | True |
-| `docs/experiments/casee/results/casee_workspace_hygiene_gate.md` | markdown_report_or_protocol | 2338 | True |
+| `docs/experiments/casee/results/casee_workspace_hygiene_gate.csv` | csv_table | 20070 | True |
+| `docs/experiments/casee/results/casee_workspace_hygiene_gate.json` | json_manifest_or_gate | 41591 | True |
+| `docs/experiments/casee/results/casee_workspace_hygiene_gate.md` | markdown_report_or_protocol | 2302 | True |
 | `docs/experiments/casee/results/citylbm_build_hash_stability_gate.csv` | csv_table | 462 | True |
-| `docs/experiments/casee/results/citylbm_build_hash_stability_gate.json` | json_manifest_or_gate | 5516 | True |
+| `docs/experiments/casee/results/citylbm_build_hash_stability_gate.json` | json_manifest_or_gate | 5510 | True |
 | `docs/experiments/casee/results/citylbm_build_hash_stability_gate.md` | markdown_report_or_protocol | 805 | True |
 | `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.csv` | csv_table | 855 | True |
 | `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.json` | json_manifest_or_gate | 1718 | True |
@@ -111,6 +111,12 @@ Generated: 2026-08-13T12:12:30.662345+00:00
 | `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_component_gate.csv` | csv_table | 588 | True |
 | `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_component_gate.json` | json_manifest_or_gate | 1457 | True |
 | `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_component_gate.md` | markdown_report_or_protocol | 1417 | True |
+| `docs/experiments/casee/results/citylbm_casee_paper_claim_card_binary_gate.csv` | csv_table | 961 | True |
+| `docs/experiments/casee/results/citylbm_casee_paper_claim_card_binary_gate.json` | json_manifest_or_gate | 1824 | True |
+| `docs/experiments/casee/results/citylbm_casee_paper_claim_card_binary_gate.md` | markdown_report_or_protocol | 1628 | True |
+| `docs/experiments/casee/results/citylbm_casee_paper_claim_card_component_gate.csv` | csv_table | 444 | True |
+| `docs/experiments/casee/results/citylbm_casee_paper_claim_card_component_gate.json` | json_manifest_or_gate | 1233 | True |
+| `docs/experiments/casee/results/citylbm_casee_paper_claim_card_component_gate.md` | markdown_report_or_protocol | 1193 | True |
 | `docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.csv` | csv_table | 673 | True |
 | `docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.json` | json_manifest_or_gate | 1514 | True |
 | `docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.md` | markdown_report_or_protocol | 1280 | True |
@@ -118,14 +124,14 @@ Generated: 2026-08-13T12:12:30.662345+00:00
 | `docs/experiments/casee/results/citylbm_casee_postrun_audit_component_gate.json` | json_manifest_or_gate | 1310 | True |
 | `docs/experiments/casee/results/citylbm_casee_postrun_audit_component_gate.md` | markdown_report_or_protocol | 1232 | True |
 | `docs/experiments/casee/results/citylbm_gha_install_audit.csv` | csv_table | 612 | True |
-| `docs/experiments/casee/results/citylbm_gha_install_audit.json` | json_manifest_or_gate | 4317 | True |
+| `docs/experiments/casee/results/citylbm_gha_install_audit.json` | json_manifest_or_gate | 4311 | True |
 | `docs/experiments/casee/results/citylbm_gha_install_audit.md` | markdown_report_or_protocol | 2123 | True |
 | `docs/experiments/casee/results/citylbm_manifest_output_gate.json` | json_manifest_or_gate | 10043 | True |
 | `docs/experiments/casee/results/citylbm_manifest_output_gate.md` | markdown_report_or_protocol | 5177 | True |
 | `docs/experiments/casee/results/citylbm_manifest_schema_gate.json` | json_manifest_or_gate | 6453 | True |
 | `docs/experiments/casee/results/citylbm_manifest_schema_gate.md` | markdown_report_or_protocol | 2106 | True |
-| `docs/experiments/casee/results/citylbm_software_feedback_matrix.json` | json_manifest_or_gate | 100147 | True |
-| `docs/experiments/casee/results/citylbm_software_feedback_matrix.md` | markdown_report_or_protocol | 41595 | True |
+| `docs/experiments/casee/results/citylbm_software_feedback_matrix.json` | json_manifest_or_gate | 103616 | True |
+| `docs/experiments/casee/results/citylbm_software_feedback_matrix.md` | markdown_report_or_protocol | 43032 | True |
 | `docs/experiments/casee/results/environment_manifest.json` | json_manifest_or_gate | 2899 | True |
 | `docs/experiments/casee/results/github_release_publication_gate.csv` | csv_table | 341 | True |
 | `docs/experiments/casee/results/github_release_publication_gate.json` | json_manifest_or_gate | 2140 | True |
@@ -138,10 +144,10 @@ Generated: 2026-08-13T12:12:30.662345+00:00
 | `docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.csv` | csv_table | 1347 | True |
 | `docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.json` | json_manifest_or_gate | 4530 | True |
 | `docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.md` | markdown_report_or_protocol | 1561 | True |
-| `docs/experiments/casee/results/vs_cpp_buildtools_recovery_probe.json` | json_manifest_or_gate | 3929 | True |
+| `docs/experiments/casee/results/vs_cpp_buildtools_recovery_probe.json` | json_manifest_or_gate | 4207 | True |
 | `docs/experiments/casee/results/vs_cpp_recovery_gate.csv` | csv_table | 2083 | True |
-| `docs/experiments/casee/results/vs_cpp_recovery_gate.json` | json_manifest_or_gate | 10133 | True |
-| `docs/experiments/casee/results/vs_cpp_recovery_gate.md` | markdown_report_or_protocol | 2108 | True |
+| `docs/experiments/casee/results/vs_cpp_recovery_gate.json` | json_manifest_or_gate | 10653 | True |
+| `docs/experiments/casee/results/vs_cpp_recovery_gate.md` | markdown_report_or_protocol | 2104 | True |
 | `docs/releases/v0.4.0-rc70.md` | release_notes | 1758 | True |
 | `docs/releases/v0.4.0-rc71.md` | release_notes | 1714 | True |
 | `docs/releases/v0.4.0-rc72.md` | release_notes | 1983 | True |
@@ -162,6 +168,7 @@ Generated: 2026-08-13T12:12:30.662345+00:00
 | `docs/releases/v0.4.0-rc87.md` | release_notes | 1383 | True |
 | `docs/releases/v0.4.0-rc88.md` | release_notes | 1607 | True |
 | `docs/releases/v0.4.0-rc89.md` | release_notes | 1749 | True |
+| `docs/releases/v0.4.0-rc90.md` | release_notes | 1485 | True |
 
 ## Boundary
 

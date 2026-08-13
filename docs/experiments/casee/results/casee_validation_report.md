@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-13T12:11:10.655118+00:00
+Generated: 2026-08-13T12:32:45.743482+00:00
 
 ## Protocol
 
@@ -107,7 +107,7 @@ Generated: 2026-08-13T12:11:10.655118+00:00
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc89
+- Recommended tag: v0.4.0-rc90
 
 | Check | Status |
 |---|---:|

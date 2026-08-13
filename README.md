@@ -140,10 +140,13 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_accuracy_action_plan_gate.md`
 - `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_component_gate.json`
 - `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_paper_claim_card_component_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_paper_claim_card_binary_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
 - `docs/experiments/casee/results/rhino_gha_load_manifest.expected.json`
 - `docs/releases/v0.4.0-rc89.md`
+- `docs/releases/v0.4.0-rc90.md`
 - `docs/releases/v0.4.0-rc87.md`
 - `docs/releases/v0.4.0-rc88.md`
 - `docs/releases/v0.4.0-rc86.md`
@@ -268,6 +271,12 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.json`
 - `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.md`
 - `docs/experiments/casee/results/citylbm_casee_accuracy_action_plan_binary_gate.csv`
+- `docs/experiments/casee/results/citylbm_casee_paper_claim_card_component_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_paper_claim_card_component_gate.md`
+- `docs/experiments/casee/results/citylbm_casee_paper_claim_card_component_gate.csv`
+- `docs/experiments/casee/results/citylbm_casee_paper_claim_card_binary_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_paper_claim_card_binary_gate.md`
+- `docs/experiments/casee/results/citylbm_casee_paper_claim_card_binary_gate.csv`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.csv`
@@ -601,6 +610,18 @@ The packaged GHA action-plan gate checks the compiled `CityLBM/bin/CityLBM.gha`
 for that component's metric-gap outputs, action IDs, and forbidden-claim
 strings. This proves the release asset contains the component, but it still
 does not prove Rhino loaded it or improve official Case E accuracy.
+
+The `Case E Paper Claim Card` Grasshopper component turns the same evidence
+chain into paper-writing outputs: paper-ready negative-validation statements,
+limitations, forbidden claims, and evidence paths. It is intended to prevent
+overstated manuscript language while working from the plugin canvas. It does
+not run CFD, change solver defaults, update official z=2 m metrics, prove Rhino
+loaded the new GHA, or permit formal `v0.4.0`.
+
+The packaged GHA claim-card gate checks that this component is present in
+`CityLBM/bin/CityLBM.gha` with the official metric, claim boundary, limitations,
+and evidence-path markers intact. This is packaging and paper-boundary evidence
+only.
 
 The portable toolchain activation gate verifies the local portable .NET,
 FluidX3D, and MinGW/g++ paths needed for reproducible builds and native-source

@@ -1,6 +1,6 @@
 # Case E Operational Recovery Dashboard
 
-Generated: 2026-08-13T12:11:58.983724+00:00
+Generated: 2026-08-13T12:33:32.888028+00:00
 
 ## Verdict
 
@@ -10,7 +10,7 @@ Generated: 2026-08-13T12:11:58.983724+00:00
 - Long FluidX3D run allowed: False
 - Long-run blockers: OP001_system_drive_space, OP004_gpu_recovery, OP006_official_followup_preflight
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc89`
+- Recommended tag: `v0.4.0-rc90`
 
 ## Ordered Recovery Path
 
@@ -26,12 +26,12 @@ Generated: 2026-08-13T12:11:58.983724+00:00
 
 ## Evidence Links
 
-- `OP001_system_drive_space`: `docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json`; C: free=0.001 GB; needed=8.0 GB; shortfall=7.999 GB
+- `OP001_system_drive_space`: `docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json`; C: free=0.0 GB; needed=8.0 GB; shortfall=8.0 GB
 - `OP002_vs_cpp_install`: `docs/experiments/casee/results/vs_cpp_recovery_gate.json`; vs_cpp_ready=False; can_attempt_install_now=False; blockers=5
 - `OP003_uac_launcher`: `docs/experiments/casee/results/vs_cpp_elevated_launcher_gate.json`; can_launch=False; launch_attempted=False; blockers=['system drive free space is below 8 GB']
 - `OP004_gpu_recovery`: `docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.json`; gpu_runtime_ready=False; gpu_lost_detected=True; long_run_allowed=False
 - `OP005_rhino_load_evidence`: `docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.json`; manual_manifest_present=False; manual_manifest_claim_ready=False; rhino_loaded_new_gha=False
-- `OP006_official_followup_preflight`: `docs/experiments/casee/results/casee_official_run_preflight.json`; official_followup_run_allowed=False; blocked_gates=['rhino_gha_load', 'gpu_runtime', 'vs_cpp_build_tools']
+- `OP006_official_followup_preflight`: `docs/experiments/casee/results/casee_official_run_preflight.json`; official_followup_run_allowed=False; blocked_gates=['official_data_manifest', 'rhino_gha_load', 'gpu_runtime', 'vs_cpp_build_tools']
 - `OP007_formal_metric_gate`: `docs/experiments/casee/results/release_gate.json`; MAE=21.111408125 pp; R2=-2.006330362229977; Pearson=0.11575649438573923; formal_release_allowed=False
 
 ## Boundary

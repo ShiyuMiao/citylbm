@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T12:11:39.687527+00:00",
+  "generated_at": "2026-08-13T12:33:14.323000+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_packaged_casee_accuracy_action_plan_component",
   "casee_accuracy_action_plan_binary_gate_passed": true,
@@ -8,9 +8,9 @@
   "default_setting_allowed": false,
   "tracked_gha_path": "CityLBM/bin/CityLBM.gha",
   "release_gha_path": "CityLBM/bin/Release/CityLBM.gha",
-  "tracked_gha_sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
-  "release_gha_sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
-  "tracked_gha_size_bytes": 1844736,
+  "tracked_gha_sha256": "f89944de26daa6c54b6791cdbeec6bac1c3b0d3463f70de2fe253bfd475bdcfc",
+  "release_gha_sha256": "f89944de26daa6c54b6791cdbeec6bac1c3b0d3463f70de2fe253bfd475bdcfc",
+  "tracked_gha_size_bytes": 1853952,
   "required_markers": {
     "CaseEAccuracyActionPlanComponent": true,
     "Case E Accuracy Action Plan": true,

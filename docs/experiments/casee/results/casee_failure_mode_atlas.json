@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-13T12:12:00.205528+00:00",
+  "generated_at": "2026-08-13T12:33:34.185516+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "limitations_ready_failure_mode_atlas",
   "release_gate": {
-    "generated_at": "2026-08-13T12:11:10.655118+00:00",
+    "generated_at": "2026-08-13T12:32:45.743482+00:00",
     "release_target": "v0.4.0",
     "formal_release_allowed": false,
     "formal_v0_3_0_allowed": false,
-    "recommended_tag": "v0.4.0-rc89",
+    "recommended_tag": "v0.4.0-rc90",
     "checks": {
       "citylbm_build_passed": true,
       "rhino_loaded_new_gha": false,
@@ -55,16 +55,16 @@
       "citylbm_gha": {
         "found": true,
         "path": "E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.gha",
-        "sha256": "13736a17b5619165f3cd9de0f94c49304c90b7987bbf714107b9474feb50ea79",
-        "size_bytes": 1844736,
-        "mtime": "2026-08-13T12:11:08.872041+00:00"
+        "sha256": "f89944de26daa6c54b6791cdbeec6bac1c3b0d3463f70de2fe253bfd475bdcfc",
+        "size_bytes": 1853952,
+        "mtime": "2026-08-13T12:32:44.148920+00:00"
       },
       "citylbm_build_log": {
         "found": true,
         "path": "E:\\citylbm_rc89_work\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-        "sha256": "064e19791933ce3db0b1ba21bea58a5e2ee4d0e16c389df9114fe0846f71a89e",
+        "sha256": "954c8e3d0c73e142b5dd9ad7789b7d94083658442288f2fc2f126980285ad33e",
         "size_bytes": 1464,
-        "mtime": "2026-08-13T12:11:09.142231+00:00"
+        "mtime": "2026-08-13T12:32:44.362849+00:00"
       },
       "run_matrix": {
         "path": "E:\\citylbm_rc89_work\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",
@@ -142,7 +142,7 @@
       "status": "blocked",
       "severity": "critical",
       "primary_evidence": "docs/experiments/casee/results/casee_official_run_preflight.json",
-      "quantitative_signal": "official_followup_run_allowed=False; blocked=rhino_gha_load,gpu_runtime,vs_cpp_build_tools",
+      "quantitative_signal": "official_followup_run_allowed=False; blocked=official_data_manifest,rhino_gha_load,gpu_runtime,vs_cpp_build_tools",
       "paper_use": "Use to explain why no new long-run result was added in this release candidate.",
       "software_feedback": "Keep launch preflight gates before scheduling long official runs.",
       "default_policy": "Do not run or publish new official results while preflight is blocked.",
