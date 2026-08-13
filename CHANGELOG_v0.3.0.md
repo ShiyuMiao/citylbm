@@ -22,6 +22,7 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `Run Simulation` adds an optional experimental `Synthetic Inlet` control for CustomTable profiles with `k`.
 - Generated FluidX3D `setup.cpp` can now use the AF `k` column to apply bounded STG-lite spectral inlet perturbations from `sigma=sqrt(2k/3)`.
 - The STG-lite inlet now uses deterministic multi-mode spectral fluctuations, avoiding the earlier sparse-eddy pattern where many inlet cells could receive near-zero perturbation.
+- STG-lite spectral modes are now projected normal to their synthetic wave vectors before summation, reducing non-physical divergent inlet fluctuations while keeping the method deterministic and auditable.
 - Synthetic inlet runs now limit each solver advance to `SyntheticTurbulenceUpdateInterval`, so inlet perturbations refresh independently from the VTK save interval.
 - `setup.cpp`, `case_metadata.json` and `validation_protocol_audit` now explicitly record that STG-lite refreshes macroscopic `lbm.u` only and does not reconstruct FluidX3D distribution functions.
 - `case_metadata.json` records whether the synthetic inlet was requested and actually injected, plus synthetic scale, correlation length, update interval and amplitude cap.

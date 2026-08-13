@@ -58,11 +58,14 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "profile_k_lbm[profile_count]");
                 Require(setup, "citylbm_stg_mode_count");
                 Require(setup, "citylbm_stg_norm");
+                Require(setup, "citylbm_mode_amplitude");
+                Require(setup, "ak*kx");
                 Require(setup, "citylbm_stg_update_interval = 7u");
                 Require(setup, "citylbm_stg_max_fraction = 0.420000f");
                 Require(setup, "syntheticTurbulentInlet");
                 Require(setup, "applySyntheticTurbulentInlet");
-                Require(metadata, "STG-lite deterministic spectral modes");
+                Require(metadata, "divergence-reduced spectral modes");
+                Require(metadata, "projected normal to synthetic wave vectors");
                 Require(metadata, "\"SyntheticTurbulenceUpdateInterval\": 7");
                 Require(metadata, "\"SyntheticTurbulenceMaxFractionOfMean\": 0.42");
                 Require(metadata, "velocity_field_only_no_distribution_function_reconstruction");

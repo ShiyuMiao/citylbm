@@ -36,8 +36,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 ## Required checks before accepting a run
 
 - Generated `setup.cpp` contains `profile_z_m[]`, `profile_z_lbm[]`, `profile_u_lbm[]`, `profile_k_m2s2[]`, `profile_k_lbm[]` and `profile_origin_z_m`.
-- If STG-lite is enabled, generated `setup.cpp` also contains `syntheticTurbulentInlet`, `applySyntheticTurbulentInlet`
-  and `citylbm_stg_*` constants.
+- If STG-lite is enabled, generated `setup.cpp` also contains `syntheticTurbulentInlet`, `applySyntheticTurbulentInlet`,
+  `citylbm_stg_*` constants and the divergence-reduced transverse spectral-mode projection.
 - The generated `validation_protocol_audit` must explicitly record `native_fluidx3d_baseline`, `boundary_conditions`,
   `lbm_stability_scaling`, `wind_direction_sign`, `probe_projection`, `normalization_basis` and `systematic_bias_gate`.
   Treat these items as paper-blocking until their run evidence is archived.
@@ -108,6 +108,6 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 
 ## Current v0.3.0 limitation
 
-CityLBM v0.3.0 reads, converts and records `k(m2/s2)`. It also provides an optional experimental STG-lite inlet that converts isotropic `k` to bounded deterministic spectral velocity perturbations using `sigma=sqrt(2k/3)`, with inlet refresh controlled by `SyntheticTurbulenceUpdateInterval`. This is a software-level improvement over the former metadata-only `k` chain and the earlier sparse-eddy diagnostic pattern, but it is not a full digital-filter, precursor/recycling, or Reynolds-stress turbulent inflow because the AF table does not provide Reynolds-stress tensors, turbulent length scales or a precursor field. Any paper claim must state whether the validation used metadata-only inflow or STG-lite inflow.
+CityLBM v0.3.0 reads, converts and records `k(m2/s2)`. It also provides an optional experimental STG-lite inlet that converts isotropic `k` to bounded deterministic spectral velocity perturbations using `sigma=sqrt(2k/3)`, with inlet refresh controlled by `SyntheticTurbulenceUpdateInterval`. The synthetic spectral-mode amplitudes are projected normal to their wave vectors to reduce non-physical divergent inlet fluctuations. This is a software-level improvement over the former metadata-only `k` chain and the earlier sparse-eddy diagnostic pattern, but it is not a full digital-filter, precursor/recycling, or Reynolds-stress turbulent inflow because the AF table does not provide Reynolds-stress tensors, turbulent length scales or a precursor field. Any paper claim must state whether the validation used metadata-only inflow or STG-lite inflow.
 
 The current boundary conditions are also a simplified FluidX3D `TYPE_E` setup: velocity-profile inlet, pressure/free-outflow outlet approximation, lateral/top `TYPE_E`, and no-slip ground/buildings. This must be treated as a protocol risk until compared with the AIJ wind-tunnel boundary setup or replaced by a stronger inlet/outlet treatment.

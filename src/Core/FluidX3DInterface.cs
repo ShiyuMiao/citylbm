@@ -2171,6 +2171,7 @@ namespace CityLBM.Solver
 
             sb.AppendLine();
             sb.AppendLine("    // CityLBM STG-lite inlet: deterministic spectral synthetic fluctuations from isotropic k.");
+            sb.AppendLine("    // Per-mode fluctuation vectors are projected normal to their wave vector to reduce non-physical divergence.");
             sb.AppendLine("    // This is a diagnostic approximation, not a full digital-filter/SEM/precursor inlet with Reynolds-stress tensors.");
             sb.AppendLine("    // It updates macroscopic inlet velocity fields only; distribution functions are not reconstructed here.");
             sb.AppendLine($"    const float citylbm_stg_scale = {scale.ToString("F6", CultureInfo.InvariantCulture)}f;");
@@ -2187,6 +2188,10 @@ namespace CityLBM.Solver
             sb.AppendLine("        float direction = (((mode + axis) % 2) == 0) ? 1.0f : -1.0f;");
             sb.AppendLine("        return direction * (float)h / citylbm_stg_corr_cells;");
             sb.AppendLine("    };");
+            sb.AppendLine("    auto citylbm_mode_amplitude = [&](int mode, int axis) -> float {");
+            sb.AppendLine("        float raw = sinf(0.75487767f * (float)((mode + 1) * (axis * 17 + 5)));");
+            sb.AppendLine("        return fabsf(raw) < 0.05f ? (raw < 0.0f ? -0.05f : 0.05f) : raw;");
+            sb.AppendLine("    };");
             sb.AppendLine("    auto syntheticTurbulentInlet = [&](uint x, uint y, uint z_cell, uint t_step) -> float3 {");
             sb.AppendLine("        float3 mean = windProfile(z_cell);");
             sb.AppendLine($"        float z_m = ((float)z_cell + 0.5f) * {dx.ToString("F8", CultureInfo.InvariantCulture)}f;");
@@ -2199,10 +2204,22 @@ namespace CityLBM.Solver
             sb.AppendLine("        float t_cell = (float)(t_step / citylbm_stg_update_interval);");
             sb.AppendLine("        float fluct_x = 0.0f, fluct_y = 0.0f, fluct_z = 0.0f;");
             sb.AppendLine("        for(int m=0; m<citylbm_stg_mode_count; m++) {");
-            sb.AppendLine("            float phase = citylbm_mode_wave(m, 0) * (float)x + citylbm_mode_wave(m, 1) * (float)y + citylbm_mode_wave(m, 2) * (float)z_cell + 0.071f * (float)(m + 1) * t_cell;");
-            sb.AppendLine("            fluct_x += sinf(phase + citylbm_mode_phase(m, 1));");
-            sb.AppendLine("            fluct_y += sinf(phase + citylbm_mode_phase(m, 2));");
-            sb.AppendLine("            fluct_z += sinf(phase + citylbm_mode_phase(m, 3));");
+            sb.AppendLine("            float kx = citylbm_mode_wave(m, 0);");
+            sb.AppendLine("            float ky = citylbm_mode_wave(m, 1);");
+            sb.AppendLine("            float kz = citylbm_mode_wave(m, 2);");
+            sb.AppendLine("            float ax = citylbm_mode_amplitude(m, 0);");
+            sb.AppendLine("            float ay = citylbm_mode_amplitude(m, 1);");
+            sb.AppendLine("            float az = citylbm_mode_amplitude(m, 2);");
+            sb.AppendLine("            float kk = kx*kx + ky*ky + kz*kz;");
+            sb.AppendLine("            float ak = ax*kx + ay*ky + az*kz;");
+            sb.AppendLine("            if(kk > 1.0e-12f) { ax -= ak*kx/kk; ay -= ak*ky/kk; az -= ak*kz/kk; }");
+            sb.AppendLine("            float aa = sqrtf(ax*ax + ay*ay + az*az);");
+            sb.AppendLine("            if(aa > 1.0e-6f) { ax /= aa; ay /= aa; az /= aa; }");
+            sb.AppendLine("            float phase = kx * (float)x + ky * (float)y + kz * (float)z_cell + 0.071f * (float)(m + 1) * t_cell;");
+            sb.AppendLine("            float wave = sinf(phase + citylbm_mode_phase(m, 1));");
+            sb.AppendLine("            fluct_x += ax * wave;");
+            sb.AppendLine("            fluct_y += ay * wave;");
+            sb.AppendLine("            fluct_z += az * wave;");
             sb.AppendLine("        }");
             sb.AppendLine("        fluct_x *= citylbm_stg_norm;");
             sb.AppendLine("        fluct_y *= citylbm_stg_norm;");
@@ -2301,7 +2318,10 @@ namespace CityLBM.Solver
                     SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
                     SyntheticTurbulentInletInjected = syntheticActive,
                     SyntheticTurbulentInletMethod = syntheticActive
-                        ? "STG-lite deterministic spectral modes with isotropic k; not digital-filter, precursor, or Reynolds-stress inflow"
+                        ? "STG-lite deterministic divergence-reduced spectral modes with isotropic k; not digital-filter, precursor, or Reynolds-stress inflow"
+                        : "none",
+                    SyntheticTurbulentInletDivergenceTreatment = syntheticActive
+                        ? "per-mode fluctuation amplitudes projected normal to synthetic wave vectors"
                         : "none",
                     SyntheticTurbulentInletDistributionTreatment = syntheticActive
                         ? "velocity_field_only_no_distribution_function_reconstruction"
