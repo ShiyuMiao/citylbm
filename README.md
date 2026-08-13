@@ -40,6 +40,13 @@ run official wall-model, AF-k/no-SGS inlet, and C016 channel-response follow-ups
 only after recovery. All of those actions remain default-off until audited
 official z=2 m metrics pass.
 
+The rc93 plugin update adds a `Case E Official Metrics From CSV` Grasshopper
+component. It recalculates MAE/RMSE/bias/R2/Pearson from a supplied official
+probe CSV so new Case E runs can be checked in the plugin workflow before
+manuscript tables are updated. This is metric-calculation and claim-boundary
+support only; it does not run FluidX3D, improve the current official metric, or
+allow formal `v0.4.0`.
+
 Current Case E, release-gate, and manuscript-boundary materials:
 
 - `docs/experiments/casee/data_manifest.csv`
@@ -146,6 +153,8 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_casee_remediation_plan_binary_gate.json`
 - `docs/experiments/casee/results/citylbm_casee_official_metric_gate_component_gate.json`
 - `docs/experiments/casee/results/citylbm_casee_official_metric_gate_binary_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_component_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_binary_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
 - `docs/experiments/casee/results/rhino_gha_load_manifest.expected.json`
@@ -153,6 +162,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/releases/v0.4.0-rc90.md`
 - `docs/releases/v0.4.0-rc91.md`
 - `docs/releases/v0.4.0-rc92.md`
+- `docs/releases/v0.4.0-rc93.md`
 - `docs/releases/v0.4.0-rc87.md`
 - `docs/releases/v0.4.0-rc88.md`
 - `docs/releases/v0.4.0-rc86.md`

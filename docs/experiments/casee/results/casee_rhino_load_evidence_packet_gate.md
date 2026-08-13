@@ -1,6 +1,6 @@
 # Case E Rhino/GHA Load Evidence Packet Gate
 
-Generated: 2026-08-13T13:05:41.568591+00:00
+Generated: 2026-08-13T13:38:25.144988+00:00
 
 ## Verdict
 
@@ -9,7 +9,7 @@ Generated: 2026-08-13T13:05:41.568591+00:00
 - Rhino loaded new GHA: False
 - Claim readiness: `blocked_rhino_load_evidence_packet`
 - Expected plugin version: `0.4.0-rc`
-- Expected GHA SHA256: `bc25b3f4d312a5a86ec0f0729c69a449891af728da0c3d942603fb701fd822b2`
+- Expected GHA SHA256: `25ce377acae4ce5bfc6702998677439c49125308e25f5112eb17643806104cad`
 
 ## Checklist
 

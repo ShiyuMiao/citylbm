@@ -1,13 +1,13 @@
 # Case E Research Accuracy Gap Gate
 
-Generated: 2026-08-13T13:06:05.826261+00:00
+Generated: 2026-08-13T13:38:49.032284+00:00
 
 ## Verdict
 
 - Gap gate passed: True
 - Formal accuracy claim supported: False
 - Formal release allowed: False
-- Recommended tag: `v0.4.0-rc92`
+- Recommended tag: `v0.4.0-rc93`
 
 ## Formal Gap
 

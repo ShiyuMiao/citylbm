@@ -1,6 +1,6 @@
 # CityLBM GHA Install Audit
 
-Generated: 2026-08-13T13:05:41.087158+00:00
+Generated: 2026-08-13T13:38:24.685292+00:00
 
 ## Verdict
 
@@ -8,7 +8,7 @@ Generated: 2026-08-13T13:05:41.087158+00:00
 - Matching GHA already staged: False
 - Rhino loaded new GHA: False
 - Claim readiness: `install_audited_staging_blocked_by_disk_space`
-- Expected GHA SHA256: `bc25b3f4d312a5a86ec0f0729c69a449891af728da0c3d942603fb701fd822b2`
+- Expected GHA SHA256: `25ce377acae4ce5bfc6702998677439c49125308e25f5112eb17643806104cad`
 
 ## Checks
 
@@ -35,7 +35,7 @@ New-Item -ItemType Directory -Force -Path 'C:\Users\miaoshiyu\AppData\Roaming\Gr
 
 | library dir | found | matches tracked GHA | path | sha256 |
 |---|---:|---:|---|---|
-| `C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries` | False | False | `` | `` |
+| `C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries` | True | False | `C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries\CityLBM.gha` | `7142fb8c24bc3dd92b6c21be61132a93f7ffa17457fbaada4f3e7a67c12cfa38` |
 | `C:\Users\miaoshiyu\AppData\Roaming\McNeel\Rhinoceros\8.0\Plug-ins\Grasshopper\Libraries` | False | False | `` | `` |
 | `C:\Users\miaoshiyu\AppData\Roaming\McNeel\Rhinoceros\7.0\Plug-ins\Grasshopper\Libraries` | False | False | `` | `` |
 | `C:\Users\miaoshiyu\AppData\Roaming\McNeel\Rhinoceros\6.0\Plug-ins\Grasshopper\Libraries` | False | False | `` | `` |

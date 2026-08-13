@@ -1,6 +1,6 @@
 # Case E Solver Run Provenance Ledger
 
-Generated: 2026-08-13T13:06:05.543715+00:00
+Generated: 2026-08-13T13:38:48.760160+00:00
 
 ## Verdict
 

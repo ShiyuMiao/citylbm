@@ -1,0 +1,30 @@
+check,passed
+tracked_gha_exists,True
+release_gha_exists,True
+tracked_gha_matches_release_gha,True
+source_component_gate_passed,True
+all_required_markers_present_in_tracked_gha,True
+marker::CaseEOfficialMetricsFromCsvComponent,True
+marker::Case E Official Metrics From CSV,True
+marker::Metric Rows,True
+marker::Gate Checks,True
+marker::Official Metric Gate,True
+marker::Formal Release Allowed,True
+marker::official_velocity_ratio,True
+marker::predicted_velocity_ratio,True
+marker::MAE_pp=,True
+marker::RMSE_pp=,True
+marker::bias_pp=,True
+marker::R2=,True
+marker::Pearson=,True
+marker::MAE threshold: < 15.0 pp,True
+marker::R2 threshold: > 0.0,True
+marker::Pearson threshold: > 0.0,True
+marker::sampling_raw_trilinear_check=,True
+marker::height_2m_check=,True
+marker::probe_count_check=,True
+marker::official_z2m_metric_gate=,True
+marker::formal_release_allowed=false,True
+marker::release_gate.json,True
+marker::z_plus_half,True
+marker::6189C8B7-3E79-4C0B-BC1D-4E85D7E90493,True

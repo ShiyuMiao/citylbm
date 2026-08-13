@@ -1,6 +1,6 @@
 # AIJ Case E Manuscript Evidence Summary
 
-Generated: 2026-08-13T13:05:41.738703+00:00
+Generated: 2026-08-13T13:38:25.299829+00:00
 
 ## Current Formal Metric
 
@@ -11,7 +11,7 @@ Generated: 2026-08-13T13:05:41.738703+00:00
 - R2: -2.006330.
 - Pearson: 0.115756.
 - Formal release allowed: False.
-- Recommended tag: `v0.4.0-rc92`.
+- Recommended tag: `v0.4.0-rc93`.
 
 ## Claim Matrix
 

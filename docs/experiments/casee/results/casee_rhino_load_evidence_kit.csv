@@ -1,11 +1,11 @@
 kind,path,found,sha256,matches_expected,note
-tracked_gha,E:\citylbm_rc89_work\CityLBM\bin\CityLBM.gha,True,bc25b3f4d312a5a86ec0f0729c69a449891af728da0c3d942603fb701fd822b2,True,tracked release asset
+tracked_gha,E:\citylbm_rc89_work\CityLBM\bin\CityLBM.gha,True,25ce377acae4ce5bfc6702998677439c49125308e25f5112eb17643806104cad,True,tracked release asset
 rhino_executable,C:\Program Files\Rhino 8\System\Rhino.exe,False,,False,candidate Rhino executable
 rhino_executable,C:\Program Files\Rhino 7\System\Rhino.exe,True,ef29f29e041205943dcdd8d87a3e572453200000a431e3a8b5b4d5b14a9a2841,False,candidate Rhino executable
 rhino_executable,C:\Program Files\Rhino 6\System\Rhino.exe,False,,False,candidate Rhino executable
 rhino_executable,C:\Program Files\McNeel\Rhino 8\System\Rhino.exe,False,,False,candidate Rhino executable
 rhino_executable,C:\Program Files\McNeel\Rhino 7\System\Rhino.exe,False,,False,candidate Rhino executable
-grasshopper_library,C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries,True,,False,library directory exists but no CityLBM*.gha was found
+staged_gha,C:\Users\miaoshiyu\AppData\Roaming\Grasshopper\Libraries\CityLBM.gha,True,7142fb8c24bc3dd92b6c21be61132a93f7ffa17457fbaada4f3e7a67c12cfa38,False,candidate staged GHA
 grasshopper_library,C:\Users\miaoshiyu\AppData\Roaming\McNeel\Rhinoceros\8.0\Plug-ins\Grasshopper\Libraries,False,,False,library directory missing
 grasshopper_library,C:\Users\miaoshiyu\AppData\Roaming\McNeel\Rhinoceros\7.0\Plug-ins\Grasshopper\Libraries,False,,False,library directory missing
 grasshopper_library,C:\Users\miaoshiyu\AppData\Local\McNeel\Rhinoceros\8.0\Plug-ins\Grasshopper\Libraries,False,,False,library directory missing

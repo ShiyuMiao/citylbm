@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc93 - Grasshopper official CSV metric calculator
+
+- Added a Grasshopper `Case E Official Metrics From CSV` component under `CityLBM > Results`.
+- The component computes official z=2 m MAE/RMSE/bias/R2/Pearson from a supplied probe CSV with `No.`, `official_velocity_ratio`, and `predicted_velocity_ratio` columns.
+- The component keeps formal release blocked unless the official protocol and metric gate pass, and still requires `release_gate.json`, Case A regression, Rhino new-GHA load evidence, and traceability before any formal release claim.
+- Added source and packaged-GHA gates for the component and integrated them into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF073-SF074.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc92 - Grasshopper official metric-gate component
 
 - Added a Grasshopper `Case E Official Metric Gate` component under `CityLBM > Results`.

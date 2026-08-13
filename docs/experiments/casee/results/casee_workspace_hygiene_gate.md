@@ -1,6 +1,6 @@
 # Case E Workspace Hygiene Gate
 
-Generated: 2026-08-13T13:06:38.275714+00:00
+Generated: 2026-08-13T13:39:20.484471+00:00
 
 ## Verdict
 
@@ -15,16 +15,16 @@ Generated: 2026-08-13T13:06:38.275714+00:00
 
 | status | path | classification | risk |
 |---|---|---|---|
-| `??` | `CityLBM/src/Components/Results/CaseEOfficialMetricGateComponent.cs` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
-| `??` | `docs/experiments/casee/results/citylbm_casee_official_metric_gate_binary_gate.csv` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
-| `??` | `docs/experiments/casee/results/citylbm_casee_official_metric_gate_binary_gate.json` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
-| `??` | `docs/experiments/casee/results/citylbm_casee_official_metric_gate_binary_gate.md` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
-| `??` | `docs/experiments/casee/results/citylbm_casee_official_metric_gate_component_gate.csv` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
-| `??` | `docs/experiments/casee/results/citylbm_casee_official_metric_gate_component_gate.json` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
-| `??` | `docs/experiments/casee/results/citylbm_casee_official_metric_gate_component_gate.md` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
-| `??` | `docs/experiments/casee/tools/citylbm_casee_official_metric_gate_binary_gate.py` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
-| `??` | `docs/experiments/casee/tools/citylbm_casee_official_metric_gate_component_gate.py` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
-| `??` | `docs/releases/v0.4.0-rc92.md` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
+| `??` | `CityLBM/src/Components/Results/CaseEOfficialMetricsFromCsvComponent.cs` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
+| `??` | `docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_binary_gate.csv` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
+| `??` | `docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_binary_gate.json` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
+| `??` | `docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_binary_gate.md` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
+| `??` | `docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_component_gate.csv` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
+| `??` | `docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_component_gate.json` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
+| `??` | `docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_component_gate.md` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
+| `??` | `docs/experiments/casee/tools/citylbm_casee_official_metrics_from_csv_binary_gate.py` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
+| `??` | `docs/experiments/casee/tools/citylbm_casee_official_metrics_from_csv_component_gate.py` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
+| `??` | `docs/releases/v0.4.0-rc93.md` | `expected_untracked_evidence_pending_commit` | `manual_review_required` |
 
 ## Boundary
 
