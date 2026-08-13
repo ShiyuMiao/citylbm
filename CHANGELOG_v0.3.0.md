@@ -41,6 +41,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   diagnostic boundary-clearance gate.
 - `BoundaryProtocolAudit` now also records per-condition clearance booleans and gate reasons, so undersized or misplaced
   domains fail explicitly instead of only reporting aggregate clearance ratios.
+- `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now separate diagnostic
+  boundary clearance/blockage from AIJ-equivalent boundary evidence. Clearances alone no longer pass the boundary gate
+  unless the run also archives an official AIJ/empty-tunnel/validated-boundary evidence source.
 - `case_metadata.json` and `validation_protocol_audit` now separate analytic inflow roughness from actual wall treatment:
   ground/buildings remain `TYPE_S` no-slip in v0.3.0, with no FluidX3D rough-wall or wall-function boundary.
 - The validation audit now also records native FluidX3D baseline requirement, LBM stability scaling, wind-direction sign,

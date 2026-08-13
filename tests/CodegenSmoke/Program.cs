@@ -110,7 +110,9 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "blockage_diagnostic_ok_verify_against_aij");
                 Require(metadata, "diagnostic_clearance_thresholds_satisfied");
                 Require(metadata, "avoid zero-speed boundary damping");
-                Require(audit, "diagnostic_clearance_ok_verify_against_aij");
+                Require(metadata, "diagnostic_only_missing_aij_boundary_protocol_evidence");
+                Require(metadata, "not matched to official AIJ wind-tunnel boundary/fetch/roughness evidence");
+                Require(audit, "BoundaryProtocolEvidenceGate=diagnostic_only_missing_aij_boundary_protocol_evidence");
 
                 TestFluidX3DSourceValidation();
                 TestProbeComponentSourceGuard();

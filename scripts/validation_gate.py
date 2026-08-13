@@ -416,21 +416,52 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         or get_any(blockage_audit, ["Gate"])
         or ""
     )
+    boundary_evidence_source = str(
+        get_any(metrics, ["boundary_evidence_source", "BoundaryProtocolEvidenceSource"])
+        or get_any(boundary_audit, ["ProtocolEvidenceSource"])
+        or metadata.get("BoundaryProtocolEvidenceSource")
+        or ""
+    )
+    boundary_evidence_gate = str(
+        get_any(metrics, ["boundary_evidence_gate", "BoundaryProtocolEvidenceGate"])
+        or get_any(boundary_audit, ["ProtocolEvidenceGate"])
+        or metadata.get("BoundaryProtocolEvidenceGate")
+        or ""
+    ).strip().lower()
+    boundary_evidence_supported = any(
+        token in boundary_evidence_source.lower()
+        for token in [
+            "aij_verified",
+            "empty_tunnel_passed",
+            "validated_boundary_model",
+            "precursor_boundary",
+            "recycling_boundary",
+            "wind_tunnel_protocol_matched",
+        ]
+    )
+    boundary_diagnostic_ok = (
+        boundary_gate == "diagnostic_clearance_ok_verify_against_aij"
+        and frontal_blockage is not None
+        and frontal_blockage <= args.max_frontal_blockage_ratio
+    )
+    boundary_evidence_ok = boundary_evidence_gate == "pass" or boundary_evidence_supported
     add_gate(
         gates,
         "boundary_protocol",
         PASS
-        if boundary_gate == "diagnostic_clearance_ok_verify_against_aij"
-        and frontal_blockage is not None
-        and frontal_blockage <= args.max_frontal_blockage_ratio
+        if boundary_diagnostic_ok
+        and boundary_evidence_ok
         else FAIL,
         (
             f"boundary_protocol_gate={boundary_gate or 'missing'}; "
             f"approx_frontal_blockage_ratio={frontal_blockage}; "
             f"blockage_protocol_gate={blockage_gate or 'missing'}; "
-            f"required frontal <= {args.max_frontal_blockage_ratio}"
+            f"required frontal <= {args.max_frontal_blockage_ratio}; "
+            f"boundary_evidence_gate={boundary_evidence_gate or 'missing'}; "
+            f"boundary_evidence_source={boundary_evidence_source or 'missing'}; "
+            f"boundary_evidence_supported={boundary_evidence_supported}"
         ),
-        "Fix domain extents/model placement, reduce blockage, or archive a justified AIJ-equivalent boundary protocol.",
+        "Fix domain extents/model placement, reduce blockage, and archive AIJ-equivalent boundary/fetch/roughness evidence or an empty-tunnel/native boundary-preservation check.",
     )
 
     inlet_status = protocol_status(items, "inlet_turbulence_k")
@@ -497,15 +528,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     length_scale_supported = any(
         token in inlet_length_source.lower()
         for token in [
-            "aij",
-            "official",
-            "precursor",
-            "recycling",
-            "digital-filter",
-            "digital_filter",
-            "synthetic-eddy",
-            "sem",
-            "dfm",
+            "aij_length_scale_verified",
+            "official_length_scale_verified",
+            "precursor_length_scale",
+            "recycling_length_scale",
+            "digital_filter_length_scale",
+            "digital-filter_length_scale",
+            "synthetic_eddy_length_scale",
+            "synthetic-eddy_length_scale",
+            "sem_length_scale",
+            "dfm_length_scale",
             "validated_length_scale_model",
         ]
     )

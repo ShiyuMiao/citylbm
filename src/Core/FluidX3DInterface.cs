@@ -2451,6 +2451,8 @@ namespace CityLBM.Solver
                         : "deterministic mean velocity boundary",
                     BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
                     BoundaryProtocolAudit = boundaryAudit,
+                    BoundaryProtocolEvidenceSource = boundaryAudit.ProtocolEvidenceSource,
+                    BoundaryProtocolEvidenceGate = boundaryAudit.ProtocolEvidenceGate,
                     ValidationReadiness = "diagnostic_ready_not_paper_grade_until_native_baseline_grid_sensitivity_long_averaging_and_turbulent_inlet_are_verified",
                     KnownProtocolRisks = BuildProtocolRisks(scene, settings).ToList(),
                     ProfileOriginZM = 0.0,
@@ -2720,6 +2722,8 @@ namespace CityLBM.Solver
                 },
                 MeetsDiagnosticDomain = meetsDiagnosticDomain,
                 Gate = meetsDiagnosticDomain ? "diagnostic_clearance_ok_verify_against_aij" : "boundary_clearance_risk",
+                ProtocolEvidenceSource = "diagnostic_clearance_and_blockage_only; not matched to official AIJ wind-tunnel boundary/fetch/roughness evidence",
+                ProtocolEvidenceGate = "diagnostic_only_missing_aij_boundary_protocol_evidence",
                 GateReasons = gateReasons,
                 RequiredNextAction = "For AIJ validation, archive this object, report inlet/outlet/lateral/top clearances, approximate blockage ratios, and compare against the official wind-tunnel blockage and fetch protocol."
             };
@@ -2895,7 +2899,9 @@ namespace CityLBM.Solver
                             : "not_active",
                         WallRoughnessTreatment = "ground/buildings TYPE_S no-slip; no FluidX3D rough-wall or wall-function boundary in v0.3.0",
                         BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
-                        BoundaryProtocolAudit = boundaryAudit
+                        BoundaryProtocolAudit = boundaryAudit,
+                        BoundaryProtocolEvidenceSource = boundaryAudit.ProtocolEvidenceSource,
+                        BoundaryProtocolEvidenceGate = boundaryAudit.ProtocolEvidenceGate
                     },
                     RequiredPairedEvidence = new[]
                     {
@@ -3087,13 +3093,13 @@ namespace CityLBM.Solver
             yield return new ValidationProtocolAuditItem
             {
                 Key = "boundary_conditions",
-                Status = boundaryClearanceOk ? "partial" : "risk",
+                Status = "risk",
                 Evidence = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile) +
-                    $" BoundaryProtocolAudit.Gate={boundaryAudit.Gate}.",
+                    $" BoundaryProtocolAudit.Gate={boundaryAudit.Gate}; BoundaryProtocolEvidenceGate={boundaryAudit.ProtocolEvidenceGate}.",
                 Risk = boundaryClearanceOk
-                    ? "Clearance satisfies diagnostic defaults, but TYPE_E inlet/outlet/lateral/top is still a simplified protocol that may not match the AIJ wind-tunnel setup."
+                    ? "Clearance satisfies diagnostic defaults, but TYPE_E inlet/outlet/lateral/top remains a simplified protocol without archived AIJ-equivalent boundary/fetch/roughness evidence."
                     : "Domain clearance or simplified TYPE_E boundary treatment can contaminate the validation field and contribute to systematic bias.",
-                RequiredNextAction = "Archive BoundaryProtocolAudit, report inlet/outlet/lateral/top clearances in H units, and compare against AIJ tunnel boundary assumptions, blockage and fetch."
+                RequiredNextAction = "Archive AIJ boundary/fetch/roughness evidence or an empty-tunnel/native baseline boundary-preservation check, then set BoundaryProtocolEvidenceGate=pass only for that documented run."
             };
 
             yield return new ValidationProtocolAuditItem
@@ -3535,6 +3541,8 @@ namespace CityLBM.Solver
         public BoundaryClearanceCheckRecord ClearanceChecks { get; set; }
         public bool MeetsDiagnosticDomain { get; set; }
         public string Gate { get; set; }
+        public string ProtocolEvidenceSource { get; set; }
+        public string ProtocolEvidenceGate { get; set; }
         public List<string> GateReasons { get; set; }
         public string RequiredNextAction { get; set; }
     }
