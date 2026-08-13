@@ -13,10 +13,12 @@
 - Added `Read VTK / Average Last N` to produce explicit multi-frame time-averaged fields for validation.
 - Added protocol-risk metadata for boundary conditions, VTK frame count and validation-readiness status.
 - Disabled the legacy bundled v0.5.0 fallback for controlled validation runs; users must provide an explicit external FluidX3D path.
+- Added optional experimental `Run Simulation / Synthetic Inlet` inputs for CustomTable profiles with `k`.
+- Generated FluidX3D cases can now use `k` for bounded STG-lite inlet perturbations, with request/injection status and parameters recorded in `case_metadata.json`.
 
 ### Known limits
 
-- The `k` column is read, converted and recorded, but v0.3.0 does not yet inject synthetic turbulent fluctuations at the inlet.
+- The STG-lite inlet is not a full digital-filter or synthetic-eddy turbulent inflow and still requires native FluidX3D compile/run verification and sensitivity testing.
 - Boundary conditions are still simplified and must be audited against the AIJ wind-tunnel setup.
 - Case E has not been completed as a formal SCI-level validation run on this PC in this branch.
 - Final publishable accuracy still requires native FluidX3D Case A baseline, grid sensitivity, time averaging and measured-data comparison.

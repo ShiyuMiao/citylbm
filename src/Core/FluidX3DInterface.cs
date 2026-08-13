@@ -1751,6 +1751,7 @@ namespace CityLBM.Solver
             double uScale = uMax / Math.Max(GetProfileScaleSpeed(scene), 0.001);
             var windDir = scene.WindDirection;
             windDir.Unitize();
+            bool syntheticInletActive = IsSyntheticTurbulentInletActive(scene, settings);
             double ulbm_x = windDir.X * uMax;
             double ulbm_y = windDir.Y * uMax;
             double ulbm_z = Math.Max(0, windDir.Z * uMax);
@@ -1815,6 +1816,10 @@ namespace CityLBM.Solver
             else if (scene.WindProfile == WindProfileType.CustomTable)
             {
                 AppendCustomTableProfileCode(sb, scene, grid.Dx, uScale, windDir);
+                if (syntheticInletActive)
+                {
+                    AppendSyntheticTurbulentInletVelocityCode(sb, settings, grid.Dx);
+                }
             }
             sb.AppendLine();
 
@@ -1846,6 +1851,10 @@ namespace CityLBM.Solver
             // 边界条件（parallel_for 是 FluidX3D 推荐的并行初始化方式）
             sb.AppendLine("    // 初始化边界条件和速度场（parallel_for 并行）");
             sb.AppendLine("    const uint Nx = lbm.get_Nx(), Ny = lbm.get_Ny(), Nz = lbm.get_Nz();");
+            if (syntheticInletActive)
+            {
+                AppendSyntheticTurbulentInletApplyCode(sb, windDir);
+            }
             sb.AppendLine("    parallel_for(lbm.get_N(), [&](ulong n) {");
             sb.AppendLine("        uint x=0u, y=0u, z=0u;");
             sb.AppendLine("        lbm.coordinates(n, x, y, z);");
@@ -1857,7 +1866,7 @@ namespace CityLBM.Solver
             sb.AppendLine("        }");
             sb.AppendLine();
 
-            GenerateInletOutletCode(sb, windDir, grid, scene);
+            GenerateInletOutletCode(sb, windDir, grid, scene, syntheticInletActive);
             sb.AppendLine();
 
             // 初始化速度场
@@ -1924,6 +1933,10 @@ namespace CityLBM.Solver
             sb.AppendLine($"    while(lbm.get_t() < {settings.TimeSteps}u) {{");
             sb.AppendLine($"        uint remaining = {settings.TimeSteps}u - (uint)lbm.get_t();");
             sb.AppendLine($"        uint steps_to_run = remaining < {settings.SaveInterval}u ? remaining : {settings.SaveInterval}u;");
+            if (syntheticInletActive)
+            {
+                sb.AppendLine("        applySyntheticTurbulentInlet((uint)lbm.get_t());");
+            }
             sb.AppendLine("        lbm.run(steps_to_run);");
             sb.AppendLine();
             sb.AppendLine("        // 输出 VTK（速度场）到指定目录");
@@ -1939,7 +1952,7 @@ namespace CityLBM.Solver
             File.WriteAllText(setupPath, sb.ToString(), Encoding.UTF8);
         }
 
-        private void GenerateInletOutletCode(StringBuilder sb, Vector3d windDir, CartesianGrid grid, Scene scene)
+        private void GenerateInletOutletCode(StringBuilder sb, Vector3d windDir, CartesianGrid grid, Scene scene, bool syntheticInletActive)
         {
             bool xDominant = Math.Abs(windDir.X) >= Math.Abs(windDir.Y);
 
@@ -1992,7 +2005,9 @@ namespace CityLBM.Solver
                     {
                         sb.AppendLine("        if(x == 0u)  {  // 入口：按风廓线设置速度");
                         sb.AppendLine("            lbm.flags[n] = TYPE_E;");
-                        sb.AppendLine("            float3 u_in = windProfile(z);");
+                        sb.AppendLine(syntheticInletActive
+                            ? "            float3 u_in = syntheticTurbulentInlet(x, y, z, 0u);"
+                            : "            float3 u_in = windProfile(z);");
                         sb.AppendLine("            lbm.u.x[n] = u_in.x; lbm.u.y[n] = u_in.y; lbm.u.z[n] = u_in.z;");
                         sb.AppendLine("            return;");
                         sb.AppendLine("        }");
@@ -2002,7 +2017,9 @@ namespace CityLBM.Solver
                     {
                         sb.AppendLine("        if(x == Nx-1u) {  // 入口：按风廓线设置速度");
                         sb.AppendLine("            lbm.flags[n] = TYPE_E;");
-                        sb.AppendLine("            float3 u_in = windProfile(z);");
+                        sb.AppendLine(syntheticInletActive
+                            ? "            float3 u_in = syntheticTurbulentInlet(x, y, z, 0u);"
+                            : "            float3 u_in = windProfile(z);");
                         sb.AppendLine("            lbm.u.x[n] = u_in.x; lbm.u.y[n] = u_in.y; lbm.u.z[n] = u_in.z;");
                         sb.AppendLine("            return;");
                         sb.AppendLine("        }");
@@ -2019,7 +2036,9 @@ namespace CityLBM.Solver
                     {
                         sb.AppendLine("        if(y == 0u)  {  // 入口：按风廓线设置速度");
                         sb.AppendLine("            lbm.flags[n] = TYPE_E;");
-                        sb.AppendLine("            float3 u_in = windProfile(z);");
+                        sb.AppendLine(syntheticInletActive
+                            ? "            float3 u_in = syntheticTurbulentInlet(x, y, z, 0u);"
+                            : "            float3 u_in = windProfile(z);");
                         sb.AppendLine("            lbm.u.x[n] = u_in.x; lbm.u.y[n] = u_in.y; lbm.u.z[n] = u_in.z;");
                         sb.AppendLine("            return;");
                         sb.AppendLine("        }");
@@ -2029,7 +2048,9 @@ namespace CityLBM.Solver
                     {
                         sb.AppendLine("        if(y == Ny-1u) {  // 入口：按风廓线设置速度");
                         sb.AppendLine("            lbm.flags[n] = TYPE_E;");
-                        sb.AppendLine("            float3 u_in = windProfile(z);");
+                        sb.AppendLine(syntheticInletActive
+                            ? "            float3 u_in = syntheticTurbulentInlet(x, y, z, 0u);"
+                            : "            float3 u_in = windProfile(z);");
                         sb.AppendLine("            lbm.u.x[n] = u_in.x; lbm.u.y[n] = u_in.y; lbm.u.z[n] = u_in.z;");
                         sb.AppendLine("            return;");
                         sb.AppendLine("        }");
@@ -2098,12 +2119,110 @@ namespace CityLBM.Solver
             sb.AppendLine("        }");
             sb.AppendLine("        return profile_u_lbm[profile_count-1];");
             sb.AppendLine("    };");
+            sb.AppendLine("    auto interpolate_profile_k = [&](float z_m) -> float {");
+            sb.AppendLine("        if(z_m <= profile_z_m[0]) return profile_k_lbm[0];");
+            sb.AppendLine("        if(z_m >= profile_z_m[profile_count-1]) return profile_k_lbm[profile_count-1];");
+            sb.AppendLine("        for(int i=0; i<profile_count-1; i++) {");
+            sb.AppendLine("            if(z_m >= profile_z_m[i] && z_m <= profile_z_m[i+1]) {");
+            sb.AppendLine("                float dz = profile_z_m[i+1] - profile_z_m[i];");
+            sb.AppendLine("                if(dz < 1.0e-6f) dz = 1.0e-6f;");
+            sb.AppendLine("                float t = (z_m - profile_z_m[i]) / dz;");
+            sb.AppendLine("                return profile_k_lbm[i] + t * (profile_k_lbm[i+1] - profile_k_lbm[i]);");
+            sb.AppendLine("            }");
+            sb.AppendLine("        }");
+            sb.AppendLine("        return profile_k_lbm[profile_count-1];");
+            sb.AppendLine("    };");
             sb.AppendLine("    auto windProfile = [&](uint z_cell) -> float3 {");
             sb.AppendLine($"        float z_m = ((float)z_cell + 0.5f) * {dx.ToString("F8", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine("        float u_mag = interpolate_profile_u(z_m);");
             sb.AppendLine("        return float3(dir_x * u_mag, dir_y * u_mag, dir_z * u_mag);");
             sb.AppendLine("    };");
-            sb.AppendLine("    // k arrays are emitted for validation metadata. v0.3.0 does not inject synthetic turbulent fluctuations at the inlet.");
+            sb.AppendLine("    // k arrays are emitted for validation metadata and optional STG-lite inlet forcing.");
+        }
+
+        private bool IsSyntheticTurbulentInletActive(Scene scene, SimulationSettings settings)
+        {
+            return settings.EnableSyntheticTurbulentInlet &&
+                   scene.WindProfile == WindProfileType.CustomTable &&
+                   scene.CustomWindProfile != null &&
+                   scene.CustomWindProfile.Any(s => s.HasK);
+        }
+
+        private void AppendSyntheticTurbulentInletVelocityCode(StringBuilder sb, SimulationSettings settings, double dx)
+        {
+            double scale = Math.Max(0.0, Math.Min(2.0, settings.SyntheticTurbulenceIntensityScale));
+            double corr = Math.Max(1.0, Math.Min(64.0, settings.SyntheticTurbulenceCorrelationCells));
+            double maxFrac = Math.Max(0.05, Math.Min(0.80, settings.SyntheticTurbulenceMaxFractionOfMean));
+            int updateInterval = Math.Max(1, settings.SyntheticTurbulenceUpdateInterval);
+
+            sb.AppendLine();
+            sb.AppendLine("    // CityLBM STG-lite inlet: correlated deterministic perturbations from isotropic k.");
+            sb.AppendLine("    // This is not a full digital-filter or synthetic-eddy inlet.");
+            sb.AppendLine($"    const float citylbm_stg_scale = {scale.ToString("F6", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const float citylbm_stg_corr_cells = {corr.ToString("F6", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const float citylbm_stg_max_fraction = {maxFrac.ToString("F6", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const uint citylbm_stg_update_interval = {updateInterval}u;");
+            sb.AppendLine("    auto citylbm_stg_noise = [&](float x_cell, float y_cell, float z_cell, float t_cell, float seed) -> float {");
+            sb.AppendLine("        float inv_l = 1.0f / citylbm_stg_corr_cells;");
+            sb.AppendLine("        float n = sinf((0.754877f*x_cell + 0.569840f*y_cell + 0.438722f*z_cell + 0.031416f*t_cell + seed) * inv_l)");
+            sb.AppendLine("                + cosf((0.327123f*x_cell - 0.671231f*y_cell + 0.873421f*z_cell + 0.017453f*t_cell + 1.370000f*seed) * inv_l)");
+            sb.AppendLine("                + sinf((0.159154f*x_cell + 0.230769f*y_cell - 0.411765f*z_cell + 0.021739f*t_cell + 2.110000f*seed) * inv_l);");
+            sb.AppendLine("        return n * 0.3333333f;");
+            sb.AppendLine("    };");
+            sb.AppendLine("    auto syntheticTurbulentInlet = [&](uint x, uint y, uint z_cell, uint t_step) -> float3 {");
+            sb.AppendLine("        float3 mean = windProfile(z_cell);");
+            sb.AppendLine($"        float z_m = ((float)z_cell + 0.5f) * {dx.ToString("F8", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine("        float k_lbm = interpolate_profile_k(z_m);");
+            sb.AppendLine("        if(k_lbm < 0.0f) k_lbm = 0.0f;");
+            sb.AppendLine("        float sigma = sqrtf(0.6666667f * k_lbm) * citylbm_stg_scale;");
+            sb.AppendLine("        float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);");
+            sb.AppendLine("        float cap = citylbm_stg_max_fraction * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
+            sb.AppendLine("        if(sigma > cap) sigma = cap;");
+            sb.AppendLine("        float t_cell = (float)(t_step / citylbm_stg_update_interval);");
+            sb.AppendLine("        float3 u = float3(");
+            sb.AppendLine("            mean.x + sigma * citylbm_stg_noise((float)x, (float)y, (float)z_cell, t_cell, 11.0f),");
+            sb.AppendLine("            mean.y + sigma * citylbm_stg_noise((float)x, (float)y, (float)z_cell, t_cell, 23.0f),");
+            sb.AppendLine("            mean.z + sigma * citylbm_stg_noise((float)x, (float)y, (float)z_cell, t_cell, 37.0f));");
+            sb.AppendLine("        float streamwise = u.x*dir_x + u.y*dir_y + u.z*dir_z;");
+            sb.AppendLine("        float min_streamwise = 0.05f * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
+            sb.AppendLine("        if(streamwise < min_streamwise) {");
+            sb.AppendLine("            float correction = min_streamwise - streamwise;");
+            sb.AppendLine("            u.x += correction * dir_x;");
+            sb.AppendLine("            u.y += correction * dir_y;");
+            sb.AppendLine("            u.z += correction * dir_z;");
+            sb.AppendLine("        }");
+            sb.AppendLine("        return u;");
+            sb.AppendLine("    };");
+        }
+
+        private void AppendSyntheticTurbulentInletApplyCode(StringBuilder sb, Vector3d windDir)
+        {
+            string inletCondition = GetInletFaceCondition(windDir);
+
+            sb.AppendLine("    auto applySyntheticTurbulentInlet = [&](uint t_step) {");
+            sb.AppendLine("        lbm.u.read_from_device();");
+            sb.AppendLine("        parallel_for(lbm.get_N(), [&](ulong n) {");
+            sb.AppendLine("            uint x=0u, y=0u, z=0u;");
+            sb.AppendLine("            lbm.coordinates(n, x, y, z);");
+            sb.AppendLine($"            if({inletCondition}) {{");
+            sb.AppendLine("                float3 u_in = syntheticTurbulentInlet(x, y, z, t_step);");
+            sb.AppendLine("                lbm.u.x[n] = u_in.x;");
+            sb.AppendLine("                lbm.u.y[n] = u_in.y;");
+            sb.AppendLine("                lbm.u.z[n] = u_in.z;");
+            sb.AppendLine("            }");
+            sb.AppendLine("        });");
+            sb.AppendLine("        lbm.u.write_to_device();");
+            sb.AppendLine("    };");
+            sb.AppendLine();
+        }
+
+        private string GetInletFaceCondition(Vector3d windDir)
+        {
+            bool xDominant = Math.Abs(windDir.X) >= Math.Abs(windDir.Y);
+            if (xDominant)
+                return windDir.X > 0.0 ? "x == 0u" : "x == Nx-1u";
+
+            return windDir.Y > 0.0 ? "y == 0u" : "y == Ny-1u";
         }
 
         private string JoinFloatArray(IEnumerable<double> values)
@@ -2117,6 +2236,7 @@ namespace CityLBM.Solver
             {
                 double uScale = 0.1 / Math.Max(GetProfileScaleSpeed(scene), 0.001);
                 bool hasK = scene.CustomWindProfile != null && scene.CustomWindProfile.Any(s => s.HasK);
+                bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
                 var metadata = new
                 {
                     SchemaVersion = 2,
@@ -2146,11 +2266,23 @@ namespace CityLBM.Solver
                     CustomProfileHasK = hasK,
                     KColumnStatus = hasK ? "read_from_csv_and_converted_to_lbm_metadata" : "not_available",
                     KUnitConversion = "k_lbm = k_m2s2 * VelocityScaleMpsToLbm^2",
-                    TurbulentInletLevel = hasK ? "Level 2 metadata/diagnostic chain" : "none",
-                    SyntheticTurbulentInletInjected = false,
-                    ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor in v0.3.0" : "",
+                    TurbulentInletLevel = syntheticActive
+                        ? "Level 2.5 STG-lite correlated perturbation from isotropic k"
+                        : (hasK ? "Level 2 metadata/diagnostic chain" : "none"),
+                    SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
+                    SyntheticTurbulentInletInjected = syntheticActive,
+                    SyntheticTurbulentInletMethod = syntheticActive
+                        ? "STG-lite deterministic correlated trigonometric fluctuations; not digital-filter or synthetic-eddy"
+                        : "none",
+                    SyntheticTurbulenceIntensityScale = settings.SyntheticTurbulenceIntensityScale,
+                    SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
+                    SyntheticTurbulenceUpdateInterval = settings.SyntheticTurbulenceUpdateInterval,
+                    SyntheticTurbulenceMaxFractionOfMean = settings.SyntheticTurbulenceMaxFractionOfMean,
+                    ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor is available from AF table" : "",
                     InletVelocityTreatment = scene.WindProfile == WindProfileType.CustomTable
-                        ? "height-varying mean velocity from CustomTable; no correlated fluctuations"
+                        ? (syntheticActive
+                            ? "height-varying mean velocity plus bounded STG-lite fluctuations from k"
+                            : "height-varying mean velocity from CustomTable; no correlated fluctuations")
                         : "deterministic mean velocity boundary",
                     BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
                     ValidationReadiness = "diagnostic_ready_not_paper_grade_until_native_baseline_grid_sensitivity_long_averaging_and_turbulent_inlet_are_verified",
@@ -2210,11 +2342,23 @@ namespace CityLBM.Solver
 
         private IEnumerable<string> BuildProtocolRisks(Scene scene, SimulationSettings settings)
         {
+            bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
             if (scene.WindProfile == WindProfileType.CustomTable &&
                 scene.CustomWindProfile != null &&
                 scene.CustomWindProfile.Any(s => s.HasK))
             {
-                yield return "AF k column is read and converted, but no digital-filter/synthetic-eddy turbulent inlet is injected.";
+                if (syntheticActive)
+                {
+                    yield return "AF k column drives an experimental STG-lite inlet, but this is not a full digital-filter/synthetic-eddy method and has no Reynolds-stress tensor or precursor/recycling field.";
+                }
+                else
+                {
+                    yield return "AF k column is read and converted, but no digital-filter/synthetic-eddy turbulent inlet is injected.";
+                }
+            }
+            else if (settings.EnableSyntheticTurbulentInlet)
+            {
+                yield return "Synthetic inlet was requested but disabled because the scene is not CustomTable with a usable k column.";
             }
 
             yield return "Boundary conditions are simplified TYPE_E inlet/outlet/lateral/top approximations and must be checked against the AIJ wind-tunnel protocol.";
@@ -2526,6 +2670,24 @@ namespace CityLBM.Solver
         /// 用于亚格子热通量计算
         /// </summary>
         public double TurbulentPrandtlNumber { get; set; } = 0.5;
+
+        /// <summary>
+        /// Enables an experimental STG-lite inlet for CustomTable profiles with k.
+        /// This is a correlated, bounded perturbation from isotropic k, not full DFM/SEM.
+        /// </summary>
+        public bool EnableSyntheticTurbulentInlet { get; set; } = false;
+
+        /// <summary>Multiplier applied to sigma=sqrt(2k/3) from the AF table.</summary>
+        public double SyntheticTurbulenceIntensityScale { get; set; } = 1.0;
+
+        /// <summary>Approximate spatial correlation length in lattice cells.</summary>
+        public double SyntheticTurbulenceCorrelationCells { get; set; } = 4.0;
+
+        /// <summary>How often the inlet perturbation pattern is advanced in LBM steps.</summary>
+        public int SyntheticTurbulenceUpdateInterval { get; set; } = 25;
+
+        /// <summary>Upper bound of perturbation sigma relative to local mean speed.</summary>
+        public double SyntheticTurbulenceMaxFractionOfMean { get; set; } = 0.35;
 
         public void SetInletVelocity(Vector3d direction, double speed)
         {

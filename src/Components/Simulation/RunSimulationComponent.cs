@@ -91,13 +91,24 @@ namespace CityLBM.Components.Simulation
                 "较小值：更少耗散但可能不稳定\n" +
                 "较大值：更多耗散但更稳定",
                 GH_ParamAccess.item, 0.12);
+            pManager.AddBooleanParameter("Synthetic Inlet", "STG",
+                "Experimental STG-lite inlet for CustomTable profiles with k.\n" +
+                "Uses bounded correlated perturbations from sigma=sqrt(2k/3).\n" +
+                "This is not a full digital-filter or synthetic-eddy inlet.",
+                GH_ParamAccess.item, false);
+            pManager.AddNumberParameter("STG Scale", "STGS",
+                "Multiplier for sigma=sqrt(2k/3). Recommended initial range: 0.5-1.0.",
+                GH_ParamAccess.item, 1.0);
+            pManager.AddNumberParameter("STG Corr Cells", "LC",
+                "Approximate spatial correlation length in lattice cells for STG-lite.",
+                GH_ParamAccess.item, 4.0);
 
             // 触发 / 取消
             pManager.AddBooleanParameter("Run", "Run", "True = 开始；若已运行中则重新启动", GH_ParamAccess.item, false);
             pManager.AddBooleanParameter("Cancel", "Stop", "True = 取消当前后台运行", GH_ParamAccess.item, false);
 
             // 全部可选（除 Scene 和 Grid）
-            for (int i = 2; i <= 11; i++) pManager[i].Optional = true;
+            for (int i = 2; i <= 14; i++) pManager[i].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
@@ -126,6 +137,9 @@ namespace CityLBM.Components.Simulation
             // ── v0.2.0: Smagorinsky LES 参数 ──
             bool enableLES = false;
             double smagorinskyCs = 0.12;
+            bool enableSyntheticInlet = false;
+            double syntheticScale = 1.0;
+            double syntheticCorrCells = 4.0;
 
             if (!DA.GetData(0, ref ghScene)) return;
             if (!DA.GetData(1, ref ghGrid)) return;
@@ -137,8 +151,11 @@ namespace CityLBM.Components.Simulation
             DA.GetData(7, ref saveInterval);
             DA.GetData(8, ref enableLES);
             DA.GetData(9, ref smagorinskyCs);
-            DA.GetData(10, ref run);
-            DA.GetData(11, ref cancel);
+            DA.GetData(10, ref enableSyntheticInlet);
+            DA.GetData(11, ref syntheticScale);
+            DA.GetData(12, ref syntheticCorrCells);
+            DA.GetData(13, ref run);
+            DA.GetData(14, ref cancel);
 
             // ── GH 加载期保护 ────────────────────────────────────────────
             // 使用宽限期策略：组件创建后 3 秒内认为 GH 可能还在加载
@@ -264,6 +281,17 @@ namespace CityLBM.Components.Simulation
                 settings.SmagorinskyConstantCs = cs;
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
                     $"[v0.2.0] 已启用 Smagorinsky LES 模型，Cs={cs:F3}");
+            }
+
+            if (enableSyntheticInlet)
+            {
+                settings.EnableSyntheticTurbulentInlet = true;
+                settings.SyntheticTurbulenceIntensityScale = Math.Max(0.0, Math.Min(2.0, syntheticScale));
+                settings.SyntheticTurbulenceCorrelationCells = Math.Max(1.0, Math.Min(64.0, syntheticCorrCells));
+                settings.SyntheticTurbulenceUpdateInterval = 25;
+                settings.SyntheticTurbulenceMaxFractionOfMean = 0.35;
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                    "[v0.3.0] STG-lite inlet enabled for CustomTable+k. Experimental; not full DFM/SEM.");
             }
 
             var solver = new FluidX3DInterface(fluidX3DPath);
