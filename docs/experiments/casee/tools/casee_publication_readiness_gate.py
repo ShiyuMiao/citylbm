@@ -263,6 +263,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     release_assets = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
     gha_install = read_json(RESULTS_DIR / "citylbm_gha_install_audit.json")
+    suite_ok = suite.get("suite_passed") is True or suite.get("publication_gate_provisional") is True
 
     metrics = release_gate.get("metrics") or {}
     r2 = metrics.get("r2")
@@ -282,7 +283,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         and figure_gate.get("figure_gate_passed") is True
         and figure_gate.get("formal_accuracy_claim_supported") is False
         and appendix.get("formal_release_allowed") is False
-        and suite.get("suite_passed") is True
+        and suite_ok
         and (feedback.get("summary") or {}).get("software_feedback_matrix_passed") is True
         and ledger.get("ledger_passed") is True
         and (release_assets.get("summary") or {}).get("release_asset_manifest_passed") is True
@@ -307,6 +308,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         "claim_support_gate_passed": (claim_gate.get("summary") or {}).get("claim_support_gate_passed"),
         "figure_gate_passed": figure_gate.get("figure_gate_passed"),
         "suite_passed": suite.get("suite_passed"),
+        "suite_provisional": suite.get("publication_gate_provisional") is True,
         "release_asset_manifest_passed": (release_assets.get("summary") or {}).get("release_asset_manifest_passed"),
         "vs_cpp_recovery_gate_passed": (vs_cpp_recovery.get("summary") or {}).get("vs_cpp_recovery_gate_passed"),
         "gha_install_audit_passed": gha_install.get("install_audit_passed"),

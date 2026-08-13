@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc85 - Default promotion gate
+
+- Added `casee_default_promotion_gate.py` to encode when Case E diagnostic settings may be promoted to CityLBM defaults.
+- The gate currently blocks all diagnostic default promotion because official z=2 m R2 remains negative, Rhino/GHA load evidence is incomplete, and formal release gates are not satisfied.
+- Integrated the promotion gate into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF061.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc84 - Runbook codegen preflight
 
 - Added `casee_runbook_codegen_preflight.py` to execute only the native case-generation step for official follow-up runbook commands R005, R006, R007, R008, and R010.

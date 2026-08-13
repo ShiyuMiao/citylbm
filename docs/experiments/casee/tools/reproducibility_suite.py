@@ -195,6 +195,7 @@ def write_publication_gate_provisional_suite(steps: List[Dict[str, Any]]) -> Non
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "suite_passed": all(bool(step.get("passed")) for step in steps),
+        "publication_gate_provisional": True,
         "evidence_type": "newly_run",
         "claim_readiness": "provisional self-reference for publication gate; overwritten by final suite payload",
         "steps_completed_before_publication_gate": [step.get("name") for step in steps],
@@ -337,6 +338,7 @@ def main() -> int:
         ("casee_claim_support_gate", "casee_claim_support_gate.py"),
         ("casee_candidate_sweep_plan", "casee_candidate_sweep_plan.py"),
         ("casee_default_policy_gate", "casee_default_policy_gate.py"),
+        ("casee_default_promotion_gate", "casee_default_promotion_gate.py"),
         ("casee_wall_followup_codegen_gate", "casee_wall_followup_codegen_gate.py"),
         ("casee_inlet_followup_codegen_gate", "casee_inlet_followup_codegen_gate.py"),
         ("casee_c016_codegen_gate", "casee_c016_codegen_gate.py"),
@@ -414,6 +416,7 @@ def main() -> int:
     c014_residual_structure = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
     orphan_candidate_csv_audit = read_json(RESULTS_DIR / "casee_orphan_candidate_csv_audit.json")
     default_policy = read_json(RESULTS_DIR / "casee_default_policy_gate.json")
+    default_promotion = read_json(RESULTS_DIR / "casee_default_promotion_gate.json")
     paper_results_packet = read_json(RESULTS_DIR / "citylbm_paper_results_packet.json")
     manifest_output_gate = read_json(RESULTS_DIR / "citylbm_manifest_output_gate.json")
     manifest_schema_gate = read_json(RESULTS_DIR / "citylbm_manifest_schema_gate.json")
@@ -470,6 +473,7 @@ def main() -> int:
         "casee_native_codegen_smoke_gate": native_codegen_smoke,
         "casee_runbook_codegen_preflight": runbook_codegen_preflight,
         "casee_default_policy_gate": default_policy,
+        "casee_default_promotion_gate": default_promotion,
         "citylbm_paper_results_packet": paper_results_packet,
         "citylbm_manifest_output_gate": manifest_output_gate,
         "citylbm_manifest_schema_gate": manifest_schema_gate,

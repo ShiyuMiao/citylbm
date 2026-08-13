@@ -1,14 +1,14 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T10:23:30.589080+00:00",
+    "generated_at": "2026-08-13T10:43:31.997952+00:00",
     "evidence_type": "newly_run",
     "claim_readiness": "space_preflight_blocked_manual_cleanup_needed",
     "vs_cpp_system_drive_space_gate_passed": true,
     "system_drive": "C:",
     "system_drive_total_gb": 194.47,
-    "system_drive_free_gb": 0.031,
+    "system_drive_free_gb": 0.025,
     "min_system_drive_free_gb": 8.0,
-    "additional_free_needed_gb": 7.969,
+    "additional_free_needed_gb": 7.975,
     "space_ready_for_vs_cpp_launcher": false,
     "low_risk_candidate_total_gb": 0.967,
     "all_candidate_total_gb": 6.003,
@@ -74,7 +74,7 @@
       "size_bytes": 982828675,
       "size_gb": 0.915,
       "file_count": 3909,
-      "dir_count": 1542,
+      "dir_count": 1572,
       "errors": [],
       "truncated": false,
       "candidate_for_manual_cleanup": true

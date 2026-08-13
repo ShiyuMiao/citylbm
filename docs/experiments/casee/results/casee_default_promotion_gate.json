@@ -1,0 +1,179 @@
+{
+  "generated_at": "2026-08-13T10:43:42.189656+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_default_promotion_boundary",
+  "default_promotion_gate_passed": true,
+  "any_diagnostic_default_promotion_allowed": false,
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "rows": [
+    {
+      "setting_id": "nu_lbm_override",
+      "surface": "CityLBM Run Simulation / native generator",
+      "control": "nuLBM / --nu-lbm",
+      "current_status": "diagnostic_switch",
+      "promotion_requires": [
+        "official_z2m_metric_gate",
+        "casea_smoke_regression_passed",
+        "complete_command_log_csv_figure_trace"
+      ],
+      "evidence_type": "newly_run",
+      "promotion_allowed_now": false,
+      "promotion_blockers": [
+        "official_z2m_metric_gate"
+      ],
+      "required_gate_count": 3,
+      "passed_required_gate_count": 2,
+      "paper_use": "Use as default-promotion boundary for software implications and limitations.",
+      "limitations": "No default promotion while any required gate is missing; generated cases and diagnostic metrics alone are insufficient."
+    },
+    {
+      "setting_id": "z_origin_offset",
+      "surface": "CityLBM Run Simulation / native generator",
+      "control": "zOff / --origin-z-offset-m",
+      "current_status": "diagnostic_switch",
+      "promotion_requires": [
+        "official_z2m_metric_gate",
+        "official_raw_trilinear_only",
+        "no_zplus_substitution"
+      ],
+      "evidence_type": "newly_run",
+      "promotion_allowed_now": false,
+      "promotion_blockers": [
+        "official_z2m_metric_gate"
+      ],
+      "required_gate_count": 3,
+      "passed_required_gate_count": 2,
+      "paper_use": "Use as default-promotion boundary for software implications and limitations.",
+      "limitations": "No default promotion while any required gate is missing; generated cases and diagnostic metrics alone are insufficient."
+    },
+    {
+      "setting_id": "wall_model",
+      "surface": "CityLBM Run Simulation / native generator",
+      "control": "wallModel / --wall-model",
+      "current_status": "default_off_followup",
+      "promotion_requires": [
+        "official_z2m_metric_gate",
+        "casea_smoke_regression_passed",
+        "rhino_loaded_new_gha",
+        "official_raw_trilinear_only",
+        "no_zplus_substitution",
+        "no_rs_casee_target_fitting",
+        "complete_command_log_csv_figure_trace"
+      ],
+      "evidence_type": "newly_run",
+      "promotion_allowed_now": false,
+      "promotion_blockers": [
+        "official_z2m_metric_gate",
+        "rhino_loaded_new_gha"
+      ],
+      "required_gate_count": 7,
+      "passed_required_gate_count": 5,
+      "paper_use": "Use as default-promotion boundary for software implications and limitations.",
+      "limitations": "No default promotion while any required gate is missing; generated cases and diagnostic metrics alone are insufficient."
+    },
+    {
+      "setting_id": "roughness_length",
+      "surface": "CityLBM Run Simulation",
+      "control": "z0Wall",
+      "current_status": "default_off_followup",
+      "promotion_requires": [
+        "official_z2m_metric_gate",
+        "casea_smoke_regression_passed",
+        "rhino_loaded_new_gha",
+        "official_raw_trilinear_only",
+        "no_zplus_substitution",
+        "no_rs_casee_target_fitting",
+        "complete_command_log_csv_figure_trace"
+      ],
+      "evidence_type": "newly_run",
+      "promotion_allowed_now": false,
+      "promotion_blockers": [
+        "official_z2m_metric_gate",
+        "rhino_loaded_new_gha"
+      ],
+      "required_gate_count": 7,
+      "passed_required_gate_count": 5,
+      "paper_use": "Use as default-promotion boundary for software implications and limitations.",
+      "limitations": "No default promotion while any required gate is missing; generated cases and diagnostic metrics alone are insufficient."
+    },
+    {
+      "setting_id": "inlet_turbulence",
+      "surface": "CityLBM Run Simulation / native generator",
+      "control": "inletT/inletS / --inlet-turbulence-mode/scale",
+      "current_status": "default_off_followup",
+      "promotion_requires": [
+        "official_z2m_metric_gate",
+        "casea_smoke_regression_passed",
+        "rhino_loaded_new_gha",
+        "official_raw_trilinear_only",
+        "no_zplus_substitution",
+        "no_rs_casee_target_fitting",
+        "complete_command_log_csv_figure_trace"
+      ],
+      "evidence_type": "newly_run",
+      "promotion_allowed_now": false,
+      "promotion_blockers": [
+        "official_z2m_metric_gate",
+        "rhino_loaded_new_gha"
+      ],
+      "required_gate_count": 7,
+      "passed_required_gate_count": 5,
+      "paper_use": "Use as default-promotion boundary for software implications and limitations.",
+      "limitations": "No default promotion while any required gate is missing; generated cases and diagnostic metrics alone are insufficient."
+    },
+    {
+      "setting_id": "residual_target",
+      "surface": "CityLBM Run Simulation / native generator",
+      "control": "residT/residS / --residual-target-mode/scale",
+      "current_status": "default_off_followup",
+      "promotion_requires": [
+        "official_z2m_metric_gate",
+        "casea_smoke_regression_passed",
+        "rhino_loaded_new_gha",
+        "official_raw_trilinear_only",
+        "no_zplus_substitution",
+        "no_rs_casee_target_fitting",
+        "complete_command_log_csv_figure_trace"
+      ],
+      "evidence_type": "newly_run",
+      "promotion_allowed_now": false,
+      "promotion_blockers": [
+        "official_z2m_metric_gate",
+        "rhino_loaded_new_gha"
+      ],
+      "required_gate_count": 7,
+      "passed_required_gate_count": 5,
+      "paper_use": "Use as default-promotion boundary for software implications and limitations.",
+      "limitations": "No default promotion while any required gate is missing; generated cases and diagnostic metrics alone are insufficient."
+    },
+    {
+      "setting_id": "diagnostic_probe_sampling",
+      "surface": "Case E preset/native output",
+      "control": "nearest_valid, fluid_weighted, vertical_valid_above, z_plus_half",
+      "current_status": "diagnostic_only",
+      "never_promote": true,
+      "promotion_requires": [
+        "official_raw_trilinear_only",
+        "no_zplus_substitution"
+      ],
+      "evidence_type": "newly_run",
+      "promotion_allowed_now": false,
+      "promotion_blockers": [
+        "diagnostic_sampling_never_formal_default"
+      ],
+      "required_gate_count": 2,
+      "passed_required_gate_count": 1,
+      "paper_use": "Use as default-promotion boundary for software implications and limitations.",
+      "limitations": "No default promotion while any required gate is missing; generated cases and diagnostic metrics alone are insufficient."
+    }
+  ],
+  "source_paths": [
+    "docs/experiments/casee/results/release_gate.json",
+    "docs/experiments/casee/results/casee_default_policy_gate.json",
+    "docs/experiments/casee/results/casee_c016_residual_target_leakage_guard.json",
+    "docs/experiments/casee/results/casee_runbook_codegen_preflight.json",
+    "docs/experiments/casee/results/casee_paper_evidence_gate.json"
+  ],
+  "boundary": "This gate is a promotion blocker: while official z=2 m accuracy, Case A regression, Rhino/GHA load, raw-trilinear protocol, no-fitting, and traceability gates are not all satisfied, diagnostic Case E settings must remain experimental switches. It does not run FluidX3D or update metrics."
+}

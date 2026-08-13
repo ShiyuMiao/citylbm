@@ -1,2 +1,2 @@
 recommended_tag,audited_tag,local_head,local_tag_commit,local_tag_resolves,remote_tag_visible,github_release_exists,github_release_url,gh_cli_available,can_create_release_now,formal_release_allowed
-v0.4.0-rc84,v0.4.0-rc83,b2760a4d81a2880d17bdbff1e9a9ddc2c986df65,b2760a4d81a2880d17bdbff1e9a9ddc2c986df65,True,True,False,,False,False,False
+v0.4.0-rc85,v0.4.0-rc84,1e899d1b140dbefce88e32d48a19e40596dc7fb2,1e899d1b140dbefce88e32d48a19e40596dc7fb2,True,True,False,,False,False,False

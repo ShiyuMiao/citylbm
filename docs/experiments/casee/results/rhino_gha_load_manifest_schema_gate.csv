@@ -1,11 +1,11 @@
 scope,field,present,placeholder_allowed,placeholder_detected,passes,value_preview
-template_field,checked_at,True,True,False,True,2026-08-13T10:23:14.775152+00:00
+template_field,checked_at,True,True,False,True,2026-08-13T10:43:16.278113+00:00
 template_field,operator,True,True,True,True,manual-operator-name
 template_field,rhino_version,True,True,True,True,paste Rhino About/SystemInfo version string
 template_field,grasshopper_version,True,True,True,True,paste Grasshopper version string
 template_field,observed_plugin_version,True,True,False,True,0.4.0-rc
 template_field,observed_assembly_version,True,True,False,True,0.4.0.0
-template_field,observed_gha_sha256,True,True,False,True,ea82888730c63939c95e6e074d0fc55b9a7ecb3e7d38bfa9ade62026ec22fe1a
+template_field,observed_gha_sha256,True,True,False,True,84cf1e133d3438ab5cfec2bc707f89a382a34e4a7c230ce3f27951db1b60a87e
 template_field,evidence_artifacts,True,True,False,True,"[""docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png"", ""docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt""]"
 template_field,notes,True,True,True,True,Create docs/experiments/casee/results/rhino_gha_load_manifest.json only after a real Rhino/Grasshopper session shows CityLBM loaded from the staged GHA. Do not
 template_evidence,evidence_artifacts,True,True,False,True,docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png

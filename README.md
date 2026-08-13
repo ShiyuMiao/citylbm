@@ -120,6 +120,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_native_codegen_smoke_gate.md`
 - `docs/experiments/casee/results/casee_runbook_codegen_preflight.json`
 - `docs/experiments/casee/results/casee_runbook_codegen_preflight.md`
+- `docs/experiments/casee/results/casee_default_promotion_gate.json`
+- `docs/experiments/casee/results/casee_default_promotion_gate.md`
+- `docs/releases/v0.4.0-rc85.md`
 - `docs/releases/v0.4.0-rc84.md`
 - `docs/releases/v0.4.0-rc83.md`
 - `docs/releases/v0.4.0-rc82.md`
@@ -222,6 +225,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_default_policy_gate.json`
 - `docs/experiments/casee/results/casee_default_policy_gate.md`
 - `docs/experiments/casee/results/casee_default_policy_gate.csv`
+- `docs/experiments/casee/results/casee_default_promotion_gate.json`
+- `docs/experiments/casee/results/casee_default_promotion_gate.md`
+- `docs/experiments/casee/results/casee_default_promotion_gate.csv`
 - `docs/experiments/casee/results/casee_manuscript_results_table.json`
 - `docs/experiments/casee/results/casee_manuscript_results_table.md`
 - `docs/experiments/casee/results/casee_manuscript_results_table.csv`

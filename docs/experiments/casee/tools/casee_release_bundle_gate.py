@@ -6,6 +6,8 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import os
+import time
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -60,7 +62,8 @@ def selected_assets(manifest: Dict[str, Any]) -> List[Dict[str, Any]]:
 def build_zip(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     bundle_rows: List[Dict[str, Any]] = []
     OUT_ZIP.parent.mkdir(parents=True, exist_ok=True)
-    with zipfile.ZipFile(OUT_ZIP, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
+    tmp_zip = OUT_ZIP.with_name(f"{OUT_ZIP.stem}.tmp.{os.getpid()}{OUT_ZIP.suffix}")
+    with zipfile.ZipFile(tmp_zip, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
         for row in rows:
             path_text = str(row.get("path", ""))
             full = ROOT / path_text
@@ -82,6 +85,19 @@ def build_zip(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                     "asset_kind": row.get("asset_kind", ""),
                 }
             )
+    last_error = ""
+    for _ in range(10):
+        try:
+            tmp_zip.replace(OUT_ZIP)
+            last_error = ""
+            break
+        except OSError as exc:
+            last_error = str(exc)
+            time.sleep(0.25)
+    if last_error:
+        if tmp_zip.exists():
+            tmp_zip.unlink()
+        raise OSError(f"Could not replace release bundle after retries: {last_error}")
     return bundle_rows
 
 

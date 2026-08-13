@@ -2,165 +2,167 @@ status_code,path,classification,release_risk
 M ,CHANGELOG.md,tracked_or_staged_change,controlled
 M ,CityLBM/bin/CityLBM.gha,tracked_or_staged_change,controlled
 M ,README.md,tracked_or_staged_change,controlled
-MM,academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md,tracked_or_staged_change,controlled
-MM,academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md,tracked_or_staged_change,controlled
-MM,academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md,tracked_or_staged_change,controlled
+ M,academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md,tracked_or_staged_change,controlled
+ M,academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md,tracked_or_staged_change,controlled
+ M,academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/evidence_inventory.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/build_chain_manifest.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/build_chain_manifest.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/build_chain_manifest.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/build_chain_manifest.md,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_artifact_index.csv,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_artifact_index.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_artifact_index.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c002_longer_mean_audit.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c002_longer_mean_audit.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c005_decomposition_audit.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c005_decomposition_audit.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c014_residual_structure_audit.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c014_residual_structure_audit.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c016_codegen_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c016_codegen_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c016_residual_target_leakage_guard.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_c016_residual_target_leakage_guard.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_candidate_sweep_plan.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_candidate_sweep_plan.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_claim_support_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_claim_support_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_default_policy_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_default_policy_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_dx1_readiness_audit.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_dx1_readiness_audit.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_environment_recovery_runbook.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_environment_recovery_runbook.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_environment_recovery_runbook.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_failure_mode_atlas.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_failure_mode_atlas.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_inlet_followup_codegen_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_inlet_followup_codegen_gate.md,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/casee_manuscript_claim_matrix.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_manuscript_claim_matrix.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_manuscript_evidence_summary.md,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/casee_manuscript_results_table.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_manuscript_results_table.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_manuscript_results_table.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_manuscript_section_pack.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_manuscript_section_pack_qa.md,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/casee_native_codegen_smoke_gate.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_native_codegen_smoke_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_native_codegen_smoke_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_next_experiment_runbook.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_next_experiment_runbook.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_official_run_preflight.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_official_run_preflight.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_operational_recovery_dashboard.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_operational_recovery_dashboard.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_operational_recovery_dashboard.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_orphan_candidate_csv_audit.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_orphan_candidate_csv_audit.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_paper_appendix_manifest.json,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/casee_paper_evidence_gate.json,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/casee_paper_evidence_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_paper_results_figure.svg,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_paper_results_figure_qa.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_paper_results_figure_qa.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_postrun_official_audit_handoff.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_postrun_official_audit_handoff.md,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/casee_publication_readiness_gate.csv,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/casee_publication_readiness_gate.json,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/casee_publication_readiness_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c002_longer_mean_audit.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c002_longer_mean_audit.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c005_decomposition_audit.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c005_decomposition_audit.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c014_residual_structure_audit.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c014_residual_structure_audit.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c016_codegen_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c016_codegen_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c016_residual_target_leakage_guard.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_c016_residual_target_leakage_guard.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_candidate_sweep_plan.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_candidate_sweep_plan.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_claim_support_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_claim_support_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_default_policy_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_default_policy_gate.md,tracked_or_staged_change,controlled
+A ,docs/experiments/casee/results/casee_default_promotion_gate.csv,tracked_or_staged_change,controlled
+AM,docs/experiments/casee/results/casee_default_promotion_gate.json,tracked_or_staged_change,controlled
+AM,docs/experiments/casee/results/casee_default_promotion_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_dx1_readiness_audit.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_dx1_readiness_audit.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_environment_recovery_runbook.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_environment_recovery_runbook.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_environment_recovery_runbook.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_failure_mode_atlas.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_failure_mode_atlas.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_inlet_followup_codegen_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_inlet_followup_codegen_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_manuscript_claim_matrix.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_manuscript_claim_matrix.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_manuscript_evidence_summary.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_manuscript_results_table.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_manuscript_results_table.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_manuscript_results_table.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_manuscript_section_pack.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_manuscript_section_pack_qa.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_native_codegen_smoke_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_native_codegen_smoke_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_next_experiment_runbook.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_next_experiment_runbook.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_official_run_preflight.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_official_run_preflight.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_operational_recovery_dashboard.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_operational_recovery_dashboard.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_operational_recovery_dashboard.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_orphan_candidate_csv_audit.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_orphan_candidate_csv_audit.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_paper_appendix_manifest.json,tracked_or_staged_change,controlled
+MM,docs/experiments/casee/results/casee_paper_evidence_gate.json,tracked_or_staged_change,controlled
+MM,docs/experiments/casee/results/casee_paper_evidence_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_paper_results_figure.svg,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_paper_results_figure_qa.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_paper_results_figure_qa.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_postrun_official_audit_handoff.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_postrun_official_audit_handoff.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_publication_readiness_gate.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_publication_readiness_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_publication_readiness_gate.md,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_release_asset_manifest.csv,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_release_asset_manifest.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_release_asset_manifest.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_release_bundle.zip,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_release_bundle_manifest.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_release_bundle_manifest.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_release_bundle_manifest.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_remaining_blockers.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_remaining_blockers.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_remaining_blockers.md,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/casee_reproducibility_suite.json,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/casee_reproducibility_suite.md,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/casee_rhino_load_evidence_kit.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_rhino_load_evidence_kit.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_rhino_load_evidence_kit.md,tracked_or_staged_change,controlled
-A ,docs/experiments/casee/results/casee_runbook_codegen_preflight.csv,tracked_or_staged_change,controlled
-AM,docs/experiments/casee/results/casee_runbook_codegen_preflight.json,tracked_or_staged_change,controlled
-AM,docs/experiments/casee/results/casee_runbook_codegen_preflight.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_solver_run_provenance_ledger.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_solver_run_provenance_ledger.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_validation_report.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_validation_summary.xlsx,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_wall_followup_codegen_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_wall_followup_codegen_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_workspace_hygiene_gate.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_workspace_hygiene_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_workspace_hygiene_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_zcenter_rerun_consistency.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/casee_zcenter_rerun_consistency.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_build_check.log,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/citylbm_build_hash_stability_gate.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_build_hash_stability_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_build_hash_stability_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_casee_postrun_audit_component_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_casee_postrun_audit_component_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_gha_install_audit.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_gha_install_audit.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_gha_install_audit.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_manifest_output_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_manifest_output_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_manifest_schema_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_manifest_schema_gate.md,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/citylbm_paper_results_packet.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_paper_results_packet.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_paper_results_packet.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_plugin_identity_component_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_plugin_identity_component_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_portable_toolchain_activation.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_portable_toolchain_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/citylbm_portable_toolchain_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_release_bundle.zip,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_release_bundle_manifest.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_release_bundle_manifest.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_release_bundle_manifest.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_remaining_blockers.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_remaining_blockers.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_remaining_blockers.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_reproducibility_suite.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_reproducibility_suite.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_rhino_load_evidence_kit.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_rhino_load_evidence_kit.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_rhino_load_evidence_kit.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_runbook_codegen_preflight.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_runbook_codegen_preflight.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_solver_run_provenance_ledger.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_solver_run_provenance_ledger.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_validation_report.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_validation_summary.xlsx,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_wall_followup_codegen_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_wall_followup_codegen_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_workspace_hygiene_gate.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_workspace_hygiene_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_workspace_hygiene_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_zcenter_rerun_consistency.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/casee_zcenter_rerun_consistency.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_build_check.log,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_build_hash_stability_gate.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_build_hash_stability_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_build_hash_stability_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_casee_postrun_audit_component_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_casee_postrun_audit_component_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_gha_install_audit.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_gha_install_audit.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_gha_install_audit.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_manifest_output_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_manifest_output_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_manifest_schema_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_manifest_schema_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_paper_results_packet.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_paper_results_packet.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_paper_results_packet.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_plugin_identity_component_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_plugin_identity_component_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_portable_toolchain_activation.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_portable_toolchain_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/citylbm_portable_toolchain_gate.md,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/citylbm_software_feedback_matrix.csv,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/citylbm_software_feedback_matrix.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/citylbm_software_feedback_matrix.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/environment_manifest.json,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/results/github_release_publication_gate.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/github_release_publication_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/github_release_publication_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/plugin_identity_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/release_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/rhino_gha_load_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/rhino_gha_load_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/rhino_gha_load_manifest.template.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/vs_cpp_buildtools_elevated_launcher_probe.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/vs_cpp_buildtools_recovery_probe.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/vs_cpp_elevated_launcher_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/vs_cpp_elevated_launcher_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/vs_cpp_recovery_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/vs_cpp_recovery_gate.md,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/vs_cpp_system_drive_space_gate.csv,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json,tracked_or_staged_change,controlled
-MM,docs/experiments/casee/results/vs_cpp_system_drive_space_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/environment_manifest.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/github_release_publication_gate.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/github_release_publication_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/github_release_publication_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/plugin_identity_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/release_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/rhino_gha_load_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/rhino_gha_load_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/rhino_gha_load_manifest.template.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/vs_cpp_buildtools_elevated_launcher_probe.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/vs_cpp_buildtools_recovery_probe.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/vs_cpp_elevated_launcher_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/vs_cpp_elevated_launcher_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/vs_cpp_recovery_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/vs_cpp_recovery_gate.md,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/vs_cpp_system_drive_space_gate.csv,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/results/vs_cpp_system_drive_space_gate.md,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/artifact_index.py,tracked_or_staged_change,controlled
+A ,docs/experiments/casee/tools/casee_default_promotion_gate.py,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/tools/casee_publication_readiness_gate.py,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/casee_release_asset_manifest.py,tracked_or_staged_change,controlled
-A ,docs/experiments/casee/tools/casee_runbook_codegen_preflight.py,tracked_or_staged_change,controlled
+ M,docs/experiments/casee/tools/casee_release_bundle_gate.py,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/citylbm_software_feedback_matrix.py,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/tools/generate_native_casee.py,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/paper_evidence_gate.py,tracked_or_staged_change,controlled
-M ,docs/experiments/casee/tools/reproducibility_suite.py,tracked_or_staged_change,controlled
-A ,docs/releases/v0.4.0-rc84.md,tracked_or_staged_change,controlled
+MM,docs/experiments/casee/tools/reproducibility_suite.py,tracked_or_staged_change,controlled
+A ,docs/releases/v0.4.0-rc85.md,tracked_or_staged_change,controlled
 !!,.workbuddy/,ignored_local_artifact,controlled
 !!,CityLBM/NuGet/,ignored_local_artifact,forbidden_tracked_build_cache
 !!,CityLBM/bin/Release/,ignored_local_artifact,forbidden_tracked_build_cache
