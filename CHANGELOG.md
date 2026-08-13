@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.0-rc75 - GitHub publication state gate
+
+- Added a GitHub publication gate that records the latest completed rc tag visible on GitHub and whether a GitHub Release page exists for it.
+- Added a `git ls-remote` fallback so GitHub API 403 responses are recorded without incorrectly hiding a visible remote tag.
+- The gate records that `gh` CLI is not available in the current shell, so Release creation remains a manual or external step.
+- Hardened `CityLBM/build.ps1` so repeated builds skip overwriting an already identical tracked GHA, avoiding a Windows file-lock false failure.
+- The gate keeps formal `v0.4.0` blocked and does not convert a tag into a completed GitHub Release claim.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc74 - Deterministic lightweight release bundle
 
 - Added a release bundle gate that packages the curated lightweight Case E release assets into a deterministic zip archive.

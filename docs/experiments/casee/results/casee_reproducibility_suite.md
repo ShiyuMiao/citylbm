@@ -1,12 +1,12 @@
 # Case E Reproducibility Suite
 
-Generated: 2026-08-13T04:36:09.333226+00:00
+Generated: 2026-08-13T04:52:29.582018+00:00
 
 ## Verdict
 
 - Suite passed: True
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc74`
+- Recommended tag: `v0.4.0-rc75`
 
 ## Official z=2 m Metric
 
@@ -16,8 +16,8 @@ Generated: 2026-08-13T04:36:09.333226+00:00
 
 ## Artifact Index
 
-- Artifact count: 391
-- Lightweight release assets: 318
+- Artifact count: 396
+- Lightweight release assets: 323
 - Formal accuracy claim supported: False
 
 ## Build Chain
@@ -74,9 +74,11 @@ Generated: 2026-08-13T04:36:09.333226+00:00
 | casee_manuscript_results_table | 0 | True |
 | casee_manuscript_section_pack | 0 | True |
 | casee_paper_results_figure | 0 | True |
+| github_release_publication_gate_pre_release_assets | 0 | True |
 | artifact_index_pre_release_assets | 0 | True |
 | casee_release_asset_manifest | 0 | True |
 | casee_release_bundle_gate | 0 | True |
+| github_release_publication_gate | 0 | True |
 | citylbm_software_feedback_matrix | 0 | True |
 | artifact_index_pre_appendix | 0 | True |
 | paper_appendix_generator | 0 | True |
@@ -85,6 +87,7 @@ Generated: 2026-08-13T04:36:09.333226+00:00
 | artifact_index | 0 | True |
 | casee_release_asset_manifest_final | 0 | True |
 | casee_release_bundle_gate_final | 0 | True |
+| github_release_publication_gate_final | 0 | True |
 | paper_evidence_gate | 0 | True |
 | casee_publication_readiness_gate | 0 | True |
 | artifact_index_final | 0 | True |

@@ -100,6 +100,8 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_remaining_blockers.md`
 - `docs/experiments/casee/results/casee_release_asset_manifest.json`
 - `docs/experiments/casee/results/casee_release_asset_manifest.md`
+- `docs/experiments/casee/results/github_release_publication_gate.json`
+- `docs/experiments/casee/results/github_release_publication_gate.md`
 - `docs/experiments/casee/results/vs_cpp_recovery_gate.json`
 - `docs/experiments/casee/results/vs_cpp_recovery_gate.md`
 - `docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json`
@@ -126,6 +128,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_operational_recovery_dashboard.md`
 - `docs/experiments/casee/results/casee_orphan_candidate_csv_audit.json`
 - `docs/experiments/casee/results/casee_orphan_candidate_csv_audit.md`
+- `docs/releases/v0.4.0-rc75.md`
 - `docs/releases/v0.4.0-rc74.md`
 - `docs/releases/v0.4.0-rc73.md`
 - `docs/releases/v0.4.0-rc72.md`

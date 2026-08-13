@@ -100,16 +100,34 @@ Write-Host "Size KB: $([math]::Round($fileInfo.Length / 1KB, 2))" -ForegroundCol
 Write-Host "Updated: $($fileInfo.LastWriteTime)" -ForegroundColor Cyan
 
 $trackedGhaPath = "bin\CityLBM.gha"
-Copy-Item -LiteralPath $ghaSourcePath -Destination $trackedGhaPath -Force
-Write-Host "Updated distributable: $trackedGhaPath" -ForegroundColor Green
+function Copy-IfHashDiffers {
+    param(
+        [Parameter(Mandatory = $true)][string]$Source,
+        [Parameter(Mandatory = $true)][string]$Destination,
+        [Parameter(Mandatory = $true)][string]$Description
+    )
+
+    if ((Test-Path -LiteralPath $Destination)) {
+        $sourceHash = (Get-FileHash -LiteralPath $Source -Algorithm SHA256).Hash
+        $destinationHash = (Get-FileHash -LiteralPath $Destination -Algorithm SHA256).Hash
+        if ($sourceHash -eq $destinationHash) {
+            Write-Host "$($Description) already up to date: $Destination" -ForegroundColor Green
+            return
+        }
+    }
+
+    Copy-Item -LiteralPath $Source -Destination $Destination -Force
+    Write-Host "Updated $($Description): $Destination" -ForegroundColor Green
+}
+
+Copy-IfHashDiffers -Source $ghaSourcePath -Destination $trackedGhaPath -Description "distributable"
 
 $ghaDir = "bin\Release\CityLBM"
 if (-not (Test-Path -LiteralPath $ghaDir)) {
     New-Item -ItemType Directory -Path $ghaDir -Force | Out-Null
 }
 
-Copy-Item -LiteralPath $ghaSourcePath -Destination "$ghaDir\CityLBM.gha" -Force
-Write-Host "Created: $ghaDir\CityLBM.gha" -ForegroundColor Green
+Copy-IfHashDiffers -Source $ghaSourcePath -Destination "$ghaDir\CityLBM.gha" -Description "nested GHA"
 
 Get-ChildItem "bin\Release\*.dll" | Where-Object { $_.Name -ne "CityLBM.dll" } | ForEach-Object {
     Copy-Item -LiteralPath $_.FullName -Destination $ghaDir -Force
