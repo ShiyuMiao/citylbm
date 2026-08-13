@@ -2273,6 +2273,7 @@ namespace CityLBM.Solver
                 double uScale = 0.1 / Math.Max(GetProfileScaleSpeed(scene), 0.001);
                 bool hasK = scene.CustomWindProfile != null && scene.CustomWindProfile.Any(s => s.HasK);
                 bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
+                var boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
                 var metadata = new
                 {
                     SchemaVersion = 2,
@@ -2329,6 +2330,7 @@ namespace CityLBM.Solver
                             : "height-varying mean velocity from CustomTable; no correlated fluctuations")
                         : "deterministic mean velocity boundary",
                     BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
+                    BoundaryProtocolAudit = boundaryAudit,
                     ValidationReadiness = "diagnostic_ready_not_paper_grade_until_native_baseline_grid_sensitivity_long_averaging_and_turbulent_inlet_are_verified",
                     KnownProtocolRisks = BuildProtocolRisks(scene, settings).ToList(),
                     ProfileOriginZM = 0.0,
@@ -2384,6 +2386,138 @@ namespace CityLBM.Solver
                    $"lateral={lateralSides} TYPE_E slip/free approximation; top=TYPE_E; ground/buildings=TYPE_S no-slip";
         }
 
+        private BoundaryProtocolAudit BuildBoundaryProtocolAudit(Scene scene, CartesianGrid grid)
+        {
+            var dir = scene.WindDirection;
+            if (dir.IsValid && !dir.IsZero)
+                dir.Unitize();
+
+            bool xDominant = Math.Abs(dir.X) >= Math.Abs(dir.Y);
+            bool fromMin = xDominant ? dir.X > 0.0 : dir.Y > 0.0;
+            string axis = xDominant ? "X" : "Y";
+            string inletFace = xDominant
+                ? (fromMin ? "X-" : "X+")
+                : (fromMin ? "Y-" : "Y+");
+            string outletFace = xDominant
+                ? (fromMin ? "X+" : "X-")
+                : (fromMin ? "Y+" : "Y-");
+            string lateralFaces = xDominant ? "Y-/Y+" : "X-/X+";
+
+            BoundingBox domain = grid.DomainBounds;
+            BoundingBox buildings = scene.Bounds;
+            bool hasBuildings = buildings.IsValid;
+            double buildingHeight = hasBuildings ? Math.Max(0.0, buildings.Max.Z - buildings.Min.Z) : double.NaN;
+            double referenceHeight = buildingHeight > 1.0e-9 ? buildingHeight : double.NaN;
+
+            double upstreamDistance;
+            double downstreamDistance;
+            double lateralMinusDistance;
+            double lateralPlusDistance;
+            if (xDominant)
+            {
+                upstreamDistance = fromMin ? buildings.Min.X - domain.Min.X : domain.Max.X - buildings.Max.X;
+                downstreamDistance = fromMin ? domain.Max.X - buildings.Max.X : buildings.Min.X - domain.Min.X;
+                lateralMinusDistance = buildings.Min.Y - domain.Min.Y;
+                lateralPlusDistance = domain.Max.Y - buildings.Max.Y;
+            }
+            else
+            {
+                upstreamDistance = fromMin ? buildings.Min.Y - domain.Min.Y : domain.Max.Y - buildings.Max.Y;
+                downstreamDistance = fromMin ? domain.Max.Y - buildings.Max.Y : buildings.Min.Y - domain.Min.Y;
+                lateralMinusDistance = buildings.Min.X - domain.Min.X;
+                lateralPlusDistance = domain.Max.X - buildings.Max.X;
+            }
+
+            double topClearance = hasBuildings ? domain.Max.Z - buildings.Max.Z : double.NaN;
+            double minLateralDistance = Math.Min(lateralMinusDistance, lateralPlusDistance);
+            double upstreamRatio = SafeRatio(upstreamDistance, referenceHeight);
+            double downstreamRatio = SafeRatio(downstreamDistance, referenceHeight);
+            double lateralRatio = SafeRatio(minLateralDistance, referenceHeight);
+            double topRatio = SafeRatio(topClearance, referenceHeight);
+
+            bool meetsDiagnosticDomain =
+                upstreamRatio >= 5.0 &&
+                downstreamRatio >= 10.0 &&
+                lateralRatio >= 5.0 &&
+                topRatio >= 5.0;
+
+            return new BoundaryProtocolAudit
+            {
+                Purpose = "Structured audit of boundary faces and domain clearance; compare these values with the AIJ wind-tunnel protocol before paper-grade claims.",
+                DominantAxis = axis,
+                InletFace = inletFace,
+                OutletFace = outletFace,
+                LateralFaces = lateralFaces,
+                TopFace = "Z+",
+                GroundFace = "Z-",
+                BoundaryTypes = new BoundaryTypesRecord
+                {
+                    Inlet = "TYPE_E velocity profile",
+                    Outlet = "TYPE_E pressure/free-outflow approximation",
+                    Lateral = "TYPE_E slip/free approximation",
+                    Top = "TYPE_E",
+                    Ground = "TYPE_S no-slip",
+                    Buildings = "TYPE_S no-slip"
+                },
+                DomainSizeM = new DimensionRecord
+                {
+                    X = Math.Round(domain.Max.X - domain.Min.X, 6),
+                    Y = Math.Round(domain.Max.Y - domain.Min.Y, 6),
+                    Z = Math.Round(domain.Max.Z - domain.Min.Z, 6)
+                },
+                BuildingBoundsM = hasBuildings ? new BoundsRecord
+                {
+                    MinX = Math.Round(buildings.Min.X, 6),
+                    MinY = Math.Round(buildings.Min.Y, 6),
+                    MinZ = Math.Round(buildings.Min.Z, 6),
+                    MaxX = Math.Round(buildings.Max.X, 6),
+                    MaxY = Math.Round(buildings.Max.Y, 6),
+                    MaxZ = Math.Round(buildings.Max.Z, 6),
+                    Height = Math.Round(buildingHeight, 6)
+                } : null,
+                ClearanceM = new ClearanceRecord
+                {
+                    Upstream = Math.Round(upstreamDistance, 6),
+                    Downstream = Math.Round(downstreamDistance, 6),
+                    LateralMinus = Math.Round(lateralMinusDistance, 6),
+                    LateralPlus = Math.Round(lateralPlusDistance, 6),
+                    MinLateral = Math.Round(minLateralDistance, 6),
+                    Top = Math.Round(topClearance, 6)
+                },
+                ClearanceByBuildingHeight = new ClearanceRatioRecord
+                {
+                    Upstream = RoundOrNaN(upstreamRatio),
+                    Downstream = RoundOrNaN(downstreamRatio),
+                    MinLateral = RoundOrNaN(lateralRatio),
+                    Top = RoundOrNaN(topRatio)
+                },
+                DiagnosticThresholdsByBuildingHeight = new BoundaryThresholdRecord
+                {
+                    Upstream = 5.0,
+                    Downstream = 10.0,
+                    MinLateral = 5.0,
+                    Top = 5.0
+                },
+                MeetsDiagnosticDomain = meetsDiagnosticDomain,
+                Gate = meetsDiagnosticDomain ? "diagnostic_clearance_ok_verify_against_aij" : "boundary_clearance_risk",
+                RequiredNextAction = "For AIJ validation, archive this object, report inlet/outlet/lateral/top clearances in H units, and compare against the official wind-tunnel blockage and fetch protocol."
+            };
+        }
+
+        private double SafeRatio(double numerator, double denominator)
+        {
+            return !double.IsNaN(numerator) && !double.IsNaN(denominator) && Math.Abs(denominator) > 1.0e-12
+                ? numerator / denominator
+                : double.NaN;
+        }
+
+        private double RoundOrNaN(double value)
+        {
+            return double.IsNaN(value) || double.IsInfinity(value)
+                ? double.NaN
+                : Math.Round(value, 6);
+        }
+
         private IEnumerable<string> BuildProtocolRisks(Scene scene, SimulationSettings settings)
         {
             bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
@@ -2406,6 +2540,7 @@ namespace CityLBM.Solver
             }
 
             yield return "Boundary conditions are simplified TYPE_E inlet/outlet/lateral/top approximations and must be checked against the AIJ wind-tunnel protocol.";
+            yield return "BoundaryProtocolAudit records inlet/outlet/lateral/top faces and clearances, but its diagnostic thresholds are not a substitute for the official AIJ boundary/blockage protocol.";
 
             int expectedFrames = settings.SaveInterval > 0
                 ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
@@ -2471,6 +2606,7 @@ namespace CityLBM.Solver
                     BuildBaselineSourceFile("Case metadata", caseMetadataPath),
                     BuildBaselineSourceFile("Validation protocol audit", validationAuditPath)
                 };
+                var boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
 
                 var manifest = new
                 {
@@ -2506,7 +2642,8 @@ namespace CityLBM.Solver
                         ReferenceHeightM = scene.ReferenceHeight,
                         SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
                         SyntheticTurbulentInletInjected = IsSyntheticTurbulentInletActive(scene, settings),
-                        BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile)
+                        BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
+                        BoundaryProtocolAudit = boundaryAudit
                     },
                     RequiredPairedEvidence = new[]
                     {
@@ -2608,6 +2745,8 @@ namespace CityLBM.Solver
             bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
             double maxProfileVelocityLbm = 0.1;
             double estimatedMach = maxProfileVelocityLbm / Math.Sqrt(1.0 / 3.0);
+            BoundaryProtocolAudit boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
+            bool boundaryClearanceOk = boundaryAudit.MeetsDiagnosticDomain;
             int expectedFrames = settings.SaveInterval > 0
                 ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                 : 0;
@@ -2650,10 +2789,13 @@ namespace CityLBM.Solver
             yield return new ValidationProtocolAuditItem
             {
                 Key = "boundary_conditions",
-                Status = "risk",
-                Evidence = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
-                Risk = "TYPE_E inlet/outlet/lateral/top is a simplified boundary protocol and may not match the AIJ wind-tunnel setup.",
-                RequiredNextAction = "Compare against AIJ tunnel boundary assumptions; document inlet fetch, outlet distance, lateral/top treatment, and blockage."
+                Status = boundaryClearanceOk ? "partial" : "risk",
+                Evidence = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile) +
+                    $" BoundaryProtocolAudit.Gate={boundaryAudit.Gate}.",
+                Risk = boundaryClearanceOk
+                    ? "Clearance satisfies diagnostic defaults, but TYPE_E inlet/outlet/lateral/top is still a simplified protocol that may not match the AIJ wind-tunnel setup."
+                    : "Domain clearance or simplified TYPE_E boundary treatment can contaminate the validation field and contribute to systematic bias.",
+                RequiredNextAction = "Archive BoundaryProtocolAudit, report inlet/outlet/lateral/top clearances in H units, and compare against AIJ tunnel boundary assumptions, blockage and fetch."
             };
 
             yield return new ValidationProtocolAuditItem
@@ -3038,6 +3180,80 @@ namespace CityLBM.Solver
         public bool Exists { get; set; }
         public string HashAlgorithm { get; set; }
         public string Sha256 { get; set; }
+    }
+
+    internal class BoundaryProtocolAudit
+    {
+        public string Purpose { get; set; }
+        public string DominantAxis { get; set; }
+        public string InletFace { get; set; }
+        public string OutletFace { get; set; }
+        public string LateralFaces { get; set; }
+        public string TopFace { get; set; }
+        public string GroundFace { get; set; }
+        public BoundaryTypesRecord BoundaryTypes { get; set; }
+        public DimensionRecord DomainSizeM { get; set; }
+        public BoundsRecord BuildingBoundsM { get; set; }
+        public ClearanceRecord ClearanceM { get; set; }
+        public ClearanceRatioRecord ClearanceByBuildingHeight { get; set; }
+        public BoundaryThresholdRecord DiagnosticThresholdsByBuildingHeight { get; set; }
+        public bool MeetsDiagnosticDomain { get; set; }
+        public string Gate { get; set; }
+        public string RequiredNextAction { get; set; }
+    }
+
+    internal class BoundaryTypesRecord
+    {
+        public string Inlet { get; set; }
+        public string Outlet { get; set; }
+        public string Lateral { get; set; }
+        public string Top { get; set; }
+        public string Ground { get; set; }
+        public string Buildings { get; set; }
+    }
+
+    internal class DimensionRecord
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
+    }
+
+    internal class BoundsRecord
+    {
+        public double MinX { get; set; }
+        public double MinY { get; set; }
+        public double MinZ { get; set; }
+        public double MaxX { get; set; }
+        public double MaxY { get; set; }
+        public double MaxZ { get; set; }
+        public double Height { get; set; }
+    }
+
+    internal class ClearanceRecord
+    {
+        public double Upstream { get; set; }
+        public double Downstream { get; set; }
+        public double LateralMinus { get; set; }
+        public double LateralPlus { get; set; }
+        public double MinLateral { get; set; }
+        public double Top { get; set; }
+    }
+
+    internal class ClearanceRatioRecord
+    {
+        public double Upstream { get; set; }
+        public double Downstream { get; set; }
+        public double MinLateral { get; set; }
+        public double Top { get; set; }
+    }
+
+    internal class BoundaryThresholdRecord
+    {
+        public double Upstream { get; set; }
+        public double Downstream { get; set; }
+        public double MinLateral { get; set; }
+        public double Top { get; set; }
     }
 
     /// <summary>模拟物理设置</summary>

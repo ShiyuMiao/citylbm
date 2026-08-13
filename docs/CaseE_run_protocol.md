@@ -43,6 +43,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   Treat these items as paper-blocking until their run evidence is archived.
 - `domain_origin.json` exists in both case root and output directory.
 - `case_metadata.json` exists in both case root and output directory.
+  Archive `BoundaryProtocolAudit` from this file: inlet/outlet/lateral/top faces, clearances in meters and H units,
+  boundary protocol gate, and the simplified `TYPE_E`/`TYPE_S` boundary-type record.
 - `validation_protocol_audit.json` and `validation_protocol_audit.md` exist in both case root and output directory.
   Treat any `risk` or `fail` item as a blocker for paper-grade validation claims until resolved or explicitly justified.
 - VTK files are newly generated for the current run directory, not copied from older experiments.
@@ -76,6 +78,7 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Maximum absolute error
 - Grid spacing, steps, averaging window and VTK frame list
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
+- Inlet/outlet/lateral/top boundary faces and upstream/downstream/lateral/top clearances in building-height units
 - Mean probe distance and maximum probe distance
 - Native FluidX3D baseline run id or archive path
 - Protocol gate from `validation_protocol_audit.json`
