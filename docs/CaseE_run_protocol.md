@@ -60,8 +60,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   time-averaging requirement, and known protocol risks.
 - `native_fluidx3d_baseline_manifest.json` and `.md` must be archived. This manifest lists the exact generated
   `setup.cpp`, `defines.hpp`, `buildings.stl`, metadata files, shared run settings and paired evidence required for a
-  native FluidX3D baseline. Treat the manifest gate `required_before_paper_grade_accuracy_claim` as blocking until the
-  native baseline and CityLBM-driven run are compared with the same VTK averaging and probe audit table.
+  native FluidX3D baseline, including SHA256 hashes for the generated source/metadata files. Treat the manifest gate
+  `required_before_paper_grade_accuracy_claim` as blocking until the native baseline and CityLBM-driven run are compared
+  with the same VTK averaging and probe audit table.
 
 ## Metrics to report
 

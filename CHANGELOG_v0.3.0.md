@@ -30,6 +30,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Each generated case now also writes `native_fluidx3d_baseline_manifest.json` and `.md` so native FluidX3D and
   CityLBM-driven runs must archive the same `setup.cpp`, `defines.hpp`, geometry, metadata, averaging window and probe
   audit evidence before any paper-grade accuracy claim.
+- The native baseline manifest now includes existence flags and SHA256 hashes for the generated source, geometry and
+  metadata files so paired native/CityLBM runs can prove they used identical inputs.
 
 ## Remaining scientific work
 

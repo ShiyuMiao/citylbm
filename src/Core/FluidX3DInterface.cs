@@ -6,6 +6,7 @@ using System.Text;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 using Rhino.Geometry;
 using CityLBM.Core;
 using Newtonsoft.Json;
@@ -2458,6 +2459,19 @@ namespace CityLBM.Solver
         {
             try
             {
+                string domainOriginPath = Path.Combine(caseDir, "domain_origin.json");
+                string caseMetadataPath = Path.Combine(caseDir, "case_metadata.json");
+                string validationAuditPath = Path.Combine(caseDir, "validation_protocol_audit.json");
+                var requiredSourceFiles = new[]
+                {
+                    BuildBaselineSourceFile("FluidX3D setup", setupPath),
+                    BuildBaselineSourceFile("FluidX3D defines", definesPath),
+                    BuildBaselineSourceFile("Building geometry", stlPath),
+                    BuildBaselineSourceFile("Domain origin", domainOriginPath),
+                    BuildBaselineSourceFile("Case metadata", caseMetadataPath),
+                    BuildBaselineSourceFile("Validation protocol audit", validationAuditPath)
+                };
+
                 var manifest = new
                 {
                     SchemaVersion = 1,
@@ -2467,15 +2481,7 @@ namespace CityLBM.Solver
                     Purpose = "Paired native FluidX3D baseline protocol for separating solver/protocol error from CityLBM integration error.",
                     Gate = "required_before_paper_grade_accuracy_claim",
                     CaseDirectory = caseDir,
-                    RequiredSourceFiles = new[]
-                    {
-                        new { Role = "FluidX3D setup", Path = setupPath, RequiredHash = "sha256" },
-                        new { Role = "FluidX3D defines", Path = definesPath, RequiredHash = "sha256" },
-                        new { Role = "Building geometry", Path = stlPath, RequiredHash = "sha256" },
-                        new { Role = "Domain origin", Path = Path.Combine(caseDir, "domain_origin.json"), RequiredHash = "sha256" },
-                        new { Role = "Case metadata", Path = Path.Combine(caseDir, "case_metadata.json"), RequiredHash = "sha256" },
-                        new { Role = "Validation protocol audit", Path = Path.Combine(caseDir, "validation_protocol_audit.json"), RequiredHash = "sha256" }
-                    },
+                    RequiredSourceFiles = requiredSourceFiles,
                     SharedRunConditions = new
                     {
                         DxM = grid.Dx,
@@ -2526,7 +2532,11 @@ namespace CityLBM.Solver
                 File.WriteAllText(Path.Combine(caseDir, "native_fluidx3d_baseline_manifest.json"), json, Encoding.UTF8);
                 File.WriteAllText(Path.Combine(caseDir, "output", "native_fluidx3d_baseline_manifest.json"), json, Encoding.UTF8);
 
-                string markdown = BuildNativeFluidX3DBaselineManifestMarkdown(manifest.Gate, manifest.RequiredPairedEvidence, manifest.AcceptanceBlocks);
+                string markdown = BuildNativeFluidX3DBaselineManifestMarkdown(
+                    manifest.Gate,
+                    requiredSourceFiles,
+                    manifest.RequiredPairedEvidence,
+                    manifest.AcceptanceBlocks);
                 File.WriteAllText(Path.Combine(caseDir, "native_fluidx3d_baseline_manifest.md"), markdown, Encoding.UTF8);
                 File.WriteAllText(Path.Combine(caseDir, "output", "native_fluidx3d_baseline_manifest.md"), markdown, Encoding.UTF8);
             }
@@ -2536,8 +2546,32 @@ namespace CityLBM.Solver
             }
         }
 
+        private BaselineSourceFileRecord BuildBaselineSourceFile(string role, string path)
+        {
+            bool exists = !string.IsNullOrWhiteSpace(path) && File.Exists(path);
+            return new BaselineSourceFileRecord
+            {
+                Role = role,
+                Path = path ?? "",
+                Exists = exists,
+                HashAlgorithm = "SHA256",
+                Sha256 = exists ? ComputeFileSha256(path) : ""
+            };
+        }
+
+        private string ComputeFileSha256(string path)
+        {
+            using (var stream = File.OpenRead(path))
+            using (var sha = SHA256.Create())
+            {
+                byte[] hash = sha.ComputeHash(stream);
+                return BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
+            }
+        }
+
         private string BuildNativeFluidX3DBaselineManifestMarkdown(
             string gate,
+            IEnumerable<BaselineSourceFileRecord> requiredSourceFiles,
             IEnumerable<string> requiredEvidence,
             IEnumerable<string> acceptanceBlocks)
         {
@@ -2547,6 +2581,14 @@ namespace CityLBM.Solver
             sb.AppendLine($"Gate: `{gate}`");
             sb.AppendLine();
             sb.AppendLine("This file is a protocol manifest, not a simulation result. Use it to run the native FluidX3D baseline from the same generated case before judging CityLBM-vs-AIJ accuracy.");
+            sb.AppendLine();
+            sb.AppendLine("## Required source hashes");
+            sb.AppendLine("| Role | Exists | SHA256 | Path |");
+            sb.AppendLine("|---|---:|---|---|");
+            foreach (var file in requiredSourceFiles)
+            {
+                sb.AppendLine($"| {EscapeMarkdownTable(file.Role)} | `{file.Exists}` | `{file.Sha256}` | {EscapeMarkdownTable(file.Path)} |");
+            }
             sb.AppendLine();
             sb.AppendLine("## Required paired evidence");
             foreach (string item in requiredEvidence)
@@ -2987,6 +3029,15 @@ namespace CityLBM.Solver
         public string Evidence { get; set; }
         public string Risk { get; set; }
         public string RequiredNextAction { get; set; }
+    }
+
+    internal class BaselineSourceFileRecord
+    {
+        public string Role { get; set; }
+        public string Path { get; set; }
+        public bool Exists { get; set; }
+        public string HashAlgorithm { get; set; }
+        public string Sha256 { get; set; }
     }
 
     /// <summary>模拟物理设置</summary>
