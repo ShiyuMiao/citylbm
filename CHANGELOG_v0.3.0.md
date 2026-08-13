@@ -25,6 +25,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   blocker rather than a tuning target.
 - `docs/validation_metrics_template.csv` now includes run-evidence fields for source time steps, compared velocity component,
   boundary summary, synthetic inlet method, native baseline id, probe mapping distances and protocol gate.
+- `Data Probe` now appends validation-audit outputs for `Uref`-based speed ratio, streamwise ratio, nearest VTK-sample
+  distance and per-probe CSV rows without changing the existing first five outputs.
 
 ## Remaining scientific work
 

@@ -51,6 +51,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
 - The probe audit table must contain official point number, original coordinate, CFD interpolation cell, interpolation
   distance, compared velocity component and failure flag.
+- In `Data Probe`, connect `Uref=3.928296` and `Wind Direction=(0,-1,0)`, then archive the appended outputs
+  `Speed Ratio`, `Streamwise Ratio`, `Nearest Distance` and `Audit CSV`. These outputs are diagnostic only:
+  `Uref` is used for validation ratios and must not be used to replace `AF_caseE.csv`.
 - A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
   extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
 - `case_metadata.json` must be archived with the run. It records the boundary-condition summary, expected VTK frame count,

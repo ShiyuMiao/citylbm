@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 using CityLBM.Rendering;
@@ -73,9 +74,14 @@ namespace CityLBM.Components.Results
                 GH_ParamAccess.item);
 
             // 可选参数
+            pManager.AddNumberParameter("Uref", "Uref",
+                "Reference velocity for validation ratios. Used for probe post-processing only; it does not replace the inlet profile.",
+                GH_ParamAccess.item, 0.0);
+
             pManager[3].Optional = true;
             pManager[4].Optional = true;
             pManager[7].Optional = true;
+            pManager[8].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
@@ -99,6 +105,21 @@ namespace CityLBM.Components.Results
             pManager.AddPointParameter("Probe Position", "Pos",
                 "探针实际位置（与输入对应）。",
                 GH_ParamAccess.list);
+            pManager.AddNumberParameter("Speed Ratio", "VR",
+                "Speed magnitude divided by Uref. Values are NaN when Uref <= 0.",
+                GH_ParamAccess.list);
+
+            pManager.AddNumberParameter("Streamwise Ratio", "SR",
+                "Velocity component along Wind Direction divided by Uref. Values are NaN when Uref <= 0 or Wind Direction is missing.",
+                GH_ParamAccess.list);
+
+            pManager.AddNumberParameter("Nearest Distance", "D",
+                "Distance from each probe point to the nearest VTK sample considered by the spatial hash interpolation.",
+                GH_ParamAccess.list);
+
+            pManager.AddTextParameter("Audit CSV", "CSV",
+                "Per-probe audit rows for validation: coordinates, velocity components, ratios, interpolation distance and method.",
+                GH_ParamAccess.list);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -111,6 +132,7 @@ namespace CityLBM.Components.Results
             double searchRadius = 0.0;
             bool showVectors = true;
             bool enablePreview = true;
+            double uref = 0.0;
 
             if (!DA.GetDataList(0, fieldPoints) || fieldPoints.Count == 0)
             {
@@ -141,6 +163,16 @@ namespace CityLBM.Components.Results
             // 获取风向（可选）
             Vector3d windDirection = Vector3d.Zero;
             DA.GetData(7, ref windDirection);
+            DA.GetData(8, ref uref);
+            bool hasWindDirection = windDirection.IsValid && windDirection.Length > 1e-9;
+            if (hasWindDirection)
+            {
+                windDirection.Unitize();
+            }
+            else
+            {
+                windDirection = Vector3d.Zero;
+            }
 
             // 验证数据一致性
             if (fieldPoints.Count != fieldVelocities.Count)
@@ -228,6 +260,13 @@ namespace CityLBM.Components.Results
                 var speeds = new List<double>();
                 var velocities = new List<Vector3d>();
                 var pressures = new List<double>();
+                var speedRatios = new List<double>();
+                var streamwiseRatios = new List<double>();
+                var nearestDistances = new List<double>();
+                var auditRows = new List<string>
+                {
+                    "probe_index,x,y,z,u,v,w,speed,streamwise_velocity,Uref,speed_ratio,streamwise_ratio,nearest_distance,nearby_point_count,method"
+                };
 
                 foreach (var result in probeResults)
                 {
@@ -235,6 +274,31 @@ namespace CityLBM.Components.Results
                     speeds.Add(result.Speed);
                     velocities.Add(result.Velocity);
                     pressures.Add(result.HasPressure ? result.Pressure : 0);
+                    nearestDistances.Add(result.NearestDistance);
+
+                    double streamwiseVelocity = double.NaN;
+                    if (hasWindDirection)
+                    {
+                        streamwiseVelocity =
+                            result.Velocity.X * windDirection.X +
+                            result.Velocity.Y * windDirection.Y +
+                            result.Velocity.Z * windDirection.Z;
+                    }
+
+                    double speedRatio = double.NaN;
+                    double streamwiseRatio = double.NaN;
+                    if (uref > 0)
+                    {
+                        speedRatio = result.Speed / uref;
+                        if (!double.IsNaN(streamwiseVelocity))
+                        {
+                            streamwiseRatio = streamwiseVelocity / uref;
+                        }
+                    }
+
+                    speedRatios.Add(speedRatio);
+                    streamwiseRatios.Add(streamwiseRatio);
+                    auditRows.Add(FormatAuditRow(result, streamwiseVelocity, uref, speedRatio, streamwiseRatio));
                 }
 
                 DA.SetDataList(0, infoList);
@@ -242,6 +306,10 @@ namespace CityLBM.Components.Results
                 DA.SetDataList(2, velocities);
                 DA.SetDataList(3, pressures);
                 DA.SetDataList(4, probePoints);
+                DA.SetDataList(5, speedRatios);
+                DA.SetDataList(6, streamwiseRatios);
+                DA.SetDataList(7, nearestDistances);
+                DA.SetDataList(8, auditRows);
 
                 // 更新缓存
                 _lastProbePositions = new List<Point3d>(probePoints);
@@ -338,6 +406,8 @@ namespace CityLBM.Components.Results
             // 使用空间哈希插值获取速度
             measurement.Velocity = _velocityField.Interpolate(point);
             measurement.InterpolationMethod = "IDW";
+            measurement.NearestDistance = _velocityField.GetNearestDistance(point);
+            measurement.NearbyPointCount = _velocityField.GetNearbyCount(point);
 
             // 压力插值（如果有压力数据）
             if (_fieldPressures.Count > 0 && _fieldPoints.Count > 0)
@@ -352,6 +422,38 @@ namespace CityLBM.Components.Results
         /// <summary>
         /// 标量场 IDW 插值
         /// </summary>
+        private static string FormatAuditRow(
+            ProbeMeasurement result,
+            double streamwiseVelocity,
+            double uref,
+            double speedRatio,
+            double streamwiseRatio)
+        {
+            return string.Join(",",
+                result.Index + 1,
+                FormatDouble(result.Position.X),
+                FormatDouble(result.Position.Y),
+                FormatDouble(result.Position.Z),
+                FormatDouble(result.Velocity.X),
+                FormatDouble(result.Velocity.Y),
+                FormatDouble(result.Velocity.Z),
+                FormatDouble(result.Speed),
+                FormatDouble(streamwiseVelocity),
+                FormatDouble(uref),
+                FormatDouble(speedRatio),
+                FormatDouble(streamwiseRatio),
+                FormatDouble(result.NearestDistance),
+                result.NearbyPointCount,
+                result.InterpolationMethod);
+        }
+
+        private static string FormatDouble(double value)
+        {
+            return double.IsNaN(value) || double.IsInfinity(value)
+                ? "NaN"
+                : value.ToString("G17", CultureInfo.InvariantCulture);
+        }
+
         private double InterpolateScalar(Point3d p, List<Point3d> points, List<double> values)
         {
             if (points.Count == 0) return 0;
@@ -437,6 +539,8 @@ namespace CityLBM.Components.Results
             public double Pressure { get; set; }
             public bool HasPressure { get; set; }
             public string InterpolationMethod { get; set; }
+            public double NearestDistance { get; set; } = double.NaN;
+            public int NearbyPointCount { get; set; }
 
             public override string ToString()
             {
@@ -528,6 +632,25 @@ namespace CityLBM.Components.Results
             }
 
             return weightSum > 0 ? result / weightSum : Vector3d.Zero;
+        }
+
+        public double GetNearestDistance(Point3d p)
+        {
+            var nearbyIndices = GetNearbyIndices(p);
+            if (nearbyIndices.Count == 0) return double.NaN;
+
+            double nearest = double.MaxValue;
+            foreach (int idx in nearbyIndices)
+            {
+                nearest = Math.Min(nearest, p.DistanceTo(_pts[idx]));
+            }
+
+            return nearest == double.MaxValue ? double.NaN : nearest;
+        }
+
+        public int GetNearbyCount(Point3d p)
+        {
+            return GetNearbyIndices(p).Count;
         }
 
         private List<int> GetNearbyIndices(Point3d p)
