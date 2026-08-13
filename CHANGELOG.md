@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc88 - Accuracy action plan gate
+
+- Added `casee_accuracy_action_plan_gate.py` to convert the quantified Case E accuracy gap into ordered next actions.
+- The gate separates release safety, Rhino/GHA load evidence, GPU/preflight recovery, wall-model follow-up, AF-k/no-SGS inlet follow-up, C016 channel-response follow-up, post-run audit, and post-hoc calibration rejection.
+- Integrated the action-plan gate into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF064.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc87 - Research accuracy gap gate
 
 - Added `casee_research_accuracy_gap_gate.py` to quantify the current official Case E gap to the project release metric threshold.

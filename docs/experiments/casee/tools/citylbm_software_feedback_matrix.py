@@ -141,6 +141,7 @@ def build_rows() -> List[Dict[str, Any]]:
     c014_residual = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
     orphan_candidate_csv_audit = read_json(RESULTS_DIR / "casee_orphan_candidate_csv_audit.json")
     research_accuracy_gap = read_json(RESULTS_DIR / "casee_research_accuracy_gap_gate.json")
+    accuracy_action_plan = read_json(RESULTS_DIR / "casee_accuracy_action_plan_gate.json")
     c016_leakage_guard = read_json(RESULTS_DIR / "casee_c016_residual_target_leakage_guard.json")
     solver_ledger = read_json(RESULTS_DIR / "casee_solver_run_provenance_ledger.json")
     claim_support = read_json(RESULTS_DIR / "casee_claim_support_gate.json")
@@ -2174,6 +2175,40 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    rows.append(
+        row(
+            feedback_id="SF064",
+            experiment="Experiment 2 / Case E accuracy action plan gate",
+            finding=(
+                "The quantified accuracy gap is now converted into an ordered action plan that separates "
+                "release safety, Rhino/GHA evidence, environment recovery, wall-model follow-up, AF-k/no-SGS "
+                "follow-up, C016 channel-response follow-up, post-run audit, and post-hoc calibration rejection."
+            ),
+            evidence_type=str(accuracy_action_plan.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_accuracy_action_plan_gate.py",
+                RESULTS_DIR / "casee_accuracy_action_plan_gate.json",
+                RESULTS_DIR / "casee_accuracy_action_plan_gate.csv",
+                RESULTS_DIR / "casee_accuracy_action_plan_gate.md",
+                RESULTS_DIR / "casee_research_accuracy_gap_gate.json",
+                RESULTS_DIR / "casee_next_experiment_runbook.json",
+            ],
+            decision_class="accuracy_action_plan_no_default_promotion",
+            citylbm_status="implemented_accuracy_action_plan_gate"
+            if accuracy_action_plan.get("accuracy_action_plan_gate_passed") is True
+            else "accuracy_action_plan_gate_missing_or_failed",
+            implementation_evidence=(
+                f"action_plan_passed={accuracy_action_plan.get('accuracy_action_plan_gate_passed')}; "
+                f"enabled_now_count={accuracy_action_plan.get('enabled_now_count')}; "
+                f"official_followup_action_count={accuracy_action_plan.get('official_followup_action_count')}; "
+                f"recommended_tag={accuracy_action_plan.get('recommended_tag')}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as a reviewer-facing bridge from current accuracy limitations to the next official CFD actions and software policy.",
+            limitations="Action-plan evidence only; it does not run FluidX3D, improve metrics, or permit formal v0.4.0.",
+        )
+    )
+
     return rows
 
 
@@ -2192,7 +2227,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053", "SF054", "SF055", "SF056", "SF057", "SF058", "SF059", "SF060", "SF061", "SF062", "SF063"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053", "SF054", "SF055", "SF056", "SF057", "SF058", "SF059", "SF060", "SF061", "SF062", "SF063", "SF064"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -2202,7 +2237,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "local_orphan_candidate_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion", "native_wall_followup_codegen_no_accuracy_promotion", "native_inlet_followup_codegen_no_accuracy_promotion", "native_c016_residual_target_codegen_no_accuracy_promotion", "native_codegen_smoke_regression_no_accuracy_promotion", "runbook_codegen_preflight_no_accuracy_promotion", "default_promotion_gate_no_accuracy_promotion", "manual_rhino_load_evidence_packet_no_accuracy_promotion", "research_accuracy_gap_no_default_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "local_orphan_candidate_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion", "native_wall_followup_codegen_no_accuracy_promotion", "native_inlet_followup_codegen_no_accuracy_promotion", "native_c016_residual_target_codegen_no_accuracy_promotion", "native_codegen_smoke_regression_no_accuracy_promotion", "runbook_codegen_preflight_no_accuracy_promotion", "default_promotion_gate_no_accuracy_promotion", "manual_rhino_load_evidence_packet_no_accuracy_promotion", "research_accuracy_gap_no_default_promotion", "accuracy_action_plan_no_default_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),

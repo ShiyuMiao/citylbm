@@ -1,6 +1,6 @@
 # Case E Native Codegen Smoke Gate
 
-Generated: 2026-08-13T11:21:36.953994+00:00
+Generated: 2026-08-13T11:39:27.213524+00:00
 
 ## Verdict
 

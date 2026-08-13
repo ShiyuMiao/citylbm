@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T11:22:02.665326+00:00",
+    "generated_at": "2026-08-13T11:39:53.649624+00:00",
     "evidence_type": "newly_run",
     "workspace_hygiene_gate_passed": true,
     "ignored_local_artifact_count": 59,
@@ -65,6 +65,24 @@
     {
       "status_code": "MM",
       "path": "docs/experiments/casee/results/build_chain_manifest.md",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": "A ",
+      "path": "docs/experiments/casee/results/casee_accuracy_action_plan_gate.csv",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": "AM",
+      "path": "docs/experiments/casee/results/casee_accuracy_action_plan_gate.json",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": "AM",
+      "path": "docs/experiments/casee/results/casee_accuracy_action_plan_gate.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
@@ -537,19 +555,13 @@
       "release_risk": "controlled"
     },
     {
-      "status_code": "A ",
-      "path": "docs/experiments/casee/results/casee_research_accuracy_gap_gate.csv",
-      "classification": "tracked_or_staged_change",
-      "release_risk": "controlled"
-    },
-    {
-      "status_code": "AM",
+      "status_code": "MM",
       "path": "docs/experiments/casee/results/casee_research_accuracy_gap_gate.json",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": "AM",
+      "status_code": "MM",
       "path": "docs/experiments/casee/results/casee_research_accuracy_gap_gate.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
@@ -981,14 +993,14 @@
       "release_risk": "controlled"
     },
     {
-      "status_code": "M ",
-      "path": "docs/experiments/casee/tools/casee_release_asset_manifest.py",
+      "status_code": "A ",
+      "path": "docs/experiments/casee/tools/casee_accuracy_action_plan_gate.py",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": "A ",
-      "path": "docs/experiments/casee/tools/casee_research_accuracy_gap_gate.py",
+      "status_code": "M ",
+      "path": "docs/experiments/casee/tools/casee_release_asset_manifest.py",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
@@ -1012,7 +1024,7 @@
     },
     {
       "status_code": "A ",
-      "path": "docs/releases/v0.4.0-rc87.md",
+      "path": "docs/releases/v0.4.0-rc88.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },

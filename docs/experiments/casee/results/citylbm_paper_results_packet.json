@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T11:21:42.420779+00:00",
+    "generated_at": "2026-08-13T11:39:32.721723+00:00",
     "result_count": 28,
     "readiness_counts": {
       "paper_ready_workflow_guard": 1,
@@ -344,7 +344,7 @@
       "claim_readiness": "blocked_formal_release_gate",
       "evidence_type": "newly_run",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
-      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc87",
+      "metric_or_status": "formal_release_allowed=False; recommended_tag=v0.4.0-rc88",
       "paper_use": "Use to state that this is an rc diagnostic line, not formal v0.4.0.",
       "limitations": "Formal v0.4.0 remains prohibited until the official z=2 m metric gate and Rhino/GHA loading gate pass.",
       "software_feedback": "Version software as release candidates until the formal gate passes."

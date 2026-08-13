@@ -1,0 +1,162 @@
+{
+  "generated_at": "2026-08-13T11:39:22.257235+00:00",
+  "evidence_type": "newly_run",
+  "accuracy_action_plan_gate_passed": true,
+  "claim_readiness": "paper_ready_action_plan; blocked formal accuracy release",
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "recommended_tag": "v0.4.0-rc88",
+  "enabled_now_count": 4,
+  "official_followup_action_count": 3,
+  "rows": [
+    {
+      "action_id": "A001_keep_formal_release_blocked",
+      "priority": 1,
+      "action_class": "release_safety",
+      "enabled_now": true,
+      "blocked_by": "",
+      "source_evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/release_gate.json; docs/experiments/casee/results/casee_research_accuracy_gap_gate.json; docs/experiments/casee/results/casee_default_promotion_gate.json",
+      "command_or_operator_action": "python docs/experiments/casee/tools/release_gate.py",
+      "expected_artifacts": "docs/experiments/casee/results/release_gate.json; docs/experiments/casee/results/casee_research_accuracy_gap_gate.json; docs/experiments/casee/results/casee_default_promotion_gate.json",
+      "metric_target": "Current gap: MAE +6.1114081250000005 pp over threshold; R2 gap 2.006330362229977.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as release-boundary and limitations evidence.",
+      "limitations": "Safety action only; it does not improve the simulation."
+    },
+    {
+      "action_id": "A002_complete_rhino_gha_manual_load_packet",
+      "priority": 2,
+      "action_class": "software_load_evidence",
+      "enabled_now": true,
+      "blocked_by": "",
+      "source_evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json",
+      "command_or_operator_action": "Manual: capture Rhino/Grasshopper screenshot/log showing CityLBM Version=0.4.0-rc and GHA SHA256.",
+      "expected_artifacts": "docs/experiments/casee/results/rhino_gha_load_manifest.json",
+      "metric_target": "Close Rhino/GHA load blocker before formal release; no CFD metric change expected.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as software identity/load evidence after real manifest and screenshots exist.",
+      "limitations": "Manual software-load evidence only; not accuracy validation."
+    },
+    {
+      "action_id": "A003_recover_gpu_and_preflight",
+      "priority": 3,
+      "action_class": "environment_recovery",
+      "enabled_now": true,
+      "blocked_by": "",
+      "source_evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.json; docs/experiments/casee/results/casee_official_run_preflight.json; docs/experiments/casee/results/casee_next_experiment_runbook.json",
+      "command_or_operator_action": "nvidia-smi; python docs/experiments/casee/tools/casee_official_run_preflight.py",
+      "expected_artifacts": "docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.json; docs/experiments/casee/results/casee_official_run_preflight.json",
+      "metric_target": "Enable official follow-up scheduling; no CFD metric change expected until FluidX3D completes.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as remaining-blocker evidence.",
+      "limitations": "Environment readiness only."
+    },
+    {
+      "action_id": "A004_run_wall_model_followup_first",
+      "priority": 4,
+      "action_class": "official_cfd_followup_after_recovery",
+      "enabled_now": false,
+      "blocked_by": "rhino_gha_load;gpu_runtime;vs_cpp_build_tools",
+      "source_evidence_type": "blocked_until_gpu_ready",
+      "source_paths": "docs/experiments/casee/results/casee_next_experiment_runbook.json; docs/experiments/casee/results/casee_candidate_sweep_plan.json; docs/experiments/casee/results/casee_research_accuracy_gap_gate.json",
+      "command_or_operator_action": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --wall-model voxel_dilation --wall-dilation-cells 1 --no-subgrid",
+      "expected_artifacts": "docs/experiments/casee/native_cases/<run_id>/casee_probe_time_mean.csv",
+      "metric_target": "Official raw_trilinear z=2 m: MAE <15 pp, R2 >0, Pearson >0.",
+      "default_setting_allowed": false,
+      "paper_use": "Use only after completed FluidX3D output is audited by casee_audit.py.",
+      "limitations": "Generated input or planned action is not a result; wall model remains default-off until gates pass."
+    },
+    {
+      "action_id": "A005_run_afk_nosgs_inlet_followup_second",
+      "priority": 5,
+      "action_class": "official_cfd_followup_after_recovery",
+      "enabled_now": false,
+      "blocked_by": "rhino_gha_load;gpu_runtime;vs_cpp_build_tools",
+      "source_evidence_type": "preexisting_artifact",
+      "source_paths": "docs/experiments/casee/results/casee_c014_residual_structure_audit.json; docs/experiments/casee/results/casee_next_experiment_runbook.json; docs/experiments/casee/results/casee_candidate_sweep_plan.json",
+      "command_or_operator_action": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane --inlet-turbulence-scale 2.00 --no-subgrid",
+      "expected_artifacts": "docs/experiments/casee/native_cases/<run_id>/casee_probe_time_mean.csv",
+      "metric_target": "C014 diagnostic: MAE=13.7856467875, R2=-0.22984501828340775; follow-up must turn official R2 positive without diagnostic sampling.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as the strongest diagnostic direction, not as a validated default.",
+      "limitations": "C014 remains negative R2 and default-off; preexisting diagnostic evidence only."
+    },
+    {
+      "action_id": "A006_run_c016_channel_response_only_after_leakage_guard",
+      "priority": 6,
+      "action_class": "official_cfd_followup_after_recovery",
+      "enabled_now": false,
+      "blocked_by": "rhino_gha_load;gpu_runtime;vs_cpp_build_tools",
+      "source_evidence_type": "blocked_until_gpu_ready",
+      "source_paths": "docs/experiments/casee/results/casee_next_experiment_runbook.json; docs/experiments/casee/results/casee_c016_residual_target_leakage_guard.json; docs/experiments/casee/results/casee_research_accuracy_gap_gate.json",
+      "command_or_operator_action": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane --inlet-turbulence-scale 2.00 --residual-target-mode c014_channel_response --residual-target-scale 1.00 --no-subgrid",
+      "expected_artifacts": "docs/experiments/casee/native_cases/<run_id>/casee_probe_time_mean.csv",
+      "metric_target": "R2 >0 and MAE below C014 without fitting RS_caseE target values.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as pre-registered follow-up only after official audit.",
+      "limitations": "Residual-target logic is experimental and cannot be default-promoted without formal gates."
+    },
+    {
+      "action_id": "A007_audit_any_new_probe_csv_immediately",
+      "priority": 7,
+      "action_class": "postrun_audit",
+      "enabled_now": false,
+      "blocked_by": "awaiting_completed_fluidx3d_probe_csv",
+      "source_evidence_type": "newly_run_when_executed",
+      "source_paths": "docs/experiments/casee/results/casee_next_experiment_runbook.json; docs/experiments/casee/results/release_gate.json",
+      "command_or_operator_action": "python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0 --predicted <new_casee_probe_time_mean.csv>",
+      "expected_artifacts": "docs/experiments/casee/results/release_gate.json; docs/experiments/casee/results/casee_validation_report.md",
+      "metric_target": "Only audited n=80 official z=2 m raw_trilinear CSV can update release_gate.json.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as the sole path for future official paper metrics.",
+      "limitations": "No unaudited CSV can be cited."
+    },
+    {
+      "action_id": "A008_reject_post_hoc_affine_as_default",
+      "priority": 8,
+      "action_class": "claim_boundary",
+      "enabled_now": true,
+      "blocked_by": "",
+      "source_evidence_type": "newly_run",
+      "source_paths": "docs/experiments/casee/results/casee_c014_residual_structure_audit.json; docs/experiments/casee/results/casee_research_accuracy_gap_gate.json",
+      "command_or_operator_action": "No run. Keep post-hoc affine upper bound in limitations only.",
+      "expected_artifacts": "docs/experiments/casee/results/casee_c014_residual_structure_audit.json; docs/experiments/casee/results/casee_research_accuracy_gap_gate.json",
+      "metric_target": "Affine upper-bound R2=0.09920332706790935 is diagnostic-only and cannot validate prediction.",
+      "default_setting_allowed": false,
+      "paper_use": "Use as limitations evidence against calibration-as-validation.",
+      "limitations": "Post-hoc fit is not a predictive solver result."
+    }
+  ],
+  "summary": {
+    "next_enabled_actions": [
+      "A001_keep_formal_release_blocked",
+      "A002_complete_rhino_gha_manual_load_packet",
+      "A003_recover_gpu_and_preflight",
+      "A008_reject_post_hoc_affine_as_default"
+    ],
+    "official_followups_after_recovery": [
+      "A004_run_wall_model_followup_first",
+      "A005_run_afk_nosgs_inlet_followup_second",
+      "A006_run_c016_channel_response_only_after_leakage_guard"
+    ],
+    "all_default_setting_allowed_false": true,
+    "formal_metric_gap": {
+      "formal_official_mae_gap_to_15pp": 6.1114081250000005,
+      "formal_official_r2_gap_to_positive": 2.006330362229977,
+      "formal_official_pearson_gap_to_positive": 0.0,
+      "best_diagnostic_metric_gate_passed": false,
+      "post_hoc_upper_bound_metric_gate_passed": true,
+      "blockers": {
+        "formal_metric_gate_passed": false,
+        "formal_release_allowed": false,
+        "rhino_loaded_new_gha": false,
+        "diagnostic_default_promotion_allowed": false,
+        "official_followup_run_allowed": false
+      }
+    }
+  },
+  "boundary": "This action plan prioritizes next steps from existing evidence. It does not run FluidX3D, does not update official metrics, does not promote diagnostic settings to defaults, and does not permit formal v0.4.0."
+}

@@ -34,6 +34,12 @@ the formal official result is still 6.111 pp above the MAE threshold and 2.00633
 below positive R2. These are limitations and next-experiment planning numbers,
 not evidence of research-grade accuracy.
 
+The rc88 action-plan gate converts that gap into ordered next steps: keep formal
+release blocked, complete Rhino/GHA load evidence, recover GPU/preflight, then
+run official wall-model, AF-k/no-SGS inlet, and C016 channel-response follow-ups
+only after recovery. All of those actions remain default-off until audited
+official z=2 m metrics pass.
+
 Current Case E, release-gate, and manuscript-boundary materials:
 
 - `docs/experiments/casee/data_manifest.csv`
@@ -130,10 +136,13 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_default_promotion_gate.md`
 - `docs/experiments/casee/results/casee_research_accuracy_gap_gate.json`
 - `docs/experiments/casee/results/casee_research_accuracy_gap_gate.md`
+- `docs/experiments/casee/results/casee_accuracy_action_plan_gate.json`
+- `docs/experiments/casee/results/casee_accuracy_action_plan_gate.md`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
 - `docs/experiments/casee/results/rhino_gha_load_manifest.expected.json`
 - `docs/releases/v0.4.0-rc87.md`
+- `docs/releases/v0.4.0-rc88.md`
 - `docs/releases/v0.4.0-rc86.md`
 - `docs/releases/v0.4.0-rc85.md`
 - `docs/releases/v0.4.0-rc84.md`
@@ -247,6 +256,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_research_accuracy_gap_gate.json`
 - `docs/experiments/casee/results/casee_research_accuracy_gap_gate.md`
 - `docs/experiments/casee/results/casee_research_accuracy_gap_gate.csv`
+- `docs/experiments/casee/results/casee_accuracy_action_plan_gate.json`
+- `docs/experiments/casee/results/casee_accuracy_action_plan_gate.md`
+- `docs/experiments/casee/results/casee_accuracy_action_plan_gate.csv`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.csv`
@@ -588,6 +600,12 @@ The research accuracy gap gate turns that boundary into explicit deltas against
 the current release metric threshold. It reports the official MAE and R2 gaps,
 keeps C014 and diagnostic sampling in limitations-only roles, and records that
 no diagnostic candidate or post-hoc upper bound authorizes default promotion.
+
+The accuracy action plan gate then maps those deltas to next actions. It
+prioritizes software-load evidence and environment recovery before any long
+official CFD run, and it ranks wall-model, AF-k/no-SGS inlet, and C016
+channel-response follow-ups as recovery-gated actions rather than current
+results.
 
 The paper results figure exports that table into an editable SVG, PNG preview,
 source CSV, and QA manifest. It is suitable for a negative-validation and

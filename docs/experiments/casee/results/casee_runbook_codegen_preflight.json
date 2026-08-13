@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T11:21:42.271721+00:00",
+  "generated_at": "2026-08-13T11:39:32.544938+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_runbook_codegen_preflight; no_solver_run",
   "runbook_codegen_preflight_passed": true,

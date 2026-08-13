@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-13T11:21:54.630105+00:00
+Generated: 2026-08-13T11:39:45.424979+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 63
+- Feedback rows: 64
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -13,6 +13,7 @@ Generated: 2026-08-13T11:21:54.630105+00:00
 
 ## Decision Counts
 
+- accuracy_action_plan_no_default_promotion: 1
 - application_workflow_policy: 1
 - blocked_default_accuracy_upgrade: 1
 - blocked_followup_run: 3
@@ -137,6 +138,7 @@ Generated: 2026-08-13T11:21:54.630105+00:00
 | `SF061` | Experiment 2 / Case E default-promotion gate | default_promotion_gate_no_accuracy_promotion | implemented_default_promotion_gate | False | A dedicated default-promotion gate now converts the official metric, Case A, Rhino/GHA load, raw-trilinear protocol, no-fitting, and traceability requirements into per-setting blockers so diagnostic controls cannot silently become CityLBM defaults. |
 | `SF062` | Experiment 2 / Case E Rhino load evidence packet gate | manual_rhino_load_evidence_packet_no_accuracy_promotion | implemented_rhino_load_evidence_packet_gate | False | The Rhino/GHA manual load handoff now has a packet gate that writes expected version, path, SHA256, screenshot/log requirements, post-capture commands, and forbidden interpretations while remaining fail-closed until a real Rhino/Grasshopper manifest and artifacts exist. |
 | `SF063` | Experiment 2 / Case E research accuracy gap gate | research_accuracy_gap_no_default_promotion | implemented_research_accuracy_gap_gate | False | A dedicated gap gate now quantifies how far the official z=2 m result remains from the current project release threshold and separates formal, diagnostic, and post-hoc upper-bound rows before any paper-grade accuracy claim or default promotion can be considered. |
+| `SF064` | Experiment 2 / Case E accuracy action plan gate | accuracy_action_plan_no_default_promotion | implemented_accuracy_action_plan_gate | False | The quantified accuracy gap is now converted into an ordered action plan that separates release safety, Rhino/GHA evidence, environment recovery, wall-model follow-up, AF-k/no-SGS follow-up, C016 channel-response follow-up, post-run audit, and post-hoc calibration rejection. |
 
 ## Paper Boundary
 
@@ -205,6 +207,7 @@ Generated: 2026-08-13T11:21:54.630105+00:00
 | `SF061` | Use as software-implications evidence for why diagnostic improvements remain experimental until all formal release gates pass. | Promotion-policy evidence only; no FluidX3D run, official metric update, R2 improvement, or default accuracy promotion is supported. |
 | `SF062` | Use as a software-load protocol-risk mitigation showing exactly how old-GHA contamination is prevented before formal claims. | Manual evidence packet only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official metrics, or permit formal v0.4.0. |
 | `SF063` | Use as quantitative limitations evidence for how far the current official result remains from project accuracy release criteria. | Gap quantification only; it does not run FluidX3D, improve metrics, prove research-grade accuracy, or permit formal v0.4.0. |
+| `SF064` | Use as a reviewer-facing bridge from current accuracy limitations to the next official CFD actions and software policy. | Action-plan evidence only; it does not run FluidX3D, improve metrics, or permit formal v0.4.0. |
 
 ## Boundary
 

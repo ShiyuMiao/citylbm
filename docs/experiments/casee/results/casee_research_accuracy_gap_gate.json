@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T11:21:31.938312+00:00",
+  "generated_at": "2026-08-13T11:39:22.096291+00:00",
   "evidence_type": "newly_run",
   "research_accuracy_gap_gate_passed": true,
   "claim_readiness": "limitations_ready_research_accuracy_gap; blocked formal accuracy release",
@@ -14,7 +14,7 @@
   },
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc87",
+  "recommended_tag": "v0.4.0-rc88",
   "rows": [
     {
       "candidate_id": "formal_official_z2m_current",

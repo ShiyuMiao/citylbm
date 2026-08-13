@@ -8,6 +8,9 @@ MM,academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md,t
 M ,docs/experiments/casee/evidence_inventory.csv,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/build_chain_manifest.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/build_chain_manifest.md,tracked_or_staged_change,controlled
+A ,docs/experiments/casee/results/casee_accuracy_action_plan_gate.csv,tracked_or_staged_change,controlled
+AM,docs/experiments/casee/results/casee_accuracy_action_plan_gate.json,tracked_or_staged_change,controlled
+AM,docs/experiments/casee/results/casee_accuracy_action_plan_gate.md,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_artifact_index.csv,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_artifact_index.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_artifact_index.md,tracked_or_staged_change,controlled
@@ -86,9 +89,8 @@ MM,docs/experiments/casee/results/casee_remaining_blockers.json,tracked_or_stage
 MM,docs/experiments/casee/results/casee_remaining_blockers.md,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/results/casee_reproducibility_suite.json,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/results/casee_reproducibility_suite.md,tracked_or_staged_change,controlled
-A ,docs/experiments/casee/results/casee_research_accuracy_gap_gate.csv,tracked_or_staged_change,controlled
-AM,docs/experiments/casee/results/casee_research_accuracy_gap_gate.json,tracked_or_staged_change,controlled
-AM,docs/experiments/casee/results/casee_research_accuracy_gap_gate.md,tracked_or_staged_change,controlled
+MM,docs/experiments/casee/results/casee_research_accuracy_gap_gate.json,tracked_or_staged_change,controlled
+MM,docs/experiments/casee/results/casee_research_accuracy_gap_gate.md,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/results/casee_rhino_load_evidence_kit.csv,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_rhino_load_evidence_kit.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/casee_rhino_load_evidence_kit.md,tracked_or_staged_change,controlled
@@ -160,12 +162,12 @@ MM,docs/experiments/casee/results/vs_cpp_system_drive_space_gate.csv,tracked_or_
 MM,docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json,tracked_or_staged_change,controlled
 MM,docs/experiments/casee/results/vs_cpp_system_drive_space_gate.md,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/artifact_index.py,tracked_or_staged_change,controlled
+A ,docs/experiments/casee/tools/casee_accuracy_action_plan_gate.py,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/casee_release_asset_manifest.py,tracked_or_staged_change,controlled
-A ,docs/experiments/casee/tools/casee_research_accuracy_gap_gate.py,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/citylbm_software_feedback_matrix.py,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/paper_evidence_gate.py,tracked_or_staged_change,controlled
 M ,docs/experiments/casee/tools/reproducibility_suite.py,tracked_or_staged_change,controlled
-A ,docs/releases/v0.4.0-rc87.md,tracked_or_staged_change,controlled
+A ,docs/releases/v0.4.0-rc88.md,tracked_or_staged_change,controlled
 !!,.workbuddy/,ignored_local_artifact,controlled
 !!,CityLBM/NuGet/,ignored_local_artifact,forbidden_tracked_build_cache
 !!,CityLBM/bin/Release/,ignored_local_artifact,forbidden_tracked_build_cache
