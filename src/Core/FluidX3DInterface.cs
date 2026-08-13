@@ -1817,10 +1817,6 @@ namespace CityLBM.Solver
             else if (scene.WindProfile == WindProfileType.CustomTable)
             {
                 AppendCustomTableProfileCode(sb, scene, grid.Dx, uScale, windDir);
-                if (syntheticInletActive)
-                {
-                    AppendSyntheticTurbulentInletVelocityCode(sb, settings, grid.Dx);
-                }
             }
             sb.AppendLine();
 
@@ -1854,6 +1850,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    const uint Nx = lbm.get_Nx(), Ny = lbm.get_Ny(), Nz = lbm.get_Nz();");
             if (syntheticInletActive)
             {
+                AppendSyntheticTurbulentInletVelocityCode(sb, settings, grid.Dx);
                 AppendSyntheticTurbulentInletApplyCode(sb, windDir);
             }
             sb.AppendLine("    parallel_for(lbm.get_N(), [&](ulong n) {");
@@ -1936,13 +1933,28 @@ namespace CityLBM.Solver
             sb.AppendLine($"        uint steps_to_run = remaining < {settings.SaveInterval}u ? remaining : {settings.SaveInterval}u;");
             if (syntheticInletActive)
             {
+                sb.AppendLine($"        uint save_remainder = (uint)lbm.get_t() % {settings.SaveInterval}u;");
+                sb.AppendLine($"        uint until_next_save = save_remainder == 0u ? {settings.SaveInterval}u : {settings.SaveInterval}u - save_remainder;");
+                sb.AppendLine("        if(steps_to_run > until_next_save) steps_to_run = until_next_save;");
+                sb.AppendLine("        if(steps_to_run > citylbm_stg_update_interval) steps_to_run = citylbm_stg_update_interval;");
+            }
+            if (syntheticInletActive)
+            {
                 sb.AppendLine("        applySyntheticTurbulentInlet((uint)lbm.get_t());");
             }
             sb.AppendLine("        lbm.run(steps_to_run);");
             sb.AppendLine();
+            if (syntheticInletActive)
+            {
+                sb.AppendLine($"        if((uint)lbm.get_t() % {settings.SaveInterval}u == 0u || (uint)lbm.get_t() >= {settings.TimeSteps}u) {{");
+            }
             sb.AppendLine("        // 输出 VTK（速度场）到指定目录");
             sb.AppendLine($"        // path 只传目录前缀，default_filename() 会自动拼接 name-timestep.vtk");
             sb.AppendLine($"        lbm.u.write_device_to_vtk(\"{outputRelDir}/\", true);  // true=自动转换为 SI 物理单位(m/s)");
+            if (syntheticInletActive)
+            {
+                sb.AppendLine("        }");
+            }
             sb.AppendLine();
             sb.AppendLine("        print_info(\"Step: \" + to_string(lbm.get_t()) +");
             sb.AppendLine($"                   \" / {settings.TimeSteps}\");");
@@ -2138,7 +2150,7 @@ namespace CityLBM.Solver
             sb.AppendLine("        float u_mag = interpolate_profile_u(z_m);");
             sb.AppendLine("        return float3(dir_x * u_mag, dir_y * u_mag, dir_z * u_mag);");
             sb.AppendLine("    };");
-            sb.AppendLine("    // k arrays are emitted for validation metadata and optional STG-lite inlet forcing.");
+            sb.AppendLine("    // k arrays are emitted for validation metadata and optional SEM-lite inlet forcing.");
         }
 
         private bool IsSyntheticTurbulentInletActive(Scene scene, SimulationSettings settings)
@@ -2157,18 +2169,29 @@ namespace CityLBM.Solver
             int updateInterval = Math.Max(1, settings.SyntheticTurbulenceUpdateInterval);
 
             sb.AppendLine();
-            sb.AppendLine("    // CityLBM STG-lite inlet: correlated deterministic perturbations from isotropic k.");
-            sb.AppendLine("    // This is not a full digital-filter or synthetic-eddy inlet.");
+            sb.AppendLine("    // CityLBM SEM-lite inlet: deterministic synthetic eddies from isotropic k.");
+            sb.AppendLine("    // This is a diagnostic approximation, not a full digital-filter/SEM with Reynolds-stress tensors.");
             sb.AppendLine($"    const float citylbm_stg_scale = {scale.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_stg_corr_cells = {corr.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_stg_max_fraction = {maxFrac.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const uint citylbm_stg_update_interval = {updateInterval}u;");
-            sb.AppendLine("    auto citylbm_stg_noise = [&](float x_cell, float y_cell, float z_cell, float t_cell, float seed) -> float {");
-            sb.AppendLine("        float inv_l = 1.0f / citylbm_stg_corr_cells;");
-            sb.AppendLine("        float n = sinf((0.754877f*x_cell + 0.569840f*y_cell + 0.438722f*z_cell + 0.031416f*t_cell + seed) * inv_l)");
-            sb.AppendLine("                + cosf((0.327123f*x_cell - 0.671231f*y_cell + 0.873421f*z_cell + 0.017453f*t_cell + 1.370000f*seed) * inv_l)");
-            sb.AppendLine("                + sinf((0.159154f*x_cell + 0.230769f*y_cell - 0.411765f*z_cell + 0.021739f*t_cell + 2.110000f*seed) * inv_l);");
-            sb.AppendLine("        return n * 0.3333333f;");
+            sb.AppendLine("    const int citylbm_sem_eddy_count = 16;");
+            sb.AppendLine("    const float citylbm_sem_norm = 1.0f / sqrtf((float)citylbm_sem_eddy_count);");
+            sb.AppendLine("    auto citylbm_wrap_unit = [&](float v) -> float {");
+            sb.AppendLine("        return v - floorf(v);");
+            sb.AppendLine("    };");
+            sb.AppendLine("    auto citylbm_sem_sign = [&](int eddy, int component) -> float {");
+            sb.AppendLine("        int h = (eddy + 1) * (component * 37 + 17);");
+            sb.AppendLine("        return (h % 2 == 0) ? 1.0f : -1.0f;");
+            sb.AppendLine("    };");
+            sb.AppendLine("    auto citylbm_sem_shape = [&](float d) -> float {");
+            sb.AppendLine("        float r = d / citylbm_stg_corr_cells;");
+            sb.AppendLine("        return expf(-0.5f * r * r);");
+            sb.AppendLine("    };");
+            sb.AppendLine("    auto citylbm_sem_coordinate = [&](int eddy, int axis, float t_cell) -> float {");
+            sb.AppendLine("        float base = sinf((float)(eddy + 1) * (12.9898f + 3.177f * (float)axis)) * 43758.5453f;");
+            sb.AppendLine("        float drift = 0.013f * (float)(eddy + 1) * (float)(axis + 1) * t_cell;");
+            sb.AppendLine("        return citylbm_wrap_unit(base + drift);");
             sb.AppendLine("    };");
             sb.AppendLine("    auto syntheticTurbulentInlet = [&](uint x, uint y, uint z_cell, uint t_step) -> float3 {");
             sb.AppendLine("        float3 mean = windProfile(z_cell);");
@@ -2180,10 +2203,20 @@ namespace CityLBM.Solver
             sb.AppendLine("        float cap = citylbm_stg_max_fraction * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
             sb.AppendLine("        if(sigma > cap) sigma = cap;");
             sb.AppendLine("        float t_cell = (float)(t_step / citylbm_stg_update_interval);");
-            sb.AppendLine("        float3 u = float3(");
-            sb.AppendLine("            mean.x + sigma * citylbm_stg_noise((float)x, (float)y, (float)z_cell, t_cell, 11.0f),");
-            sb.AppendLine("            mean.y + sigma * citylbm_stg_noise((float)x, (float)y, (float)z_cell, t_cell, 23.0f),");
-            sb.AppendLine("            mean.z + sigma * citylbm_stg_noise((float)x, (float)y, (float)z_cell, t_cell, 37.0f));");
+            sb.AppendLine("        float fluct_x = 0.0f, fluct_y = 0.0f, fluct_z = 0.0f;");
+            sb.AppendLine("        for(int e=0; e<citylbm_sem_eddy_count; e++) {");
+            sb.AppendLine("            float ex = citylbm_sem_coordinate(e, 0, t_cell) * (float)Nx;");
+            sb.AppendLine("            float ey = citylbm_sem_coordinate(e, 1, t_cell) * (float)Ny;");
+            sb.AppendLine("            float ez = citylbm_sem_coordinate(e, 2, t_cell) * (float)Nz;");
+            sb.AppendLine("            float sx = citylbm_sem_shape((float)x - ex);");
+            sb.AppendLine("            float sy = citylbm_sem_shape((float)y - ey);");
+            sb.AppendLine("            float sz = citylbm_sem_shape((float)z_cell - ez);");
+            sb.AppendLine("            float w = sx * sy * sz * citylbm_sem_norm;");
+            sb.AppendLine("            fluct_x += citylbm_sem_sign(e, 1) * w;");
+            sb.AppendLine("            fluct_y += citylbm_sem_sign(e, 2) * w;");
+            sb.AppendLine("            fluct_z += citylbm_sem_sign(e, 3) * w;");
+            sb.AppendLine("        }");
+            sb.AppendLine("        float3 u = float3(mean.x + sigma * fluct_x, mean.y + sigma * fluct_y, mean.z + sigma * fluct_z);");
             sb.AppendLine("        float streamwise = u.x*dir_x + u.y*dir_y + u.z*dir_z;");
             sb.AppendLine("        float min_streamwise = 0.05f * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
             sb.AppendLine("        if(streamwise < min_streamwise) {");
@@ -2268,12 +2301,12 @@ namespace CityLBM.Solver
                     KColumnStatus = hasK ? "read_from_csv_and_converted_to_lbm_metadata" : "not_available",
                     KUnitConversion = "k_lbm = k_m2s2 * VelocityScaleMpsToLbm^2",
                     TurbulentInletLevel = syntheticActive
-                        ? "Level 2.5 STG-lite correlated perturbation from isotropic k"
+                        ? "Level 2.5 SEM-lite synthetic-eddy perturbation from isotropic k"
                         : (hasK ? "Level 2 metadata/diagnostic chain" : "none"),
                     SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
                     SyntheticTurbulentInletInjected = syntheticActive,
                     SyntheticTurbulentInletMethod = syntheticActive
-                        ? "STG-lite deterministic correlated trigonometric fluctuations; not digital-filter or synthetic-eddy"
+                        ? "SEM-lite deterministic synthetic eddies with isotropic k; not digital-filter, precursor, or Reynolds-stress inflow"
                         : "none",
                     SyntheticTurbulenceIntensityScale = settings.SyntheticTurbulenceIntensityScale,
                     SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
@@ -2282,7 +2315,7 @@ namespace CityLBM.Solver
                     ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor is available from AF table" : "",
                     InletVelocityTreatment = scene.WindProfile == WindProfileType.CustomTable
                         ? (syntheticActive
-                            ? "height-varying mean velocity plus bounded STG-lite fluctuations from k"
+                            ? "height-varying mean velocity plus bounded SEM-lite synthetic-eddy fluctuations from k"
                             : "height-varying mean velocity from CustomTable; no correlated fluctuations")
                         : "deterministic mean velocity boundary",
                     BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
@@ -2350,7 +2383,7 @@ namespace CityLBM.Solver
             {
                 if (syntheticActive)
                 {
-                    yield return "AF k column drives an experimental STG-lite inlet, but this is not a full digital-filter/synthetic-eddy method and has no Reynolds-stress tensor or precursor/recycling field.";
+                    yield return "AF k column drives an experimental SEM-lite synthetic-eddy inlet, but this is not a full digital-filter, precursor/recycling, or Reynolds-stress inflow.";
                 }
                 else
                 {
@@ -2431,13 +2464,13 @@ namespace CityLBM.Solver
                 Key = "inlet_turbulence_k",
                 Status = syntheticActive ? "partial" : (hasK ? "risk" : "fail"),
                 Evidence = syntheticActive
-                    ? "AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet."
+                    ? "AF k column is present and SEM-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet."
                     : (hasK ? "AF k column is present but only metadata/profile arrays are guaranteed." : "No usable k column found in CustomWindProfile."),
                 Risk = syntheticActive
-                    ? "STG-lite is not a full digital-filter/synthetic-eddy inlet and assumes isotropic turbulence."
+                    ? "SEM-lite is not a full digital-filter/precursor/Reynolds-stress inlet and assumes isotropic turbulence."
                     : "Missing or inactive turbulent inlet can cause systematic underprediction of pedestrian-level velocity ratios.",
                 RequiredNextAction = syntheticActive
-                    ? "Run native FluidX3D compile smoke test and sensitivity against STG Scale/Corr Cells before paper claims."
+                    ? "Run native FluidX3D compile smoke test and sensitivity against Synthetic Scale/Corr Cells before paper claims."
                     : "Enable Synthetic Inlet for diagnostic runs or implement a full DFM/SEM/precursor inlet for formal validation."
             };
 
@@ -2825,7 +2858,7 @@ namespace CityLBM.Solver
         public double TurbulentPrandtlNumber { get; set; } = 0.5;
 
         /// <summary>
-        /// Enables an experimental STG-lite inlet for CustomTable profiles with k.
+        /// Enables an experimental SEM-lite inlet for CustomTable profiles with k.
         /// This is a correlated, bounded perturbation from isotropic k, not full DFM/SEM.
         /// </summary>
         public bool EnableSyntheticTurbulentInlet { get; set; } = false;
