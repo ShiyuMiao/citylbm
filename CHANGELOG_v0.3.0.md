@@ -12,6 +12,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `domain_origin.json` now includes schema and version fields.
 - `case_metadata.json` records wind profile, velocity scaling, k status, grid and run settings.
 - `Read VTK` reports whether metadata-driven velocity scaling was applied.
+- `Read VTK` adds `Average Last N` so validation workflows can output an explicit multi-frame time-averaged velocity field instead of a single instantaneous VTK frame.
+- `case_metadata.json` records protocol-risk fields: simplified boundary-condition summary, expected VTK frame count, required averaging, and validation-readiness status.
+- `Run Simulation` no longer falls back to the legacy bundled v0.5.0 solver when no external FluidX3D path is provided; controlled validation must use an explicit external FluidX3D baseline.
 
 ## Remaining scientific work
 
@@ -19,3 +22,4 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - If native FluidX3D is significantly closer to AIJ measurements, the same settings must be ported into CityLBM.
 - Case E should then be run with dx=2-3 m, long time averaging and the official AF/RS files.
 - Synthetic turbulent inlet injection from `k` is not implemented in v0.3.0; this remains a precision gap for future work.
+- The boundary condition model remains simplified and must be audited against the AIJ wind-tunnel setup before making paper-grade accuracy claims.

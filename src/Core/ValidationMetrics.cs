@@ -130,7 +130,13 @@ namespace CityLBM.Core
                 RawPointCount = first.RawPointCount,
                 Points = new List<Point3d>(first.Points),
                 Velocities = sum.Select(v => v / validFrames).ToList(),
-                Scalars = new Dictionary<string, List<double>>()
+                Scalars = new Dictionary<string, List<double>>(),
+                AveragedFrameCount = validFrames,
+                SourceTimeSteps = results
+                    .Where(r => r != null)
+                    .Select(r => r.TimeStep)
+                    .OrderBy(t => t)
+                    .ToList()
             };
         }
 

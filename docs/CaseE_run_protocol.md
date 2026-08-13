@@ -27,6 +27,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Formal validation: `dx=2-3 m`, `steps>=10000`, save enough final VTK frames for time averaging
 - Use LES consistently and record `Cs`, viscosity, grid dimensions and GPU model.
 - Do not compare a single early VTK frame as a final result.
+- CityLBM v0.3.0 validation runs must use an explicit external FluidX3D source path in `Run Simulation / FX3D`.
+  The legacy bundled v0.5.0 fallback is disabled for controlled validation because it is not the baseline.
 
 ## Required checks before accepting a run
 
@@ -35,7 +37,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - `case_metadata.json` exists in both case root and output directory.
 - VTK files are newly generated for the current run directory, not copied from older experiments.
 - Post-processing reads the final averaged velocity field, not an initial transient.
+  In `Read VTK`, set `Average Last N > 0` and record the actual averaged source time steps printed in the Info output.
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
+- `case_metadata.json` must be archived with the run. It records the boundary-condition summary, expected VTK frame count,
+  time-averaging requirement, and known protocol risks.
 
 ## Metrics to report
 
@@ -50,3 +55,5 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 ## Current v0.3.0 limitation
 
 CityLBM v0.3.0 reads, converts and records `k(m2/s2)`, but it does not inject synthetic turbulent inlet fluctuations. Any paper claim must state whether the validation used this v0.3.0 metadata-only k chain or a later turbulent inflow implementation.
+
+The current boundary conditions are also a simplified FluidX3D `TYPE_E` setup: velocity-profile inlet, pressure/free-outflow outlet approximation, lateral/top `TYPE_E`, and no-slip ground/buildings. This must be treated as a protocol risk until compared with the AIJ wind-tunnel boundary setup or replaced by a stronger inlet/outlet treatment.

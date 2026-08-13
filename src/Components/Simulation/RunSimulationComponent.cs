@@ -405,30 +405,17 @@ namespace CityLBM.Components.Simulation
             FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
         {
             if (string.IsNullOrWhiteSpace(solver.FluidX3DPath))
-            if (string.IsNullOrWhiteSpace(solver.FluidX3DPath))
             {
-                // v0.5.0: 尝试使用 Bundled Solver（嵌入式 FluidX3D）
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, 
-                    "未检测到外部 FluidX3D，尝试使用嵌入式 Bundled Solver...");
-                
-                if (solver.IsBundlerAvailable)
-                {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, 
-                        "使用 CityLBM Bundled Solver v0.5.0（嵌入式 FluidX3D）");
-                    RunMode3_BundledSolver(DA, solver, scene, grid, settings);
-                    return;
-                }
-                else
-                {
-                    string bundlerLog = FluidX3DBundler.Instance.GetInitLog();
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                        "未找到 FluidX3D 路径且 Bundled Solver 初始化失败。\n" +
-                        "请设置 FluidX3D 源码路径，或安装 VS Build Tools / MinGW 编译器。\n" +
-                        bundlerLog);
-                    DA.SetData(2, false);
-                    DA.SetData(3, "错误：未找到 FluidX3D 路径，Bundled Solver 也不可用。");
-                    return;
-                }
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                    "Mode 3 validation runs require an explicit external FluidX3D source path. " +
+                    "The legacy bundled v0.5.0 fallback is disabled for v0.3.0 validation because it is not the controlled baseline.");
+                DA.SetData(0, "");
+                DA.SetData(1, "");
+                DA.SetData(2, false);
+                DA.SetData(3, "错误：未找到 FluidX3D 路径。请在 FX3D 输入端指定原生 FluidX3D 源码根目录。v0.3.0 验证不再自动使用旧 bundled solver。");
+                DA.SetData(4, 0);
+                DA.SetData(5, "");
+                return;
             }
             
             AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "使用 FluidX3D 路径: " + solver.FluidX3DPath);

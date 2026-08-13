@@ -2138,12 +2138,23 @@ namespace CityLBM.Solver
                     Nz = grid.Nz,
                     TimeSteps = settings.TimeSteps,
                     SaveInterval = settings.SaveInterval,
+                    ExpectedVtkFrameCount = settings.SaveInterval > 0
+                        ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
+                        : 0,
+                    TimeAveragingRequiredForValidation = true,
+                    MinimumRecommendedAveragingFrames = 8,
                     CustomProfileHasK = hasK,
                     KColumnStatus = hasK ? "read_from_csv_and_converted_to_lbm_metadata" : "not_available",
                     KUnitConversion = "k_lbm = k_m2s2 * VelocityScaleMpsToLbm^2",
                     TurbulentInletLevel = hasK ? "Level 2 metadata/diagnostic chain" : "none",
                     SyntheticTurbulentInletInjected = false,
                     ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor in v0.3.0" : "",
+                    InletVelocityTreatment = scene.WindProfile == WindProfileType.CustomTable
+                        ? "height-varying mean velocity from CustomTable; no correlated fluctuations"
+                        : "deterministic mean velocity boundary",
+                    BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
+                    ValidationReadiness = "diagnostic_ready_not_paper_grade_until_native_baseline_grid_sensitivity_long_averaging_and_turbulent_inlet_are_verified",
+                    KnownProtocolRisks = BuildProtocolRisks(scene, settings).ToList(),
                     ProfileOriginZM = 0.0,
                     CustomProfile = scene.CustomWindProfile == null ? null : scene.CustomWindProfile.Select(s => new
                     {
@@ -2163,6 +2174,58 @@ namespace CityLBM.Solver
             {
                 Debug.WriteLine($"[CityLBM] Save case_metadata.json failed: {ex.Message}");
             }
+        }
+
+        private string GetBoundaryConditionSummary(Vector3d windDirection, WindProfileType windProfile)
+        {
+            var dir = windDirection;
+            if (dir.IsValid && !dir.IsZero)
+                dir.Unitize();
+
+            bool xDominant = Math.Abs(dir.X) >= Math.Abs(dir.Y);
+            string axis = xDominant ? "X" : "Y";
+            string inletSide;
+            string outletSide;
+            string lateralSides;
+
+            if (xDominant)
+            {
+                bool fromMin = dir.X > 0.0;
+                inletSide = fromMin ? "X-" : "X+";
+                outletSide = fromMin ? "X+" : "X-";
+                lateralSides = "Y-/Y+";
+            }
+            else
+            {
+                bool fromMin = dir.Y > 0.0;
+                inletSide = fromMin ? "Y-" : "Y+";
+                outletSide = fromMin ? "Y+" : "Y-";
+                lateralSides = "X-/X+";
+            }
+
+            return $"dominant_axis={axis}; inlet={inletSide} TYPE_E velocity profile ({windProfile}); " +
+                   $"outlet={outletSide} TYPE_E pressure/free-outflow approximation; " +
+                   $"lateral={lateralSides} TYPE_E slip/free approximation; top=TYPE_E; ground/buildings=TYPE_S no-slip";
+        }
+
+        private IEnumerable<string> BuildProtocolRisks(Scene scene, SimulationSettings settings)
+        {
+            if (scene.WindProfile == WindProfileType.CustomTable &&
+                scene.CustomWindProfile != null &&
+                scene.CustomWindProfile.Any(s => s.HasK))
+            {
+                yield return "AF k column is read and converted, but no digital-filter/synthetic-eddy turbulent inlet is injected.";
+            }
+
+            yield return "Boundary conditions are simplified TYPE_E inlet/outlet/lateral/top approximations and must be checked against the AIJ wind-tunnel protocol.";
+
+            int expectedFrames = settings.SaveInterval > 0
+                ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
+                : 0;
+            if (expectedFrames < 8)
+                yield return $"Only {expectedFrames} VTK frames are expected; formal validation should average a longer statistically stationary window.";
+
+            yield return "Coordinate transform, wind component sign, probe projection and normalization basis must be audited for each validation run.";
         }
 
         private void SaveDomainOrigin(string caseDir, Point3d origin, BoundingBox domainBounds,
@@ -2533,6 +2596,12 @@ namespace CityLBM.Solver
         public List<Point3d> Points { get; set; }
         public List<Vector3d> Velocities { get; set; }
         public Dictionary<string, List<double>> Scalars { get; set; } = new Dictionary<string, List<double>>();
+
+        /// <summary>Number of VTK frames used when this result is a time-averaged field.</summary>
+        public int AveragedFrameCount { get; set; }
+
+        /// <summary>Source time steps used when this result is a time-averaged field.</summary>
+        public List<int> SourceTimeSteps { get; set; } = new List<int>();
 
         /// <summary>VTK 文件中的原始点总数（采样前）</summary>
         public int RawPointCount { get; set; }

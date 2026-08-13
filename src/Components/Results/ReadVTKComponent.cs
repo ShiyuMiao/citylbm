@@ -73,11 +73,20 @@ namespace CityLBM.Components.Results
                 " N = 每 N 个格点取 1 个。",
                 GH_ParamAccess.item, -1);
 
+            pManager.AddIntegerParameter("Average Last N", "AvgN",
+                "时间平均窗口。\n" +
+                " 0 = 不平均（保持 Time Step 筛选结果），\n" +
+                " N > 0 = 对最后 N 个 VTK 帧逐点平均后输出。\n" +
+                "论文验证建议使用足够长的后期平均窗口，而不是单个瞬时帧。",
+                GH_ParamAccess.item, 0);
+
             // VTK Path 和 Scene 均可选
             pManager[0].Optional = true;
             pManager[1].Optional = true;
             pManager[2].Optional = true;
             pManager[3].Optional = true;
+            pManager[4].Optional = true;
+            pManager[5].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
@@ -119,6 +128,7 @@ namespace CityLBM.Components.Results
             int timeStep  = -1;
             double subsampleSpacing = 5.0;
             int manualStep = -1;
+            int averageLastN = 0;
 
             // S 端口：安全提取场景对象（用于物理坐标偏移）
             Core.Scene physicalScene = null;
@@ -144,10 +154,13 @@ namespace CityLBM.Components.Results
             DA.GetData(2, ref timeStep);
             DA.GetData(3, ref subsampleSpacing);
             DA.GetData(4, ref manualStep);
+            DA.GetData(5, ref averageLastN);
+            averageLastN = Math.Max(0, averageLastN);
             
             logger.Config("TimeStep", timeStep);
             logger.Config("SubsampleSpacing", $"{subsampleSpacing:F2} m");
             logger.Config("ManualStep", manualStep);
+            logger.Config("AverageLastN", averageLastN);
 
             // ── VTK Path 为空时，优先用 Scene 推算路径，再全局搜索 ──
             // 检测场景变化：如果场景名称或 Case 目录改变，强制重新搜索路径
@@ -296,8 +309,21 @@ namespace CityLBM.Components.Results
             }
             logger.StepEnd("计算采样步长", $"最终步长={step}");
 
-            // ── 第三步：处理 -2（自动选最后一个时间步）──────────────
-            if (timeStep == -2)
+            // ── 第三步：处理时间步筛选 ───────────────────────────
+            // AverageLastN 优先级高于 Time Step：论文验证时应显式选择后期多帧平均。
+            if (averageLastN > 0)
+            {
+                vtkFiles = SelectLastNVtkFiles(vtkFiles, averageLastN);
+                if (vtkFiles.Count == 0)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "无法选择用于时间平均的 VTK 文件。");
+                    return;
+                }
+
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                    $"时间平均模式：选择最后 {vtkFiles.Count} 个 VTK 帧。");
+            }
+            else if (timeStep == -2)
             {
                 // 先从文件名中提取所有时间步，选最大的
                 int latestStep = -1;
@@ -346,7 +372,7 @@ namespace CityLBM.Components.Results
 
             // ── 第四步：缓存键检查 ─────────────────────────────────
             // 缓存键包含：路径、步长、时间步、场景名、最后修改时间
-            string cacheKey = $"{vtkPath}|{step}|{timeStep}|{sceneName}|{_lastVtkWriteTime:yyyyMMddHHmmss}";
+            string cacheKey = $"{vtkPath}|{step}|{timeStep}|avg{averageLastN}|{sceneName}|{_lastVtkWriteTime:yyyyMMddHHmmss}";
             if (_cachedResults != null && _cachedKey == cacheKey)
             {
                 // 缓存命中，直接输出（包括上次的 Info）
@@ -363,7 +389,8 @@ namespace CityLBM.Components.Results
                     // 首次触发：启动后台读取
                     _cachedKey = cacheKey;
                     var filesToLoad = new List<string>(vtkFiles);
-                    int tsFilter = timeStep;
+                    int tsFilter = averageLastN > 0 ? -1 : timeStep;
+                    bool averageFrames = averageLastN > 0;
 
                     _loadTask = Task.Run(() =>
                     {
@@ -382,6 +409,12 @@ namespace CityLBM.Components.Results
                                 System.Diagnostics.Debug.WriteLine($"ParseVTKFile failed: {ex.Message}");
                             }
                         }
+                        if (averageFrames)
+                        {
+                            VTKResult averaged = ValidationMetrics.AverageVelocityResults(results);
+                            return averaged == null ? results : new List<VTKResult> { averaged };
+                        }
+
                         return results;
                     });
 
@@ -420,7 +453,7 @@ namespace CityLBM.Components.Results
             _loadTask = null;
 
             // 构建 Info 并缓存
-            _cachedInfo = BuildInfoText(_cachedResults, detectedSpacing, subsampleSpacing, manualStep, step);
+            _cachedInfo = BuildInfoText(_cachedResults, detectedSpacing, subsampleSpacing, manualStep, step, averageLastN);
 
             OutputCachedResults(DA, _cachedResults, detectedSpacing, _cachedInfo, physicalScene, logger);
         }
@@ -488,7 +521,7 @@ namespace CityLBM.Components.Results
         }
 
         private string BuildInfoText(List<VTKResult> results, double detectedSpacing,
-            double subsampleSpacing, int manualStep, int step)
+            double subsampleSpacing, int manualStep, int step, int averageLastN)
         {
             int totalRaw = results.Sum(r => r.RawPointCount);
             int totalOut = results.Sum(r => r.Points?.Count ?? 0);
@@ -501,13 +534,36 @@ namespace CityLBM.Components.Results
                     ? $"自动 Step={step}（{subsampleSpacing:F1} m ÷ {spacingStr}）"
                     : "不采样");
 
+            int averagedFrameCount = results.Count == 1 && results[0].AveragedFrameCount > 0
+                ? results[0].AveragedFrameCount
+                : 0;
+            string sourceSteps = results.Count == 1 && results[0].SourceTimeSteps != null && results[0].SourceTimeSteps.Count > 0
+                ? string.Join(", ", results[0].SourceTimeSteps)
+                : "";
+            string averagingInfo = averageLastN > 0
+                ? $"时间平均:   已对最后 {averagedFrameCount} 个可用 VTK 帧执行逐点平均\n" +
+                  (sourceSteps.Length > 0 ? $"平均帧:     {sourceSteps}\n" : "")
+                : "时间平均:   未启用（当前输出可能是瞬时场）\n";
+
             return $"读取了 {results.Count} 个 VTK 文件\n" +
                    $"原始点数:   {totalRaw:N0}\n" +
                    $"输出点数:   {totalOut:N0}  ({samplingRate:F1}%)\n" +
                    $"速度向量数: {results.Sum(r => r.Velocities?.Count ?? 0):N0}\n" +
                    $"网格间距:   {spacingStr}\n" +
                    $"采样策略:   {stepDesc}\n" +
+                   averagingInfo +
                    $"时间步范围: {results.Min(r => r.TimeStep)} → {results.Max(r => r.TimeStep)}";
+        }
+
+        private List<string> SelectLastNVtkFiles(List<string> vtkFiles, int count)
+        {
+            return vtkFiles
+                .Select(file => new { File = file, TimeStep = ExtractTimeStepFromFilename(file) })
+                .OrderBy(item => item.TimeStep)
+                .ThenBy(item => item.File)
+                .Skip(Math.Max(0, vtkFiles.Count - count))
+                .Select(item => item.File)
+                .ToList();
         }
 
         private string AppendWindProfileInfo(Core.Scene physicalScene, List<Point3d> allPoints)
