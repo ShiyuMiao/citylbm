@@ -108,7 +108,14 @@ namespace CityLBM.Components.Simulation
             pManager.AddBooleanParameter("Cancel", "Stop", "True = 取消当前后台运行", GH_ParamAccess.item, false);
 
             // 全部可选（除 Scene 和 Grid）
-            for (int i = 2; i <= 14; i++) pManager[i].Optional = true;
+            pManager.AddIntegerParameter("STG Update", "STGU",
+                "LBM steps between STG-lite inlet-pattern updates. Smaller values add faster temporal variation; record this for validation.",
+                GH_ParamAccess.item, 25);
+            pManager.AddNumberParameter("STG Max Frac", "STGF",
+                "Upper bound for STG-lite sigma as a fraction of local mean speed. Validation default is 0.35.",
+                GH_ParamAccess.item, 0.35);
+
+            for (int i = 2; i <= 16; i++) pManager[i].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
@@ -140,6 +147,8 @@ namespace CityLBM.Components.Simulation
             bool enableSyntheticInlet = false;
             double syntheticScale = 1.0;
             double syntheticCorrCells = 4.0;
+            int syntheticUpdateInterval = 25;
+            double syntheticMaxFraction = 0.35;
 
             if (!DA.GetData(0, ref ghScene)) return;
             if (!DA.GetData(1, ref ghGrid)) return;
@@ -156,6 +165,8 @@ namespace CityLBM.Components.Simulation
             DA.GetData(12, ref syntheticCorrCells);
             DA.GetData(13, ref run);
             DA.GetData(14, ref cancel);
+            DA.GetData(15, ref syntheticUpdateInterval);
+            DA.GetData(16, ref syntheticMaxFraction);
 
             // ── GH 加载期保护 ────────────────────────────────────────────
             // 使用宽限期策略：组件创建后 3 秒内认为 GH 可能还在加载
@@ -288,10 +299,10 @@ namespace CityLBM.Components.Simulation
                 settings.EnableSyntheticTurbulentInlet = true;
                 settings.SyntheticTurbulenceIntensityScale = Math.Max(0.0, Math.Min(2.0, syntheticScale));
                 settings.SyntheticTurbulenceCorrelationCells = Math.Max(1.0, Math.Min(64.0, syntheticCorrCells));
-                settings.SyntheticTurbulenceUpdateInterval = 25;
-                settings.SyntheticTurbulenceMaxFractionOfMean = 0.35;
+                settings.SyntheticTurbulenceUpdateInterval = Math.Max(1, Math.Min(1000, syntheticUpdateInterval));
+                settings.SyntheticTurbulenceMaxFractionOfMean = Math.Max(0.05, Math.Min(0.80, syntheticMaxFraction));
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
-                    "[v0.3.0] STG-lite inlet enabled for CustomTable+k. Experimental; not full DFM/precursor/Reynolds-stress inflow.");
+                    $"[v0.3.0] STG-lite inlet enabled for CustomTable+k. Update={settings.SyntheticTurbulenceUpdateInterval}, cap={settings.SyntheticTurbulenceMaxFractionOfMean:F2}. Experimental; not full DFM/precursor/Reynolds-stress inflow.");
             }
 
             var solver = new FluidX3DInterface(fluidX3DPath);

@@ -27,8 +27,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Formal validation: `dx=2-3 m`, `steps>=10000`, save enough final VTK frames for time averaging
 - Use LES consistently and record `Cs`, viscosity, grid dimensions and GPU model.
 - For AF files with `k(m2/s2)`, enable `Run Simulation / Synthetic Inlet` only when testing the experimental STG-lite inlet.
-  Record `STG Scale`/synthetic scale, `STG Corr Cells`/correlation cells, and the generated `case_metadata.json` fields `SyntheticTurbulentInletRequested`
-  and `SyntheticTurbulentInletInjected`.
+  Record `STG Scale`/synthetic scale, `STG Corr Cells`/correlation cells, `STG Update`/pattern-update interval, `STG Max Frac`/amplitude cap,
+  and the generated `case_metadata.json` fields `SyntheticTurbulentInletRequested` and `SyntheticTurbulentInletInjected`.
 - Do not compare a single early VTK frame as a final result.
 - CityLBM v0.3.0 validation runs must use an explicit external FluidX3D source path in `Run Simulation / FX3D`.
   The legacy bundled v0.5.0 fallback is disabled for controlled validation because it is not the baseline.
