@@ -77,8 +77,8 @@ namespace CityLBM.Components.Simulation
             // 物理参数
             pManager.AddNumberParameter("Wind Speed", "WS", "入口风速 (m/s)，0 = 使用 Scene 默认", GH_ParamAccess.item, 0.0);
             pManager.AddNumberParameter("Viscosity", "nu", "运动粘度 (m²/s)", GH_ParamAccess.item, 1.5e-5);
-            pManager.AddIntegerParameter("Time Steps", "T", "总模拟步数（推荐 1000~3000，稳态风场不需要太多步）", GH_ParamAccess.item, 2000);
-            pManager.AddIntegerParameter("Save Interval", "SI", "VTK 输出间隔（步数，增大可减少磁盘 IO）", GH_ParamAccess.item, 1000);
+            pManager.AddIntegerParameter("Time Steps", "T", "Total solver steps. Validation default is 10000; use lower values only for smoke tests.", GH_ParamAccess.item, 10000);
+            pManager.AddIntegerParameter("Save Interval", "SI", "VTK output interval in steps. Validation default is 500 to provide enough frames for time averaging.", GH_ParamAccess.item, 500);
 
             // ── v0.2.0: Smagorinsky LES 亚格子模型参数 ──
             pManager.AddBooleanParameter("Enable LES", "LES",
@@ -130,7 +130,7 @@ namespace CityLBM.Components.Simulation
             int mode = 3;
             double windSpeedOverride = 0.0;
             double viscosity = 1.5e-5;
-            int timeSteps = 5000;
+            int timeSteps = 10000;
             int saveInterval = 500;
             bool run = false;
             bool cancel = false;

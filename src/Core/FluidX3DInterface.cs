@@ -2303,7 +2303,7 @@ namespace CityLBM.Solver
                         ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                         : 0,
                     TimeAveragingRequiredForValidation = true,
-                    MinimumRecommendedAveragingFrames = 8,
+                    MinimumRecommendedAveragingFrames = 10,
                     CustomProfileHasK = hasK,
                     KColumnStatus = hasK ? "read_from_csv_and_converted_to_lbm_metadata" : "not_available",
                     KUnitConversion = "k_lbm = k_m2s2 * VelocityScaleMpsToLbm^2",
@@ -2554,7 +2554,7 @@ namespace CityLBM.Solver
             int expectedFrames = settings.SaveInterval > 0
                 ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                 : 0;
-            if (expectedFrames < 8)
+            if (expectedFrames < 10)
                 yield return $"Only {expectedFrames} VTK frames are expected; formal validation should average a longer statistically stationary window.";
 
             yield return "Coordinate transform, wind component sign, probe projection and normalization basis must be audited for each validation run.";
@@ -2638,7 +2638,7 @@ namespace CityLBM.Solver
                         ExpectedVtkFrameCount = settings.SaveInterval > 0
                             ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                             : 0,
-                        MinimumRecommendedAveragingFrames = 8,
+                        MinimumRecommendedAveragingFrames = 10,
                         WindProfile = scene.WindProfile.ToString(),
                         WindProfileCsvPath = scene.WindProfileCsvPath ?? "",
                         WindDirectionUnitVector = new
@@ -2830,9 +2830,9 @@ namespace CityLBM.Solver
             yield return new ValidationProtocolAuditItem
             {
                 Key = "time_averaging",
-                Status = expectedFrames >= 8 ? "partial" : "risk",
+                Status = expectedFrames >= 10 ? "partial" : "risk",
                 Evidence = $"TimeSteps={settings.TimeSteps}, SaveInterval={settings.SaveInterval}, ExpectedVtkFrameCount={expectedFrames}.",
-                Risk = expectedFrames >= 8
+                Risk = expectedFrames >= 10
                     ? "Frame count is sufficient for a minimum averaging workflow, but stationarity still must be proven from actual VTK/logs."
                     : "Too few VTK frames for robust time averaging; a single or short-window field can bias validation metrics.",
                 RequiredNextAction = "Use Read VTK Average Last N and archive the actual SourceTimeSteps used for metrics."
@@ -3281,8 +3281,8 @@ namespace CityLBM.Solver
     {
         public double Viscosity { get; set; } = 1.5e-5;  // 空气运动粘度 (m²/s)
         public double Density { get; set; } = 1.225;     // 空气密度 (kg/m³)
-        public int TimeSteps { get; set; } = 2000;       // 总模拟步数（默认 2000，稳态风场足够）
-        public int SaveInterval { get; set; } = 1000;    // VTK 输出间隔（默认 1000，减少磁盘 IO）
+        public int TimeSteps { get; set; } = 10000;      // validation-oriented default; lower values are smoke tests only
+        public int SaveInterval { get; set; } = 500;     // writes enough frames for minimum time averaging
 
         public double InletVelocityX { get; set; }
         public double InletVelocityY { get; set; }

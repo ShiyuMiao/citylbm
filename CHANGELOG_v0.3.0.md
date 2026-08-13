@@ -15,6 +15,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `Read VTK` adds `Average Last N` so validation workflows can output an explicit multi-frame time-averaged velocity field instead of a single instantaneous VTK frame.
 - `Read VTK` now reports averaged-field stability diagnostics: mean speed, mean/max pointwise speed standard deviation,
   and mean/max relative fluctuation across the averaged VTK frames.
+- `Run Simulation` and `SimulationSettings` now default to `TimeSteps=10000` and `SaveInterval=500`, producing about
+  20 VTK frames for a minimum validation averaging workflow instead of short demo-only output.
 - `case_metadata.json` records protocol-risk fields: simplified boundary-condition summary, expected VTK frame count, required averaging, and validation-readiness status.
 - `Run Simulation` no longer falls back to the legacy bundled v0.5.0 solver when no external FluidX3D path is provided; controlled validation must use an explicit external FluidX3D baseline.
 - `Run Simulation` adds an optional experimental `Synthetic Inlet` control for CustomTable profiles with `k`.
@@ -53,6 +55,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native FluidX3D Case A strict baseline must be run with the same geometry, inflow, averaging window and measurement extraction.
 - If native FluidX3D is significantly closer to AIJ measurements, the same settings must be ported into CityLBM.
 - Case E should then be run with dx=2-3 m, long time averaging and the official AF/RS files.
+- The new default `10000/500` run is still a minimum validation workflow, not final stationarity proof; paper runs must
+  archive actual averaged source frames, stability diagnostics and solver logs.
 - The SEM-lite inlet is not a full digital-filter, precursor/recycling, or Reynolds-stress method; it lacks Reynolds-stress tensors, turbulent length scales and validated precursor inflow.
 - The SEM-lite inlet is velocity-field-only in v0.3.0. It remains diagnostic until empty-tunnel tests prove downstream
   `U/k` preservation or the inlet is replaced by a distribution-consistent DFM/SEM/precursor/recycling implementation.

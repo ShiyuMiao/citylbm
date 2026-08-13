@@ -42,7 +42,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
 4. Time-averaging gate.
    Do not report a single instantaneous VTK frame as validation. Archive post-spinup probe time means and, when VTK is
    used for visualization, at least 10 post-spinup VTK frames or an explicit averaged VTK field with the source frame
-   list.
+   list. CityLBM v0.3.0 defaults to `TimeSteps=10000` and `SaveInterval=500` so new cases produce about 20 VTK frames;
+   shorter runs must be labelled smoke tests.
 
 5. Probe audit gate.
    Probe extraction must record official point IDs, coordinates, selected velocity component, `Uref`, nearest VTK/probe
