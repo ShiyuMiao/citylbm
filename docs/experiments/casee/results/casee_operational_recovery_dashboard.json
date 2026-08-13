@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T04:27:27.914408+00:00",
+    "generated_at": "2026-08-13T04:35:53.334566+00:00",
     "evidence_type": "newly_run",
     "claim_readiness": "operational_recovery_ready; blocked official run and formal release",
     "operational_recovery_dashboard_passed": true,
@@ -20,7 +20,7 @@
       "OP004_gpu_recovery",
       "OP006_official_followup_preflight"
     ],
-    "recommended_tag": "v0.4.0-rc73",
+    "recommended_tag": "v0.4.0-rc74",
     "formal_release_allowed": false,
     "formal_accuracy_claim_supported": false,
     "boundary": "This dashboard aggregates existing recovery gates and commands only. It does not free disk space, install tools, recover GPU runtime, load Rhino, run FluidX3D, alter solver defaults, improve official metrics, or permit formal v0.4.0."
@@ -32,7 +32,7 @@
       "status": "blocked",
       "blocks_long_run": true,
       "evidence_path": "docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json",
-      "current_fact": "C: free=1.52 GB; needed=8.0 GB; shortfall=6.48 GB",
+      "current_fact": "C: free=1.515 GB; needed=8.0 GB; shortfall=6.485 GB",
       "next_action": "Free system-drive space manually until C: has at least 8 GB free.",
       "verification_command": "python docs/experiments/casee/tools/vs_cpp_system_drive_space_gate.py",
       "paper_use": "Operational blocker evidence only."

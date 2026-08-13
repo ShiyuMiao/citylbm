@@ -69,6 +69,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc71.md",
     "docs/releases/v0.4.0-rc72.md",
     "docs/releases/v0.4.0-rc73.md",
+    "docs/releases/v0.4.0-rc74.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -117,6 +118,8 @@ RESULT_PATTERNS = [
     "rhino_gha_load_manifest.template.json",
     "casee_reproducibility_suite.json",
     "casee_reproducibility_suite.md",
+    "casee_release_bundle_manifest.*",
+    "casee_release_bundle.zip",
     "casee_paper_appendix_manifest.json",
     "casee_official_run_preflight.*",
     "citylbm_gpu_runtime_failfast_gate.*",
@@ -169,6 +172,7 @@ TOOL_SCRIPTS = [
     "casee_claim_support_gate.py",
     "casee_publication_readiness_gate.py",
     "casee_release_asset_manifest.py",
+    "casee_release_bundle_gate.py",
     "citylbm_gha_install_audit.py",
     "casee_official_run_preflight.py",
     "citylbm_gpu_runtime_failfast_gate.py",
@@ -762,6 +766,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc71.md",
                 "v0.4.0-rc72.md",
                 "v0.4.0-rc73.md",
+                "v0.4.0-rc74.md",
             )
         )
     ]

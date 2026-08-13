@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc74 - Deterministic lightweight release bundle
+
+- Added a release bundle gate that packages the curated lightweight Case E release assets into a deterministic zip archive.
+- The bundle verifies each included file against `casee_release_asset_manifest.json` and excludes raw geometry, VTK outputs, 3dm models, optional logs, and hash-only external references.
+- The bundle is release-packaging evidence only; it does not create a GitHub Release or change official Case E metrics.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc73 - Deterministic GHA build stability gate
 
 - Enabled deterministic C# build metadata and fixed plugin assembly/file/informational versions for the `0.4.0-rc` line.
