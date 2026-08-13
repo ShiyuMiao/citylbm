@@ -48,8 +48,9 @@ AIJ Case E is treated as a paper-grade validation experiment.
 5. Time-averaging gate.
    Do not report a single instantaneous VTK frame as validation. Archive post-spinup probe time means and, when VTK is
    used for visualization, at least 10 post-spinup VTK frames or an explicit averaged VTK field with the source frame
-   list. CityLBM v0.3.0 defaults to `TimeSteps=10000` and `SaveInterval=500` so new cases produce about 20 VTK frames;
-   shorter runs must be labelled smoke tests.
+   list. For CityLBM post-processing, save the `Read VTK` `Averaging Audit` JSON output and pass it into the metrics
+   builder. CityLBM v0.3.0 defaults to `TimeSteps=10000` and `SaveInterval=500` so new cases produce about 20 VTK
+   frames; shorter runs must be labelled smoke tests.
 
 6. Probe audit gate.
    Probe extraction must record official point IDs, coordinates, selected velocity component, `Uref`, nearest VTK/probe
@@ -92,7 +93,7 @@ python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluid
 If metrics are produced from Grasshopper `Data Probe`, build the metrics row first:
 
 ```powershell
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --read-vtk-audit <read_vtk_averaging_audit.json> --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
 
 For a CityLBM-driven parity run, change `--software citylbm` and keep the same metrics/probe schema. A passing paper-grade

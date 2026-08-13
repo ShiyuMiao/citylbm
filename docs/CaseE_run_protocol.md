@@ -49,8 +49,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   Treat any `risk` or `fail` item as a blocker for paper-grade validation claims until resolved or explicitly justified.
 - VTK files are newly generated for the current run directory, not copied from older experiments.
 - Post-processing reads the final averaged velocity field, not an initial transient.
-  In `Read VTK`, set `Average Last N > 0` and record the actual averaged source time steps printed in the Info output.
-  Also archive the reported mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation.
+  In `Read VTK`, set `Average Last N > 0` and archive the `Averaging Audit` JSON output.
+  This JSON records the actual averaged frame count, source time steps, mean speed, mean/max pointwise speed standard
+  deviation and mean/max relative fluctuation.
   A short window with large residual fluctuation is diagnostic only and must not be treated as paper-grade time averaging.
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
 - The probe audit table must contain official point number, original coordinate, interpolation distance,
@@ -74,7 +75,7 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Convert the `Data Probe` audit table and official `RS_caseE.csv` subset into a standard metrics row:
 
 ```powershell
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
 ```
 
 - Run the machine gate after postprocessing:

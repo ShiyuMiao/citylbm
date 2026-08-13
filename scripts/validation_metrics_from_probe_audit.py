@@ -100,6 +100,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out", required=True, help="Output metrics CSV path.")
     parser.add_argument("--comparison-out", help="Optional per-probe comparison CSV.")
     parser.add_argument("--metadata", help="Optional case_metadata.json.")
+    parser.add_argument("--read-vtk-audit", help="Optional Read VTK Averaging Audit JSON.")
     parser.add_argument("--case", default="", help="Case label to write and optionally filter official rows.")
     parser.add_argument("--wind-direction", default="", help="Wind direction label to write and optionally filter official rows.")
     parser.add_argument("--software", default="citylbm")
@@ -115,6 +116,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--save-interval", type=int, default=None)
     parser.add_argument("--averaging-window", type=int, default=None)
     parser.add_argument("--source-time-steps", default="")
+    parser.add_argument("--mean-speed", type=float, default=None)
+    parser.add_argument("--mean-speed-stddev", type=float, default=None)
+    parser.add_argument("--max-speed-stddev", type=float, default=None)
+    parser.add_argument("--mean-speed-stddev-ratio", type=float, default=None)
+    parser.add_argument("--max-speed-stddev-ratio", type=float, default=None)
     parser.add_argument("--profile-csv", default="")
     parser.add_argument("--geometry-scale", default="")
     parser.add_argument("--empty-tunnel-gate", default="")
@@ -311,6 +317,31 @@ def nested(metadata: Dict[str, Any], parent: str, key: str) -> str:
     return ""
 
 
+def audit_float(audit: Dict[str, Any], key: str) -> Optional[float]:
+    return as_float(audit.get(key))
+
+
+def audit_int(audit: Dict[str, Any], key: str) -> Optional[int]:
+    value = audit.get(key)
+    if value in (None, ""):
+        return None
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return None
+    return parsed
+
+
+def audit_source_steps(audit: Dict[str, Any]) -> str:
+    csv_value = audit.get("source_time_steps_csv")
+    if csv_value not in (None, ""):
+        return str(csv_value)
+    steps = audit.get("source_time_steps")
+    if isinstance(steps, list):
+        return ",".join(str(step) for step in steps)
+    return ""
+
+
 def main() -> int:
     args = parse_args()
     probe_path = Path(args.probe_audit).resolve()
@@ -318,6 +349,7 @@ def main() -> int:
     out_path = Path(args.out).resolve()
     comparison_path = Path(args.comparison_out).resolve() if args.comparison_out else None
     metadata = read_json(Path(args.metadata).resolve() if args.metadata else None)
+    read_vtk_audit = read_json(Path(args.read_vtk_audit).resolve() if args.read_vtk_audit else None)
 
     probe_rows = read_csv(probe_path)
     official_rows = filter_official(read_csv(official_path), args.case, args.wind_direction)
@@ -421,6 +453,15 @@ def main() -> int:
         systematic_flag = "underprediction" if u_bias < 0 else "overprediction"
 
     boundary_audit = metadata.get("BoundaryProtocolAudit") if isinstance(metadata.get("BoundaryProtocolAudit"), dict) else {}
+    averaging_window = args.averaging_window
+    if averaging_window is None:
+        averaging_window = audit_int(read_vtk_audit, "averaged_frame_count")
+    source_time_steps = args.source_time_steps or audit_source_steps(read_vtk_audit)
+    mean_speed = args.mean_speed if args.mean_speed is not None else audit_float(read_vtk_audit, "mean_speed_mps")
+    mean_speed_stddev = args.mean_speed_stddev if args.mean_speed_stddev is not None else audit_float(read_vtk_audit, "mean_speed_stddev_mps")
+    max_speed_stddev = args.max_speed_stddev if args.max_speed_stddev is not None else audit_float(read_vtk_audit, "max_speed_stddev_mps")
+    mean_speed_stddev_ratio = args.mean_speed_stddev_ratio if args.mean_speed_stddev_ratio is not None else audit_float(read_vtk_audit, "mean_speed_stddev_ratio")
+    max_speed_stddev_ratio = args.max_speed_stddev_ratio if args.max_speed_stddev_ratio is not None else audit_float(read_vtk_audit, "max_speed_stddev_ratio")
     metrics = {field: "" for field in TEMPLATE_FIELDS}
     metrics.update(
         {
@@ -431,8 +472,13 @@ def main() -> int:
             "dx_m": fmt(args.dx),
             "steps": fmt(args.steps),
             "save_interval": fmt(args.save_interval),
-            "averaging_window": fmt(args.averaging_window),
-            "source_time_steps": args.source_time_steps,
+            "averaging_window": fmt(averaging_window),
+            "source_time_steps": source_time_steps,
+            "mean_speed_mps": fmt(mean_speed),
+            "mean_speed_stddev_mps": fmt(mean_speed_stddev),
+            "max_speed_stddev_mps": fmt(max_speed_stddev),
+            "mean_speed_stddev_ratio": fmt(mean_speed_stddev_ratio),
+            "max_speed_stddev_ratio": fmt(max_speed_stddev_ratio),
             "profile_csv": args.profile_csv,
             "geometry_scale": args.geometry_scale,
             "Uref_mps": fmt(args.u_ref),

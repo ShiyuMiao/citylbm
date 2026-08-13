@@ -118,6 +118,10 @@ namespace CityLBM.Components.Results
             pManager.AddTextParameter("Log", "Log",
                 "详细执行日志（用于调试和问题诊断）",
                 GH_ParamAccess.item);
+
+            pManager.AddTextParameter("Averaging Audit", "AvgAudit",
+                "Machine-readable JSON audit for VTK time averaging and stability metrics.",
+                GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -376,7 +380,7 @@ namespace CityLBM.Components.Results
             if (_cachedResults != null && _cachedKey == cacheKey)
             {
                 // 缓存命中，直接输出（包括上次的 Info）
-                OutputCachedResults(DA, _cachedResults, _cachedSpacing, _cachedInfo, physicalScene, logger);
+                OutputCachedResults(DA, _cachedResults, _cachedSpacing, _cachedInfo, physicalScene, logger, averageLastN);
                 return;
             }
 
@@ -455,14 +459,15 @@ namespace CityLBM.Components.Results
             // 构建 Info 并缓存
             _cachedInfo = BuildInfoText(_cachedResults, detectedSpacing, subsampleSpacing, manualStep, step, averageLastN);
 
-            OutputCachedResults(DA, _cachedResults, detectedSpacing, _cachedInfo, physicalScene, logger);
+            OutputCachedResults(DA, _cachedResults, detectedSpacing, _cachedInfo, physicalScene, logger, averageLastN);
         }
 
         // ══════════════════════════════════════════════════════════════
         // 输出缓存结果（提取为独立方法，避免重复代码）
         // ══════════════════════════════════════════════════════════════
         private void OutputCachedResults(IGH_DataAccess DA, List<VTKResult> results,
-            double detectedSpacing, string infoText, Core.Scene physicalScene, ComponentLogger logger)
+            double detectedSpacing, string infoText, Core.Scene physicalScene, ComponentLogger logger,
+            int averageLastN)
         {
             List<Point3d>  allPoints      = new List<Point3d>();
             List<Vector3d> allVelocities  = new List<Vector3d>();
@@ -518,6 +523,60 @@ namespace CityLBM.Components.Results
             // 输出详细日志
             logger.Finish();
             DA.SetData(6, logger.GetLog());
+            DA.SetData(7, BuildAveragingAuditJson(results, averageLastN, detectedSpacing));
+        }
+
+        private string BuildAveragingAuditJson(List<VTKResult> results, int averageLastN, double detectedSpacing)
+        {
+            var safeResults = results ?? new List<VTKResult>();
+            VTKResult averaged = safeResults.Count == 1 ? safeResults[0] : null;
+            bool hasAveragedField = averageLastN > 0 && averaged != null && averaged.AveragedFrameCount > 0;
+            List<int> sourceSteps = hasAveragedField && averaged.SourceTimeSteps != null && averaged.SourceTimeSteps.Count > 0
+                ? averaged.SourceTimeSteps.OrderBy(t => t).ToList()
+                : safeResults
+                    .Where(r => r != null)
+                    .Select(r => r.TimeStep)
+                    .Distinct()
+                    .OrderBy(t => t)
+                    .ToList();
+
+            int averagedFrameCount = hasAveragedField ? averaged.AveragedFrameCount : 0;
+            var audit = new Dictionary<string, object>
+            {
+                { "schema_version", 1 },
+                { "component", "Read VTK" },
+                { "average_last_n_requested", averageLastN },
+                { "averaging_enabled", averageLastN > 0 },
+                { "averaged_frame_count", averagedFrameCount },
+                { "read_result_count", safeResults.Count },
+                { "source_time_steps", sourceSteps },
+                { "source_time_steps_csv", string.Join(",", sourceSteps) },
+                { "grid_spacing_m", JsonMetric(detectedSpacing) },
+                { "mean_speed_mps", averaged != null ? JsonMetric(averaged.MeanSpeed) : null },
+                { "mean_speed_stddev_mps", averaged != null ? JsonMetric(averaged.MeanSpeedStdDev) : null },
+                { "max_speed_stddev_mps", averaged != null ? JsonMetric(averaged.MaxSpeedStdDev) : null },
+                { "mean_speed_stddev_ratio", averaged != null ? JsonMetric(averaged.MeanSpeedStdDevRatio) : null },
+                { "max_speed_stddev_ratio", averaged != null ? JsonMetric(averaged.MaxSpeedStdDevRatio) : null },
+                { "time_averaging_gate_hint", BuildAveragingGateHint(averageLastN, averagedFrameCount) }
+            };
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(audit, Newtonsoft.Json.Formatting.Indented);
+        }
+
+        private string BuildAveragingGateHint(int averageLastN, int averagedFrameCount)
+        {
+            if (averageLastN <= 0)
+                return "instantaneous_or_unaveraged";
+            if (averagedFrameCount >= 10)
+                return "candidate_time_average";
+            if (averagedFrameCount > 0)
+                return "short_time_average_diagnostic";
+            return "no_averaged_frames";
+        }
+
+        private double? JsonMetric(double value)
+        {
+            return double.IsNaN(value) || double.IsInfinity(value) ? (double?)null : value;
         }
 
         private string BuildInfoText(List<VTKResult> results, double detectedSpacing,
