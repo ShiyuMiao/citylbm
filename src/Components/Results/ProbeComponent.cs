@@ -230,7 +230,7 @@ namespace CityLBM.Components.Results
                     "Compared Component uses streamwise velocity but Wind Direction is missing or invalid.");
             }
 
-            // 验证数据一致性
+            // Validate data consistency before building the interpolation field.
             if (fieldPoints.Count != fieldVelocities.Count)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,

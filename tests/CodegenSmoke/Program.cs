@@ -104,6 +104,7 @@ namespace CityLBM.CodegenSmoke
                 Require(audit, "diagnostic_clearance_ok_verify_against_aij");
 
                 TestFluidX3DSourceValidation();
+                TestProbeComponentSourceGuard();
 
                 Console.WriteLine("Codegen smoke passed.");
                 Console.WriteLine(caseDir);
@@ -201,6 +202,48 @@ namespace CityLBM.CodegenSmoke
             File.WriteAllText(Path.Combine(src, "lbm.hpp"), "// lbm hpp");
             File.WriteAllText(Path.Combine(src, "lbm.cpp"), "// lbm cpp");
             return root;
+        }
+
+        private static void TestProbeComponentSourceGuard()
+        {
+            string repoRoot = FindRepositoryRoot();
+            string probePath = Path.Combine(repoRoot, "src", "Components", "Results", "ProbeComponent.cs");
+            string[] lines = File.ReadAllLines(probePath);
+            bool hasExecutableGuard = false;
+            foreach (string line in lines)
+            {
+                string trimmed = line.TrimStart();
+                if (trimmed.StartsWith("//", StringComparison.Ordinal) &&
+                    trimmed.Contains("if (fieldPoints.Count != fieldVelocities.Count)"))
+                {
+                    throw new InvalidOperationException("Probe count guard is commented out in ProbeComponent.cs.");
+                }
+
+                if (trimmed.StartsWith("if (fieldPoints.Count != fieldVelocities.Count)", StringComparison.Ordinal))
+                {
+                    hasExecutableGuard = true;
+                }
+            }
+
+            if (!hasExecutableGuard)
+                throw new InvalidOperationException("ProbeComponent.cs is missing executable Points/Velocity count validation.");
+        }
+
+        private static string FindRepositoryRoot()
+        {
+            string current = Directory.GetCurrentDirectory();
+            while (!string.IsNullOrEmpty(current))
+            {
+                if (File.Exists(Path.Combine(current, "CityLBM.csproj")) &&
+                    Directory.Exists(Path.Combine(current, "src")))
+                {
+                    return current;
+                }
+
+                current = Directory.GetParent(current)?.FullName;
+            }
+
+            throw new DirectoryNotFoundException("Could not locate CityLBM repository root.");
         }
     }
 }
