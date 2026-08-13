@@ -1,0 +1,16 @@
+kind,name,passed
+gate_check,tracked_gha_exists,True
+gate_check,release_gha_exists,True
+gate_check,tracked_gha_matches_release_gha,True
+gate_check,source_component_gate_passed,True
+gate_check,all_required_markers_present_in_tracked_gha,True
+binary_marker,CaseEPostRunAuditComponent,True
+binary_marker,Case E Post-run Audit,True
+binary_marker,Audit Command,True
+binary_marker,Ready For Official Audit,True
+binary_marker,Formal Result Allowed Now,True
+binary_marker,Candidate SHA256,True
+binary_marker,raw_trilinear,True
+binary_marker,casee_audit.py,True
+binary_marker,does not permit formal v0.4.0,True
+binary_marker,19B94D68-EB71-41C0-B4AB-35DAFECE4079,True

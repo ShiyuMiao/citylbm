@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T06:07:56.481368+00:00",
+  "generated_at": "2026-08-13T07:43:04.087820+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_packaged_gha_identity_component",
   "plugin_identity_binary_gate_passed": true,
@@ -7,9 +7,9 @@
   "formal_release_allowed": false,
   "tracked_gha_path": "CityLBM/bin/CityLBM.gha",
   "release_gha_path": "CityLBM/bin/Release/CityLBM.gha",
-  "tracked_gha_sha256": "1c3d08567a8d2a6a6c928b1d3183601d6c5444de53d4707910bb47066927d098",
-  "release_gha_sha256": "1c3d08567a8d2a6a6c928b1d3183601d6c5444de53d4707910bb47066927d098",
-  "tracked_gha_size_bytes": 1823744,
+  "tracked_gha_sha256": "8ab2ed7a96c06aa8bc2ec23db9185a2dc1ceaa1aff637a02939dc8b8faa15fb3",
+  "release_gha_sha256": "8ab2ed7a96c06aa8bc2ec23db9185a2dc1ceaa1aff637a02939dc8b8faa15fb3",
+  "tracked_gha_size_bytes": 1838080,
   "required_markers": {
     "PluginIdentityComponent": true,
     "Plugin Identity": true,

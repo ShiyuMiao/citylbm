@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc79 - Case E post-run audit component
+
+- Added a Grasshopper `Case E Post-run Audit` component under `CityLBM > Results` so completed Case E candidate CSVs can be checked against the official z=2 m raw_trilinear handoff rules before paper use.
+- The component outputs the required `casee_audit.py` command, claim-readiness state, candidate SHA256, structural gate flag, and a Panel-ready protocol report.
+- Added source and packaged-GHA gates for the component and integrated them into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF055.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc78 - Post-run official audit handoff
 
 - Added a fail-closed post-run handoff that checks whether a newly completed Case E `casee_probe_time_mean.csv` is structurally ready for the official z=2 m raw_trilinear audit.

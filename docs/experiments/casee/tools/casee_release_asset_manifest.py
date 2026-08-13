@@ -6,6 +6,8 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
@@ -37,6 +39,7 @@ ALWAYS_INCLUDE = {
     "docs/releases/v0.4.0-rc76.md",
     "docs/releases/v0.4.0-rc77.md",
     "docs/releases/v0.4.0-rc78.md",
+    "docs/releases/v0.4.0-rc79.md",
     "docs/experiments/casea/results/casea_smoke_regression.json",
     "docs/experiments/casea/results/casea_vtk_manifest.csv",
     "docs/experiments/casee/data_manifest.csv",
@@ -66,6 +69,12 @@ ALWAYS_INCLUDE = {
     "docs/experiments/casee/results/casee_postrun_official_audit_handoff.json",
     "docs/experiments/casee/results/casee_postrun_official_audit_handoff.csv",
     "docs/experiments/casee/results/casee_postrun_official_audit_handoff.md",
+    "docs/experiments/casee/results/citylbm_casee_postrun_audit_component_gate.json",
+    "docs/experiments/casee/results/citylbm_casee_postrun_audit_component_gate.csv",
+    "docs/experiments/casee/results/citylbm_casee_postrun_audit_component_gate.md",
+    "docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.json",
+    "docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.csv",
+    "docs/experiments/casee/results/citylbm_casee_postrun_audit_binary_gate.md",
     "docs/experiments/casee/results/casee_claim_support_gate.json",
     "docs/experiments/casee/results/casee_claim_support_gate.md",
     "docs/experiments/casee/results/casee_publication_readiness_gate.json",
@@ -136,6 +145,32 @@ def file_metadata(path: str) -> Dict[str, Any]:
         "sha256": digest.hexdigest(),
         "git_tracked": "generated_or_unindexed",
     }
+
+
+def write_text_retry(path: Path, text: str, *, attempts: int = 6) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    last_error: OSError | None = None
+    for attempt in range(attempts):
+        try:
+            path.write_text(text, encoding="utf-8")
+            return
+        except OSError as exc:
+            last_error = exc
+            time.sleep(0.2 * (attempt + 1))
+    tmp_path = path.with_name(f".{path.name}.tmp-{os.getpid()}")
+    try:
+        tmp_path.write_text(text, encoding="utf-8")
+        tmp_path.replace(path)
+        return
+    except OSError:
+        if tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
+        if last_error is not None:
+            raise last_error
+        raise
 
 
 def release_asset_kind(path: str) -> str:
@@ -310,11 +345,36 @@ def write_csv(path: Path, rows: List[Dict[str, Any]]) -> None:
         "exclusion_reason",
     ]
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in rows:
-            writer.writerow({key: row.get(key, "") for key in fieldnames})
+    last_error: OSError | None = None
+    for attempt in range(6):
+        try:
+            with path.open("w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                for row in rows:
+                    writer.writerow({key: row.get(key, "") for key in fieldnames})
+            return
+        except OSError as exc:
+            last_error = exc
+            time.sleep(0.2 * (attempt + 1))
+    tmp_path = path.with_name(f".{path.name}.tmp-{os.getpid()}")
+    try:
+        with tmp_path.open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for row in rows:
+                writer.writerow({key: row.get(key, "") for key in fieldnames})
+        tmp_path.replace(path)
+        return
+    except OSError:
+        if tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
+        if last_error is not None:
+            raise last_error
+        raise
 
 
 def write_markdown(path: Path, summary: Dict[str, Any], rows: List[Dict[str, Any]]) -> None:
@@ -356,7 +416,7 @@ def write_markdown(path: Path, summary: Dict[str, Any], rows: List[Dict[str, Any
         "",
         summary["boundary"],
     ]
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    write_text_retry(path, "\n".join(lines) + "\n")
 
 
 def main() -> int:
@@ -365,7 +425,7 @@ def main() -> int:
     rows = build_rows(artifact_index, str(release_gate.get("recommended_tag", "")))
     summary = summarize(rows, release_gate)
     payload = {"summary": summary, "assets": rows}
-    OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    write_text_retry(OUT_JSON, json.dumps(payload, indent=2))
     write_csv(OUT_CSV, rows)
     write_markdown(OUT_MD, summary, rows)
     print(json.dumps({"release_asset_manifest_passed": summary["release_asset_manifest_passed"], "out_json": rel(OUT_JSON)}, indent=2))

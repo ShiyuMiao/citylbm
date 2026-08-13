@@ -1,6 +1,6 @@
 # C004 dx=3 Low-Cost Direction Check Audit
 
-Generated: 2026-08-13T06:08:10.398939+00:00
+Generated: 2026-08-13T07:43:18.387898+00:00
 
 ## Verdict
 

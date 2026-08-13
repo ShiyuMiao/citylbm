@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-08-13T07:43:04.217073+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_casee_postrun_audit_component",
+  "casee_postrun_audit_component_gate_passed": true,
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "component_source_path": "CityLBM/src/Components/Results/CaseEPostRunAuditComponent.cs",
+  "checks": {
+    "component_source_exists": true,
+    "component_class_present": true,
+    "grasshopper_component_name_present": true,
+    "outputs_audit_command": true,
+    "outputs_claim_readiness": true,
+    "outputs_ready_gate": true,
+    "outputs_formal_result_allowed_false": true,
+    "outputs_candidate_sha256": true,
+    "requires_official_case_ac_n": true,
+    "requires_raw_trilinear": true,
+    "requires_80_probes": true,
+    "requires_steps_and_spinup": true,
+    "requires_official_columns": true,
+    "requires_manifest_and_complete_log": true,
+    "prints_casee_audit_command": true,
+    "blocks_formal_claims": true,
+    "component_guid_present": true
+  },
+  "boundary": "This gate checks the plugin source for a fail-closed Case E post-run audit handoff component. It is software protocol-control evidence only; it does not run CFD, update official metrics, or permit formal v0.4.0."
+}

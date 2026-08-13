@@ -1,11 +1,11 @@
 ﻿{
-    "generated_at":  "2026-08-13T06:07:59.5424987Z",
+    "generated_at":  "2026-08-13T07:43:07.5455174Z",
     "evidence_type":  "newly_run",
     "install_requested":  false,
     "install_attempted":  false,
     "vs_cpp_ready":  false,
     "current_user_is_admin":  false,
-    "system_drive_free_gb":  1.489,
+    "system_drive_free_gb":  1.477,
     "min_system_drive_free_gb":  8,
     "install_path":  "E:\\citylbm_buildchain\\VSBuildTools",
     "recommended_command":  "winget install --id Microsoft.VisualStudio.2022.BuildTools --source winget --accept-package-agreements --accept-source-agreements --silent --location E:\\citylbm_buildchain\\VSBuildTools --override \"--wait --quiet --norestart --installPath E:\\citylbm_buildchain\\VSBuildTools --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.Component.Windows11SDK.26100\"",

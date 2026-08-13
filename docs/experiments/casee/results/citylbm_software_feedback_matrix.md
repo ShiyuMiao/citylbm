@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-13T06:08:43.113036+00:00
+Generated: 2026-08-13T07:43:46.426119+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 54
+- Feedback rows: 55
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -53,6 +53,7 @@ Generated: 2026-08-13T06:08:43.113036+00:00
 - software_gha_staging_audit: 1
 - software_identity_component: 1
 - software_packaging_traceability_no_accuracy_promotion: 1
+- software_postrun_audit_component_no_accuracy_promotion: 1
 - software_publication_gate_output: 1
 - software_publication_readiness_contract: 1
 - software_quality_no_default_promotion: 1
@@ -119,6 +120,7 @@ Generated: 2026-08-13T06:08:43.113036+00:00
 | `SF043` | Experiment 2 / local orphan native candidate CSV audit | local_orphan_candidate_no_default_promotion | implemented_orphan_candidate_csv_audit | False | Local untracked native candidate CSVs are now inventoried by hash and metric summary before any paper use. The best raw candidate remains negative, and no candidate is formal-result eligible because complete run logs are absent. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
 | `SF054` | Experiment 2 / Case E post-run official audit handoff | postrun_official_audit_handoff_no_default_promotion | implemented_postrun_official_audit_handoff | True | A fail-closed post-run handoff now checks any newly completed Case E probe CSV for official z=2 m raw_trilinear audit readiness before it can be used in paper or release evidence. |
+| `SF055` | Experiment 2 / CityLBM plugin Case E post-run audit component | software_postrun_audit_component_no_accuracy_promotion | implemented_packaged_casee_postrun_audit_component | True | CityLBM now exposes a Grasshopper Case E Post-run Audit component that checks completed probe CSV readiness and prints the official casee_audit.py command before any accuracy claim. |
 
 ## Paper Boundary
 
@@ -178,6 +180,7 @@ Generated: 2026-08-13T06:08:43.113036+00:00
 | `SF043` | Use as local candidate inventory and protocol-risk evidence only. | The raw candidate CSVs are local/untracked and lack complete run logs; do not use them as formal validation, default-promotion evidence, or formal v0.4.0 support. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
 | `SF054` | Use as protocol-control evidence for accepting future post-run Case E CSVs into the formal audit path. | Handoff evidence only; it does not run FluidX3D, update official metrics, promote diagnostics, change defaults, or permit formal v0.4.0. |
+| `SF055` | Use as software protocol-control evidence that post-run Case E candidates are gated before paper claims. | Plugin component evidence only; it does not run FluidX3D, compute R2, update official metrics, improve z2m accuracy, or permit formal v0.4.0. |
 
 ## Boundary
 
