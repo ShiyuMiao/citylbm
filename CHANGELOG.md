@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc72 - Grasshopper GHA staging evidence
+
+- Staged the current tracked `CityLBM/bin/CityLBM.gha` into the user's Grasshopper Libraries directory.
+- Verified the staged file SHA256 matches the tracked GHA SHA256 `0781aafe2041fdd68d73c80fd4872aa59f3dfafb94777e8630b6dfa1ba32c3c4`.
+- Re-ran the GHA install audit; `matching_gha_already_staged=true`.
+- Re-ran the fail-closed Rhino load gate and official-run preflight; Rhino process-load evidence, GPU runtime, and VS C++ readiness remain blocked.
+
+This is software-staging and reproducibility evidence only. It does not prove Rhino/Grasshopper loaded the plugin, run FluidX3D, improve official z=2 m metrics, or permit formal `v0.4.0`.
+
 ## v0.4.0-rc71 - Canonical GHA packaging path
 
 - Fixed `CityLBM/build.ps1` so the packaged Grasshopper artifact is the merged `bin/Release/CityLBM.gha`, not an unmerged DLL copied into `bin/Release/CityLBM/CityLBM.gha`.

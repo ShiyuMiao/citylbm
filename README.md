@@ -126,6 +126,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_operational_recovery_dashboard.md`
 - `docs/experiments/casee/results/casee_orphan_candidate_csv_audit.json`
 - `docs/experiments/casee/results/casee_orphan_candidate_csv_audit.md`
+- `docs/releases/v0.4.0-rc72.md`
 - `docs/releases/v0.4.0-rc71.md`
 - `docs/releases/v0.4.0-rc70.md`
 - `docs/releases/v0.4.0-rc69.md`

@@ -1,12 +1,12 @@
 # Case E Reproducibility Suite
 
-Generated: 2026-08-11T03:43:38.504609+00:00
+Generated: 2026-08-13T04:19:19.610900+00:00
 
 ## Verdict
 
 - Suite passed: True
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc69`
+- Recommended tag: `v0.4.0-rc72`
 
 ## Official z=2 m Metric
 
@@ -16,8 +16,8 @@ Generated: 2026-08-11T03:43:38.504609+00:00
 
 ## Artifact Index
 
-- Artifact count: 377
-- Lightweight release assets: 305
+- Artifact count: 380
+- Lightweight release assets: 308
 - Formal accuracy claim supported: False
 
 ## Build Chain
@@ -32,8 +32,6 @@ Generated: 2026-08-11T03:43:38.504609+00:00
 
 | step | returncode | passed |
 |---|---:|---:|
-| citylbm_release_build | 0 | True |
-| sync_tracked_gha |  | True |
 | casee_audit | 0 | True |
 | build_chain_audit | 0 | True |
 | sync_tracked_gha |  | True |

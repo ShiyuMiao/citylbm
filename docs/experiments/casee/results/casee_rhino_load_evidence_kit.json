@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-08-13T04:06:08.405038+00:00",
+  "generated_at": "2026-08-13T04:18:55.299087+00:00",
   "evidence_type": "newly_run",
-  "claim_readiness": "blocked_rhino_evidence_kit",
-  "rhino_load_evidence_kit_ready": false,
+  "claim_readiness": "author_input_needed_manual_rhino_load",
+  "rhino_load_evidence_kit_ready": true,
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
   "expected_plugin_public_version": "0.4.0-rc",
-  "expected_tracked_gha_sha256": "79ee34f1ef7632404944943c897e7dbedaa2b1262686651027ff0482dfd85118",
+  "expected_tracked_gha_sha256": "0781aafe2041fdd68d73c80fd4872aa59f3dfafb94777e8630b6dfa1ba32c3c4",
   "tracked_gha": {
     "found": true,
     "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\CityLBM.gha",
-    "sha256": "79ee34f1ef7632404944943c897e7dbedaa2b1262686651027ff0482dfd85118",
+    "sha256": "0781aafe2041fdd68d73c80fd4872aa59f3dfafb94777e8630b6dfa1ba32c3c4",
     "size_bytes": 1823744,
-    "mtime_utc": "2026-08-13T04:02:41.239787+00:00"
+    "mtime_utc": "2026-08-13T04:18:51.786346+00:00"
   },
   "rhino_candidates": [
     {
@@ -56,8 +56,8 @@
       "kind": "staged_gha",
       "path": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries\\CityLBM.gha",
       "found": true,
-      "sha256": "4ccad3995ea5c6812d96133f50765e4a0f02254ce2c54ebf42487151dc0f2a3b",
-      "matches_expected": false,
+      "sha256": "0781aafe2041fdd68d73c80fd4872aa59f3dfafb94777e8630b6dfa1ba32c3c4",
+      "matches_expected": true,
       "note": "candidate staged GHA"
     },
     {
@@ -87,13 +87,13 @@
   ],
   "manual_manifest_template_path": "docs/experiments/casee/results/rhino_gha_load_manifest.template.json",
   "manual_manifest_template": {
-    "checked_at": "2026-08-13T04:06:08.405038+00:00",
+    "checked_at": "2026-08-13T04:18:55.299025+00:00",
     "operator": "manual-operator-name",
     "rhino_version": "paste Rhino About/SystemInfo version string",
     "grasshopper_version": "paste Grasshopper version string",
     "observed_plugin_version": "0.4.0-rc",
     "observed_assembly_version": "0.4.0.0",
-    "observed_gha_sha256": "79ee34f1ef7632404944943c897e7dbedaa2b1262686651027ff0482dfd85118",
+    "observed_gha_sha256": "0781aafe2041fdd68d73c80fd4872aa59f3dfafb94777e8630b6dfa1ba32c3c4",
     "evidence_artifacts": [
       "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
       "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"
@@ -105,7 +105,7 @@
     "tracked_gha_exists": true,
     "tracked_gha_sha_available": true,
     "rhino_executable_detected": true,
-    "matching_gha_staged": false,
+    "matching_gha_staged": true,
     "install_audit_passed": true,
     "rhino_load_gate_fail_closed": true
   },

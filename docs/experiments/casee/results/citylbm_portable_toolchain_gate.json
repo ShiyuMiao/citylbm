@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-11T03:43:17.181034+00:00",
+  "generated_at": "2026-08-13T04:18:54.494453+00:00",
   "evidence_type": "newly_run",
   "portable_toolchain_gate_passed": true,
   "claim_readiness": "portable_toolchain_ready",
@@ -22,7 +22,7 @@
     "stderr_tail": ""
   },
   "activation": {
-    "generated_at": "2026-08-11T03:43:17.0937612Z",
+    "generated_at": "2026-08-13T04:18:54.4285756Z",
     "evidence_type": "newly_run",
     "install_attempted": false,
     "persist_user_path_requested": false,

@@ -1,6 +1,6 @@
 # AIJ Case E Validation Report
 
-Generated: 2026-08-13T04:05:01.519681+00:00
+Generated: 2026-08-13T04:18:42.892097+00:00
 
 ## Protocol
 
@@ -13,7 +13,7 @@ Generated: 2026-08-13T04:05:01.519681+00:00
 
 ## Metrics
 
-- Prediction source: `docs\experiments\casee\results\casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv`
+- Prediction source: `C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\docs\experiments\casee\results\casee_native_dx2_zcenter_gshift1_nu001_pmodes_probe_time_mean.csv`
 - n: 80
 - MAE: 21.111 percentage points
 - RMSE: 27.721 percentage points
@@ -107,7 +107,7 @@ Generated: 2026-08-13T04:05:01.519681+00:00
 
 - Release target: v0.4.0
 - Formal release allowed: False
-- Recommended tag: v0.4.0-rc71
+- Recommended tag: v0.4.0-rc72
 
 | Check | Status |
 |---|---:|

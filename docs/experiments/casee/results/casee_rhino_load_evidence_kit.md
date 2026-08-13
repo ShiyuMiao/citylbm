@@ -1,13 +1,13 @@
 # Case E Rhino/GHA Load Evidence Kit
 
-Generated: 2026-08-13T04:06:08.405038+00:00
+Generated: 2026-08-13T04:18:55.299087+00:00
 
 ## Verdict
 
-- Evidence kit ready: False
-- Claim readiness: `blocked_rhino_evidence_kit`
+- Evidence kit ready: True
+- Claim readiness: `author_input_needed_manual_rhino_load`
 - Expected plugin version: `0.4.0-rc`
-- Expected GHA SHA256: `79ee34f1ef7632404944943c897e7dbedaa2b1262686651027ff0482dfd85118`
+- Expected GHA SHA256: `0781aafe2041fdd68d73c80fd4872aa59f3dfafb94777e8630b6dfa1ba32c3c4`
 
 ## Checks
 
@@ -17,7 +17,7 @@ Generated: 2026-08-13T04:06:08.405038+00:00
 | `tracked_gha_exists` | True |
 | `tracked_gha_sha_available` | True |
 | `rhino_executable_detected` | True |
-| `matching_gha_staged` | False |
+| `matching_gha_staged` | True |
 | `install_audit_passed` | True |
 | `rhino_load_gate_fail_closed` | True |
 
@@ -36,13 +36,13 @@ Generated: 2026-08-13T04:06:08.405038+00:00
 
 ```json
 {
-  "checked_at": "2026-08-13T04:06:08.405038+00:00",
+  "checked_at": "2026-08-13T04:18:55.299025+00:00",
   "operator": "manual-operator-name",
   "rhino_version": "paste Rhino About/SystemInfo version string",
   "grasshopper_version": "paste Grasshopper version string",
   "observed_plugin_version": "0.4.0-rc",
   "observed_assembly_version": "0.4.0.0",
-  "observed_gha_sha256": "79ee34f1ef7632404944943c897e7dbedaa2b1262686651027ff0482dfd85118",
+  "observed_gha_sha256": "0781aafe2041fdd68d73c80fd4872aa59f3dfafb94777e8630b6dfa1ba32c3c4",
   "evidence_artifacts": [
     "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
     "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"
