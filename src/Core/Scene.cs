@@ -14,7 +14,16 @@ namespace CityLBM.Core
         /// <summary>幂律风廓线：U(z) = U_ref × (z / z_ref)^α</summary>
         PowerLaw = 1,
         /// <summary>对数律风廓线：U(z) = (u* / κ) × ln(z / z₀)</summary>
-        Logarithmic = 2
+        Logarithmic = 2,
+        CustomTable = 3
+    }
+
+    public class WindProfileSample
+    {
+        public double Z { get; set; }
+        public double U { get; set; }
+        public bool HasK { get; set; }
+        public double K { get; set; }
     }
 
     /// <summary>
@@ -77,6 +86,10 @@ namespace CityLBM.Core
         /// 风廓线类型（默认 Uniform 向后兼容）
         /// </summary>
         public WindProfileType WindProfile { get; set; }
+
+        public string WindProfileCsvPath { get; set; }
+
+        public List<WindProfileSample> CustomWindProfile { get; set; }
 
         /// <summary>
         /// 参考高度 z_ref (m)
@@ -151,9 +164,61 @@ namespace CityLBM.Core
                     double uStar = WindSpeed * kappa / Math.Log(zRefLog / z0);
                     return (uStar / kappa) * Math.Log(height / z0);
 
+                case WindProfileType.CustomTable:
+                    return InterpolateCustomWindSpeed(height);
+
                 default:
                     return WindSpeed;
             }
+        }
+
+        public double? GetTurbulentKAtHeight(double height)
+        {
+            if (CustomWindProfile == null || CustomWindProfile.Count == 0)
+                return null;
+
+            var samples = CustomWindProfile.FindAll(s => s.HasK);
+            if (samples.Count == 0)
+                return null;
+
+            if (height <= samples[0].Z) return Math.Max(0.0, samples[0].K);
+            if (height >= samples[samples.Count - 1].Z) return Math.Max(0.0, samples[samples.Count - 1].K);
+
+            for (int i = 0; i < samples.Count - 1; i++)
+            {
+                var a = samples[i];
+                var b = samples[i + 1];
+                if (height >= a.Z && height <= b.Z)
+                {
+                    double t = (height - a.Z) / Math.Max(b.Z - a.Z, 1.0e-12);
+                    return Math.Max(0.0, a.K + t * (b.K - a.K));
+                }
+            }
+
+            return null;
+        }
+
+        private double InterpolateCustomWindSpeed(double height)
+        {
+            if (CustomWindProfile == null || CustomWindProfile.Count == 0)
+                return WindSpeed;
+
+            var samples = CustomWindProfile;
+            if (height <= samples[0].Z) return Math.Max(0.0, samples[0].U);
+            if (height >= samples[samples.Count - 1].Z) return Math.Max(0.0, samples[samples.Count - 1].U);
+
+            for (int i = 0; i < samples.Count - 1; i++)
+            {
+                var a = samples[i];
+                var b = samples[i + 1];
+                if (height >= a.Z && height <= b.Z)
+                {
+                    double t = (height - a.Z) / Math.Max(b.Z - a.Z, 1.0e-12);
+                    return Math.Max(0.0, a.U + t * (b.U - a.U));
+                }
+            }
+
+            return WindSpeed;
         }
 
         /// <summary>
@@ -210,6 +275,8 @@ namespace CityLBM.Core
             RoughnessLength = roughnessParams.Item1;  // 0.30 m
             PowerLawAlpha = roughnessParams.Item2;    // 0.22
             VonKarmanConstant = 0.41;
+            WindProfileCsvPath = "";
+            CustomWindProfile = new List<WindProfileSample>();
 
             UseAbsoluteDomain = false;
             AbsoluteDomain = null;

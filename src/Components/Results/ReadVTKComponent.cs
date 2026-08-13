@@ -459,6 +459,7 @@ namespace CityLBM.Components.Results
             logger.StepStart("坐标变换");
             string vtkPath = results.Count > 0 ? results[0].FilePath : "";
             string transformLog = ApplyCoordinateOffset(allPoints, vtkPath, physicalScene);
+            string velocityUnitLog = ApplyVelocityMetadata(allVelocities, vtkPath);
             logger.StepEnd("坐标变换");
 
             DA.SetDataList(0, allPoints);
@@ -475,6 +476,8 @@ namespace CityLBM.Components.Results
             
             // 添加坐标变换日志
             fullInfo += "\n\n=== 坐标变换日志 ===\n" + transformLog;
+
+            fullInfo += "\n\n=== Velocity unit metadata ===\n" + velocityUnitLog;
 
             DA.SetData(4, fullInfo);
             DA.SetData(5, detectedSpacing);
@@ -1522,6 +1525,64 @@ namespace CityLBM.Components.Results
             if (parts.Length > 1 && int.TryParse(parts[parts.Length - 1], out int ts))
                 return ts;
             return 0;
+        }
+
+        private class CaseMetadataInfo
+        {
+            public int SchemaVersion { get; set; }
+            public string CityLBMVersion { get; set; }
+            public string WindProfile { get; set; }
+            public double VelocityScaleLbmToMps { get; set; }
+            public bool VtkReaderShouldApplyVelocityScale { get; set; }
+            public bool CustomProfileHasK { get; set; }
+            public string KColumnStatus { get; set; }
+            public bool SyntheticTurbulentInletInjected { get; set; }
+        }
+
+        private string ApplyVelocityMetadata(List<Vector3d> velocities, string vtkPathOrDir)
+        {
+            CaseMetadataInfo metadata = LoadCaseMetadata(vtkPathOrDir);
+            if (metadata == null)
+                return "case_metadata.json not found. Velocity units are reported as parsed from VTK.";
+
+            if (metadata.VtkReaderShouldApplyVelocityScale && velocities.Count > 0)
+            {
+                double scale = metadata.VelocityScaleLbmToMps;
+                if (scale > 0.0 && !double.IsNaN(scale) && !double.IsInfinity(scale))
+                {
+                    for (int i = 0; i < velocities.Count; i++)
+                        velocities[i] = velocities[i] * scale;
+                    return $"Applied VelocityScaleLbmToMps={scale:F8} from case_metadata.json. " +
+                           $"CityLBM={metadata.CityLBMVersion}, profile={metadata.WindProfile}, k={metadata.KColumnStatus}, " +
+                           $"synthetic_turbulent_inlet={metadata.SyntheticTurbulentInletInjected}.";
+                }
+            }
+
+            return $"No additional velocity scaling applied. CityLBM={metadata.CityLBMVersion}, " +
+                   $"schema={metadata.SchemaVersion}, profile={metadata.WindProfile}, " +
+                   $"k={metadata.KColumnStatus}, synthetic_turbulent_inlet={metadata.SyntheticTurbulentInletInjected}.";
+        }
+
+        private CaseMetadataInfo LoadCaseMetadata(string vtkPathOrDir)
+        {
+            string parent = string.IsNullOrEmpty(vtkPathOrDir) ? null : Path.GetDirectoryName(vtkPathOrDir);
+            string grandParent = string.IsNullOrEmpty(parent) ? null : Path.GetDirectoryName(parent);
+            string[] searchPaths = new[] { vtkPathOrDir, parent, grandParent };
+
+            foreach (string dir in searchPaths)
+            {
+                if (string.IsNullOrEmpty(dir)) continue;
+                string jsonFile = Path.Combine(dir, "case_metadata.json");
+                if (!File.Exists(jsonFile)) continue;
+                try
+                {
+                    string json = File.ReadAllText(jsonFile, System.Text.Encoding.UTF8);
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<CaseMetadataInfo>(json);
+                }
+                catch { }
+            }
+
+            return null;
         }
 
         #region 坐标偏移变换

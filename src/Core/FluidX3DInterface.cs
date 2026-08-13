@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Rhino.Geometry;
 using CityLBM.Core;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace CityLBM.Solver
 {
@@ -404,6 +405,7 @@ namespace CityLBM.Solver
             // 4. 保存域原点信息（供后处理组件将 VTK 坐标映射回物理世界坐标）
             // FluidX3D VTK 输出以域中心为原点，CityLBM 使用物理世界坐标（Z 从地面=0 开始）
             SaveDomainOrigin(caseDir, grid.Origin, grid.DomainBounds, grid.Nx, grid.Ny, grid.Nz, grid.Dx);
+            SaveCaseMetadata(caseDir, scene, grid, settings);
 
             LastCaseDirectory = caseDir;
             return caseDir;
@@ -1746,7 +1748,7 @@ namespace CityLBM.Solver
 
             // LBM 无量纲速度（格子单位）
             double uMax = 0.1; // LBM 稳定上限约 0.1c
-            double uScale = uMax / Math.Max(scene.WindSpeed, 0.001);
+            double uScale = uMax / Math.Max(GetProfileScaleSpeed(scene), 0.001);
             var windDir = scene.WindDirection;
             windDir.Unitize();
             double ulbm_x = windDir.X * uMax;
@@ -1809,6 +1811,10 @@ namespace CityLBM.Solver
                 sb.AppendLine("        float u_mag = (u_star / kappa) * logf(z / z0);");
                 sb.AppendLine("        return float3(dir_x * u_mag, dir_y * u_mag, dir_z * u_mag);");
                 sb.AppendLine("    };");
+            }
+            else if (scene.WindProfile == WindProfileType.CustomTable)
+            {
+                AppendCustomTableProfileCode(sb, scene, grid.Dx, uScale, windDir);
             }
             sb.AppendLine();
 
@@ -2047,6 +2053,118 @@ namespace CityLBM.Solver
         /// 而 CityLBM 使用物理世界坐标（Z 从地面=0 开始）。
         /// 后处理组件读取此文件后计算偏移量：offset = DomainOrigin - VTK.ORIGIN
         /// </summary>
+        private double GetProfileScaleSpeed(Scene scene)
+        {
+            if (scene.WindProfile == WindProfileType.CustomTable &&
+                scene.CustomWindProfile != null &&
+                scene.CustomWindProfile.Count > 0)
+            {
+                double maxU = scene.CustomWindProfile.Max(s => s.U);
+                if (maxU > 0.0)
+                    return maxU;
+            }
+
+            return scene.WindSpeed;
+        }
+
+        private void AppendCustomTableProfileCode(StringBuilder sb, Scene scene, double dx, double uScale, Vector3d windDir)
+        {
+            var samples = scene.CustomWindProfile ?? new List<WindProfileSample>();
+            if (samples.Count < 2)
+                throw new InvalidOperationException("CustomTable profile requires at least two z,U rows.");
+
+            sb.AppendLine("    // CustomTable wind profile from CityLBM CSV. z is SI meters; U is converted to LBM units.");
+            sb.AppendLine($"    const int profile_count = {samples.Count};");
+            sb.AppendLine("    const float profile_origin_z_m = 0.0f;");
+            sb.AppendLine("    const float profile_z_m[profile_count] = {" + JoinFloatArray(samples.Select(s => s.Z)) + "};");
+            sb.AppendLine("    const float profile_z_lbm[profile_count] = {" + JoinFloatArray(samples.Select(s => s.Z / dx)) + "};");
+            sb.AppendLine("    const float profile_u_lbm[profile_count] = {" + JoinFloatArray(samples.Select(s => s.U * uScale)) + "};");
+            sb.AppendLine("    const float profile_k_m2s2[profile_count] = {" + JoinFloatArray(samples.Select(s => s.HasK ? Math.Max(0.0, s.K) : 0.0)) + "};");
+            sb.AppendLine("    const float profile_k_lbm[profile_count] = {" + JoinFloatArray(samples.Select(s => s.HasK ? Math.Max(0.0, s.K) * uScale * uScale : 0.0)) + "};");
+            sb.AppendLine($"    const float citylbm_velocity_scale_lbm_to_mps = {(1.0 / uScale).ToString("F8", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const float dir_x = {windDir.X.ToString("F6", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const float dir_y = {windDir.Y.ToString("F6", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const float dir_z = {Math.Max(0.0, windDir.Z).ToString("F6", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine("    auto interpolate_profile_u = [&](float z_m) -> float {");
+            sb.AppendLine("        if(z_m <= profile_z_m[0]) return profile_u_lbm[0];");
+            sb.AppendLine("        if(z_m >= profile_z_m[profile_count-1]) return profile_u_lbm[profile_count-1];");
+            sb.AppendLine("        for(int i=0; i<profile_count-1; i++) {");
+            sb.AppendLine("            if(z_m >= profile_z_m[i] && z_m <= profile_z_m[i+1]) {");
+            sb.AppendLine("                float dz = profile_z_m[i+1] - profile_z_m[i];");
+            sb.AppendLine("                if(dz < 1.0e-6f) dz = 1.0e-6f;");
+            sb.AppendLine("                float t = (z_m - profile_z_m[i]) / dz;");
+            sb.AppendLine("                return profile_u_lbm[i] + t * (profile_u_lbm[i+1] - profile_u_lbm[i]);");
+            sb.AppendLine("            }");
+            sb.AppendLine("        }");
+            sb.AppendLine("        return profile_u_lbm[profile_count-1];");
+            sb.AppendLine("    };");
+            sb.AppendLine("    auto windProfile = [&](uint z_cell) -> float3 {");
+            sb.AppendLine($"        float z_m = ((float)z_cell + 0.5f) * {dx.ToString("F8", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine("        float u_mag = interpolate_profile_u(z_m);");
+            sb.AppendLine("        return float3(dir_x * u_mag, dir_y * u_mag, dir_z * u_mag);");
+            sb.AppendLine("    };");
+            sb.AppendLine("    // k arrays are emitted for validation metadata. v0.3.0 does not inject synthetic turbulent fluctuations at the inlet.");
+        }
+
+        private string JoinFloatArray(IEnumerable<double> values)
+        {
+            return string.Join(", ", values.Select(v => v.ToString("F8", CultureInfo.InvariantCulture) + "f"));
+        }
+
+        private void SaveCaseMetadata(string caseDir, Scene scene, CartesianGrid grid, SimulationSettings settings)
+        {
+            try
+            {
+                double uScale = 0.1 / Math.Max(GetProfileScaleSpeed(scene), 0.001);
+                bool hasK = scene.CustomWindProfile != null && scene.CustomWindProfile.Any(s => s.HasK);
+                var metadata = new
+                {
+                    SchemaVersion = 2,
+                    CityLBMVersion = "0.3.0",
+                    SceneName = scene.Name,
+                    GeneratedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                    WindProfile = scene.WindProfile.ToString(),
+                    WindProfileCsvPath = scene.WindProfileCsvPath ?? "",
+                    ReferenceWindSpeedMps = scene.WindSpeed,
+                    ReferenceHeightM = scene.ReferenceHeight,
+                    ProfileScaleSpeedMps = GetProfileScaleSpeed(scene),
+                    VelocityScaleMpsToLbm = uScale,
+                    VelocityScaleLbmToMps = 1.0 / uScale,
+                    VelocityOutputUnits = "FluidX3D write_device_to_vtk true requested; reader treats metadata as the unit contract.",
+                    VtkReaderShouldApplyVelocityScale = false,
+                    DxM = grid.Dx,
+                    Nx = grid.Nx,
+                    Ny = grid.Ny,
+                    Nz = grid.Nz,
+                    TimeSteps = settings.TimeSteps,
+                    SaveInterval = settings.SaveInterval,
+                    CustomProfileHasK = hasK,
+                    KColumnStatus = hasK ? "read_from_csv_and_converted_to_lbm_metadata" : "not_available",
+                    KUnitConversion = "k_lbm = k_m2s2 * VelocityScaleMpsToLbm^2",
+                    TurbulentInletLevel = hasK ? "Level 2 metadata/diagnostic chain" : "none",
+                    SyntheticTurbulentInletInjected = false,
+                    ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor in v0.3.0" : "",
+                    ProfileOriginZM = 0.0,
+                    CustomProfile = scene.CustomWindProfile == null ? null : scene.CustomWindProfile.Select(s => new
+                    {
+                        ZM = s.Z,
+                        UMps = s.U,
+                        HasK = s.HasK,
+                        KM2s2 = s.HasK ? s.K : 0.0,
+                        KLBM = s.HasK ? s.K * uScale * uScale : 0.0
+                    }).ToList()
+                };
+
+                string json = JsonConvert.SerializeObject(metadata, Formatting.Indented);
+                File.WriteAllText(Path.Combine(caseDir, "case_metadata.json"), json, Encoding.UTF8);
+                File.WriteAllText(Path.Combine(caseDir, "output", "case_metadata.json"), json, Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[CityLBM] Save case_metadata.json failed: {ex.Message}");
+            }
+        }
+
         private void SaveDomainOrigin(string caseDir, Point3d origin, BoundingBox domainBounds,
                                        int nx, int ny, int nz, double dx)
         {
@@ -2055,6 +2173,8 @@ namespace CityLBM.Solver
                 // 同时保存到 case 目录和 output 目录（后处理组件从 output 目录旁查找）
                 var info = new
                 {
+                    SchemaVersion = 2,
+                    CityLBMVersion = "0.3.0",
                     DomainOriginX = Math.Round(origin.X, 6),
                     DomainOriginY = Math.Round(origin.Y, 6),
                     DomainOriginZ = Math.Round(origin.Z, 6),
@@ -2068,6 +2188,8 @@ namespace CityLBM.Solver
                     Ny = ny,
                     Nz = nz,
                     Dx = Math.Round(dx, 6),
+                    DxUnits = "m",
+                    VtkCoordinateContract = "VTK grid coordinates are converted to Rhino world meters through domain_origin.json.",
                     Description = "CityLBM domain origin for VTK coordinate mapping"
                 };
 

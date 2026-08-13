@@ -6,10 +6,6 @@ using CityLBM.Utils;
 
 namespace CityLBM
 {
-    /// <summary>
-    /// CityLBM 插件主类
-    /// 负责插件的加载和初始化
-    /// </summary>
     public class CityLBMPlugin : GH_AssemblyInfo
     {
         public override string Name
@@ -24,7 +20,7 @@ namespace CityLBM
 
         public override string Description
         {
-            get { return "CityLBM城市风场模拟Grasshopper插件"; }
+            get { return "CityLBM urban wind simulation workflow for Grasshopper and FluidX3D."; }
         }
 
         public override Guid Id
@@ -34,12 +30,12 @@ namespace CityLBM
 
         public override string AuthorName
         {
-            get { return "CityLBM Development Team"; }
+            get { return "Shiyu Miao"; }
         }
 
         public override string AuthorContact
         {
-            get { return "support@citylbm.local"; }
+            get { return "miaoshiyu@mail.dlut.edu.cn"; }
         }
 
         public override string Version
@@ -53,7 +49,7 @@ namespace CityLBM
 
         public override string AssemblyVersion
         {
-            get { return "0.5.0.0"; }
+            get { return "0.3.0.0"; }
         }
     }
 }

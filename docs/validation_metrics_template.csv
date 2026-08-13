@@ -1,0 +1,1 @@
+case,wind_direction,software,version,dx_m,steps,save_interval,averaging_window,profile_csv,geometry_scale,Uref_mps,Zref_m,valid_n,failed_n,U_MAE_ratio,U_RMSE_ratio,U_bias_ratio,U_R2,U_regression_slope,U_regression_intercept,U_max_abs_error,k_MAE_m2s2,k_RMSE_m2s2,k_bias_m2s2,k_bias_ratio,notes

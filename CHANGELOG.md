@@ -1,44 +1,28 @@
-﻿# CityLBM Changelog
+# CityLBM Changelog
 
-## v0.2.1 (Current Release)
+## v0.3.0
 
-### What's New
-- **AIJ Case A One-Click Validation**: Run `create_casea_gh.bat` to generate a complete
-  Grasshopper definition with all 20 CityLBM components pre-wired for the AIJ Case A
-  benchmark. Includes two GhPython scripts (Setup + PostProcess) with automatic
-  building geometry, 9 measurement profiles, 90-point experimental comparison,
-  and quality assessment report.
-- **5 New/Replaced Icons**: AbsoluteDomain, Isosurface, Lawson, VerticalSlice, and
-  validation icons regenerated at 200x200 RGBA in blue (#1A6FC4) matching IconPark style.
-  All 22 icons are now unique (duplicate validation.png fixed).
-- **FluidX3D Bundled**: Pre-compiled FluidX3D.exe (477 KB) embedded in the .gha.
-  No C++ compiler or manual FluidX3D installation needed.
-- **Tab Organization**: Tabs renamed to `1 | Scene`, `2 | Simulation`, `3 | Results`
-  following Eddy3D naming convention to prevent alphabetical reordering.
+- Restored a compileable Rhino 7 / Grasshopper source baseline for the validation branch.
+- Standardized plugin and assembly metadata to `0.3.0`.
+- Added `Wind Profile = 3` (`CustomTable`) to `Create Scene`.
+- Added CSV parsing for `z(m), U(m/s), k(m2/s2)` inflow profiles.
+- Generated FluidX3D `setup.cpp` now emits `profile_z_m[]`, `profile_z_lbm[]`, `profile_u_lbm[]`, `profile_k_m2s2[]`, `profile_k_lbm[]` and `profile_origin_z_m`.
+- Added `case_metadata.json` and schema-tagged `domain_origin.json` for traceable post-processing.
+- Added VTK reader metadata reporting to prevent SI/LBM velocity-unit ambiguity.
+- Added validation metrics helpers for MAE, RMSE, bias, R2 and regression diagnostics.
 
-### Components (20 total)
-**1 | Scene (7)**: CreateScene, AddBuildings, SceneInfo, DomainDesigner,
-AbsoluteDomain, DomainSetup, WindCondition
+### Known limits
 
-**2 | Simulation (2)**: GridGenerator, RunSimulation
+- The `k` column is read, converted and recorded, but v0.3.0 does not yet inject synthetic turbulent fluctuations at the inlet.
+- Case E has not been completed as a formal SCI-level validation run on this PC in this branch.
+- Final publishable accuracy still requires native FluidX3D Case A baseline, grid sensitivity, time averaging and measured-data comparison.
 
-**3 | Results (11)**: ReadVTK, VelocityVisualization, SliceVisualization,
-VerticalSlice, SimulationStats, VTKCloudVisualization, Probe,
-WindSpeedGrid, Streamline, Isosurface, LawsonComfort
+## v0.2.1
 
-### Installation
-1. Run `install.bat` (or manually copy `bin\CityLBM.gha` to `%APPDATA%\Grasshopper\Libraries\`)
-2. Copy `bin\FluidX3D.exe` to `%APPDATA%\CityLBM\`
-3. Restart Rhino + Grasshopper
-
-### Known Limitations
-- Requires Rhino 7 + Grasshopper
-- FluidX3D requires Windows (uses pre-compiled .exe)
-- Uniform inflow used by default (AIJ uses power-law ABL; ~10-15% systematic error)
-- First run compiles FluidX3D solver from embedded source (~30-60s, cached afterward)
+- AIJ Case A workflow materials and validation helper scripts.
+- FluidX3D integration and VTK visualization components.
+- UI tab organization and component icon updates.
 
 ## v0.2.0
-- Initial release with 20 components
-- FluidX3D LBM solver integration
-- VTK read/write, visualization components
-- Basic wind comfort assessment (Lawson criteria)
+
+- Initial stable Grasshopper workflow with scene, simulation and result components.

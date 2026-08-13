@@ -1,104 +1,72 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using Grasshopper.Kernel;
-using CityLBM.Utils;
+using Rhino.Geometry;
 using CityLBM.Core;
+using CityLBM.Utils;
 
 namespace CityLBM.Components.Scene
 {
-    /// <summary>
-    /// 创建CityLBM场景组件
-    /// 支持风廓线类型选择：均匀 / 幂律 / 对数律
-    /// 风廓线通过"参考高度处已知风速"自动推算全域风速分布
-    /// </summary>
     public class CreateSceneComponent : GH_Component
     {
         public CreateSceneComponent()
             : base("Create Scene", "Scene",
-                   "创建 CityLBM 城市风场模拟场景。\n\n" +
-                   "【风廓线输入逻辑】（默认：幂律风廓线，适合城市风环境）\n" +
-                   "输入参考高度 Zr 处的已知风速 V，插件自动推算整个计算域的竖向风速分布：\n" +
-                   "  Uniform(0)  — 全域均匀风速（风速=V，忽略高度）\n" +
-                   "  PowerLaw(1) — 幂律：U(z) = V × (z/Zr)^α（默认，城市风环境推荐）\n" +
-                   "  Log(2)      — 对数律：U(z) = (u*/κ)×ln(z/z₀)，由V@Zr反推u*\n\n" +
-                   "【粗糙度类别 GB 50009】\n" +
-                   "  A(0)=近海 α=0.12 z₀=0.01m\n" +
-                   "  B(1)=田野 α=0.15 z₀=0.05m\n" +
-                   "  C(2)=城市 α=0.22 z₀=0.30m（默认）\n" +
-                   "  D(3)=密集城市 α=0.30 z₀=1.00m\n" +
-                   "  99=自定义 z₀",
+                   "Create a CityLBM urban wind simulation scene. WP=3 uses a custom z,U,k CSV profile.",
                    "CityLBM", "Scene")
         {
         }
 
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Name", "N", "场景名称", GH_ParamAccess.item, "CityLBM Scene");
-
+            pManager.AddTextParameter("Name", "N", "Scene name", GH_ParamAccess.item, "CityLBM Scene");
             pManager.AddNumberParameter("Wind Speed", "V",
-                "参考高度 Zr 处的已知风速 (m/s)\n" +
-                "→ 插件以此为基准自动推算全域风廓线\n" +
-                "  Uniform模式: 全域均匀该风速\n" +
-                "  PowerLaw:    V = U_ref @ Zr\n" +
-                "  Log:         V = U(Zr)，反推摩擦速度 u*",
+                "Reference wind speed Uref (m/s). For WP=3 this is metadata/normalization; the CSV controls U(z).",
                 GH_ParamAccess.item, 5.0);
-
             pManager.AddVectorParameter("Wind Direction", "D",
-                "风场方向（单位向量，默认+X方向）",
-                GH_ParamAccess.item, new Rhino.Geometry.Vector3d(1, 0, 0));
-
+                "Unit wind direction vector. AIJ Case E N wind uses (0,-1,0).",
+                GH_ParamAccess.item, new Vector3d(1, 0, 0));
             pManager.AddIntegerParameter("Wind Profile", "WP",
-                "风廓线类型\n" +
-                "0 = Uniform — 均匀来流（忽略高度，向后兼容）\n" +
-                "1 = PowerLaw — 幂律风廓线 U=V×(z/Zr)^α（默认，城市风环境推荐）\n" +
-                "2 = Logarithmic — 对数律 U=(u*/κ)×ln(z/z₀)",
+                "0=Uniform, 1=PowerLaw, 2=Logarithmic, 3=CustomTable z,U,k CSV.",
                 GH_ParamAccess.item, 1);
-
             pManager.AddNumberParameter("Reference Height", "Zr",
-                "参考高度 z_ref (m)\n" +
-                "Wind Speed 的测量/已知高度\n" +
-                "默认 10m（标准气象站测风高度）",
+                "Reference height z_ref (m). For WP=3 this is metadata/normalization.",
                 GH_ParamAccess.item, 10.0);
-
             pManager.AddIntegerParameter("Roughness Category", "RC",
-                "地面粗糙度类别（GB 50009-2012）\n" +
-                "A(0)=近海 z₀=0.01m α=0.12\n" +
-                "B(1)=田野 z₀=0.05m α=0.15\n" +
-                "C(2)=城市 z₀=0.30m α=0.22（默认）\n" +
-                "D(3)=密集城市 z₀=1.00m α=0.30\n" +
-                "99=自定义（需连接 Z0 端子）",
+                "GB 50009 roughness category: A=0, B=1, C=2, D=3, Custom=99.",
                 GH_ParamAccess.item, 2);
-
             pManager.AddNumberParameter("Roughness Length", "Z0",
-                "自定义粗糙度长度 z₀ (m)\n" +
-                "仅当 Roughness Category=99 时生效\n" +
-                "其他类别由 RC 自动设定，此输入忽略",
+                "Custom roughness length z0 (m), used only when RC=99.",
                 GH_ParamAccess.item, 0.3);
-
             pManager.AddNumberParameter("Domain Extension", "E",
-                "计算域自动扩展比例 (0~1)\n" +
-                "相对于建筑包围盒对角线长度的百分比\n" +
-                "仅在未连接 Domain Designer 时生效",
+                "Automatic domain extension ratio when no custom domain is connected.",
                 GH_ParamAccess.item, 0.2);
+            pManager.AddTextParameter("Wind Profile CSV", "CSV",
+                "CustomTable input for WP=3. Expected columns: z(m), U(m/s), optional k(m2/s2).",
+                GH_ParamAccess.item, "");
+            pManager[8].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("Scene", "S", "CityLBM 场景对象", GH_ParamAccess.item);
-            pManager.AddTextParameter("Profile Info", "Info",
-                "风廓线参数摘要（方便确认推算结果）", GH_ParamAccess.item);
+            pManager.AddGenericParameter("Scene", "S", "CityLBM scene object", GH_ParamAccess.item);
+            pManager.AddTextParameter("Profile Info", "Info", "Wind profile summary", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             string name = "CityLBM Scene";
             double windSpeed = 5.0;
-            Rhino.Geometry.Vector3d windDir = new Rhino.Geometry.Vector3d(1, 0, 0);
-            int windProfileInt = 1;  // 默认使用幂律风廓线
+            Vector3d windDir = new Vector3d(1, 0, 0);
+            int windProfileInt = 1;
             double refHeight = 10.0;
-            int roughnessCategoryInt = 2;  // 默认城市类别
+            int roughnessCategoryInt = 2;
             double roughnessLength = 0.3;
             double extension = 0.2;
+            string profileCsvPath = "";
 
             if (!DA.GetData(0, ref name)) return;
             if (!DA.GetData(1, ref windSpeed)) return;
@@ -108,43 +76,41 @@ namespace CityLBM.Components.Scene
             if (!DA.GetData(5, ref roughnessCategoryInt)) return;
             if (!DA.GetData(6, ref roughnessLength)) return;
             if (!DA.GetData(7, ref extension)) return;
+            DA.GetData(8, ref profileCsvPath);
 
-            // 验证风速
-            if (windSpeed <= 0)
+            if (windSpeed <= 0.0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "风速必须大于 0");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Wind Speed must be greater than 0.");
                 return;
             }
-            if (refHeight <= 0)
+            if (refHeight <= 0.0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "参考高度 Zr 必须大于 0");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Reference Height must be greater than 0.");
                 return;
             }
 
-            // 解析风廓线类型
             WindProfileType windProfile;
-            if (windProfileInt >= 0 && windProfileInt <= 2)
+            if (windProfileInt >= 0 && windProfileInt <= 3)
                 windProfile = (WindProfileType)windProfileInt;
             else
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "无效的风廓线类型，已重置为 Uniform(0)");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Invalid Wind Profile. Reset to Uniform(0).");
                 windProfile = WindProfileType.Uniform;
             }
 
-            // 解析粗糙度类别，自动获取 z0 / alpha
             RoughnessCategory roughnessCategory;
-            double z0, alpha;
-
+            double z0;
+            double alpha;
             if (roughnessCategoryInt == 99)
             {
                 roughnessCategory = RoughnessCategory.Custom;
-                if (roughnessLength <= 0)
+                if (roughnessLength <= 0.0)
                 {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "自定义 z₀ 必须 > 0，已重置为 0.3m (C类)");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Custom z0 must be greater than 0. Reset to 0.3 m.");
                     roughnessLength = 0.3;
                 }
                 z0 = roughnessLength;
-                alpha = 0.22; // 自定义时 alpha 默认取 C 类（也可额外添加输入端子）
+                alpha = 0.22;
             }
             else if (roughnessCategoryInt >= 0 && roughnessCategoryInt <= 3)
             {
@@ -156,7 +122,7 @@ namespace CityLBM.Components.Scene
             }
             else
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "无效的粗糙度类别，已使用默认 C 类（城市）");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Invalid Roughness Category. Reset to C.");
                 roughnessCategory = RoughnessCategory.C;
                 var rp = Core.Scene.GetRoughnessParams(RoughnessCategory.C);
                 z0 = rp.Item1;
@@ -164,30 +130,29 @@ namespace CityLBM.Components.Scene
                 roughnessLength = z0;
             }
 
-            // 参考高度警告
-            if (windProfile != WindProfileType.Uniform && refHeight < 1.0)
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "参考高度较小，建议使用标准气象站高度 10m");
-
-            // 对数律：检查 z_ref > z0，否则无法推算 u*
             if (windProfile == WindProfileType.Logarithmic && refHeight <= z0)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                    $"对数律要求参考高度 Zr ({refHeight:F2}m) > z₀ ({z0:F3}m)，请增大 Zr 或减小 z₀");
+                    $"Logarithmic profile requires Zr ({refHeight:F2} m) > z0 ({z0:F3} m).");
                 return;
             }
 
-            // 推算对数律摩擦速度 u*（从参考高度处已知风速反推）
             double kappa = 0.41;
-            double uStar = 0;
+            double uStar = 0.0;
             if (windProfile == WindProfileType.Logarithmic)
-            {
                 uStar = windSpeed * kappa / Math.Log(refHeight / z0);
-            }
 
-            // 创建场景
-            Core.Scene scene = new Core.Scene(name);
-            scene.WindSpeed = windSpeed;
-            scene.DomainExtensionRatio = extension;
+            Core.Scene scene = new Core.Scene(name)
+            {
+                WindSpeed = windSpeed,
+                DomainExtensionRatio = extension,
+                WindProfile = windProfile,
+                ReferenceHeight = Math.Max(refHeight, 0.1),
+                RoughnessCategory = roughnessCategory,
+                RoughnessLength = z0,
+                PowerLawAlpha = alpha,
+                VonKarmanConstant = kappa
+            };
 
             if (windDir.IsValid && !windDir.IsZero)
             {
@@ -195,58 +160,141 @@ namespace CityLBM.Components.Scene
                 scene.WindDirection = windDir;
             }
 
-            scene.WindProfile = windProfile;
-            scene.ReferenceHeight = Math.Max(refHeight, 0.1);
-            scene.RoughnessCategory = roughnessCategory;
-            scene.RoughnessLength = z0;
-            scene.PowerLawAlpha = alpha;
-            scene.VonKarmanConstant = kappa;
+            string customProfileReport = "";
+            if (windProfile == WindProfileType.CustomTable)
+            {
+                if (!TryLoadCustomWindProfile(profileCsvPath, out List<WindProfileSample> samples,
+                    out customProfileReport, out string loadError))
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, loadError);
+                    return;
+                }
 
-            // 生成风廓线参数摘要
+                scene.WindProfileCsvPath = Path.GetFullPath(profileCsvPath);
+                scene.CustomWindProfile = samples;
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                    "CustomTable profile loaded. U(z) is read from CSV; Wind Speed is retained as Uref/normalization metadata.");
+            }
+
             string profileInfo = BuildProfileInfo(windProfile, windSpeed, refHeight, z0, alpha, uStar, kappa);
+            if (!string.IsNullOrEmpty(customProfileReport))
+                profileInfo += "\n\n" + customProfileReport;
 
             DA.SetData(0, new GH_Scene(scene));
             DA.SetData(1, profileInfo);
         }
 
-        /// <summary>
-        /// 构建风廓线参数摘要文本，方便用户确认推算结果
-        /// </summary>
-        private string BuildProfileInfo(WindProfileType profile, double V, double Zr,
-                                         double z0, double alpha, double uStar, double kappa)
+        private bool TryLoadCustomWindProfile(string csvPath, out List<WindProfileSample> samples,
+            out string report, out string error)
+        {
+            samples = new List<WindProfileSample>();
+            report = "";
+            error = "";
+
+            if (string.IsNullOrWhiteSpace(csvPath))
+            {
+                error = "WP=3 CustomTable requires Wind Profile CSV. Expected columns: z(m), U(m/s), optional k(m2/s2).";
+                return false;
+            }
+
+            if (!File.Exists(csvPath))
+            {
+                error = "Wind Profile CSV not found: " + csvPath;
+                return false;
+            }
+
+            int skipped = 0;
+            int kRows = 0;
+            foreach (string rawLine in File.ReadLines(csvPath))
+            {
+                string line = rawLine.Trim();
+                if (line.Length == 0 || line.StartsWith("#"))
+                    continue;
+
+                string[] parts = line.Split(new[] { ',', ';', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length < 2)
+                {
+                    skipped++;
+                    continue;
+                }
+
+                if (!double.TryParse(parts[0].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double z) ||
+                    !double.TryParse(parts[1].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double u))
+                {
+                    skipped++;
+                    continue;
+                }
+
+                if (z < 0.0 || u < 0.0)
+                {
+                    skipped++;
+                    continue;
+                }
+
+                bool hasK = false;
+                double k = 0.0;
+                if (parts.Length >= 3 &&
+                    double.TryParse(parts[2].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsedK))
+                {
+                    hasK = true;
+                    k = Math.Max(0.0, parsedK);
+                    kRows++;
+                }
+
+                samples.Add(new WindProfileSample { Z = z, U = u, HasK = hasK, K = k });
+            }
+
+            samples = samples.OrderBy(s => s.Z).ToList();
+            if (samples.Count < 2)
+            {
+                error = "Wind Profile CSV must contain at least two valid z,U rows: " + csvPath;
+                return false;
+            }
+
+            bool hasAnyK = samples.Any(s => s.HasK);
+            bool hasPartialK = hasAnyK && samples.Any(s => !s.HasK);
+            if (hasPartialK)
+                report = "Warning: CustomTable has a partial k column; rows without k will not provide turbulence metadata.";
+
+            report += (report.Length > 0 ? "\n" : "") +
+                      "CustomTable profile\n" +
+                      "  CSV: " + Path.GetFullPath(csvPath) + "\n" +
+                      $"  Rows: {samples.Count}, skipped: {skipped}\n" +
+                      $"  z range: {samples[0].Z:F3} to {samples[samples.Count - 1].Z:F3} m\n" +
+                      $"  U range: {samples.Min(s => s.U):F4} to {samples.Max(s => s.U):F4} m/s\n" +
+                      $"  k column: {(hasAnyK ? $"{kRows} rows, SI m2/s2" : "not provided")}\n" +
+                      "  Note: v0.3.0 records and converts k, but does not inject synthetic turbulent inlet fluctuations.";
+            return true;
+        }
+
+        private string BuildProfileInfo(WindProfileType profile, double v, double zr,
+            double z0, double alpha, double uStar, double kappa)
         {
             var sb = new System.Text.StringBuilder();
-            sb.AppendLine("═══ 风廓线参数摘要 ═══");
-            sb.AppendLine($"类型: {profile}");
-            sb.AppendLine($"参考风速 V = {V:F2} m/s @ Zr = {Zr:F1} m");
+            sb.AppendLine("Wind profile summary");
+            sb.AppendLine($"Type: {profile}");
+            sb.AppendLine($"Uref metadata: {v:F4} m/s @ Zr={zr:F3} m");
 
             switch (profile)
             {
                 case WindProfileType.Uniform:
-                    sb.AppendLine("全域均匀风速，忽略高度变化");
-                    sb.AppendLine($"U(z) = {V:F2} m/s（常数）");
+                    sb.AppendLine($"U(z) = {v:F4} m/s");
                     break;
-
                 case WindProfileType.PowerLaw:
-                    sb.AppendLine($"粗糙度指数 α = {alpha:F2}");
-                    sb.AppendLine($"公式: U(z) = {V:F2} × (z/{Zr:F1})^{alpha:F2}");
-                    sb.AppendLine($"示例: U(5m) = {V * Math.Pow(5.0 / Zr, alpha):F2} m/s");
-                    sb.AppendLine($"      U(10m) = {V * Math.Pow(10.0 / Zr, alpha):F2} m/s");
-                    sb.AppendLine($"      U(30m) = {V * Math.Pow(30.0 / Zr, alpha):F2} m/s");
-                    sb.AppendLine($"      U(50m) = {V * Math.Pow(50.0 / Zr, alpha):F2} m/s");
+                    sb.AppendLine($"U(z) = {v:F4} * (z/{zr:F3})^{alpha:F3}");
+                    sb.AppendLine($"alpha={alpha:F3}, z0={z0:F4} m");
                     break;
-
                 case WindProfileType.Logarithmic:
-                    sb.AppendLine($"粗糙度长度 z₀ = {z0:F3} m");
-                    sb.AppendLine($"von Kármán κ = {kappa:F2}");
-                    sb.AppendLine($"摩擦速度 u* = {uStar:F4} m/s（由V@Zr反推）");
-                    sb.AppendLine($"公式: U(z) = ({uStar:F4}/{kappa:F2})×ln(z/{z0:F3})");
-                    if (5.0 > z0) sb.AppendLine($"示例: U(5m) = {(uStar / kappa) * Math.Log(5.0 / z0):F2} m/s");
-                    sb.AppendLine($"      U(10m) = {(uStar / kappa) * Math.Log(10.0 / z0):F2} m/s");
-                    sb.AppendLine($"      U(30m) = {(uStar / kappa) * Math.Log(30.0 / z0):F2} m/s");
-                    sb.AppendLine($"      U(50m) = {(uStar / kappa) * Math.Log(50.0 / z0):F2} m/s");
+                    sb.AppendLine($"U(z) = ({uStar:F5}/{kappa:F3}) * ln(z/{z0:F4})");
+                    sb.AppendLine($"u*={uStar:F5} m/s, kappa={kappa:F3}");
+                    break;
+                case WindProfileType.CustomTable:
+                    sb.AppendLine("U(z) is linearly interpolated from Wind Profile CSV.");
+                    sb.AppendLine("CSV columns: z(m), U(m/s), optional k(m2/s2).");
+                    sb.AppendLine("k is converted and recorded in metadata; synthetic turbulent inlet injection is not enabled in v0.3.0.");
                     break;
             }
+
             return sb.ToString().TrimEnd();
         }
 
@@ -261,4 +309,3 @@ namespace CityLBM.Components.Scene
         }
     }
 }
-

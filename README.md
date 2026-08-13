@@ -1,60 +1,49 @@
-﻿# CityLBM v0.2.1
+﻿# CityLBM v0.3.0
 
-**GPU-accelerated Urban Wind Environment Simulation for Grasshopper**
+CityLBM is a Grasshopper workflow plugin for urban wind simulation with FluidX3D-backed case generation, execution, VTK reading and visualization.
 
-CityLBM is a single-file Grasshopper plugin that brings high-performance urban wind simulation directly into Rhino. Powered by the Lattice Boltzmann Method (LBM) and GPU acceleration via FluidX3D, it enables architects and urban planners to analyze wind comfort, pedestrian-level wind, and building aerodynamics without leaving the design environment.
+## What v0.3.0 fixes
 
-## Features
+- Restores a compileable Rhino 7 / Grasshopper source baseline.
+- Sets plugin, assembly and package metadata to `0.3.0`.
+- Adds `Wind Profile = 3` (`CustomTable`) in `Create Scene`.
+- Reads validation inflow CSV files with columns `z(m), U(m/s), k(m2/s2)`.
+- Uses the CSV `U(z)` table for inlet velocity interpolation instead of replacing it with a single Uref value.
+- Records turbulent kinetic energy `k` in SI units and converts it to LBM units in generated case metadata.
+- Writes `case_metadata.json` and schema-tagged `domain_origin.json` for post-processing traceability.
+- Adds VTK reader metadata checks so velocity units are explicit in Grasshopper output.
+- Adds reusable validation metrics utilities for MAE, RMSE, bias, R2 and regression slope/intercept.
 
-- **One-Click Installation** — Single `.gha` file, no dependencies, no C++ compiler required
-- **GPU-Accelerated Simulation** — Leverages OpenCL for fast LBM computation
-- **20 Grasshopper Components** organized into 3 intuitive groups:
-  - `1 | Scene` — Scene creation, building import, domain setup, wind conditions
-  - `2 | Simulation` — Grid generation and solver execution
-  - `3 | Results` — VTK reading, velocity visualization, slices, streamlines, comfort maps
-- **AIJ-Compliant Domain Setup** — Automatic calculation domain per AIJ guidelines
-- **Wind Profile Support** — Uniform, Power Law (GB 50009), and Logarithmic profiles
-- **LES Turbulence Model** — Smagorinsky subgrid-scale model for high-Re flows
-- **Lawson Comfort Criteria** — Pedestrian wind comfort assessment
+## Important limitation
 
-## System Requirements
+v0.3.0 reads and converts the `k(m2/s2)` column, but it does not yet inject synthetic turbulent inlet fluctuations or a Reynolds-stress-resolved turbulent inflow. This means the data chain is validation-ready, but final SCI-level Case A/Case E accuracy still requires strict native FluidX3D baseline comparison, longer time averaging and documented grid convergence.
 
-| Component | Requirement |
-|-----------|-------------|
-| OS | Windows 10/11 (64-bit) |
-| Rhino | Rhino 6 SR18+ or Rhino 7 |
-| Grasshopper | Built-in |
-| GPU | OpenCL 1.2+ compatible (NVIDIA/AMD/Intel) |
-| Disk | ~3 MB for plugin |
+## FluidX3D requirement
 
-## Quick Start
+The Grasshopper plugin can be installed and the case-generation workflow can run directly in Rhino/Grasshopper. A real solver run still needs a valid local FluidX3D path unless a verified bundled executable is present in the user's installation. In `Run Simulation`, set `FluidX3D Path` to a FluidX3D source root that contains `FluidX3D.sln` or `Makefile` and `src/setup.cpp`.
 
-1. **Install**: Copy `CityLBM.gha` to `%APPDATA%\Grasshopper\Libraries\`
-2. **Launch**: Open Rhino → type `Grasshopper`
-3. **Create Scene**: Drag `Create Scene` from `CityLBM → 1 | Scene`
-4. **Add Buildings**: Connect building meshes via `Add Buildings`
-5. **Setup Domain**: Use `Domain Setup` for AIJ-compliant domain
-6. **Generate Grid**: Connect to `Generate Grid`
-7. **Run Simulation**: Connect to `Run Simulation` (Mode 3 for background execution)
-8. **Visualize**: Use Results tab components for analysis
+Use `Mode 0 = Generate Case` to check Grasshopper wiring without compiling or running FluidX3D.
 
-## How It Works (No Compiler Needed!)
+## AIJ Case E essentials
 
-CityLBM bundles a **pre-compiled FluidX3D solver** inside the `.gha` file. On first run:
-1. FluidX3D.exe is extracted to `%APPDATA%\CityLBM\`
-2. Grid configuration is written at runtime via `grid_config.txt`
-3. Buildings geometry is exported as STL
-4. FluidX3D runs headlessly on your GPU
-5. VTK results are read back into Grasshopper
+- Geometry: `BD_caseE.stl`, model scale `1:250`; scale by `250` before comparison with field coordinates.
+- Case: `ac`
+- Wind direction: `N`, represented as `(0,-1,0)` in CityLBM vector input.
+- Wind profile: `WP=3`
+- Wind profile CSV: `official_data/AF_caseE.csv`
+- Uref metadata: `3.928296 m/s @ 15.9 m`; do not use this single value to replace the AF table.
+- Pedestrian validation height: `z=2 m`
 
-**You never need to install Visual Studio, CUDA Toolkit, or compile any C++ code.**
+See `docs/CaseE_run_protocol.md` for the strict validation procedure.
 
-## License
+## Build
 
-This project is provided for academic and research purposes. Contact the author for commercial use.
+```powershell
+dotnet build -c Release
+```
+
+The Release build outputs `bin/Release/CityLBM.dll`. For Grasshopper installation, package or copy the release assembly as `CityLBM.gha` together with required dependencies.
 
 ## Author
 
-**Shiyu Miao**  
-Dalian University of Technology  
-Email: miaoshiyu@mail.dlut.edu.cn
+Shiyu Miao, Dalian University of Technology`r`nmiaoshiyu@mail.dlut.edu.cn

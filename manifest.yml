@@ -1,0 +1,42 @@
+﻿# ============================================================
+# CityLBM — Yak Package Manager Manifest
+# ============================================================
+# Reference: https://developer.rhino3d.com/guides/yak/the-package-manifest/
+# This file enables one-click install via:
+#   yak install citylbm
+# And publishing to Food4Rhino / Yak server:
+#   yak build
+#   yak push
+# ============================================================
+
+name: citylbm
+version: 0.3.0
+
+authors:
+  - name: Shiyu Miao
+    email: miaoshiyu@mail.dlut.edu.cn
+    organization: Dalian University of Technology
+
+description: >
+  GPU-accelerated urban wind environment simulation for Grasshopper.
+  Powered by the Lattice Boltzmann Method (LBM) and FluidX3D solver.
+  20 pre-wired components for Scene setup, Simulation execution,
+  and Results visualization. Real solver runs require a valid local FluidX3D source or executable path unless a verified bundled solver is provided with the installation.
+
+url: https://github.com/ShiyuMiao/citylbm
+
+keywords:
+  - cfd
+  - wind-simulation
+  - urban-aerodynamics
+  - lbm
+  - fluidx3d
+  - grasshopper-plugin
+  - wind-comfort
+  - aij-validation
+  - pedestrian-wind
+  - building-aerodynamics
+
+icon: src/Resources/Icons/CityLBM.png
+
+license: MIT
