@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-13T05:39:01.878827+00:00
+Generated: 2026-08-13T06:08:52.756340+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc77`
+- Recommended tag: `v0.4.0-rc78`
 
 ## Official z=2 m Metric
 
@@ -27,14 +27,14 @@ Generated: 2026-08-13T05:39:01.878827+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 380
+- Checked nonblank lines: 382
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 402
-- Lightweight release assets: 329
+- Artifact count: 407
+- Lightweight release assets: 334
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -240,7 +240,7 @@ Generated: 2026-08-13T05:39:01.878827+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 53
+- Feedback rows: 54
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -261,11 +261,20 @@ Generated: 2026-08-13T05:39:01.878827+00:00
 
 - Manifest found: True
 - Manifest passed: True
-- Recommended tag: `v0.4.0-rc77`
-- Upload assets: 82
+- Recommended tag: `v0.4.0-rc78`
+- Upload assets: 86
 - Excluded/hash-only assets: 20
 - Excludes raw geometry and VTK: True
 - Formal accuracy claim supported: False
+- Claim boundary safe: True
+
+## Post-run Official Audit Handoff
+
+- Handoff found: True
+- Handoff passed: True
+- Ready to run official audit: False
+- Formal result allowed now: False
+- Claim readiness: `armed_no_candidate`
 - Claim boundary safe: True
 
 No forbidden success-claim violations were found outside negated or forbidden-claim sections.

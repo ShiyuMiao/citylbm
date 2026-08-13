@@ -1,0 +1,5 @@
+item,status,evidence,claim_boundary
+candidate_csv,False,,Candidate presence only; not formal evidence.
+candidate_structure,False,rows=0; columns=,Structural admissibility only; official audit still required.
+official_audit_command,True,python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0 --predicted <new_casee_probe_time_mean.csv>,Only this command can update the formal release gate for a candidate CSV.
+formal_result_allowed_now,False,handoff_only,No formal result is allowed from the handoff alone.

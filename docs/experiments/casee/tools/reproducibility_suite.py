@@ -347,6 +347,7 @@ def main() -> int:
         ("paper_appendix_generator", "paper_appendix_generator.py"),
         ("casee_blocker_remediation_plan", "casee_blocker_remediation_plan.py"),
         ("casee_next_experiment_runbook", "casee_next_experiment_runbook.py"),
+        ("casee_postrun_official_audit_handoff", "casee_postrun_official_audit_handoff.py"),
         ("artifact_index", "artifact_index.py"),
         ("casee_release_asset_manifest_final", "casee_release_asset_manifest.py"),
         ("casee_release_bundle_gate_final", "casee_release_bundle_gate.py"),
@@ -405,6 +406,7 @@ def main() -> int:
     release_bundle = read_json(RESULTS_DIR / "casee_release_bundle_manifest.json")
     github_release_publication = read_json(RESULTS_DIR / "github_release_publication_gate.json")
     workspace_hygiene = read_json(RESULTS_DIR / "casee_workspace_hygiene_gate.json")
+    postrun_handoff = read_json(RESULTS_DIR / "casee_postrun_official_audit_handoff.json")
     suite_passed = all(bool(step.get("passed")) for step in steps) and not bool(release_gate.get("formal_release_allowed"))
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -453,6 +455,7 @@ def main() -> int:
         "casee_release_bundle": release_bundle,
         "github_release_publication_gate": github_release_publication,
         "casee_workspace_hygiene_gate": workspace_hygiene,
+        "casee_postrun_official_audit_handoff": postrun_handoff,
     }
     write_text_retry(OUT_JSON, json.dumps(payload, indent=2))
     write_markdown(payload)

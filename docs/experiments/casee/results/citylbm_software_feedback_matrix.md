@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-13T05:32:33.715723+00:00
+Generated: 2026-08-13T06:08:43.113036+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 53
+- Feedback rows: 54
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -44,6 +44,7 @@ Generated: 2026-08-13T05:32:33.715723+00:00
 - paper_traceability_output: 2
 - portable_plugin_build_script: 1
 - portable_toolchain_activation_gate: 1
+- postrun_official_audit_handoff_no_default_promotion: 1
 - rerun_reproducibility_guard: 1
 - residual_structure_no_default_promotion: 1
 - residual_target_hook_no_default_promotion: 1
@@ -117,6 +118,7 @@ Generated: 2026-08-13T05:32:33.715723+00:00
 | `SF042` | CityLBM Rhino/GHA manual load manifest schema gate | manual_rhino_load_manifest_schema_gate | implemented_rhino_load_manifest_schema_gate | True | The manual Rhino/GHA load manifest now has a schema gate that checks required fields, expected plugin version, expected GHA SHA256, and evidence-artifact requirements without treating the template itself as load evidence. |
 | `SF043` | Experiment 2 / local orphan native candidate CSV audit | local_orphan_candidate_no_default_promotion | implemented_orphan_candidate_csv_audit | False | Local untracked native candidate CSVs are now inventoried by hash and metric summary before any paper use. The best raw candidate remains negative, and no candidate is formal-result eligible because complete run logs are absent. |
 | `SF019` | Experiment 2 / AIJ Case E official z=2 m follow-up planning | followup_sweep_plan | planned_candidate_matrix | False | The candidate sweep plan converts the current negative official metric and failure-mode evidence into prioritized follow-up runs with explicit commands, blockers, pass conditions, and default-promotion boundaries. |
+| `SF054` | Experiment 2 / Case E post-run official audit handoff | postrun_official_audit_handoff_no_default_promotion | implemented_postrun_official_audit_handoff | True | A fail-closed post-run handoff now checks any newly completed Case E probe CSV for official z=2 m raw_trilinear audit readiness before it can be used in paper or release evidence. |
 
 ## Paper Boundary
 
@@ -175,6 +177,7 @@ Generated: 2026-08-13T05:32:33.715723+00:00
 | `SF042` | Use as reviewer-facing schema evidence for the manual Rhino/GHA load manifest contract. | Schema gate only; it does not create manual evidence, prove Rhino loaded the plugin, run CFD, improve metrics, or permit formal v0.4.0. |
 | `SF043` | Use as local candidate inventory and protocol-risk evidence only. | The raw candidate CSVs are local/untracked and lack complete run logs; do not use them as formal validation, default-promotion evidence, or formal v0.4.0 support. |
 | `SF019` | Use as a pre-registered follow-up experiment plan for improving official z=2 m R2. | Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone. |
+| `SF054` | Use as protocol-control evidence for accepting future post-run Case E CSVs into the formal audit path. | Handoff evidence only; it does not run FluidX3D, update official metrics, promote diagnostics, change defaults, or permit formal v0.4.0. |
 
 ## Boundary
 

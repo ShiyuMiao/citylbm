@@ -73,6 +73,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc75.md",
     "docs/releases/v0.4.0-rc76.md",
     "docs/releases/v0.4.0-rc77.md",
+    "docs/releases/v0.4.0-rc78.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -137,6 +138,7 @@ RESULT_PATTERNS = [
     "casee_default_policy_gate.*",
     "casee_remaining_blockers.*",
     "casee_next_experiment_runbook.*",
+    "casee_postrun_official_audit_handoff.*",
     "citylbm_build_check.log",
     "fluidx3d_*_run*.log",
     "fluidx3d_*_compile.log",
@@ -165,6 +167,7 @@ TOOL_SCRIPTS = [
     "casee_blocker_remediation_plan.py",
     "casee_operational_recovery_dashboard.py",
     "casee_next_experiment_runbook.py",
+    "casee_postrun_official_audit_handoff.py",
     "casee_candidate_sweep_plan.py",
     "casee_orphan_candidate_csv_audit.py",
     "casee_zcenter_rerun_consistency.py",
@@ -777,6 +780,7 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
                 "v0.4.0-rc75.md",
                 "v0.4.0-rc76.md",
                 "v0.4.0-rc77.md",
+                "v0.4.0-rc78.md",
             )
         )
     ]

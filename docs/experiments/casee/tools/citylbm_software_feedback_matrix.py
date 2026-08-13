@@ -123,6 +123,7 @@ def build_rows() -> List[Dict[str, Any]]:
     build_chain = read_json(RESULTS_DIR / "build_chain_manifest.json")
     dx1_readiness = read_json(RESULTS_DIR / "casee_dx1_readiness_audit.json")
     candidate_sweep = read_json(RESULTS_DIR / "casee_candidate_sweep_plan.json")
+    postrun_handoff = read_json(RESULTS_DIR / "casee_postrun_official_audit_handoff.json")
     zcenter_rerun = read_json(RESULTS_DIR / "casee_zcenter_rerun_consistency.json")
     c002_longer_mean = read_json(RESULTS_DIR / "casee_c002_longer_mean_audit.json")
     c003_zorigin_ablation = read_json(RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
@@ -1799,6 +1800,41 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    postrun_summary = postrun_handoff.get("summary") or {}
+    rows.append(
+        row(
+            feedback_id="SF054",
+            experiment="Experiment 2 / Case E post-run official audit handoff",
+            finding=(
+                "A fail-closed post-run handoff now checks any newly completed Case E probe CSV for "
+                "official z=2 m raw_trilinear audit readiness before it can be used in paper or release evidence."
+            ),
+            evidence_type=str(postrun_summary.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "casee_postrun_official_audit_handoff.py",
+                RESULTS_DIR / "casee_postrun_official_audit_handoff.json",
+                RESULTS_DIR / "casee_postrun_official_audit_handoff.csv",
+                RESULTS_DIR / "casee_postrun_official_audit_handoff.md",
+                RESULTS_DIR / "casee_next_experiment_runbook.json",
+            ],
+            decision_class="postrun_official_audit_handoff_no_default_promotion",
+            citylbm_status="implemented_postrun_official_audit_handoff"
+            if postrun_summary.get("postrun_official_audit_handoff_passed") is True
+            and postrun_summary.get("formal_accuracy_claim_supported") is False
+            and postrun_summary.get("formal_result_allowed_now") is False
+            else "postrun_official_audit_handoff_missing_or_failed",
+            implementation_evidence=(
+                f"ready_to_run_official_audit={postrun_summary.get('ready_to_run_official_audit')}; "
+                f"claim_readiness={postrun_summary.get('claim_readiness')}; "
+                f"runbook_postrun_policy_present={postrun_summary.get('runbook_postrun_policy_present')}; "
+                f"official_audit_command={postrun_summary.get('official_audit_command')}"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as protocol-control evidence for accepting future post-run Case E CSVs into the formal audit path.",
+            limitations="Handoff evidence only; it does not run FluidX3D, update official metrics, promote diagnostics, change defaults, or permit formal v0.4.0.",
+        )
+    )
+
     return rows
 
 
@@ -1817,13 +1853,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053", "SF054"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "paper_release_bundle_no_accuracy_promotion", "github_publication_state_no_accuracy_promotion", "workspace_hygiene_no_accuracy_promotion", "build_chain_recovery_gate", "build_chain_uac_launcher_gate", "build_chain_system_drive_space_gate", "operational_recovery_dashboard_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "manual_rhino_load_manifest_schema_gate", "software_identity_component", "packaged_gha_identity_component_gate", "software_packaging_traceability_no_accuracy_promotion", "software_staged_gha_traceability_no_accuracy_promotion", "software_build_hash_stability_no_accuracy_promotion"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "paper_release_bundle_no_accuracy_promotion", "github_publication_state_no_accuracy_promotion", "workspace_hygiene_no_accuracy_promotion", "postrun_official_audit_handoff_no_default_promotion", "build_chain_recovery_gate", "build_chain_uac_launcher_gate", "build_chain_system_drive_space_gate", "operational_recovery_dashboard_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "manual_rhino_load_manifest_schema_gate", "software_identity_component", "packaged_gha_identity_component_gate", "software_packaging_traceability_no_accuracy_promotion", "software_staged_gha_traceability_no_accuracy_promotion", "software_build_hash_stability_no_accuracy_promotion"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows

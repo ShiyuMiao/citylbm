@@ -28,6 +28,9 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/casee_remaining_blockers.md",
     "docs/experiments/casee/results/casee_next_experiment_runbook.json",
     "docs/experiments/casee/results/casee_next_experiment_runbook.md",
+    "docs/experiments/casee/results/casee_postrun_official_audit_handoff.json",
+    "docs/experiments/casee/results/casee_postrun_official_audit_handoff.csv",
+    "docs/experiments/casee/results/casee_postrun_official_audit_handoff.md",
     "docs/experiments/casee/results/build_chain_manifest.json",
     "docs/experiments/casee/results/build_chain_manifest.csv",
     "docs/experiments/casee/results/build_chain_manifest.md",
@@ -562,6 +565,35 @@ def candidate_sweep_status(path: Path) -> Dict[str, Any]:
     }
 
 
+def postrun_handoff_status(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {
+            "handoff_found": False,
+            "handoff_passed": False,
+            "claim_readiness": "missing",
+            "ready_to_run_official_audit": None,
+            "formal_accuracy_claim_supported": None,
+            "formal_result_allowed_now": None,
+            "claim_boundary_safe": False,
+        }
+    data = json.loads(path.read_text(encoding="utf-8"))
+    summary = data.get("summary") or {}
+    readiness = str(summary.get("claim_readiness", ""))
+    return {
+        "handoff_found": True,
+        "handoff_passed": summary.get("postrun_official_audit_handoff_passed"),
+        "claim_readiness": readiness,
+        "ready_to_run_official_audit": summary.get("ready_to_run_official_audit"),
+        "formal_accuracy_claim_supported": summary.get("formal_accuracy_claim_supported"),
+        "formal_result_allowed_now": summary.get("formal_result_allowed_now"),
+        "runbook_postrun_policy_present": summary.get("runbook_postrun_policy_present"),
+        "claim_boundary_safe": summary.get("postrun_official_audit_handoff_passed") is True
+        and summary.get("formal_accuracy_claim_supported") is False
+        and summary.get("formal_result_allowed_now") is False
+        and readiness in {"armed_no_candidate", "blocked_candidate_incomplete", "ready_for_official_audit_only"},
+    }
+
+
 def zcenter_rerun_status(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {
@@ -1012,6 +1044,7 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     c003 = payload["casee_c003_zorigin_ablation_audit"]
     c004 = payload["casee_c004_dx3_low_cost_audit"]
     candidate_sweep = payload["casee_candidate_sweep_plan"]
+    postrun_handoff = payload["casee_postrun_official_audit_handoff"]
     default_policy = payload["casee_default_policy_gate"]
     paper_packet = payload["citylbm_paper_results_packet"]
     manifest_output = payload["citylbm_manifest_output_gate"]
@@ -1292,6 +1325,15 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
         f"- Excludes raw geometry and VTK: {release_assets['excludes_raw_geometry_and_vtk']}",
         f"- Formal accuracy claim supported: {release_assets['formal_accuracy_claim_supported']}",
         f"- Claim boundary safe: {release_assets['claim_boundary_safe']}",
+        "",
+        "## Post-run Official Audit Handoff",
+        "",
+        f"- Handoff found: {postrun_handoff['handoff_found']}",
+        f"- Handoff passed: {postrun_handoff['handoff_passed']}",
+        f"- Ready to run official audit: {postrun_handoff['ready_to_run_official_audit']}",
+        f"- Formal result allowed now: {postrun_handoff['formal_result_allowed_now']}",
+        f"- Claim readiness: `{postrun_handoff['claim_readiness']}`",
+        f"- Claim boundary safe: {postrun_handoff['claim_boundary_safe']}",
     ]
     if artifact["missing_required_artifacts"]:
         lines += ["", "Missing required artifacts:"]
@@ -1324,6 +1366,7 @@ def main() -> int:
     parser.add_argument("--c003-zorigin-ablation", type=Path, default=RESULTS_DIR / "casee_c003_zorigin_ablation_audit.json")
     parser.add_argument("--c004-dx3-low-cost", type=Path, default=RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     parser.add_argument("--candidate-sweep", type=Path, default=RESULTS_DIR / "casee_candidate_sweep_plan.json")
+    parser.add_argument("--postrun-handoff", type=Path, default=RESULTS_DIR / "casee_postrun_official_audit_handoff.json")
     parser.add_argument("--default-policy", type=Path, default=RESULTS_DIR / "casee_default_policy_gate.json")
     parser.add_argument("--paper-results-packet", type=Path, default=RESULTS_DIR / "citylbm_paper_results_packet.json")
     parser.add_argument("--manifest-output", type=Path, default=RESULTS_DIR / "citylbm_manifest_output_gate.json")
@@ -1357,6 +1400,7 @@ def main() -> int:
     c003_zorigin_ablation = c003_zorigin_ablation_status(args.c003_zorigin_ablation)
     c004_dx3_low_cost = c004_dx3_low_cost_status(args.c004_dx3_low_cost)
     candidate_sweep = candidate_sweep_status(args.candidate_sweep)
+    postrun_handoff = postrun_handoff_status(args.postrun_handoff)
     default_policy = default_policy_status(args.default_policy)
     paper_packet = paper_results_packet_status(args.paper_results_packet)
     manifest_output = manifest_output_status(args.manifest_output)
@@ -1405,6 +1449,8 @@ def main() -> int:
         and c004_dx3_low_cost["claim_boundary_safe"]
         and candidate_sweep["candidate_sweep_plan_found"]
         and candidate_sweep["claim_boundary_safe"]
+        and postrun_handoff["handoff_found"]
+        and postrun_handoff["claim_boundary_safe"]
         and default_policy["default_policy_gate_found"]
         and default_policy["claim_boundary_safe"]
         and paper_packet["paper_results_packet_found"]
@@ -1446,6 +1492,7 @@ def main() -> int:
         "casee_c003_zorigin_ablation_audit": c003_zorigin_ablation,
         "casee_c004_dx3_low_cost_audit": c004_dx3_low_cost,
         "casee_candidate_sweep_plan": candidate_sweep,
+        "casee_postrun_official_audit_handoff": postrun_handoff,
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_packet,
         "citylbm_manifest_output_gate": manifest_output,

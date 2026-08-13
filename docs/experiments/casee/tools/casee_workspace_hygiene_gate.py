@@ -39,8 +39,13 @@ EXPECTED_UNTRACKED_EVIDENCE = {
     "docs/experiments/casee/results/casee_workspace_hygiene_gate.json",
     "docs/experiments/casee/results/casee_workspace_hygiene_gate.csv",
     "docs/experiments/casee/results/casee_workspace_hygiene_gate.md",
+    "docs/experiments/casee/tools/casee_postrun_official_audit_handoff.py",
+    "docs/experiments/casee/results/casee_postrun_official_audit_handoff.json",
+    "docs/experiments/casee/results/casee_postrun_official_audit_handoff.csv",
+    "docs/experiments/casee/results/casee_postrun_official_audit_handoff.md",
     "docs/releases/v0.4.0-rc76.md",
     "docs/releases/v0.4.0-rc77.md",
+    "docs/releases/v0.4.0-rc78.md",
 }
 
 FORBIDDEN_TRACKED_SUFFIXES = (".vtk", ".vtu", ".vti", ".vtp", ".stl", ".3dm")

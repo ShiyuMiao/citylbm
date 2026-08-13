@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc78 - Post-run official audit handoff
+
+- Added a fail-closed post-run handoff that checks whether a newly completed Case E `casee_probe_time_mean.csv` is structurally ready for the official z=2 m raw_trilinear audit.
+- The handoff records the candidate CSV hash, required columns, 80-probe coverage, native manifest protocol fields, run-log completion evidence, and the exact `casee_audit.py` command required before any paper use.
+- Integrated the handoff into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc77 - Build-chain recheck artifact refresh
 
 - Re-ran the CityLBM build-chain audit with the portable `E:\citylbm_buildchain` .NET SDK and refreshed the tracked `CityLBM.gha` artifact.

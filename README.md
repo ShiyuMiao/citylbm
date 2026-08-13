@@ -104,6 +104,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/github_release_publication_gate.md`
 - `docs/experiments/casee/results/casee_workspace_hygiene_gate.json`
 - `docs/experiments/casee/results/casee_workspace_hygiene_gate.md`
+- `docs/experiments/casee/results/casee_postrun_official_audit_handoff.json`
+- `docs/experiments/casee/results/casee_postrun_official_audit_handoff.md`
+- `docs/releases/v0.4.0-rc78.md`
 - `docs/releases/v0.4.0-rc77.md`
 - `docs/releases/v0.4.0-rc76.md`
 - `docs/experiments/casee/results/vs_cpp_recovery_gate.json`

@@ -1,6 +1,6 @@
 # CityLBM Build Hash Stability Gate
 
-Generated: 2026-08-13T05:32:01.927848+00:00
+Generated: 2026-08-13T06:07:53.825431+00:00
 
 ## Verdict
 
@@ -8,15 +8,15 @@ Generated: 2026-08-13T05:32:01.927848+00:00
 - Build repeat count: 2
 - Repeated build hash stable: True
 - Tracked/release/nested hashes equal: True
-- Final GHA SHA256: `504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39`
+- Final GHA SHA256: `1c3d08567a8d2a6a6c928b1d3183601d6c5444de53d4707910bb47066927d098`
 - Staged for Grasshopper: True
 
 ## Builds
 
 | build | returncode | tracked GHA SHA256 |
 |---:|---:|---|
-| 1 | 0 | `504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39` |
-| 2 | 0 | `504acb274423b6ac48fb81262e0e004558cd59143b34965ded932595560dfa39` |
+| 1 | 0 | `1c3d08567a8d2a6a6c928b1d3183601d6c5444de53d4707910bb47066927d098` |
+| 2 | 0 | `1c3d08567a8d2a6a6c928b1d3183601d6c5444de53d4707910bb47066927d098` |
 
 ## Boundary
 
