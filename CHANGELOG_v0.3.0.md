@@ -61,6 +61,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   audit evidence before any paper-grade accuracy claim.
 - The native baseline manifest now includes existence flags and SHA256 hashes for the generated source, geometry and
   metadata files so paired native/CityLBM runs can prove they used identical inputs.
+- The native baseline manifest now includes a stable `BaselineId`, derived from the scene name and required source hashes,
+  so metrics and `validation_gate.py` can trace a completed native FluidX3D baseline without relying on manual labels.
 - `docs/CaseA_native_baseline_protocol.md` defines the native FluidX3D Case A promotion gate: empty-tunnel `U/k`
   preservation, inlet distribution-consistency treatment, post-spinup averaging, official probe IDs, tolerance-based
   probe mapping and CityLBM-vs-native equivalence must be archived before Case E is promoted as SCI-grade validation.
@@ -70,6 +72,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_gate.py` now requires the native baseline manifest to prove an explicitly supplied FluidX3D source
   path, a passing source-tree validation record and SHA256 hashes for the native `setup.cpp`, `defines.hpp`, `lbm.hpp`
   and `lbm.cpp`; a metrics row can no longer self-report `native_baseline_gate=pass` without this evidence.
+- `scripts/validation_gate.py` now also requires `native_fluidx3d_baseline_id` in the metrics row to match the manifest
+  `BaselineId`, preventing copied or manually mistyped native-baseline labels from passing the evidence gate.
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.

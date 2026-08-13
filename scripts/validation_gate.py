@@ -479,7 +479,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Use a distribution-consistent DFM/SEM/precursor/recycling inlet and pass empty-tunnel U/k preservation; velocity-only STG-lite is diagnostic unless explicitly allowed.",
     )
 
-    native_id = str(get_any(metrics, ["native_fluidx3d_baseline_id"]) or manifest.get("BaselineId") or "")
+    metrics_native_id = str(get_any(metrics, ["native_fluidx3d_baseline_id"]) or "").strip()
+    manifest_native_id = str(manifest.get("BaselineId") or "").strip()
+    native_id = metrics_native_id or manifest_native_id
+    native_id_matches_manifest = (
+        bool(metrics_native_id)
+        and bool(manifest_native_id)
+        and metrics_native_id == manifest_native_id
+    )
     native_status = protocol_status(items, "native_fluidx3d_baseline")
     native_gate = str(get_any(metrics, ["native_baseline_gate", "native_fluidx3d_baseline_gate"]) or "").strip().lower()
     native_path_explicit = as_bool(manifest.get("NativeFluidX3DPathExplicitlyProvided"))
@@ -504,9 +511,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     add_gate(
         gates,
         "native_baseline",
-        PASS if native_id and native_gate == "pass" and native_manifest_ok else FAIL,
+        PASS if native_id_matches_manifest and native_gate == "pass" and native_manifest_ok else FAIL,
         (
-            f"native_fluidx3d_baseline_id={native_id or 'missing'}; "
+            f"native_fluidx3d_baseline_id={metrics_native_id or 'missing'}; "
+            f"manifest_baseline_id={manifest_native_id or 'missing'}; "
+            f"native_id_matches_manifest={native_id_matches_manifest}; "
             f"protocol_status={native_status or 'missing'}; native_baseline_gate={native_gate or 'missing'}; "
             f"NativeFluidX3DPathExplicitlyProvided={native_path_explicit}; "
             f"NativeFluidX3DSourceValidation.IsValid={native_source_valid}; "

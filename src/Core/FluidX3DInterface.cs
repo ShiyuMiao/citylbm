@@ -2834,11 +2834,13 @@ namespace CityLBM.Solver
                 };
                 var boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
                 var sourceValidation = ValidateFluidX3DSourcePath(out string sourceValidationMessage);
+                string baselineId = BuildNativeBaselineId(scene, requiredSourceFiles);
 
                 var manifest = new
                 {
                     SchemaVersion = 1,
                     CityLBMVersion = "0.3.0",
+                    BaselineId = baselineId,
                     SceneName = scene.Name,
                     GeneratedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                     Purpose = "Paired native FluidX3D baseline protocol for separating solver/protocol error from CityLBM integration error.",
@@ -2907,6 +2909,7 @@ namespace CityLBM.Solver
                 File.WriteAllText(Path.Combine(caseDir, "output", "native_fluidx3d_baseline_manifest.json"), json, Encoding.UTF8);
 
                 string markdown = BuildNativeFluidX3DBaselineManifestMarkdown(
+                    manifest.BaselineId,
                     manifest.Gate,
                     requiredSourceFiles,
                     manifest.RequiredPairedEvidence,
@@ -2917,6 +2920,22 @@ namespace CityLBM.Solver
             catch (Exception ex)
             {
                 Debug.WriteLine($"[CityLBM] Save native_fluidx3d_baseline_manifest failed: {ex.Message}");
+            }
+        }
+
+        private string BuildNativeBaselineId(Scene scene, IEnumerable<BaselineSourceFileRecord> requiredSourceFiles)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("citylbm-native-baseline-v1");
+            sb.AppendLine(scene?.Name ?? "");
+            foreach (var file in requiredSourceFiles.OrderBy(f => f.Role, StringComparer.Ordinal))
+                sb.AppendLine($"{file.Role}|{file.Exists}|{file.Sha256}");
+
+            using (var sha = SHA256.Create())
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(sb.ToString());
+                string digest = BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
+                return $"citylbm-v0.3.0-{SanitizeName(scene?.Name ?? "case")}-{digest.Substring(0, 12)}";
             }
         }
 
@@ -2944,6 +2963,7 @@ namespace CityLBM.Solver
         }
 
         private string BuildNativeFluidX3DBaselineManifestMarkdown(
+            string baselineId,
             string gate,
             IEnumerable<BaselineSourceFileRecord> requiredSourceFiles,
             IEnumerable<string> requiredEvidence,
@@ -2951,6 +2971,8 @@ namespace CityLBM.Solver
         {
             var sb = new StringBuilder();
             sb.AppendLine("# Native FluidX3D baseline manifest");
+            sb.AppendLine();
+            sb.AppendLine($"BaselineId: `{baselineId}`");
             sb.AppendLine();
             sb.AppendLine($"Gate: `{gate}`");
             sb.AppendLine();

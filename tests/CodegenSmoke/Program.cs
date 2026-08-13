@@ -95,6 +95,7 @@ namespace CityLBM.CodegenSmoke
                 Require(audit, "ExpectedVtkFrameCount=10");
                 Require(nativeManifest, "NativeFluidX3DPathExplicitlyProvided");
                 Require(nativeManifest, "NativeFluidX3DSourceValidation");
+                Require(nativeManifest, "\"BaselineId\": \"citylbm-v0.3.0-stg_codegen_smoke-");
                 Require(nativeManifest, "Native FluidX3D original setup");
                 Require(nativeManifest, "Native FluidX3D lbm.hpp");
                 Require(nativeManifest, "auto-detected paths are not sufficient evidence");
