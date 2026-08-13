@@ -1,0 +1,30 @@
+check,passed
+tracked_gha_exists,True
+release_gha_exists,True
+tracked_gha_matches_release_gha,True
+source_component_gate_passed,True
+all_required_markers_present_in_tracked_gha,True
+marker::CaseEOfficialResidualDiagnosticsComponent,True
+marker::Case E Official Residual Diagnostics,True
+marker::Top Residual Rows,True
+marker::Group Rows,True
+marker::Risk Rows,True
+marker::Formal Diagnostic Ready,True
+marker::Claim Readiness,True
+marker::official_velocity_ratio,True
+marker::predicted_velocity_ratio,True
+marker::low_official_speed,True
+marker::mid_official_speed,True
+marker::high_official_speed,True
+marker::under_fraction,True
+marker::formal_accuracy_claim_supported=false,True
+marker::formal_release_allowed=false,True
+marker::residual_diagnostics_do_not_improve_metrics=true,True
+marker::diagnostic_sampling_not_formal=true,True
+marker::posthoc_calibration_not_validation=true,True
+marker::official_case_check=,True
+marker::wind_direction_check=,True
+marker::height_2m_check=,True
+marker::sampling_raw_trilinear_check=,True
+marker::probe_id_check=,True
+marker::9BAEAB1F-6F24-4679-B940-D4E97DE0D54B,True

@@ -47,6 +47,12 @@ manuscript tables are updated. This is metric-calculation and claim-boundary
 support only; it does not run FluidX3D, improve the current official metric, or
 allow formal `v0.4.0`.
 
+The rc94 plugin update adds a `Case E Official Residual Diagnostics`
+Grasshopper component. It turns completed official probe CSVs into top-error
+probe rows, observed-speed group summaries, and under-prediction fractions for
+limitations and error-mechanism discussion. This is residual-diagnostic support
+only and cannot be used as a substitute for official z=2 m validation.
+
 Current Case E, release-gate, and manuscript-boundary materials:
 
 - `docs/experiments/casee/data_manifest.csv`
@@ -155,6 +161,8 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_casee_official_metric_gate_binary_gate.json`
 - `docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_component_gate.json`
 - `docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_binary_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_component_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
 - `docs/experiments/casee/results/rhino_gha_load_manifest.expected.json`
@@ -163,6 +171,7 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/releases/v0.4.0-rc91.md`
 - `docs/releases/v0.4.0-rc92.md`
 - `docs/releases/v0.4.0-rc93.md`
+- `docs/releases/v0.4.0-rc94.md`
 - `docs/releases/v0.4.0-rc87.md`
 - `docs/releases/v0.4.0-rc88.md`
 - `docs/releases/v0.4.0-rc86.md`

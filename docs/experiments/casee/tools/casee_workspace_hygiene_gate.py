@@ -88,6 +88,15 @@ EXPECTED_UNTRACKED_EVIDENCE = {
     "docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_binary_gate.json",
     "docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_binary_gate.csv",
     "docs/experiments/casee/results/citylbm_casee_official_metrics_from_csv_binary_gate.md",
+    "CityLBM/src/Components/Results/CaseEOfficialResidualDiagnosticsComponent.cs",
+    "docs/experiments/casee/tools/citylbm_casee_official_residual_diagnostics_component_gate.py",
+    "docs/experiments/casee/tools/citylbm_casee_official_residual_diagnostics_binary_gate.py",
+    "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_component_gate.json",
+    "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_component_gate.csv",
+    "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_component_gate.md",
+    "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.json",
+    "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.csv",
+    "docs/experiments/casee/results/citylbm_casee_official_residual_diagnostics_binary_gate.md",
     "docs/releases/v0.4.0-rc76.md",
     "docs/releases/v0.4.0-rc77.md",
     "docs/releases/v0.4.0-rc78.md",
@@ -96,6 +105,7 @@ EXPECTED_UNTRACKED_EVIDENCE = {
     "docs/releases/v0.4.0-rc91.md",
     "docs/releases/v0.4.0-rc92.md",
     "docs/releases/v0.4.0-rc93.md",
+    "docs/releases/v0.4.0-rc94.md",
 }
 
 FORBIDDEN_TRACKED_SUFFIXES = (".vtk", ".vtu", ".vti", ".vtp", ".stl", ".3dm")

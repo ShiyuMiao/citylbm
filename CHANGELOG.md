@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc94 - Grasshopper official residual diagnostics
+
+- Added a Grasshopper `Case E Official Residual Diagnostics` component under `CityLBM > Results`.
+- The component reports top absolute-residual probes, observed-speed group summaries, under-prediction fractions, and protocol/interpretation risks from a supplied official probe CSV.
+- Added source and packaged-GHA gates for the component and integrated them into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF075-SF076.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc93 - Grasshopper official CSV metric calculator
 
 - Added a Grasshopper `Case E Official Metrics From CSV` component under `CityLBM > Results`.

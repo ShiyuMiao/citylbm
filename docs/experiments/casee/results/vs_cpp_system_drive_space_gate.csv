@@ -4,5 +4,5 @@ nuget_cache,C:\Users\miaoshiyu\.nuget\packages,True,medium,developer,0.159,431,3
 pip_cache,C:\Users\miaoshiyu\AppData\Local\pip\Cache,True,low,user,0.048,156,314,False,True,Run `python -m pip cache purge` if Python package downloads can be re-fetched.
 winget_temp_cache,C:\Users\miaoshiyu\AppData\Local\Temp\WinGet,True,low,user,0.004,3,16,False,True,Remove stale WinGet installer cache after confirming no winget install is running.
 recycle_bin,C:\$Recycle.Bin,True,medium,user,0.0,1,11,False,True,Review Recycle Bin contents manually before emptying.
-user_temp,E:\citylbm_tmp,True,low,user,0.0,0,135,False,False,"Close running installers/apps, then remove stale files from the user temp folder or use Windows Storage cleanup."
+user_temp,E:\citylbm_tmp,True,low,user,0.0,0,151,False,False,"Close running installers/apps, then remove stale files from the user temp folder or use Windows Storage cleanup."
 delivery_optimization_cache,C:\ProgramData\Microsoft\Windows\DeliveryOptimization\Cache,False,medium,administrator,0.0,0,0,False,False,Use Windows Delivery Optimization cleanup through system Storage settings.

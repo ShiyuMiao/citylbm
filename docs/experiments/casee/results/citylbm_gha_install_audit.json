@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-08-13T13:38:24.685292+00:00",
+  "generated_at": "2026-08-13T13:55:03.123650+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "install_audited_staging_blocked_by_disk_space",
   "install_audit_passed": true,
   "matching_gha_already_staged": false,
   "rhino_loaded_new_gha": false,
-  "expected_tracked_gha_sha256": "25ce377acae4ce5bfc6702998677439c49125308e25f5112eb17643806104cad",
+  "expected_tracked_gha_sha256": "bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a",
   "tracked_gha": {
     "found": true,
     "path": "CityLBM/bin/CityLBM.gha",
-    "sha256": "25ce377acae4ce5bfc6702998677439c49125308e25f5112eb17643806104cad",
-    "size_bytes": 1883648,
-    "mtime_utc": "2026-08-13T13:37:14.743286+00:00"
+    "sha256": "bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a",
+    "size_bytes": 1895936,
+    "mtime_utc": "2026-08-13T13:53:44.721354+00:00"
   },
   "packaged_gha": {
     "found": true,
     "path": "CityLBM/bin/Release/CityLBM.gha",
-    "sha256": "25ce377acae4ce5bfc6702998677439c49125308e25f5112eb17643806104cad",
-    "size_bytes": 1883648,
-    "mtime_utc": "2026-08-13T13:38:19.191900+00:00"
+    "sha256": "bcb9670a5a5060187960a42fa3e1eb33e01107c89bfe39e802db066c48925c1a",
+    "size_bytes": 1895936,
+    "mtime_utc": "2026-08-13T13:54:57.302964+00:00"
   },
   "candidate_library_dirs": [
     "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries",
@@ -29,7 +29,7 @@
   ],
   "recommended_library_dir": "C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries",
   "recommended_library_dir_free_bytes": 0,
-  "required_free_bytes_for_copy": 2932224,
+  "required_free_bytes_for_copy": 2944512,
   "staging_blocked_by_disk_space": true,
   "recommended_manual_copy_command": "New-Item -ItemType Directory -Force -Path 'C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries' | Out-Null; Copy-Item -LiteralPath 'E:\\citylbm_rc89_work\\CityLBM\\bin\\CityLBM.gha' -Destination 'C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries\\CityLBM.gha' -Force",
   "installed_candidates": [

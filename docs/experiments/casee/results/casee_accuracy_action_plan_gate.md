@@ -1,13 +1,13 @@
 # Case E Accuracy Action Plan Gate
 
-Generated: 2026-08-13T13:38:49.169918+00:00
+Generated: 2026-08-13T13:55:27.426410+00:00
 
 ## Verdict
 
 - Action plan gate passed: True
 - Formal accuracy claim supported: False
 - Formal release allowed: False
-- Recommended tag: `v0.4.0-rc93`
+- Recommended tag: `v0.4.0-rc94`
 - Enabled-now actions: 4
 
 ## Actions

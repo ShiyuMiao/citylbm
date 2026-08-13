@@ -1,13 +1,13 @@
 # Case E Publication Readiness Gate
 
-Generated: 2026-08-13T13:39:20.855512+00:00
+Generated: 2026-08-13T13:55:58.133061+00:00
 
 ## Verdict
 
 - Publication readiness gate passed: True
 - Claim readiness: `paper_ready_publication_packet; blocked formal accuracy release`
 - Formal release allowed: False
-- Recommended tag: `v0.4.0-rc93`
+- Recommended tag: `v0.4.0-rc94`
 - Official MAE: 21.111408125 pp
 - Official R2: -2.006330362229977
 - Official Pearson: 0.11575649438573923
@@ -25,7 +25,7 @@ Generated: 2026-08-13T13:39:20.855512+00:00
 | `PR007` | Has the software feedback been constrained to validated defaults, diagnostic switches, and manifest-level publication dependencies? | paper_ready_software_boundary | Software implications / Limitations | CityLBM converts evidence into formal defaults, diagnostic-only switches, manifest-level publication dependencies, a Run Simulation Publication Gate output, GHA staging audit, and release blockers. | Do not promote benchmark-tuned diagnostics or manifest publication readiness to default accuracy models. |
 | `PR008` | What still blocks a formal accuracy-oriented release? | blocked_formal_release | Limitations / Future work | Formal release remains blocked by the official z=2 m metric gate, missing Rhino/GHA load evidence, current GHA staging status, current GPU/runtime recovery needs, and unresolved VS C++ Build Tools recovery blockers. | Do not create a formal v0.4.0 tag or state that the optimized plugin satisfies research-grade accuracy. |
 | `PR009` | Is the entire publication packet reproducible from scripts? | paper_ready_scripted_packet | Reproducibility statement | The current publication packet is script-generated and passes the paper evidence and claim-support gates. | Do not treat a passing publication gate as a passing CFD accuracy gate. |
-| `PR010` | Are release assets lightweight and traceable? | paper_ready_release_assets | Data and code availability | The artifact index records 503 artifacts and 433 lightweight release assets; the curated release manifest selects 172 upload assets and keeps 20 raw/large assets excluded or hash-only. | Do not commit large VTK/raw geometry duplicates as manuscript evidence. |
+| `PR010` | Are release assets lightweight and traceable? | paper_ready_release_assets | Data and code availability | The artifact index records 512 artifacts and 442 lightweight release assets; the curated release manifest selects 179 upload assets and keeps 20 raw/large assets excluded or hash-only. | Do not commit large VTK/raw geometry duplicates as manuscript evidence. |
 
 ## Boundary
 
