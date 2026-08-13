@@ -48,8 +48,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
 5. Inlet distribution-consistency gate.
    If the inlet turbulence is generated from `k`, archive whether the implementation reconstructs FluidX3D distribution
    functions or only refreshes macroscopic velocity fields. CityLBM v0.3.0 STG-lite is velocity-field-only; it is
-   diagnostic until an empty-tunnel run proves downstream `U/k` preservation or a validated DFM/SEM/precursor/recycling
-   inlet is implemented.
+   normalized to the isotropic component RMS target `sigma=sqrt(2k/3)`, but remains diagnostic until an empty-tunnel run
+   proves downstream `U/k` preservation or a validated DFM/SEM/precursor/recycling inlet is implemented.
 
 6. Time-averaging gate.
    Do not report a single instantaneous VTK frame as validation. Archive post-spinup probe time means and, when VTK is

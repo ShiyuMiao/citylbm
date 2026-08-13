@@ -2179,7 +2179,9 @@ namespace CityLBM.Solver
             sb.AppendLine($"    const float citylbm_stg_max_fraction = {maxFrac.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const uint citylbm_stg_update_interval = {updateInterval}u;");
             sb.AppendLine("    const int citylbm_stg_mode_count = 12;");
-            sb.AppendLine("    const float citylbm_stg_norm = sqrtf(2.0f / (float)citylbm_stg_mode_count);");
+            sb.AppendLine("    // Target component RMS follows isotropic k: sigma=sqrt(2k/3).");
+            sb.AppendLine("    // With unit-amplitude sin modes, sqrt(6/M) compensates 1/2 phase variance and 1/3 projected-component energy.");
+            sb.AppendLine("    const float citylbm_stg_norm = sqrtf(6.0f / (float)citylbm_stg_mode_count);");
             sb.AppendLine("    auto citylbm_mode_phase = [&](int mode, int component) -> float {");
             sb.AppendLine("        return 0.17320508f * (float)((mode + 1) * (component * 13 + 7));");
             sb.AppendLine("    };");
@@ -2322,6 +2324,9 @@ namespace CityLBM.Solver
                         : "none",
                     SyntheticTurbulentInletDivergenceTreatment = syntheticActive
                         ? "per-mode fluctuation amplitudes projected normal to synthetic wave vectors"
+                        : "none",
+                    SyntheticTurbulentInletEnergyNormalization = syntheticActive
+                        ? "component RMS target sigma=sqrt(2k/3); spectral normalization sqrt(6/mode_count) accounts for sinusoidal variance and projected-component energy"
                         : "none",
                     SyntheticTurbulentInletDistributionTreatment = syntheticActive
                         ? "velocity_field_only_no_distribution_function_reconstruction"
