@@ -1,15 +1,15 @@
 # VS C++ System Drive Space Gate
 
-Generated: 2026-08-13T07:43:13.205644+00:00
+Generated: 2026-08-13T08:29:53.057812+00:00
 
 ## Verdict
 
 - Gate passed: True
 - Claim readiness: `space_preflight_blocked_manual_cleanup_needed`
 - System drive: `C:`
-- Free space: 1.477 GB
+- Free space: 1.468 GB
 - Required free space: 8.0 GB
-- Additional free space needed: 6.523 GB
+- Additional free space needed: 6.532 GB
 - Ready for VS C++ elevated launcher: False
 - Low-risk candidate total: 0.967 GB
 - Low-risk cleanup could cover shortfall: False

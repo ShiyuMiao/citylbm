@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc80 - Native wall follow-up codegen
+
+- Added default-off native Case E wall/ground follow-up code generation to `generate_native_casee.py`.
+- New native options: `--wall-model none|voxel_dilation|ground_damping`, `--wall-dilation-cells`, and `--wall-damping-factor`.
+- Added `casee_wall_followup_codegen_gate.py` and integrated it into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF056.
+- Updated the candidate sweep and next experiment runbook so the wall follow-up is no longer an implementation placeholder; it remains blocked by GPU/runtime and official preflight before any long run.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc79 - Case E post-run audit component
 
 - Added a Grasshopper `Case E Post-run Audit` component under `CityLBM > Results` so completed Case E candidate CSVs can be checked against the official z=2 m raw_trilinear handoff rules before paper use.

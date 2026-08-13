@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-13T07:43:48.475512+00:00",
+  "generated_at": "2026-08-13T08:30:20.369280+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_followup_runbook; not_accuracy_evidence",
   "release_gate_summary": {
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc79",
+    "recommended_tag": "v0.4.0-rc80",
     "metrics": {
       "n": 80,
       "mae_pp": 21.111408125,
@@ -93,14 +93,14 @@
       "forbidden_claim": "Do not claim predictive accuracy, mesh independence, or formal v0.4.0 readiness from this command alone."
     },
     {
-      "runbook_id": "R006_wall_model_followup_placeholder",
-      "stage": "implementation_then_native_run",
+      "runbook_id": "R006_wall_model_followup",
+      "stage": "native_case_generation_then_run",
       "enabled_now": false,
-      "evidence_type": "blocked_until_physical_change_exists",
-      "purpose": "Test a wall/roughness/voxelization change aimed at near-wall official z=2 m errors.",
-      "trigger_condition": "A code change exists that is justified by wall/probe diagnostics and remains default-off until validated.",
-      "command": "TODO after implementation: generate native Case E with the new wall/voxelization option and audit raw_trilinear output.",
-      "expected_artifact": "docs/experiments/casee/results/<wall_followup_probe_time_mean.csv>",
+      "evidence_type": "blocked_until_gpu_ready",
+      "purpose": "Test the default-off voxel-dilation wall/ground follow-up aimed at near-wall official z=2 m errors.",
+      "trigger_condition": "GPU ready and official preflight passes; wall follow-up codegen gate must remain pass/fail closed.",
+      "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --wall-model voxel_dilation --wall-dilation-cells 1 --no-subgrid",
+      "expected_artifact": "docs/experiments/casee/native_cases/<run_id>/casee_probe_time_mean.csv",
       "formal_result_policy": "May inform defaults only if official raw_trilinear metrics improve and Case A smoke regression passes.",
       "pass_condition": "MAE clearly below prior near-20 pp level, R2>0, Pearson>0, n=80 official probes.",
       "forbidden_claim": "Do not claim predictive accuracy, mesh independence, or formal v0.4.0 readiness from this command alone."

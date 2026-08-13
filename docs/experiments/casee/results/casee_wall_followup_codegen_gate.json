@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-08-13T08:30:02.935048+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_wall_followup_codegen; blocked official run",
+  "wall_followup_codegen_gate_passed": true,
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "checks": {
+    "generator_exists": true,
+    "wall_model_cli_default_off": true,
+    "wall_dilation_default_zero": true,
+    "wall_damping_default_zero": true,
+    "setup_contains_wall_followup_function": true,
+    "setup_supports_voxel_dilation": true,
+    "setup_supports_ground_damping": true,
+    "setup_calls_wall_followup_after_voxelization": true,
+    "manifest_records_default_safety": true,
+    "manifest_blocks_default_accuracy_promotion": true,
+    "claim_boundary_blocks_accuracy_claim": true,
+    "candidate_no_longer_blocks_on_missing_implementation": true,
+    "candidate_command_uses_wall_model": true,
+    "runbook_no_longer_uses_wall_placeholder_todo": true,
+    "runbook_command_uses_wall_model": true
+  },
+  "source_paths": [
+    "docs/experiments/casee/tools/generate_native_casee.py",
+    "docs/experiments/casee/tools/casee_candidate_sweep_plan.py",
+    "docs/experiments/casee/tools/casee_next_experiment_runbook.py"
+  ],
+  "boundary": "This gate verifies a default-off native wall/ground follow-up code-generation path. It does not run FluidX3D, update official metrics, promote wall settings to defaults, or permit formal v0.4.0."
+}

@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T07:43:14.810473+00:00",
+    "generated_at": "2026-08-13T08:29:54.576209+00:00",
     "evidence_type": "newly_run",
     "claim_readiness": "elevated_launcher_ready_but_preflight_blocked",
     "vs_cpp_elevated_launcher_gate_passed": true,
@@ -38,14 +38,14 @@
   "probe_artifact": {
     "found": true,
     "path": "docs/experiments/casee/results/vs_cpp_buildtools_elevated_launcher_probe.json",
-    "sha256": "53d8d79c11ef248c312e61b15b129a434bf4a60b355a4360ec478edf5d5867df",
+    "sha256": "e3f43183b3715804e8222de414b4c27ad0f471218544048539deb4646fd137eb",
     "size_bytes": 1928
   },
   "powershell_probe": {
     "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\vs_cpp_buildtools_elevated_launcher.ps1 -OutJson C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\vs_cpp_buildtools_elevated_launcher_probe.json -NoPause",
     "found": true,
     "returncode": 0,
-    "stdout": "{\n    \"generated_at\":  \"2026-08-13T07:43:14.7083387Z\",\n    \"evidence_type\":  \"newly_run\",\n    \"launch_requested\":  false,\n    \"launch_attempted\":  false,\n    \"current_user_is_admin\":  false,\n    \"system_drive_free_gb\":  1.477,\n    \"min_system_drive_free_gb\":  8,\n    \"install_path\":  \"E:\\\\citylbm_buildchain\\\\VSBuildTools\",\n    \"recovery_script\":  {\n                            \"size_bytes\":  6011,\n                            \"found\":  true,\n                            \"path\":  \"C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\\\docs\\\\experiments\\\\casee\\\\tools\\\\vs_cpp_buildtools_recovery.ps1\",\n                            \"sha256\":  \"c92585c497d8f4519b3b289e60b564ee45f8c7d4b1fcea1340e71888eba331d3\"\n                        },\n    \"winget\":  {\n                   \"found\":  true,\n                   \"path\":  \"C:\\\\Users\\\\miaoshiyu\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\winget.exe\",\n                   \"version\":  \"v1.29.280\"\n               },\n    \"can_launch_elevated_install_now\":  false,\n    \"recovery_command\":  \"powershell -NoProfile -ExecutionPolicy Bypass -File C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\\\docs\\\\experiments\\\\casee\\\\tools\\\\vs_cpp_buildtools_recovery.ps1 -Install -InstallPath E:\\\\citylbm_buildchain\\\\VSBuildTools -MinSystemDriveFreeGB 8 -NoPause\",\n    \"blockers\":  [\n                     \"system drive free space is below 8 GB\"\n                 ],\n    \"launch_result\":  {\n                          \"exit_code\":  null,\n                          \"message\":  \"\"\n                      },\n    \"post_install_verification\":  \"python docs/experiments/casee/tools/vs_cpp_recovery_gate.py\",\n    \"boundary\":  \"Default mode is audit-only. Use -Launch only to open a UAC-elevated VS Build Tools recovery process; this does not run CFD, recover GPU runtime, improve Case E metrics, or support formal v0.4.0.\"\n}",
+    "stdout": "{\n    \"generated_at\":  \"2026-08-13T08:29:54.4913673Z\",\n    \"evidence_type\":  \"newly_run\",\n    \"launch_requested\":  false,\n    \"launch_attempted\":  false,\n    \"current_user_is_admin\":  false,\n    \"system_drive_free_gb\":  1.468,\n    \"min_system_drive_free_gb\":  8,\n    \"install_path\":  \"E:\\\\citylbm_buildchain\\\\VSBuildTools\",\n    \"recovery_script\":  {\n                            \"size_bytes\":  6011,\n                            \"found\":  true,\n                            \"path\":  \"C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\\\docs\\\\experiments\\\\casee\\\\tools\\\\vs_cpp_buildtools_recovery.ps1\",\n                            \"sha256\":  \"c92585c497d8f4519b3b289e60b564ee45f8c7d4b1fcea1340e71888eba331d3\"\n                        },\n    \"winget\":  {\n                   \"found\":  true,\n                   \"path\":  \"C:\\\\Users\\\\miaoshiyu\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\winget.exe\",\n                   \"version\":  \"v1.29.280\"\n               },\n    \"can_launch_elevated_install_now\":  false,\n    \"recovery_command\":  \"powershell -NoProfile -ExecutionPolicy Bypass -File C:\\\\Users\\\\miaoshiyu\\\\Documents\\\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\\\docs\\\\experiments\\\\casee\\\\tools\\\\vs_cpp_buildtools_recovery.ps1 -Install -InstallPath E:\\\\citylbm_buildchain\\\\VSBuildTools -MinSystemDriveFreeGB 8 -NoPause\",\n    \"blockers\":  [\n                     \"system drive free space is below 8 GB\"\n                 ],\n    \"launch_result\":  {\n                          \"exit_code\":  null,\n                          \"message\":  \"\"\n                      },\n    \"post_install_verification\":  \"python docs/experiments/casee/tools/vs_cpp_recovery_gate.py\",\n    \"boundary\":  \"Default mode is audit-only. Use -Launch only to open a UAC-elevated VS Build Tools recovery process; this does not run CFD, recover GPU runtime, improve Case E metrics, or support formal v0.4.0.\"\n}",
     "stderr": ""
   },
   "script_contract": {
@@ -60,12 +60,12 @@
     "has_claim_boundary": true
   },
   "probe": {
-    "generated_at": "2026-08-13T07:43:14.7083387Z",
+    "generated_at": "2026-08-13T08:29:54.4913673Z",
     "evidence_type": "newly_run",
     "launch_requested": false,
     "launch_attempted": false,
     "current_user_is_admin": false,
-    "system_drive_free_gb": 1.477,
+    "system_drive_free_gb": 1.468,
     "min_system_drive_free_gb": 8,
     "install_path": "E:\\citylbm_buildchain\\VSBuildTools",
     "recovery_script": {

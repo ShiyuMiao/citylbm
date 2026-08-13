@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T07:43:16.042393+00:00",
+  "generated_at": "2026-08-13T08:29:55.866146+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_environment_recovery_runbook",
   "official_followup_run_allowed": false,
@@ -12,12 +12,12 @@
   "disk": [
     {
       "drive": "C:\\",
-      "free_gb": 1.477,
+      "free_gb": 1.468,
       "total_gb": 194.47
     },
     {
       "drive": "D:\\",
-      "free_gb": 229.647,
+      "free_gb": 229.637,
       "total_gb": 281.627
     },
     {
@@ -82,7 +82,7 @@
       "enabled": true,
       "priority": 2,
       "blocking_gate": "vs_cpp_build_tools",
-      "action": "Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 1.477 GB. Workspace build-cache candidates total only 4.157 MB.",
+      "action": "Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 1.468 GB. Workspace build-cache candidates total only 4.157 MB.",
       "verification_command": "Get-PSDrive C",
       "pass_condition": "C: free space >= 8 GB; workspace cache cleanup alone is not enough if the current value remains near 0.5 GB.",
       "risk_boundary": "Do not delete user data; record any cleanup outside the repo separately."

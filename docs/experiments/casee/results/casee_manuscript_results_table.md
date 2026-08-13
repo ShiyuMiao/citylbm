@@ -1,6 +1,6 @@
 # Case E Manuscript Results Table
 
-Generated: 2026-08-13T07:43:24.065312+00:00
+Generated: 2026-08-13T08:30:03.535717+00:00
 
 ## Verdict
 
@@ -19,7 +19,7 @@ Generated: 2026-08-13T07:43:24.065312+00:00
 | `diagnostic_improvement_direction` | limitations_ready_diagnostic | 80 | 21.217 | -1.626431 | 0.187068 | Compared with the earlier diagnostic best MAE 21.217 pp, z-center diagnostics reduce the diagnostic lower bound to 16.041 pp. |
 | `near_wall_risk_gradient` | limitations_ready_diagnostic | low=47; high=14 | low=12.435; high=34.589 |  |  | In the z-center audit, low-risk probes have raw MAE 12.435 pp, whereas high-risk probes have raw MAE 34.589 pp. |
 | `software_traceability_status` | paper_ready_manifest_traceability | 24 |  |  |  | CityLBM exposes and audits the run manifest path so protocol and claim-boundary metadata are traceable from the Grasshopper workflow. |
-| `release_boundary_status` | blocked_formal_release_gate |  |  |  |  | The formal release gate remains closed (`formal_release_allowed=False`), and the recommended tag is `v0.4.0-rc79`. |
+| `release_boundary_status` | blocked_formal_release_gate |  |  |  |  | The formal release gate remains closed (`formal_release_allowed=False`), and the recommended tag is `v0.4.0-rc80`. |
 
 ## Limitations And Forbidden Claims
 

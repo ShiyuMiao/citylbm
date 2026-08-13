@@ -1,6 +1,6 @@
 # Case E dx=1 m Readiness Audit
 
-Generated: 2026-08-13T07:43:15.886919+00:00
+Generated: 2026-08-13T08:29:55.708650+00:00
 
 ## Verdict
 
