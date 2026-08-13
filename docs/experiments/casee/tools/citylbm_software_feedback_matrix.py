@@ -126,6 +126,7 @@ def build_rows() -> List[Dict[str, Any]]:
     dx1_readiness = read_json(RESULTS_DIR / "casee_dx1_readiness_audit.json")
     candidate_sweep = read_json(RESULTS_DIR / "casee_candidate_sweep_plan.json")
     wall_followup_codegen = read_json(RESULTS_DIR / "casee_wall_followup_codegen_gate.json")
+    inlet_followup_codegen = read_json(RESULTS_DIR / "casee_inlet_followup_codegen_gate.json")
     postrun_handoff = read_json(RESULTS_DIR / "casee_postrun_official_audit_handoff.json")
     zcenter_rerun = read_json(RESULTS_DIR / "casee_zcenter_rerun_consistency.json")
     c002_longer_mean = read_json(RESULTS_DIR / "casee_c002_longer_mean_audit.json")
@@ -1916,6 +1917,44 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    rows.append(
+        row(
+            feedback_id="SF057",
+            experiment="Experiment 2 / native Case E inlet-turbulence follow-up codegen",
+            finding=(
+                "The native Case E generator already provides a default-off AF_caseE-k full-plane inlet "
+                "follow-up path, and the next-run plan now replaces the R007 TODO with a concrete no-SGS "
+                "scale-2.00 official-height candidate."
+            ),
+            evidence_type=str(inlet_followup_codegen.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "generate_native_casee.py",
+                CASEE_DIR / "tools" / "casee_inlet_followup_codegen_gate.py",
+                CASEE_DIR / "tools" / "casee_candidate_sweep_plan.py",
+                CASEE_DIR / "tools" / "casee_next_experiment_runbook.py",
+                RESULTS_DIR / "casee_inlet_followup_codegen_gate.json",
+                RESULTS_DIR / "casee_inlet_followup_codegen_gate.csv",
+                RESULTS_DIR / "casee_inlet_followup_codegen_gate.md",
+                RESULTS_DIR / "casee_candidate_sweep_plan.json",
+                RESULTS_DIR / "casee_next_experiment_runbook.json",
+            ],
+            decision_class="native_inlet_followup_codegen_no_accuracy_promotion",
+            citylbm_status="implemented_default_off_native_inlet_followup_codegen"
+            if inlet_followup_codegen.get("inlet_followup_codegen_gate_passed") is True
+            and inlet_followup_codegen.get("formal_accuracy_claim_supported") is False
+            else "native_inlet_followup_codegen_missing_or_failed",
+            implementation_evidence=(
+                f"gate_passed={inlet_followup_codegen.get('inlet_followup_codegen_gate_passed')}; "
+                f"candidate_count={candidate_sweep.get('candidate_count')}; "
+                f"executable_now_count={candidate_sweep.get('executable_now_count')}; "
+                f"recommended_tag={candidate_sweep.get('recommended_tag')}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as pre-registered software implementation evidence for the next AF-k inlet/no-SGS official follow-up.",
+            limitations="Code-generation and planning evidence only; no new inlet follow-up run has completed, no R2 changed, and no inlet/SGS setting can be promoted before an official z2m release-gate pass.",
+        )
+    )
+
     return rows
 
 
@@ -1934,7 +1973,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053", "SF054", "SF055", "SF056"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053", "SF054", "SF055", "SF056", "SF057"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -1944,7 +1983,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "local_orphan_candidate_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion", "native_wall_followup_codegen_no_accuracy_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "local_orphan_candidate_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion", "native_wall_followup_codegen_no_accuracy_promotion", "native_inlet_followup_codegen_no_accuracy_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -2035,6 +2074,7 @@ def main() -> int:
             rel(RESULTS_DIR / "casee_dx1_readiness_audit.json"),
             rel(RESULTS_DIR / "casee_candidate_sweep_plan.json"),
             rel(RESULTS_DIR / "casee_wall_followup_codegen_gate.json"),
+            rel(RESULTS_DIR / "casee_inlet_followup_codegen_gate.json"),
             rel(RESULTS_DIR / "casee_orphan_candidate_csv_audit.json"),
             rel(RESULTS_DIR / "casee_zcenter_rerun_consistency.json"),
             rel(RESULTS_DIR / "casee_c002_longer_mean_audit.json"),

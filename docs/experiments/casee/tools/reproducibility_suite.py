@@ -182,7 +182,13 @@ def stage_tracked_gha_for_grasshopper() -> Dict[str, Any]:
 def read_json(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {}
-    return json.loads(path.read_text(encoding="utf-8"))
+    text = path.read_text(encoding="utf-8").strip()
+    if not text:
+        return {}
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return {}
 
 
 def write_publication_gate_provisional_suite(steps: List[Dict[str, Any]]) -> None:
@@ -332,6 +338,7 @@ def main() -> int:
         ("casee_candidate_sweep_plan", "casee_candidate_sweep_plan.py"),
         ("casee_default_policy_gate", "casee_default_policy_gate.py"),
         ("casee_wall_followup_codegen_gate", "casee_wall_followup_codegen_gate.py"),
+        ("casee_inlet_followup_codegen_gate", "casee_inlet_followup_codegen_gate.py"),
         ("citylbm_paper_results_packet", "citylbm_paper_results_packet.py"),
         ("citylbm_manifest_output_gate", "citylbm_manifest_output_gate.py"),
         ("citylbm_manifest_schema_gate", "citylbm_manifest_schema_gate.py"),
@@ -397,6 +404,7 @@ def main() -> int:
     c004_dx3_low_cost = read_json(RESULTS_DIR / "casee_c004_dx3_low_cost_audit.json")
     candidate_sweep_plan = read_json(RESULTS_DIR / "casee_candidate_sweep_plan.json")
     wall_followup_codegen = read_json(RESULTS_DIR / "casee_wall_followup_codegen_gate.json")
+    inlet_followup_codegen = read_json(RESULTS_DIR / "casee_inlet_followup_codegen_gate.json")
     c014_residual_structure = read_json(RESULTS_DIR / "casee_c014_residual_structure_audit.json")
     orphan_candidate_csv_audit = read_json(RESULTS_DIR / "casee_orphan_candidate_csv_audit.json")
     default_policy = read_json(RESULTS_DIR / "casee_default_policy_gate.json")
@@ -451,6 +459,7 @@ def main() -> int:
         "casee_orphan_candidate_csv_audit": orphan_candidate_csv_audit,
         "casee_candidate_sweep_plan": candidate_sweep_plan,
         "casee_wall_followup_codegen_gate": wall_followup_codegen,
+        "casee_inlet_followup_codegen_gate": inlet_followup_codegen,
         "casee_default_policy_gate": default_policy,
         "citylbm_paper_results_packet": paper_results_packet,
         "citylbm_manifest_output_gate": manifest_output_gate,

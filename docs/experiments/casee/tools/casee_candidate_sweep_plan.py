@@ -496,10 +496,10 @@ def build_candidates(
         candidate(
             candidate_id="C008_C015_full_plane_inlet_turbulence_sgs_sweep",
             priority=8,
-            candidate_class="requires_implementation",
+            candidate_class="default_off_inlet_followup_codegen",
             executable_now=executable_native,
             blocking_gates=source_compile_blockers,
-            evidence_type=str(c008_audit.get("evidence_type", "planned_run")) if c008_completed else "blocked_until_physical_change_exists",
+            evidence_type=str(c008_audit.get("evidence_type", "planned_run")) if c008_completed else "blocked_until_gpu_ready",
             dx_m="2.0",
             steps=">=48000",
             spinup=">=12000",
@@ -512,12 +512,15 @@ def build_candidates(
                 "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 "
                 "--sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 "
                 "--domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane "
-                "--inlet-turbulence-scale 2.50 --no-subgrid"
+                "--inlet-turbulence-scale 2.00 --no-subgrid"
             ),
             expected_artifacts=[
+                "docs/experiments/casee/results/casee_inlet_followup_codegen_gate.json",
                 "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json",
                 "docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.md",
-                "docs/experiments/casee/results/casee_c015_inlet_k_synthetic_s2p5_nosgs_<stamp>_probe_time_mean.csv",
+                "docs/experiments/casee/native_cases/<candidate>/citylbm_native_case_manifest.json",
+                "docs/experiments/casee/native_cases/<candidate>/casee_probe_time_mean.csv",
+                "docs/experiments/casee/results/<candidate>_official_metrics.csv",
             ],
             rationale=(
                 "Completed: C008-C015 AF-k synthetic full-plane inlet and SGS ablation candidates substantially improved official-height MAE/R2/Pearson, "
@@ -525,7 +528,7 @@ def build_candidates(
                 f"status={c008_audit.get('status')}; best_R2={((c008_audit.get('best_candidate') or {}).get('candidate_metrics') or {}).get('r2')}; "
                 f"best_MAE={((c008_audit.get('best_candidate') or {}).get('candidate_metrics') or {}).get('mae_pp')}."
                 if c008_completed
-                else "Implement revised full-plane inlet using AF_caseE z,U,k, then generate official z=2 m raw_trilinear Case E."
+                else "The generator already provides a default-off AF_caseE-k full-plane inlet follow-up. It remains blocked by GPU/preflight and cannot support default promotion before official metrics pass."
             ),
             formal_result_policy=formal_policy,
             pass_condition="Official raw_trilinear metric improves without relying on non-raw sampling or z-height substitution.",

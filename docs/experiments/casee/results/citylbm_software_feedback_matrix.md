@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-13T08:30:18.455804+00:00
+Generated: 2026-08-13T09:16:24.608345+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 56
+- Feedback rows: 57
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -33,6 +33,7 @@ Generated: 2026-08-13T08:30:18.455804+00:00
 - low_cost_regression_no_default_promotion: 1
 - manual_rhino_load_evidence_kit: 1
 - manual_rhino_load_manifest_schema_gate: 1
+- native_inlet_followup_codegen_no_accuracy_promotion: 1
 - native_wall_followup_codegen_no_accuracy_promotion: 1
 - operational_recovery_dashboard_gate: 1
 - packaged_gha_identity_component_gate: 1
@@ -123,6 +124,7 @@ Generated: 2026-08-13T08:30:18.455804+00:00
 | `SF054` | Experiment 2 / Case E post-run official audit handoff | postrun_official_audit_handoff_no_default_promotion | implemented_postrun_official_audit_handoff | True | A fail-closed post-run handoff now checks any newly completed Case E probe CSV for official z=2 m raw_trilinear audit readiness before it can be used in paper or release evidence. |
 | `SF055` | Experiment 2 / CityLBM plugin Case E post-run audit component | software_postrun_audit_component_no_accuracy_promotion | implemented_packaged_casee_postrun_audit_component | True | CityLBM now exposes a Grasshopper Case E Post-run Audit component that checks completed probe CSV readiness and prints the official casee_audit.py command before any accuracy claim. |
 | `SF056` | Experiment 2 / native Case E wall and ground follow-up codegen | native_wall_followup_codegen_no_accuracy_promotion | implemented_default_off_native_wall_followup_codegen | False | The native Case E generator now provides default-off voxel-dilation and ground-damping wall/ground follow-up options, replacing the earlier physical-wall-model implementation placeholder. |
+| `SF057` | Experiment 2 / native Case E inlet-turbulence follow-up codegen | native_inlet_followup_codegen_no_accuracy_promotion | implemented_default_off_native_inlet_followup_codegen | False | The native Case E generator already provides a default-off AF_caseE-k full-plane inlet follow-up path, and the next-run plan now replaces the R007 TODO with a concrete no-SGS scale-2.00 official-height candidate. |
 
 ## Paper Boundary
 
@@ -184,6 +186,7 @@ Generated: 2026-08-13T08:30:18.455804+00:00
 | `SF054` | Use as protocol-control evidence for accepting future post-run Case E CSVs into the formal audit path. | Handoff evidence only; it does not run FluidX3D, update official metrics, promote diagnostics, change defaults, or permit formal v0.4.0. |
 | `SF055` | Use as software protocol-control evidence that post-run Case E candidates are gated before paper claims. | Plugin component evidence only; it does not run FluidX3D, compute R2, update official metrics, improve z2m accuracy, or permit formal v0.4.0. |
 | `SF056` | Use as pre-registered software implementation evidence for the next wall/ground official follow-up. | Code-generation evidence only; no wall/ground follow-up run has completed, no R2 changed, and no wall setting can be promoted before an official z2m release-gate pass. |
+| `SF057` | Use as pre-registered software implementation evidence for the next AF-k inlet/no-SGS official follow-up. | Code-generation and planning evidence only; no new inlet follow-up run has completed, no R2 changed, and no inlet/SGS setting can be promoted before an official z2m release-gate pass. |
 
 ## Boundary
 

@@ -76,6 +76,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc78.md",
     "docs/releases/v0.4.0-rc79.md",
     "docs/releases/v0.4.0-rc80.md",
+    "docs/releases/v0.4.0-rc81.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -141,6 +142,7 @@ RESULT_PATTERNS = [
     "casee_orphan_candidate_csv_audit.*",
     "casee_default_policy_gate.*",
     "casee_wall_followup_codegen_gate.*",
+    "casee_inlet_followup_codegen_gate.*",
     "casee_remaining_blockers.*",
     "casee_next_experiment_runbook.*",
     "casee_postrun_official_audit_handoff.*",
@@ -196,6 +198,7 @@ TOOL_SCRIPTS = [
     "casee_failure_mode_atlas.py",
     "casee_default_policy_gate.py",
     "casee_wall_followup_codegen_gate.py",
+    "casee_inlet_followup_codegen_gate.py",
     "casee_manuscript_results_table.py",
     "casee_manuscript_section_pack.py",
     "casee_paper_results_figure.py",
@@ -605,11 +608,20 @@ def build_rows() -> List[Dict[str, object]]:
 
 def write_csv(path: Path, rows: Iterable[Dict[str, object]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
-        writer.writeheader()
-        for row in rows:
-            writer.writerow(row)
+    last_error: OSError | None = None
+    for attempt in range(6):
+        try:
+            with path.open("w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
+                writer.writeheader()
+                for row in rows:
+                    writer.writerow(row)
+            return
+        except OSError as exc:
+            last_error = exc
+            time.sleep(0.2 * (attempt + 1))
+    if last_error is not None:
+        raise last_error
 
 
 def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str, object]) -> None:
@@ -800,7 +812,21 @@ def write_markdown(path: Path, rows: List[Dict[str, object]], summary: Dict[str,
         "",
         "This index supports reproducibility and manuscript traceability. It does not upgrade the formal AIJ Case E official z=2 m metric, which remains a negative validation result until the release gate passes.",
     ]
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    write_text_retry(path, "\n".join(lines) + "\n")
+
+
+def write_text_retry(path: Path, text: str, *, attempts: int = 6) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    last_error: OSError | None = None
+    for attempt in range(attempts):
+        try:
+            path.write_text(text, encoding="utf-8")
+            return
+        except OSError as exc:
+            last_error = exc
+            time.sleep(0.2 * (attempt + 1))
+    if last_error is not None:
+        raise last_error
 
 
 def main() -> int:

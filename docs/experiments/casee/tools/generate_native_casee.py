@@ -599,6 +599,8 @@ def main() -> int:
         "inlet_turbulence_mode": args.inlet_turbulence_mode,
         "inlet_turbulence_scale": args.inlet_turbulence_scale,
         "inlet_turbulence_uses_af_k": bool(args.inlet_turbulence_mode == "k_synthetic_fullplane" and args.inlet_turbulence_scale > 0.0),
+        "diagnostic_inlet_turbulence_default_safe": bool(args.inlet_turbulence_mode == "none" and abs(args.inlet_turbulence_scale) <= 1e-12),
+        "diagnostic_inlet_turbulence_allowed_as_default_accuracy_model": False,
         "diagnostic_wall_model": args.wall_model,
         "diagnostic_wall_dilation_cells": args.wall_dilation_cells,
         "diagnostic_wall_damping_factor": args.wall_damping_factor,
@@ -619,7 +621,7 @@ def main() -> int:
         "binary_stl_triangles": triangle_count,
         "output": "casee_probe_time_mean.csv",
         "evidence_boundary": "generated case only until FluidX3D run completes",
-        "claim_boundary": "Wall/ground follow-up options are default-off diagnostics and cannot support formal accuracy or default-promotion claims without a completed official z=2 m release-gate pass.",
+        "claim_boundary": "Inlet-turbulence and wall/ground follow-up options are default-off diagnostics and cannot support formal accuracy or default-promotion claims without a completed official z=2 m release-gate pass.",
     }
     (case_dir / "citylbm_native_case_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 

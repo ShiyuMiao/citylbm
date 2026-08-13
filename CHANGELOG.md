@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc81 - Native inlet follow-up codegen gate
+
+- Added `casee_inlet_followup_codegen_gate.py` to verify the default-off native AF_caseE-k full-plane inlet follow-up path stays manifest-traced and blocked from default accuracy promotion.
+- Integrated the new inlet follow-up codegen gate into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF057.
+- Updated the candidate sweep and next experiment runbook so R007 is no longer a missing-implementation TODO; it now points to the concrete no-SGS AF-k inlet scale-2.00 official follow-up command.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc80 - Native wall follow-up codegen
 
 - Added default-off native Case E wall/ground follow-up code generation to `generate_native_casee.py`.

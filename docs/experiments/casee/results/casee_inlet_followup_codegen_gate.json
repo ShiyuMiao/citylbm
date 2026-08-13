@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-08-13T09:16:06.517892+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_inlet_followup_codegen; blocked official run",
+  "inlet_followup_codegen_gate_passed": true,
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "checks": {
+    "generator_exists": true,
+    "inlet_mode_cli_default_off": true,
+    "inlet_scale_default_zero": true,
+    "setup_reads_af_u_and_k": true,
+    "setup_contains_fullplane_inlet_reapplication": true,
+    "setup_reapplies_inlet_each_sample_window": true,
+    "setup_uses_official_raw_probe_csv": true,
+    "manifest_records_inlet_mode": true,
+    "manifest_blocks_formal_claim": true,
+    "candidate_no_longer_requires_inlet_implementation": true,
+    "candidate_command_uses_inlet_followup": true,
+    "runbook_no_longer_uses_inlet_placeholder_todo": true,
+    "runbook_command_uses_inlet_followup": true
+  },
+  "source_paths": [
+    "docs/experiments/casee/tools/generate_native_casee.py",
+    "docs/experiments/casee/tools/casee_candidate_sweep_plan.py",
+    "docs/experiments/casee/tools/casee_next_experiment_runbook.py"
+  ],
+  "boundary": "This gate verifies the default-off native AF_caseE-k full-plane inlet-turbulence follow-up generation path. It does not run FluidX3D, update official metrics, promote inlet/SGS settings to defaults, or permit formal v0.4.0."
+}

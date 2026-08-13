@@ -1,6 +1,6 @@
 # Case E Candidate Sweep Plan
 
-Generated: 2026-08-13T08:30:02.659707+00:00
+Generated: 2026-08-13T09:16:06.144129+00:00
 
 ## Verdict
 
@@ -30,7 +30,7 @@ Generated: 2026-08-13T08:30:02.659707+00:00
 | 5 | `C005_dx2_domain_decomposition_ablation` | False | runtime_ablation | `gpu_runtime; gpu_runtime; official_followup_preflight` | Raw_trilinear metrics remain consistent with C001 within expected numerical variability. |
 | 6 | `C006_dx1_dry_allocation_then_short_smoke` | False | high_resolution_preflight | `user_confirmation_required; dx1_memory_headroom; gpu_memory_headroom_lt_25pct` | Only proceed after dry allocation confirms memory headroom and the user approves a long run. |
 | 7 | `C007_default_off_wall_physics_implementation` | False | default_off_wall_followup_codegen | `gpu_runtime; gpu_runtime; official_followup_preflight` | MAE clearly below the current near-20 pp level, R2>0, Pearson>0, Case A smoke regression passes. |
-| 8 | `C008_C015_full_plane_inlet_turbulence_sgs_sweep` | False | requires_implementation | `gpu_runtime; gpu_runtime; official_followup_preflight` | Official raw_trilinear metric improves without relying on non-raw sampling or z-height substitution. |
+| 8 | `C008_C015_full_plane_inlet_turbulence_sgs_sweep` | False | default_off_inlet_followup_codegen | `gpu_runtime; gpu_runtime; official_followup_preflight` | Official raw_trilinear metric improves without relying on non-raw sampling or z-height substitution. |
 | 9 | `C016_residual_targeted_wall_inlet_channel_response` | False | requires_implementation | `gpu_runtime; residual_targeted_wall_inlet_channel_response_not_implemented; official_followup_preflight` | Official raw_trilinear z=2 m R2 becomes positive, Pearson remains positive, MAE stays below C014, and Case A smoke regression passes. |
 
 ## Boundary

@@ -1,12 +1,12 @@
 # Case E Paper Evidence Gate
 
-Generated: 2026-08-13T08:30:29.798992+00:00
+Generated: 2026-08-13T09:16:35.742278+00:00
 
 ## Verdict
 
 - Paper evidence gate passed: True
 - Formal v0.4.0 release allowed: False
-- Recommended tag: `v0.4.0-rc80`
+- Recommended tag: `v0.4.0-rc81`
 
 ## Official z=2 m Metric
 
@@ -27,14 +27,14 @@ Generated: 2026-08-13T08:30:29.798992+00:00
 ## Draft Scan
 
 - Checked files: 6
-- Checked nonblank lines: 390
+- Checked nonblank lines: 392
 - Draft claim boundary passed: True
 
 ## Artifact Index
 
 - Artifact index found: True
-- Artifact count: 421
-- Lightweight release assets: 348
+- Artifact count: 426
+- Lightweight release assets: 353
 - Required artifacts present: True
 - Formal accuracy claim supported by index: False
 
@@ -240,7 +240,7 @@ Generated: 2026-08-13T08:30:29.798992+00:00
 
 - Matrix found: True
 - Matrix passed: True
-- Feedback rows: 56
+- Feedback rows: 57
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -261,8 +261,8 @@ Generated: 2026-08-13T08:30:29.798992+00:00
 
 - Manifest found: True
 - Manifest passed: True
-- Recommended tag: `v0.4.0-rc80`
-- Upload assets: 97
+- Recommended tag: `v0.4.0-rc81`
+- Upload assets: 101
 - Excluded/hash-only assets: 20
 - Excludes raw geometry and VTK: True
 - Formal accuracy claim supported: False
