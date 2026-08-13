@@ -49,6 +49,17 @@ TEMPLATE_FIELDS = [
     "geometry_scale",
     "Uref_mps",
     "Zref_m",
+    "target_max_profile_velocity_lbm",
+    "estimated_max_profile_mach",
+    "lbm_tau",
+    "lbm_nu",
+    "physical_viscosity_m2s",
+    "estimated_reynolds_number",
+    "velocity_set",
+    "les_model",
+    "smagorinsky_cs",
+    "solver_stability_warnings",
+    "lbm_stability_gate",
     "normalization_valid",
     "velocity_component",
     "compared_component_consistency_gate",
@@ -160,6 +171,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--empty-tunnel-k-bias-ratio", default="")
     parser.add_argument("--native-baseline-id", default="")
     parser.add_argument("--native-baseline-gate", default="")
+    parser.add_argument(
+        "--lbm-stability-gate",
+        default="",
+        help="Runtime LBM stability evidence gate, e.g. solver_log_no_stability_warnings.",
+    )
+    parser.add_argument(
+        "--solver-stability-warnings",
+        default="",
+        help="Solver log stability warning summary, e.g. none or no_stability_warnings.",
+    )
     parser.add_argument("--k-mae", default="")
     parser.add_argument("--k-rmse", default="")
     parser.add_argument("--k-bias", default="")
@@ -622,6 +643,17 @@ def main() -> int:
             "geometry_scale": args.geometry_scale,
             "Uref_mps": fmt(inferred_uref),
             "Zref_m": fmt(inferred_zref),
+            "target_max_profile_velocity_lbm": metadata_field(metadata, "TargetMaxProfileVelocityLbm"),
+            "estimated_max_profile_mach": metadata_field(metadata, "EstimatedMaxProfileMach"),
+            "lbm_tau": metadata_field(metadata, "LbmTau"),
+            "lbm_nu": metadata_field(metadata, "LbmNu"),
+            "physical_viscosity_m2s": metadata_field(metadata, "PhysicalViscosityM2s"),
+            "estimated_reynolds_number": metadata_field(metadata, "EstimatedReynoldsNumber"),
+            "velocity_set": metadata_field(metadata, "VelocitySet"),
+            "les_model": metadata_field(metadata, "LesModel"),
+            "smagorinsky_cs": metadata_field(metadata, "SmagorinskyCs"),
+            "solver_stability_warnings": args.solver_stability_warnings or metadata_field(metadata, "SolverStabilityWarnings"),
+            "lbm_stability_gate": args.lbm_stability_gate or metadata_field(metadata, "LbmStabilityGate"),
             "normalization_valid": csv_bool(normalization_gate_value),
             "velocity_component": compared_component,
             "compared_component_consistency_gate": component_consistency_gate,

@@ -52,6 +52,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-official-coordinate-delta-m", type=float, default=1.0e-6)
     parser.add_argument("--max-probe-failure-fraction", type=float, default=0.0)
     parser.add_argument("--max-frontal-blockage-ratio", type=float, default=0.05)
+    parser.add_argument("--max-estimated-mach", type=float, default=0.20)
+    parser.add_argument("--min-lbm-tau", type=float, default=0.500001)
+    parser.add_argument("--max-lbm-tau", type=float, default=2.0)
     parser.add_argument("--expected-compared-component", default="", help="Require a specific Data Probe compared_component, e.g. speed_ratio or streamwise_ratio.")
     parser.add_argument("--expected-uref", type=float, default=None, help="Require the metrics/Data Probe Uref to match this value.")
     parser.add_argument("--uref-tolerance", type=float, default=1.0e-6)
@@ -407,6 +410,103 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"max_speed_stddev_ratio={max_speed_stddev_ratio}; required <= {args.max_point_speed_stddev_ratio}"
         ),
         "Rerun or postprocess with a longer statistically stable final-window average whose source steps are the last available, increasing and uniformly spaced.",
+    )
+
+    target_velocity_lbm = as_float(
+        get_any(metrics, ["target_max_profile_velocity_lbm", "TargetMaxProfileVelocityLbm"])
+        or metadata.get("TargetMaxProfileVelocityLbm")
+        or get_any(manifest.get("SharedRunConditions", {}), ["TargetMaxProfileVelocityLbm"])
+    )
+    estimated_mach = as_float(
+        get_any(metrics, ["estimated_max_profile_mach", "EstimatedMaxProfileMach"])
+        or metadata.get("EstimatedMaxProfileMach")
+        or get_any(manifest.get("SharedRunConditions", {}), ["EstimatedMaxProfileMach"])
+    )
+    lbm_tau = as_float(
+        get_any(metrics, ["lbm_tau", "LbmTau"])
+        or metadata.get("LbmTau")
+        or get_any(manifest.get("SharedRunConditions", {}), ["LbmTau"])
+    )
+    lbm_nu = as_float(
+        get_any(metrics, ["lbm_nu", "LbmNu"])
+        or metadata.get("LbmNu")
+        or get_any(manifest.get("SharedRunConditions", {}), ["LbmNu"])
+    )
+    physical_viscosity = as_float(
+        get_any(metrics, ["physical_viscosity_m2s", "PhysicalViscosityM2s"])
+        or metadata.get("PhysicalViscosityM2s")
+        or get_any(manifest.get("SharedRunConditions", {}), ["PhysicalViscosityM2s"])
+    )
+    estimated_re = as_float(
+        get_any(metrics, ["estimated_reynolds_number", "EstimatedReynoldsNumber"])
+        or metadata.get("EstimatedReynoldsNumber")
+        or get_any(manifest.get("SharedRunConditions", {}), ["EstimatedReynoldsNumber"])
+    )
+    velocity_set = str(
+        get_any(metrics, ["velocity_set", "VelocitySet"])
+        or metadata.get("VelocitySet")
+        or get_any(manifest.get("SharedRunConditions", {}), ["VelocitySet"])
+        or ""
+    ).strip()
+    les_model = str(
+        get_any(metrics, ["les_model", "LesModel"])
+        or metadata.get("LesModel")
+        or get_any(manifest.get("SharedRunConditions", {}), ["LesModel"])
+        or ""
+    ).strip()
+    solver_warnings = str(
+        get_any(metrics, ["solver_stability_warnings", "SolverStabilityWarnings"])
+        or metadata.get("SolverStabilityWarnings")
+        or get_any(manifest.get("SharedRunConditions", {}), ["SolverStabilityWarnings"])
+        or ""
+    ).strip().lower()
+    lbm_stability_gate = str(
+        get_any(metrics, ["lbm_stability_gate", "LbmStabilityGate"])
+        or metadata.get("LbmStabilityGate")
+        or get_any(manifest.get("SharedRunConditions", {}), ["LbmStabilityGate"])
+        or ""
+    ).strip().lower()
+    stability_protocol_status = protocol_status(items, "lbm_stability_scaling")
+    solver_warning_ok = solver_warnings in {
+        "none",
+        "no_warnings",
+        "no_stability_warnings",
+        "pass",
+        "solver_log_no_stability_warnings",
+    }
+    lbm_stability_ok = (
+        target_velocity_lbm is not None
+        and target_velocity_lbm <= 0.1
+        and estimated_mach is not None
+        and estimated_mach <= args.max_estimated_mach
+        and lbm_tau is not None
+        and args.min_lbm_tau <= lbm_tau <= args.max_lbm_tau
+        and lbm_nu is not None
+        and lbm_nu > 0.0
+        and physical_viscosity is not None
+        and physical_viscosity > 0.0
+        and estimated_re is not None
+        and estimated_re > 0.0
+        and bool(velocity_set)
+        and bool(les_model)
+        and solver_warning_ok
+        and lbm_stability_gate in {"pass", "solver_log_no_stability_warnings", "runtime_statistics_archived"}
+    )
+    add_gate(
+        gates,
+        "lbm_stability",
+        PASS if lbm_stability_ok else FAIL,
+        (
+            f"target_max_profile_velocity_lbm={target_velocity_lbm}; required <= 0.1; "
+            f"estimated_max_profile_mach={estimated_mach}; required <= {args.max_estimated_mach}; "
+            f"lbm_tau={lbm_tau}; required {args.min_lbm_tau}..{args.max_lbm_tau}; "
+            f"lbm_nu={lbm_nu}; physical_viscosity_m2s={physical_viscosity}; "
+            f"estimated_reynolds_number={estimated_re}; velocity_set={velocity_set or 'missing'}; "
+            f"les_model={les_model or 'missing'}; solver_stability_warnings={solver_warnings or 'missing'}; "
+            f"lbm_stability_gate={lbm_stability_gate or 'missing'}; "
+            f"protocol_status={stability_protocol_status or 'missing'}"
+        ),
+        "Archive solver log/runtime statistics proving no FluidX3D stability warnings, bounded Mach, valid tau/nu, Reynolds number, velocity set and LES/subgrid model before interpreting validation metrics.",
     )
 
     boundary_gate = str(
@@ -824,6 +924,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_official_coordinate_delta_m": args.max_official_coordinate_delta_m,
             "max_probe_failure_fraction": args.max_probe_failure_fraction,
             "max_frontal_blockage_ratio": args.max_frontal_blockage_ratio,
+            "max_estimated_mach": args.max_estimated_mach,
+            "min_lbm_tau": args.min_lbm_tau,
+            "max_lbm_tau": args.max_lbm_tau,
             "expected_compared_component": args.expected_compared_component,
             "expected_uref": args.expected_uref,
             "uref_tolerance": args.uref_tolerance,

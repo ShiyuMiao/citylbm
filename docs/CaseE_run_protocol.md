@@ -26,6 +26,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - First smoke run: `dx=5 m`, `steps=2000-5000`, `save interval=500 or 1000`
 - Formal validation: `dx=2-3 m`, `steps>=10000`, save enough final VTK frames for time averaging
 - Use LES consistently and record `Cs`, viscosity, grid dimensions and GPU model.
+- Archive LBM stability evidence for the exact native/CityLBM run: target maximum lattice velocity, estimated maximum
+  Mach number, `tau`, `nu_lbm`, physical viscosity, Reynolds number, velocity set, LES/subgrid model and solver-log
+  stability warnings. The v0.3.0 machine gate fails paper-grade promotion unless the runtime metrics row records a
+  passing stability gate such as `lbm_stability_gate=solver_log_no_stability_warnings` and
+  `solver_stability_warnings=none`.
 - For AF files with `k(m2/s2)`, enable `Run Simulation / Synthetic Inlet` only when testing the experimental STG-lite inlet.
   Record `STG Scale`/synthetic scale, `STG Corr Cells`/correlation cells, `STG Update`/pattern-update interval, `STG Max Frac`/amplitude cap,
   and the generated `case_metadata.json` fields `SyntheticTurbulentInletRequested` and `SyntheticTurbulentInletInjected`.

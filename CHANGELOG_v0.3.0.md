@@ -84,6 +84,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_gate.py` now requires the per-probe `Data Probe` audit CSV for coordinate, normalization and
   compared-component traceability. Summary-only metrics are allowed only through an explicit diagnostic override and
   should not be used for paper-grade validation claims.
+- `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now track LBM stability
+  evidence: target lattice velocity, estimated Mach number, `tau`, `nu_lbm`, physical viscosity, Reynolds number,
+  velocity set, LES/subgrid model and solver-log stability warnings. A generated case is not enough; the machine gate
+  requires runtime stability evidence before treating native FluidX3D or CityLBM results as paper-grade.
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.

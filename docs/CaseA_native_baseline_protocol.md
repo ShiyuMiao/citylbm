@@ -89,6 +89,10 @@ AIJ Case E is treated as a paper-grade validation experiment.
   `NativeFluidX3DSourceValidation` record.
 - `setup.cpp`, `defines.hpp`, `buildings.stl`, run log and postprocess script hashes.
 - `dx`, lattice dimensions, `tau`, target Reynolds number, velocity set and LES/subgrid settings.
+- LBM stability evidence: target maximum lattice velocity, estimated maximum Mach number, `tau`, `nu_lbm`, physical
+  viscosity, Reynolds number, velocity set, LES/subgrid model and solver-log stability warning status. The machine
+  gate now fails this block unless the runtime metrics row records a passing stability gate such as
+  `solver_log_no_stability_warnings`.
 - Domain extents in `H`: upstream, downstream, lateral and top clearance.
 - Approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate.
 - Boundary mode and boundary-source justification.
@@ -122,7 +126,8 @@ python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit
 
 For a CityLBM-driven parity run, change `--software citylbm` and keep the same metrics/probe schema. A passing paper-grade
 record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,
-`native_baseline_gate=pass`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
+`native_baseline_gate=pass`, `lbm_stability_gate=solver_log_no_stability_warnings`,
+`solver_stability_warnings=none`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
 zero failed probes, bounded mean-velocity bias/RMSE, and reported `k` bias. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
 The command intentionally omits `--allow-velocity-only-inlet`; add that flag only for explicitly labelled diagnostic

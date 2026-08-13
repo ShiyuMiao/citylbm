@@ -2185,6 +2185,23 @@ namespace CityLBM.Solver
             return scene.WindSpeed;
         }
 
+        private double ComputeTau(SimulationSettings settings, CartesianGrid grid)
+        {
+            double nuLbm = 3.0 * settings.Viscosity / (grid.Dx * grid.Dx);
+            double tau = 3.0 * nuLbm + 0.5;
+            return Math.Max(0.55, Math.Min(tau, 2.0));
+        }
+
+        private double ComputeNuLbm(SimulationSettings settings, CartesianGrid grid)
+        {
+            return (ComputeTau(settings, grid) - 0.5) / 3.0;
+        }
+
+        private double EstimateRunReynoldsNumber(Scene scene, CartesianGrid grid, SimulationSettings settings)
+        {
+            return GetProfileScaleSpeed(scene) * grid.Dx * Math.Max(1, grid.Nx) / settings.Viscosity;
+        }
+
         private void AppendCustomTableProfileCode(StringBuilder sb, Scene scene, double dx, double uScale, Vector3d windDir)
         {
             var samples = scene.CustomWindProfile ?? new List<WindProfileSample>();
@@ -2371,6 +2388,9 @@ namespace CityLBM.Solver
                 bool hasK = scene.CustomWindProfile != null && scene.CustomWindProfile.Any(s => s.HasK);
                 bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
                 var boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
+                double tau = ComputeTau(settings, grid);
+                double nuLbm = ComputeNuLbm(settings, grid);
+                double reynolds = EstimateRunReynoldsNumber(scene, grid, settings);
                 int expectedFrames = settings.SaveInterval > 0
                     ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                     : 0;
@@ -2390,6 +2410,16 @@ namespace CityLBM.Solver
                     VelocityScaleLbmToMps = 1.0 / uScale,
                     TargetMaxProfileVelocityLbm = 0.1,
                     EstimatedMaxProfileMach = 0.1 / Math.Sqrt(1.0 / 3.0),
+                    LbmStabilityGate = "requires_solver_log_and_runtime_statistics",
+                    LbmTau = tau,
+                    LbmNu = nuLbm,
+                    PhysicalViscosityM2s = settings.Viscosity,
+                    EstimatedReynoldsNumber = reynolds,
+                    VelocitySet = "D3Q19",
+                    LesModel = settings.EnableSmagorinskyLES ? "Smagorinsky" : "BGK_no_LES",
+                    SmagorinskyCs = settings.EnableSmagorinskyLES ? settings.SmagorinskyConstantCs : 0.0,
+                    TurbulentPrandtlNumber = settings.EnableSmagorinskyLES ? settings.TurbulentPrandtlNumber : 0.0,
+                    SolverStabilityWarnings = "not_available_until_solver_log_is_archived",
                     VelocityOutputUnits = "FluidX3D write_device_to_vtk true requested; reader treats metadata as the unit contract.",
                     VtkReaderShouldApplyVelocityScale = false,
                     DxM = grid.Dx,
@@ -2890,6 +2920,18 @@ namespace CityLBM.Solver
                         },
                         ReferenceWindSpeedMps = scene.WindSpeed,
                         ReferenceHeightM = scene.ReferenceHeight,
+                        TargetMaxProfileVelocityLbm = 0.1,
+                        EstimatedMaxProfileMach = 0.1 / Math.Sqrt(1.0 / 3.0),
+                        LbmStabilityGate = "requires_solver_log_and_runtime_statistics",
+                        LbmTau = ComputeTau(settings, grid),
+                        LbmNu = ComputeNuLbm(settings, grid),
+                        PhysicalViscosityM2s = settings.Viscosity,
+                        EstimatedReynoldsNumber = EstimateRunReynoldsNumber(scene, grid, settings),
+                        VelocitySet = "D3Q19",
+                        LesModel = settings.EnableSmagorinskyLES ? "Smagorinsky" : "BGK_no_LES",
+                        SmagorinskyCs = settings.EnableSmagorinskyLES ? settings.SmagorinskyConstantCs : 0.0,
+                        TurbulentPrandtlNumber = settings.EnableSmagorinskyLES ? settings.TurbulentPrandtlNumber : 0.0,
+                        SolverStabilityWarnings = "not_available_until_solver_log_is_archived",
                         SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
                         SyntheticTurbulentInletInjected = IsSyntheticTurbulentInletActive(scene, settings),
                         SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
@@ -3034,6 +3076,9 @@ namespace CityLBM.Solver
             bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
             double maxProfileVelocityLbm = 0.1;
             double estimatedMach = maxProfileVelocityLbm / Math.Sqrt(1.0 / 3.0);
+            double tau = ComputeTau(settings, grid);
+            double nuLbm = ComputeNuLbm(settings, grid);
+            double reynolds = EstimateRunReynoldsNumber(scene, grid, settings);
             BoundaryProtocolAudit boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
             bool boundaryClearanceOk = boundaryAudit.MeetsDiagnosticDomain;
             int expectedFrames = settings.SaveInterval > 0
@@ -3123,8 +3168,8 @@ namespace CityLBM.Solver
             yield return new ValidationProtocolAuditItem
             {
                 Key = "lbm_stability_scaling",
-                Status = maxProfileVelocityLbm <= 0.1 ? "partial" : "risk",
-                Evidence = $"TargetMaxProfileVelocityLbm={maxProfileVelocityLbm:F3}; EstimatedMaxProfileMach={estimatedMach:F3}; ProfileScaleSpeed={GetProfileScaleSpeed(scene):F6} m/s.",
+                Status = (maxProfileVelocityLbm <= 0.1 && tau > 0.5 && tau <= 2.0) ? "partial" : "risk",
+                Evidence = $"TargetMaxProfileVelocityLbm={maxProfileVelocityLbm:F3}; EstimatedMaxProfileMach={estimatedMach:F3}; LbmTau={tau:F6}; LbmNu={nuLbm:E6}; EstimatedRe={reynolds:F0}; VelocitySet=D3Q19; LesModel={(settings.EnableSmagorinskyLES ? "Smagorinsky" : "BGK_no_LES")}; ProfileScaleSpeed={GetProfileScaleSpeed(scene):F6} m/s.",
                 Risk = "The generated setup uses a conservative lattice-velocity target, but actual stability and compressibility must be checked from solver logs and final velocity statistics.",
                 RequiredNextAction = "Archive setup.cpp, solver log, viscosity/tau, maximum velocity and any FluidX3D stability warnings for each validation run."
             };
