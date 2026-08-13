@@ -92,8 +92,8 @@ namespace CityLBM.Components.Simulation
                 "较大值：更多耗散但更稳定",
                 GH_ParamAccess.item, 0.12);
             pManager.AddBooleanParameter("Synthetic Inlet", "STG",
-                "Experimental SEM-lite inlet for CustomTable profiles with k.\n" +
-                "Uses bounded synthetic-eddy perturbations from sigma=sqrt(2k/3).\n" +
+                "Experimental STG-lite inlet for CustomTable profiles with k.\n" +
+                "Uses bounded spectral perturbations from sigma=sqrt(2k/3).\n" +
                 "This is not a full digital-filter, precursor, or Reynolds-stress inlet.",
                 GH_ParamAccess.item, false);
             pManager.AddNumberParameter("STG Scale", "STGS",
@@ -291,7 +291,7 @@ namespace CityLBM.Components.Simulation
                 settings.SyntheticTurbulenceUpdateInterval = 25;
                 settings.SyntheticTurbulenceMaxFractionOfMean = 0.35;
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
-                    "[v0.3.0] SEM-lite inlet enabled for CustomTable+k. Experimental; not full DFM/precursor/Reynolds-stress inflow.");
+                    "[v0.3.0] STG-lite inlet enabled for CustomTable+k. Experimental; not full DFM/precursor/Reynolds-stress inflow.");
             }
 
             var solver = new FluidX3DInterface(fluidX3DPath);

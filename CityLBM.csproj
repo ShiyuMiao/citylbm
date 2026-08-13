@@ -27,6 +27,7 @@
     <Compile Remove="bin\**\*.cs" />
     <Compile Remove="obj\**\*.cs" />
     <Compile Remove="tools\**\*.cs" />
+    <Compile Remove="tests\**\*.cs" />
     <None Remove="bin\**\*" />
     <None Remove="obj\**\*" />
     <None Remove="tools\**\*" />

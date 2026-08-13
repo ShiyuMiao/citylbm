@@ -41,7 +41,7 @@ AIJ Case E is treated as a paper-grade validation experiment.
 
 4. Inlet distribution-consistency gate.
    If the inlet turbulence is generated from `k`, archive whether the implementation reconstructs FluidX3D distribution
-   functions or only refreshes macroscopic velocity fields. CityLBM v0.3.0 SEM-lite is velocity-field-only; it is
+   functions or only refreshes macroscopic velocity fields. CityLBM v0.3.0 STG-lite is velocity-field-only; it is
    diagnostic until an empty-tunnel run proves downstream `U/k` preservation or a validated DFM/SEM/precursor/recycling
    inlet is implemented.
 
@@ -73,7 +73,7 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Boundary mode and boundary-source justification.
 - Wall/roughness treatment: no-slip, rough-wall function, precursor/recycling, roughness blocks, or other documented
   approach.
-- Inlet turbulence method: off, SEM-lite, synthetic-eddy, digital-filter, recycling-rescaling or precursor.
+- Inlet turbulence method: off, STG-lite, synthetic-eddy, digital-filter, recycling-rescaling or precursor.
 - Inlet distribution treatment: macroscopic velocity only, equilibrium/distribution reconstruction, precursor field, or
   other archived method.
 - Inlet `U` and `k` preservation metrics from the empty tunnel.

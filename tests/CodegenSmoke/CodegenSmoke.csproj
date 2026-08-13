@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="CityLBM">
+      <HintPath>..\..\bin\Release\CityLBM.dll</HintPath>
+    </Reference>
+    <Reference Include="RhinoCommon">
+      <HintPath>$(ProgramFiles)\Rhino 7\System\RhinoCommon.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Grasshopper">
+      <HintPath>$(ProgramFiles)\Rhino 7\Plug-ins\Grasshopper\Grasshopper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="GH_IO">
+      <HintPath>$(ProgramFiles)\Rhino 7\Plug-ins\Grasshopper\GH_IO.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\bin\Release\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\..\bin\Release\NLog.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
