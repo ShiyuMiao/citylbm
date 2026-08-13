@@ -1,0 +1,15 @@
+check,passed
+component_source_exists,True
+component_class_present,True
+grasshopper_component_name_present,True
+outputs_remediation_sections,True
+formal_release_forced_false,True
+records_official_metric_values,True
+records_official_protocol,True
+records_current_blockers,True
+records_verification_commands,True
+records_pass_conditions,True
+blocks_forbidden_claims,True
+records_next_experiments,True
+boundary_blocks_accuracy,True
+component_guid_present,True

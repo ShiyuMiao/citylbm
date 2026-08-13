@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-13T12:32:45.743482+00:00",
+  "generated_at": "2026-08-13T12:49:59.362830+00:00",
   "release_target": "v0.4.0",
   "formal_release_allowed": false,
   "formal_v0_3_0_allowed": false,
-  "recommended_tag": "v0.4.0-rc90",
+  "recommended_tag": "v0.4.0-rc91",
   "checks": {
     "citylbm_build_passed": true,
     "rhino_loaded_new_gha": false,
@@ -51,16 +51,16 @@
     "citylbm_gha": {
       "found": true,
       "path": "E:\\citylbm_rc89_work\\CityLBM\\bin\\Release\\CityLBM.gha",
-      "sha256": "f89944de26daa6c54b6791cdbeec6bac1c3b0d3463f70de2fe253bfd475bdcfc",
-      "size_bytes": 1853952,
-      "mtime": "2026-08-13T12:32:44.148920+00:00"
+      "sha256": "c1362a89589b5827a42b8360589a478931332a69b5fb1f81111198fa94424384",
+      "size_bytes": 1864192,
+      "mtime": "2026-08-13T12:49:57.790338+00:00"
     },
     "citylbm_build_log": {
       "found": true,
       "path": "E:\\citylbm_rc89_work\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-      "sha256": "954c8e3d0c73e142b5dd9ad7789b7d94083658442288f2fc2f126980285ad33e",
+      "sha256": "b770b2b6bbbd267da2c702b77f852018a71ff79271eebb458c77244ceda7b17b",
       "size_bytes": 1464,
-      "mtime": "2026-08-13T12:32:44.362849+00:00"
+      "mtime": "2026-08-13T12:49:57.996778+00:00"
     },
     "run_matrix": {
       "path": "E:\\citylbm_rc89_work\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",

@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T12:34:08.084872+00:00",
+    "generated_at": "2026-08-13T12:51:24.067250+00:00",
     "publication_readiness_gate_passed": true,
     "evidence_type": "newly_run",
     "claim_readiness": "paper_ready_publication_packet; blocked formal accuracy release",
@@ -19,7 +19,7 @@
     },
     "all_source_paths_exist": true,
     "formal_release_allowed": false,
-    "recommended_tag": "v0.4.0-rc90",
+    "recommended_tag": "v0.4.0-rc91",
     "official_z2m_metrics": {
       "n": 80,
       "mae_pp": 21.111408125,
@@ -146,10 +146,10 @@
       "reviewer_question": "Are release assets lightweight and traceable?",
       "status": "paper_ready_release_assets",
       "evidence_type": "newly_run",
-      "source_paths": "docs/experiments/casee/results/casee_artifact_index.json; docs/experiments/casee/results/casee_release_asset_manifest.json; docs/releases/v0.4.0-rc90.md",
+      "source_paths": "docs/experiments/casee/results/casee_artifact_index.json; docs/experiments/casee/results/casee_release_asset_manifest.json; docs/releases/v0.4.0-rc91.md",
       "source_paths_exist": true,
       "paper_location": "Data and code availability",
-      "allowed_statement": "The artifact index records 476 artifacts and 406 lightweight release assets; the curated release manifest selects 151 upload assets and keeps 20 raw/large assets excluded or hash-only.",
+      "allowed_statement": "The artifact index records 485 artifacts and 415 lightweight release assets; the curated release manifest selects 158 upload assets and keeps 20 raw/large assets excluded or hash-only.",
       "must_not_claim": "Do not commit large VTK/raw geometry duplicates as manuscript evidence."
     }
   ],

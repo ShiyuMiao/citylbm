@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T12:33:32.759279+00:00",
+  "generated_at": "2026-08-13T12:50:47.013815+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "blocked_environment_recovery_runbook",
   "official_followup_run_allowed": false,
@@ -18,12 +18,12 @@
     },
     {
       "drive": "D:\\",
-      "free_gb": 229.619,
+      "free_gb": 229.622,
       "total_gb": 281.627
     },
     {
       "drive": "E:\\",
-      "free_gb": 811.042,
+      "free_gb": 811.038,
       "total_gb": 931.512
     },
     {
@@ -49,15 +49,15 @@
       "path": "CityLBM/bin/Release",
       "exists": true,
       "file_count": 4,
-      "size_bytes": 3991572,
-      "size_mb": 3.807
+      "size_bytes": 4022680,
+      "size_mb": 3.836
     },
     {
       "path": "CityLBM/obj",
       "exists": true,
       "file_count": 14,
-      "size_bytes": 335359,
-      "size_mb": 0.32
+      "size_bytes": 345987,
+      "size_mb": 0.33
     },
     {
       "path": "E:/citylbm_rc89_work/NuGet",
@@ -83,7 +83,7 @@
       "enabled": true,
       "priority": 2,
       "blocking_gate": "vs_cpp_build_tools",
-      "action": "Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 0.0 GB. Workspace build-cache candidates total only 4.127 MB.",
+      "action": "Free C: drive space to at least 8 GB before retrying VS Build Tools C++; current free space is 0.0 GB. Workspace build-cache candidates total only 4.166 MB.",
       "verification_command": "Get-PSDrive C",
       "pass_condition": "C: free space >= 8 GB; workspace cache cleanup alone is not enough if the current value remains near 0.5 GB.",
       "risk_boundary": "Do not delete user data; record any cleanup outside the repo separately."

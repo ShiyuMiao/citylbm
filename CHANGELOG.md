@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc91 - Grasshopper remediation-plan component
+
+- Added a Grasshopper `Case E Remediation Plan` component under `CityLBM > Results`.
+- The component exposes current official release blockers, required actions, verification commands, pass conditions, forbidden claims, and next official follow-up experiments inside the plugin workflow.
+- Added source and packaged-GHA gates for the component and integrated them into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF069-SF070.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc90 - Grasshopper paper claim-card component
 
 - Added a Grasshopper `Case E Paper Claim Card` component under `CityLBM > Results`.

@@ -345,6 +345,8 @@ def main() -> int:
         ("citylbm_casee_accuracy_action_plan_binary_gate", "citylbm_casee_accuracy_action_plan_binary_gate.py"),
         ("citylbm_casee_paper_claim_card_component_gate", "citylbm_casee_paper_claim_card_component_gate.py"),
         ("citylbm_casee_paper_claim_card_binary_gate", "citylbm_casee_paper_claim_card_binary_gate.py"),
+        ("citylbm_casee_remediation_plan_component_gate", "citylbm_casee_remediation_plan_component_gate.py"),
+        ("citylbm_casee_remediation_plan_binary_gate", "citylbm_casee_remediation_plan_binary_gate.py"),
         ("rhino_gha_load_gate", "rhino_gha_load_gate.py"),
         ("citylbm_gha_install_audit", "citylbm_gha_install_audit.py"),
         ("casee_rhino_load_evidence_kit", "casee_rhino_load_evidence_kit.py"),

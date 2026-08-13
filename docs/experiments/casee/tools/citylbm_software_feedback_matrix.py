@@ -20,6 +20,7 @@ RUN_COMPONENT = ROOT / "CityLBM" / "src" / "Components" / "Simulation" / "RunSim
 POSTRUN_AUDIT_COMPONENT = ROOT / "CityLBM" / "src" / "Components" / "Results" / "CaseEPostRunAuditComponent.cs"
 ACCURACY_ACTION_PLAN_COMPONENT = ROOT / "CityLBM" / "src" / "Components" / "Results" / "CaseEAccuracyActionPlanComponent.cs"
 PAPER_CLAIM_CARD_COMPONENT = ROOT / "CityLBM" / "src" / "Components" / "Results" / "CaseEPaperClaimCardComponent.cs"
+REMEDIATION_PLAN_COMPONENT = ROOT / "CityLBM" / "src" / "Components" / "Results" / "CaseERemediationPlanComponent.cs"
 REPRO_SUITE = CASEE_DIR / "tools" / "reproducibility_suite.py"
 RELEASE_GATE_SCRIPT = CASEE_DIR / "tools" / "casee_audit.py"
 
@@ -116,6 +117,7 @@ def build_rows() -> List[Dict[str, Any]]:
     postrun_audit_component = read_text(POSTRUN_AUDIT_COMPONENT)
     accuracy_action_plan_component = read_text(ACCURACY_ACTION_PLAN_COMPONENT)
     paper_claim_card_component = read_text(PAPER_CLAIM_CARD_COMPONENT)
+    remediation_plan_component = read_text(REMEDIATION_PLAN_COMPONENT)
     suite = read_text(REPRO_SUITE)
     audit = read_text(RELEASE_GATE_SCRIPT)
     release_gate = read_json(RESULTS_DIR / "release_gate.json")
@@ -170,6 +172,8 @@ def build_rows() -> List[Dict[str, Any]]:
     accuracy_action_plan_binary_gate = read_json(RESULTS_DIR / "citylbm_casee_accuracy_action_plan_binary_gate.json")
     paper_claim_card_component_gate = read_json(RESULTS_DIR / "citylbm_casee_paper_claim_card_component_gate.json")
     paper_claim_card_binary_gate = read_json(RESULTS_DIR / "citylbm_casee_paper_claim_card_binary_gate.json")
+    remediation_plan_component_gate = read_json(RESULTS_DIR / "citylbm_casee_remediation_plan_component_gate.json")
+    remediation_plan_binary_gate = read_json(RESULTS_DIR / "citylbm_casee_remediation_plan_binary_gate.json")
     portable_toolchain_gate = read_json(RESULTS_DIR / "citylbm_portable_toolchain_gate.json")
     gpu_failfast_gate = read_json(RESULTS_DIR / "citylbm_gpu_runtime_failfast_gate.json")
     exp3_rows = read_csv(PAPER_DRAFTS / "experiment3_claim_verification.csv")
@@ -2361,6 +2365,80 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    rows.append(
+        row(
+            feedback_id="SF069",
+            experiment="Experiment 2 / CityLBM plugin Case E remediation-plan component",
+            finding=(
+                "CityLBM now exposes a Grasshopper Case E Remediation Plan component that converts the "
+                "current formal release blockers into required actions, verification commands, pass conditions, "
+                "forbidden claims, and next official experiments."
+            ),
+            evidence_type=str(remediation_plan_component_gate.get("evidence_type", "missing")),
+            source_paths=[
+                REMEDIATION_PLAN_COMPONENT,
+                CASEE_DIR / "tools" / "citylbm_casee_remediation_plan_component_gate.py",
+                RESULTS_DIR / "citylbm_casee_remediation_plan_component_gate.json",
+                RESULTS_DIR / "citylbm_casee_remediation_plan_component_gate.csv",
+                RESULTS_DIR / "citylbm_casee_remediation_plan_component_gate.md",
+                RESULTS_DIR / "casee_remaining_blockers.json",
+                RESULTS_DIR / "casee_official_run_preflight.json",
+                RESULTS_DIR / "casee_next_experiment_runbook.json",
+            ],
+            decision_class="software_remediation_plan_component_no_accuracy_promotion",
+            citylbm_status="implemented_casee_remediation_plan_component"
+            if remediation_plan_component_gate.get("casee_remediation_plan_component_gate_passed") is True
+            and remediation_plan_component_gate.get("formal_accuracy_claim_supported") is False
+            and remediation_plan_component_gate.get("default_setting_allowed") is False
+            else "casee_remediation_plan_component_missing_or_failed",
+            implementation_evidence=(
+                f"source_gate_passed={remediation_plan_component_gate.get('casee_remediation_plan_component_gate_passed')}; "
+                f"component_has_blockers={all(blocker in remediation_plan_component for blocker in ['B001 official_z2m_metric_gate', 'B002 rhino_new_gha_load', 'B003 gpu_runtime', 'B004 vs_cpp_build_tools', 'B005 dx1_high_resolution_run'])}; "
+                f"component_has_verification={'casee_audit.py --release-target v0.4.0' in remediation_plan_component and 'nvidia-smi must return 0' in remediation_plan_component}; "
+                f"component_blocks_claims={'Do not claim predictive accuracy' in remediation_plan_component}; "
+                f"component_blocks_defaults={'promote defaults' in remediation_plan_component}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as software workflow evidence that the plugin exposes the current remediation path and release blockers to Grasshopper users.",
+            limitations="Plugin component evidence only; it does not run FluidX3D, compute a new R2, improve official z2m metrics, promote defaults, prove Rhino load, or permit formal v0.4.0.",
+        )
+    )
+
+    rows.append(
+        row(
+            feedback_id="SF070",
+            experiment="Experiment 2 / packaged CityLBM Case E remediation-plan component",
+            finding=(
+                "The packaged CityLBM GHA is audited for the Case E Remediation Plan component markers, "
+                "including blocker IDs, verification commands, pass conditions, forbidden claims, and next-experiment labels."
+            ),
+            evidence_type=str(remediation_plan_binary_gate.get("evidence_type", "missing")),
+            source_paths=[
+                CASEE_DIR / "tools" / "citylbm_casee_remediation_plan_binary_gate.py",
+                RESULTS_DIR / "citylbm_casee_remediation_plan_binary_gate.json",
+                RESULTS_DIR / "citylbm_casee_remediation_plan_binary_gate.csv",
+                RESULTS_DIR / "citylbm_casee_remediation_plan_binary_gate.md",
+                ROOT / "CityLBM" / "bin" / "CityLBM.gha",
+                ROOT / "CityLBM" / "bin" / "Release" / "CityLBM.gha",
+            ],
+            decision_class="packaged_remediation_plan_component_no_accuracy_promotion",
+            citylbm_status="implemented_packaged_casee_remediation_plan_component"
+            if remediation_plan_binary_gate.get("casee_remediation_plan_binary_gate_passed") is True
+            and remediation_plan_binary_gate.get("formal_accuracy_claim_supported") is False
+            and remediation_plan_binary_gate.get("default_setting_allowed") is False
+            else "casee_remediation_plan_binary_gate_missing_or_failed",
+            implementation_evidence=(
+                f"binary_gate_passed={remediation_plan_binary_gate.get('casee_remediation_plan_binary_gate_passed')}; "
+                f"tracked_gha_sha256={remediation_plan_binary_gate.get('tracked_gha_sha256')}; "
+                f"tracked_matches_release={((remediation_plan_binary_gate.get('checks') or {}).get('tracked_gha_matches_release_gha'))}; "
+                f"markers_present={((remediation_plan_binary_gate.get('checks') or {}).get('all_required_markers_present_in_tracked_gha'))}"
+            ),
+            default_setting_allowed=False,
+            paper_use="Use as packaged-plugin evidence that the release asset contains the remediation-plan component.",
+            limitations="Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0.",
+        )
+    )
+
     return rows
 
 
@@ -2379,7 +2457,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053", "SF054", "SF055", "SF056", "SF057", "SF058", "SF059", "SF060", "SF061", "SF062", "SF063", "SF064", "SF065", "SF066", "SF067", "SF068"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053", "SF054", "SF055", "SF056", "SF057", "SF058", "SF059", "SF060", "SF061", "SF062", "SF063", "SF064", "SF065", "SF066", "SF067", "SF068", "SF069", "SF070"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
@@ -2389,7 +2467,7 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "local_orphan_candidate_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion", "native_wall_followup_codegen_no_accuracy_promotion", "native_inlet_followup_codegen_no_accuracy_promotion", "native_c016_residual_target_codegen_no_accuracy_promotion", "native_codegen_smoke_regression_no_accuracy_promotion", "runbook_codegen_preflight_no_accuracy_promotion", "default_promotion_gate_no_accuracy_promotion", "manual_rhino_load_evidence_packet_no_accuracy_promotion", "research_accuracy_gap_no_default_promotion", "accuracy_action_plan_no_default_promotion", "software_accuracy_action_plan_component_no_accuracy_promotion", "packaged_accuracy_action_plan_component_no_accuracy_promotion", "software_paper_claim_card_component_no_accuracy_promotion", "packaged_paper_claim_card_component_no_accuracy_promotion"}
+        if item["decision_class"] in {"diagnostic_switch", "blocked_default_accuracy_upgrade", "blocked_followup_run", "paper_interpretation_layer", "followup_sweep_plan", "rerun_reproducibility_guard", "completed_candidate_no_default_promotion", "diagnostic_ablation_no_default_promotion", "low_cost_regression_no_default_promotion", "runtime_decomposition_sensitivity_no_default_promotion", "inlet_turbulence_diagnostic_no_default_promotion", "residual_structure_no_default_promotion", "local_orphan_candidate_no_default_promotion", "residual_target_hook_no_default_promotion", "calibration_leakage_guard_no_default_promotion", "native_wall_followup_codegen_no_accuracy_promotion", "native_inlet_followup_codegen_no_accuracy_promotion", "native_c016_residual_target_codegen_no_accuracy_promotion", "native_codegen_smoke_regression_no_accuracy_promotion", "runbook_codegen_preflight_no_accuracy_promotion", "default_promotion_gate_no_accuracy_promotion", "manual_rhino_load_evidence_packet_no_accuracy_promotion", "research_accuracy_gap_no_default_promotion", "accuracy_action_plan_no_default_promotion", "software_accuracy_action_plan_component_no_accuracy_promotion", "packaged_accuracy_action_plan_component_no_accuracy_promotion", "software_paper_claim_card_component_no_accuracy_promotion", "packaged_paper_claim_card_component_no_accuracy_promotion", "software_remediation_plan_component_no_accuracy_promotion", "packaged_remediation_plan_component_no_accuracy_promotion"}
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -2508,6 +2586,7 @@ def main() -> int:
             rel(FLUIDX),
             rel(RUN_COMPONENT),
             rel(POSTRUN_AUDIT_COMPONENT),
+            rel(REMEDIATION_PLAN_COMPONENT),
         ],
     }
     OUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")

@@ -1,0 +1,28 @@
+kind,name,passed
+gate_check,tracked_gha_exists,True
+gate_check,release_gha_exists,True
+gate_check,tracked_gha_matches_release_gha,True
+gate_check,source_component_gate_passed,True
+gate_check,all_required_markers_present_in_tracked_gha,True
+binary_marker,CaseERemediationPlanComponent,True
+binary_marker,Case E Remediation Plan,True
+binary_marker,Blockers,True
+binary_marker,Required Actions,True
+binary_marker,Verification,True
+binary_marker,Pass Conditions,True
+binary_marker,Forbidden Claims,True
+binary_marker,Next Experiments,True
+binary_marker,B001 official_z2m_metric_gate,True
+binary_marker,B002 rhino_new_gha_load,True
+binary_marker,B003 gpu_runtime,True
+binary_marker,B004 vs_cpp_build_tools,True
+binary_marker,B005 dx1_high_resolution_run,True
+binary_marker,casee_audit.py --release-target v0.4.0,True
+binary_marker,Do not claim predictive accuracy,True
+binary_marker,Do not claim mesh independence,True
+binary_marker,Do not claim LES improvement,True
+binary_marker,Do not claim formal v0.4.0 release readiness,True
+binary_marker,casee_wall_model_followup,True
+binary_marker,casee_inlet_turbulence_followup,True
+binary_marker,casee_dx1_feasibility_or_run,True
+binary_marker,3F46B886-F94E-492D-9D4F-FA6F170BF1D2,True

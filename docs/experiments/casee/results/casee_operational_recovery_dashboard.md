@@ -1,6 +1,6 @@
 # Case E Operational Recovery Dashboard
 
-Generated: 2026-08-13T12:33:32.888028+00:00
+Generated: 2026-08-13T12:50:47.121140+00:00
 
 ## Verdict
 
@@ -10,7 +10,7 @@ Generated: 2026-08-13T12:33:32.888028+00:00
 - Long FluidX3D run allowed: False
 - Long-run blockers: OP001_system_drive_space, OP004_gpu_recovery, OP006_official_followup_preflight
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc90`
+- Recommended tag: `v0.4.0-rc91`
 
 ## Ordered Recovery Path
 

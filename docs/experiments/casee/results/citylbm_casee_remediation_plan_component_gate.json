@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-08-13T12:50:28.638206+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_casee_remediation_plan_component",
+  "casee_remediation_plan_component_gate_passed": true,
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "default_setting_allowed": false,
+  "component_source_path": "CityLBM/src/Components/Results/CaseERemediationPlanComponent.cs",
+  "checks": {
+    "component_source_exists": true,
+    "component_class_present": true,
+    "grasshopper_component_name_present": true,
+    "outputs_remediation_sections": true,
+    "formal_release_forced_false": true,
+    "records_official_metric_values": true,
+    "records_official_protocol": true,
+    "records_current_blockers": true,
+    "records_verification_commands": true,
+    "records_pass_conditions": true,
+    "blocks_forbidden_claims": true,
+    "records_next_experiments": true,
+    "boundary_blocks_accuracy": true,
+    "component_guid_present": true
+  },
+  "boundary": "This gate checks that CityLBM exposes the current Case E blockers, remediation actions, verification commands, and forbidden claims inside Grasshopper. It is operational planning and paper-limitations support only; it does not run CFD, change official metrics, promote defaults, or permit formal v0.4.0."
+}

@@ -86,6 +86,7 @@ EXPLICIT_ARTIFACTS = [
     "docs/releases/v0.4.0-rc88.md",
     "docs/releases/v0.4.0-rc89.md",
     "docs/releases/v0.4.0-rc90.md",
+    "docs/releases/v0.4.0-rc91.md",
     "academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_en.md",
     "academic-paper-writer/paper-drafts/casee_v04_reproducibility_appendix_zh.md",
@@ -133,6 +134,8 @@ RESULT_PATTERNS = [
     "citylbm_casee_accuracy_action_plan_binary_gate.*",
     "citylbm_casee_paper_claim_card_component_gate.*",
     "citylbm_casee_paper_claim_card_binary_gate.*",
+    "citylbm_casee_remediation_plan_component_gate.*",
+    "citylbm_casee_remediation_plan_binary_gate.*",
     "rhino_gha_load_gate.*",
     "citylbm_gha_install_audit.*",
     "casee_rhino_load_evidence_kit.*",
@@ -251,6 +254,8 @@ TOOL_SCRIPTS = [
     "citylbm_casee_accuracy_action_plan_binary_gate.py",
     "citylbm_casee_paper_claim_card_component_gate.py",
     "citylbm_casee_paper_claim_card_binary_gate.py",
+    "citylbm_casee_remediation_plan_component_gate.py",
+    "citylbm_casee_remediation_plan_binary_gate.py",
     "rhino_gha_load_gate.py",
     "casee_rhino_load_evidence_kit.py",
     "rhino_gha_load_manifest_schema_gate.py",
@@ -472,6 +477,8 @@ def claim_readiness(path: str, cat: str, inventory_row: Dict[str, str]) -> str:
         return "paper_ready_software_feedback_boundary"
     if "citylbm_casee_paper_claim_card" in path:
         return "paper_ready_software_feedback_boundary"
+    if "citylbm_casee_remediation_plan" in path:
+        return "blocked_followup_plan"
     if "paper_evidence_gate" in path or "plugin_identity_gate" in path or "reproducibility_suite" in path:
         return "paper_ready_traceability"
     if "reproducibility_appendix" in path or "paper_appendix_manifest" in path or "paper_appendix_generator" in path:
