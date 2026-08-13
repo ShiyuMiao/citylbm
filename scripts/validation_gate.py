@@ -298,6 +298,28 @@ def source_frame_count(metrics: Dict[str, Any]) -> Optional[int]:
     return None
 
 
+def get_manifest_source_record(manifest: Dict[str, Any], role: str) -> Dict[str, Any]:
+    records = manifest.get("RequiredSourceFiles")
+    if not isinstance(records, list):
+        return {}
+    target = role.strip().lower()
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        if str(record.get("Role") or "").strip().lower() == target:
+            return record
+    return {}
+
+
+def manifest_source_hash_ok(manifest: Dict[str, Any], role: str) -> bool:
+    record = get_manifest_source_record(manifest, role)
+    return (
+        as_bool(record.get("Exists")) is True
+        and str(record.get("HashAlgorithm") or "").strip().upper() == "SHA256"
+        and bool(str(record.get("Sha256") or "").strip())
+    )
+
+
 def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     run_dir = Path(args.run_dir).resolve()
     metadata_path = find_first(run_dir, ["case_metadata.json"])
@@ -455,12 +477,38 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_id = str(get_any(metrics, ["native_fluidx3d_baseline_id"]) or manifest.get("BaselineId") or "")
     native_status = protocol_status(items, "native_fluidx3d_baseline")
     native_gate = str(get_any(metrics, ["native_baseline_gate", "native_fluidx3d_baseline_gate"]) or "").strip().lower()
+    native_path_explicit = as_bool(manifest.get("NativeFluidX3DPathExplicitlyProvided"))
+    native_source_validation = manifest.get("NativeFluidX3DSourceValidation", {})
+    if not isinstance(native_source_validation, dict):
+        native_source_validation = {}
+    native_source_valid = as_bool(native_source_validation.get("IsValid"))
+    native_source_hash_roles = [
+        "Native FluidX3D original setup",
+        "Native FluidX3D original defines",
+        "Native FluidX3D lbm.hpp",
+        "Native FluidX3D lbm.cpp",
+    ]
+    native_source_hashes_ok = all(
+        manifest_source_hash_ok(manifest, role) for role in native_source_hash_roles
+    )
+    native_manifest_ok = (
+        native_path_explicit is True
+        and native_source_valid is True
+        and native_source_hashes_ok
+    )
     add_gate(
         gates,
         "native_baseline",
-        PASS if native_id and native_gate == "pass" else FAIL,
-        f"native_fluidx3d_baseline_id={native_id or 'missing'}; protocol_status={native_status or 'missing'}; native_baseline_gate={native_gate or 'missing'}",
-        "Run and archive a paired native FluidX3D baseline using the same setup, grid, averaging and probes.",
+        PASS if native_id and native_gate == "pass" and native_manifest_ok else FAIL,
+        (
+            f"native_fluidx3d_baseline_id={native_id or 'missing'}; "
+            f"protocol_status={native_status or 'missing'}; native_baseline_gate={native_gate or 'missing'}; "
+            f"NativeFluidX3DPathExplicitlyProvided={native_path_explicit}; "
+            f"NativeFluidX3DSourceValidation.IsValid={native_source_valid}; "
+            f"native_source_hashes_ok={native_source_hashes_ok}; "
+            f"manifest={manifest_path or 'missing'}"
+        ),
+        "Run and archive a paired native FluidX3D baseline using an explicit complete source tree with setup/defines/lbm source hashes, then compare the same setup, grid, averaging and probes.",
     )
 
     normalization_valid = as_bool(get_any(metrics, ["normalization_valid", "NormalizationValid"]))

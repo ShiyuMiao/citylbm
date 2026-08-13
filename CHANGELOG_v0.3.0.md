@@ -61,6 +61,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_gate.py` now audits completed run packages and fails diagnostic-only evidence that lacks metrics,
   empty-tunnel `U/k` preservation, native baseline linkage, valid wind/normalization flags, probe mapping, time averaging
   or bounded mean/k errors.
+- `scripts/validation_gate.py` now requires the native baseline manifest to prove an explicitly supplied FluidX3D source
+  path, a passing source-tree validation record and SHA256 hashes for the native `setup.cpp`, `defines.hpp`, `lbm.hpp`
+  and `lbm.cpp`; a metrics row can no longer self-report `native_baseline_gate=pass` without this evidence.
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.
