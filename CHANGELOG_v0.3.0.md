@@ -32,6 +32,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   to `TYPE_E` inlet nodes so solid ground/building flags are not touched by the diagnostic inlet refresh.
 - `setup.cpp`, `case_metadata.json` and `validation_protocol_audit` now explicitly record that STG-lite refreshes macroscopic `lbm.u` only and does not reconstruct FluidX3D distribution functions.
 - `case_metadata.json` records whether the synthetic inlet was requested and actually injected, plus synthetic scale, correlation length, update interval and amplitude cap.
+- `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now track the synthetic
+  inlet correlation length and its evidence source. A user-selected STG correlation length is treated as diagnostic-only
+  until it is replaced or justified by AIJ length-scale data, a precursor/recycling field or a validated DFM/SEM model.
 - Each generated case now writes `validation_protocol_audit.json` and `.md` to flag inlet, boundary-condition, time-averaging, coordinate, normalization and grid-resolution readiness before metrics are interpreted.
 - `case_metadata.json` and the native baseline manifest now include `BoundaryProtocolAudit`, a structured record of
   inlet/outlet/lateral/top faces, domain clearances in meters and building-height units, simplified boundary types and a

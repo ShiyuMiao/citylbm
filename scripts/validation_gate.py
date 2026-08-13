@@ -479,6 +479,51 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Use a distribution-consistent DFM/SEM/precursor/recycling inlet and pass empty-tunnel U/k preservation; velocity-only STG-lite is diagnostic unless explicitly allowed.",
     )
 
+    inlet_length_status = protocol_status(items, "inlet_turbulence_length_scale")
+    inlet_length_source = str(
+        get_any(metrics, ["inlet_length_scale_source", "SyntheticTurbulentInletLengthScaleSource"])
+        or metadata.get("SyntheticTurbulentInletLengthScaleSource")
+        or ""
+    )
+    inlet_length_gate = str(
+        get_any(metrics, ["inlet_length_scale_gate", "SyntheticTurbulentInletLengthScaleGate"])
+        or metadata.get("SyntheticTurbulentInletLengthScaleGate")
+        or ""
+    ).strip().lower()
+    synthetic_corr_length_m = as_float(
+        get_any(metrics, ["synthetic_correlation_length_m", "SyntheticTurbulenceCorrelationLengthM"])
+        or metadata.get("SyntheticTurbulenceCorrelationLengthM")
+    )
+    length_scale_supported = any(
+        token in inlet_length_source.lower()
+        for token in [
+            "aij",
+            "official",
+            "precursor",
+            "recycling",
+            "digital-filter",
+            "digital_filter",
+            "synthetic-eddy",
+            "sem",
+            "dfm",
+            "validated_length_scale_model",
+        ]
+    )
+    length_gate_pass = inlet_length_gate == "pass" or length_scale_supported
+    add_gate(
+        gates,
+        "inlet_length_scale",
+        PASS if length_gate_pass else FAIL,
+        (
+            f"protocol_status={inlet_length_status or 'missing'}; "
+            f"source={inlet_length_source or 'missing'}; "
+            f"gate={inlet_length_gate or 'missing'}; "
+            f"synthetic_correlation_length_m={synthetic_corr_length_m}; "
+            f"length_scale_supported={length_scale_supported}"
+        ),
+        "Use AIJ-documented turbulence length scales, a precursor/recycling field, or a validated DFM/SEM length-scale model; a user-selected STG correlation length is diagnostic only.",
+    )
+
     metrics_native_id = str(get_any(metrics, ["native_fluidx3d_baseline_id"]) or "").strip()
     manifest_native_id = str(manifest.get("BaselineId") or "").strip()
     native_id = metrics_native_id or manifest_native_id

@@ -2427,6 +2427,13 @@ namespace CityLBM.Solver
                         : "not_applicable",
                     SyntheticTurbulenceIntensityScale = settings.SyntheticTurbulenceIntensityScale,
                     SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
+                    SyntheticTurbulenceCorrelationLengthM = settings.SyntheticTurbulenceCorrelationCells * grid.Dx,
+                    SyntheticTurbulentInletLengthScaleSource = syntheticActive
+                        ? "user_parameter_in_lattice_cells; not derived from AIJ length-scale data or a precursor field"
+                        : "none",
+                    SyntheticTurbulentInletLengthScaleGate = syntheticActive
+                        ? "diagnostic_only_missing_official_or_precursor_length_scale"
+                        : "not_applicable",
                     SyntheticTurbulenceUpdateInterval = settings.SyntheticTurbulenceUpdateInterval,
                     SyntheticTurbulenceMaxFractionOfMean = settings.SyntheticTurbulenceMaxFractionOfMean,
                     ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor is available from AF table" : "",
@@ -2875,6 +2882,14 @@ namespace CityLBM.Solver
                         ReferenceHeightM = scene.ReferenceHeight,
                         SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
                         SyntheticTurbulentInletInjected = IsSyntheticTurbulentInletActive(scene, settings),
+                        SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
+                        SyntheticTurbulenceCorrelationLengthM = settings.SyntheticTurbulenceCorrelationCells * grid.Dx,
+                        SyntheticTurbulentInletLengthScaleSource = IsSyntheticTurbulentInletActive(scene, settings)
+                            ? "user_parameter_in_lattice_cells; not derived from AIJ length-scale data or a precursor field"
+                            : "none",
+                        SyntheticTurbulentInletLengthScaleGate = IsSyntheticTurbulentInletActive(scene, settings)
+                            ? "diagnostic_only_missing_official_or_precursor_length_scale"
+                            : "not_applicable",
                         InletDistributionTreatment = IsSyntheticTurbulentInletActive(scene, settings)
                             ? "velocity_field_only_no_distribution_function_reconstruction"
                             : "not_active",
@@ -3029,11 +3044,24 @@ namespace CityLBM.Solver
                     ? "AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet, refresh TYPE_E inlet nodes in batch/graphics modes and record velocity-field-only treatment."
                     : (hasK ? "AF k column is present but only metadata/profile arrays are guaranteed." : "No usable k column found in CustomWindProfile."),
                 Risk = syntheticActive
-                    ? "STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and does not reconstruct distribution functions."
+                    ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence, uses a user-selected correlation length of {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m), and does not reconstruct distribution functions."
                     : "Missing or inactive turbulent inlet can cause systematic underprediction of pedestrian-level velocity ratios.",
                 RequiredNextAction = syntheticActive
-                    ? "Run empty-tunnel and building native FluidX3D baselines proving downstream U/k preservation before paper claims."
+                    ? "Run empty-tunnel and building native FluidX3D baselines proving downstream U/k preservation and replace/user-justify the inlet length scale before paper claims."
                     : "Enable Synthetic Inlet for diagnostic runs or implement a full DFM/SEM/precursor inlet for formal validation."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "inlet_turbulence_length_scale",
+                Status = syntheticActive ? "risk" : "partial",
+                Evidence = syntheticActive
+                    ? $"STG-lite correlation length is SyntheticTurbulenceCorrelationCells={settings.SyntheticTurbulenceCorrelationCells:F3}, dx={grid.Dx:F6} m, length={settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F6} m."
+                    : "No synthetic turbulent inlet length scale is active.",
+                Risk = syntheticActive
+                    ? "AF tables provide k but not turbulent length scales or Reynolds-stress tensors; a user-selected lattice correlation length can strongly affect Case A/E pedestrian-level speed ratios."
+                    : "If turbulent inflow is later enabled, its length-scale source must be archived and validated.",
+                RequiredNextAction = "For paper-grade turbulent-inflow validation, use AIJ-documented length scales, a precursor/recycling field, or a calibrated DFM/SEM length-scale model and archive the evidence."
             };
 
             yield return new ValidationProtocolAuditItem

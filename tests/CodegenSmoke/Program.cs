@@ -86,11 +86,15 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "component RMS target sigma=sqrt(2k/3)");
                 Require(metadata, "\"SyntheticTurbulenceUpdateInterval\": 7");
                 Require(metadata, "\"SyntheticTurbulenceMaxFractionOfMean\": 0.42");
+                Require(metadata, "\"SyntheticTurbulenceCorrelationLengthM\": 8.0");
+                Require(metadata, "not derived from AIJ length-scale data or a precursor field");
+                Require(metadata, "diagnostic_only_missing_official_or_precursor_length_scale");
                 Require(metadata, "refreshed on TYPE_E inlet nodes in batch and graphics modes");
                 Require(metadata, "\"ExpectedVtkFrameCount\": 10");
                 Require(metadata, "\"TimeAveragingRunGate\": \"pass_minimum_frame_count\"");
                 Require(metadata, "Mode 1/2/3 require ExpectedVtkFrameCount");
                 Require(audit, "inlet_distribution_consistency");
+                Require(audit, "inlet_turbulence_length_scale");
                 Require(audit, "STG-lite");
                 Require(audit, "ExpectedVtkFrameCount=10");
                 Require(nativeManifest, "NativeFluidX3DPathExplicitlyProvided");
