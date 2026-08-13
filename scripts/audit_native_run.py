@@ -13,8 +13,9 @@ import hashlib
 import json
 import math
 import re
+import struct
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 
 RISK_PATTERNS = [
@@ -50,6 +51,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-speed-stddev-mps", type=float, default=None)
     parser.add_argument("--mean-speed-stddev-ratio", type=float, default=None)
     parser.add_argument("--max-speed-stddev-ratio", type=float, default=None)
+    parser.add_argument(
+        "--vtk-stability-sample-limit",
+        type=int,
+        default=20000,
+        help="Maximum deterministic VTK points sampled for automatic time-stability statistics. Set 0 to disable.",
+    )
     return parser.parse_args()
 
 
@@ -96,6 +103,190 @@ def has_uniform_spacing(values: List[int]) -> bool:
         return True
     spacing = values[1] - values[0]
     return spacing > 0 and all(values[i] - values[i - 1] == spacing for i in range(2, len(values)))
+
+
+def parse_header_line(text: str, name: str, count: int) -> Optional[Tuple[float, ...]]:
+    pattern = re.compile(rf"^{name}\s+(.+)$", re.IGNORECASE | re.MULTILINE)
+    match = pattern.search(text)
+    if not match:
+        return None
+    parts = match.group(1).strip().split()
+    if len(parts) < count:
+        return None
+    values: List[float] = []
+    for part in parts[:count]:
+        try:
+            values.append(float(part))
+        except ValueError:
+            return None
+    return tuple(values)
+
+
+def parse_vtk_metadata(path: Path) -> Dict[str, Any]:
+    with path.open("rb") as handle:
+        data = handle.read(1024 * 1024)
+    text = data.decode("latin-1", errors="ignore")
+    dims = parse_header_line(text, "DIMENSIONS", 3)
+    point_data = parse_header_line(text, "POINT_DATA", 1)
+    if not dims:
+        raise ValueError(f"VTK DIMENSIONS missing: {path}")
+    nx, ny, nz = [int(round(value)) for value in dims]
+    count = nx * ny * nz
+    if point_data and int(round(point_data[0])) != count:
+        raise ValueError(f"POINT_DATA count does not match DIMENSIONS: {path}")
+    vectors_match = re.search(
+        rb"\nVECTORS\s+([^\s]+)\s+(float|double)\s*\r?\n",
+        data,
+        re.IGNORECASE,
+    )
+    scalars_match = re.search(
+        rb"\nSCALARS\s+([^\s]+)\s+(float|double)\s+3\s*\r?\nLOOKUP_TABLE\s+[^\s]+\s*\r?\n",
+        data,
+        re.IGNORECASE,
+    )
+    if vectors_match:
+        dtype = vectors_match.group(2).decode("ascii", errors="ignore")
+        offset = vectors_match.end()
+        field_kind = "VECTORS"
+    elif scalars_match:
+        dtype = scalars_match.group(2).decode("ascii", errors="ignore")
+        offset = scalars_match.end()
+        field_kind = "SCALARS_3"
+    else:
+        raise ValueError(f"No VECTORS or SCALARS float/double 3 field found: {path}")
+    binary = any(line.strip().upper() == "BINARY" for line in text.splitlines()[2:10])
+    return {
+        "path": str(path),
+        "dimensions": [nx, ny, nz],
+        "point_count": count,
+        "binary": binary,
+        "dtype": dtype,
+        "field_kind": field_kind,
+        "data_offset": offset,
+    }
+
+
+def dtype_size(dtype: str) -> int:
+    return 8 if dtype.lower() == "double" else 4
+
+
+def selected_sample_indices(point_count: int, sample_limit: int) -> List[int]:
+    if point_count <= 0 or sample_limit <= 0:
+        return []
+    if point_count <= sample_limit:
+        return list(range(point_count))
+    if sample_limit == 1:
+        return [point_count // 2]
+    return sorted({round(i * (point_count - 1) / (sample_limit - 1)) for i in range(sample_limit)})
+
+
+def parse_ascii_vectors(text: str, expected_count: int) -> List[Tuple[float, float, float]]:
+    parts = text.replace("\r", "\n").split()
+    values: List[float] = []
+    for part in parts:
+        try:
+            values.append(float(part))
+        except ValueError:
+            continue
+    required = expected_count * 3
+    if len(values) < required:
+        raise ValueError(f"ASCII VTK vector payload too short: {len(values)} < {required}")
+    return [
+        (values[i], values[i + 1], values[i + 2])
+        for i in range(0, required, 3)
+    ]
+
+
+def read_vectors_at_indices(meta: Dict[str, Any], indices: Sequence[int]) -> List[Tuple[float, float, float]]:
+    path = Path(str(meta["path"]))
+    if not bool(meta["binary"]):
+        data = path.read_bytes()
+        vectors = parse_ascii_vectors(
+            data[int(meta["data_offset"]) :].decode("latin-1", errors="ignore"),
+            int(meta["point_count"]),
+        )
+        return [vectors[index] for index in indices]
+    item_size = dtype_size(str(meta["dtype"]))
+    unpack_code = "d" if item_size == 8 else "f"
+    vectors: List[Tuple[float, float, float]] = []
+    with path.open("rb") as handle:
+        for index in indices:
+            handle.seek(int(meta["data_offset"]) + index * 3 * item_size)
+            payload = handle.read(3 * item_size)
+            if len(payload) != 3 * item_size:
+                raise ValueError(f"VTK vector payload ended early: {path}")
+            x, y, z = struct.unpack(">" + unpack_code * 3, payload)
+            vectors.append((float(x), float(y), float(z)))
+    return vectors
+
+
+def compute_sampled_vtk_stability(
+    selected_paths: Sequence[Path],
+    sample_limit: int,
+) -> Dict[str, Any]:
+    if sample_limit <= 0:
+        return {"vtk_stability_sampling_enabled": False}
+    if len(selected_paths) < 2:
+        return {
+            "vtk_stability_sampling_enabled": True,
+            "vtk_stability_sampling_gate": "insufficient_frames",
+            "vtk_stability_sampling_error": "at least two frames are required",
+        }
+    try:
+        metas = [parse_vtk_metadata(path) for path in selected_paths]
+        first = metas[0]
+        for meta in metas[1:]:
+            if meta["dimensions"] != first["dimensions"] or meta["point_count"] != first["point_count"]:
+                raise ValueError("selected VTK frames do not share dimensions/point count")
+        indices = selected_sample_indices(int(first["point_count"]), sample_limit)
+        frame_vectors = [read_vectors_at_indices(meta, indices) for meta in metas]
+        point_stddevs: List[float] = []
+        point_means: List[float] = []
+        for point_index in range(len(indices)):
+            speeds = [
+                math.sqrt(
+                    frame[point_index][0] * frame[point_index][0]
+                    + frame[point_index][1] * frame[point_index][1]
+                    + frame[point_index][2] * frame[point_index][2]
+                )
+                for frame in frame_vectors
+            ]
+            mean_speed = sum(speeds) / len(speeds)
+            variance = sum((speed - mean_speed) ** 2 for speed in speeds) / len(speeds)
+            point_means.append(mean_speed)
+            point_stddevs.append(math.sqrt(variance))
+        mean_speed_mps = sum(point_means) / len(point_means) if point_means else None
+        mean_speed_stddev_mps = sum(point_stddevs) / len(point_stddevs) if point_stddevs else None
+        max_speed_stddev_mps = max(point_stddevs) if point_stddevs else None
+        mean_ratio = (
+            mean_speed_stddev_mps / mean_speed_mps
+            if mean_speed_mps and mean_speed_mps > 1.0e-12 and mean_speed_stddev_mps is not None
+            else None
+        )
+        max_ratio = (
+            max_speed_stddev_mps / mean_speed_mps
+            if mean_speed_mps and mean_speed_mps > 1.0e-12 and max_speed_stddev_mps is not None
+            else None
+        )
+        return {
+            "vtk_stability_sampling_enabled": True,
+            "vtk_stability_sampling_gate": "sampled",
+            "vtk_stability_sample_limit": sample_limit,
+            "vtk_stability_sample_count": len(indices),
+            "vtk_stability_field_kind": first["field_kind"],
+            "vtk_stability_dtype": first["dtype"],
+            "mean_speed_mps": mean_speed_mps,
+            "mean_speed_stddev_mps": mean_speed_stddev_mps,
+            "max_speed_stddev_mps": max_speed_stddev_mps,
+            "mean_speed_stddev_ratio": mean_ratio,
+            "max_speed_stddev_ratio": max_ratio,
+        }
+    except Exception as exc:
+        return {
+            "vtk_stability_sampling_enabled": True,
+            "vtk_stability_sampling_gate": "failed",
+            "vtk_stability_sampling_error": str(exc),
+        }
 
 
 def read_text_lossy(path: Path) -> str:
@@ -147,6 +338,41 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
     selected_last_window = bool(selected_steps) and selected_steps == known_steps[-len(selected_steps) :]
     increasing = is_strictly_increasing(selected_steps)
     uniform = has_uniform_spacing(selected_steps)
+    selected_step_set = set(selected_steps)
+    selected_vtk_files = [
+        path
+        for path in vtk_files
+        if extract_time_step(path) in selected_step_set
+    ]
+    sampled_stability = compute_sampled_vtk_stability(
+        selected_vtk_files,
+        args.vtk_stability_sample_limit,
+    )
+    mean_speed_mps = (
+        args.mean_speed_mps
+        if args.mean_speed_mps is not None
+        else sampled_stability.get("mean_speed_mps")
+    )
+    mean_speed_stddev_mps = (
+        args.mean_speed_stddev_mps
+        if args.mean_speed_stddev_mps is not None
+        else sampled_stability.get("mean_speed_stddev_mps")
+    )
+    max_speed_stddev_mps = (
+        args.max_speed_stddev_mps
+        if args.max_speed_stddev_mps is not None
+        else sampled_stability.get("max_speed_stddev_mps")
+    )
+    mean_speed_stddev_ratio = (
+        args.mean_speed_stddev_ratio
+        if args.mean_speed_stddev_ratio is not None
+        else sampled_stability.get("mean_speed_stddev_ratio")
+    )
+    max_speed_stddev_ratio = (
+        args.max_speed_stddev_ratio
+        if args.max_speed_stddev_ratio is not None
+        else sampled_stability.get("max_speed_stddev_ratio")
+    )
 
     reasons: List[str] = []
     if args.average_last_n <= 0:
@@ -159,14 +385,16 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         reasons.append("source_steps_not_strictly_increasing")
     if not uniform:
         reasons.append("source_step_spacing_not_uniform")
-    if not finite(args.mean_speed_stddev_ratio):
+    if not finite(mean_speed_stddev_ratio):
         reasons.append("missing_mean_speed_stddev_ratio")
-    elif args.mean_speed_stddev_ratio > args.max_mean_speed_stddev_ratio:
+    elif float(mean_speed_stddev_ratio) > args.max_mean_speed_stddev_ratio:
         reasons.append("mean_speed_stddev_ratio_above_0.05")
-    if not finite(args.max_speed_stddev_ratio):
+    if not finite(max_speed_stddev_ratio):
         reasons.append("missing_max_speed_stddev_ratio")
-    elif args.max_speed_stddev_ratio > args.max_point_speed_stddev_ratio:
+    elif float(max_speed_stddev_ratio) > args.max_point_speed_stddev_ratio:
         reasons.append("max_speed_stddev_ratio_above_0.20")
+    if sampled_stability.get("vtk_stability_sampling_gate") == "failed":
+        reasons.append("vtk_stability_sampling_failed")
 
     log_audit = audit_solver_log(Path(args.solver_log).resolve() if args.solver_log else None)
     audit: Dict[str, Any] = {
@@ -187,11 +415,12 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "selected_last_window": selected_last_window,
         "source_steps_strictly_increasing": increasing,
         "source_step_spacing_uniform": uniform,
-        "mean_speed_mps": args.mean_speed_mps,
-        "mean_speed_stddev_mps": args.mean_speed_stddev_mps,
-        "max_speed_stddev_mps": args.max_speed_stddev_mps,
-        "mean_speed_stddev_ratio": args.mean_speed_stddev_ratio,
-        "max_speed_stddev_ratio": args.max_speed_stddev_ratio,
+        "mean_speed_mps": mean_speed_mps,
+        "mean_speed_stddev_mps": mean_speed_stddev_mps,
+        "max_speed_stddev_mps": max_speed_stddev_mps,
+        "mean_speed_stddev_ratio": mean_speed_stddev_ratio,
+        "max_speed_stddev_ratio": max_speed_stddev_ratio,
+        "mean_speed_statistics_source": "cli" if args.mean_speed_stddev_ratio is not None and args.max_speed_stddev_ratio is not None else "sampled_vtk",
         "minimum_validation_average_frames": args.min_avg_frames,
         "max_mean_speed_stddev_ratio": args.max_mean_speed_stddev_ratio,
         "max_point_speed_stddev_ratio": args.max_point_speed_stddev_ratio,
@@ -216,6 +445,15 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "les_model": metadata_value(metadata, "LesModel"),
         "smagorinsky_cs": metadata_value(metadata, "SmagorinskyCs"),
     }
+    for key, value in sampled_stability.items():
+        if key not in {
+            "mean_speed_mps",
+            "mean_speed_stddev_mps",
+            "max_speed_stddev_mps",
+            "mean_speed_stddev_ratio",
+            "max_speed_stddev_ratio",
+        }:
+            audit[key] = value
     audit.update(log_audit)
     return audit
 

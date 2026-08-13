@@ -124,12 +124,17 @@ python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluid
 If metrics are produced from Grasshopper `Data Probe`, build the metrics row first:
 
 ```powershell
-python scripts\audit_native_run.py <run_dir> --metadata <case_metadata.json> --solver-log <solver.log> --average-last-n 10 --mean-speed-stddev-ratio <ratio> --max-speed-stddev-ratio <ratio> --out <native_run_audit.json>
+python scripts\audit_native_run.py <run_dir> --metadata <case_metadata.json> --solver-log <solver.log> --average-last-n 10 --out <native_run_audit.json>
 
 python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
 
 python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
+
+When `--mean-speed-stddev-ratio` and `--max-speed-stddev-ratio` are omitted, `audit_native_run.py` deterministically
+samples up to 20,000 points from the selected final VTK frames and computes these stability ratios from the real
+velocity time series. Explicit CLI ratios can still be used when a stricter full-field or probe-specific averaging
+analysis has already been archived.
 
 For a CityLBM-driven parity run, change `--software citylbm` and keep the same metrics/probe schema. A passing paper-grade
 record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,
