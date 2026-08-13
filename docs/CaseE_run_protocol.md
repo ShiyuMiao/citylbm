@@ -87,7 +87,7 @@ python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit
 - Run the machine gate after postprocessing:
 
 ```powershell
-python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --out <run_dir>\validation_gate_report.json
+python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --expected-uref 3.928296 --expected-wind-vector 0,-1,0 --out <run_dir>\validation_gate_report.json
 ```
 
   The gate must pass before Case E is described as paper-grade validation. A failed gate means the run remains

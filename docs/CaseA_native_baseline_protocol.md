@@ -99,7 +99,7 @@ AIJ Case E is treated as a paper-grade validation experiment.
 After every native FluidX3D or CityLBM-driven Case A run, execute the repository gate before using metrics in a paper:
 
 ```powershell
-python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluidx3d --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --out <run_dir>\validation_gate_report.json
+python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluidx3d --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --expected-uref <Uref> --expected-wind-vector 1,0,0 --out <run_dir>\validation_gate_report.json
 ```
 
 If metrics are produced from Grasshopper `Data Probe`, build the metrics row first:

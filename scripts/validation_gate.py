@@ -51,6 +51,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-probe-failure-fraction", type=float, default=0.0)
     parser.add_argument("--max-frontal-blockage-ratio", type=float, default=0.05)
     parser.add_argument("--expected-compared-component", default="", help="Require a specific Data Probe compared_component, e.g. speed_ratio or streamwise_ratio.")
+    parser.add_argument("--expected-uref", type=float, default=None, help="Require the metrics/Data Probe Uref to match this value.")
+    parser.add_argument("--uref-tolerance", type=float, default=1.0e-6)
+    parser.add_argument("--expected-wind-vector", default="", help="Require wind_vector to match x,y,z or (x,y,z), e.g. 0,-1,0.")
+    parser.add_argument("--wind-vector-tolerance", type=float, default=1.0e-6)
     parser.add_argument(
         "--allow-diagnostic",
         action="store_true",
@@ -158,6 +162,42 @@ def get_any(mapping: Dict[str, Any], keys: Iterable[str]) -> Any:
         if key in mapping and mapping[key] not in (None, ""):
             return mapping[key]
     return None
+
+
+def parse_vector(value: Any) -> Optional[Tuple[float, float, float]]:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    text = text.strip("()[]{}")
+    parts = [part.strip() for part in text.replace(";", ",").split(",") if part.strip()]
+    if len(parts) != 3:
+        return None
+    values = [as_float(part) for part in parts]
+    if any(v is None for v in values):
+        return None
+    return values[0], values[1], values[2]
+
+
+def normalize_vector(vector: Optional[Tuple[float, float, float]]) -> Optional[Tuple[float, float, float]]:
+    if vector is None:
+        return None
+    length = math.sqrt(sum(component * component for component in vector))
+    if length <= 1.0e-12:
+        return None
+    return tuple(component / length for component in vector)
+
+
+def vector_delta(
+    actual: Optional[Tuple[float, float, float]],
+    expected: Optional[Tuple[float, float, float]],
+) -> Optional[float]:
+    actual_unit = normalize_vector(actual)
+    expected_unit = normalize_vector(expected)
+    if actual_unit is None or expected_unit is None:
+        return None
+    return math.sqrt(sum((a - e) * (a - e) for a, e in zip(actual_unit, expected_unit)))
 
 
 def add_gate(gates: List[Dict[str, Any]], key: str, status: str, evidence: str, required: str = "") -> None:
@@ -396,6 +436,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
 
     normalization_valid = as_bool(get_any(metrics, ["normalization_valid", "NormalizationValid"]))
     wind_valid = as_bool(get_any(metrics, ["wind_direction_valid", "WindDirectionValid"]))
+    uref = as_float(get_any(metrics, ["Uref_mps", "Uref", "U_ref"]))
+    uref_ok = args.expected_uref is None or (
+        uref is not None and abs(uref - args.expected_uref) <= args.uref_tolerance
+    )
+    metric_wind_vector = parse_vector(get_any(metrics, ["wind_vector", "WindVector"]))
+    expected_wind_vector = parse_vector(args.expected_wind_vector) if args.expected_wind_vector else None
+    wind_delta = vector_delta(metric_wind_vector, expected_wind_vector)
+    wind_vector_ok = expected_wind_vector is None or (
+        wind_delta is not None and wind_delta <= args.wind_vector_tolerance
+    )
     coord_delta = as_float(get_any(metrics, ["max_official_coordinate_delta_m", "MaxOfficialCoordinateDeltaM"]))
     coord_delta_count = as_int(get_any(metrics, ["official_coordinate_delta_count", "OfficialCoordinateDeltaCount"]))
     valid_metric_count = as_int(get_any(metrics, ["valid_n", "ValidN"]))
@@ -409,9 +459,19 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     add_gate(
         gates,
         "coordinate_normalization",
-        PASS if normalization_valid is True and wind_valid is True and coord_ok and coord_coverage_ok else FAIL,
+        PASS
+        if normalization_valid is True
+        and wind_valid is True
+        and uref_ok
+        and wind_vector_ok
+        and coord_ok
+        and coord_coverage_ok
+        else FAIL,
         (
             f"normalization_valid={normalization_valid}; wind_direction_valid={wind_valid}; "
+            f"Uref_mps={uref}; expected_uref={args.expected_uref}; uref_tolerance={args.uref_tolerance}; "
+            f"wind_vector={metric_wind_vector}; expected_wind_vector={expected_wind_vector}; "
+            f"wind_vector_unit_delta={wind_delta}; wind_vector_tolerance={args.wind_vector_tolerance}; "
             f"max_official_coordinate_delta_m={coord_delta}; required <= {args.max_official_coordinate_delta_m}; "
             f"official_coordinate_delta_count={coord_delta_count}; valid_n={valid_metric_count}"
         ),
@@ -549,6 +609,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_probe_failure_fraction": args.max_probe_failure_fraction,
             "max_frontal_blockage_ratio": args.max_frontal_blockage_ratio,
             "expected_compared_component": args.expected_compared_component,
+            "expected_uref": args.expected_uref,
+            "uref_tolerance": args.uref_tolerance,
+            "expected_wind_vector": args.expected_wind_vector,
+            "wind_vector_tolerance": args.wind_vector_tolerance,
         },
         "artifacts": {
             "case_metadata": str(metadata_path) if metadata_path else "",
