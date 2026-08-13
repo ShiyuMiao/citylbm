@@ -406,6 +406,7 @@ namespace CityLBM.Solver
             // FluidX3D VTK 输出以域中心为原点，CityLBM 使用物理世界坐标（Z 从地面=0 开始）
             SaveDomainOrigin(caseDir, grid.Origin, grid.DomainBounds, grid.Nx, grid.Ny, grid.Nz, grid.Dx);
             SaveCaseMetadata(caseDir, scene, grid, settings);
+            SaveValidationProtocolAudit(caseDir, scene, grid, settings);
 
             LastCaseDirectory = caseDir;
             return caseDir;
@@ -2372,6 +2373,149 @@ namespace CityLBM.Solver
             yield return "Coordinate transform, wind component sign, probe projection and normalization basis must be audited for each validation run.";
         }
 
+        private void SaveValidationProtocolAudit(string caseDir, Scene scene, CartesianGrid grid, SimulationSettings settings)
+        {
+            try
+            {
+                var items = BuildValidationProtocolAuditItems(scene, grid, settings).ToList();
+                var audit = new
+                {
+                    SchemaVersion = 1,
+                    CityLBMVersion = "0.3.0",
+                    SceneName = scene.Name,
+                    GeneratedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                    Purpose = "Protocol-level audit for AIJ validation before interpreting error metrics.",
+                    Gate = items.Any(i => i.Status == "fail" || i.Status == "risk")
+                        ? "not_paper_grade"
+                        : (items.Any(i => i.Status == "partial") ? "diagnostic_only" : "ready_for_validation_run"),
+                    Items = items
+                };
+
+                string json = JsonConvert.SerializeObject(audit, Formatting.Indented);
+                File.WriteAllText(Path.Combine(caseDir, "validation_protocol_audit.json"), json, Encoding.UTF8);
+                File.WriteAllText(Path.Combine(caseDir, "output", "validation_protocol_audit.json"), json, Encoding.UTF8);
+
+                string markdown = BuildValidationProtocolAuditMarkdown(audit.Gate, items);
+                File.WriteAllText(Path.Combine(caseDir, "validation_protocol_audit.md"), markdown, Encoding.UTF8);
+                File.WriteAllText(Path.Combine(caseDir, "output", "validation_protocol_audit.md"), markdown, Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[CityLBM] Save validation_protocol_audit failed: {ex.Message}");
+            }
+        }
+
+        private IEnumerable<ValidationProtocolAuditItem> BuildValidationProtocolAuditItems(Scene scene, CartesianGrid grid, SimulationSettings settings)
+        {
+            bool customTable = scene.WindProfile == WindProfileType.CustomTable;
+            bool hasProfile = scene.CustomWindProfile != null && scene.CustomWindProfile.Count >= 2;
+            bool hasK = scene.CustomWindProfile != null && scene.CustomWindProfile.Any(s => s.HasK);
+            bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
+            int expectedFrames = settings.SaveInterval > 0
+                ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
+                : 0;
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "inlet_mean_profile",
+                Status = customTable && hasProfile ? "pass" : "risk",
+                Evidence = customTable && hasProfile
+                    ? $"CustomTable with {scene.CustomWindProfile.Count} rows; setup.cpp will emit profile_z_m/profile_u_lbm arrays."
+                    : $"WindProfile={scene.WindProfile}; AIJ AF validation should use CustomTable z,U,k.",
+                Risk = customTable && hasProfile ? "" : "Mean inflow may not match the AIJ approach-flow profile.",
+                RequiredNextAction = customTable && hasProfile ? "Archive setup.cpp and case_metadata.json with the run." : "Set Wind Profile=CustomTable and load the official AF CSV."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "inlet_turbulence_k",
+                Status = syntheticActive ? "partial" : (hasK ? "risk" : "fail"),
+                Evidence = syntheticActive
+                    ? "AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet."
+                    : (hasK ? "AF k column is present but only metadata/profile arrays are guaranteed." : "No usable k column found in CustomWindProfile."),
+                Risk = syntheticActive
+                    ? "STG-lite is not a full digital-filter/synthetic-eddy inlet and assumes isotropic turbulence."
+                    : "Missing or inactive turbulent inlet can cause systematic underprediction of pedestrian-level velocity ratios.",
+                RequiredNextAction = syntheticActive
+                    ? "Run native FluidX3D compile smoke test and sensitivity against STG Scale/Corr Cells before paper claims."
+                    : "Enable Synthetic Inlet for diagnostic runs or implement a full DFM/SEM/precursor inlet for formal validation."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "boundary_conditions",
+                Status = "risk",
+                Evidence = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
+                Risk = "TYPE_E inlet/outlet/lateral/top is a simplified boundary protocol and may not match the AIJ wind-tunnel setup.",
+                RequiredNextAction = "Compare against AIJ tunnel boundary assumptions; document inlet fetch, outlet distance, lateral/top treatment, and blockage."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "time_averaging",
+                Status = expectedFrames >= 8 ? "partial" : "risk",
+                Evidence = $"TimeSteps={settings.TimeSteps}, SaveInterval={settings.SaveInterval}, ExpectedVtkFrameCount={expectedFrames}.",
+                Risk = expectedFrames >= 8
+                    ? "Frame count is sufficient for a minimum averaging workflow, but stationarity still must be proven from actual VTK/logs."
+                    : "Too few VTK frames for robust time averaging; a single or short-window field can bias validation metrics.",
+                RequiredNextAction = "Use Read VTK Average Last N and archive the actual SourceTimeSteps used for metrics."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "coordinate_transform",
+                Status = "partial",
+                Evidence = $"domain_origin.json will be written with origin=({grid.Origin.X:F3},{grid.Origin.Y:F3},{grid.Origin.Z:F3}), dx={grid.Dx:F3}, grid={grid.Nx}x{grid.Ny}x{grid.Nz}.",
+                Risk = "Generated metadata supports coordinate recovery, but RS probe projection and wind component sign must be checked against official points.",
+                RequiredNextAction = "Archive domain_origin.json and a probe-mapping table with nearest/interpolated point distances."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "normalization_basis",
+                Status = customTable ? "partial" : "risk",
+                Evidence = customTable
+                    ? $"ReferenceWindSpeed={scene.WindSpeed:F6} m/s at z_ref={scene.ReferenceHeight:F3} m; ProfileScaleSpeed={GetProfileScaleSpeed(scene):F6} m/s."
+                    : $"WindProfile={scene.WindProfile}; ReferenceWindSpeed={scene.WindSpeed:F6} m/s.",
+                Risk = "AIJ velocity-ratio comparison must use the official Uref/probe convention, not only the LBM stability scaling speed.",
+                RequiredNextAction = "Record Uref source, wind component used for ratio, and whether speed magnitude or streamwise velocity is compared."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "grid_resolution",
+                Status = grid.Dx <= 3.0 ? "partial" : "risk",
+                Evidence = $"dx={grid.Dx:F3} m.",
+                Risk = grid.Dx <= 3.0
+                    ? "Resolution is in the planned formal range, but grid-sensitivity evidence is still required."
+                    : "Resolution is smoke-test level and may under-resolve street canyons and pedestrian probes.",
+                RequiredNextAction = "Run dx sensitivity, at minimum smoke dx plus formal dx=2-3 m, with the same postprocess protocol."
+            };
+        }
+
+        private string BuildValidationProtocolAuditMarkdown(string gate, IList<ValidationProtocolAuditItem> items)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("# CityLBM validation protocol audit");
+            sb.AppendLine();
+            sb.AppendLine($"Gate: `{gate}`");
+            sb.AppendLine();
+            sb.AppendLine("| Item | Status | Evidence | Risk | Required next action |");
+            sb.AppendLine("|---|---|---|---|---|");
+            foreach (var item in items)
+            {
+                sb.AppendLine($"| {EscapeMarkdownTable(item.Key)} | `{item.Status}` | {EscapeMarkdownTable(item.Evidence)} | {EscapeMarkdownTable(item.Risk)} | {EscapeMarkdownTable(item.RequiredNextAction)} |");
+            }
+            sb.AppendLine();
+            sb.AppendLine("Status meanings: `pass` = directly satisfied by generated case settings; `partial` = software support exists but run evidence is still required; `risk` = likely protocol risk for paper-grade validation; `fail` = missing required validation input.");
+            return sb.ToString();
+        }
+
+        private string EscapeMarkdownTable(string value)
+        {
+            return (value ?? "").Replace("|", "\\|").Replace("\r", " ").Replace("\n", " ");
+        }
+
         private void SaveDomainOrigin(string caseDir, Point3d origin, BoundingBox domainBounds,
                                        int nx, int ny, int nz, double dx)
         {
@@ -2635,6 +2779,15 @@ namespace CityLBM.Solver
     // ====================================================
     // 数据类
     // ====================================================
+
+    public class ValidationProtocolAuditItem
+    {
+        public string Key { get; set; }
+        public string Status { get; set; }
+        public string Evidence { get; set; }
+        public string Risk { get; set; }
+        public string RequiredNextAction { get; set; }
+    }
 
     /// <summary>模拟物理设置</summary>
     public class SimulationSettings

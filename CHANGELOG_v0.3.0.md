@@ -18,6 +18,7 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `Run Simulation` adds an optional experimental `Synthetic Inlet` control for CustomTable profiles with `k`.
 - Generated FluidX3D `setup.cpp` can now use the AF `k` column to apply bounded STG-lite inlet perturbations from `sigma=sqrt(2k/3)`.
 - `case_metadata.json` records whether the synthetic inlet was requested and actually injected, plus STG scale, correlation length, update interval and amplitude cap.
+- Each generated case now writes `validation_protocol_audit.json` and `.md` to flag inlet, boundary-condition, time-averaging, coordinate, normalization and grid-resolution readiness before metrics are interpreted.
 
 ## Remaining scientific work
 

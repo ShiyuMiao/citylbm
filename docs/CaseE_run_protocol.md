@@ -40,6 +40,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   and `citylbm_stg_*` constants.
 - `domain_origin.json` exists in both case root and output directory.
 - `case_metadata.json` exists in both case root and output directory.
+- `validation_protocol_audit.json` and `validation_protocol_audit.md` exist in both case root and output directory.
+  Treat any `risk` or `fail` item as a blocker for paper-grade validation claims until resolved or explicitly justified.
 - VTK files are newly generated for the current run directory, not copied from older experiments.
 - Post-processing reads the final averaged velocity field, not an initial transient.
   In `Read VTK`, set `Average Last N > 0` and record the actual averaged source time steps printed in the Info output.

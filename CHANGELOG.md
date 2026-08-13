@@ -15,6 +15,7 @@
 - Disabled the legacy bundled v0.5.0 fallback for controlled validation runs; users must provide an explicit external FluidX3D path.
 - Added optional experimental `Run Simulation / Synthetic Inlet` inputs for CustomTable profiles with `k`.
 - Generated FluidX3D cases can now use `k` for bounded STG-lite inlet perturbations, with request/injection status and parameters recorded in `case_metadata.json`.
+- Added generated `validation_protocol_audit.json/.md` so validation runs explicitly report inlet, boundary, averaging, coordinate, normalization and grid-resolution readiness.
 
 ### Known limits
 
