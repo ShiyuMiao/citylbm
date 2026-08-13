@@ -47,10 +47,17 @@ TEMPLATE_FIELDS = [
     "inlet_face",
     "outlet_face",
     "lateral_faces",
+    "domain_size_x_m",
+    "domain_size_y_m",
+    "domain_size_z_m",
+    "max_building_height_m",
     "upstream_clearance_h",
     "downstream_clearance_h",
     "min_lateral_clearance_h",
     "top_clearance_h",
+    "approx_frontal_blockage_ratio",
+    "approx_plan_blockage_ratio",
+    "blockage_protocol_gate",
     "boundary_protocol_gate",
     "boundary_summary",
     "synthetic_inlet_method",
@@ -507,6 +514,7 @@ def main() -> int:
         systematic_flag = "underprediction" if u_bias < 0 else "overprediction"
 
     boundary_audit = metadata.get("BoundaryProtocolAudit") if isinstance(metadata.get("BoundaryProtocolAudit"), dict) else {}
+    blockage_audit = boundary_audit.get("BlockageDiagnostics") if isinstance(boundary_audit.get("BlockageDiagnostics"), dict) else {}
     averaging_window = args.averaging_window
     if averaging_window is None:
         averaging_window = audit_int(read_vtk_audit, "averaged_frame_count")
@@ -544,10 +552,17 @@ def main() -> int:
             "inlet_face": nested(metadata, "BoundaryProtocolAudit", "InletFace"),
             "outlet_face": nested(metadata, "BoundaryProtocolAudit", "OutletFace"),
             "lateral_faces": nested(metadata, "BoundaryProtocolAudit", "LateralFaces"),
+            "domain_size_x_m": nested(boundary_audit, "DomainSizeM", "X"),
+            "domain_size_y_m": nested(boundary_audit, "DomainSizeM", "Y"),
+            "domain_size_z_m": nested(boundary_audit, "DomainSizeM", "Z"),
+            "max_building_height_m": nested(boundary_audit, "BuildingBoundsM", "Height"),
             "upstream_clearance_h": nested(boundary_audit, "ClearanceByBuildingHeight", "Upstream"),
             "downstream_clearance_h": nested(boundary_audit, "ClearanceByBuildingHeight", "Downstream"),
             "min_lateral_clearance_h": nested(boundary_audit, "ClearanceByBuildingHeight", "MinLateral"),
             "top_clearance_h": nested(boundary_audit, "ClearanceByBuildingHeight", "Top"),
+            "approx_frontal_blockage_ratio": blockage_audit.get("ApproxFrontalBlockageRatio", ""),
+            "approx_plan_blockage_ratio": blockage_audit.get("ApproxPlanBlockageRatio", ""),
+            "blockage_protocol_gate": blockage_audit.get("Gate", ""),
             "boundary_protocol_gate": str(boundary_audit.get("Gate", "")),
             "boundary_summary": metadata_field(metadata, "BoundaryConditionSummary"),
             "synthetic_inlet_method": metadata_field(metadata, "SyntheticTurbulentInletMethod"),

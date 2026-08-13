@@ -2468,6 +2468,19 @@ namespace CityLBM.Solver
             double downstreamRatio = SafeRatio(downstreamDistance, referenceHeight);
             double lateralRatio = SafeRatio(minLateralDistance, referenceHeight);
             double topRatio = SafeRatio(topClearance, referenceHeight);
+            double domainX = domain.Max.X - domain.Min.X;
+            double domainY = domain.Max.Y - domain.Min.Y;
+            double domainZ = domain.Max.Z - domain.Min.Z;
+            double buildingX = hasBuildings ? Math.Max(0.0, buildings.Max.X - buildings.Min.X) : double.NaN;
+            double buildingY = hasBuildings ? Math.Max(0.0, buildings.Max.Y - buildings.Min.Y) : double.NaN;
+            double buildingPlanArea = hasBuildings ? buildingX * buildingY : double.NaN;
+            double domainPlanArea = IsPositiveDimension(domainX) && IsPositiveDimension(domainY) ? domainX * domainY : double.NaN;
+            double frontalWidth = xDominant ? buildingY : buildingX;
+            double inletWidth = xDominant ? domainY : domainX;
+            double buildingFrontalArea = hasBuildings ? frontalWidth * buildingHeight : double.NaN;
+            double inletFaceArea = IsPositiveDimension(inletWidth) && IsPositiveDimension(domainZ) ? inletWidth * domainZ : double.NaN;
+            double planBlockageRatio = SafeRatio(buildingPlanArea, domainPlanArea);
+            double frontalBlockageRatio = SafeRatio(buildingFrontalArea, inletFaceArea);
 
             bool domainValid = IsPositiveDimension(domain.Max.X - domain.Min.X) &&
                                IsPositiveDimension(domain.Max.Y - domain.Min.Y) &&
@@ -2484,6 +2497,13 @@ namespace CityLBM.Solver
             bool downstreamOk = downstreamRatio >= 10.0;
             bool lateralOk = lateralRatio >= 5.0;
             bool topOk = topRatio >= 5.0;
+            bool blockageDiagnosticAvailable =
+                !double.IsNaN(frontalBlockageRatio) &&
+                !double.IsInfinity(frontalBlockageRatio) &&
+                !double.IsNaN(planBlockageRatio) &&
+                !double.IsInfinity(planBlockageRatio);
+            bool frontalBlockageOk = blockageDiagnosticAvailable && frontalBlockageRatio <= 0.05;
+            bool planBlockageOk = blockageDiagnosticAvailable && planBlockageRatio <= 0.25;
 
             bool meetsDiagnosticDomain =
                 domainValid &&
@@ -2493,7 +2513,8 @@ namespace CityLBM.Solver
                 upstreamOk &&
                 downstreamOk &&
                 lateralOk &&
-                topOk;
+                topOk &&
+                frontalBlockageOk;
 
             var gateReasons = new List<string>();
             if (!domainValid) gateReasons.Add("domain_bounds_invalid_or_non_positive");
@@ -2504,6 +2525,9 @@ namespace CityLBM.Solver
             if (hasReferenceHeight && !downstreamOk) gateReasons.Add("downstream_clearance_below_10H");
             if (hasReferenceHeight && !lateralOk) gateReasons.Add("minimum_lateral_clearance_below_5H");
             if (hasReferenceHeight && !topOk) gateReasons.Add("top_clearance_below_5H");
+            if (!blockageDiagnosticAvailable) gateReasons.Add("blockage_ratio_unavailable");
+            if (blockageDiagnosticAvailable && !frontalBlockageOk) gateReasons.Add("approx_frontal_blockage_above_0.05");
+            if (blockageDiagnosticAvailable && !planBlockageOk) gateReasons.Add("approx_plan_blockage_above_0.25_diagnostic");
             if (gateReasons.Count == 0) gateReasons.Add("diagnostic_clearance_thresholds_satisfied");
 
             return new BoundaryProtocolAudit
@@ -2563,6 +2587,21 @@ namespace CityLBM.Solver
                     MinLateral = 5.0,
                     Top = 5.0
                 },
+                BlockageDiagnostics = new BoundaryBlockageRecord
+                {
+                    Method = "axis-aligned building-bounds approximation; use only as a screening diagnostic and verify against official wind-tunnel blockage",
+                    DomainPlanAreaM2 = RoundOrNaN(domainPlanArea),
+                    BuildingPlanAreaM2 = RoundOrNaN(buildingPlanArea),
+                    InletFaceAreaM2 = RoundOrNaN(inletFaceArea),
+                    BuildingFrontalAreaM2 = RoundOrNaN(buildingFrontalArea),
+                    ApproxPlanBlockageRatio = RoundOrNaN(planBlockageRatio),
+                    ApproxFrontalBlockageRatio = RoundOrNaN(frontalBlockageRatio),
+                    DiagnosticMaxFrontalBlockageRatio = 0.05,
+                    DiagnosticMaxPlanBlockageRatio = 0.25,
+                    FrontalBlockageOk = frontalBlockageOk,
+                    PlanBlockageOk = planBlockageOk,
+                    Gate = frontalBlockageOk ? "blockage_diagnostic_ok_verify_against_aij" : "blockage_protocol_risk"
+                },
                 ClearanceChecks = new BoundaryClearanceCheckRecord
                 {
                     DomainValid = domainValid,
@@ -2572,12 +2611,14 @@ namespace CityLBM.Solver
                     UpstreamOk = upstreamOk,
                     DownstreamOk = downstreamOk,
                     MinLateralOk = lateralOk,
-                    TopOk = topOk
+                    TopOk = topOk,
+                    ApproxFrontalBlockageOk = frontalBlockageOk,
+                    ApproxPlanBlockageOk = planBlockageOk
                 },
                 MeetsDiagnosticDomain = meetsDiagnosticDomain,
                 Gate = meetsDiagnosticDomain ? "diagnostic_clearance_ok_verify_against_aij" : "boundary_clearance_risk",
                 GateReasons = gateReasons,
-                RequiredNextAction = "For AIJ validation, archive this object, report inlet/outlet/lateral/top clearances in H units, and compare against the official wind-tunnel blockage and fetch protocol."
+                RequiredNextAction = "For AIJ validation, archive this object, report inlet/outlet/lateral/top clearances, approximate blockage ratios, and compare against the official wind-tunnel blockage and fetch protocol."
             };
         }
 
@@ -3306,6 +3347,7 @@ namespace CityLBM.Solver
         public ClearanceRecord ClearanceM { get; set; }
         public ClearanceRatioRecord ClearanceByBuildingHeight { get; set; }
         public BoundaryThresholdRecord DiagnosticThresholdsByBuildingHeight { get; set; }
+        public BoundaryBlockageRecord BlockageDiagnostics { get; set; }
         public BoundaryClearanceCheckRecord ClearanceChecks { get; set; }
         public bool MeetsDiagnosticDomain { get; set; }
         public string Gate { get; set; }
@@ -3367,6 +3409,22 @@ namespace CityLBM.Solver
         public double Top { get; set; }
     }
 
+    internal class BoundaryBlockageRecord
+    {
+        public string Method { get; set; }
+        public double DomainPlanAreaM2 { get; set; }
+        public double BuildingPlanAreaM2 { get; set; }
+        public double InletFaceAreaM2 { get; set; }
+        public double BuildingFrontalAreaM2 { get; set; }
+        public double ApproxPlanBlockageRatio { get; set; }
+        public double ApproxFrontalBlockageRatio { get; set; }
+        public double DiagnosticMaxFrontalBlockageRatio { get; set; }
+        public double DiagnosticMaxPlanBlockageRatio { get; set; }
+        public bool FrontalBlockageOk { get; set; }
+        public bool PlanBlockageOk { get; set; }
+        public string Gate { get; set; }
+    }
+
     internal class BoundaryClearanceCheckRecord
     {
         public bool DomainValid { get; set; }
@@ -3377,6 +3435,8 @@ namespace CityLBM.Solver
         public bool DownstreamOk { get; set; }
         public bool MinLateralOk { get; set; }
         public bool TopOk { get; set; }
+        public bool ApproxFrontalBlockageOk { get; set; }
+        public bool ApproxPlanBlockageOk { get; set; }
     }
 
     /// <summary>模拟物理设置</summary>

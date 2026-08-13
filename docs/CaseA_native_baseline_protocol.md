@@ -39,20 +39,26 @@ AIJ Case E is treated as a paper-grade validation experiment.
    mean-profile generation only; ground/buildings remain `TYPE_S` no-slip, so this gate must be closed by empty-tunnel
    `U/k` preservation before Case A/Case E is promoted.
 
-4. Inlet distribution-consistency gate.
+4. Boundary blockage gate.
+   Archive domain dimensions, maximum building height, upstream/downstream/lateral/top clearance in `H`, approximate
+   frontal blockage ratio and approximate plan blockage ratio. CityLBM v0.3.0 writes these fields in
+   `BoundaryProtocolAudit`. The ratios are axis-aligned screening diagnostics; compare them with the official AIJ
+   wind-tunnel blockage protocol before paper-grade promotion.
+
+5. Inlet distribution-consistency gate.
    If the inlet turbulence is generated from `k`, archive whether the implementation reconstructs FluidX3D distribution
    functions or only refreshes macroscopic velocity fields. CityLBM v0.3.0 STG-lite is velocity-field-only; it is
    diagnostic until an empty-tunnel run proves downstream `U/k` preservation or a validated DFM/SEM/precursor/recycling
    inlet is implemented.
 
-5. Time-averaging gate.
+6. Time-averaging gate.
    Do not report a single instantaneous VTK frame as validation. Archive post-spinup probe time means and, when VTK is
    used for visualization, at least 10 post-spinup VTK frames or an explicit averaged VTK field with the source frame
    list. For CityLBM post-processing, save the `Read VTK` `Averaging Audit` JSON output and pass it into the metrics
    builder. CityLBM v0.3.0 defaults to `TimeSteps=10000` and `SaveInterval=500` so new cases produce about 20 VTK
    frames; shorter runs must be labelled smoke tests.
 
-6. Probe audit gate.
+7. Probe audit gate.
    Probe extraction must record official point IDs, coordinates, selected velocity component, `Uref`, nearest VTK/probe
    distance, tolerance, failure status, valid count and failed count. In CityLBM this is produced by `Data Probe`
    outputs `Audit CSV`, `Validation Status`, `Compared Value` and `Probe ID`. The `Search Radius` input must be
@@ -60,7 +66,7 @@ AIJ Case E is treated as a paper-grade validation experiment.
    record wind-vector components, `wind_direction_valid` and `normalization_valid` so speed-ratio and streamwise-ratio
    comparisons remain traceable.
 
-7. Promotion gate.
+8. Promotion gate.
    CityLBM may inherit native FluidX3D settings only after native Case A has a passing or explicitly bounded diagnostic
    record. If native FluidX3D underpredicts mean speed or `k`, do not tune CityLBM to hide the discrepancy; fix or
    document the native physics first.
@@ -71,6 +77,7 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - `setup.cpp`, `defines.hpp`, `buildings.stl`, run log and postprocess script hashes.
 - `dx`, lattice dimensions, `tau`, target Reynolds number, velocity set and LES/subgrid settings.
 - Domain extents in `H`: upstream, downstream, lateral and top clearance.
+- Approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate.
 - Boundary mode and boundary-source justification.
 - Wall/roughness treatment: no-slip, rough-wall function, precursor/recycling, roughness blocks, or other documented
   approach.

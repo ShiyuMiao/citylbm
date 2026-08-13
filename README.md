@@ -15,10 +15,11 @@ CityLBM is a Grasshopper workflow plugin for urban wind simulation with FluidX3D
 - Adds VTK reader metadata checks so velocity units are explicit in Grasshopper output.
 - Adds reusable validation metrics utilities for MAE, RMSE, bias, R2 and regression slope/intercept.
 - Adds `scripts/validation_gate.py` to prevent smoke/diagnostic runs from being reported as paper-grade AIJ validation.
+- Adds boundary-protocol diagnostics for domain clearance, boundary types and approximate frontal/plan blockage ratios.
 
 ## Important limitation
 
-v0.3.0 reads and converts the `k(m2/s2)` column and can optionally use it for an experimental STG-lite inlet. This is not a full digital-filter, precursor/recycling, or Reynolds-stress-resolved turbulent inflow. Final SCI-level Case A/Case E accuracy still requires strict native FluidX3D baseline comparison, empty-tunnel U/k preservation checks, longer time averaging and documented grid convergence.
+v0.3.0 reads and converts the `k(m2/s2)` column and can optionally use it for an experimental STG-lite inlet. This is not a full digital-filter, precursor/recycling, or Reynolds-stress-resolved turbulent inflow. The boundary audit records clearance and approximate blockage, but it is a screening diagnostic, not a substitute for the official AIJ wind-tunnel protocol. Final SCI-level Case A/Case E accuracy still requires strict native FluidX3D baseline comparison, empty-tunnel U/k preservation checks, longer time averaging, boundary-protocol justification and documented grid convergence.
 
 ## FluidX3D requirement
 

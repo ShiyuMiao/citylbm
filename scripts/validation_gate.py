@@ -49,6 +49,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-empty-tunnel-k-bias-ratio", type=float, default=0.15)
     parser.add_argument("--max-official-coordinate-delta-m", type=float, default=1.0e-6)
     parser.add_argument("--max-probe-failure-fraction", type=float, default=0.0)
+    parser.add_argument("--max-frontal-blockage-ratio", type=float, default=0.05)
     parser.add_argument(
         "--allow-diagnostic",
         action="store_true",
@@ -266,12 +267,32 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         or get_any(metadata.get("BoundaryProtocolAudit", {}), ["Gate"])
         or ""
     )
+    boundary_audit = metadata.get("BoundaryProtocolAudit", {}) if isinstance(metadata.get("BoundaryProtocolAudit"), dict) else {}
+    blockage_audit = boundary_audit.get("BlockageDiagnostics", {}) if isinstance(boundary_audit.get("BlockageDiagnostics"), dict) else {}
+    frontal_blockage = as_float(
+        get_any(metrics, ["approx_frontal_blockage_ratio", "ApproxFrontalBlockageRatio"])
+        or get_any(blockage_audit, ["ApproxFrontalBlockageRatio"])
+    )
+    blockage_gate = str(
+        get_any(metrics, ["blockage_protocol_gate", "BlockageProtocolGate"])
+        or get_any(blockage_audit, ["Gate"])
+        or ""
+    )
     add_gate(
         gates,
         "boundary_protocol",
-        PASS if boundary_gate == "diagnostic_clearance_ok_verify_against_aij" else FAIL,
-        f"boundary_protocol_gate={boundary_gate or 'missing'}",
-        "Fix domain extents/model placement or archive a justified AIJ-equivalent boundary protocol.",
+        PASS
+        if boundary_gate == "diagnostic_clearance_ok_verify_against_aij"
+        and frontal_blockage is not None
+        and frontal_blockage <= args.max_frontal_blockage_ratio
+        else FAIL,
+        (
+            f"boundary_protocol_gate={boundary_gate or 'missing'}; "
+            f"approx_frontal_blockage_ratio={frontal_blockage}; "
+            f"blockage_protocol_gate={blockage_gate or 'missing'}; "
+            f"required frontal <= {args.max_frontal_blockage_ratio}"
+        ),
+        "Fix domain extents/model placement, reduce blockage, or archive a justified AIJ-equivalent boundary protocol.",
     )
 
     inlet_status = protocol_status(items, "inlet_turbulence_k")
@@ -444,6 +465,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_empty_tunnel_k_bias_ratio": args.max_empty_tunnel_k_bias_ratio,
             "max_official_coordinate_delta_m": args.max_official_coordinate_delta_m,
             "max_probe_failure_fraction": args.max_probe_failure_fraction,
+            "max_frontal_blockage_ratio": args.max_frontal_blockage_ratio,
         },
         "artifacts": {
             "case_metadata": str(metadata_path) if metadata_path else "",

@@ -44,7 +44,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - `domain_origin.json` exists in both case root and output directory.
 - `case_metadata.json` exists in both case root and output directory.
   Archive `BoundaryProtocolAudit` from this file: inlet/outlet/lateral/top faces, clearances in meters and H units,
-  boundary protocol gate, and the simplified `TYPE_E`/`TYPE_S` boundary-type record.
+  approximate frontal/plan blockage ratios, blockage gate, boundary protocol gate, and the simplified `TYPE_E`/`TYPE_S`
+  boundary-type record. The blockage ratios are axis-aligned diagnostics from model/domain bounds; verify them against
+  the official AIJ wind-tunnel blockage definition before making paper-grade claims.
 - `validation_protocol_audit.json` and `validation_protocol_audit.md` exist in both case root and output directory.
   Treat any `risk` or `fail` item as a blocker for paper-grade validation claims until resolved or explicitly justified.
 - VTK files are newly generated for the current run directory, not copied from older experiments.
@@ -100,6 +102,7 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Grid spacing, steps, averaging window and VTK frame list
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
 - Inlet/outlet/lateral/top boundary faces and upstream/downstream/lateral/top clearances in building-height units
+- Domain size, maximum building height, approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate
 - Mean probe distance and maximum probe distance
 - Native FluidX3D baseline run id or archive path
 - Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
@@ -114,4 +117,4 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 
 CityLBM v0.3.0 reads, converts and records `k(m2/s2)`. It also provides an optional experimental STG-lite inlet that converts isotropic `k` to bounded deterministic spectral velocity perturbations using `sigma=sqrt(2k/3)`, with inlet refresh controlled by `SyntheticTurbulenceUpdateInterval`. The synthetic spectral-mode amplitudes are projected normal to their wave vectors to reduce non-physical divergent inlet fluctuations. This is a software-level improvement over the former metadata-only `k` chain and the earlier sparse-eddy diagnostic pattern, but it is not a full digital-filter, precursor/recycling, or Reynolds-stress turbulent inflow because the AF table does not provide Reynolds-stress tensors, turbulent length scales or a precursor field. Any paper claim must state whether the validation used metadata-only inflow or STG-lite inflow.
 
-The current boundary conditions are also a simplified FluidX3D `TYPE_E` setup: velocity-profile inlet, pressure/free-outflow outlet approximation, lateral/top `TYPE_E`, and no-slip ground/buildings. This must be treated as a protocol risk until compared with the AIJ wind-tunnel boundary setup or replaced by a stronger inlet/outlet treatment.
+The current boundary conditions are also a simplified FluidX3D `TYPE_E` setup: velocity-profile inlet, pressure/free-outflow outlet approximation, lateral/top `TYPE_E`, and no-slip ground/buildings. CityLBM v0.3.0 records domain clearance and approximate frontal/plan blockage ratios in `BoundaryProtocolAudit`, and `validation_gate.py` fails the boundary gate when approximate frontal blockage exceeds the diagnostic threshold. These fields help detect protocol-scale errors, but they remain screening diagnostics until compared with the AIJ wind-tunnel boundary setup or replaced by a stronger inlet/outlet treatment.

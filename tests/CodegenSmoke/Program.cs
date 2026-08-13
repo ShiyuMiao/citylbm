@@ -73,6 +73,9 @@ namespace CityLBM.CodegenSmoke
                 Require(audit, "STG-lite");
                 Require(metadata, "ClearanceChecks");
                 Require(metadata, "DomainContainsBuildings");
+                Require(metadata, "BlockageDiagnostics");
+                Require(metadata, "ApproxFrontalBlockageRatio");
+                Require(metadata, "blockage_diagnostic_ok_verify_against_aij");
                 Require(metadata, "diagnostic_clearance_thresholds_satisfied");
                 Require(audit, "diagnostic_clearance_ok_verify_against_aij");
 
