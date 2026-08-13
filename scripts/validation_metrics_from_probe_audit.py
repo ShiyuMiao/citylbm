@@ -352,16 +352,17 @@ def metadata_field(metadata: Dict[str, Any], *keys: str) -> str:
     return ""
 
 
-def vector_field(metadata: Dict[str, Any], key: str) -> str:
-    value = metadata.get(key)
-    if isinstance(value, dict):
-        x = value.get("X")
-        y = value.get("Y")
-        z = value.get("Z")
-        if x is not None and y is not None and z is not None:
-            return f"({x},{y},{z})"
-    if value not in (None, ""):
-        return str(value)
+def vector_field(metadata: Dict[str, Any], *keys: str) -> str:
+    for key in keys:
+        value = metadata.get(key)
+        if isinstance(value, dict):
+            x = value.get("X")
+            y = value.get("Y")
+            z = value.get("Z")
+            if x is not None and y is not None and z is not None:
+                return f"({x},{y},{z})"
+        if value not in (None, ""):
+            return str(value)
     return ""
 
 
@@ -436,6 +437,7 @@ def main() -> int:
     failed = 0
     normalization_values: List[bool] = []
     wind_values: List[bool] = []
+    probe_urefs: List[float] = []
     compared_component = ""
     compared_components: List[str] = []
     tolerance = ""
@@ -477,6 +479,9 @@ def main() -> int:
             normalization_values.append(normalized)
         if wind_valid is not None:
             wind_values.append(wind_valid)
+        row_uref = as_float(get_value(row, "Uref"))
+        if row_uref is not None:
+            probe_urefs.append(row_uref)
         if not compared_component:
             compared_component = get_value(row, "compared_component")
         row_compared_component = get_value(row, "compared_component").strip().lower()
@@ -534,9 +539,23 @@ def main() -> int:
     )
     normalization_gate_value = all(normalization_values) if normalization_values else None
     wind_gate_value = all(wind_values) if wind_values else None
+    unique_probe_urefs = sorted({round(value, 12) for value in probe_urefs})
+    inferred_uref = args.u_ref
+    if inferred_uref is None:
+        if len(unique_probe_urefs) == 1:
+            inferred_uref = probe_urefs[0]
+        else:
+            inferred_uref = as_float(
+                metadata_field(metadata, "ReferenceWindSpeedMps", "ReferenceWindSpeed", "UrefMps", "Uref")
+            )
+    inferred_zref = args.z_ref
+    if inferred_zref is None:
+        inferred_zref = as_float(metadata_field(metadata, "ReferenceHeightM", "ZrefM", "ReferenceHeight"))
     coordinate_delta_count = len(official_coordinate_deltas)
     max_coordinate_delta = max(official_coordinate_deltas) if official_coordinate_deltas else None
     protocol_failures: List[str] = []
+    if args.u_ref is None and len(unique_probe_urefs) > 1:
+        protocol_failures.append("fail_mixed_probe_uref")
     if component_consistency_gate != "pass":
         protocol_failures.append(component_consistency_gate)
     if normalization_gate_value is not True:
@@ -592,13 +611,13 @@ def main() -> int:
             "max_speed_stddev_ratio": fmt(max_speed_stddev_ratio),
             "profile_csv": args.profile_csv,
             "geometry_scale": args.geometry_scale,
-            "Uref_mps": fmt(args.u_ref),
-            "Zref_m": fmt(args.z_ref),
+            "Uref_mps": fmt(inferred_uref),
+            "Zref_m": fmt(inferred_zref),
             "normalization_valid": csv_bool(normalization_gate_value),
             "velocity_component": compared_component,
             "compared_component_consistency_gate": component_consistency_gate,
             "compared_component_unique_values": ";".join(unique_compared_components),
-            "wind_vector": vector_field(metadata, "WindDirection"),
+            "wind_vector": vector_field(metadata, "WindDirectionUnitVector", "WindDirection", "wind_vector"),
             "wind_direction_valid": csv_bool(wind_gate_value),
             "inlet_face": nested(metadata, "BoundaryProtocolAudit", "InletFace"),
             "outlet_face": nested(metadata, "BoundaryProtocolAudit", "OutletFace"),
@@ -661,6 +680,7 @@ def main() -> int:
             "notes": (
                 f"official_id_column={official_id_col}; official_value_column={official_value_col}; "
                 f"matched={valid_n}; official_filtered={len(official_rows)}; "
+                f"probe_uref_values={';'.join(fmt(value) for value in unique_probe_urefs) or 'none'}; "
                 f"metrics_protocol_failures={';'.join(protocol_failures) or 'none'}"
             ),
         }

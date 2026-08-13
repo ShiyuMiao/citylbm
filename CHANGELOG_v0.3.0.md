@@ -69,6 +69,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.
+- Probe-derived metrics now preserve the actual `Uref` used by `Data Probe` and read `WindDirectionUnitVector` from
+  `case_metadata.json`, so wind/normalization evidence is not lost during validation-gate reporting.
 
 ## Remaining scientific work
 
