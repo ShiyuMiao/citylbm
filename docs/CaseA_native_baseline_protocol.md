@@ -41,7 +41,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
 4. Probe audit gate.
    Probe extraction must record official point IDs, coordinates, selected velocity component, `Uref`, nearest VTK/probe
    distance, tolerance, failure status, valid count and failed count. In CityLBM this is produced by `Data Probe`
-   outputs `Audit CSV`, `Validation Status`, `Compared Value` and `Probe ID`.
+   outputs `Audit CSV`, `Validation Status`, `Compared Value` and `Probe ID`. The `Search Radius` input must be
+   archived because v0.3.0 applies it as the actual interpolation-neighbor distance filter.
 
 5. Promotion gate.
    CityLBM may inherit native FluidX3D settings only after native Case A has a passing or explicitly bounded diagnostic

@@ -535,10 +535,10 @@ namespace CityLBM.Components.Results
             }
 
             // 使用空间哈希插值获取速度
-            measurement.Velocity = _velocityField.Interpolate(point);
+            measurement.Velocity = _velocityField.Interpolate(point, searchRadius);
             measurement.InterpolationMethod = "IDW";
-            measurement.NearestDistance = _velocityField.GetNearestDistance(point);
-            measurement.NearbyPointCount = _velocityField.GetNearbyCount(point);
+            measurement.NearestDistance = _velocityField.GetNearestDistance(point, searchRadius);
+            measurement.NearbyPointCount = _velocityField.GetNearbyCount(point, searchRadius);
 
             // 压力插值（如果有压力数据）
             if (_fieldPressures.Count > 0 && _fieldPoints.Count > 0)
@@ -856,9 +856,9 @@ namespace CityLBM.Components.Results
         /// <summary>
         /// 三线性插值获取任意位置的速度（IDW）
         /// </summary>
-        public Vector3d Interpolate(Point3d p)
+        public Vector3d Interpolate(Point3d p, double searchRadius = 0.0)
         {
-            var nearbyIndices = GetNearbyIndices(p);
+            var nearbyIndices = GetNearbyIndices(p, searchRadius);
             if (nearbyIndices.Count == 0) return Vector3d.Zero;
 
             // 反距离加权插值（IDW）
@@ -878,9 +878,9 @@ namespace CityLBM.Components.Results
             return weightSum > 0 ? result / weightSum : Vector3d.Zero;
         }
 
-        public double GetNearestDistance(Point3d p)
+        public double GetNearestDistance(Point3d p, double searchRadius = 0.0)
         {
-            var nearbyIndices = GetNearbyIndices(p);
+            var nearbyIndices = GetNearbyIndices(p, searchRadius);
             if (nearbyIndices.Count == 0) return double.NaN;
 
             double nearest = double.MaxValue;
@@ -892,26 +892,36 @@ namespace CityLBM.Components.Results
             return nearest == double.MaxValue ? double.NaN : nearest;
         }
 
-        public int GetNearbyCount(Point3d p)
+        public int GetNearbyCount(Point3d p, double searchRadius = 0.0)
         {
-            return GetNearbyIndices(p).Count;
+            return GetNearbyIndices(p, searchRadius).Count;
         }
 
-        private List<int> GetNearbyIndices(Point3d p)
+        private List<int> GetNearbyIndices(Point3d p, double searchRadius = 0.0)
         {
             var result = new List<int>();
 
-            int ix = (int)(p.X / _cellSize);
-            int iy = (int)(p.Y / _cellSize);
-            int iz = (int)(p.Z / _cellSize);
+            int ix = CellIndex(p.X);
+            int iy = CellIndex(p.Y);
+            int iz = CellIndex(p.Z);
+            double effectiveRadius = searchRadius > 0.0 ? searchRadius : _cellSize * 1.5;
+            int cellRange = Math.Max(1, (int)Math.Ceiling(effectiveRadius / _cellSize));
 
-            for (int dx = -1; dx <= 1; dx++)
-                for (int dy = -1; dy <= 1; dy++)
-                    for (int dz = -1; dz <= 1; dz++)
+            for (int dx = -cellRange; dx <= cellRange; dx++)
+                for (int dy = -cellRange; dy <= cellRange; dy++)
+                    for (int dz = -cellRange; dz <= cellRange; dz++)
                     {
                         long h = Hash(ix + dx, iy + dy, iz + dz);
                         if (_grid.TryGetValue(h, out var list))
-                            result.AddRange(list);
+                        {
+                            foreach (int idx in list)
+                            {
+                                if (p.DistanceTo(_pts[idx]) <= effectiveRadius)
+                                {
+                                    result.Add(idx);
+                                }
+                            }
+                        }
                     }
 
             return result;
@@ -920,9 +930,14 @@ namespace CityLBM.Components.Results
         private long Hash(Point3d p)
         {
             return Hash(
-                (int)(p.X / _cellSize),
-                (int)(p.Y / _cellSize),
-                (int)(p.Z / _cellSize));
+                CellIndex(p.X),
+                CellIndex(p.Y),
+                CellIndex(p.Z));
+        }
+
+        private int CellIndex(double coordinate)
+        {
+            return (int)Math.Floor(coordinate / _cellSize);
         }
 
         private long Hash(int ix, int iy, int iz)

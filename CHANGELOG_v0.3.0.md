@@ -35,6 +35,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `Data Probe` now accepts optional official probe IDs, a probe-to-VTK tolerance and an explicit compared component.
   Its audit CSV records the selected comparison value and flags probes with no VTK neighbor, invalid comparison value
   or out-of-tolerance mapping.
+- `Data Probe` spatial hashing now uses floor-based cell indices for negative coordinates and applies the configured
+  search radius as a real distance filter. This fixes probe-neighbor ambiguity for AIJ domains with negative `x/y`
+  coordinates and makes the nearest-distance/tolerance audit meaningful.
 - Each generated case now also writes `native_fluidx3d_baseline_manifest.json` and `.md` so native FluidX3D and
   CityLBM-driven runs must archive the same `setup.cpp`, `defines.hpp`, geometry, metadata, averaging window and probe
   audit evidence before any paper-grade accuracy claim.
