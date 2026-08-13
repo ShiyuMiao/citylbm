@@ -2326,6 +2326,7 @@ namespace CityLBM.Solver
                     SyntheticTurbulenceUpdateInterval = settings.SyntheticTurbulenceUpdateInterval,
                     SyntheticTurbulenceMaxFractionOfMean = settings.SyntheticTurbulenceMaxFractionOfMean,
                     ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor is available from AF table" : "",
+                    WallRoughnessTreatment = "ground/buildings are voxelized TYPE_S no-slip; RoughnessLength shapes analytic mean profiles but is not a FluidX3D rough-wall or wall-function boundary in v0.3.0",
                     WindDirectionUnitVector = new
                     {
                         X = scene.WindDirection.X,
@@ -2464,7 +2465,7 @@ namespace CityLBM.Solver
                     Outlet = "TYPE_E pressure/free-outflow approximation",
                     Lateral = "TYPE_E slip/free approximation",
                     Top = "TYPE_E",
-                    Ground = "TYPE_S no-slip",
+                    Ground = "TYPE_S no-slip; no rough-wall function",
                     Buildings = "TYPE_S no-slip"
                 },
                 DomainSizeM = new DimensionRecord
@@ -2550,6 +2551,7 @@ namespace CityLBM.Solver
 
             yield return "Boundary conditions are simplified TYPE_E inlet/outlet/lateral/top approximations and must be checked against the AIJ wind-tunnel protocol.";
             yield return "BoundaryProtocolAudit records inlet/outlet/lateral/top faces and clearances, but its diagnostic thresholds are not a substitute for the official AIJ boundary/blockage protocol.";
+            yield return "Ground is currently TYPE_S no-slip without a rough-wall or wall-function model; AF profile roughness is not the same as an aerodynamic rough-wall boundary.";
 
             int expectedFrames = settings.SaveInterval > 0
                 ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
@@ -2816,6 +2818,15 @@ namespace CityLBM.Solver
                     ? "Clearance satisfies diagnostic defaults, but TYPE_E inlet/outlet/lateral/top is still a simplified protocol that may not match the AIJ wind-tunnel setup."
                     : "Domain clearance or simplified TYPE_E boundary treatment can contaminate the validation field and contribute to systematic bias.",
                 RequiredNextAction = "Archive BoundaryProtocolAudit, report inlet/outlet/lateral/top clearances in H units, and compare against AIJ tunnel boundary assumptions, blockage and fetch."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "wall_roughness_model",
+                Status = "risk",
+                Evidence = $"RoughnessLength={scene.RoughnessLength:F6} m; ground/buildings are generated as TYPE_S no-slip. Analytic roughness affects mean-profile generation only.",
+                Risk = "If the AIJ wind-tunnel floor roughness or approach-flow development is not represented as a boundary/precursor treatment, pedestrian-height speed ratios and k can be systematically biased.",
+                RequiredNextAction = "Before paper-grade claims, document the wind-tunnel floor treatment and either validate no-slip against the empty-tunnel U/k gate or implement a rough-wall/precursor/recycling boundary strategy."
             };
 
             yield return new ValidationProtocolAuditItem

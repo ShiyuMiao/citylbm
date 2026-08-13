@@ -28,6 +28,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `case_metadata.json` and the native baseline manifest now include `BoundaryProtocolAudit`, a structured record of
   inlet/outlet/lateral/top faces, domain clearances in meters and building-height units, simplified boundary types and a
   diagnostic boundary-clearance gate.
+- `case_metadata.json` and `validation_protocol_audit` now separate analytic inflow roughness from actual wall treatment:
+  ground/buildings remain `TYPE_S` no-slip in v0.3.0, with no FluidX3D rough-wall or wall-function boundary.
 - The validation audit now also records native FluidX3D baseline requirement, LBM stability scaling, wind-direction sign,
   probe-projection risk and systematic-bias gate so the known `-34 pp` underprediction pattern is treated as a protocol
   blocker rather than a tuning target.
@@ -61,6 +63,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - The SEM-lite inlet is velocity-field-only in v0.3.0. It remains diagnostic until empty-tunnel tests prove downstream
   `U/k` preservation or the inlet is replaced by a distribution-consistent DFM/SEM/precursor/recycling implementation.
 - The boundary condition model remains simplified and must be audited against the AIJ wind-tunnel setup before making paper-grade accuracy claims.
+- Ground roughness is not yet represented by a rough-wall/wall-function boundary; the AF mean profile alone does not prove
+  correct near-ground turbulence or speed-ratio behavior.
 - `BoundaryProtocolAudit` uses diagnostic clearance defaults and does not replace the official AIJ wind-tunnel boundary,
   fetch and blockage protocol.
 - A high R2 alone is not sufficient. Mean bias, regression slope/intercept, probe mapping and native-vs-CityLBM parity must be acceptable before claiming publishable validation accuracy.
