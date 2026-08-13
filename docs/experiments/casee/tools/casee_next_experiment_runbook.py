@@ -176,6 +176,19 @@ def command_rows(release_gate: Dict[str, Any], blockers: Dict[str, Any], dx1_rea
             "pass_condition": "release_gate official_z2m_metric_gate=true and all other release checks true before formal tag.",
             "forbidden_claim": "Do not cite an unaudited probe CSV as a paper result.",
         },
+        {
+            "runbook_id": "R010_c016_residual_channel_response_followup",
+            "stage": "native_case_generation_then_run",
+            "enabled_now": not gpu_blocked,
+            "evidence_type": "blocked_until_gpu_ready" if gpu_blocked else "newly_run_when_executed",
+            "purpose": "Test the default-off C016 pre-registered channel-response residual-target follow-up without fitting RS_caseE targets.",
+            "trigger_condition": "GPU ready, official preflight passes, and both C016 leakage guard and C016 codegen gate pass.",
+            "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane --inlet-turbulence-scale 2.00 --residual-target-mode c014_channel_response --residual-target-scale 1.00 --no-subgrid",
+            "expected_artifact": "docs/experiments/casee/native_cases/<run_id>/casee_probe_time_mean.csv",
+            "formal_result_policy": "May inform defaults only if official raw_trilinear metrics improve, RS targets were not fit, and Case A smoke regression passes.",
+            "pass_condition": "Official raw_trilinear z=2 m R2 becomes positive, Pearson remains positive, MAE stays below C014, and no post-hoc calibration is used.",
+            "forbidden_claim": common_forbidden,
+        },
     ]
     return rows
 

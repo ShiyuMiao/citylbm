@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0-rc82 - Native C016 residual-target codegen
+
+- Added default-off native C016 residual-target code generation to `generate_native_casee.py`.
+- New native options: `--residual-target-mode none|c014_channel_response` and `--residual-target-scale`.
+- Added `casee_c016_codegen_gate.py` and integrated it into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF058.
+- Updated the candidate sweep and next experiment runbook so R010 is a concrete pre-registered channel-response follow-up command rather than a missing-implementation placeholder.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc81 - Native inlet follow-up codegen gate
 
 - Added `casee_inlet_followup_codegen_gate.py` to verify the default-off native AF_caseE-k full-plane inlet follow-up path stays manifest-traced and blocked from default accuracy promotion.

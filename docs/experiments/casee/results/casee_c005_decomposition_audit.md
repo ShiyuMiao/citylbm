@@ -1,6 +1,6 @@
 # C005 dx=2 Domain-Decomposition Ablation Audit
 
-Generated: 2026-08-13T09:16:01.517216+00:00
+Generated: 2026-08-13T09:47:15.768390+00:00
 
 ## Verdict
 

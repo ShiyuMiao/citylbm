@@ -1,12 +1,12 @@
 # GitHub Release Publication Gate
 
-Generated: 2026-08-13T09:16:35.177919+00:00
+Generated: 2026-08-13T09:47:51.073287+00:00
 
 ## Verdict
 
 - Gate passed: True
-- Recommended tag: `v0.4.0-rc81`
-- Audited tag: `v0.4.0-rc80`
+- Recommended tag: `v0.4.0-rc82`
+- Audited tag: `v0.4.0-rc81`
 - Local audited tag resolves: True
 - Remote tag visible: True
 - GitHub Release exists: False

@@ -1,13 +1,13 @@
 # CityLBM Case E Post-run Audit Binary Gate
 
-Generated: 2026-08-13T09:15:47.857839+00:00
+Generated: 2026-08-13T09:46:53.889638+00:00
 
 ## Verdict
 
 - Gate passed: True
 - Claim readiness: `paper_ready_packaged_casee_postrun_audit_component`
 - Tracked GHA: `CityLBM/bin/CityLBM.gha`
-- Tracked GHA SHA256: `5ffca1c4847a8fd5b8a10feb0d19b376897c6fcac02910d7a6abb1713038a68f`
+- Tracked GHA SHA256: `634774c9a1a17847fe7288d58a899b471976e9b65627920f9b526e34a9d816b5`
 
 ## Checks
 

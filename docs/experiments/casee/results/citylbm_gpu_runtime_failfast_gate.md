@@ -1,6 +1,6 @@
 # CityLBM GPU Runtime Fail-Fast Gate
 
-Generated: 2026-08-13T09:15:58.505364+00:00
+Generated: 2026-08-13T09:47:12.842296+00:00
 
 ## Verdict
 

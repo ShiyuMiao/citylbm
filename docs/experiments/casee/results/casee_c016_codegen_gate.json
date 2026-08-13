@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-08-13T09:47:20.934700+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_c016_codegen; blocked official run",
+  "c016_codegen_gate_passed": true,
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "checks": {
+    "generator_exists": true,
+    "residual_target_cli_default_off": true,
+    "residual_target_scale_default_zero": true,
+    "setup_contains_pre_registered_channel_response": true,
+    "setup_uses_coordinate_regions_not_probe_residuals": true,
+    "manifest_records_c016_claim_boundary": true,
+    "manifest_blocks_default_accuracy_promotion": true,
+    "leakage_guard_passed": true,
+    "candidate_no_longer_blocks_on_missing_implementation": true,
+    "candidate_command_uses_residual_target": true,
+    "runbook_no_longer_uses_c016_todo": true,
+    "runbook_command_uses_residual_target": true
+  },
+  "source_paths": [
+    "docs/experiments/casee/tools/generate_native_casee.py",
+    "docs/experiments/casee/tools/casee_candidate_sweep_plan.py",
+    "docs/experiments/casee/tools/casee_next_experiment_runbook.py",
+    "docs/experiments/casee/results/casee_c016_residual_target_leakage_guard.json"
+  ],
+  "boundary": "This gate verifies a default-off C016 residual-target native code-generation path using pre-registered coordinate regions. It does not run FluidX3D, update official metrics, fit RS_caseE probe residuals, promote residual-target settings to defaults, or permit formal v0.4.0."
+}

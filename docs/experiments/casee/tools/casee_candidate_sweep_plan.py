@@ -538,15 +538,10 @@ def build_candidates(
         candidate(
             candidate_id="C016_residual_targeted_wall_inlet_channel_response",
             priority=9,
-            candidate_class="requires_implementation",
+            candidate_class="default_off_c016_residual_target_codegen",
             executable_now=False,
-            blocking_gates=[
-                "gpu_runtime",
-                "residual_targeted_wall_inlet_channel_response_not_implemented",
-                "official_followup_preflight",
-            ]
-            + ([] if c016_guard_passed else ["c016_calibration_leakage_guard_not_passed"]),
-            evidence_type="planned_from_residual_audit" if residual_completed else "blocked_until_residual_audit",
+            blocking_gates=source_compile_blockers + ([] if c016_guard_passed else ["c016_calibration_leakage_guard_not_passed"]),
+            evidence_type="blocked_until_gpu_ready" if residual_completed else "blocked_until_residual_audit",
             dx_m="2.0",
             steps=">=48000",
             spinup=">=12000",
@@ -554,14 +549,18 @@ def build_candidates(
             ground_offset_cells=1,
             origin_z_offset_m=1.0,
             nu_lbm=0.001,
-            domain_decomposition="4x1x1 or pre-registered baseline",
+            domain_decomposition="4x1x1",
             command=(
-                "TODO after implementation: generate official z=2 m raw_trilinear Case E with a default-off "
-                "wall/inlet/channel-response option derived from casee_c014_residual_structure_audit.py."
+                "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 "
+                "--sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 "
+                "--domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane "
+                "--inlet-turbulence-scale 2.00 --residual-target-mode c014_channel_response --residual-target-scale 1.00 --no-subgrid"
             ),
             expected_artifacts=[
+                "docs/experiments/casee/results/casee_c016_codegen_gate.json",
                 "docs/experiments/casee/results/casee_c014_residual_structure_audit.json",
                 "docs/experiments/casee/native_cases/<c016>/citylbm_native_case_manifest.json",
+                "docs/experiments/casee/native_cases/<c016>/casee_probe_time_mean.csv",
                 "docs/experiments/casee/results/<c016>_probe_time_mean.csv",
                 "docs/experiments/casee/results/<c016>_official_metrics.json",
             ],
