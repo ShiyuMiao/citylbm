@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc76 - Workspace hygiene gate
+
+- Added a workspace hygiene gate that keeps local build caches, solver logs, native scratch CSVs, and visualization scratch scripts out of the curated Case E release evidence chain.
+- Extended `.gitignore` for local Case E runtime/build scratch artifacts while keeping audited manifests, reports, figures, and lightweight release bundles trackable.
+- Added the hygiene gate to the reproducibility suite, paper evidence gate, release asset manifest, artifact index, and software-feedback matrix as SF053.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc75 - GitHub publication state gate
 
 - Added a GitHub publication gate that records the latest completed rc tag visible on GitHub and whether a GitHub Release page exists for it.

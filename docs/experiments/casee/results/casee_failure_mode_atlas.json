@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-13T04:51:59.893595+00:00",
+  "generated_at": "2026-08-13T05:12:38.143893+00:00",
   "evidence_type": "newly_run",
   "claim_readiness": "limitations_ready_failure_mode_atlas",
   "release_gate": {
-    "generated_at": "2026-08-13T04:51:24.617902+00:00",
+    "generated_at": "2026-08-13T05:12:01.449059+00:00",
     "release_target": "v0.4.0",
     "formal_release_allowed": false,
     "formal_v0_3_0_allowed": false,
-    "recommended_tag": "v0.4.0-rc75",
+    "recommended_tag": "v0.4.0-rc76",
     "checks": {
       "citylbm_build_passed": true,
       "rhino_loaded_new_gha": false,
@@ -55,9 +55,9 @@
       "citylbm_gha": {
         "found": true,
         "path": "C:\\Users\\miaoshiyu\\Documents\\【citylbm】实验3：数字孪生应用研究\\CityLBM\\bin\\Release\\CityLBM.gha",
-        "sha256": "c045c2211f9cdacd4cddede55b920811104c8fdf9f049940c2ae565f5b2ec794",
+        "sha256": "b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
         "size_bytes": 1823744,
-        "mtime": "2026-08-13T04:49:50.684509+00:00"
+        "mtime": "2026-08-13T05:08:24.843337+00:00"
       },
       "citylbm_build_log": {
         "found": true,

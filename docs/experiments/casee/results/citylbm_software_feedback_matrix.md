@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-13T04:52:21.655045+00:00
+Generated: 2026-08-13T05:12:55.432629+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 52
+- Feedback rows: 53
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -58,6 +58,7 @@ Generated: 2026-08-13T04:52:21.655045+00:00
 - software_staged_gha_traceability_no_accuracy_promotion: 1
 - software_traceability_gate: 1
 - software_traceability_output: 3
+- workspace_hygiene_no_accuracy_promotion: 1
 
 ## Feedback Rows
 
@@ -106,6 +107,7 @@ Generated: 2026-08-13T04:52:21.655045+00:00
 | `SF050` | CityLBM deterministic GHA build stability | software_build_hash_stability_no_accuracy_promotion | implemented_build_hash_stability_gate | True | The rc73 build path now enables deterministic compiler metadata and uses a serial ILRepack merge so two consecutive Release builds produce the same packaged CityLBM.gha SHA256. |
 | `SF051` | Case E lightweight release bundle | paper_release_bundle_no_accuracy_promotion | implemented_release_bundle_gate | True | The rc74 release bundle gate packages the curated lightweight upload assets into a deterministic zip and verifies each bundled file against the release asset manifest hash. |
 | `SF052` | GitHub publication state gate | github_publication_state_no_accuracy_promotion | implemented_github_publication_state_gate | True | The rc75 publication gate records the latest completed local rc tag, confirms whether it is visible on GitHub, checks GitHub Release existence, and records whether the local gh CLI can create a release from the lightweight bundle. |
+| `SF053` | Case E workspace hygiene gate | workspace_hygiene_no_accuracy_promotion | implemented_workspace_hygiene_gate | True | The rc76 workspace hygiene gate classifies ignored local build caches, native candidate CSVs, runtime logs, and visualization scratch files so they cannot be mistaken for curated release assets or paper-ready official results. |
 | `SF036` | CityLBM GHA staging/install audit | software_gha_staging_audit | implemented_gha_staging_audit | True | The tracked CityLBM.gha can now be audited against common Grasshopper Libraries locations, with exact SHA256 matching and an explicit manual copy command before any Rhino load claim is made. |
 | `SF037` | CityLBM Rhino/GHA load evidence kit | manual_rhino_load_evidence_kit | implemented_rhino_load_evidence_kit | True | Rhino/Grasshopper load verification now has a fail-closed evidence kit that detects Rhino, checks the staged GHA hash, and writes a manual manifest template without claiming that Rhino loaded the plugin. |
 | `SF038` | CityLBM Plugin Identity Grasshopper component | software_identity_component | implemented_plugin_identity_component | True | CityLBM now exposes a Plugin Identity component that reports the loaded plugin version, assembly version, GHA path, SHA256, manifest template, and explicit claim boundary inside Grasshopper. |
@@ -163,6 +165,7 @@ Generated: 2026-08-13T04:52:21.655045+00:00
 | `SF050` | Use as software-package reproducibility evidence for reviewer installation and artifact traceability. | Build-hash stability evidence only; it does not prove Rhino loaded the plugin, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0. |
 | `SF051` | Use as reviewer-facing release packaging evidence for the lightweight Case E artifact set. | Release-bundle evidence only; it does not create a GitHub Release, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0. |
 | `SF052` | Use as publication-state traceability for the accuracy-diagnostic rc artifact chain. | Publication-state evidence only; it does not create a GitHub Release, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0. |
+| `SF053` | Use as release and manuscript hygiene evidence that local scratch results remain separated from curated paper evidence. | Workspace-hygiene evidence only; it does not delete files, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0. |
 | `SF036` | Use as software delivery traceability before manual Rhino/Grasshopper load verification. | Staging audit only; it does not prove Rhino loaded the GHA, run CFD, improve metrics, or permit formal v0.4.0. |
 | `SF037` | Use as manual software-load evidence collection protocol before closing the Rhino/GHA load gate. | Manual evidence kit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0. |
 | `SF038` | Use as in-Grasshopper software identity evidence for manual Rhino/GHA load verification screenshots. | Software identity component only; it does not prove CFD accuracy, run FluidX3D, improve official metrics, or permit formal v0.4.0. |

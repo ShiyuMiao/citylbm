@@ -1,6 +1,6 @@
 # Case E Operational Recovery Dashboard
 
-Generated: 2026-08-13T04:51:58.590685+00:00
+Generated: 2026-08-13T05:12:36.801192+00:00
 
 ## Verdict
 
@@ -10,7 +10,7 @@ Generated: 2026-08-13T04:51:58.590685+00:00
 - Long FluidX3D run allowed: False
 - Long-run blockers: OP001_system_drive_space, OP004_gpu_recovery, OP006_official_followup_preflight
 - Formal v0.4.0 allowed: False
-- Recommended tag: `v0.4.0-rc75`
+- Recommended tag: `v0.4.0-rc76`
 
 ## Ordered Recovery Path
 
@@ -26,7 +26,7 @@ Generated: 2026-08-13T04:51:58.590685+00:00
 
 ## Evidence Links
 
-- `OP001_system_drive_space`: `docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json`; C: free=1.51 GB; needed=8.0 GB; shortfall=6.49 GB
+- `OP001_system_drive_space`: `docs/experiments/casee/results/vs_cpp_system_drive_space_gate.json`; C: free=1.499 GB; needed=8.0 GB; shortfall=6.501 GB
 - `OP002_vs_cpp_install`: `docs/experiments/casee/results/vs_cpp_recovery_gate.json`; vs_cpp_ready=False; can_attempt_install_now=False; blockers=5
 - `OP003_uac_launcher`: `docs/experiments/casee/results/vs_cpp_elevated_launcher_gate.json`; can_launch=False; launch_attempted=False; blockers=['system drive free space is below 8 GB']
 - `OP004_gpu_recovery`: `docs/experiments/casee/results/citylbm_gpu_runtime_failfast_gate.json`; gpu_runtime_ready=False; gpu_lost_detected=True; long_run_allowed=False

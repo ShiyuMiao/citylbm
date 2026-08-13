@@ -1,7 +1,7 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T04:52:21.655045+00:00",
-    "feedback_count": 52,
+    "generated_at": "2026-08-13T05:12:55.432629+00:00",
+    "feedback_count": 53,
     "decision_class_counts": {
       "default_quality_gate": 1,
       "blocked_default_accuracy_upgrade": 1,
@@ -39,6 +39,7 @@
       "software_build_hash_stability_no_accuracy_promotion": 1,
       "paper_release_bundle_no_accuracy_promotion": 1,
       "github_publication_state_no_accuracy_promotion": 1,
+      "workspace_hygiene_no_accuracy_promotion": 1,
       "software_gha_staging_audit": 1,
       "manual_rhino_load_evidence_kit": 1,
       "software_identity_component": 1,
@@ -84,6 +85,7 @@
       "implemented_build_hash_stability_gate": 1,
       "implemented_release_bundle_gate": 1,
       "implemented_github_publication_state_gate": 1,
+      "implemented_workspace_hygiene_gate": 1,
       "implemented_gha_staging_audit": 1,
       "implemented_rhino_load_evidence_kit": 1,
       "implemented_plugin_identity_component": 1,
@@ -560,7 +562,7 @@
       "source_paths_exist": true,
       "decision_class": "paper_release_asset_manifest",
       "citylbm_status": "implemented_release_asset_manifest",
-      "implementation_evidence": "upload_asset_count=77; excluded_or_hash_only_count=20; upload_total_size_bytes=4026489; recommended_tag=v0.4.0-rc75",
+      "implementation_evidence": "upload_asset_count=81; excluded_or_hash_only_count=20; upload_total_size_bytes=4165859; recommended_tag=v0.4.0-rc76",
       "default_setting_allowed": true,
       "paper_use": "Use for release/data-availability traceability and reviewer artifact checks.",
       "limitations": "Release planning only; it does not create a GitHub Release, add CFD output, or permit formal v0.4.0."
@@ -602,7 +604,7 @@
       "source_paths_exist": true,
       "decision_class": "build_chain_system_drive_space_gate",
       "citylbm_status": "implemented_vs_cpp_system_drive_space_gate",
-      "implementation_evidence": "system_drive_free_gb=1.51; additional_free_needed_gb=6.49; low_risk_candidate_total_gb=0.967; space_ready_for_vs_cpp_launcher=False; deletion_attempted=False",
+      "implementation_evidence": "system_drive_free_gb=1.499; additional_free_needed_gb=6.501; low_risk_candidate_total_gb=0.967; space_ready_for_vs_cpp_launcher=False; deletion_attempted=False",
       "default_setting_allowed": true,
       "paper_use": "Use as build-chain operational evidence explaining why VS C++ recovery remains space-blocked.",
       "limitations": "System-drive space audit only; it does not delete files, install VS C++, recover GPU runtime, run CFD, improve metrics, or permit formal v0.4.0."
@@ -658,7 +660,7 @@
       "source_paths_exist": true,
       "decision_class": "software_staged_gha_traceability_no_accuracy_promotion",
       "citylbm_status": "implemented_staged_gha_traceability",
-      "implementation_evidence": "matching_gha_already_staged=True; recommended_library_dir=C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries; tracked_sha=c045c2211f9cdacd4cddede55b920811104c8fdf9f049940c2ae565f5b2ec794; rhino_loaded_new_gha=False",
+      "implementation_evidence": "matching_gha_already_staged=True; recommended_library_dir=C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries; tracked_sha=b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e; rhino_loaded_new_gha=False",
       "default_setting_allowed": true,
       "paper_use": "Use as reviewer-facing software installation traceability before manual Rhino/Grasshopper process-load verification.",
       "limitations": "Staged-GHA evidence only; it does not prove Rhino loaded the plugin, run CFD, improve metrics, change defaults, or permit formal v0.4.0."
@@ -672,7 +674,7 @@
       "source_paths_exist": true,
       "decision_class": "software_build_hash_stability_no_accuracy_promotion",
       "citylbm_status": "implemented_build_hash_stability_gate",
-      "implementation_evidence": "build_repeat_count=2; repeated_build_hash_stable=True; final_tracked_gha_sha256=c045c2211f9cdacd4cddede55b920811104c8fdf9f049940c2ae565f5b2ec794; grasshopper_staged=True",
+      "implementation_evidence": "build_repeat_count=2; repeated_build_hash_stable=True; final_tracked_gha_sha256=b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e; grasshopper_staged=True",
       "default_setting_allowed": true,
       "paper_use": "Use as software-package reproducibility evidence for reviewer installation and artifact traceability.",
       "limitations": "Build-hash stability evidence only; it does not prove Rhino loaded the plugin, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0."
@@ -686,7 +688,7 @@
       "source_paths_exist": true,
       "decision_class": "paper_release_bundle_no_accuracy_promotion",
       "citylbm_status": "implemented_release_bundle_gate",
-      "implementation_evidence": "bundled_asset_count=77; bundle_size_bytes=1205437; bundle_sha256=da5c5f22964610bb5accf574bce68be5579348f25527e4b9e8968ad9c0e9b29f; raw_or_large_files_excluded=True",
+      "implementation_evidence": "bundled_asset_count=81; bundle_size_bytes=1217145; bundle_sha256=10ee1bfde61fac2a94914688e00a1885539b3fd0a7f63613fd4f23ce4c710463; raw_or_large_files_excluded=True",
       "default_setting_allowed": true,
       "paper_use": "Use as reviewer-facing release packaging evidence for the lightweight Case E artifact set.",
       "limitations": "Release-bundle evidence only; it does not create a GitHub Release, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0."
@@ -700,10 +702,24 @@
       "source_paths_exist": true,
       "decision_class": "github_publication_state_no_accuracy_promotion",
       "citylbm_status": "implemented_github_publication_state_gate",
-      "implementation_evidence": "audited_tag=v0.4.0-rc74; recommended_tag=v0.4.0-rc75; remote_tag_visible=True; github_release_exists=False; gh_cli_available=False; can_create_release_now=False",
+      "implementation_evidence": "audited_tag=v0.4.0-rc75; recommended_tag=v0.4.0-rc76; remote_tag_visible=True; github_release_exists=False; gh_cli_available=False; can_create_release_now=False",
       "default_setting_allowed": true,
       "paper_use": "Use as publication-state traceability for the accuracy-diagnostic rc artifact chain.",
       "limitations": "Publication-state evidence only; it does not create a GitHub Release, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0."
+    },
+    {
+      "feedback_id": "SF053",
+      "experiment": "Case E workspace hygiene gate",
+      "finding": "The rc76 workspace hygiene gate classifies ignored local build caches, native candidate CSVs, runtime logs, and visualization scratch files so they cannot be mistaken for curated release assets or paper-ready official results.",
+      "evidence_type": "newly_run",
+      "source_paths": ".gitignore; docs/experiments/casee/tools/casee_workspace_hygiene_gate.py; docs/experiments/casee/results/casee_workspace_hygiene_gate.json; docs/experiments/casee/results/casee_workspace_hygiene_gate.csv; docs/experiments/casee/results/casee_workspace_hygiene_gate.md; docs/releases/v0.4.0-rc76.md",
+      "source_paths_exist": true,
+      "decision_class": "workspace_hygiene_no_accuracy_promotion",
+      "citylbm_status": "implemented_workspace_hygiene_gate",
+      "implementation_evidence": "ignored_local_artifact_count=60; allowed_untracked_local_artifact_count=0; unexpected_untracked_count=0; tracked_forbidden_count=0",
+      "default_setting_allowed": true,
+      "paper_use": "Use as release and manuscript hygiene evidence that local scratch results remain separated from curated paper evidence.",
+      "limitations": "Workspace-hygiene evidence only; it does not delete files, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0."
     },
     {
       "feedback_id": "SF036",
@@ -714,7 +730,7 @@
       "source_paths_exist": true,
       "decision_class": "software_gha_staging_audit",
       "citylbm_status": "implemented_gha_staging_audit",
-      "implementation_evidence": "matching_gha_already_staged=True; recommended_library_dir=C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries; tracked_sha=c045c2211f9cdacd4cddede55b920811104c8fdf9f049940c2ae565f5b2ec794",
+      "implementation_evidence": "matching_gha_already_staged=True; recommended_library_dir=C:\\Users\\miaoshiyu\\AppData\\Roaming\\Grasshopper\\Libraries; tracked_sha=b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
       "default_setting_allowed": true,
       "paper_use": "Use as software delivery traceability before manual Rhino/Grasshopper load verification.",
       "limitations": "Staging audit only; it does not prove Rhino loaded the GHA, run CFD, improve metrics, or permit formal v0.4.0."
@@ -728,7 +744,7 @@
       "source_paths_exist": true,
       "decision_class": "manual_rhino_load_evidence_kit",
       "citylbm_status": "implemented_rhino_load_evidence_kit",
-      "implementation_evidence": "kit_ready=True; rhino_detected=True; matching_gha_staged=True; expected_sha=c045c2211f9cdacd4cddede55b920811104c8fdf9f049940c2ae565f5b2ec794",
+      "implementation_evidence": "kit_ready=True; rhino_detected=True; matching_gha_staged=True; expected_sha=b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e",
       "default_setting_allowed": true,
       "paper_use": "Use as manual software-load evidence collection protocol before closing the Rhino/GHA load gate.",
       "limitations": "Manual evidence kit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0."
@@ -756,7 +772,7 @@
       "source_paths_exist": true,
       "decision_class": "packaged_gha_identity_component_gate",
       "citylbm_status": "implemented_packaged_gha_identity_component_gate",
-      "implementation_evidence": "gate_passed=True; tracked_sha=c045c2211f9cdacd4cddede55b920811104c8fdf9f049940c2ae565f5b2ec794; size_bytes=1823744",
+      "implementation_evidence": "gate_passed=True; tracked_sha=b8b9851d9836bd391d6de1ecc14dad3a473f5b56624ea472b451cf6f1f4d492e; size_bytes=1823744",
       "default_setting_allowed": true,
       "paper_use": "Use as packaged-plugin software identity evidence before manual Rhino/GHA load verification.",
       "limitations": "Packaged GHA string audit only; it does not prove Rhino loaded the plugin, run CFD, improve official metrics, or permit formal v0.4.0."
@@ -826,7 +842,7 @@
       "source_paths_exist": true,
       "decision_class": "followup_sweep_plan",
       "citylbm_status": "planned_candidate_matrix",
-      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc75",
+      "implementation_evidence": "candidate_count=9; executable_now_count=0; recommended_tag=v0.4.0-rc76",
       "default_setting_allowed": false,
       "paper_use": "Use as a pre-registered follow-up experiment plan for improving official z=2 m R2.",
       "limitations": "Planning evidence only; no candidate has produced new official metrics and no default can be promoted from the plan alone."
@@ -858,6 +874,7 @@
     "docs/experiments/casee/results/citylbm_manifest_output_gate.json",
     "docs/experiments/casee/results/citylbm_manifest_schema_gate.json",
     "docs/experiments/casee/results/github_release_publication_gate.json",
+    "docs/experiments/casee/results/casee_workspace_hygiene_gate.json",
     "docs/experiments/casee/results/casee_manuscript_results_table.json",
     "docs/experiments/casee/results/casee_manuscript_section_pack.json",
     "docs/experiments/casee/results/casee_paper_results_figure_qa.json",

@@ -119,6 +119,18 @@ def remote_tag_status(tag: str) -> Dict[str, Any]:
     }
 
 
+def local_remote_tracking_tag_status(tag: str) -> Dict[str, Any]:
+    if not tag:
+        return {"visible": False, "method": "", "stdout": "", "stderr": ""}
+    refs = run_git(["show-ref", "--tags", tag])
+    return {
+        "visible": bool(refs.get("returncode") == 0 and f"refs/tags/{tag}" in refs.get("stdout", "")),
+        "method": "local_show_ref_tags",
+        "stdout": refs.get("stdout", ""),
+        "stderr": refs.get("stderr", ""),
+    }
+
+
 def write_csv(payload: Dict[str, Any]) -> None:
     fields = [
         "recommended_tag",
@@ -183,8 +195,10 @@ def main() -> int:
     release_json = release_api.get("json") or {}
     release_exists = bool(release_api.get("ok") and release_json.get("html_url"))
     remote_fallback = remote_tag_status(audited_tag)
+    local_remote_tracking = local_remote_tracking_tag_status(audited_tag)
     remote_tag_visible_api = bool(tag_api.get("ok") and (tag_api.get("json") or {}).get("ref") == f"refs/tags/{audited_tag}")
-    remote_tag_visible = bool(remote_tag_visible_api or remote_fallback.get("visible"))
+    network_tag_check_failed = bool(not remote_tag_visible_api and not remote_fallback.get("visible"))
+    remote_tag_visible = bool(remote_tag_visible_api or remote_fallback.get("visible") or local_remote_tracking.get("visible"))
     local_tag_resolves = bool(tag_commit.get("stdout"))
     gh_available = bool(gh.get("gh_cli_available"))
     gh_authed = bool(gh_available and gh.get("auth_status_returncode") == 0)
@@ -205,10 +219,15 @@ def main() -> int:
         "remote_tag_visible": remote_tag_visible,
         "remote_tag_visible_api": remote_tag_visible_api,
         "remote_tag_visible_fallback": remote_fallback.get("visible"),
+        "remote_tag_visible_local_known": local_remote_tracking.get("visible"),
         "remote_tag_fallback_method": remote_fallback.get("method"),
         "remote_tag_fallback_returncode": remote_fallback.get("returncode"),
         "remote_tag_fallback_stdout": remote_fallback.get("stdout", ""),
         "remote_tag_fallback_stderr": remote_fallback.get("stderr", ""),
+        "network_tag_check_failed": network_tag_check_failed,
+        "local_remote_tracking_method": local_remote_tracking.get("method"),
+        "local_remote_tracking_stdout": local_remote_tracking.get("stdout", ""),
+        "local_remote_tracking_stderr": local_remote_tracking.get("stderr", ""),
         "remote_tag_api_status": tag_api.get("status"),
         "github_release_exists": release_exists,
         "github_release_url": release_json.get("html_url", ""),

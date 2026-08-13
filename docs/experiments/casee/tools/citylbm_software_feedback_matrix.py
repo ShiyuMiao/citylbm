@@ -137,6 +137,7 @@ def build_rows() -> List[Dict[str, Any]]:
     release_assets = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
     release_bundle = read_json(RESULTS_DIR / "casee_release_bundle_manifest.json")
     github_publication = read_json(RESULTS_DIR / "github_release_publication_gate.json")
+    workspace_hygiene = read_json(RESULTS_DIR / "casee_workspace_hygiene_gate.json")
     vs_cpp_recovery = read_json(RESULTS_DIR / "vs_cpp_recovery_gate.json")
     vs_cpp_system_drive_space = read_json(RESULTS_DIR / "vs_cpp_system_drive_space_gate.json")
     vs_cpp_elevated_launcher = read_json(RESULTS_DIR / "vs_cpp_elevated_launcher_gate.json")
@@ -1457,6 +1458,42 @@ def build_rows() -> List[Dict[str, Any]]:
         )
     )
 
+    hygiene_summary = workspace_hygiene.get("summary") or {}
+    rows.append(
+        row(
+            feedback_id="SF053",
+            experiment="Case E workspace hygiene gate",
+            finding=(
+                "The rc76 workspace hygiene gate classifies ignored local build caches, native candidate CSVs, "
+                "runtime logs, and visualization scratch files so they cannot be mistaken for curated release "
+                "assets or paper-ready official results."
+            ),
+            evidence_type=str(hygiene_summary.get("evidence_type", "missing")),
+            source_paths=[
+                ROOT / ".gitignore",
+                CASEE_DIR / "tools" / "casee_workspace_hygiene_gate.py",
+                RESULTS_DIR / "casee_workspace_hygiene_gate.json",
+                RESULTS_DIR / "casee_workspace_hygiene_gate.csv",
+                RESULTS_DIR / "casee_workspace_hygiene_gate.md",
+                ROOT / "docs" / "releases" / "v0.4.0-rc76.md",
+            ],
+            decision_class="workspace_hygiene_no_accuracy_promotion",
+            citylbm_status="implemented_workspace_hygiene_gate"
+            if hygiene_summary.get("workspace_hygiene_gate_passed") is True
+            and hygiene_summary.get("formal_accuracy_claim_supported") is False
+            else "workspace_hygiene_gate_missing_or_failed",
+            implementation_evidence=(
+                f"ignored_local_artifact_count={hygiene_summary.get('ignored_local_artifact_count')}; "
+                f"allowed_untracked_local_artifact_count={hygiene_summary.get('allowed_untracked_local_artifact_count')}; "
+                f"unexpected_untracked_count={hygiene_summary.get('unexpected_untracked_count')}; "
+                f"tracked_forbidden_count={hygiene_summary.get('tracked_forbidden_count')}"
+            ),
+            default_setting_allowed=True,
+            paper_use="Use as release and manuscript hygiene evidence that local scratch results remain separated from curated paper evidence.",
+            limitations="Workspace-hygiene evidence only; it does not delete files, run CFD, improve metrics, change physics defaults, or permit formal v0.4.0.",
+        )
+    )
+
     rows.append(
         row(
             feedback_id="SF036",
@@ -1780,13 +1817,13 @@ def summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     for item in rows:
         by_decision[item["decision_class"]] = by_decision.get(item["decision_class"], 0) + 1
         by_status[item["citylbm_status"]] = by_status.get(item["citylbm_status"], 0) + 1
-    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052"}
+    required_ids = {"SF001", "SF002", "SF003", "SF004", "SF005", "SF006", "SF007", "SF008", "SF009", "SF010", "SF011", "SF012", "SF013", "SF014", "SF015", "SF016", "SF017", "SF018", "SF019", "SF020", "SF021", "SF022", "SF023", "SF024", "SF025", "SF026", "SF027", "SF028", "SF029", "SF030", "SF031", "SF032", "SF033", "SF034", "SF035", "SF036", "SF037", "SF038", "SF039", "SF040", "SF041", "SF042", "SF043", "SF044", "SF045", "SF046", "SF047", "SF048", "SF049", "SF050", "SF051", "SF052", "SF053"}
     found_ids = {str(item["feedback_id"]) for item in rows}
     sources_exist = all(bool(item["source_paths_exist"]) for item in rows)
     no_forbidden_default = all(
         bool(item["default_setting_allowed"])
         for item in rows
-        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "paper_release_bundle_no_accuracy_promotion", "github_publication_state_no_accuracy_promotion", "build_chain_recovery_gate", "build_chain_uac_launcher_gate", "build_chain_system_drive_space_gate", "operational_recovery_dashboard_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "manual_rhino_load_manifest_schema_gate", "software_identity_component", "packaged_gha_identity_component_gate", "software_packaging_traceability_no_accuracy_promotion", "software_staged_gha_traceability_no_accuracy_promotion", "software_build_hash_stability_no_accuracy_promotion"}
+        if item["decision_class"] in {"default_quality_gate", "formal_protocol_default", "application_workflow_policy", "software_traceability_output", "paper_traceability_output", "paper_figure_output", "paper_provenance_ledger", "paper_claim_support_gate", "software_publication_readiness_contract", "software_publication_gate_output", "portable_plugin_build_script", "paper_release_asset_manifest", "paper_release_bundle_no_accuracy_promotion", "github_publication_state_no_accuracy_promotion", "workspace_hygiene_no_accuracy_promotion", "build_chain_recovery_gate", "build_chain_uac_launcher_gate", "build_chain_system_drive_space_gate", "operational_recovery_dashboard_gate", "portable_toolchain_activation_gate", "gpu_runtime_failfast_gate", "software_gha_staging_audit", "manual_rhino_load_evidence_kit", "manual_rhino_load_manifest_schema_gate", "software_identity_component", "packaged_gha_identity_component_gate", "software_packaging_traceability_no_accuracy_promotion", "software_staged_gha_traceability_no_accuracy_promotion", "software_build_hash_stability_no_accuracy_promotion"}
     ) and not any(
         bool(item["default_setting_allowed"])
         for item in rows
@@ -1892,6 +1929,7 @@ def main() -> int:
             rel(RESULTS_DIR / "citylbm_manifest_output_gate.json"),
             rel(RESULTS_DIR / "citylbm_manifest_schema_gate.json"),
             rel(RESULTS_DIR / "github_release_publication_gate.json"),
+            rel(RESULTS_DIR / "casee_workspace_hygiene_gate.json"),
             rel(RESULTS_DIR / "casee_manuscript_results_table.json"),
             rel(RESULTS_DIR / "casee_manuscript_section_pack.json"),
             rel(RESULTS_DIR / "casee_paper_results_figure_qa.json"),

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T04:51:49.454422+00:00",
+  "generated_at": "2026-08-13T05:12:27.146886+00:00",
   "claims": [
     {
       "claim_id": "C001",
@@ -91,7 +91,7 @@
       "evidence_type": "newly_run",
       "section": "Release",
       "claim": "Formal CityLBM v0.4.0 release is not allowed by the release gate.",
-      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc75",
+      "supporting_metrics": "formal_release_allowed=False; recommended_tag=v0.4.0-rc76",
       "source_paths": "docs/experiments/casee/results/release_gate.json",
       "allowed_use": "Use to justify rc-only release status.",
       "forbidden_use": "Do not create or cite a formal v0.4.0 tag before the gate passes.",

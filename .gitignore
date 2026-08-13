@@ -16,3 +16,24 @@ docs/experiments/casee/native_cases/**/buildings.stl
 docs/experiments/casee/**/*.vtk
 docs/experiments/casee/**/*.vtu
 docs/experiments/casee/**/*.3dm
+
+# Local build caches and solver/runtime outputs. Keep only curated manifests,
+# reports, figures, and audited lightweight release bundles in Git.
+CityLBM/bin/Release/
+CityLBM/obj/
+CityLBM/NuGet/
+NuGet/
+.workbuddy/
+docs/experiments/casee/native_cases/**/casee_probe_time_mean.csv
+docs/experiments/casee/native_cases/casee_native_*_steps2000_spin500/
+docs/experiments/casee/native_cases/**/output/
+docs/experiments/casee/native_cases/**/*.log
+docs/experiments/casee/results/*.log
+docs/experiments/casee/results/*.err.log
+docs/experiments/casee/results/casee_c006_*_probe_time_mean.csv
+tools/export_paraview_core_figures.py
+tools/launch_paraview_mesa_safe.ps1
+tools/make_vtk_speed_slice_png_without_paraview_render.py
+tools/paraview_diagnose_white_screen.py
+tools/paraview_make_core_quicklook_state.py
+tools/restore_paraview_default_opengl.ps1

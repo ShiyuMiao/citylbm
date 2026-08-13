@@ -336,10 +336,12 @@ def main() -> int:
         ("casee_manuscript_section_pack", "casee_manuscript_section_pack.py"),
         ("casee_paper_results_figure", "casee_paper_results_figure.py"),
         ("github_release_publication_gate_pre_release_assets", "github_release_publication_gate.py"),
+        ("casee_workspace_hygiene_gate_pre_release_assets", "casee_workspace_hygiene_gate.py"),
         ("artifact_index_pre_release_assets", "artifact_index.py"),
         ("casee_release_asset_manifest", "casee_release_asset_manifest.py"),
         ("casee_release_bundle_gate", "casee_release_bundle_gate.py"),
         ("github_release_publication_gate", "github_release_publication_gate.py"),
+        ("casee_workspace_hygiene_gate", "casee_workspace_hygiene_gate.py"),
         ("citylbm_software_feedback_matrix", "citylbm_software_feedback_matrix.py"),
         ("artifact_index_pre_appendix", "artifact_index.py"),
         ("paper_appendix_generator", "paper_appendix_generator.py"),
@@ -349,6 +351,7 @@ def main() -> int:
         ("casee_release_asset_manifest_final", "casee_release_asset_manifest.py"),
         ("casee_release_bundle_gate_final", "casee_release_bundle_gate.py"),
         ("github_release_publication_gate_final", "github_release_publication_gate.py"),
+        ("casee_workspace_hygiene_gate_final", "casee_workspace_hygiene_gate.py"),
         ("paper_evidence_gate", "paper_evidence_gate.py"),
         ("casee_publication_readiness_gate", "casee_publication_readiness_gate.py"),
         ("artifact_index_final", "artifact_index.py"),
@@ -401,6 +404,7 @@ def main() -> int:
     release_asset_manifest = read_json(RESULTS_DIR / "casee_release_asset_manifest.json")
     release_bundle = read_json(RESULTS_DIR / "casee_release_bundle_manifest.json")
     github_release_publication = read_json(RESULTS_DIR / "github_release_publication_gate.json")
+    workspace_hygiene = read_json(RESULTS_DIR / "casee_workspace_hygiene_gate.json")
     suite_passed = all(bool(step.get("passed")) for step in steps) and not bool(release_gate.get("formal_release_allowed"))
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -448,6 +452,7 @@ def main() -> int:
         "casee_release_asset_manifest": release_asset_manifest,
         "casee_release_bundle": release_bundle,
         "github_release_publication_gate": github_release_publication,
+        "casee_workspace_hygiene_gate": workspace_hygiene,
     }
     write_text_retry(OUT_JSON, json.dumps(payload, indent=2))
     write_markdown(payload)
