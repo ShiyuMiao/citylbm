@@ -573,6 +573,11 @@ def main() -> int:
     )
     parser.add_argument("--fluidx3d-root", type=Path)
     parser.add_argument("--deploy", action="store_true")
+    parser.add_argument(
+        "--run-id-suffix",
+        default="",
+        help="Optional safe suffix for generated native case directory names. Used by preflight gates to avoid touching tracked cases.",
+    )
     args = parser.parse_args()
 
     wind_label = "yn" if args.wind_y < 0 else "yp"
@@ -592,15 +597,21 @@ def main() -> int:
     wall_label = ""
     if args.wall_model != "none" or args.wall_dilation_cells > 0 or abs(args.wall_damping_factor) > 1e-12:
         damping_label = f"{args.wall_damping_factor:g}".replace(".", "p").replace("-", "m")
-        wall_label = f"_wall_{args.wall_model}_dil{args.wall_dilation_cells}_damp{damping_label}"
+        wall_mode_label = {
+            "voxel_dilation": "vd",
+            "ground_damping": "gd",
+        }.get(args.wall_model, args.wall_model)
+        wall_label = f"_wall_{wall_mode_label}_dil{args.wall_dilation_cells}_damp{damping_label}"
     residual_label = ""
     if args.residual_target_mode != "none" or abs(args.residual_target_scale) > 1e-12:
         residual_scale_label = f"{args.residual_target_scale:g}".replace(".", "p").replace("-", "m")
         residual_mode_label = {
-            "c014_channel_response": "c014cr",
+            "c014_channel_response": "c014",
         }.get(args.residual_target_mode, args.residual_target_mode)
-        residual_label = f"_resid_{residual_mode_label}_s{residual_scale_label}"
-    run_id = f"casee_native_dx{args.dx:g}_{wind_label}_{sgs_label}_{ground_label}_{zoff_label}_{nu_label}{domain_label}{inlet_label}{wall_label}{residual_label}_pmodes_steps{args.steps}_spin{args.spinup}"
+        residual_label = f"_rt_{residual_mode_label}_s{residual_scale_label}"
+    suffix = "".join(ch if ch.isalnum() or ch in {"_", "-"} else "_" for ch in str(args.run_id_suffix)).strip("_")
+    suffix_label = f"_{suffix}" if suffix else ""
+    run_id = f"casee_native_dx{args.dx:g}_{wind_label}_{sgs_label}_{ground_label}_{zoff_label}_{nu_label}{domain_label}{inlet_label}{wall_label}{residual_label}_pmodes_steps{args.steps}_spin{args.spinup}{suffix_label}"
     case_dir = NATIVE_DIR / run_id
     case_dir.mkdir(parents=True, exist_ok=True)
     setup = generate_setup(

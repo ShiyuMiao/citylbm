@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T10:01:08.537780+00:00",
+  "generated_at": "2026-08-13T10:23:34.959199+00:00",
   "status": "passed_reproduced_failed_metric",
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_reproducibility; blocked formal accuracy release",

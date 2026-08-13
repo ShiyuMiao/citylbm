@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-13T10:01:47.627156+00:00
+Generated: 2026-08-13T10:24:03.046834+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 59
+- Feedback rows: 60
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -52,6 +52,7 @@ Generated: 2026-08-13T10:01:47.627156+00:00
 - rerun_reproducibility_guard: 1
 - residual_structure_no_default_promotion: 1
 - residual_target_hook_no_default_promotion: 1
+- runbook_codegen_preflight_no_accuracy_promotion: 1
 - runtime_decomposition_sensitivity_no_default_promotion: 1
 - software_build_hash_stability_no_accuracy_promotion: 1
 - software_gha_staging_audit: 1
@@ -129,6 +130,7 @@ Generated: 2026-08-13T10:01:47.627156+00:00
 | `SF057` | Experiment 2 / native Case E inlet-turbulence follow-up codegen | native_inlet_followup_codegen_no_accuracy_promotion | implemented_default_off_native_inlet_followup_codegen | False | The native Case E generator already provides a default-off AF_caseE-k full-plane inlet follow-up path, and the next-run plan now replaces the R007 TODO with a concrete no-SGS scale-2.00 official-height candidate. |
 | `SF058` | Experiment 2 / native Case E C016 residual-target codegen | native_c016_residual_target_codegen_no_accuracy_promotion | implemented_default_off_native_c016_residual_target_codegen | False | The native Case E generator now provides a default-off C016 channel-response residual-target follow-up using pre-registered coordinate regions, while the leakage guard blocks RS_caseE official-probe fitting or affine calibration as validation. |
 | `SF059` | Experiment 2 / native Case E codegen smoke regression | native_codegen_smoke_regression_no_accuracy_promotion | implemented_native_codegen_smoke_regression | False | The native Case E generator now has a short smoke gate covering default, AF-k/noSGS inlet, voxel-dilation wall, and C016 residual-target configurations; it also verifies manifest path length and cleanup after exposing the Windows long-path risk. |
+| `SF060` | Experiment 2 / next-run runbook native codegen preflight | runbook_codegen_preflight_no_accuracy_promotion | implemented_runbook_codegen_preflight | False | The next-run official follow-up commands R005, R006, R007, R008, and R010 are now machine-preflighted by executing only their native case-generation step, verifying official manifest fields, diagnostic-default blockers, path length, and cleanup before any long solver run. |
 
 ## Paper Boundary
 
@@ -193,6 +195,7 @@ Generated: 2026-08-13T10:01:47.627156+00:00
 | `SF057` | Use as pre-registered software implementation evidence for the next AF-k inlet/no-SGS official follow-up. | Code-generation and planning evidence only; no new inlet follow-up run has completed, no R2 changed, and no inlet/SGS setting can be promoted before an official z2m release-gate pass. |
 | `SF058` | Use as pre-registered software implementation evidence for the next C016 official follow-up. | Code-generation and planning evidence only; no C016 FluidX3D run has completed, no R2 changed, no RS_caseE fitting is allowed, and residual-target settings cannot be promoted before an official z2m release-gate pass. |
 | `SF059` | Use as software reproducibility evidence that default-off native follow-up candidates can be generated and audited before long solver runs. | Code-generation smoke evidence only; no FluidX3D run, probe CSV, official metric update, R2 improvement, or default accuracy promotion is supported. |
+| `SF060` | Use as runbook reproducibility evidence that official follow-up inputs are executable and claim-gated before solver scheduling. | Input-generation evidence only; no FluidX3D run, probe CSV, official metric update, R2 improvement, or default accuracy promotion is supported. |
 
 ## Boundary
 

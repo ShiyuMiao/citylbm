@@ -1,13 +1,13 @@
 # CityLBM Plugin Identity Binary Gate
 
-Generated: 2026-08-13T10:00:47.576981+00:00
+Generated: 2026-08-13T10:23:13.977133+00:00
 
 ## Verdict
 
 - Gate passed: True
 - Claim readiness: `paper_ready_packaged_gha_identity_component`
 - Tracked GHA: `CityLBM/bin/CityLBM.gha`
-- Tracked GHA SHA256: `6ded1fad358edb75a4179a410dac570df5c5125a6f17abb8c36893a394f04f2b`
+- Tracked GHA SHA256: `ea82888730c63939c95e6e074d0fc55b9a7ecb3e7d38bfa9ade62026ec22fe1a`
 
 ## Checks
 

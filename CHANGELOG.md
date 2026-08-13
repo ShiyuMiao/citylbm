@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc84 - Runbook codegen preflight
+
+- Added `casee_runbook_codegen_preflight.py` to execute only the native case-generation step for official follow-up runbook commands R005, R006, R007, R008, and R010.
+- The gate verifies official z=2 m raw-trilinear manifest fields, diagnostic default-promotion blockers, Windows path-length margin, no solver CSV output, and cleanup of generated native case directories.
+- Integrated the runbook preflight into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF060.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc83 - Native codegen smoke regression
 
 - Added `casee_native_codegen_smoke_gate.py` to run short native Case E code-generation checks for default, AF-k/noSGS inlet, wall, and C016 residual-target configurations.

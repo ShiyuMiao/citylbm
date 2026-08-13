@@ -1,0 +1,201 @@
+{
+  "generated_at": "2026-08-13T10:23:50.628143+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_runbook_codegen_preflight; no_solver_run",
+  "runbook_codegen_preflight_passed": true,
+  "required_runbook_ids_present": true,
+  "target_runbook_ids": [
+    "R005_official_dx2_zcenter_replicate",
+    "R006_wall_model_followup",
+    "R007_inlet_turbulence_followup",
+    "R008_dx1_feasibility_or_generation",
+    "R010_c016_residual_channel_response_followup"
+  ],
+  "covered_runbook_ids": [
+    "R005_official_dx2_zcenter_replicate",
+    "R006_wall_model_followup",
+    "R007_inlet_turbulence_followup",
+    "R008_dx1_feasibility_or_generation",
+    "R010_c016_residual_channel_response_followup"
+  ],
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "rows": [
+    {
+      "runbook_id": "R005_official_dx2_zcenter_replicate",
+      "evidence_type": "newly_run",
+      "claim_readiness": "runbook_codegen_preflight_passed; no_solver_run",
+      "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001",
+      "executed_command": "E:\\ProgramData\\anaconda3\\python.exe C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --run-id-suffix pf_R005",
+      "returncode": 0,
+      "stderr_tail": "",
+      "run_id": "casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_pmodes_steps48000_spin12000_pf_R005",
+      "case_dir": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_cases\\casee_native_dx2_yn_sgs_gshift1_zoff1_nu0p001_pmodes_steps48000_spin12000_pf_R005",
+      "manifest_path_length": 202,
+      "generated_files": {
+        "setup_cpp": true,
+        "defines_hpp": true,
+        "buildings_stl": true,
+        "manifest": true
+      },
+      "checks": {
+        "command_is_native_codegen": true,
+        "process_exit_zero": true,
+        "manifest_loaded": true,
+        "generated_required_files": true,
+        "no_solver_csv_written": true,
+        "windows_path_length_guard": true,
+        "official_protocol": true,
+        "claim_boundary_blocks_accuracy": true,
+        "no_default_promoted_diagnostics": true,
+        "dx2_zcenter": true,
+        "baseline_diagnostics_off": true,
+        "cleanup_done": true
+      },
+      "passed": true,
+      "cleanup_error": ""
+    },
+    {
+      "runbook_id": "R006_wall_model_followup",
+      "evidence_type": "newly_run",
+      "claim_readiness": "runbook_codegen_preflight_passed; no_solver_run",
+      "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --wall-model voxel_dilation --wall-dilation-cells 1 --no-subgrid",
+      "executed_command": "E:\\ProgramData\\anaconda3\\python.exe C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --wall-model voxel_dilation --wall-dilation-cells 1 --no-subgrid --run-id-suffix pf_R006",
+      "returncode": 0,
+      "stderr_tail": "",
+      "run_id": "casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_wall_vd_dil1_damp0_pmodes_steps48000_spin12000_pf_R006",
+      "case_dir": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_cases\\casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_wall_vd_dil1_damp0_pmodes_steps48000_spin12000_pf_R006",
+      "manifest_path_length": 232,
+      "generated_files": {
+        "setup_cpp": true,
+        "defines_hpp": true,
+        "buildings_stl": true,
+        "manifest": true
+      },
+      "checks": {
+        "command_is_native_codegen": true,
+        "process_exit_zero": true,
+        "manifest_loaded": true,
+        "generated_required_files": true,
+        "no_solver_csv_written": true,
+        "windows_path_length_guard": true,
+        "official_protocol": true,
+        "claim_boundary_blocks_accuracy": true,
+        "no_default_promoted_diagnostics": true,
+        "wall_voxel_dilation": true,
+        "wall_not_default_safe": true,
+        "cleanup_done": true
+      },
+      "passed": true,
+      "cleanup_error": ""
+    },
+    {
+      "runbook_id": "R007_inlet_turbulence_followup",
+      "evidence_type": "newly_run",
+      "claim_readiness": "runbook_codegen_preflight_passed; no_solver_run",
+      "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane --inlet-turbulence-scale 2.00 --no-subgrid",
+      "executed_command": "E:\\ProgramData\\anaconda3\\python.exe C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane --inlet-turbulence-scale 2.00 --no-subgrid --run-id-suffix pf_R007",
+      "returncode": 0,
+      "stderr_tail": "",
+      "run_id": "casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_afkfp_s2_pmodes_steps48000_spin12000_pf_R007",
+      "case_dir": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_cases\\casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_afkfp_s2_pmodes_steps48000_spin12000_pf_R007",
+      "manifest_path_length": 228,
+      "generated_files": {
+        "setup_cpp": true,
+        "defines_hpp": true,
+        "buildings_stl": true,
+        "manifest": true
+      },
+      "checks": {
+        "command_is_native_codegen": true,
+        "process_exit_zero": true,
+        "manifest_loaded": true,
+        "generated_required_files": true,
+        "no_solver_csv_written": true,
+        "windows_path_length_guard": true,
+        "official_protocol": true,
+        "claim_boundary_blocks_accuracy": true,
+        "no_default_promoted_diagnostics": true,
+        "afk_inlet_nosgs": true,
+        "inlet_not_default_safe": true,
+        "cleanup_done": true
+      },
+      "passed": true,
+      "cleanup_error": ""
+    },
+    {
+      "runbook_id": "R008_dx1_feasibility_or_generation",
+      "evidence_type": "newly_run",
+      "claim_readiness": "runbook_codegen_preflight_passed; no_solver_run",
+      "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 1 --steps 48000 --spinup 12000 --sample-dt 4000 --ground-offset-cells 1 --origin-z-offset-m 0.5 --nu-lbm 0.001",
+      "executed_command": "E:\\ProgramData\\anaconda3\\python.exe C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\generate_native_casee.py --dx 1 --steps 48000 --spinup 12000 --sample-dt 4000 --ground-offset-cells 1 --origin-z-offset-m 0.5 --nu-lbm 0.001 --run-id-suffix pf_R008",
+      "returncode": 0,
+      "stderr_tail": "",
+      "run_id": "casee_native_dx1_yn_sgs_gshift1_zoff0p5_nu0p001_pmodes_steps48000_spin12000_pf_R008",
+      "case_dir": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_cases\\casee_native_dx1_yn_sgs_gshift1_zoff0p5_nu0p001_pmodes_steps48000_spin12000_pf_R008",
+      "manifest_path_length": 204,
+      "generated_files": {
+        "setup_cpp": true,
+        "defines_hpp": true,
+        "buildings_stl": true,
+        "manifest": true
+      },
+      "checks": {
+        "command_is_native_codegen": true,
+        "process_exit_zero": true,
+        "manifest_loaded": true,
+        "generated_required_files": true,
+        "no_solver_csv_written": true,
+        "windows_path_length_guard": true,
+        "official_protocol": true,
+        "claim_boundary_blocks_accuracy": true,
+        "no_default_promoted_diagnostics": true,
+        "dx1_manifest": true,
+        "mesh_independence_not_claimed": true,
+        "cleanup_done": true
+      },
+      "passed": true,
+      "cleanup_error": ""
+    },
+    {
+      "runbook_id": "R010_c016_residual_channel_response_followup",
+      "evidence_type": "newly_run",
+      "claim_readiness": "runbook_codegen_preflight_passed; no_solver_run",
+      "command": "python docs/experiments/casee/tools/generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane --inlet-turbulence-scale 2.00 --residual-target-mode c014_channel_response --residual-target-scale 1.00 --no-subgrid",
+      "executed_command": "E:\\ProgramData\\anaconda3\\python.exe C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\tools\\generate_native_casee.py --dx 2 --steps 48000 --spinup 12000 --sample-dt 2000 --ground-offset-cells 1 --origin-z-offset-m 1.0 --nu-lbm 0.001 --domain-x 4 --domain-y 1 --domain-z 1 --inlet-turbulence-mode k_synthetic_fullplane --inlet-turbulence-scale 2.00 --residual-target-mode c014_channel_response --residual-target-scale 1.00 --no-subgrid --run-id-suffix pf_R010",
+      "returncode": 0,
+      "stderr_tail": "",
+      "run_id": "casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_afkfp_s2_rt_c014_s1_pmodes_steps48000_spin12000_pf_R010",
+      "case_dir": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_cases\\casee_native_dx2_yn_nosgs_gshift1_zoff1_nu0p001_dom4x1x1_inlet_afkfp_s2_rt_c014_s1_pmodes_steps48000_spin12000_pf_R010",
+      "manifest_path_length": 239,
+      "generated_files": {
+        "setup_cpp": true,
+        "defines_hpp": true,
+        "buildings_stl": true,
+        "manifest": true
+      },
+      "checks": {
+        "command_is_native_codegen": true,
+        "process_exit_zero": true,
+        "manifest_loaded": true,
+        "generated_required_files": true,
+        "no_solver_csv_written": true,
+        "windows_path_length_guard": true,
+        "official_protocol": true,
+        "claim_boundary_blocks_accuracy": true,
+        "no_default_promoted_diagnostics": true,
+        "c016_residual_target": true,
+        "c016_regions_registered": true,
+        "cleanup_done": true
+      },
+      "passed": true,
+      "cleanup_error": ""
+    }
+  ],
+  "source_paths": [
+    "docs/experiments/casee/results/casee_next_experiment_runbook.json",
+    "docs/experiments/casee/tools/generate_native_casee.py",
+    "docs/experiments/casee/tools/casee_runbook_codegen_preflight.py"
+  ],
+  "boundary": "This gate executes only native case-generation commands from the next experiment runbook. It does not deploy to FluidX3D, does not run the solver, does not create probe CSVs, does not update official metrics, and does not permit formal v0.4.0."
+}

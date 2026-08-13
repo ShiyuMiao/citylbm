@@ -118,6 +118,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_c016_codegen_gate.md`
 - `docs/experiments/casee/results/casee_native_codegen_smoke_gate.json`
 - `docs/experiments/casee/results/casee_native_codegen_smoke_gate.md`
+- `docs/experiments/casee/results/casee_runbook_codegen_preflight.json`
+- `docs/experiments/casee/results/casee_runbook_codegen_preflight.md`
+- `docs/releases/v0.4.0-rc84.md`
 - `docs/releases/v0.4.0-rc83.md`
 - `docs/releases/v0.4.0-rc82.md`
 - `docs/releases/v0.4.0-rc81.md`

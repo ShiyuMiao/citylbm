@@ -1,6 +1,6 @@
 # AIJ Case E 可复现性附录
 
-生成时间: 2026-08-13T10:01:49.215564+00:00
+生成时间: 2026-08-13T10:24:04.672829+00:00
 
 ## 章节契约
 
@@ -28,7 +28,7 @@
 - 论文证据门控通过: True。
 - 插件身份门控通过: True。
 - 正式 v0.4.0 是否允许发布: False。
-- 推荐标签: `v0.4.0-rc83`。
+- 推荐标签: `v0.4.0-rc84`。
 - CityLBM 构建通过: True。
 - Case A smoke regression 通过: True。
 - Rhino 是否已加载新 GHA: False。
@@ -76,6 +76,8 @@
 - `casee_wall_followup_codegen_gate` (passed, returncode=0): `python C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\docs\experiments\casee\tools\casee_wall_followup_codegen_gate.py`
 - `casee_inlet_followup_codegen_gate` (passed, returncode=0): `python C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\docs\experiments\casee\tools\casee_inlet_followup_codegen_gate.py`
 - `casee_c016_codegen_gate` (passed, returncode=0): `python C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\docs\experiments\casee\tools\casee_c016_codegen_gate.py`
+- `casee_native_codegen_smoke_gate` (passed, returncode=0): `python C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\docs\experiments\casee\tools\casee_native_codegen_smoke_gate.py`
+- `casee_runbook_codegen_preflight` (passed, returncode=0): `python C:\Users\miaoshiyu\Documents\【citylbm】实验3：数字孪生应用研究\docs\experiments\casee\tools\casee_runbook_codegen_preflight.py`
 - `citylbm_paper_results_packet` (passed, returncode=0): `python docs/experiments/casee/tools/citylbm_paper_results_packet.py`
 - `citylbm_manifest_output_gate` (passed, returncode=0): `python docs/experiments/casee/tools/citylbm_manifest_output_gate.py`
 - `citylbm_manifest_schema_gate` (passed, returncode=0): `python docs/experiments/casee/tools/citylbm_manifest_schema_gate.py`
@@ -109,24 +111,24 @@
 
 | artifact | role | readiness | sha256 |
 |---|---|---|---|
-| `CityLBM/bin/CityLBM.gha` | lightweight_release_asset | paper_ready_software_identity | `6ded1fad358edb75a4179a410dac570df5c5125a6f17abb8c36893a394f04f2b` |
-| `academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md` | lightweight_release_asset | paper_ready_reproducibility | `f61bd513ced4e703bbbb21c1f927c53fa0c3e6b5cde23c4c47eefaa1f0780e86` |
-| `docs/experiments/casee/results/build_chain_manifest.json` | lightweight_release_asset | paper_ready_reproducibility | `b82823a1f015b551c70d3b77048f21e6b9d542f48930154039400f37dca13b67` |
-| `docs/experiments/casee/results/build_chain_manifest.md` | lightweight_release_asset | paper_ready_reproducibility | `61104df62d79353cc902b6f7917f7e8ee22dcf6ddc9769938d06b60b5da4fe8a` |
-| `docs/experiments/casee/results/casee_c002_longer_mean_audit.json` | lightweight_release_asset | limitations_ready_completed_candidate | `a5a689cf6f28b64b6051ecc88c344e8458a89f60eaeef64f33338acd352747fc` |
-| `docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json` | lightweight_release_asset | limitations_ready_zorigin_ablation | `4e370b20c57174823ac424eb55b8ec8538144e4096ac26217fe2d6d62574923c` |
-| `docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json` | lightweight_release_asset | limitations_ready_dx3_low_cost_regression | `b754f8a4ad7d7274047ef7542cfac0769543b975f9ff1754f4a8d19a750a5c68` |
-| `docs/experiments/casee/results/casee_c005_decomposition_audit.json` | lightweight_release_asset | limitations_ready_decomposition_sensitivity | `3d2a5039cf559705d3448e3c54a149cd91cc524e4370c66b83afc7c74d73dce0` |
-| `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json` | lightweight_release_asset | limitations_ready_inlet_turbulence_improvement | `50f626b9389aebb3f86b19890c5987755a051695737b9ee8edd34120cf3acd53` |
-| `docs/experiments/casee/results/casee_candidate_sweep_plan.json` | lightweight_release_asset | paper_ready_followup_plan | `3a54997d1e9bd6cbe64161d7856785f6e213c58943b8c230d024dae569cf7034` |
-| `docs/experiments/casee/results/casee_default_policy_gate.json` | lightweight_release_asset | paper_ready_default_policy_boundary | `35fc5f75ff631cc345b3bd3a40fd86c6ffc302fe91fd2a277ce5ddb1d422a544` |
-| `docs/experiments/casee/results/casee_dx1_readiness_audit.json` | lightweight_release_asset | limitations_ready_dx1_feasibility | `27217f0fd529b89647d80ef99c1125d6fd921d69abe7afb969cb2cbb7055463a` |
-| `docs/experiments/casee/results/casee_dx1_readiness_audit.md` | lightweight_release_asset | limitations_ready_dx1_feasibility | `8b1c3df032d7500c318ed705deda215b591436f66ca08bfb35b54c2cd4b20437` |
-| `docs/experiments/casee/results/casee_environment_recovery_runbook.json` | lightweight_release_asset | blocked_environment_recovery_runbook | `f0e9cf99273a46e318fabcdd261edc1ae520e7e428b4348232ac4c9e676a3231` |
-| `docs/experiments/casee/results/casee_failure_mode_atlas.json` | lightweight_release_asset | limitations_ready_failure_mode_atlas | `f36759158b6d179ecbaa5342a59b6b20a069cdacf421ff3d0b498fde64cb1c06` |
-| `docs/experiments/casee/results/casee_manuscript_claim_matrix.csv` | lightweight_release_asset | paper_ready_reproducibility | `51c79d686de4a33476719342297fcc2ec377987076020febfe277b43330a5de0` |
-| `docs/experiments/casee/results/casee_manuscript_results_table.json` | lightweight_release_asset | paper_ready_manuscript_results_table | `39bc02f88b43291e72edc1e36350f46dbcea12b11a74e433ddc005d4566c6efb` |
-| `docs/experiments/casee/results/casee_manuscript_section_pack.json` | lightweight_release_asset | paper_ready_section_pack_negative_validation | `d971c96005def235a17065131033d233add401a5c9c6ee542abf457553da756b` |
+| `CityLBM/bin/CityLBM.gha` | lightweight_release_asset | paper_ready_software_identity | `ea82888730c63939c95e6e074d0fc55b9a7ecb3e7d38bfa9ade62026ec22fe1a` |
+| `academic-paper-writer/paper-drafts/casee_v04_manuscript_section_pack_en.md` | lightweight_release_asset | paper_ready_reproducibility | `5d7eb633b744da3150e7c562c7773aa5362221fdfc762f71c72c1f5f5c8c9201` |
+| `docs/experiments/casee/results/build_chain_manifest.json` | lightweight_release_asset | paper_ready_reproducibility | `f8905dab6d0e42be0f48d089bb7c5fd5d2e27cc8599da384545b40f96edc5bdb` |
+| `docs/experiments/casee/results/build_chain_manifest.md` | lightweight_release_asset | paper_ready_reproducibility | `c6a1f8aec1073793658ba36527a027f8249a0c2980f0f711693a0a9d9f444311` |
+| `docs/experiments/casee/results/casee_c002_longer_mean_audit.json` | lightweight_release_asset | limitations_ready_completed_candidate | `22488ce9cb1b065dd4cbe26390ad54680b39f07a80c1318237a157758c4a1743` |
+| `docs/experiments/casee/results/casee_c003_zorigin_ablation_audit.json` | lightweight_release_asset | limitations_ready_zorigin_ablation | `6651e4291ee2b21121c5353003707da2079aa446a8d998ed4db98d1db2c3b09d` |
+| `docs/experiments/casee/results/casee_c004_dx3_low_cost_audit.json` | lightweight_release_asset | limitations_ready_dx3_low_cost_regression | `3a59101480dbf81b10f782fdb632a2eaf9ca3ac555db4fe5ca43f51363842ef3` |
+| `docs/experiments/casee/results/casee_c005_decomposition_audit.json` | lightweight_release_asset | limitations_ready_decomposition_sensitivity | `aebeb0ece49cd290264926d7e6b5da1eca1d8b4e1d73792a84c23df98e2a71db` |
+| `docs/experiments/casee/results/casee_c008_c009_inlet_turbulence_audit.json` | lightweight_release_asset | limitations_ready_inlet_turbulence_improvement | `912eddd335735b559066086d9239fa3efda1bb2f56bdb709b3923c4b5b64fd60` |
+| `docs/experiments/casee/results/casee_candidate_sweep_plan.json` | lightweight_release_asset | paper_ready_followup_plan | `93bec0f0aa2344ecfe7232f439728886d804a4a92472b3fb6ec2abd0619638d3` |
+| `docs/experiments/casee/results/casee_default_policy_gate.json` | lightweight_release_asset | paper_ready_default_policy_boundary | `d83c65a711200985aa60942de047041e75b62d3de17a3644883dfe00217de37e` |
+| `docs/experiments/casee/results/casee_dx1_readiness_audit.json` | lightweight_release_asset | limitations_ready_dx1_feasibility | `3dc1644e9d417ea947a193f7a1bf7c50306358aa885816f21c78e4ecc4ba032e` |
+| `docs/experiments/casee/results/casee_dx1_readiness_audit.md` | lightweight_release_asset | limitations_ready_dx1_feasibility | `3728061de6823d2ff5af38510188da60b011ba358ee513491cf9bb181e5e8033` |
+| `docs/experiments/casee/results/casee_environment_recovery_runbook.json` | lightweight_release_asset | blocked_environment_recovery_runbook | `ae908f148d168b32fa8782440ab10978a6106b76235c224841e1fe15cc7826f6` |
+| `docs/experiments/casee/results/casee_failure_mode_atlas.json` | lightweight_release_asset | limitations_ready_failure_mode_atlas | `a745b85e2f594dd2fdc2a71ebd0cc9e6f985d680cbffee393370d263bcf60fdd` |
+| `docs/experiments/casee/results/casee_manuscript_claim_matrix.csv` | lightweight_release_asset | paper_ready_reproducibility | `4873e8678848bed3e3c7dc38f1fd4f4aba543297c90a4791e3c1b88d039c13c2` |
+| `docs/experiments/casee/results/casee_manuscript_results_table.json` | lightweight_release_asset | paper_ready_manuscript_results_table | `f42850a355210bdd01675149ebfb23e7fca6051720a97199694970bfbdb07a43` |
+| `docs/experiments/casee/results/casee_manuscript_section_pack.json` | lightweight_release_asset | paper_ready_section_pack_negative_validation | `03594c392b44cb0cc7f858706ab7d3b6b7657c2608489ae6fe2258483a3ce315` |
 
 ## 论文章节可用性
 
