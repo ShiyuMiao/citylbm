@@ -532,6 +532,28 @@ def main() -> int:
         if len(unique_compared_components) == 1 and bool(unique_compared_components[0])
         else "fail_mixed_or_missing_compared_component"
     )
+    normalization_gate_value = all(normalization_values) if normalization_values else None
+    wind_gate_value = all(wind_values) if wind_values else None
+    coordinate_delta_count = len(official_coordinate_deltas)
+    max_coordinate_delta = max(official_coordinate_deltas) if official_coordinate_deltas else None
+    protocol_failures: List[str] = []
+    if component_consistency_gate != "pass":
+        protocol_failures.append(component_consistency_gate)
+    if normalization_gate_value is not True:
+        protocol_failures.append("fail_missing_or_invalid_uref_normalization")
+    if wind_gate_value is not True:
+        protocol_failures.append("fail_missing_or_invalid_wind_direction")
+    if coordinate_delta_count != valid_n:
+        protocol_failures.append("fail_incomplete_official_coordinate_audit")
+    elif max_coordinate_delta is None or max_coordinate_delta > 1.0e-6:
+        protocol_failures.append("fail_probe_coordinate_mismatch")
+    if failed > 0:
+        protocol_failures.append("fail_unmatched_or_failed_probes")
+    metrics_protocol_gate = (
+        "metrics_ready_for_validation_gate"
+        if not protocol_failures
+        else ";".join(protocol_failures)
+    )
 
     boundary_audit = metadata.get("BoundaryProtocolAudit") if isinstance(metadata.get("BoundaryProtocolAudit"), dict) else {}
     blockage_audit = boundary_audit.get("BlockageDiagnostics") if isinstance(boundary_audit.get("BlockageDiagnostics"), dict) else {}
@@ -572,12 +594,12 @@ def main() -> int:
             "geometry_scale": args.geometry_scale,
             "Uref_mps": fmt(args.u_ref),
             "Zref_m": fmt(args.z_ref),
-            "normalization_valid": csv_bool(all(normalization_values) if normalization_values else None),
+            "normalization_valid": csv_bool(normalization_gate_value),
             "velocity_component": compared_component,
             "compared_component_consistency_gate": component_consistency_gate,
             "compared_component_unique_values": ";".join(unique_compared_components),
             "wind_vector": vector_field(metadata, "WindDirection"),
-            "wind_direction_valid": csv_bool(all(wind_values) if wind_values else None),
+            "wind_direction_valid": csv_bool(wind_gate_value),
             "inlet_face": nested(metadata, "BoundaryProtocolAudit", "InletFace"),
             "outlet_face": nested(metadata, "BoundaryProtocolAudit", "OutletFace"),
             "lateral_faces": nested(metadata, "BoundaryProtocolAudit", "LateralFaces"),
@@ -613,8 +635,8 @@ def main() -> int:
             "failed_n": failed,
             "mean_probe_distance_m": fmt(mean(distances)),
             "max_probe_distance_m": fmt(max(distances) if distances else None),
-            "max_official_coordinate_delta_m": fmt(max(official_coordinate_deltas) if official_coordinate_deltas else None),
-            "official_coordinate_delta_count": len(official_coordinate_deltas),
+            "max_official_coordinate_delta_m": fmt(max_coordinate_delta),
+            "official_coordinate_delta_count": coordinate_delta_count,
             "U_MAE_ratio": fmt(u_mae),
             "U_RMSE_ratio": fmt(u_rmse),
             "U_bias_ratio": fmt(u_bias),
@@ -635,10 +657,11 @@ def main() -> int:
             "k_bias_m2s2": args.k_bias,
             "k_bias_ratio": args.k_bias_ratio,
             "systematic_bias_flag": systematic_flag,
-            "protocol_gate": "metrics_ready_for_validation_gate",
+            "protocol_gate": metrics_protocol_gate,
             "notes": (
                 f"official_id_column={official_id_col}; official_value_column={official_value_col}; "
-                f"matched={valid_n}; official_filtered={len(official_rows)}"
+                f"matched={valid_n}; official_filtered={len(official_rows)}; "
+                f"metrics_protocol_failures={';'.join(protocol_failures) or 'none'}"
             ),
         }
     )
