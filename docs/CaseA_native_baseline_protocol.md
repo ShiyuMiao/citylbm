@@ -33,18 +33,24 @@ AIJ Case E is treated as a paper-grade validation experiment.
    diagnostic. Use the same FluidX3D source commit, `setup.cpp`, `defines.hpp`, grid spacing, boundary mode,
    turbulence method and averaging rules.
 
-3. Time-averaging gate.
+3. Inlet distribution-consistency gate.
+   If the inlet turbulence is generated from `k`, archive whether the implementation reconstructs FluidX3D distribution
+   functions or only refreshes macroscopic velocity fields. CityLBM v0.3.0 SEM-lite is velocity-field-only; it is
+   diagnostic until an empty-tunnel run proves downstream `U/k` preservation or a validated DFM/SEM/precursor/recycling
+   inlet is implemented.
+
+4. Time-averaging gate.
    Do not report a single instantaneous VTK frame as validation. Archive post-spinup probe time means and, when VTK is
    used for visualization, at least 10 post-spinup VTK frames or an explicit averaged VTK field with the source frame
    list.
 
-4. Probe audit gate.
+5. Probe audit gate.
    Probe extraction must record official point IDs, coordinates, selected velocity component, `Uref`, nearest VTK/probe
    distance, tolerance, failure status, valid count and failed count. In CityLBM this is produced by `Data Probe`
    outputs `Audit CSV`, `Validation Status`, `Compared Value` and `Probe ID`. The `Search Radius` input must be
    archived because v0.3.0 applies it as the actual interpolation-neighbor distance filter.
 
-5. Promotion gate.
+6. Promotion gate.
    CityLBM may inherit native FluidX3D settings only after native Case A has a passing or explicitly bounded diagnostic
    record. If native FluidX3D underpredicts mean speed or `k`, do not tune CityLBM to hide the discrepancy; fix or
    document the native physics first.
@@ -57,6 +63,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Domain extents in `H`: upstream, downstream, lateral and top clearance.
 - Boundary mode and boundary-source justification.
 - Inlet turbulence method: off, SEM-lite, synthetic-eddy, digital-filter, recycling-rescaling or precursor.
+- Inlet distribution treatment: macroscopic velocity only, equilibrium/distribution reconstruction, precursor field, or
+  other archived method.
 - Inlet `U` and `k` preservation metrics from the empty tunnel.
 - Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept and max absolute
   error.

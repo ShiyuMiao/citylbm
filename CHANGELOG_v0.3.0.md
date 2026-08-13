@@ -20,6 +20,7 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `Run Simulation` adds an optional experimental `Synthetic Inlet` control for CustomTable profiles with `k`.
 - Generated FluidX3D `setup.cpp` can now use the AF `k` column to apply bounded SEM-lite synthetic-eddy inlet perturbations from `sigma=sqrt(2k/3)`.
 - Synthetic inlet runs now limit each solver advance to `SyntheticTurbulenceUpdateInterval`, so inlet perturbations refresh independently from the VTK save interval.
+- `setup.cpp`, `case_metadata.json` and `validation_protocol_audit` now explicitly record that SEM-lite refreshes macroscopic `lbm.u` only and does not reconstruct FluidX3D distribution functions.
 - `case_metadata.json` records whether the synthetic inlet was requested and actually injected, plus synthetic scale, correlation length, update interval and amplitude cap.
 - Each generated case now writes `validation_protocol_audit.json` and `.md` to flag inlet, boundary-condition, time-averaging, coordinate, normalization and grid-resolution readiness before metrics are interpreted.
 - `case_metadata.json` and the native baseline manifest now include `BoundaryProtocolAudit`, a structured record of
@@ -44,8 +45,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - The native baseline manifest now includes existence flags and SHA256 hashes for the generated source, geometry and
   metadata files so paired native/CityLBM runs can prove they used identical inputs.
 - `docs/CaseA_native_baseline_protocol.md` defines the native FluidX3D Case A promotion gate: empty-tunnel `U/k`
-  preservation, post-spinup averaging, official probe IDs, tolerance-based probe mapping and CityLBM-vs-native
-  equivalence must be archived before Case E is promoted as SCI-grade validation.
+  preservation, inlet distribution-consistency treatment, post-spinup averaging, official probe IDs, tolerance-based
+  probe mapping and CityLBM-vs-native equivalence must be archived before Case E is promoted as SCI-grade validation.
 
 ## Remaining scientific work
 
@@ -53,6 +54,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - If native FluidX3D is significantly closer to AIJ measurements, the same settings must be ported into CityLBM.
 - Case E should then be run with dx=2-3 m, long time averaging and the official AF/RS files.
 - The SEM-lite inlet is not a full digital-filter, precursor/recycling, or Reynolds-stress method; it lacks Reynolds-stress tensors, turbulent length scales and validated precursor inflow.
+- The SEM-lite inlet is velocity-field-only in v0.3.0. It remains diagnostic until empty-tunnel tests prove downstream
+  `U/k` preservation or the inlet is replaced by a distribution-consistent DFM/SEM/precursor/recycling implementation.
 - The boundary condition model remains simplified and must be audited against the AIJ wind-tunnel setup before making paper-grade accuracy claims.
 - `BoundaryProtocolAudit` uses diagnostic clearance defaults and does not replace the official AIJ wind-tunnel boundary,
   fetch and blockage protocol.

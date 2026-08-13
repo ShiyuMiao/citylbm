@@ -2173,6 +2173,7 @@ namespace CityLBM.Solver
             sb.AppendLine();
             sb.AppendLine("    // CityLBM SEM-lite inlet: deterministic synthetic eddies from isotropic k.");
             sb.AppendLine("    // This is a diagnostic approximation, not a full digital-filter/SEM with Reynolds-stress tensors.");
+            sb.AppendLine("    // It updates macroscopic inlet velocity fields only; distribution functions are not reconstructed here.");
             sb.AppendLine($"    const float citylbm_stg_scale = {scale.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_stg_corr_cells = {corr.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_stg_max_fraction = {maxFrac.ToString("F6", CultureInfo.InvariantCulture)}f;");
@@ -2236,6 +2237,7 @@ namespace CityLBM.Solver
             string inletCondition = GetInletFaceCondition(windDir);
 
             sb.AppendLine("    auto applySyntheticTurbulentInlet = [&](uint t_step) {");
+            sb.AppendLine("        // Velocity-field-only refresh for diagnostic turbulent-inlet runs.");
             sb.AppendLine("        lbm.u.read_from_device();");
             sb.AppendLine("        parallel_for(lbm.get_N(), [&](ulong n) {");
             sb.AppendLine("            uint x=0u, y=0u, z=0u;");
@@ -2313,6 +2315,12 @@ namespace CityLBM.Solver
                     SyntheticTurbulentInletMethod = syntheticActive
                         ? "SEM-lite deterministic synthetic eddies with isotropic k; not digital-filter, precursor, or Reynolds-stress inflow"
                         : "none",
+                    SyntheticTurbulentInletDistributionTreatment = syntheticActive
+                        ? "velocity_field_only_no_distribution_function_reconstruction"
+                        : "none",
+                    SyntheticTurbulentInletPaperGradeStatus = syntheticActive
+                        ? "diagnostic_only_until_distribution_reconstruction_or_native_k_preservation_gate_passes"
+                        : "not_applicable",
                     SyntheticTurbulenceIntensityScale = settings.SyntheticTurbulenceIntensityScale,
                     SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
                     SyntheticTurbulenceUpdateInterval = settings.SyntheticTurbulenceUpdateInterval,
@@ -2528,6 +2536,7 @@ namespace CityLBM.Solver
                 if (syntheticActive)
                 {
                     yield return "AF k column drives an experimental SEM-lite synthetic-eddy inlet, but this is not a full digital-filter, precursor/recycling, or Reynolds-stress inflow.";
+                    yield return "SEM-lite inlet refreshes macroscopic lbm.u values only; distribution functions are not reconstructed, so k preservation must be proven by an empty-tunnel native baseline before paper-grade validation.";
                 }
                 else
                 {
@@ -2767,14 +2776,25 @@ namespace CityLBM.Solver
                 Key = "inlet_turbulence_k",
                 Status = syntheticActive ? "partial" : (hasK ? "risk" : "fail"),
                 Evidence = syntheticActive
-                    ? "AF k column is present and SEM-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet."
+                    ? "AF k column is present and SEM-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet and record velocity-field-only treatment."
                     : (hasK ? "AF k column is present but only metadata/profile arrays are guaranteed." : "No usable k column found in CustomWindProfile."),
                 Risk = syntheticActive
-                    ? "SEM-lite is not a full digital-filter/precursor/Reynolds-stress inlet and assumes isotropic turbulence."
+                    ? "SEM-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and does not reconstruct distribution functions."
                     : "Missing or inactive turbulent inlet can cause systematic underprediction of pedestrian-level velocity ratios.",
                 RequiredNextAction = syntheticActive
-                    ? "Run native FluidX3D compile smoke test and sensitivity against Synthetic Scale/Corr Cells before paper claims."
+                    ? "Run empty-tunnel and building native FluidX3D baselines proving downstream U/k preservation before paper claims."
                     : "Enable Synthetic Inlet for diagnostic runs or implement a full DFM/SEM/precursor inlet for formal validation."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "inlet_distribution_consistency",
+                Status = syntheticActive ? "risk" : (hasK ? "risk" : "fail"),
+                Evidence = syntheticActive
+                    ? "Generated setup refreshes inlet lbm.u but does not reconstruct FluidX3D distribution functions for the imposed turbulent fluctuation."
+                    : (hasK ? "AF k is available, but no turbulent fluctuation is injected into the inlet." : "No k-driven inlet path is active."),
+                Risk = "A velocity-only turbulent inlet can dissipate or distort k near the boundary and may cause large Case A/Case E speed-ratio bias even when the GH workflow runs.",
+                RequiredNextAction = "For SCI-grade validation, pass an empty-tunnel U/k preservation gate or replace SEM-lite with a validated DFM/SEM/precursor/recycling inlet that includes distribution consistency."
             };
 
             yield return new ValidationProtocolAuditItem
