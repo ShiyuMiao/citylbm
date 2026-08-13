@@ -27,6 +27,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   boundary summary, synthetic inlet method, native baseline id, probe mapping distances and protocol gate.
 - `Data Probe` now appends validation-audit outputs for `Uref`-based speed ratio, streamwise ratio, nearest VTK-sample
   distance and per-probe CSV rows without changing the existing first five outputs.
+- Each generated case now also writes `native_fluidx3d_baseline_manifest.json` and `.md` so native FluidX3D and
+  CityLBM-driven runs must archive the same `setup.cpp`, `defines.hpp`, geometry, metadata, averaging window and probe
+  audit evidence before any paper-grade accuracy claim.
 
 ## Remaining scientific work
 

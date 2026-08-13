@@ -407,6 +407,7 @@ namespace CityLBM.Solver
             SaveDomainOrigin(caseDir, grid.Origin, grid.DomainBounds, grid.Nx, grid.Ny, grid.Nz, grid.Dx);
             SaveCaseMetadata(caseDir, scene, grid, settings);
             SaveValidationProtocolAudit(caseDir, scene, grid, settings);
+            SaveNativeFluidX3DBaselineManifest(caseDir, scene, grid, settings, setupPath, definesPath, stlPath);
 
             LastCaseDirectory = caseDir;
             return caseDir;
@@ -2444,6 +2445,117 @@ namespace CityLBM.Solver
             {
                 Debug.WriteLine($"[CityLBM] Save validation_protocol_audit failed: {ex.Message}");
             }
+        }
+
+        private void SaveNativeFluidX3DBaselineManifest(
+            string caseDir,
+            Scene scene,
+            CartesianGrid grid,
+            SimulationSettings settings,
+            string setupPath,
+            string definesPath,
+            string stlPath)
+        {
+            try
+            {
+                var manifest = new
+                {
+                    SchemaVersion = 1,
+                    CityLBMVersion = "0.3.0",
+                    SceneName = scene.Name,
+                    GeneratedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                    Purpose = "Paired native FluidX3D baseline protocol for separating solver/protocol error from CityLBM integration error.",
+                    Gate = "required_before_paper_grade_accuracy_claim",
+                    CaseDirectory = caseDir,
+                    RequiredSourceFiles = new[]
+                    {
+                        new { Role = "FluidX3D setup", Path = setupPath, RequiredHash = "sha256" },
+                        new { Role = "FluidX3D defines", Path = definesPath, RequiredHash = "sha256" },
+                        new { Role = "Building geometry", Path = stlPath, RequiredHash = "sha256" },
+                        new { Role = "Domain origin", Path = Path.Combine(caseDir, "domain_origin.json"), RequiredHash = "sha256" },
+                        new { Role = "Case metadata", Path = Path.Combine(caseDir, "case_metadata.json"), RequiredHash = "sha256" },
+                        new { Role = "Validation protocol audit", Path = Path.Combine(caseDir, "validation_protocol_audit.json"), RequiredHash = "sha256" }
+                    },
+                    SharedRunConditions = new
+                    {
+                        DxM = grid.Dx,
+                        Nx = grid.Nx,
+                        Ny = grid.Ny,
+                        Nz = grid.Nz,
+                        TimeSteps = settings.TimeSteps,
+                        SaveInterval = settings.SaveInterval,
+                        ExpectedVtkFrameCount = settings.SaveInterval > 0
+                            ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
+                            : 0,
+                        MinimumRecommendedAveragingFrames = 8,
+                        WindProfile = scene.WindProfile.ToString(),
+                        WindProfileCsvPath = scene.WindProfileCsvPath ?? "",
+                        WindDirectionUnitVector = new
+                        {
+                            X = scene.WindDirection.X,
+                            Y = scene.WindDirection.Y,
+                            Z = scene.WindDirection.Z
+                        },
+                        ReferenceWindSpeedMps = scene.WindSpeed,
+                        ReferenceHeightM = scene.ReferenceHeight,
+                        SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
+                        SyntheticTurbulentInletInjected = IsSyntheticTurbulentInletActive(scene, settings),
+                        BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile)
+                    },
+                    RequiredPairedEvidence = new[]
+                    {
+                        "Native FluidX3D executable path and build log compiled from the archived setup.cpp/defines.hpp.",
+                        "CityLBM-driven run log using the same setup.cpp physics choices, grid, time steps and save interval.",
+                        "New VTK files from both runs; do not copy older u-*.vtk files into the archive.",
+                        "Read VTK Average Last N setting and actual SourceTimeSteps used for every metric.",
+                        "Data Probe Audit CSV with Uref, Wind Direction, speed ratio, streamwise ratio, nearest distance and nearby point count.",
+                        "Official probe table with point numbers, coordinates, compared velocity component and failed/out-of-domain flag.",
+                        "Metrics table containing MAE, RMSE, bias, R2, regression slope/intercept and systematic-bias flag."
+                    },
+                    AcceptanceBlocks = new[]
+                    {
+                        "Do not claim CityLBM accuracy if native FluidX3D has not been run from the same archived case.",
+                        "Do not tune parameters while mean speed-ratio bias remains about -0.20 to -0.35 without first auditing inlet turbulence, boundary treatment, wind-direction sign, probe projection and Uref normalization.",
+                        "Do not use R2 alone as a reliability criterion.",
+                        "Do not compare a single instantaneous or short-window VTK frame as a formal validation result."
+                    },
+                    KnownProtocolRisks = BuildProtocolRisks(scene, settings).ToList()
+                };
+
+                string json = JsonConvert.SerializeObject(manifest, Formatting.Indented);
+                File.WriteAllText(Path.Combine(caseDir, "native_fluidx3d_baseline_manifest.json"), json, Encoding.UTF8);
+                File.WriteAllText(Path.Combine(caseDir, "output", "native_fluidx3d_baseline_manifest.json"), json, Encoding.UTF8);
+
+                string markdown = BuildNativeFluidX3DBaselineManifestMarkdown(manifest.Gate, manifest.RequiredPairedEvidence, manifest.AcceptanceBlocks);
+                File.WriteAllText(Path.Combine(caseDir, "native_fluidx3d_baseline_manifest.md"), markdown, Encoding.UTF8);
+                File.WriteAllText(Path.Combine(caseDir, "output", "native_fluidx3d_baseline_manifest.md"), markdown, Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[CityLBM] Save native_fluidx3d_baseline_manifest failed: {ex.Message}");
+            }
+        }
+
+        private string BuildNativeFluidX3DBaselineManifestMarkdown(
+            string gate,
+            IEnumerable<string> requiredEvidence,
+            IEnumerable<string> acceptanceBlocks)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("# Native FluidX3D baseline manifest");
+            sb.AppendLine();
+            sb.AppendLine($"Gate: `{gate}`");
+            sb.AppendLine();
+            sb.AppendLine("This file is a protocol manifest, not a simulation result. Use it to run the native FluidX3D baseline from the same generated case before judging CityLBM-vs-AIJ accuracy.");
+            sb.AppendLine();
+            sb.AppendLine("## Required paired evidence");
+            foreach (string item in requiredEvidence)
+                sb.AppendLine($"- {item}");
+            sb.AppendLine();
+            sb.AppendLine("## Acceptance blocks");
+            foreach (string item in acceptanceBlocks)
+                sb.AppendLine($"- {item}");
+            return sb.ToString();
         }
 
         private IEnumerable<ValidationProtocolAuditItem> BuildValidationProtocolAuditItems(Scene scene, CartesianGrid grid, SimulationSettings settings)

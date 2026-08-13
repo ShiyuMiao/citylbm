@@ -58,6 +58,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
 - `case_metadata.json` must be archived with the run. It records the boundary-condition summary, expected VTK frame count,
   time-averaging requirement, and known protocol risks.
+- `native_fluidx3d_baseline_manifest.json` and `.md` must be archived. This manifest lists the exact generated
+  `setup.cpp`, `defines.hpp`, `buildings.stl`, metadata files, shared run settings and paired evidence required for a
+  native FluidX3D baseline. Treat the manifest gate `required_before_paper_grade_accuracy_claim` as blocking until the
+  native baseline and CityLBM-driven run are compared with the same VTK averaging and probe audit table.
 
 ## Metrics to report
 
