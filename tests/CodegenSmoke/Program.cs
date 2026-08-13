@@ -83,8 +83,12 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "\"SyntheticTurbulenceUpdateInterval\": 7");
                 Require(metadata, "\"SyntheticTurbulenceMaxFractionOfMean\": 0.42");
                 Require(metadata, "velocity_field_only_no_distribution_function_reconstruction");
+                Require(metadata, "\"ExpectedVtkFrameCount\": 10");
+                Require(metadata, "\"TimeAveragingRunGate\": \"pass_minimum_frame_count\"");
+                Require(metadata, "Mode 1/2/3 require ExpectedVtkFrameCount");
                 Require(audit, "inlet_distribution_consistency");
                 Require(audit, "STG-lite");
+                Require(audit, "ExpectedVtkFrameCount=10");
                 Require(nativeManifest, "NativeFluidX3DPathExplicitlyProvided");
                 Require(nativeManifest, "NativeFluidX3DSourceValidation");
                 Require(nativeManifest, "Native FluidX3D original setup");

@@ -17,6 +17,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   and mean/max relative fluctuation across the averaged VTK frames.
 - `Run Simulation` and `SimulationSettings` now default to `TimeSteps=10000` and `SaveInterval=500`, producing about
   20 VTK frames for a minimum validation averaging workflow instead of short demo-only output.
+- `Run Simulation` now blocks Mode 1/2/3 when the planned `TimeSteps / SaveInterval` window would produce fewer than
+  10 VTK frames. Mode 0 can still generate smoke-test cases, but the metadata marks them as non-validation runs.
 - `case_metadata.json` records protocol-risk fields: simplified boundary-condition summary, expected VTK frame count, required averaging, and validation-readiness status.
 - `Run Simulation` no longer falls back to the legacy bundled v0.5.0 solver when no external FluidX3D path is provided; controlled validation must use an explicit external FluidX3D baseline.
 - `Run Simulation` adds an optional experimental `Synthetic Inlet` control for CustomTable profiles with `k`.

@@ -45,6 +45,8 @@ namespace CityLBM.Components.Simulation
         private DateTime _componentCreatedAt = DateTime.Now;  // 组件创建时间
         private static readonly TimeSpan GH_LOAD_GRACE_PERIOD = TimeSpan.FromSeconds(3);  // GH 加载宽限期
 
+        private const int MinimumValidationAveragingFrames = 10;
+
         public RunSimulationComponent()
             : base("Run Simulation", "Sim",
                    "生成 FluidX3D Case 文件 / 自动编译运行模拟\n" +
@@ -308,6 +310,10 @@ namespace CityLBM.Components.Simulation
 
             var solver = new FluidX3DInterface(fluidX3DPath);
             mode = Math.Max(0, Math.Min(3, mode));
+            if (!ValidateRunWindow(DA, settings, mode))
+            {
+                return;
+            }
 
             switch (mode)
             {
@@ -388,6 +394,65 @@ namespace CityLBM.Components.Simulation
             }
 
             return true;
+        }
+
+        private bool ValidateRunWindow(IGH_DataAccess DA, SimulationSettings settings, int mode)
+        {
+            if (settings.TimeSteps <= 0)
+            {
+                string message = "Time Steps must be greater than 0.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            if (settings.SaveInterval <= 0)
+            {
+                string message = "Save Interval must be greater than 0 so VTK output and validation averaging can be audited.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            int expectedFrames = ExpectedVtkFrameCount(settings);
+            if (mode == 0)
+            {
+                if (expectedFrames < MinimumValidationAveragingFrames)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        $"Mode 0 will generate a smoke-test case only: expected VTK frames={expectedFrames}, minimum validation frames={MinimumValidationAveragingFrames}.");
+                }
+                return true;
+            }
+
+            if (expectedFrames < MinimumValidationAveragingFrames)
+            {
+                string message =
+                    $"Mode {mode} validation run blocked: TimeSteps={settings.TimeSteps}, SaveInterval={settings.SaveInterval}, " +
+                    $"expected VTK frames={expectedFrames}. Use at least {MinimumValidationAveragingFrames} frames for the final time-averaging window.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            return true;
+        }
+
+        private static int ExpectedVtkFrameCount(SimulationSettings settings)
+        {
+            return settings.SaveInterval > 0
+                ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
+                : 0;
+        }
+
+        private static void OutputValidationFailure(IGH_DataAccess DA, string message)
+        {
+            DA.SetData(0, "");
+            DA.SetData(1, "");
+            DA.SetData(2, false);
+            DA.SetData(3, message);
+            DA.SetData(4, 0);
+            DA.SetData(5, "");
         }
 
         private void RunMode1_FullAuto(IGH_DataAccess DA,

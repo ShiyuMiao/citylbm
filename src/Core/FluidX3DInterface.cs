@@ -2353,6 +2353,10 @@ namespace CityLBM.Solver
                 bool hasK = scene.CustomWindProfile != null && scene.CustomWindProfile.Any(s => s.HasK);
                 bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
                 var boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
+                int expectedFrames = settings.SaveInterval > 0
+                    ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
+                    : 0;
+                const int minimumRecommendedAveragingFrames = 10;
                 var metadata = new
                 {
                     SchemaVersion = 2,
@@ -2376,11 +2380,13 @@ namespace CityLBM.Solver
                     Nz = grid.Nz,
                     TimeSteps = settings.TimeSteps,
                     SaveInterval = settings.SaveInterval,
-                    ExpectedVtkFrameCount = settings.SaveInterval > 0
-                        ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
-                        : 0,
+                    ExpectedVtkFrameCount = expectedFrames,
                     TimeAveragingRequiredForValidation = true,
-                    MinimumRecommendedAveragingFrames = 10,
+                    MinimumRecommendedAveragingFrames = minimumRecommendedAveragingFrames,
+                    TimeAveragingRunGate = expectedFrames >= minimumRecommendedAveragingFrames
+                        ? "pass_minimum_frame_count"
+                        : "smoke_only_too_few_frames_for_validation",
+                    TimeAveragingRunGateRequiredForModes = "Mode 1/2/3 require ExpectedVtkFrameCount >= MinimumRecommendedAveragingFrames; Mode 0 may generate smoke-test cases.",
                     CustomProfileHasK = hasK,
                     KColumnStatus = hasK ? "read_from_csv_and_converted_to_lbm_metadata" : "not_available",
                     KUnitConversion = "k_lbm = k_m2s2 * VelocityScaleMpsToLbm^2",
