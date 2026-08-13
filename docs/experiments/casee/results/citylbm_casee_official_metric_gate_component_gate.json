@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-08-13T13:05:40.536404+00:00",
+  "evidence_type": "newly_run",
+  "claim_readiness": "paper_ready_casee_official_metric_gate_component",
+  "casee_official_metric_gate_component_gate_passed": true,
+  "formal_accuracy_claim_supported": false,
+  "formal_release_allowed": false,
+  "default_setting_allowed": false,
+  "component_source_path": "CityLBM/src/Components/Results/CaseEOfficialMetricGateComponent.cs",
+  "checks": {
+    "component_source_exists": true,
+    "component_class_present": true,
+    "grasshopper_component_name_present": true,
+    "outputs_metric_gate_sections": true,
+    "formal_release_forced_false": true,
+    "records_official_metric_values": true,
+    "records_official_protocol": true,
+    "records_thresholds": true,
+    "records_failed_metric_checks": true,
+    "blocks_forbidden_claims": true,
+    "blocks_diagnostic_substitutes": true,
+    "boundary_blocks_accuracy": true,
+    "component_guid_present": true
+  },
+  "boundary": "This gate checks that CityLBM exposes the formal Case E official z=2 m metric gate inside Grasshopper. It is metric-verdict and claim-boundary evidence only; it does not run CFD, change official metrics, promote defaults, or permit formal v0.4.0."
+}

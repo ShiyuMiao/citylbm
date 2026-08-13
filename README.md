@@ -144,12 +144,15 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/citylbm_casee_paper_claim_card_binary_gate.json`
 - `docs/experiments/casee/results/citylbm_casee_remediation_plan_component_gate.json`
 - `docs/experiments/casee/results/citylbm_casee_remediation_plan_binary_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_official_metric_gate_component_gate.json`
+- `docs/experiments/casee/results/citylbm_casee_official_metric_gate_binary_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
 - `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
 - `docs/experiments/casee/results/rhino_gha_load_manifest.expected.json`
 - `docs/releases/v0.4.0-rc89.md`
 - `docs/releases/v0.4.0-rc90.md`
 - `docs/releases/v0.4.0-rc91.md`
+- `docs/releases/v0.4.0-rc92.md`
 - `docs/releases/v0.4.0-rc87.md`
 - `docs/releases/v0.4.0-rc88.md`
 - `docs/releases/v0.4.0-rc86.md`
@@ -638,6 +641,19 @@ The packaged GHA remediation-plan gate checks that this component is present in
 `CityLBM/bin/CityLBM.gha` with blocker IDs, verification commands, pass
 conditions, forbidden-claim strings, and next-experiment labels intact. This is
 software packaging and limitations-planning evidence only.
+
+The `Case E Official Metric Gate` Grasshopper component exposes the formal
+official z=2 m metric verdict directly in the plugin canvas: the 80-probe
+raw_trilinear MAE/RMSE/bias/R2/Pearson values, the release thresholds, the
+individual metric pass/fail checks, and the forbidden-claim boundary. It is a
+metric-verdict component only; it does not run CFD, change solver defaults,
+update official z=2 m metrics, prove Rhino loaded the new GHA, or permit formal
+`v0.4.0`.
+
+The packaged GHA official metric-gate check verifies that this component is
+present in `CityLBM/bin/CityLBM.gha` with the official metric values, thresholds,
+gate-check strings, forbidden-claim strings, and component GUID intact. This is
+software packaging and negative-validation boundary evidence only.
 
 The portable toolchain activation gate verifies the local portable .NET,
 FluidX3D, and MinGW/g++ paths needed for reproducible builds and native-source

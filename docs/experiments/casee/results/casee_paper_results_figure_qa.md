@@ -1,6 +1,6 @@
 # Case E Paper Results Figure QA
 
-Generated: 2026-08-13T12:51:05.551416+00:00
+Generated: 2026-08-13T13:06:19.029421+00:00
 
 ## Figure Contract
 

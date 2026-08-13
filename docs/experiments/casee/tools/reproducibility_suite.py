@@ -347,6 +347,8 @@ def main() -> int:
         ("citylbm_casee_paper_claim_card_binary_gate", "citylbm_casee_paper_claim_card_binary_gate.py"),
         ("citylbm_casee_remediation_plan_component_gate", "citylbm_casee_remediation_plan_component_gate.py"),
         ("citylbm_casee_remediation_plan_binary_gate", "citylbm_casee_remediation_plan_binary_gate.py"),
+        ("citylbm_casee_official_metric_gate_component_gate", "citylbm_casee_official_metric_gate_component_gate.py"),
+        ("citylbm_casee_official_metric_gate_binary_gate", "citylbm_casee_official_metric_gate_binary_gate.py"),
         ("rhino_gha_load_gate", "rhino_gha_load_gate.py"),
         ("citylbm_gha_install_audit", "citylbm_gha_install_audit.py"),
         ("casee_rhino_load_evidence_kit", "casee_rhino_load_evidence_kit.py"),
@@ -430,6 +432,8 @@ def main() -> int:
     casee_accuracy_action_plan_binary_gate = read_json(RESULTS_DIR / "citylbm_casee_accuracy_action_plan_binary_gate.json")
     casee_paper_claim_card_component_gate = read_json(RESULTS_DIR / "citylbm_casee_paper_claim_card_component_gate.json")
     casee_paper_claim_card_binary_gate = read_json(RESULTS_DIR / "citylbm_casee_paper_claim_card_binary_gate.json")
+    casee_official_metric_gate_component_gate = read_json(RESULTS_DIR / "citylbm_casee_official_metric_gate_component_gate.json")
+    casee_official_metric_gate_binary_gate = read_json(RESULTS_DIR / "citylbm_casee_official_metric_gate_binary_gate.json")
     rhino_gate = read_json(RESULTS_DIR / "rhino_gha_load_gate.json")
     gha_install_audit = read_json(RESULTS_DIR / "citylbm_gha_install_audit.json")
     rhino_evidence_kit = read_json(RESULTS_DIR / "casee_rhino_load_evidence_kit.json")
@@ -494,6 +498,8 @@ def main() -> int:
         "citylbm_casee_accuracy_action_plan_binary_gate": casee_accuracy_action_plan_binary_gate,
         "citylbm_casee_paper_claim_card_component_gate": casee_paper_claim_card_component_gate,
         "citylbm_casee_paper_claim_card_binary_gate": casee_paper_claim_card_binary_gate,
+        "citylbm_casee_official_metric_gate_component_gate": casee_official_metric_gate_component_gate,
+        "citylbm_casee_official_metric_gate_binary_gate": casee_official_metric_gate_binary_gate,
         "rhino_gha_load_gate": rhino_gate,
         "citylbm_gha_install_audit": gha_install_audit,
         "casee_rhino_load_evidence_kit": rhino_evidence_kit,

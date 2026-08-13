@@ -1,6 +1,6 @@
 # CityLBM Case E Accuracy Action Plan Binary Gate
 
-Generated: 2026-08-13T12:50:28.170056+00:00
+Generated: 2026-08-13T13:05:39.715351+00:00
 
 ## Verdict
 
@@ -9,7 +9,7 @@ Generated: 2026-08-13T12:50:28.170056+00:00
 - Formal accuracy claim supported: False
 - Default setting allowed: False
 - Tracked GHA: `CityLBM/bin/CityLBM.gha`
-- Tracked GHA SHA256: `c1362a89589b5827a42b8360589a478931332a69b5fb1f81111198fa94424384`
+- Tracked GHA SHA256: `bc25b3f4d312a5a86ec0f0729c69a449891af728da0c3d942603fb701fd822b2`
 
 ## Checks
 

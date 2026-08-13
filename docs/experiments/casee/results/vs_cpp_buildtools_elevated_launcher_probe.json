@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-08-13T12:50:45.6385834Z",
+    "generated_at":  "2026-08-13T13:05:58.9433949Z",
     "evidence_type":  "newly_run",
     "launch_requested":  false,
     "launch_attempted":  false,
@@ -16,7 +16,7 @@
     "winget":  {
                    "found":  true,
                    "path":  "C:\\Users\\miaoshiyu\\AppData\\Local\\Microsoft\\WindowsApps\\winget.exe",
-                   "version":  "Program \u0027winget.exe\u0027 failed to run: The file cannot be accessed by the systemAt E:\\citylbm_rc89_work\\docs\\experiments\\casee\\tools\\vs_cpp_buildtools_elevated_launcher.ps1:25 char:21\r\n+         $version = (\u0026 $Name --version 2\u003e\u00261 | Select-Object -First 1)  ...\r\n+                     ~~~~~~~~~~~~~~~~~~~~~~."
+                   "version":  "v1.29.280"
                },
     "can_launch_elevated_install_now":  false,
     "recovery_command":  "powershell -NoProfile -ExecutionPolicy Bypass -File E:\\citylbm_rc89_work\\docs\\experiments\\casee\\tools\\vs_cpp_buildtools_recovery.ps1 -Install -InstallPath E:\\citylbm_buildchain\\VSBuildTools -MinSystemDriveFreeGB 8 -NoPause",

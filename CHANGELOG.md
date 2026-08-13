@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc92 - Grasshopper official metric-gate component
+
+- Added a Grasshopper `Case E Official Metric Gate` component under `CityLBM > Results`.
+- The component reports the formal official z=2 m MAE/RMSE/bias/R2/Pearson values, release thresholds, pass/fail checks, and forbidden-claim boundary inside the plugin workflow.
+- Added source and packaged-GHA gates for the component and integrated them into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF071-SF072.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc91 - Grasshopper remediation-plan component
 
 - Added a Grasshopper `Case E Remediation Plan` component under `CityLBM > Results`.

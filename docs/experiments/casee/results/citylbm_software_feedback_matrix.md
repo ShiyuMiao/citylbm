@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-13T12:51:15.983415+00:00
+Generated: 2026-08-13T13:06:30.403140+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 70
+- Feedback rows: 72
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -43,6 +43,7 @@ Generated: 2026-08-13T12:51:15.983415+00:00
 - operational_recovery_dashboard_gate: 1
 - packaged_accuracy_action_plan_component_no_accuracy_promotion: 1
 - packaged_gha_identity_component_gate: 1
+- packaged_official_metric_gate_component_no_accuracy_promotion: 1
 - packaged_paper_claim_card_component_no_accuracy_promotion: 1
 - packaged_remediation_plan_component_no_accuracy_promotion: 1
 - paper_claim_support_gate: 1
@@ -65,6 +66,7 @@ Generated: 2026-08-13T12:51:15.983415+00:00
 - software_build_hash_stability_no_accuracy_promotion: 1
 - software_gha_staging_audit: 1
 - software_identity_component: 1
+- software_official_metric_gate_component_no_accuracy_promotion: 1
 - software_packaging_traceability_no_accuracy_promotion: 1
 - software_paper_claim_card_component_no_accuracy_promotion: 1
 - software_postrun_audit_component_no_accuracy_promotion: 1
@@ -151,6 +153,8 @@ Generated: 2026-08-13T12:51:15.983415+00:00
 | `SF068` | Experiment 2 / packaged CityLBM Case E paper claim-card component | packaged_paper_claim_card_component_no_accuracy_promotion | implemented_packaged_casee_paper_claim_card_component | False | The packaged CityLBM GHA is audited for the Case E Paper Claim Card component markers, including paper-ready claims, limitations, forbidden claims, and evidence-path outputs. |
 | `SF069` | Experiment 2 / CityLBM plugin Case E remediation-plan component | software_remediation_plan_component_no_accuracy_promotion | implemented_casee_remediation_plan_component | False | CityLBM now exposes a Grasshopper Case E Remediation Plan component that converts the current formal release blockers into required actions, verification commands, pass conditions, forbidden claims, and next official experiments. |
 | `SF070` | Experiment 2 / packaged CityLBM Case E remediation-plan component | packaged_remediation_plan_component_no_accuracy_promotion | implemented_packaged_casee_remediation_plan_component | False | The packaged CityLBM GHA is audited for the Case E Remediation Plan component markers, including blocker IDs, verification commands, pass conditions, forbidden claims, and next-experiment labels. |
+| `SF071` | Experiment 2 / CityLBM plugin Case E official metric-gate component | software_official_metric_gate_component_no_accuracy_promotion | implemented_casee_official_metric_gate_component | False | CityLBM now exposes a Grasshopper Case E Official Metric Gate component that reports the formal z=2 m official MAE/RMSE/bias/R2/Pearson values, release thresholds, metric checks, and forbidden claims directly in the plugin workflow. |
+| `SF072` | Experiment 2 / packaged CityLBM Case E official metric-gate component | packaged_official_metric_gate_component_no_accuracy_promotion | implemented_packaged_casee_official_metric_gate_component | False | The packaged CityLBM GHA is audited for the Case E Official Metric Gate component markers, including official metric values, thresholds, metric checks, forbidden claims, and component GUID. |
 
 ## Paper Boundary
 
@@ -226,6 +230,8 @@ Generated: 2026-08-13T12:51:15.983415+00:00
 | `SF068` | Use as packaged-plugin evidence that the release asset contains the paper claim-card component. | Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0. |
 | `SF069` | Use as software workflow evidence that the plugin exposes the current remediation path and release blockers to Grasshopper users. | Plugin component evidence only; it does not run FluidX3D, compute a new R2, improve official z2m metrics, promote defaults, prove Rhino load, or permit formal v0.4.0. |
 | `SF070` | Use as packaged-plugin evidence that the release asset contains the remediation-plan component. | Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0. |
+| `SF071` | Use as software workflow evidence that the plugin exposes the formal official metric failure and threshold boundary to Grasshopper users. | Plugin component evidence only; it does not run FluidX3D, compute a new R2, improve official z2m metrics, promote defaults, prove Rhino load, or permit formal v0.4.0. |
+| `SF072` | Use as packaged-plugin evidence that the release asset contains the official metric-gate component. | Packaged GHA evidence only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official z2m metrics, promote defaults, or permit formal v0.4.0. |
 
 ## Boundary
 

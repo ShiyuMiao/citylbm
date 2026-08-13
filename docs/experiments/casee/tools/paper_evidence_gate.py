@@ -195,6 +195,12 @@ REQUIRED_ARTIFACTS = [
     "docs/experiments/casee/results/citylbm_casee_remediation_plan_binary_gate.json",
     "docs/experiments/casee/results/citylbm_casee_remediation_plan_binary_gate.csv",
     "docs/experiments/casee/results/citylbm_casee_remediation_plan_binary_gate.md",
+    "docs/experiments/casee/results/citylbm_casee_official_metric_gate_component_gate.json",
+    "docs/experiments/casee/results/citylbm_casee_official_metric_gate_component_gate.csv",
+    "docs/experiments/casee/results/citylbm_casee_official_metric_gate_component_gate.md",
+    "docs/experiments/casee/results/citylbm_casee_official_metric_gate_binary_gate.json",
+    "docs/experiments/casee/results/citylbm_casee_official_metric_gate_binary_gate.csv",
+    "docs/experiments/casee/results/citylbm_casee_official_metric_gate_binary_gate.md",
     "docs/releases/v0.4.0-rc69.md",
 ]
 

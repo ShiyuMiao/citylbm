@@ -1,5 +1,5 @@
 ﻿{
-    "generated_at":  "2026-08-13T12:50:31.6119324Z",
+    "generated_at":  "2026-08-13T13:05:43.9378294Z",
     "evidence_type":  "newly_run",
     "install_requested":  false,
     "install_attempted":  false,
@@ -42,7 +42,7 @@
     "winget":  {
                    "found":  true,
                    "path":  "C:\\Users\\miaoshiyu\\AppData\\Local\\Microsoft\\WindowsApps\\winget.exe",
-                   "version":  "Program \u0027winget.exe\u0027 failed to run: The file cannot be accessed by the systemAt E:\\citylbm_rc89_work\\docs\\experiments\\casee\\tools\\vs_cpp_buildtools_recovery.ps1:25 char:21\r\n+         $version = (\u0026 $Name 2\u003e\u00261 | Select-Object -First 1) -join \"`n\"\r\n+                     ~~~~~~~~~~~~."
+                   "version":  "Windows 程序包管理器 v1.29.280"
                },
     "cl":  {
                "found":  false,

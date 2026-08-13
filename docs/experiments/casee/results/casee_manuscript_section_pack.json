@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-13T12:51:03.601186+00:00",
+  "generated_at": "2026-08-13T13:06:17.089232+00:00",
   "section_pack_passed": true,
   "evidence_type": "newly_run",
   "claim_readiness": "paper_ready_negative_validation_and_limitations",
   "formal_accuracy_claim_supported": false,
   "formal_release_allowed": false,
-  "recommended_tag": "v0.4.0-rc91",
+  "recommended_tag": "v0.4.0-rc92",
   "official_z2m_metrics": {
     "n": 80,
     "mae_pp": 21.111408125,

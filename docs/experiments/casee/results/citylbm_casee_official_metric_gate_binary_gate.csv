@@ -1,0 +1,28 @@
+kind,name,passed
+gate_check,tracked_gha_exists,True
+gate_check,release_gha_exists,True
+gate_check,tracked_gha_matches_release_gha,True
+gate_check,source_component_gate_passed,True
+gate_check,all_required_markers_present_in_tracked_gha,True
+binary_marker,CaseEOfficialMetricGateComponent,True
+binary_marker,Case E Official Metric Gate,True
+binary_marker,Metric Rows,True
+binary_marker,Threshold Rows,True
+binary_marker,Gate Checks,True
+binary_marker,Forbidden Claims,True
+binary_marker,MAE_pp=21.111408125,True
+binary_marker,RMSE_pp=27.72103208243715,True
+binary_marker,bias_pp=-16.409216,True
+binary_marker,R2=-2.006330362229977,True
+binary_marker,Pearson=0.11575649438573923,True
+binary_marker,MAE threshold: < 15.0 pp,True
+binary_marker,R2 threshold: > 0.0,True
+binary_marker,Pearson threshold: > 0.0,True
+binary_marker,official_z2m_metric_gate=,True
+binary_marker,formal_release_allowed=false,True
+binary_marker,Do not claim predictive accuracy,True
+binary_marker,Do not claim research-grade wind-field accuracy,True
+binary_marker,Do not claim mesh independence,True
+binary_marker,Do not claim LES improvement,True
+binary_marker,Do not claim formal v0.4.0 release readiness,True
+binary_marker,E0A4B8D7-0269-4090-9F50-9125A84D43DF,True
