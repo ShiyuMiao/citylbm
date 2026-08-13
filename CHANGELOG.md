@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc83 - Native codegen smoke regression
+
+- Added `casee_native_codegen_smoke_gate.py` to run short native Case E code-generation checks for default, AF-k/noSGS inlet, wall, and C016 residual-target configurations.
+- Shortened generated native case directory labels for AF-k inlet diagnostics so Windows manifest paths remain below the smoke-gate guard threshold while manifests keep the full parameter names.
+- Integrated the smoke gate into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF059.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc82 - Native C016 residual-target codegen
 
 - Added default-off native C016 residual-target code generation to `generate_native_casee.py`.

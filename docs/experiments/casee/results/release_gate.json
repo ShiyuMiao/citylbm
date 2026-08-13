@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-13T09:46:25.372630+00:00",
+  "generated_at": "2026-08-13T10:00:19.416599+00:00",
   "release_target": "v0.4.0",
   "formal_release_allowed": false,
   "formal_v0_3_0_allowed": false,
-  "recommended_tag": "v0.4.0-rc82",
+  "recommended_tag": "v0.4.0-rc83",
   "checks": {
     "citylbm_build_passed": true,
     "rhino_loaded_new_gha": false,
@@ -51,16 +51,16 @@
     "citylbm_gha": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\CityLBM\\bin\\Release\\CityLBM.gha",
-      "sha256": "634774c9a1a17847fe7288d58a899b471976e9b65627920f9b526e34a9d816b5",
+      "sha256": "6ded1fad358edb75a4179a410dac570df5c5125a6f17abb8c36893a394f04f2b",
       "size_bytes": 1838080,
-      "mtime": "2026-08-13T09:46:23.876998+00:00"
+      "mtime": "2026-08-13T10:00:17.900021+00:00"
     },
     "citylbm_build_log": {
       "found": true,
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\results\\citylbm_build_check.log",
-      "sha256": "d48eb5a41d3911c399352c707b5dcaf8f6a3b7233561b97ac20b190cff1629a3",
+      "sha256": "db6ff64d9b3c2aa97c704e9ebb3da267da428e0650d5a2adda73adfe6bea57e4",
       "size_bytes": 1022,
-      "mtime": "2026-08-13T09:46:24.130775+00:00"
+      "mtime": "2026-08-13T10:00:18.126746+00:00"
     },
     "run_matrix": {
       "path": "C:\\Users\\miaoshiyu\\Documents\\\u3010citylbm\u3011\u5b9e\u9a8c3\uff1a\u6570\u5b57\u5b6a\u751f\u5e94\u7528\u7814\u7a76\\docs\\experiments\\casee\\native_fluidx3d_run_matrix.csv",

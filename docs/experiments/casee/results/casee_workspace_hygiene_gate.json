@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated_at": "2026-08-13T09:47:51.479241+00:00",
+    "generated_at": "2026-08-13T10:02:00.306430+00:00",
     "evidence_type": "newly_run",
     "workspace_hygiene_gate_passed": true,
     "ignored_local_artifact_count": 60,
@@ -69,19 +69,19 @@
       "release_risk": "controlled"
     },
     {
-      "status_code": " M",
+      "status_code": "MM",
       "path": "docs/experiments/casee/results/casee_artifact_index.csv",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": " M",
+      "status_code": "MM",
       "path": "docs/experiments/casee/results/casee_artifact_index.json",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": " M",
+      "status_code": "MM",
       "path": "docs/experiments/casee/results/casee_artifact_index.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
@@ -159,49 +159,37 @@
       "release_risk": "controlled"
     },
     {
-      "status_code": "A ",
-      "path": "docs/experiments/casee/results/casee_c016_codegen_gate.csv",
-      "classification": "tracked_or_staged_change",
-      "release_risk": "controlled"
-    },
-    {
-      "status_code": "AM",
+      "status_code": " M",
       "path": "docs/experiments/casee/results/casee_c016_codegen_gate.json",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": "AM",
+      "status_code": " M",
       "path": "docs/experiments/casee/results/casee_c016_codegen_gate.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": "MM",
+      "status_code": " M",
       "path": "docs/experiments/casee/results/casee_c016_residual_target_leakage_guard.json",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": "MM",
+      "status_code": " M",
       "path": "docs/experiments/casee/results/casee_c016_residual_target_leakage_guard.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": "M ",
-      "path": "docs/experiments/casee/results/casee_candidate_sweep_plan.csv",
-      "classification": "tracked_or_staged_change",
-      "release_risk": "controlled"
-    },
-    {
-      "status_code": "MM",
+      "status_code": " M",
       "path": "docs/experiments/casee/results/casee_candidate_sweep_plan.json",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": "MM",
+      "status_code": " M",
       "path": "docs/experiments/casee/results/casee_candidate_sweep_plan.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
@@ -333,19 +321,31 @@
       "release_risk": "controlled"
     },
     {
-      "status_code": "M ",
-      "path": "docs/experiments/casee/results/casee_next_experiment_runbook.csv",
+      "status_code": "A ",
+      "path": "docs/experiments/casee/results/casee_native_codegen_smoke_gate.csv",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": "MM",
+      "status_code": "AM",
+      "path": "docs/experiments/casee/results/casee_native_codegen_smoke_gate.json",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": "AM",
+      "path": "docs/experiments/casee/results/casee_native_codegen_smoke_gate.md",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": " M",
       "path": "docs/experiments/casee/results/casee_next_experiment_runbook.json",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": "MM",
+      "status_code": " M",
       "path": "docs/experiments/casee/results/casee_next_experiment_runbook.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
@@ -399,6 +399,18 @@
       "release_risk": "controlled"
     },
     {
+      "status_code": "M ",
+      "path": "docs/experiments/casee/results/casee_paper_evidence_gate.json",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": "M ",
+      "path": "docs/experiments/casee/results/casee_paper_evidence_gate.md",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
       "status_code": " M",
       "path": "docs/experiments/casee/results/casee_paper_results_figure.svg",
       "classification": "tracked_or_staged_change",
@@ -429,19 +441,19 @@
       "release_risk": "controlled"
     },
     {
-      "status_code": " M",
+      "status_code": "MM",
       "path": "docs/experiments/casee/results/casee_release_asset_manifest.csv",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": " M",
+      "status_code": "MM",
       "path": "docs/experiments/casee/results/casee_release_asset_manifest.json",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": " M",
+      "status_code": "MM",
       "path": "docs/experiments/casee/results/casee_release_asset_manifest.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
@@ -569,6 +581,12 @@
     {
       "status_code": " M",
       "path": "docs/experiments/casee/results/casee_zcenter_rerun_consistency.md",
+      "classification": "tracked_or_staged_change",
+      "release_risk": "controlled"
+    },
+    {
+      "status_code": " M",
+      "path": "docs/experiments/casee/results/citylbm_build_check.log",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
@@ -729,19 +747,19 @@
       "release_risk": "controlled"
     },
     {
-      "status_code": " M",
+      "status_code": "MM",
       "path": "docs/experiments/casee/results/citylbm_software_feedback_matrix.csv",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": " M",
+      "status_code": "MM",
       "path": "docs/experiments/casee/results/citylbm_software_feedback_matrix.json",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
     {
-      "status_code": " M",
+      "status_code": "MM",
       "path": "docs/experiments/casee/results/citylbm_software_feedback_matrix.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
@@ -880,19 +898,7 @@
     },
     {
       "status_code": "A ",
-      "path": "docs/experiments/casee/tools/casee_c016_codegen_gate.py",
-      "classification": "tracked_or_staged_change",
-      "release_risk": "controlled"
-    },
-    {
-      "status_code": "M ",
-      "path": "docs/experiments/casee/tools/casee_candidate_sweep_plan.py",
-      "classification": "tracked_or_staged_change",
-      "release_risk": "controlled"
-    },
-    {
-      "status_code": "M ",
-      "path": "docs/experiments/casee/tools/casee_next_experiment_runbook.py",
+      "path": "docs/experiments/casee/tools/casee_native_codegen_smoke_gate.py",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },
@@ -928,7 +934,7 @@
     },
     {
       "status_code": "A ",
-      "path": "docs/releases/v0.4.0-rc82.md",
+      "path": "docs/releases/v0.4.0-rc83.md",
       "classification": "tracked_or_staged_change",
       "release_risk": "controlled"
     },

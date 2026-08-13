@@ -1,12 +1,12 @@
 # Case E Claim Support Gate
 
-Generated: 2026-08-13T09:47:20.191528+00:00
+Generated: 2026-08-13T10:01:13.545941+00:00
 
 ## Verdict
 
 - Gate passed: True
 - Formal release allowed: False
-- Recommended tag: `v0.4.0-rc82`
+- Recommended tag: `v0.4.0-rc83`
 - Official R2: -2.006330362229977
 - No formal accuracy claims: True
 - Forbidden success patterns blocked: True

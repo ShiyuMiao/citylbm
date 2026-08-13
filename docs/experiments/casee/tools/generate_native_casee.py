@@ -585,7 +585,10 @@ def main() -> int:
     inlet_label = ""
     if args.inlet_turbulence_mode != "none" or abs(args.inlet_turbulence_scale) > 1e-12:
         scale_label = f"{args.inlet_turbulence_scale:g}".replace(".", "p").replace("-", "m")
-        inlet_label = f"_inlet_{args.inlet_turbulence_mode}_s{scale_label}"
+        inlet_mode_label = {
+            "k_synthetic_fullplane": "afkfp",
+        }.get(args.inlet_turbulence_mode, args.inlet_turbulence_mode)
+        inlet_label = f"_inlet_{inlet_mode_label}_s{scale_label}"
     wall_label = ""
     if args.wall_model != "none" or args.wall_dilation_cells > 0 or abs(args.wall_damping_factor) > 1e-12:
         damping_label = f"{args.wall_damping_factor:g}".replace(".", "p").replace("-", "m")
