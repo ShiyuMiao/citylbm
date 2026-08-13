@@ -56,7 +56,9 @@ AIJ Case E is treated as a paper-grade validation experiment.
    used for visualization, at least 10 post-spinup VTK frames or an explicit averaged VTK field with the source frame
    list. For CityLBM post-processing, save the `Read VTK` `Averaging Audit` JSON output and pass it into the metrics
    builder. CityLBM v0.3.0 defaults to `TimeSteps=10000` and `SaveInterval=500` so new cases produce about 20 VTK
-   frames; shorter runs must be labelled smoke tests.
+   frames; shorter runs must be labelled smoke tests. The audit must show `selected_last_window=true`,
+   `source_steps_strictly_increasing=true`, `source_step_spacing_uniform=true`, and
+   `source_last_time_step=latest_available_time_step`.
 
 7. Probe audit gate.
    Probe extraction must record official point IDs, coordinates, selected velocity component, `Uref`, nearest VTK/probe

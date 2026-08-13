@@ -53,7 +53,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Post-processing reads the final averaged velocity field, not an initial transient.
   In `Read VTK`, set `Average Last N > 0` and archive the `Averaging Audit` JSON output.
   This JSON records the actual averaged frame count, source time steps, mean speed, mean/max pointwise speed standard
-  deviation and mean/max relative fluctuation.
+  deviation, mean/max relative fluctuation, the available VTK frame count, whether the selected frames are the last
+  available window, and whether source time steps are strictly increasing and uniformly spaced.
   A short window with large residual fluctuation is diagnostic only and must not be treated as paper-grade time averaging.
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
 - The probe audit table must contain official point number, original coordinate, interpolation distance,

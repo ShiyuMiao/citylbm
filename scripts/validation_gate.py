@@ -276,12 +276,35 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         frame_source = "case_metadata expected frame count"
     else:
         frame_source = "metrics source_time_steps/averaging_window"
+    available_frame_count = as_int(get_any(metrics, ["available_frame_count", "AvailableFrameCount"]))
+    source_first_step = as_int(get_any(metrics, ["source_first_time_step", "SourceFirstTimeStep"]))
+    source_last_step = as_int(get_any(metrics, ["source_last_time_step", "SourceLastTimeStep"]))
+    latest_available_step = as_int(get_any(metrics, ["latest_available_time_step", "LatestAvailableTimeStep"]))
+    selected_last_window = as_bool(get_any(metrics, ["selected_last_window", "SelectedLastWindow"]))
+    source_steps_increasing = as_bool(get_any(metrics, ["source_steps_strictly_increasing", "SourceStepsStrictlyIncreasing"]))
+    source_spacing_uniform = as_bool(get_any(metrics, ["source_step_spacing_uniform", "SourceStepSpacingUniform"]))
+    time_window_ok = (
+        frame_count is not None
+        and frame_count >= args.min_avg_frames
+        and selected_last_window is True
+        and source_steps_increasing is True
+        and source_spacing_uniform is True
+        and source_last_step is not None
+        and latest_available_step is not None
+        and source_last_step == latest_available_step
+    )
     add_gate(
         gates,
         "time_averaging",
-        PASS if frame_count is not None and frame_count >= args.min_avg_frames else FAIL,
-        f"{frame_source}: {frame_count}; required >= {args.min_avg_frames}",
-        "Rerun or postprocess with at least the required post-spinup averaged VTK/probe frames.",
+        PASS if time_window_ok else FAIL,
+        (
+            f"{frame_source}: {frame_count}; required >= {args.min_avg_frames}; "
+            f"available_frame_count={available_frame_count}; source_first_step={source_first_step}; "
+            f"source_last_step={source_last_step}; latest_available_step={latest_available_step}; "
+            f"selected_last_window={selected_last_window}; source_steps_strictly_increasing={source_steps_increasing}; "
+            f"source_step_spacing_uniform={source_spacing_uniform}"
+        ),
+        "Rerun or postprocess with an explicit final-window average whose source steps are the last available, increasing and uniformly spaced.",
     )
 
     boundary_gate = str(

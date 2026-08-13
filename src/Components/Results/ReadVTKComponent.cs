@@ -290,6 +290,7 @@ namespace CityLBM.Components.Results
 
             // ── 第二步：计算最终 step ──────────────────────────────
             logger.StepStart("计算采样步长");
+            List<int> allAvailableTimeSteps = ExtractDistinctTimeSteps(vtkFiles);
             int step;
             int maxStep = 1000; // 采样步长上限，防止 step 过大导致无输出点
             if (manualStep > 0)
@@ -380,7 +381,7 @@ namespace CityLBM.Components.Results
             if (_cachedResults != null && _cachedKey == cacheKey)
             {
                 // 缓存命中，直接输出（包括上次的 Info）
-                OutputCachedResults(DA, _cachedResults, _cachedSpacing, _cachedInfo, physicalScene, logger, averageLastN);
+                OutputCachedResults(DA, _cachedResults, _cachedSpacing, _cachedInfo, physicalScene, logger, averageLastN, allAvailableTimeSteps);
                 return;
             }
 
@@ -459,7 +460,7 @@ namespace CityLBM.Components.Results
             // 构建 Info 并缓存
             _cachedInfo = BuildInfoText(_cachedResults, detectedSpacing, subsampleSpacing, manualStep, step, averageLastN);
 
-            OutputCachedResults(DA, _cachedResults, detectedSpacing, _cachedInfo, physicalScene, logger, averageLastN);
+            OutputCachedResults(DA, _cachedResults, detectedSpacing, _cachedInfo, physicalScene, logger, averageLastN, allAvailableTimeSteps);
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -467,7 +468,7 @@ namespace CityLBM.Components.Results
         // ══════════════════════════════════════════════════════════════
         private void OutputCachedResults(IGH_DataAccess DA, List<VTKResult> results,
             double detectedSpacing, string infoText, Core.Scene physicalScene, ComponentLogger logger,
-            int averageLastN)
+            int averageLastN, IList<int> allAvailableTimeSteps)
         {
             List<Point3d>  allPoints      = new List<Point3d>();
             List<Vector3d> allVelocities  = new List<Vector3d>();
@@ -523,14 +524,18 @@ namespace CityLBM.Components.Results
             // 输出详细日志
             logger.Finish();
             DA.SetData(6, logger.GetLog());
-            DA.SetData(7, BuildAveragingAuditJson(results, averageLastN, detectedSpacing));
+            DA.SetData(7, BuildAveragingAuditJson(results, averageLastN, detectedSpacing, allAvailableTimeSteps));
         }
 
-        private string BuildAveragingAuditJson(List<VTKResult> results, int averageLastN, double detectedSpacing)
+        private string BuildAveragingAuditJson(List<VTKResult> results, int averageLastN, double detectedSpacing, IList<int> allAvailableTimeSteps)
         {
             var safeResults = results ?? new List<VTKResult>();
             VTKResult averaged = safeResults.Count == 1 ? safeResults[0] : null;
             bool hasAveragedField = averageLastN > 0 && averaged != null && averaged.AveragedFrameCount > 0;
+            List<int> availableSteps = (allAvailableTimeSteps ?? new List<int>())
+                .Distinct()
+                .OrderBy(t => t)
+                .ToList();
             List<int> sourceSteps = hasAveragedField && averaged.SourceTimeSteps != null && averaged.SourceTimeSteps.Count > 0
                 ? averaged.SourceTimeSteps.OrderBy(t => t).ToList()
                 : safeResults
@@ -541,6 +546,9 @@ namespace CityLBM.Components.Results
                     .ToList();
 
             int averagedFrameCount = hasAveragedField ? averaged.AveragedFrameCount : 0;
+            bool selectedLastWindow = averageLastN > 0 && IsLastWindow(sourceSteps, availableSteps);
+            bool sourceStepsStrictlyIncreasing = IsStrictlyIncreasing(sourceSteps);
+            bool sourceStepSpacingUniform = HasUniformStepSpacing(sourceSteps);
             var audit = new Dictionary<string, object>
             {
                 { "schema_version", 1 },
@@ -549,8 +557,17 @@ namespace CityLBM.Components.Results
                 { "averaging_enabled", averageLastN > 0 },
                 { "averaged_frame_count", averagedFrameCount },
                 { "read_result_count", safeResults.Count },
+                { "available_frame_count", availableSteps.Count },
+                { "all_available_time_steps", availableSteps },
+                { "all_available_time_steps_csv", string.Join(",", availableSteps) },
                 { "source_time_steps", sourceSteps },
                 { "source_time_steps_csv", string.Join(",", sourceSteps) },
+                { "source_first_time_step", sourceSteps.Count > 0 ? (int?)sourceSteps.First() : null },
+                { "source_last_time_step", sourceSteps.Count > 0 ? (int?)sourceSteps.Last() : null },
+                { "latest_available_time_step", availableSteps.Count > 0 ? (int?)availableSteps.Last() : null },
+                { "selected_last_window", selectedLastWindow },
+                { "source_steps_strictly_increasing", sourceStepsStrictlyIncreasing },
+                { "source_step_spacing_uniform", sourceStepSpacingUniform },
                 { "grid_spacing_m", JsonMetric(detectedSpacing) },
                 { "mean_speed_mps", averaged != null ? JsonMetric(averaged.MeanSpeed) : null },
                 { "mean_speed_stddev_mps", averaged != null ? JsonMetric(averaged.MeanSpeedStdDev) : null },
@@ -572,6 +589,54 @@ namespace CityLBM.Components.Results
             if (averagedFrameCount > 0)
                 return "short_time_average_diagnostic";
             return "no_averaged_frames";
+        }
+
+        private List<int> ExtractDistinctTimeSteps(IEnumerable<string> vtkFiles)
+        {
+            return (vtkFiles ?? Enumerable.Empty<string>())
+                .Select(ExtractTimeStepFromFilename)
+                .Distinct()
+                .OrderBy(t => t)
+                .ToList();
+        }
+
+        private bool IsLastWindow(IList<int> sourceSteps, IList<int> availableSteps)
+        {
+            if (sourceSteps == null || availableSteps == null)
+                return false;
+            if (sourceSteps.Count == 0 || availableSteps.Count == 0 || sourceSteps.Count > availableSteps.Count)
+                return false;
+            var expected = availableSteps.Skip(availableSteps.Count - sourceSteps.Count).ToList();
+            return sourceSteps.SequenceEqual(expected);
+        }
+
+        private bool IsStrictlyIncreasing(IList<int> steps)
+        {
+            if (steps == null || steps.Count == 0)
+                return false;
+            for (int i = 1; i < steps.Count; i++)
+            {
+                if (steps[i] <= steps[i - 1])
+                    return false;
+            }
+            return true;
+        }
+
+        private bool HasUniformStepSpacing(IList<int> steps)
+        {
+            if (steps == null || steps.Count == 0)
+                return false;
+            if (steps.Count < 3)
+                return true;
+            int interval = steps[1] - steps[0];
+            if (interval <= 0)
+                return false;
+            for (int i = 2; i < steps.Count; i++)
+            {
+                if (steps[i] - steps[i - 1] != interval)
+                    return false;
+            }
+            return true;
         }
 
         private double? JsonMetric(double value)
