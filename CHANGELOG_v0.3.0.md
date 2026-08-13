@@ -34,7 +34,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   probe-projection risk and systematic-bias gate so the known `-34 pp` underprediction pattern is treated as a protocol
   blocker rather than a tuning target.
 - `docs/validation_metrics_template.csv` now includes run-evidence fields for source time steps, compared velocity component,
-  averaged-field stability, boundary summary, synthetic inlet method, native baseline id, probe mapping distances and protocol gate.
+  averaged-field stability, boundary summary, synthetic inlet method, inlet distribution treatment, wall roughness
+  treatment, native baseline id, probe mapping distances and protocol gate.
 - `Data Probe` now appends validation-audit outputs for `Uref`-based speed ratio, streamwise ratio, nearest VTK-sample
   distance and per-probe CSV rows without changing the existing first five outputs.
 - `Data Probe` now accepts optional official probe IDs, a probe-to-VTK tolerance and an explicit compared component.

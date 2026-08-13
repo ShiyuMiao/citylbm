@@ -2653,6 +2653,10 @@ namespace CityLBM.Solver
                         ReferenceHeightM = scene.ReferenceHeight,
                         SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
                         SyntheticTurbulentInletInjected = IsSyntheticTurbulentInletActive(scene, settings),
+                        InletDistributionTreatment = IsSyntheticTurbulentInletActive(scene, settings)
+                            ? "velocity_field_only_no_distribution_function_reconstruction"
+                            : "not_active",
+                        WallRoughnessTreatment = "ground/buildings TYPE_S no-slip; no FluidX3D rough-wall or wall-function boundary in v0.3.0",
                         BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
                         BoundaryProtocolAudit = boundaryAudit
                     },
@@ -2661,6 +2665,7 @@ namespace CityLBM.Solver
                         "Native FluidX3D executable path and build log compiled from the archived setup.cpp/defines.hpp.",
                         "CityLBM-driven run log using the same setup.cpp physics choices, grid, time steps and save interval.",
                         "New VTK files from both runs; do not copy older u-*.vtk files into the archive.",
+                        "Inlet distribution treatment and wall roughness treatment recorded in both native and CityLBM-driven runs.",
                         "Read VTK Average Last N setting and actual SourceTimeSteps used for every metric.",
                         "Data Probe Audit CSV with Uref, Wind Direction, speed ratio, streamwise ratio, nearest distance and nearby point count.",
                         "Official probe table with point numbers, coordinates, compared velocity component and failed/out-of-domain flag.",
