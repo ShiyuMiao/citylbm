@@ -263,7 +263,7 @@ namespace CityLBM.Components.Scene
                       $"  z range: {samples[0].Z:F3} to {samples[samples.Count - 1].Z:F3} m\n" +
                       $"  U range: {samples.Min(s => s.U):F4} to {samples.Max(s => s.U):F4} m/s\n" +
                       $"  k column: {(hasAnyK ? $"{kRows} rows, SI m2/s2" : "not provided")}\n" +
-                      "  Note: v0.3.0 records and converts k, but does not inject synthetic turbulent inlet fluctuations.";
+                      "  Note: v0.3.0 records and converts k. Run Simulation can optionally use it for experimental STG-lite inlet fluctuations.";
             return true;
         }
 
@@ -291,7 +291,7 @@ namespace CityLBM.Components.Scene
                 case WindProfileType.CustomTable:
                     sb.AppendLine("U(z) is linearly interpolated from Wind Profile CSV.");
                     sb.AppendLine("CSV columns: z(m), U(m/s), optional k(m2/s2).");
-                    sb.AppendLine("k is converted and recorded in metadata; synthetic turbulent inlet injection is not enabled in v0.3.0.");
+                    sb.AppendLine("k is converted and recorded in metadata; Run Simulation can optionally use it for experimental STG-lite inlet fluctuations.");
                     break;
             }
 

@@ -29,6 +29,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `case_metadata.json` and the native baseline manifest now include `BoundaryProtocolAudit`, a structured record of
   inlet/outlet/lateral/top faces, domain clearances in meters and building-height units, simplified boundary types and a
   diagnostic boundary-clearance gate.
+- `BoundaryProtocolAudit` now also records per-condition clearance booleans and gate reasons, so undersized or misplaced
+  domains fail explicitly instead of only reporting aggregate clearance ratios.
 - `case_metadata.json` and `validation_protocol_audit` now separate analytic inflow roughness from actual wall treatment:
   ground/buildings remain `TYPE_S` no-slip in v0.3.0, with no FluidX3D rough-wall or wall-function boundary.
 - The validation audit now also records native FluidX3D baseline requirement, LBM stability scaling, wind-direction sign,

@@ -16,13 +16,13 @@ namespace CityLBM.CodegenSmoke
                 var scene = BuildScene();
                 var grid = new CartesianGrid
                 {
-                    Nx = 16,
-                    Ny = 16,
-                    Nz = 16,
-                    Dx = 2.0,
-                    Origin = new Point3d(-10, -10, 0),
-                    DomainBounds = new BoundingBox(new Point3d(-10, -10, 0), new Point3d(22, 22, 32))
-                };
+                Nx = 16,
+                Ny = 16,
+                Nz = 16,
+                Dx = 2.0,
+                Origin = new Point3d(-60, -120, 0),
+                DomainBounds = new BoundingBox(new Point3d(-60, -120, 0), new Point3d(70, 60, 70))
+            };
                 var settings = new SimulationSettings
                 {
                     TimeSteps = 1000,
@@ -64,6 +64,10 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "velocity_field_only_no_distribution_function_reconstruction");
                 Require(audit, "inlet_distribution_consistency");
                 Require(audit, "STG-lite");
+                Require(metadata, "ClearanceChecks");
+                Require(metadata, "DomainContainsBuildings");
+                Require(metadata, "diagnostic_clearance_thresholds_satisfied");
+                Require(audit, "diagnostic_clearance_ok_verify_against_aij");
 
                 Console.WriteLine("Codegen smoke passed.");
                 Console.WriteLine(caseDir);
@@ -99,7 +103,16 @@ namespace CityLBM.CodegenSmoke
             scene.CustomWindProfile.Add(new WindProfileSample { Z = 0.5, U = 2.5, HasK = true, K = 0.25 });
             scene.CustomWindProfile.Add(new WindProfileSample { Z = 15.9, U = 3.928296, HasK = true, K = 0.55 });
             scene.CustomWindProfile.Add(new WindProfileSample { Z = 60.0, U = 5.8, HasK = true, K = 0.80 });
+            SetSceneBounds(scene, new BoundingBox(new Point3d(0, 0, 0), new Point3d(10, 10, 10)));
             return scene;
+        }
+
+        private static void SetSceneBounds(Scene scene, BoundingBox bounds)
+        {
+            var property = typeof(Scene).GetProperty("Bounds", BindingFlags.Instance | BindingFlags.Public);
+            if (property == null)
+                throw new MissingMemberException(typeof(Scene).FullName, "Bounds");
+            property.SetValue(scene, bounds, null);
         }
 
         private static void InvokePrivate(object target, string methodName, params object[] args)

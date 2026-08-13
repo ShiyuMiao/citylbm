@@ -10,13 +10,14 @@ CityLBM is a Grasshopper workflow plugin for urban wind simulation with FluidX3D
 - Reads validation inflow CSV files with columns `z(m), U(m/s), k(m2/s2)`.
 - Uses the CSV `U(z)` table for inlet velocity interpolation instead of replacing it with a single Uref value.
 - Records turbulent kinetic energy `k` in SI units and converts it to LBM units in generated case metadata.
+- Adds an optional experimental STG-lite inlet path that turns isotropic `k` into bounded deterministic spectral velocity perturbations.
 - Writes `case_metadata.json` and schema-tagged `domain_origin.json` for post-processing traceability.
 - Adds VTK reader metadata checks so velocity units are explicit in Grasshopper output.
 - Adds reusable validation metrics utilities for MAE, RMSE, bias, R2 and regression slope/intercept.
 
 ## Important limitation
 
-v0.3.0 reads and converts the `k(m2/s2)` column, but it does not yet inject synthetic turbulent inlet fluctuations or a Reynolds-stress-resolved turbulent inflow. This means the data chain is validation-ready, but final SCI-level Case A/Case E accuracy still requires strict native FluidX3D baseline comparison, longer time averaging and documented grid convergence.
+v0.3.0 reads and converts the `k(m2/s2)` column and can optionally use it for an experimental STG-lite inlet. This is not a full digital-filter, precursor/recycling, or Reynolds-stress-resolved turbulent inflow. Final SCI-level Case A/Case E accuracy still requires strict native FluidX3D baseline comparison, empty-tunnel U/k preservation checks, longer time averaging and documented grid convergence.
 
 ## FluidX3D requirement
 

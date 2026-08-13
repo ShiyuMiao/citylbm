@@ -2449,11 +2449,42 @@ namespace CityLBM.Solver
             double lateralRatio = SafeRatio(minLateralDistance, referenceHeight);
             double topRatio = SafeRatio(topClearance, referenceHeight);
 
+            bool domainValid = IsPositiveDimension(domain.Max.X - domain.Min.X) &&
+                               IsPositiveDimension(domain.Max.Y - domain.Min.Y) &&
+                               IsPositiveDimension(domain.Max.Z - domain.Min.Z);
+            bool hasReferenceHeight = !double.IsNaN(referenceHeight) && referenceHeight > 1.0e-9;
+            bool domainContainsBuildings = hasBuildings && domainValid &&
+                                           domain.Min.X <= buildings.Min.X &&
+                                           domain.Min.Y <= buildings.Min.Y &&
+                                           domain.Min.Z <= buildings.Min.Z &&
+                                           domain.Max.X >= buildings.Max.X &&
+                                           domain.Max.Y >= buildings.Max.Y &&
+                                           domain.Max.Z >= buildings.Max.Z;
+            bool upstreamOk = upstreamRatio >= 5.0;
+            bool downstreamOk = downstreamRatio >= 10.0;
+            bool lateralOk = lateralRatio >= 5.0;
+            bool topOk = topRatio >= 5.0;
+
             bool meetsDiagnosticDomain =
-                upstreamRatio >= 5.0 &&
-                downstreamRatio >= 10.0 &&
-                lateralRatio >= 5.0 &&
-                topRatio >= 5.0;
+                domainValid &&
+                hasBuildings &&
+                hasReferenceHeight &&
+                domainContainsBuildings &&
+                upstreamOk &&
+                downstreamOk &&
+                lateralOk &&
+                topOk;
+
+            var gateReasons = new List<string>();
+            if (!domainValid) gateReasons.Add("domain_bounds_invalid_or_non_positive");
+            if (!hasBuildings) gateReasons.Add("building_bounds_missing_or_invalid");
+            if (!hasReferenceHeight) gateReasons.Add("building_height_unavailable_for_H_scaling");
+            if (hasBuildings && domainValid && !domainContainsBuildings) gateReasons.Add("domain_does_not_fully_contain_building_bounds");
+            if (hasReferenceHeight && !upstreamOk) gateReasons.Add("upstream_clearance_below_5H");
+            if (hasReferenceHeight && !downstreamOk) gateReasons.Add("downstream_clearance_below_10H");
+            if (hasReferenceHeight && !lateralOk) gateReasons.Add("minimum_lateral_clearance_below_5H");
+            if (hasReferenceHeight && !topOk) gateReasons.Add("top_clearance_below_5H");
+            if (gateReasons.Count == 0) gateReasons.Add("diagnostic_clearance_thresholds_satisfied");
 
             return new BoundaryProtocolAudit
             {
@@ -2512,10 +2543,27 @@ namespace CityLBM.Solver
                     MinLateral = 5.0,
                     Top = 5.0
                 },
+                ClearanceChecks = new BoundaryClearanceCheckRecord
+                {
+                    DomainValid = domainValid,
+                    BuildingBoundsValid = hasBuildings,
+                    BuildingHeightValid = hasReferenceHeight,
+                    DomainContainsBuildings = domainContainsBuildings,
+                    UpstreamOk = upstreamOk,
+                    DownstreamOk = downstreamOk,
+                    MinLateralOk = lateralOk,
+                    TopOk = topOk
+                },
                 MeetsDiagnosticDomain = meetsDiagnosticDomain,
                 Gate = meetsDiagnosticDomain ? "diagnostic_clearance_ok_verify_against_aij" : "boundary_clearance_risk",
+                GateReasons = gateReasons,
                 RequiredNextAction = "For AIJ validation, archive this object, report inlet/outlet/lateral/top clearances in H units, and compare against the official wind-tunnel blockage and fetch protocol."
             };
+        }
+
+        private bool IsPositiveDimension(double value)
+        {
+            return !double.IsNaN(value) && !double.IsInfinity(value) && value > 0.0;
         }
 
         private double SafeRatio(double numerator, double denominator)
@@ -3238,8 +3286,10 @@ namespace CityLBM.Solver
         public ClearanceRecord ClearanceM { get; set; }
         public ClearanceRatioRecord ClearanceByBuildingHeight { get; set; }
         public BoundaryThresholdRecord DiagnosticThresholdsByBuildingHeight { get; set; }
+        public BoundaryClearanceCheckRecord ClearanceChecks { get; set; }
         public bool MeetsDiagnosticDomain { get; set; }
         public string Gate { get; set; }
+        public List<string> GateReasons { get; set; }
         public string RequiredNextAction { get; set; }
     }
 
@@ -3295,6 +3345,18 @@ namespace CityLBM.Solver
         public double Downstream { get; set; }
         public double MinLateral { get; set; }
         public double Top { get; set; }
+    }
+
+    internal class BoundaryClearanceCheckRecord
+    {
+        public bool DomainValid { get; set; }
+        public bool BuildingBoundsValid { get; set; }
+        public bool BuildingHeightValid { get; set; }
+        public bool DomainContainsBuildings { get; set; }
+        public bool UpstreamOk { get; set; }
+        public bool DownstreamOk { get; set; }
+        public bool MinLateralOk { get; set; }
+        public bool TopOk { get; set; }
     }
 
     /// <summary>模拟物理设置</summary>
