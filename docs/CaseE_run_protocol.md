@@ -87,7 +87,7 @@ python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit
 - Run the machine gate after postprocessing:
 
 ```powershell
-python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --expected-uref 3.928296 --expected-wind-vector 0,-1,0 --out <run_dir>\validation_gate_report.json
+python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --expected-uref 3.928296 --expected-wind-vector 0,-1,0 --max-mean-speed-stddev-ratio 0.05 --max-point-speed-stddev-ratio 0.20 --out <run_dir>\validation_gate_report.json
 ```
 
   The gate must pass before Case E is described as paper-grade validation. A failed gate means the run remains
@@ -105,6 +105,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   boundary/inlet physics errors.
 - Grid spacing, steps, averaging window and VTK frame list
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
+- `time_averaging` gate must use the final available VTK window, contain at least 10 frames, have strictly increasing
+  uniformly spaced source steps, and satisfy `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20`
+  unless a stricter case-specific stationarity criterion is documented.
 - Inlet/outlet/lateral/top boundary faces and upstream/downstream/lateral/top clearances in building-height units
 - Domain size, maximum building height, approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate
 - Mean probe distance and maximum probe distance

@@ -38,6 +38,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--case", default="", help="Expected case label, e.g. CaseA or CaseE.")
     parser.add_argument("--software", default="", help="Expected software label, e.g. native-fluidx3d or citylbm.")
     parser.add_argument("--min-avg-frames", type=int, default=10)
+    parser.add_argument("--max-mean-speed-stddev-ratio", type=float, default=0.05)
+    parser.add_argument("--max-point-speed-stddev-ratio", type=float, default=0.20)
     parser.add_argument("--max-u-bias-ratio", type=float, default=0.15)
     parser.add_argument("--max-u-rmse-ratio", type=float, default=0.30)
     parser.add_argument("--min-u-r2", type=float, default=0.70)
@@ -323,6 +325,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     selected_last_window = as_bool(get_any(metrics, ["selected_last_window", "SelectedLastWindow"]))
     source_steps_increasing = as_bool(get_any(metrics, ["source_steps_strictly_increasing", "SourceStepsStrictlyIncreasing"]))
     source_spacing_uniform = as_bool(get_any(metrics, ["source_step_spacing_uniform", "SourceStepSpacingUniform"]))
+    mean_speed_stddev_ratio = as_float(get_any(metrics, ["mean_speed_stddev_ratio", "MeanSpeedStdDevRatio"]))
+    max_speed_stddev_ratio = as_float(get_any(metrics, ["max_speed_stddev_ratio", "MaxSpeedStdDevRatio"]))
+    mean_speed_stable = (
+        mean_speed_stddev_ratio is not None
+        and mean_speed_stddev_ratio <= args.max_mean_speed_stddev_ratio
+    )
+    point_speed_stable = (
+        max_speed_stddev_ratio is not None
+        and max_speed_stddev_ratio <= args.max_point_speed_stddev_ratio
+    )
     time_window_ok = (
         frame_count is not None
         and frame_count >= args.min_avg_frames
@@ -332,6 +344,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and source_last_step is not None
         and latest_available_step is not None
         and source_last_step == latest_available_step
+        and mean_speed_stable
+        and point_speed_stable
     )
     add_gate(
         gates,
@@ -342,9 +356,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"available_frame_count={available_frame_count}; source_first_step={source_first_step}; "
             f"source_last_step={source_last_step}; latest_available_step={latest_available_step}; "
             f"selected_last_window={selected_last_window}; source_steps_strictly_increasing={source_steps_increasing}; "
-            f"source_step_spacing_uniform={source_spacing_uniform}"
+            f"source_step_spacing_uniform={source_spacing_uniform}; "
+            f"mean_speed_stddev_ratio={mean_speed_stddev_ratio}; required <= {args.max_mean_speed_stddev_ratio}; "
+            f"max_speed_stddev_ratio={max_speed_stddev_ratio}; required <= {args.max_point_speed_stddev_ratio}"
         ),
-        "Rerun or postprocess with an explicit final-window average whose source steps are the last available, increasing and uniformly spaced.",
+        "Rerun or postprocess with a longer statistically stable final-window average whose source steps are the last available, increasing and uniformly spaced.",
     )
 
     boundary_gate = str(
@@ -596,6 +612,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "gates": gates,
         "thresholds": {
             "min_avg_frames": args.min_avg_frames,
+            "max_mean_speed_stddev_ratio": args.max_mean_speed_stddev_ratio,
+            "max_point_speed_stddev_ratio": args.max_point_speed_stddev_ratio,
             "max_u_bias_ratio": args.max_u_bias_ratio,
             "max_u_rmse_ratio": args.max_u_rmse_ratio,
             "min_u_r2": args.min_u_r2,

@@ -58,7 +58,9 @@ AIJ Case E is treated as a paper-grade validation experiment.
    builder. CityLBM v0.3.0 defaults to `TimeSteps=10000` and `SaveInterval=500` so new cases produce about 20 VTK
    frames; shorter runs must be labelled smoke tests. The audit must show `selected_last_window=true`,
    `source_steps_strictly_increasing=true`, `source_step_spacing_uniform=true`, and
-   `source_last_time_step=latest_available_time_step`.
+   `source_last_time_step=latest_available_time_step`. The same gate also requires `mean_speed_stddev_ratio <= 0.05`
+   and `max_speed_stddev_ratio <= 0.20` from the Read VTK averaging audit unless a stricter case-specific stationarity
+   criterion is documented.
 
 7. Probe audit gate.
    Probe extraction must record official point IDs, coordinates, selected velocity component, `Uref`, nearest VTK/probe
@@ -102,7 +104,7 @@ AIJ Case E is treated as a paper-grade validation experiment.
 After every native FluidX3D or CityLBM-driven Case A run, execute the repository gate before using metrics in a paper:
 
 ```powershell
-python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluidx3d --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --expected-uref <Uref> --expected-wind-vector 1,0,0 --out <run_dir>\validation_gate_report.json
+python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluidx3d --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --expected-uref <Uref> --expected-wind-vector 1,0,0 --max-mean-speed-stddev-ratio 0.05 --max-point-speed-stddev-ratio 0.20 --out <run_dir>\validation_gate_report.json
 ```
 
 If metrics are produced from Grasshopper `Data Probe`, build the metrics row first:
