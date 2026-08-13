@@ -20,6 +20,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Synthetic inlet runs now limit each solver advance to `SyntheticTurbulenceUpdateInterval`, so inlet perturbations refresh independently from the VTK save interval.
 - `case_metadata.json` records whether the synthetic inlet was requested and actually injected, plus synthetic scale, correlation length, update interval and amplitude cap.
 - Each generated case now writes `validation_protocol_audit.json` and `.md` to flag inlet, boundary-condition, time-averaging, coordinate, normalization and grid-resolution readiness before metrics are interpreted.
+- The validation audit now also records native FluidX3D baseline requirement, LBM stability scaling, wind-direction sign,
+  probe-projection risk and systematic-bias gate so the known `-34 pp` underprediction pattern is treated as a protocol
+  blocker rather than a tuning target.
+- `docs/validation_metrics_template.csv` now includes run-evidence fields for source time steps, compared velocity component,
+  boundary summary, synthetic inlet method, native baseline id, probe mapping distances and protocol gate.
 
 ## Remaining scientific work
 
@@ -28,3 +33,4 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Case E should then be run with dx=2-3 m, long time averaging and the official AF/RS files.
 - The SEM-lite inlet is not a full digital-filter, precursor/recycling, or Reynolds-stress method; it lacks Reynolds-stress tensors, turbulent length scales and validated precursor inflow.
 - The boundary condition model remains simplified and must be audited against the AIJ wind-tunnel setup before making paper-grade accuracy claims.
+- A high R2 alone is not sufficient. Mean bias, regression slope/intercept, probe mapping and native-vs-CityLBM parity must be acceptable before claiming publishable validation accuracy.

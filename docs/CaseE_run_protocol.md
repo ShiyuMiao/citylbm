@@ -38,6 +38,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Generated `setup.cpp` contains `profile_z_m[]`, `profile_z_lbm[]`, `profile_u_lbm[]`, `profile_k_m2s2[]`, `profile_k_lbm[]` and `profile_origin_z_m`.
 - If SEM-lite is enabled, generated `setup.cpp` also contains `syntheticTurbulentInlet`, `applySyntheticTurbulentInlet`
   and `citylbm_stg_*` constants.
+- The generated `validation_protocol_audit` must explicitly record `native_fluidx3d_baseline`, `boundary_conditions`,
+  `lbm_stability_scaling`, `wind_direction_sign`, `probe_projection`, `normalization_basis` and `systematic_bias_gate`.
+  Treat these items as paper-blocking until their run evidence is archived.
 - `domain_origin.json` exists in both case root and output directory.
 - `case_metadata.json` exists in both case root and output directory.
 - `validation_protocol_audit.json` and `validation_protocol_audit.md` exist in both case root and output directory.
@@ -46,6 +49,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Post-processing reads the final averaged velocity field, not an initial transient.
   In `Read VTK`, set `Average Last N > 0` and record the actual averaged source time steps printed in the Info output.
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
+- The probe audit table must contain official point number, original coordinate, CFD interpolation cell, interpolation
+  distance, compared velocity component and failure flag.
+- A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
+  extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
 - `case_metadata.json` must be archived with the run. It records the boundary-condition summary, expected VTK frame count,
   time-averaging requirement, and known protocol risks.
 
@@ -58,6 +65,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Regression slope and intercept
 - Maximum absolute error
 - Grid spacing, steps, averaging window and VTK frame list
+- Mean probe distance and maximum probe distance
+- Native FluidX3D baseline run id or archive path
+- Protocol gate from `validation_protocol_audit.json`
+- Systematic bias flag. If mean bias remains around `-0.20` to `-0.35` speed-ratio units, do not tune parameters first;
+  audit inlet turbulence, boundary treatment, wind-direction sign, probe projection and Uref normalization.
 
 ## Current v0.3.0 limitation
 

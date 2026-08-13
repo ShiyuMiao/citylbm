@@ -2284,6 +2284,8 @@ namespace CityLBM.Solver
                     ProfileScaleSpeedMps = GetProfileScaleSpeed(scene),
                     VelocityScaleMpsToLbm = uScale,
                     VelocityScaleLbmToMps = 1.0 / uScale,
+                    TargetMaxProfileVelocityLbm = 0.1,
+                    EstimatedMaxProfileMach = 0.1 / Math.Sqrt(1.0 / 3.0),
                     VelocityOutputUnits = "FluidX3D write_device_to_vtk true requested; reader treats metadata as the unit contract.",
                     VtkReaderShouldApplyVelocityScale = false,
                     DxM = grid.Dx,
@@ -2313,6 +2315,12 @@ namespace CityLBM.Solver
                     SyntheticTurbulenceUpdateInterval = settings.SyntheticTurbulenceUpdateInterval,
                     SyntheticTurbulenceMaxFractionOfMean = settings.SyntheticTurbulenceMaxFractionOfMean,
                     ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor is available from AF table" : "",
+                    WindDirectionUnitVector = new
+                    {
+                        X = scene.WindDirection.X,
+                        Y = scene.WindDirection.Y,
+                        Z = scene.WindDirection.Z
+                    },
                     InletVelocityTreatment = scene.WindProfile == WindProfileType.CustomTable
                         ? (syntheticActive
                             ? "height-varying mean velocity plus bounded SEM-lite synthetic-eddy fluctuations from k"
@@ -2444,6 +2452,8 @@ namespace CityLBM.Solver
             bool hasProfile = scene.CustomWindProfile != null && scene.CustomWindProfile.Count >= 2;
             bool hasK = scene.CustomWindProfile != null && scene.CustomWindProfile.Any(s => s.HasK);
             bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
+            double maxProfileVelocityLbm = 0.1;
+            double estimatedMach = maxProfileVelocityLbm / Math.Sqrt(1.0 / 3.0);
             int expectedFrames = settings.SaveInterval > 0
                 ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                 : 0;
@@ -2476,11 +2486,29 @@ namespace CityLBM.Solver
 
             yield return new ValidationProtocolAuditItem
             {
+                Key = "native_fluidx3d_baseline",
+                Status = "risk",
+                Evidence = "CityLBM can generate the FluidX3D setup.cpp, but this audit cannot prove a paired native FluidX3D run exists.",
+                Risk = "If native FluidX3D is not run with the same geometry, inflow, averaging window and probes, software-integration error cannot be separated from solver/protocol error.",
+                RequiredNextAction = "Run a native FluidX3D Case A/Case E baseline from the archived setup.cpp, then compare the same probe table against the CityLBM-driven run."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
                 Key = "boundary_conditions",
                 Status = "risk",
                 Evidence = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
                 Risk = "TYPE_E inlet/outlet/lateral/top is a simplified boundary protocol and may not match the AIJ wind-tunnel setup.",
                 RequiredNextAction = "Compare against AIJ tunnel boundary assumptions; document inlet fetch, outlet distance, lateral/top treatment, and blockage."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "lbm_stability_scaling",
+                Status = maxProfileVelocityLbm <= 0.1 ? "partial" : "risk",
+                Evidence = $"TargetMaxProfileVelocityLbm={maxProfileVelocityLbm:F3}; EstimatedMaxProfileMach={estimatedMach:F3}; ProfileScaleSpeed={GetProfileScaleSpeed(scene):F6} m/s.",
+                Risk = "The generated setup uses a conservative lattice-velocity target, but actual stability and compressibility must be checked from solver logs and final velocity statistics.",
+                RequiredNextAction = "Archive setup.cpp, solver log, viscosity/tau, maximum velocity and any FluidX3D stability warnings for each validation run."
             };
 
             yield return new ValidationProtocolAuditItem
@@ -2496,11 +2524,29 @@ namespace CityLBM.Solver
 
             yield return new ValidationProtocolAuditItem
             {
+                Key = "wind_direction_sign",
+                Status = "partial",
+                Evidence = $"WindDirection=({scene.WindDirection.X:F6},{scene.WindDirection.Y:F6},{scene.WindDirection.Z:F6}); {GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile)}.",
+                Risk = "A sign or component convention error can create strong systematic bias even when the solver runs normally.",
+                RequiredNextAction = "For AIJ Case E N wind, verify that the intended convention is north-to-south and that the generated inlet face and compared velocity component match the official RS table."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
                 Key = "coordinate_transform",
                 Status = "partial",
                 Evidence = $"domain_origin.json will be written with origin=({grid.Origin.X:F3},{grid.Origin.Y:F3},{grid.Origin.Z:F3}), dx={grid.Dx:F3}, grid={grid.Nx}x{grid.Ny}x{grid.Nz}.",
                 Risk = "Generated metadata supports coordinate recovery, but RS probe projection and wind component sign must be checked against official points.",
                 RequiredNextAction = "Archive domain_origin.json and a probe-mapping table with nearest/interpolated point distances."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "probe_projection",
+                Status = "risk",
+                Evidence = "Generated case metadata records the CFD grid, but measured RS probe coordinates are not part of setup.cpp.",
+                Risk = "Wrong STL scale, z=2 m height handling, probe tolerance or nearest-cell projection can appear as a large speed-ratio error.",
+                RequiredNextAction = "Export a probe audit table with official No., x, y, z, interpolation cell, interpolation distance, failed flag and compared velocity component."
             };
 
             yield return new ValidationProtocolAuditItem
@@ -2512,6 +2558,15 @@ namespace CityLBM.Solver
                     : $"WindProfile={scene.WindProfile}; ReferenceWindSpeed={scene.WindSpeed:F6} m/s.",
                 Risk = "AIJ velocity-ratio comparison must use the official Uref/probe convention, not only the LBM stability scaling speed.",
                 RequiredNextAction = "Record Uref source, wind component used for ratio, and whether speed magnitude or streamwise velocity is compared."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "systematic_bias_gate",
+                Status = "risk",
+                Evidence = "Protocol audit is generated before post-processing, so it cannot verify measured-vs-simulated bias.",
+                Risk = "A mean speed-ratio bias around -0.20 to -0.35 indicates a protocol/physics mismatch that should block paper-grade claims even if R2 is acceptable.",
+                RequiredNextAction = "After post-processing, record mean bias, regression slope/intercept and a residual map; if bias remains about -34 pp, audit inlet turbulence, boundaries, direction/probes and Uref before tuning parameters."
             };
 
             yield return new ValidationProtocolAuditItem
