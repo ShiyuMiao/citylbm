@@ -64,7 +64,9 @@ AIJ Case E is treated as a paper-grade validation experiment.
    outputs `Audit CSV`, `Validation Status`, `Compared Value` and `Probe ID`. The `Search Radius` input must be
    archived because v0.3.0 applies it as the actual interpolation-neighbor distance filter. The audit CSV must also
    record wind-vector components, `wind_direction_valid` and `normalization_valid` so speed-ratio and streamwise-ratio
-   comparisons remain traceable.
+   comparisons remain traceable. The validation metrics must record `compared_component_consistency_gate`,
+   `compared_component_unique_values` and `official_coordinate_delta_count`; every valid probe must use one explicit
+   component and must have an official coordinate-delta check.
 
 8. Promotion gate.
    CityLBM may inherit native FluidX3D settings only after native Case A has a passing or explicitly bounded diagnostic
@@ -87,14 +89,15 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Inlet `U` and `k` preservation metrics from the empty tunnel.
 - Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept, max absolute error,
   `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
-- Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance and compared component.
+- Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance, compared-component consistency and
+  coordinate-delta coverage across all valid probes.
 
 ## Machine Gate
 
 After every native FluidX3D or CityLBM-driven Case A run, execute the repository gate before using metrics in a paper:
 
 ```powershell
-python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluidx3d --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --out <run_dir>\validation_gate_report.json
+python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluidx3d --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --out <run_dir>\validation_gate_report.json
 ```
 
 If metrics are produced from Grasshopper `Data Probe`, build the metrics row first:

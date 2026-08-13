@@ -50,6 +50,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-official-coordinate-delta-m", type=float, default=1.0e-6)
     parser.add_argument("--max-probe-failure-fraction", type=float, default=0.0)
     parser.add_argument("--max-frontal-blockage-ratio", type=float, default=0.05)
+    parser.add_argument("--expected-compared-component", default="", help="Require a specific Data Probe compared_component, e.g. speed_ratio or streamwise_ratio.")
     parser.add_argument(
         "--allow-diagnostic",
         action="store_true",
@@ -205,6 +206,27 @@ def read_probe_counts(path: Optional[Path]) -> Tuple[Optional[int], Optional[int
     return len(rows), failed, None
 
 
+def read_probe_component_audit(path: Optional[Path]) -> Tuple[Optional[int], List[str], Optional[str]]:
+    if not path or not path.exists():
+        return None, [], "probe audit CSV not found"
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        return 0, [], "probe audit CSV has no rows"
+    components = set()
+    valid_count = 0
+    for row in rows:
+        failed_flag = as_bool(get_any(row, ["failed", "Failed", "out_of_tolerance", "OutOfTolerance"]))
+        status = str(get_any(row, ["status", "Status", "validation_status", "ValidationStatus"]) or "").lower()
+        if failed_flag is True or "fail" in status or "out" in status:
+            continue
+        valid_count += 1
+        component = str(get_any(row, ["compared_component", "ComparedComponent"]) or "").strip().lower()
+        if component:
+            components.add(component)
+    return valid_count, sorted(components), None
+
+
 def source_frame_count(metrics: Dict[str, Any]) -> Optional[int]:
     direct = as_int(get_any(metrics, ["averaging_window", "AverageLastN", "average_last_n"]))
     if direct:
@@ -352,16 +374,53 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     normalization_valid = as_bool(get_any(metrics, ["normalization_valid", "NormalizationValid"]))
     wind_valid = as_bool(get_any(metrics, ["wind_direction_valid", "WindDirectionValid"]))
     coord_delta = as_float(get_any(metrics, ["max_official_coordinate_delta_m", "MaxOfficialCoordinateDeltaM"]))
+    coord_delta_count = as_int(get_any(metrics, ["official_coordinate_delta_count", "OfficialCoordinateDeltaCount"]))
+    valid_metric_count = as_int(get_any(metrics, ["valid_n", "ValidN"]))
     coord_ok = coord_delta is not None and coord_delta <= args.max_official_coordinate_delta_m
+    coord_coverage_ok = (
+        coord_delta_count is not None
+        and valid_metric_count is not None
+        and valid_metric_count > 0
+        and coord_delta_count == valid_metric_count
+    )
     add_gate(
         gates,
         "coordinate_normalization",
-        PASS if normalization_valid is True and wind_valid is True and coord_ok else FAIL,
+        PASS if normalization_valid is True and wind_valid is True and coord_ok and coord_coverage_ok else FAIL,
         (
             f"normalization_valid={normalization_valid}; wind_direction_valid={wind_valid}; "
-            f"max_official_coordinate_delta_m={coord_delta}; required <= {args.max_official_coordinate_delta_m}"
+            f"max_official_coordinate_delta_m={coord_delta}; required <= {args.max_official_coordinate_delta_m}; "
+            f"official_coordinate_delta_count={coord_delta_count}; valid_n={valid_metric_count}"
         ),
         "Audit Uref/Zref, wind sign, compared component and RS probe coordinate transform.",
+    )
+
+    component_gate = str(get_any(metrics, ["compared_component_consistency_gate", "ComparedComponentConsistencyGate"]) or "").strip().lower()
+    metric_component = str(get_any(metrics, ["compared_component", "velocity_component", "ComparedComponent"]) or "").strip().lower()
+    probe_valid_component_count, probe_components, probe_component_error = read_probe_component_audit(probe_path)
+    expected_component = args.expected_compared_component.strip().lower()
+    if probe_components:
+        unique_components = probe_components
+    else:
+        unique_components = [c for c in metric_component.split(";") if c] if ";" in metric_component else ([metric_component] if metric_component else [])
+    component_consistent = (
+        (component_gate == "pass" or component_gate == "")
+        and len(unique_components) == 1
+        and bool(unique_components[0])
+        and (not expected_component or unique_components[0] == expected_component)
+    )
+    add_gate(
+        gates,
+        "compared_component",
+        PASS if component_consistent else FAIL,
+        (
+            f"metrics_component={metric_component or 'missing'}; "
+            f"metrics_component_gate={component_gate or 'missing'}; "
+            f"probe_components={';'.join(unique_components) or 'missing'}; "
+            f"expected={expected_component or 'not_set'}; "
+            f"probe_valid_component_count={probe_valid_component_count}; {probe_component_error or ''}"
+        ).strip(),
+        "Use one explicit Data Probe Compared Component for all official probes and match it to the AIJ table definition.",
     )
 
     valid_n = as_int(get_any(metrics, ["valid_n", "ValidN"]))
@@ -466,6 +525,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_official_coordinate_delta_m": args.max_official_coordinate_delta_m,
             "max_probe_failure_fraction": args.max_probe_failure_fraction,
             "max_frontal_blockage_ratio": args.max_frontal_blockage_ratio,
+            "expected_compared_component": args.expected_compared_component,
         },
         "artifacts": {
             "case_metadata": str(metadata_path) if metadata_path else "",

@@ -42,6 +42,8 @@ TEMPLATE_FIELDS = [
     "Zref_m",
     "normalization_valid",
     "velocity_component",
+    "compared_component_consistency_gate",
+    "compared_component_unique_values",
     "wind_vector",
     "wind_direction_valid",
     "inlet_face",
@@ -80,6 +82,7 @@ TEMPLATE_FIELDS = [
     "mean_probe_distance_m",
     "max_probe_distance_m",
     "max_official_coordinate_delta_m",
+    "official_coordinate_delta_count",
     "U_MAE_ratio",
     "U_RMSE_ratio",
     "U_bias_ratio",
@@ -427,6 +430,7 @@ def main() -> int:
     normalization_values: List[bool] = []
     wind_values: List[bool] = []
     compared_component = ""
+    compared_components: List[str] = []
     tolerance = ""
 
     for row in probe_rows:
@@ -468,6 +472,9 @@ def main() -> int:
             wind_values.append(wind_valid)
         if not compared_component:
             compared_component = get_value(row, "compared_component")
+        row_compared_component = get_value(row, "compared_component").strip().lower()
+        if row_compared_component:
+            compared_components.append(row_compared_component)
         if not tolerance:
             tolerance = get_value(row, "tolerance")
         comparison_rows.append(
@@ -512,6 +519,12 @@ def main() -> int:
     systematic_flag = ""
     if u_bias is not None and abs(u_bias) >= args.systematic_bias_threshold:
         systematic_flag = "underprediction" if u_bias < 0 else "overprediction"
+    unique_compared_components = sorted(set(compared_components))
+    component_consistency_gate = (
+        "pass"
+        if len(unique_compared_components) == 1 and bool(unique_compared_components[0])
+        else "fail_mixed_or_missing_compared_component"
+    )
 
     boundary_audit = metadata.get("BoundaryProtocolAudit") if isinstance(metadata.get("BoundaryProtocolAudit"), dict) else {}
     blockage_audit = boundary_audit.get("BlockageDiagnostics") if isinstance(boundary_audit.get("BlockageDiagnostics"), dict) else {}
@@ -547,6 +560,8 @@ def main() -> int:
             "Zref_m": fmt(args.z_ref),
             "normalization_valid": csv_bool(all(normalization_values) if normalization_values else None),
             "velocity_component": compared_component,
+            "compared_component_consistency_gate": component_consistency_gate,
+            "compared_component_unique_values": ";".join(unique_compared_components),
             "wind_vector": vector_field(metadata, "WindDirection"),
             "wind_direction_valid": csv_bool(all(wind_values) if wind_values else None),
             "inlet_face": nested(metadata, "BoundaryProtocolAudit", "InletFace"),
@@ -585,6 +600,7 @@ def main() -> int:
             "mean_probe_distance_m": fmt(mean(distances)),
             "max_probe_distance_m": fmt(max(distances) if distances else None),
             "max_official_coordinate_delta_m": fmt(max(official_coordinate_deltas) if official_coordinate_deltas else None),
+            "official_coordinate_delta_count": len(official_coordinate_deltas),
             "U_MAE_ratio": fmt(u_mae),
             "U_RMSE_ratio": fmt(u_rmse),
             "U_bias_ratio": fmt(u_bias),

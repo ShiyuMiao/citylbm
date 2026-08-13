@@ -65,6 +65,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   table is explicitly defined as along-wind signed velocity. Archive the appended outputs `Speed Ratio`,
   `Streamwise Ratio`, `Nearest Distance`, `Audit CSV`, `Validation Status`, `Compared Value` and `Probe ID`.
   These outputs are diagnostic only: `Uref` is used for validation ratios and must not be used to replace `AF_caseE.csv`.
+  The metrics builder records `compared_component_consistency_gate`, `compared_component_unique_values` and
+  `official_coordinate_delta_count`; the machine gate fails if valid probes mix components or if coordinate deltas are
+  not available for every valid official probe.
 - A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
   extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
 - `case_metadata.json` must be archived with the run. It records the boundary-condition summary, expected VTK frame count,
@@ -83,7 +86,7 @@ python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit
 - Run the machine gate after postprocessing:
 
 ```powershell
-python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --out <run_dir>\validation_gate_report.json
+python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --out <run_dir>\validation_gate_report.json
 ```
 
   The gate must pass before Case E is described as paper-grade validation. A failed gate means the run remains
@@ -104,6 +107,7 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Inlet/outlet/lateral/top boundary faces and upstream/downstream/lateral/top clearances in building-height units
 - Domain size, maximum building height, approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate
 - Mean probe distance and maximum probe distance
+- Compared component consistency gate, unique compared components and official coordinate-delta coverage count
 - Native FluidX3D baseline run id or archive path
 - Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
 - Native baseline gate and `validation_gate_report.json`
