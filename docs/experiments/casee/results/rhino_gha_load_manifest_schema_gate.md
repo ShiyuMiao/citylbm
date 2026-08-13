@@ -1,6 +1,6 @@
 # Rhino/GHA Load Manifest Schema Gate
 
-Generated: 2026-08-13T10:43:16.408780+00:00
+Generated: 2026-08-13T11:04:11.648231+00:00
 
 ## Verdict
 

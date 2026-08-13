@@ -1,6 +1,6 @@
 # AIJ Case E Manuscript Section Pack
 
-Generated: 2026-08-13T10:43:52.789888+00:00
+Generated: 2026-08-13T11:04:48.824829+00:00
 evidence_type: newly_run
 claim_readiness: paper_ready_negative_validation_and_limitations
 
@@ -26,7 +26,7 @@ The software changes should be described as traceability and misuse-prevention i
 
 ## Release Boundary Paragraph
 
-The formal release gate remains closed: `formal_release_allowed=False`, with recommended tag `v0.4.0-rc85`. A formal `v0.4.0` release requires official z = 2 m R2 to become positive, Pearson to remain positive, MAE to improve clearly below the present near-21 percentage-point level, Case A smoke regression to remain intact, Rhino/Grasshopper to load the new GHA, and metrics to trace to command, log, CSV, figure, and report artifacts. (newly_run; source: `docs/experiments/casee/results/release_gate.json`)
+The formal release gate remains closed: `formal_release_allowed=False`, with recommended tag `v0.4.0-rc86`. A formal `v0.4.0` release requires official z = 2 m R2 to become positive, Pearson to remain positive, MAE to improve clearly below the present near-21 percentage-point level, Case A smoke regression to remain intact, Rhino/Grasshopper to load the new GHA, and metrics to trace to command, log, CSV, figure, and report artifacts. (newly_run; source: `docs/experiments/casee/results/release_gate.json`)
 
 ## Manuscript Sentence Bank
 
@@ -34,7 +34,7 @@ The formal release gate remains closed: `formal_release_allowed=False`, with rec
 - The best diagnostic sampling row is `vertical_valid_above`, with MAE 16.041 pp and Pearson 0.336940. (newly_run; source: `docs/experiments/casee/results/casee_zcenter_probe_mode_metrics.csv`)
 - In the z-center audit, low-risk probes have raw MAE 12.435 pp, whereas high-risk probes have raw MAE 34.589 pp. (newly_run; source: `docs/experiments/casee/results/casee_zcenter_voxel_probe_audit_groups.csv; docs/experiments/casee/results/casee_voxel_probe_audit_groups.csv`)
 - CityLBM exposes and audits the run manifest path so protocol and claim-boundary metadata are traceable from the Grasshopper workflow. (newly_run; source: `docs/experiments/casee/results/citylbm_manifest_output_gate.json; CityLBM/src/Core/FluidX3DInterface.cs`)
-- The formal release gate remains closed (`formal_release_allowed=False`), and the recommended tag is `v0.4.0-rc85`. (newly_run; source: `docs/experiments/casee/results/release_gate.json`)
+- The formal release gate remains closed (`formal_release_allowed=False`), and the recommended tag is `v0.4.0-rc86`. (newly_run; source: `docs/experiments/casee/results/release_gate.json`)
 
 ## Forbidden Wording
 

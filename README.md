@@ -122,6 +122,10 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_runbook_codegen_preflight.md`
 - `docs/experiments/casee/results/casee_default_promotion_gate.json`
 - `docs/experiments/casee/results/casee_default_promotion_gate.md`
+- `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
+- `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
+- `docs/experiments/casee/results/rhino_gha_load_manifest.expected.json`
+- `docs/releases/v0.4.0-rc86.md`
 - `docs/releases/v0.4.0-rc85.md`
 - `docs/releases/v0.4.0-rc84.md`
 - `docs/releases/v0.4.0-rc83.md`
@@ -145,6 +149,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/rhino_gha_load_manifest.template.json`
 - `docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.json`
 - `docs/experiments/casee/results/rhino_gha_load_manifest_schema_gate.md`
+- `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
+- `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
+- `docs/experiments/casee/results/rhino_gha_load_manifest.expected.json`
 - `docs/experiments/casee/results/citylbm_plugin_identity_component_gate.json`
 - `docs/experiments/casee/results/citylbm_plugin_identity_component_gate.md`
 - `docs/experiments/casee/results/citylbm_plugin_identity_binary_gate.json`
@@ -228,6 +235,9 @@ Current Case E, release-gate, and manuscript-boundary materials:
 - `docs/experiments/casee/results/casee_default_promotion_gate.json`
 - `docs/experiments/casee/results/casee_default_promotion_gate.md`
 - `docs/experiments/casee/results/casee_default_promotion_gate.csv`
+- `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.json`
+- `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.md`
+- `docs/experiments/casee/results/casee_rhino_load_evidence_packet_gate.csv`
 - `docs/experiments/casee/results/casee_manuscript_results_table.json`
 - `docs/experiments/casee/results/casee_manuscript_results_table.md`
 - `docs/experiments/casee/results/casee_manuscript_results_table.csv`
@@ -527,6 +537,13 @@ is complete before it can be used as load evidence. It checks required fields,
 the expected plugin version, the expected GHA SHA256, and listed screenshot/log
 artifacts, while keeping the Rhino load gate fail-closed until those real
 artifacts exist.
+
+The Rhino load evidence packet gate adds an operator-facing expected manifest
+with the exact plugin version, staged GHA path, SHA256, required screenshot/log
+artifacts, post-capture commands, and forbidden interpretations. This closes a
+paper-review risk where a template or old GHA could be mistaken for real load
+evidence; it still does not prove Rhino loaded the plugin until the manual
+manifest and artifacts exist.
 
 The `Plugin Identity` Grasshopper component strengthens that manual workflow by
 reporting the loaded plugin version, assembly version, GHA path, SHA256,

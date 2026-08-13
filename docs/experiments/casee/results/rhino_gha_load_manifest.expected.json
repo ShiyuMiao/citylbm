@@ -1,0 +1,44 @@
+{
+  "packet_generated_at": "2026-08-13T11:04:11.789682+00:00",
+  "evidence_type": "newly_run",
+  "purpose": "Expected values and required manual evidence for a real Rhino/Grasshopper CityLBM load check.",
+  "manual_manifest_path": "docs/experiments/casee/results/rhino_gha_load_manifest.json",
+  "required_fields": [
+    "checked_at",
+    "operator",
+    "rhino_version",
+    "grasshopper_version",
+    "observed_plugin_version",
+    "observed_assembly_version",
+    "observed_gha_path",
+    "observed_gha_sha256",
+    "evidence_artifacts",
+    "notes"
+  ],
+  "expected_plugin_public_version": "0.4.0-rc",
+  "expected_assembly_version": "0.4.0.0",
+  "expected_gha_path": "CityLBM/bin/CityLBM.gha",
+  "expected_gha_sha256": "e116a5c2d827aea5022de48ab2c2b9c48caad3326de5b2d1069ad448ca73171d",
+  "required_evidence_artifacts": [
+    "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_screenshot.png",
+    "docs/experiments/casee/results/rhino_loaded_citylbm_v040rc_log.txt"
+  ],
+  "required_grasshopper_observation": [
+    "CityLBM Plugin Identity component is present in the Grasshopper canvas.",
+    "Plugin Identity output reports the loaded public version.",
+    "Plugin Identity output reports the loaded GHA path.",
+    "Plugin Identity output reports the loaded GHA SHA256.",
+    "Reported SHA256 matches CityLBM/bin/CityLBM.gha."
+  ],
+  "post_capture_commands": [
+    "python docs/experiments/casee/tools/rhino_gha_load_gate.py",
+    "python docs/experiments/casee/tools/rhino_gha_load_manifest_schema_gate.py",
+    "python docs/experiments/casee/tools/casee_audit.py --release-target v0.4.0",
+    "python docs/experiments/casee/tools/reproducibility_suite.py --release-target v0.4.0"
+  ],
+  "forbidden_interpretation": [
+    "Do not treat this expected manifest as proof that Rhino loaded CityLBM.",
+    "Do not use Rhino/GHA load evidence as CFD accuracy evidence.",
+    "Do not claim formal v0.4.0 until official z=2 m raw_trilinear metrics pass."
+  ]
+}

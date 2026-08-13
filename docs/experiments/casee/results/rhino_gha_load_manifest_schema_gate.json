@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-13T10:43:16.408780+00:00",
+  "generated_at": "2026-08-13T11:04:11.648231+00:00",
   "evidence_type": "newly_run",
   "rhino_load_manifest_schema_gate_passed": true,
   "schema_contract_passed": true,
@@ -7,7 +7,7 @@
   "manual_manifest_claim_ready": false,
   "claim_readiness": "author_input_needed_manual_rhino_load_manifest",
   "expected_plugin_public_version": "0.4.0-rc",
-  "expected_tracked_gha_sha256": "84cf1e133d3438ab5cfec2bc707f89a382a34e4a7c230ce3f27951db1b60a87e",
+  "expected_tracked_gha_sha256": "e116a5c2d827aea5022de48ab2c2b9c48caad3326de5b2d1069ad448ca73171d",
   "template_path": "docs/experiments/casee/results/rhino_gha_load_manifest.template.json",
   "manual_manifest_path": "docs/experiments/casee/results/rhino_gha_load_manifest.json",
   "template_field_status": [
@@ -17,7 +17,7 @@
       "placeholder_allowed": true,
       "placeholder_detected": false,
       "passes": true,
-      "value_preview": "2026-08-13T10:43:16.278113+00:00"
+      "value_preview": "2026-08-13T11:04:11.531890+00:00"
     },
     {
       "field": "operator",
@@ -65,7 +65,7 @@
       "placeholder_allowed": true,
       "placeholder_detected": false,
       "passes": true,
-      "value_preview": "84cf1e133d3438ab5cfec2bc707f89a382a34e4a7c230ce3f27951db1b60a87e"
+      "value_preview": "e116a5c2d827aea5022de48ab2c2b9c48caad3326de5b2d1069ad448ca73171d"
     },
     {
       "field": "evidence_artifacts",

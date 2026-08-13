@@ -1,11 +1,11 @@
 # CityLBM Software Feedback Matrix
 
-Generated: 2026-08-13T10:44:06.683014+00:00
+Generated: 2026-08-13T11:05:01.050498+00:00
 
 ## Verdict
 
 - Matrix passed: True
-- Feedback rows: 61
+- Feedback rows: 62
 - All source paths exist: True
 - No forbidden default promotion: True
 - Formal accuracy claim supported: False
@@ -33,6 +33,7 @@ Generated: 2026-08-13T10:44:06.683014+00:00
 - local_orphan_candidate_no_default_promotion: 1
 - low_cost_regression_no_default_promotion: 1
 - manual_rhino_load_evidence_kit: 1
+- manual_rhino_load_evidence_packet_no_accuracy_promotion: 1
 - manual_rhino_load_manifest_schema_gate: 1
 - native_c016_residual_target_codegen_no_accuracy_promotion: 1
 - native_codegen_smoke_regression_no_accuracy_promotion: 1
@@ -133,6 +134,7 @@ Generated: 2026-08-13T10:44:06.683014+00:00
 | `SF059` | Experiment 2 / native Case E codegen smoke regression | native_codegen_smoke_regression_no_accuracy_promotion | implemented_native_codegen_smoke_regression | False | The native Case E generator now has a short smoke gate covering default, AF-k/noSGS inlet, voxel-dilation wall, and C016 residual-target configurations; it also verifies manifest path length and cleanup after exposing the Windows long-path risk. |
 | `SF060` | Experiment 2 / next-run runbook native codegen preflight | runbook_codegen_preflight_no_accuracy_promotion | implemented_runbook_codegen_preflight | False | The next-run official follow-up commands R005, R006, R007, R008, and R010 are now machine-preflighted by executing only their native case-generation step, verifying official manifest fields, diagnostic-default blockers, path length, and cleanup before any long solver run. |
 | `SF061` | Experiment 2 / Case E default-promotion gate | default_promotion_gate_no_accuracy_promotion | implemented_default_promotion_gate | False | A dedicated default-promotion gate now converts the official metric, Case A, Rhino/GHA load, raw-trilinear protocol, no-fitting, and traceability requirements into per-setting blockers so diagnostic controls cannot silently become CityLBM defaults. |
+| `SF062` | Experiment 2 / Case E Rhino load evidence packet gate | manual_rhino_load_evidence_packet_no_accuracy_promotion | implemented_rhino_load_evidence_packet_gate | False | The Rhino/GHA manual load handoff now has a packet gate that writes expected version, path, SHA256, screenshot/log requirements, post-capture commands, and forbidden interpretations while remaining fail-closed until a real Rhino/Grasshopper manifest and artifacts exist. |
 
 ## Paper Boundary
 
@@ -199,6 +201,7 @@ Generated: 2026-08-13T10:44:06.683014+00:00
 | `SF059` | Use as software reproducibility evidence that default-off native follow-up candidates can be generated and audited before long solver runs. | Code-generation smoke evidence only; no FluidX3D run, probe CSV, official metric update, R2 improvement, or default accuracy promotion is supported. |
 | `SF060` | Use as runbook reproducibility evidence that official follow-up inputs are executable and claim-gated before solver scheduling. | Input-generation evidence only; no FluidX3D run, probe CSV, official metric update, R2 improvement, or default accuracy promotion is supported. |
 | `SF061` | Use as software-implications evidence for why diagnostic improvements remain experimental until all formal release gates pass. | Promotion-policy evidence only; no FluidX3D run, official metric update, R2 improvement, or default accuracy promotion is supported. |
+| `SF062` | Use as a software-load protocol-risk mitigation showing exactly how old-GHA contamination is prevented before formal claims. | Manual evidence packet only; it does not prove Rhino loaded the plugin, run FluidX3D, improve official metrics, or permit formal v0.4.0. |
 
 ## Boundary
 

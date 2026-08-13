@@ -1,6 +1,6 @@
 # Case E Default Promotion Gate
 
-Generated: 2026-08-13T10:43:42.189656+00:00
+Generated: 2026-08-13T11:04:37.953702+00:00
 
 ## Verdict
 

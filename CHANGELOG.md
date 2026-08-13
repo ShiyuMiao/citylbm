@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0-rc86 - Rhino load evidence packet gate
+
+- Added `casee_rhino_load_evidence_packet_gate.py` to package the manual Rhino/GHA load evidence requirements into an expected manifest, checklist CSV, and Markdown handoff.
+- The gate records the expected plugin version, staged GHA path, SHA256, required screenshot/log artifacts, post-capture commands, and forbidden interpretations while staying fail-closed until real Rhino/Grasshopper evidence exists.
+- Integrated the packet gate into the reproducibility suite, artifact index, release asset manifest, paper evidence gate, and software-feedback matrix as SF062.
+
+Formal `v0.4.0` remains blocked with official z=2 m MAE = 21.111 pp, R2 = -2.006330, Pearson = 0.115756.
+
 ## v0.4.0-rc85 - Default promotion gate
 
 - Added `casee_default_promotion_gate.py` to encode when Case E diagnostic settings may be promoted to CityLBM defaults.
