@@ -89,6 +89,12 @@ After every native FluidX3D or CityLBM-driven Case A run, execute the repository
 python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluidx3d --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --out <run_dir>\validation_gate_report.json
 ```
 
+If metrics are produced from Grasshopper `Data Probe`, build the metrics row first:
+
+```powershell
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
+```
+
 For a CityLBM-driven parity run, change `--software citylbm` and keep the same metrics/probe schema. A passing paper-grade
 record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,
 `native_baseline_gate=pass`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,

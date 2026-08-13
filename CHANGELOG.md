@@ -18,6 +18,7 @@
 - Synthetic inlet runs now refresh inlet perturbations at `SyntheticTurbulenceUpdateInterval` instead of tying updates to the VTK save interval.
 - Added generated `validation_protocol_audit.json/.md` so validation runs explicitly report inlet, boundary, averaging, coordinate, normalization and grid-resolution readiness.
 - Added `scripts/validation_gate.py` to fail run packages that lack paper-grade evidence for averaging, inlet U/k preservation, native baseline linkage, probe mapping, coordinate normalization or bounded error metrics.
+- Added `scripts/validation_metrics_from_probe_audit.py` to merge Data Probe audit rows with official AIJ measurements and output the standard validation metrics row.
 
 ### Known limits
 

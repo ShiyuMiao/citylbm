@@ -30,3 +30,4 @@ Thumbs.db
 *.tmp
 *.log
 *.cache
+__pycache__/

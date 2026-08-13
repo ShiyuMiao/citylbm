@@ -1,0 +1,525 @@
+#!/usr/bin/env python3
+"""Build a CityLBM validation metrics row from Data Probe audit output.
+
+Inputs:
+  - Data Probe audit CSV from Grasshopper.
+  - Official measurement CSV, e.g. AIJ Case E RS_caseE.csv.
+
+The output follows docs/validation_metrics_template.csv and is designed to feed
+scripts/validation_gate.py. It focuses on traceable probe matching, selected
+velocity component, Uref normalization, and systematic-bias detection.
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import math
+import sys
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+
+
+TEMPLATE_FIELDS = [
+    "case",
+    "wind_direction",
+    "software",
+    "version",
+    "dx_m",
+    "steps",
+    "save_interval",
+    "averaging_window",
+    "source_time_steps",
+    "mean_speed_mps",
+    "mean_speed_stddev_mps",
+    "max_speed_stddev_mps",
+    "mean_speed_stddev_ratio",
+    "max_speed_stddev_ratio",
+    "profile_csv",
+    "geometry_scale",
+    "Uref_mps",
+    "Zref_m",
+    "normalization_valid",
+    "velocity_component",
+    "wind_vector",
+    "wind_direction_valid",
+    "inlet_face",
+    "outlet_face",
+    "lateral_faces",
+    "upstream_clearance_h",
+    "downstream_clearance_h",
+    "min_lateral_clearance_h",
+    "top_clearance_h",
+    "boundary_protocol_gate",
+    "boundary_summary",
+    "synthetic_inlet_method",
+    "inlet_distribution_treatment",
+    "wall_roughness_treatment",
+    "synthetic_update_interval",
+    "empty_tunnel_gate",
+    "empty_tunnel_U_bias_ratio",
+    "empty_tunnel_k_bias_ratio",
+    "native_fluidx3d_baseline_id",
+    "native_baseline_gate",
+    "probe_mapping_table",
+    "probe_id_field",
+    "probe_tolerance_m",
+    "compared_component",
+    "failed_probe_count_by_tolerance",
+    "valid_n",
+    "failed_n",
+    "mean_probe_distance_m",
+    "max_probe_distance_m",
+    "max_official_coordinate_delta_m",
+    "U_MAE_ratio",
+    "U_RMSE_ratio",
+    "U_bias_ratio",
+    "U_R2",
+    "U_regression_slope",
+    "U_regression_intercept",
+    "U_max_abs_error",
+    "k_MAE_m2s2",
+    "k_RMSE_m2s2",
+    "k_bias_m2s2",
+    "k_bias_ratio",
+    "systematic_bias_flag",
+    "protocol_gate",
+    "validation_gate_report",
+    "notes",
+]
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Merge Data Probe audit rows with official AIJ measurements and compute validation metrics."
+    )
+    parser.add_argument("--probe-audit", required=True, help="Data Probe audit CSV.")
+    parser.add_argument("--official", required=True, help="Official RS/measurement CSV.")
+    parser.add_argument("--out", required=True, help="Output metrics CSV path.")
+    parser.add_argument("--comparison-out", help="Optional per-probe comparison CSV.")
+    parser.add_argument("--metadata", help="Optional case_metadata.json.")
+    parser.add_argument("--case", default="", help="Case label to write and optionally filter official rows.")
+    parser.add_argument("--wind-direction", default="", help="Wind direction label to write and optionally filter official rows.")
+    parser.add_argument("--software", default="citylbm")
+    parser.add_argument("--version", default="0.3.0")
+    parser.add_argument("--official-id-column", default="", help="Official probe ID column. Auto-detected when omitted.")
+    parser.add_argument("--official-value-column", default="", help="Official measured value column. Auto-detected when omitted.")
+    parser.add_argument("--probe-id-column", default="probe_id")
+    parser.add_argument("--sim-value-column", default="compared_value")
+    parser.add_argument("--u-ref", type=float, default=None, help="Reference velocity, used only for metadata checks.")
+    parser.add_argument("--z-ref", type=float, default=None)
+    parser.add_argument("--dx", type=float, default=None)
+    parser.add_argument("--steps", type=int, default=None)
+    parser.add_argument("--save-interval", type=int, default=None)
+    parser.add_argument("--averaging-window", type=int, default=None)
+    parser.add_argument("--source-time-steps", default="")
+    parser.add_argument("--profile-csv", default="")
+    parser.add_argument("--geometry-scale", default="")
+    parser.add_argument("--empty-tunnel-gate", default="")
+    parser.add_argument("--empty-tunnel-u-bias-ratio", default="")
+    parser.add_argument("--empty-tunnel-k-bias-ratio", default="")
+    parser.add_argument("--native-baseline-id", default="")
+    parser.add_argument("--native-baseline-gate", default="")
+    parser.add_argument("--k-mae", default="")
+    parser.add_argument("--k-rmse", default="")
+    parser.add_argument("--k-bias", default="")
+    parser.add_argument("--k-bias-ratio", default="")
+    parser.add_argument("--systematic-bias-threshold", type=float, default=0.20)
+    parser.add_argument("--append", action="store_true", help="Append to metrics CSV if it exists.")
+    return parser.parse_args()
+
+
+def read_csv(path: Path) -> List[Dict[str, str]]:
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def read_json(path: Optional[Path]) -> Dict[str, Any]:
+    if not path or not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8-sig") as handle:
+        data = json.load(handle)
+    return data if isinstance(data, dict) else {}
+
+
+def norm_key(key: str) -> str:
+    return "".join(ch for ch in key.lower() if ch.isalnum())
+
+
+def find_column(rows: Sequence[Dict[str, str]], candidates: Iterable[str]) -> str:
+    if not rows:
+        return ""
+    columns = list(rows[0].keys())
+    normalized = {norm_key(column): column for column in columns}
+    for candidate in candidates:
+        found = normalized.get(norm_key(candidate))
+        if found:
+            return found
+    for column in columns:
+        ncol = norm_key(column)
+        for candidate in candidates:
+            if norm_key(candidate) in ncol:
+                return column
+    return ""
+
+
+def get_value(row: Dict[str, str], column: str) -> str:
+    if not column:
+        return ""
+    if column in row:
+        return row[column]
+    target = norm_key(column)
+    for key, value in row.items():
+        if norm_key(key) == target:
+            return value
+    return ""
+
+
+def as_float(value: Any) -> Optional[float]:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if text == "":
+        return None
+    try:
+        parsed = float(text)
+    except ValueError:
+        return None
+    if math.isnan(parsed) or math.isinf(parsed):
+        return None
+    return parsed
+
+
+def as_bool(value: Any) -> Optional[bool]:
+    text = str(value).strip().lower()
+    if text in {"true", "1", "yes", "y", "ok", "pass"}:
+        return True
+    if text in {"false", "0", "no", "n", "fail"}:
+        return False
+    return None
+
+
+def csv_bool(value: Optional[bool]) -> str:
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    return ""
+
+
+def fmt(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, float):
+        if math.isnan(value) or math.isinf(value):
+            return ""
+        return f"{value:.10g}"
+    return str(value)
+
+
+def filter_official(rows: List[Dict[str, str]], case: str, wind_direction: str) -> List[Dict[str, str]]:
+    if not rows:
+        return rows
+    case_col = find_column(rows, ["case"])
+    wind_col = find_column(rows, ["Wind_direction", "wind_direction", "direction", "wind"])
+    filtered = rows
+    if case and case_col:
+        filtered = [row for row in filtered if get_value(row, case_col).strip().lower() == case.lower()]
+    if wind_direction and wind_col:
+        filtered = [
+            row
+            for row in filtered
+            if get_value(row, wind_col).strip().lower() == wind_direction.lower()
+        ]
+    return filtered
+
+
+def build_official_lookup(rows: List[Dict[str, str]], id_column: str) -> Dict[str, Dict[str, str]]:
+    lookup: Dict[str, Dict[str, str]] = {}
+    for row in rows:
+        probe_id = get_value(row, id_column).strip()
+        if probe_id:
+            lookup[probe_id] = row
+    return lookup
+
+
+def mean(values: Sequence[float]) -> Optional[float]:
+    if not values:
+        return None
+    return sum(values) / len(values)
+
+
+def rmse(errors: Sequence[float]) -> Optional[float]:
+    if not errors:
+        return None
+    return math.sqrt(sum(error * error for error in errors) / len(errors))
+
+
+def r2(sim: Sequence[float], exp: Sequence[float]) -> Optional[float]:
+    if len(sim) < 2 or len(sim) != len(exp):
+        return None
+    exp_mean = sum(exp) / len(exp)
+    ss_tot = sum((value - exp_mean) ** 2 for value in exp)
+    if ss_tot <= 1.0e-15:
+        return None
+    ss_res = sum((s - e) ** 2 for s, e in zip(sim, exp))
+    return 1.0 - ss_res / ss_tot
+
+
+def regression(sim: Sequence[float], exp: Sequence[float]) -> Tuple[Optional[float], Optional[float]]:
+    if len(sim) < 2 or len(sim) != len(exp):
+        return None, None
+    x_mean = sum(exp) / len(exp)
+    y_mean = sum(sim) / len(sim)
+    denom = sum((x - x_mean) ** 2 for x in exp)
+    if denom <= 1.0e-15:
+        return None, None
+    slope = sum((x - x_mean) * (y - y_mean) for x, y in zip(exp, sim)) / denom
+    intercept = y_mean - slope * x_mean
+    return slope, intercept
+
+
+def metadata_field(metadata: Dict[str, Any], *keys: str) -> str:
+    for key in keys:
+        value = metadata.get(key)
+        if value not in (None, ""):
+            return str(value)
+    return ""
+
+
+def vector_field(metadata: Dict[str, Any], key: str) -> str:
+    value = metadata.get(key)
+    if isinstance(value, dict):
+        x = value.get("X")
+        y = value.get("Y")
+        z = value.get("Z")
+        if x is not None and y is not None and z is not None:
+            return f"({x},{y},{z})"
+    if value not in (None, ""):
+        return str(value)
+    return ""
+
+
+def nested(metadata: Dict[str, Any], parent: str, key: str) -> str:
+    value = metadata.get(parent)
+    if isinstance(value, dict):
+        child = value.get(key)
+        if child not in (None, ""):
+            return str(child)
+    return ""
+
+
+def main() -> int:
+    args = parse_args()
+    probe_path = Path(args.probe_audit).resolve()
+    official_path = Path(args.official).resolve()
+    out_path = Path(args.out).resolve()
+    comparison_path = Path(args.comparison_out).resolve() if args.comparison_out else None
+    metadata = read_json(Path(args.metadata).resolve() if args.metadata else None)
+
+    probe_rows = read_csv(probe_path)
+    official_rows = filter_official(read_csv(official_path), args.case, args.wind_direction)
+    if not probe_rows:
+        raise SystemExit("Probe audit CSV has no rows.")
+    if not official_rows:
+        raise SystemExit("Official measurement CSV has no matching rows.")
+
+    official_id_col = args.official_id_column or find_column(official_rows, ["No.", "No", "probe_id", "id", "point"])
+    official_value_col = args.official_value_column or find_column(
+        official_rows,
+        ["Velocity_Ratio", "velocity_ratio", "V_exp_ratio", "U_exp_ratio", "U", "Velocity", "WindSpeed"],
+    )
+    if not official_id_col:
+        raise SystemExit("Could not detect official probe ID column. Use --official-id-column.")
+    if not official_value_col:
+        raise SystemExit("Could not detect official measured value column. Use --official-value-column.")
+
+    official = build_official_lookup(official_rows, official_id_col)
+    sim_values: List[float] = []
+    exp_values: List[float] = []
+    errors: List[float] = []
+    abs_errors: List[float] = []
+    distances: List[float] = []
+    official_coordinate_deltas: List[float] = []
+    comparison_rows: List[Dict[str, Any]] = []
+    failed = 0
+    normalization_values: List[bool] = []
+    wind_values: List[bool] = []
+    compared_component = ""
+    tolerance = ""
+
+    for row in probe_rows:
+        probe_id = get_value(row, args.probe_id_column).strip()
+        official_row = official.get(probe_id)
+        status = get_value(row, "failed").strip().lower()
+        validation_status = get_value(row, "validation_status").strip().lower()
+        if not official_row:
+            failed += 1
+            continue
+        sim = as_float(get_value(row, args.sim_value_column))
+        exp = as_float(get_value(official_row, official_value_col))
+        failed_flag = as_bool(status)
+        if failed_flag is True or "fail" in validation_status or sim is None or exp is None:
+            failed += 1
+            continue
+        sim_values.append(sim)
+        exp_values.append(exp)
+        error = sim - exp
+        errors.append(error)
+        abs_errors.append(abs(error))
+        distance = as_float(get_value(row, "nearest_distance"))
+        if distance is not None:
+            distances.append(distance)
+        coord_deltas = []
+        for coord in ["x", "y", "z"]:
+            sim_coord = as_float(get_value(row, coord))
+            official_coord = as_float(get_value(official_row, coord))
+            if sim_coord is not None and official_coord is not None:
+                coord_deltas.append(abs(sim_coord - official_coord))
+        coordinate_delta = max(coord_deltas) if coord_deltas else None
+        if coordinate_delta is not None:
+            official_coordinate_deltas.append(coordinate_delta)
+        normalized = as_bool(get_value(row, "normalization_valid"))
+        wind_valid = as_bool(get_value(row, "wind_direction_valid"))
+        if normalized is not None:
+            normalization_values.append(normalized)
+        if wind_valid is not None:
+            wind_values.append(wind_valid)
+        if not compared_component:
+            compared_component = get_value(row, "compared_component")
+        if not tolerance:
+            tolerance = get_value(row, "tolerance")
+        comparison_rows.append(
+            {
+                "probe_id": probe_id,
+                "sim_value": sim,
+                "official_value": exp,
+                "error": error,
+                "abs_error": abs(error),
+                "nearest_distance": distance,
+                "official_coordinate_delta": coordinate_delta,
+                "compared_component": get_value(row, "compared_component"),
+                "normalization_valid": get_value(row, "normalization_valid"),
+                "wind_direction_valid": get_value(row, "wind_direction_valid"),
+            }
+        )
+
+    valid_n = len(sim_values)
+    if valid_n == 0:
+        raise SystemExit("No valid matched probes after filtering failed rows.")
+
+    u_mae = mean(abs_errors)
+    u_rmse = rmse(errors)
+    u_bias = mean(errors)
+    u_r2 = r2(sim_values, exp_values)
+    slope, intercept = regression(sim_values, exp_values)
+    max_abs = max(abs_errors) if abs_errors else None
+    systematic_flag = ""
+    if u_bias is not None and abs(u_bias) >= args.systematic_bias_threshold:
+        systematic_flag = "underprediction" if u_bias < 0 else "overprediction"
+
+    boundary_audit = metadata.get("BoundaryProtocolAudit") if isinstance(metadata.get("BoundaryProtocolAudit"), dict) else {}
+    metrics = {field: "" for field in TEMPLATE_FIELDS}
+    metrics.update(
+        {
+            "case": args.case,
+            "wind_direction": args.wind_direction,
+            "software": args.software,
+            "version": args.version,
+            "dx_m": fmt(args.dx),
+            "steps": fmt(args.steps),
+            "save_interval": fmt(args.save_interval),
+            "averaging_window": fmt(args.averaging_window),
+            "source_time_steps": args.source_time_steps,
+            "profile_csv": args.profile_csv,
+            "geometry_scale": args.geometry_scale,
+            "Uref_mps": fmt(args.u_ref),
+            "Zref_m": fmt(args.z_ref),
+            "normalization_valid": csv_bool(all(normalization_values) if normalization_values else None),
+            "velocity_component": compared_component,
+            "wind_vector": vector_field(metadata, "WindDirection"),
+            "wind_direction_valid": csv_bool(all(wind_values) if wind_values else None),
+            "inlet_face": nested(metadata, "BoundaryProtocolAudit", "InletFace"),
+            "outlet_face": nested(metadata, "BoundaryProtocolAudit", "OutletFace"),
+            "lateral_faces": nested(metadata, "BoundaryProtocolAudit", "LateralFaces"),
+            "upstream_clearance_h": nested(boundary_audit, "ClearanceByBuildingHeight", "Upstream"),
+            "downstream_clearance_h": nested(boundary_audit, "ClearanceByBuildingHeight", "Downstream"),
+            "min_lateral_clearance_h": nested(boundary_audit, "ClearanceByBuildingHeight", "MinLateral"),
+            "top_clearance_h": nested(boundary_audit, "ClearanceByBuildingHeight", "Top"),
+            "boundary_protocol_gate": str(boundary_audit.get("Gate", "")),
+            "boundary_summary": metadata_field(metadata, "BoundaryConditionSummary"),
+            "synthetic_inlet_method": metadata_field(metadata, "SyntheticTurbulentInletMethod"),
+            "inlet_distribution_treatment": metadata_field(metadata, "SyntheticTurbulentInletDistributionTreatment"),
+            "wall_roughness_treatment": metadata_field(metadata, "WallRoughnessTreatment"),
+            "synthetic_update_interval": metadata_field(metadata, "SyntheticTurbulenceUpdateInterval"),
+            "empty_tunnel_gate": args.empty_tunnel_gate,
+            "empty_tunnel_U_bias_ratio": args.empty_tunnel_u_bias_ratio,
+            "empty_tunnel_k_bias_ratio": args.empty_tunnel_k_bias_ratio,
+            "native_fluidx3d_baseline_id": args.native_baseline_id,
+            "native_baseline_gate": args.native_baseline_gate,
+            "probe_mapping_table": str(probe_path),
+            "probe_id_field": args.probe_id_column,
+            "probe_tolerance_m": tolerance,
+            "compared_component": compared_component,
+            "failed_probe_count_by_tolerance": failed,
+            "valid_n": valid_n,
+            "failed_n": failed,
+            "mean_probe_distance_m": fmt(mean(distances)),
+            "max_probe_distance_m": fmt(max(distances) if distances else None),
+            "max_official_coordinate_delta_m": fmt(max(official_coordinate_deltas) if official_coordinate_deltas else None),
+            "U_MAE_ratio": fmt(u_mae),
+            "U_RMSE_ratio": fmt(u_rmse),
+            "U_bias_ratio": fmt(u_bias),
+            "U_R2": fmt(u_r2),
+            "U_regression_slope": fmt(slope),
+            "U_regression_intercept": fmt(intercept),
+            "U_max_abs_error": fmt(max_abs),
+            "k_MAE_m2s2": args.k_mae,
+            "k_RMSE_m2s2": args.k_rmse,
+            "k_bias_m2s2": args.k_bias,
+            "k_bias_ratio": args.k_bias_ratio,
+            "systematic_bias_flag": systematic_flag,
+            "protocol_gate": "metrics_ready_for_validation_gate",
+            "notes": (
+                f"official_id_column={official_id_col}; official_value_column={official_value_col}; "
+                f"matched={valid_n}; official_filtered={len(official_rows)}"
+            ),
+        }
+    )
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    write_header = not args.append or not out_path.exists()
+    with out_path.open("a" if args.append else "w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=TEMPLATE_FIELDS)
+        if write_header:
+            writer.writeheader()
+        writer.writerow(metrics)
+
+    if comparison_path:
+        comparison_path.parent.mkdir(parents=True, exist_ok=True)
+        with comparison_path.open("w", encoding="utf-8", newline="") as handle:
+            fields = [
+                "probe_id",
+                "sim_value",
+                "official_value",
+                "error",
+                "abs_error",
+                "nearest_distance",
+                "official_coordinate_delta",
+                "compared_component",
+                "normalization_valid",
+                "wind_direction_valid",
+            ]
+            writer = csv.DictWriter(handle, fieldnames=fields)
+            writer.writeheader()
+            for row in comparison_rows:
+                writer.writerow(row)
+
+    print(f"Wrote metrics: {out_path}")
+    print(f"valid_n={valid_n}; failed_n={failed}; U_bias_ratio={fmt(u_bias)}; U_R2={fmt(u_r2)}; systematic_bias_flag={systematic_flag or 'false'}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

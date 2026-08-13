@@ -41,6 +41,7 @@ See `docs/CaseE_run_protocol.md` for the strict validation procedure.
 After postprocessing, run the machine gate before using AIJ metrics in a manuscript:
 
 ```powershell
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv>
 python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --out <run_dir>\validation_gate_report.json
 ```
 

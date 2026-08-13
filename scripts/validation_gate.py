@@ -47,6 +47,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-k-bias-ratio", type=float, default=0.30)
     parser.add_argument("--max-empty-tunnel-u-bias-ratio", type=float, default=0.05)
     parser.add_argument("--max-empty-tunnel-k-bias-ratio", type=float, default=0.15)
+    parser.add_argument("--max-official-coordinate-delta-m", type=float, default=1.0e-6)
     parser.add_argument("--max-probe-failure-fraction", type=float, default=0.0)
     parser.add_argument(
         "--allow-diagnostic",
@@ -329,11 +330,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
 
     normalization_valid = as_bool(get_any(metrics, ["normalization_valid", "NormalizationValid"]))
     wind_valid = as_bool(get_any(metrics, ["wind_direction_valid", "WindDirectionValid"]))
+    coord_delta = as_float(get_any(metrics, ["max_official_coordinate_delta_m", "MaxOfficialCoordinateDeltaM"]))
+    coord_ok = coord_delta is not None and coord_delta <= args.max_official_coordinate_delta_m
     add_gate(
         gates,
         "coordinate_normalization",
-        PASS if normalization_valid is True and wind_valid is True else FAIL,
-        f"normalization_valid={normalization_valid}; wind_direction_valid={wind_valid}",
+        PASS if normalization_valid is True and wind_valid is True and coord_ok else FAIL,
+        (
+            f"normalization_valid={normalization_valid}; wind_direction_valid={wind_valid}; "
+            f"max_official_coordinate_delta_m={coord_delta}; required <= {args.max_official_coordinate_delta_m}"
+        ),
         "Audit Uref/Zref, wind sign, compared component and RS probe coordinate transform.",
     )
 
@@ -428,6 +434,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_k_bias_ratio": args.max_k_bias_ratio,
             "max_empty_tunnel_u_bias_ratio": args.max_empty_tunnel_u_bias_ratio,
             "max_empty_tunnel_k_bias_ratio": args.max_empty_tunnel_k_bias_ratio,
+            "max_official_coordinate_delta_m": args.max_official_coordinate_delta_m,
             "max_probe_failure_fraction": args.max_probe_failure_fraction,
         },
         "artifacts": {

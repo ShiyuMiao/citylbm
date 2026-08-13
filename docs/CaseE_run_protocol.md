@@ -71,6 +71,12 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   native FluidX3D baseline, including SHA256 hashes for the generated source/metadata files. Treat the manifest gate
   `required_before_paper_grade_accuracy_claim` as blocking until the native baseline and CityLBM-driven run are compared
   with the same VTK averaging and probe audit table.
+- Convert the `Data Probe` audit table and official `RS_caseE.csv` subset into a standard metrics row:
+
+```powershell
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
+```
+
 - Run the machine gate after postprocessing:
 
 ```powershell

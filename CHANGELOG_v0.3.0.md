@@ -60,6 +60,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_gate.py` now audits completed run packages and fails diagnostic-only evidence that lacks metrics,
   empty-tunnel `U/k` preservation, native baseline linkage, valid wind/normalization flags, probe mapping, time averaging
   or bounded mean/k errors.
+- `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
+  into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
+  regression diagnostics and systematic low-bias detection.
 
 ## Remaining scientific work
 
