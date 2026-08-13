@@ -78,8 +78,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Inlet distribution treatment: macroscopic velocity only, equilibrium/distribution reconstruction, precursor field, or
   other archived method.
 - Inlet `U` and `k` preservation metrics from the empty tunnel.
-- Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept and max absolute
-  error.
+- Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept, max absolute error,
+  `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
 - Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance and compared component.
 
 ## Machine Gate
@@ -101,6 +101,9 @@ record must archive `validation_gate_report.json` and the metrics row must inclu
 `native_baseline_gate=pass`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
 zero failed probes, bounded mean-velocity bias/RMSE, and reported `k` bias. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
+If `bias_diagnosis` reports `scale_like_error`, audit `Uref`, SI/LBM velocity conversion and compared component before
+changing inlet or boundary parameters. If the scaled error remains large, prioritize boundary, roughness and inlet
+physics.
 
 ## Current Blockers
 

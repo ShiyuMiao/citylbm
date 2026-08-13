@@ -404,11 +404,19 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
 
     systematic_flag = str(get_any(metrics, ["systematic_bias_flag"]) or "").strip().lower()
+    bias_diagnosis = str(get_any(metrics, ["bias_diagnosis"]) or "").strip()
+    best_scale = as_float(get_any(metrics, ["U_best_fit_scale_to_exp"]))
+    scaled_rmse = as_float(get_any(metrics, ["U_scaled_RMSE_ratio"]))
+    scaled_improvement = as_float(get_any(metrics, ["U_scaled_improvement_ratio"]))
     add_gate(
         gates,
         "systematic_bias",
         FAIL if systematic_flag in {"true", "1", "yes", "fail", "risk", "underprediction"} else PASS,
-        f"systematic_bias_flag={systematic_flag or 'missing/false'}",
+        (
+            f"systematic_bias_flag={systematic_flag or 'missing/false'}; "
+            f"best_scale={best_scale}; scaled_RMSE={scaled_rmse}; "
+            f"scaled_improvement={scaled_improvement}; diagnosis={bias_diagnosis or 'missing'}"
+        ),
         "Investigate protocol/physics setup before tuning if a systematic low-bias flag is present.",
     )
 

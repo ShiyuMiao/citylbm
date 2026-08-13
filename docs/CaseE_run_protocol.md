@@ -95,6 +95,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - R2
 - Regression slope and intercept
 - Maximum absolute error
+- Best-fit scale to official measurements, scaled RMSE and `bias_diagnosis` to separate Uref/unit/component errors from
+  boundary/inlet physics errors.
 - Grid spacing, steps, averaging window and VTK frame list
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
 - Inlet/outlet/lateral/top boundary faces and upstream/downstream/lateral/top clearances in building-height units
@@ -103,8 +105,10 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
 - Native baseline gate and `validation_gate_report.json`
 - Protocol gate from `validation_protocol_audit.json`
-- Systematic bias flag. If mean bias remains around `-0.20` to `-0.35` speed-ratio units, do not tune parameters first;
-  audit inlet turbulence, boundary treatment, wind-direction sign, probe projection and Uref normalization.
+- Systematic bias flag and `bias_diagnosis`. If mean bias remains around `-0.20` to `-0.35` speed-ratio units, do not
+  tune parameters first. If best-fit scaling removes much of the error, audit Uref, velocity-unit conversion, compared
+  component and wind-direction sign. If scaled RMSE remains large, audit inlet turbulence, boundary treatment, roughness
+  and probe projection.
 
 ## Current v0.3.0 limitation
 
