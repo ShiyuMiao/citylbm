@@ -40,6 +40,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   audit evidence before any paper-grade accuracy claim.
 - The native baseline manifest now includes existence flags and SHA256 hashes for the generated source, geometry and
   metadata files so paired native/CityLBM runs can prove they used identical inputs.
+- `docs/CaseA_native_baseline_protocol.md` defines the native FluidX3D Case A promotion gate: empty-tunnel `U/k`
+  preservation, post-spinup averaging, official probe IDs, tolerance-based probe mapping and CityLBM-vs-native
+  equivalence must be archived before Case E is promoted as SCI-grade validation.
 
 ## Remaining scientific work
 
