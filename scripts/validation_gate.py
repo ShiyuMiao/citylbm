@@ -58,6 +58,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expected-wind-vector", default="", help="Require wind_vector to match x,y,z or (x,y,z), e.g. 0,-1,0.")
     parser.add_argument("--wind-vector-tolerance", type=float, default=1.0e-6)
     parser.add_argument(
+        "--allow-velocity-only-inlet",
+        action="store_true",
+        help=(
+            "Allow CityLBM STG-lite velocity-field-only inlet to pass the inlet gate "
+            "when empty-tunnel U/k preservation passes. Without this explicit "
+            "diagnostic override, paper-grade validation requires a distribution-"
+            "consistent, precursor, digital-filter or recycling inlet."
+        ),
+    )
+    parser.add_argument(
         "--allow-diagnostic",
         action="store_true",
         help="Return exit code 0 for diagnostic-only packages while still reporting FAIL gates.",
@@ -421,12 +431,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     treatment_velocity_only = "velocity_field_only" in inlet_treatment.lower()
     inlet_gate_status = PASS
-    if distribution_status in {"fail"}:
+    if inlet_status == "fail" or distribution_status == "fail":
         inlet_gate_status = FAIL
     elif treatment_velocity_only:
-        inlet_gate_status = WARN if empty_tunnel_pass else FAIL
-    elif distribution_status == "risk" and not (treatment_distribution_consistent and empty_tunnel_pass):
-        inlet_gate_status = WARN if empty_tunnel_pass else FAIL
+        inlet_gate_status = PASS if args.allow_velocity_only_inlet and empty_tunnel_pass else FAIL
+    elif treatment_distribution_consistent or distribution_status == "pass":
+        inlet_gate_status = PASS if empty_tunnel_pass else FAIL
+    else:
+        inlet_gate_status = FAIL
     add_gate(
         gates,
         "inlet_turbulence",
@@ -434,9 +446,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         (
             f"inlet_turbulence_k={inlet_status}; inlet_distribution_consistency={distribution_status}; "
             f"treatment={inlet_treatment or 'missing'}; empty_tunnel_gate={empty_gate or 'missing'}; "
-            f"empty_tunnel_U_bias_ratio={empty_u_bias}; empty_tunnel_k_bias_ratio={empty_k_bias}"
+            f"empty_tunnel_U_bias_ratio={empty_u_bias}; empty_tunnel_k_bias_ratio={empty_k_bias}; "
+            f"allow_velocity_only_inlet={args.allow_velocity_only_inlet}"
         ),
-        "Pass empty-tunnel U/k preservation or replace velocity-only inlet with distribution-consistent DFM/SEM/precursor/recycling.",
+        "Use a distribution-consistent DFM/SEM/precursor/recycling inlet and pass empty-tunnel U/k preservation; velocity-only STG-lite is diagnostic unless explicitly allowed.",
     )
 
     native_id = str(get_any(metrics, ["native_fluidx3d_baseline_id"]) or manifest.get("BaselineId") or "")
@@ -631,6 +644,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "uref_tolerance": args.uref_tolerance,
             "expected_wind_vector": args.expected_wind_vector,
             "wind_vector_tolerance": args.wind_vector_tolerance,
+            "allow_velocity_only_inlet": args.allow_velocity_only_inlet,
         },
         "artifacts": {
             "case_metadata": str(metadata_path) if metadata_path else "",

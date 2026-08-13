@@ -48,8 +48,10 @@ AIJ Case E is treated as a paper-grade validation experiment.
 5. Inlet distribution-consistency gate.
    If the inlet turbulence is generated from `k`, archive whether the implementation reconstructs FluidX3D distribution
    functions or only refreshes macroscopic velocity fields. CityLBM v0.3.0 STG-lite is velocity-field-only; it is
-   normalized to the isotropic component RMS target `sigma=sqrt(2k/3)`, but remains diagnostic until an empty-tunnel run
-   proves downstream `U/k` preservation or a validated DFM/SEM/precursor/recycling inlet is implemented.
+   normalized to the isotropic component RMS target `sigma=sqrt(2k/3)`, but remains diagnostic by default. The machine
+   gate only accepts it with the explicit `--allow-velocity-only-inlet` diagnostic override after an empty-tunnel run
+   proves downstream `U/k` preservation. Paper-grade promotion should use a validated DFM/SEM/precursor/recycling inlet
+   or another documented distribution-consistent treatment.
 
 6. Time-averaging gate.
    Do not report a single instantaneous VTK frame as validation. Archive post-spinup probe time means and, when VTK is
@@ -118,6 +120,8 @@ record must archive `validation_gate_report.json` and the metrics row must inclu
 `native_baseline_gate=pass`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
 zero failed probes, bounded mean-velocity bias/RMSE, and reported `k` bias. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
+The command intentionally omits `--allow-velocity-only-inlet`; add that flag only for explicitly labelled diagnostic
+STG-lite sensitivity runs, not for the native FluidX3D baseline or a paper-grade CityLBM equivalence claim.
 If `bias_diagnosis` reports `scale_like_error`, audit `Uref`, SI/LBM velocity conversion and compared component before
 changing inlet or boundary parameters. If the scaled error remains large, prioritize boundary, roughness and inlet
 physics.
