@@ -95,6 +95,8 @@ TEMPLATE_FIELDS = [
     "inlet_profile_audit",
     "inlet_profile_frame_count",
     "inlet_profile_source_time_steps",
+    "inlet_negative_streamwise_fraction",
+    "inlet_streamwise_direction_gate",
     "inlet_profile_gate",
     "inlet_u_profile_gate",
     "inlet_u_mae_ratio",
@@ -638,6 +640,8 @@ def main() -> int:
     inlet_profile_gate = audit_gate(inlet_profile_audit, "inlet_profile_gate")
     inlet_u_profile_gate = audit_gate(inlet_profile_audit, "inlet_u_profile_gate")
     inlet_k_profile_gate = audit_gate(inlet_profile_audit, "inlet_k_profile_gate")
+    inlet_streamwise_direction_gate = audit_gate(inlet_profile_audit, "inlet_streamwise_direction_gate")
+    inlet_negative_streamwise_fraction = audit_float(inlet_profile_audit, "negative_streamwise_fraction")
     inlet_u_mae_ratio = audit_float(inlet_profile_audit, "U_MAE_ratio")
     inlet_k_mae_ratio = audit_float(inlet_profile_audit, "k_MAE_ratio")
     inlet_u_bias_ratio = audit_float(inlet_profile_audit, "U_bias_ratio")
@@ -720,6 +724,8 @@ def main() -> int:
             "inlet_profile_audit": str(Path(args.inlet_profile_audit).resolve()) if args.inlet_profile_audit else "",
             "inlet_profile_frame_count": fmt(audit_int(inlet_profile_audit, "frame_count")),
             "inlet_profile_source_time_steps": audit_source_steps(inlet_profile_audit),
+            "inlet_negative_streamwise_fraction": fmt(inlet_negative_streamwise_fraction),
+            "inlet_streamwise_direction_gate": inlet_streamwise_direction_gate,
             "inlet_profile_gate": inlet_profile_gate,
             "inlet_u_profile_gate": inlet_u_profile_gate,
             "inlet_u_mae_ratio": fmt(inlet_u_mae_ratio),

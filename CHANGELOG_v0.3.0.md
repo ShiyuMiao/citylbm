@@ -101,6 +101,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/audit_inlet_profile_from_vtk.py` now records all available VTK steps and fails the inlet `U/k` gate when the
   selected average is not an explicit final window with strictly increasing, uniformly spaced time steps. This prevents
   short or non-final inlet samples from being interpreted as solver accuracy evidence.
+- `scripts/audit_inlet_profile_from_vtk.py`, `validation_metrics_from_probe_audit.py`, the metrics template and
+  `validation_gate.py` now carry an inlet streamwise-direction gate. If more than 5% of sampled inlet velocities project
+  opposite to the declared wind vector, the inlet profile gate fails before wind-sign or compared-component mistakes can
+  be mistaken for solver accuracy error.
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.

@@ -706,6 +706,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_profile_gate = str(get_any(metrics, ["inlet_profile_gate"]) or "").strip().lower()
     inlet_u_profile_gate = str(get_any(metrics, ["inlet_u_profile_gate"]) or "").strip().lower()
     inlet_k_profile_gate = str(get_any(metrics, ["inlet_k_profile_gate"]) or "").strip().lower()
+    inlet_streamwise_direction_gate = str(get_any(metrics, ["inlet_streamwise_direction_gate"]) or "").strip().lower()
+    inlet_negative_streamwise_fraction = as_float(get_any(metrics, ["inlet_negative_streamwise_fraction"]))
     inlet_profile_frame_count = as_int(get_any(metrics, ["inlet_profile_frame_count"]))
     inlet_profile_source_steps = str(get_any(metrics, ["inlet_profile_source_time_steps"]) or "").strip()
     inlet_u_mae_ratio = as_float(get_any(metrics, ["inlet_u_mae_ratio"]))
@@ -717,6 +719,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         inlet_profile_gate == "pass"
         and inlet_u_profile_gate == "pass"
         and inlet_k_profile_gate == "pass"
+        and inlet_streamwise_direction_gate == "pass"
         and inlet_profile_frame_count is not None
         and inlet_profile_frame_count >= args.min_avg_frames
     )
@@ -752,6 +755,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_profile_gate={inlet_profile_gate or 'missing'}; "
             f"inlet_u_profile_gate={inlet_u_profile_gate or 'missing'}; "
             f"inlet_k_profile_gate={inlet_k_profile_gate or 'missing'}; "
+            f"inlet_streamwise_direction_gate={inlet_streamwise_direction_gate or 'missing'}; "
+            f"inlet_negative_streamwise_fraction={inlet_negative_streamwise_fraction}; "
             f"inlet_profile_frame_count={inlet_profile_frame_count}; required >= {args.min_avg_frames}; "
             f"inlet_profile_source_time_steps={inlet_profile_source_steps or 'missing'}; "
             f"inlet_u_mae_ratio={inlet_u_mae_ratio}; inlet_k_mae_ratio={inlet_k_mae_ratio}"

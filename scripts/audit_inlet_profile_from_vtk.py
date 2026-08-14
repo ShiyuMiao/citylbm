@@ -66,6 +66,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--z-bin-m", type=float, default=0.0, help="Optional fixed vertical bin height.")
     parser.add_argument("--max-u-mae-ratio", type=float, default=0.05)
     parser.add_argument("--max-k-mae-ratio", type=float, default=0.25)
+    parser.add_argument(
+        "--max-negative-streamwise-fraction",
+        type=float,
+        default=0.05,
+        help="Fail when this fraction of sampled inlet velocities projects opposite to --wind-direction.",
+    )
     parser.add_argument("--velocity-scale", type=float, default=1.0, help="Multiply VTK velocities by this scale.")
     return parser.parse_args()
 
@@ -494,11 +500,20 @@ def main() -> int:
     if not source_spacing_uniform:
         time_gate_reasons.append("source_step_spacing_not_uniform")
     time_gate = PASS if not time_gate_reasons else FAIL
+    negative_streamwise_fraction = negative_streamwise / total_samples if total_samples else None
+    direction_gate_reasons: List[str] = []
+    if negative_streamwise_fraction is None:
+        direction_gate_reasons.append("missing_negative_streamwise_fraction")
+    elif negative_streamwise_fraction > args.max_negative_streamwise_fraction:
+        direction_gate_reasons.append(
+            f"negative_streamwise_fraction_above_{args.max_negative_streamwise_fraction:.6g}"
+        )
+    direction_gate = PASS if not direction_gate_reasons else FAIL
     u_gate = PASS if u_mae_ratio is not None and u_mae_ratio <= args.max_u_mae_ratio else FAIL
     k_gate = PASS if k_mae_ratio is not None and k_mae_ratio <= args.max_k_mae_ratio else FAIL
-    overall = PASS if time_gate == PASS and u_gate == PASS and k_gate == PASS else FAIL
+    overall = PASS if time_gate == PASS and direction_gate == PASS and u_gate == PASS and k_gate == PASS else FAIL
     if k_mae_ratio is None:
-        overall = DIAGNOSTIC if time_gate == PASS and u_gate == PASS else FAIL
+        overall = DIAGNOSTIC if time_gate == PASS and direction_gate == PASS and u_gate == PASS else FAIL
 
     report = {
         "schema": "citylbm.inlet_profile_audit.v1",
@@ -529,7 +544,11 @@ def main() -> int:
         "selected_point_count": len(selected),
         "height_bin_count": len(rows),
         "velocity_scale": args.velocity_scale,
-        "negative_streamwise_fraction": negative_streamwise / total_samples if total_samples else None,
+        "negative_streamwise_fraction": negative_streamwise_fraction,
+        "max_negative_streamwise_fraction": args.max_negative_streamwise_fraction,
+        "inlet_streamwise_direction_gate": direction_gate,
+        "inlet_streamwise_direction_gate_reasons": direction_gate_reasons,
+        "inlet_streamwise_direction_gate_reasons_csv": ";".join(direction_gate_reasons),
         "time_averaging_gate": time_gate,
         "time_averaging_gate_reasons": time_gate_reasons,
         "time_averaging_gate_reasons_csv": ";".join(time_gate_reasons),
@@ -547,6 +566,7 @@ def main() -> int:
         "thresholds": {
             "max_u_mae_ratio": args.max_u_mae_ratio,
             "max_k_mae_ratio": args.max_k_mae_ratio,
+            "max_negative_streamwise_fraction": args.max_negative_streamwise_fraction,
         },
         "notes": (
             "k is estimated from temporal velocity variance on the selected VTK plane; "
@@ -575,10 +595,11 @@ def main() -> int:
             for row in rows:
                 writer.writerow(row)
     print(
-        "inlet_profile_gate={gate}; frames={frames}; points={points}; U_MAE_ratio={u}; k_MAE_ratio={k}".format(
+        "inlet_profile_gate={gate}; frames={frames}; points={points}; negative_streamwise_fraction={neg}; U_MAE_ratio={u}; k_MAE_ratio={k}".format(
             gate=overall,
             frames=frame_count,
             points=len(selected),
+            neg="" if negative_streamwise_fraction is None else f"{negative_streamwise_fraction:.6g}",
             u="" if u_mae_ratio is None else f"{u_mae_ratio:.6g}",
             k="" if k_mae_ratio is None else f"{k_mae_ratio:.6g}",
         )
