@@ -180,6 +180,55 @@ def read_json(path: Path) -> Dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
+def json_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in {"true", "1", "yes", "pass"}
+    return False
+
+
+def native_baseline_gate_from_manifest(manifest: Dict[str, Any]) -> str:
+    if not manifest:
+        return "missing_native_manifest"
+    if not str(manifest.get("BaselineId") or "").strip():
+        return "missing_baseline_id"
+    if not json_bool(manifest.get("NativeFluidX3DPathExplicitlyProvided")):
+        return "native_fluidx3d_path_not_explicit"
+
+    source_validation = manifest.get("NativeFluidX3DSourceValidation", {})
+    if not isinstance(source_validation, dict) or not json_bool(source_validation.get("IsValid")):
+        return "native_fluidx3d_source_validation_failed"
+
+    required_roles = {
+        "Native FluidX3D original setup",
+        "Native FluidX3D original defines",
+        "Native FluidX3D lbm.hpp",
+        "Native FluidX3D lbm.cpp",
+    }
+    records = manifest.get("RequiredSourceFiles", [])
+    if not isinstance(records, list):
+        return "native_source_hash_records_missing"
+
+    by_role: Dict[str, Dict[str, Any]] = {}
+    for record in records:
+        if isinstance(record, dict):
+            role = str(record.get("Role") or "").strip()
+            if role:
+                by_role[role] = record
+
+    for role in sorted(required_roles):
+        record = by_role.get(role)
+        if not record:
+            return f"missing_native_source_record:{role}"
+        if not json_bool(record.get("Exists")):
+            return f"native_source_file_missing:{role}"
+        if not str(record.get("Sha256") or "").strip():
+            return f"native_source_hash_missing:{role}"
+
+    return "pass"
+
+
 def find_run_file(run_dir: Path, name: str) -> Optional[Path]:
     candidate = run_dir / name
     if candidate.exists():
@@ -232,6 +281,7 @@ def main() -> int:
     native_manifest_path = find_run_file(run_dir, "native_fluidx3d_baseline_manifest.json")
     native_manifest = read_json(native_manifest_path) if native_manifest_path else {}
     native_baseline_id = str(native_manifest.get("BaselineId") or "").strip()
+    native_baseline_gate = native_baseline_gate_from_manifest(native_manifest)
 
     manifest: Dict[str, Any] = {
         "GeneratedAtUtc": utc_now(),
@@ -261,6 +311,7 @@ def main() -> int:
             ],
             "PairedNativeMetrics": str(Path(args.paired_native_metrics).expanduser().resolve()) if args.paired_native_metrics else "",
         },
+        "NativeBaselineGateFromManifest": native_baseline_gate,
         "Artifacts": {
             "NativeFluidX3DBaselineManifest": str(native_manifest_path) if native_manifest_path else "",
             "NativeRunAudit": str(native_audit_json),
@@ -574,6 +625,7 @@ def main() -> int:
         add_optional(metrics_cmd, "--save-interval", args.save_interval)
         add_optional(metrics_cmd, "--geometry-scale", args.geometry_scale)
         add_optional(metrics_cmd, "--native-baseline-id", native_baseline_id)
+        add_optional(metrics_cmd, "--native-baseline-gate", native_baseline_gate)
         manifest["Steps"].append(run_step("validation_metrics_from_probe_audit", metrics_cmd))
         write_manifest(manifest_path, manifest)
 
