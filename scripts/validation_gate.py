@@ -54,6 +54,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-probe-failure-fraction", type=float, default=0.0)
     parser.add_argument("--max-probe-distance-dx-ratio", type=float, default=1.0)
     parser.add_argument("--max-probe-tolerance-dx-ratio", type=float, default=1.0)
+    parser.add_argument("--max-component-rmse-improvement-ratio", type=float, default=0.20)
+    parser.add_argument("--max-normalization-best-scale-deviation", type=float, default=0.20)
+    parser.add_argument("--min-normalization-scaled-improvement-ratio", type=float, default=0.25)
     parser.add_argument("--min-inlet-temporal-finite-fraction", type=float, default=0.80)
     parser.add_argument("--min-inlet-spatial-finite-fraction", type=float, default=0.80)
     parser.add_argument("--min-inlet-streamwise-variance", type=float, default=1.0e-12)
@@ -2438,10 +2441,39 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         bool(component_sensitivity_audit_path and component_sensitivity_audit_path.exists())
         or metric_component_sensitivity_audit_exists
     )
+    component_choice_not_explained = (
+        bool(selected_component)
+        and bool(best_component)
+        and selected_component_rmse is not None
+        and best_component_rmse is not None
+        and (
+            selected_component == best_component
+            or (
+                component_rmse_improvement is not None
+                and component_rmse_improvement < args.max_component_rmse_improvement_ratio
+            )
+        )
+    )
+    normalization_scale_not_explained = (
+        normalization_best_scale is not None
+        and normalization_scaled_improvement is not None
+        and not (
+            abs(normalization_best_scale - 1.0) > args.max_normalization_best_scale_deviation
+            and normalization_scaled_improvement >= args.min_normalization_scaled_improvement_ratio
+        )
+    )
+    component_normalization_pass = (
+        component_sensitivity_audit_exists
+        and component_normalization_gate == "pass"
+        and component_sensitivity_gate == "pass"
+        and normalization_scale_gate == "pass"
+        and component_choice_not_explained
+        and normalization_scale_not_explained
+    )
     add_gate(
         gates,
         "component_normalization_sensitivity",
-        PASS if component_normalization_gate == "pass" and component_sensitivity_audit_exists else FAIL,
+        PASS if component_normalization_pass else FAIL,
         (
             f"component_normalization_gate={component_normalization_gate or 'missing'}; "
             f"component_sensitivity_gate={component_sensitivity_gate or 'missing'}; "
@@ -2451,8 +2483,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"selected_component_rmse={selected_component_rmse}; "
             f"best_component_rmse={best_component_rmse}; "
             f"component_rmse_improvement_ratio={component_rmse_improvement}; "
+            f"component_choice_not_explained={component_choice_not_explained}; "
+            f"max_component_rmse_improvement_ratio={args.max_component_rmse_improvement_ratio}; "
             f"normalization_best_fit_scale={normalization_best_scale}; "
             f"normalization_scaled_improvement_ratio={normalization_scaled_improvement}; "
+            f"normalization_scale_not_explained={normalization_scale_not_explained}; "
+            f"max_normalization_best_scale_deviation={args.max_normalization_best_scale_deviation}; "
+            f"min_normalization_scaled_improvement_ratio={args.min_normalization_scaled_improvement_ratio}; "
             f"audit={component_sensitivity_audit_path or metric_component_sensitivity_audit or 'missing'}; "
             f"audit_exists={component_sensitivity_audit_exists}"
         ),
@@ -2599,6 +2636,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_probe_failure_fraction": args.max_probe_failure_fraction,
             "max_probe_distance_dx_ratio": args.max_probe_distance_dx_ratio,
             "max_probe_tolerance_dx_ratio": args.max_probe_tolerance_dx_ratio,
+            "max_component_rmse_improvement_ratio": args.max_component_rmse_improvement_ratio,
+            "max_normalization_best_scale_deviation": args.max_normalization_best_scale_deviation,
+            "min_normalization_scaled_improvement_ratio": args.min_normalization_scaled_improvement_ratio,
             "min_inlet_temporal_finite_fraction": args.min_inlet_temporal_finite_fraction,
             "min_inlet_spatial_finite_fraction": args.min_inlet_spatial_finite_fraction,
             "max_frontal_blockage_ratio": args.max_frontal_blockage_ratio,

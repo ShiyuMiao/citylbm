@@ -190,6 +190,11 @@ python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --
 python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --component-sensitivity-audit <run_dir>\component_sensitivity_audit.json --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
 ```
 
+The final gate rechecks `component_sensitivity_audit.json` numerically. A run is diagnostic if another velocity
+component materially lowers RMSE or if a best-fit scale far from `1.0` materially improves the selected component,
+because that pattern can indicate a component, Uref or SI/LBM conversion error before inlet or boundary physics are
+interpreted.
+
 Generate the boundary protocol audit before the final gate:
 
 ```powershell
