@@ -31,6 +31,12 @@ TEMPLATE_FIELDS = [
     "save_interval",
     "averaging_window",
     "available_frame_count",
+    "requested_time_steps",
+    "requested_vtk_save_interval",
+    "requested_vtk_save_start_step",
+    "requested_vtk_frame_count",
+    "requested_vtk_frame_gate",
+    "requested_vtk_frame_gate_reasons",
     "source_time_steps",
     "source_first_time_step",
     "source_last_time_step",
@@ -845,6 +851,12 @@ def main() -> int:
         audit_int(read_vtk_audit, "available_frame_count"),
         audit_int(inlet_profile_audit, "available_frame_count"),
     )
+    requested_time_steps = audit_int(read_vtk_audit, "requested_time_steps")
+    requested_vtk_save_interval = audit_int(read_vtk_audit, "requested_vtk_save_interval")
+    requested_vtk_save_start_step = audit_int(read_vtk_audit, "requested_vtk_save_start_step")
+    requested_vtk_frame_count = audit_int(read_vtk_audit, "requested_vtk_frame_count")
+    requested_vtk_frame_gate = first_text(read_vtk_audit.get("requested_vtk_frame_gate"))
+    requested_vtk_frame_gate_reasons = first_text(read_vtk_audit.get("requested_vtk_frame_gate_reasons_csv"))
     source_first_time_step = first_int(
         audit_int(read_vtk_audit, "source_first_time_step"),
         audit_int(inlet_profile_audit, "source_first_time_step"),
@@ -923,6 +935,12 @@ def main() -> int:
             "save_interval": fmt(args.save_interval),
             "averaging_window": fmt(averaging_window),
             "available_frame_count": fmt(available_frame_count),
+            "requested_time_steps": fmt(requested_time_steps),
+            "requested_vtk_save_interval": fmt(requested_vtk_save_interval),
+            "requested_vtk_save_start_step": fmt(requested_vtk_save_start_step),
+            "requested_vtk_frame_count": fmt(requested_vtk_frame_count),
+            "requested_vtk_frame_gate": requested_vtk_frame_gate,
+            "requested_vtk_frame_gate_reasons": requested_vtk_frame_gate_reasons,
             "source_time_steps": source_time_steps,
             "source_first_time_step": fmt(source_first_time_step),
             "source_last_time_step": fmt(source_last_time_step),

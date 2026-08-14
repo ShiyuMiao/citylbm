@@ -212,6 +212,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   uniformly spaced source steps, and satisfy `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20`
   from the Read VTK audit, native-run audit, or inlet-profile audit unless a stricter case-specific stationarity
   criterion is documented.
+- The native-run audit must also record `requested_time_steps`, `requested_vtk_save_interval`,
+  `requested_vtk_save_start_step`, `requested_vtk_frame_count` and `requested_vtk_frame_gate=pass`. A Case E run
+  planned to save fewer than 10 final-window VTK frames is diagnostic before accuracy metrics are interpreted.
 - Inlet/outlet/lateral/top boundary faces and upstream/downstream/lateral/top clearances in building-height units
 - Domain size, maximum building height, approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate
 - `boundary_protocol_audit.json`, `boundary_evidence_gate`, `boundary_missing_evidence_fields`,

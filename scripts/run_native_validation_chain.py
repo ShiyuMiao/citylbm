@@ -55,6 +55,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dx", default="", help="Optional grid spacing recorded in metrics.")
     parser.add_argument("--steps", default="", help="Optional solver step count recorded in metrics.")
     parser.add_argument("--save-interval", default="", help="Optional VTK save interval recorded in metrics.")
+    parser.add_argument("--vtk-save-start-step", default="", help="Optional first VTK save step for run-configuration frame-count preflight.")
     parser.add_argument("--geometry-scale", default="", help="Optional geometry scale recorded in metrics.")
     parser.add_argument("--profile-csv", default="", help="Optional profile CSV path recorded in metrics.")
     parser.add_argument("--average-last-n", type=int, default=10, help="Average the last N VTK frames.")
@@ -229,6 +230,7 @@ def main() -> int:
             "Zref": args.z_ref,
             "Software": args.software,
             "AverageLastN": args.average_last_n,
+            "VtkSaveStartStep": args.vtk_save_start_step,
             "ComparedComponent": args.compared_component,
             "Interpolation": args.interpolation,
         },
@@ -276,6 +278,9 @@ def main() -> int:
         ]
         if solver_log:
             native_cmd.extend(["--solver-log", str(solver_log)])
+        add_optional(native_cmd, "--time-steps", args.steps)
+        add_optional(native_cmd, "--vtk-save-interval", args.save_interval)
+        add_optional(native_cmd, "--vtk-save-start-step", args.vtk_save_start_step)
         manifest["Steps"].append(run_step("audit_native_run", native_cmd))
         write_manifest(manifest_path, manifest)
 

@@ -44,6 +44,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out", required=True, help="Output audit JSON path.")
     parser.add_argument("--average-last-n", type=int, default=10)
     parser.add_argument("--min-avg-frames", type=int, default=10)
+    parser.add_argument("--time-steps", type=int, default=None, help="Planned solver time steps for run-configuration frame-count preflight.")
+    parser.add_argument("--vtk-save-interval", type=int, default=None, help="Planned VTK save interval for run-configuration frame-count preflight.")
+    parser.add_argument("--vtk-save-start-step", type=int, default=None, help="First planned VTK save step. Defaults to save interval when omitted.")
     parser.add_argument("--max-mean-speed-stddev-ratio", type=float, default=0.05)
     parser.add_argument("--max-point-speed-stddev-ratio", type=float, default=0.20)
     parser.add_argument("--mean-speed-mps", type=float, default=None)
@@ -328,6 +331,76 @@ def metadata_value(metadata: Dict[str, Any], key: str) -> Any:
     return "" if value is None else value
 
 
+def metadata_int(metadata: Dict[str, Any], *keys: str) -> Optional[int]:
+    for key in keys:
+        value = metadata.get(key)
+        if value in (None, ""):
+            continue
+        try:
+            return int(round(float(value)))
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def expected_vtk_frame_preflight(
+    metadata: Dict[str, Any],
+    time_steps: Optional[int],
+    save_interval: Optional[int],
+    save_start_step: Optional[int],
+    min_avg_frames: int,
+) -> Dict[str, Any]:
+    requested_time_steps = (
+        time_steps
+        if time_steps is not None
+        else metadata_int(metadata, "TimeSteps", "Steps", "SimulationTimeSteps")
+    )
+    requested_save_interval = (
+        save_interval
+        if save_interval is not None
+        else metadata_int(metadata, "VtkSaveInterval", "SaveInterval", "VTKSaveInterval")
+    )
+    requested_save_start = (
+        save_start_step
+        if save_start_step is not None
+        else metadata_int(metadata, "VtkSaveStartStep", "VtkSaveStart", "VTKSaveStartStep")
+    )
+    metadata_expected = metadata_int(metadata, "ExpectedVtkFrameCount", "ExpectedFinalVtkFrameCount")
+    reasons: List[str] = []
+    expected_steps: List[int] = []
+    if requested_time_steps is None:
+        reasons.append("requested_time_steps_missing")
+    if requested_save_interval is None:
+        reasons.append("requested_vtk_save_interval_missing")
+    elif requested_save_interval <= 0:
+        reasons.append("requested_vtk_save_interval_non_positive")
+    if requested_time_steps is not None and requested_save_interval is not None and requested_save_interval > 0:
+        start = requested_save_start if requested_save_start is not None else requested_save_interval
+        if start < 0:
+            reasons.append("requested_vtk_save_start_step_negative")
+        elif start > requested_time_steps:
+            reasons.append("requested_vtk_save_start_after_time_steps")
+        else:
+            expected_steps = list(range(start, requested_time_steps + 1, requested_save_interval))
+    expected_count = len(expected_steps) if expected_steps else metadata_expected
+    if expected_count is None:
+        reasons.append("requested_vtk_frame_count_unavailable")
+    elif expected_count < min_avg_frames:
+        reasons.append(f"requested_vtk_frame_count_below_{min_avg_frames}")
+    return {
+        "requested_time_steps": requested_time_steps,
+        "requested_vtk_save_interval": requested_save_interval,
+        "requested_vtk_save_start_step": requested_save_start,
+        "requested_vtk_frame_count": expected_count,
+        "requested_vtk_expected_time_steps": expected_steps,
+        "requested_vtk_expected_time_steps_csv": ",".join(str(step) for step in expected_steps),
+        "metadata_expected_vtk_frame_count": metadata_expected,
+        "requested_vtk_frame_gate": "pass" if not reasons else "diagnostic_only",
+        "requested_vtk_frame_gate_reasons": reasons,
+        "requested_vtk_frame_gate_reasons_csv": ";".join(reasons),
+    }
+
+
 def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
     run_dir = Path(args.run_dir).resolve()
     metadata = read_json(Path(args.metadata).resolve() if args.metadata else None)
@@ -396,6 +469,16 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
     if sampled_stability.get("vtk_stability_sampling_gate") == "failed":
         reasons.append("vtk_stability_sampling_failed")
 
+    requested_frame_preflight = expected_vtk_frame_preflight(
+        metadata,
+        args.time_steps,
+        args.vtk_save_interval,
+        args.vtk_save_start_step,
+        args.min_avg_frames,
+    )
+    if requested_frame_preflight["requested_vtk_frame_gate"] != "pass":
+        reasons.append("requested_vtk_frame_preflight_not_pass")
+
     log_audit = audit_solver_log(Path(args.solver_log).resolve() if args.solver_log else None)
     audit: Dict[str, Any] = {
         "schema_version": 1,
@@ -405,6 +488,16 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "averaging_enabled": args.average_last_n > 0,
         "averaged_frame_count": len(selected_steps),
         "available_frame_count": len(known_steps),
+        "requested_time_steps": requested_frame_preflight["requested_time_steps"],
+        "requested_vtk_save_interval": requested_frame_preflight["requested_vtk_save_interval"],
+        "requested_vtk_save_start_step": requested_frame_preflight["requested_vtk_save_start_step"],
+        "requested_vtk_frame_count": requested_frame_preflight["requested_vtk_frame_count"],
+        "requested_vtk_expected_time_steps": requested_frame_preflight["requested_vtk_expected_time_steps"],
+        "requested_vtk_expected_time_steps_csv": requested_frame_preflight["requested_vtk_expected_time_steps_csv"],
+        "metadata_expected_vtk_frame_count": requested_frame_preflight["metadata_expected_vtk_frame_count"],
+        "requested_vtk_frame_gate": requested_frame_preflight["requested_vtk_frame_gate"],
+        "requested_vtk_frame_gate_reasons": requested_frame_preflight["requested_vtk_frame_gate_reasons"],
+        "requested_vtk_frame_gate_reasons_csv": requested_frame_preflight["requested_vtk_frame_gate_reasons_csv"],
         "all_available_time_steps": known_steps,
         "all_available_time_steps_csv": ",".join(str(step) for step in known_steps),
         "source_time_steps": selected_steps,

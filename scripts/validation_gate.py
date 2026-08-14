@@ -687,6 +687,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     frame_count, source_step_text, has_real_source_steps = source_frame_details(metrics)
     requested_avg_window = as_int(get_any(metrics, ["averaging_window", "AverageLastN", "average_last_n"]))
     expected_vtk_frame_count = as_int(metadata.get("ExpectedVtkFrameCount"))
+    requested_time_steps = as_int(get_any(metrics, ["requested_time_steps", "RequestedTimeSteps"]))
+    requested_vtk_save_interval = as_int(get_any(metrics, ["requested_vtk_save_interval", "RequestedVtkSaveInterval"]))
+    requested_vtk_save_start_step = as_int(get_any(metrics, ["requested_vtk_save_start_step", "RequestedVtkSaveStartStep"]))
+    requested_vtk_frame_count = as_int(get_any(metrics, ["requested_vtk_frame_count", "RequestedVtkFrameCount"]))
+    requested_vtk_frame_gate = str(get_any(metrics, ["requested_vtk_frame_gate", "RequestedVtkFrameGate"]) or "").strip().lower()
+    requested_vtk_frame_gate_reasons = str(get_any(metrics, ["requested_vtk_frame_gate_reasons", "RequestedVtkFrameGateReasons"]) or "").strip()
     if has_real_source_steps:
         frame_source = "metrics real source_time_steps"
     else:
@@ -742,6 +748,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and latest_available_step is not None
         and source_last_step == latest_available_step
         and metrics_time_gate == "pass"
+        and requested_vtk_frame_gate == "pass"
+        and requested_vtk_frame_count is not None
+        and requested_vtk_frame_count >= args.min_avg_frames
         and mean_speed_stable
         and point_speed_stable
     )
@@ -761,6 +770,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"available_covers_source_window={available_covers_source_window}; "
             f"parsed_source_steps_error={parsed_steps_error or 'none'}; "
             f"requested_averaging_window={requested_avg_window}; "
+            f"requested_time_steps={requested_time_steps}; "
+            f"requested_vtk_save_interval={requested_vtk_save_interval}; "
+            f"requested_vtk_save_start_step={requested_vtk_save_start_step}; "
+            f"requested_vtk_frame_count={requested_vtk_frame_count}; required >= {args.min_avg_frames}; "
+            f"requested_vtk_frame_gate={requested_vtk_frame_gate or 'missing'}; "
+            f"requested_vtk_frame_gate_reasons={requested_vtk_frame_gate_reasons or 'none'}; "
             f"expected_vtk_frame_count={expected_vtk_frame_count}; "
             f"available_frame_count={available_frame_count}; source_first_step={source_first_step}; "
             f"source_last_step={source_last_step}; latest_available_step={latest_available_step}; "

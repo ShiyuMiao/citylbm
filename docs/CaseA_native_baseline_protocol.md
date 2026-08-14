@@ -144,6 +144,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    unless a stricter case-specific stationarity criterion is documented. The machine gate only counts archived
    `source_time_steps` from real VTK/audit frames as averaging evidence; `AverageLastN`, `--average-last-n` and
    `ExpectedVtkFrameCount` are request or estimate fields and cannot pass the paper-grade time gate by themselves.
+   The native-run audit must also record `requested_time_steps`, `requested_vtk_save_interval`,
+   `requested_vtk_save_start_step`, `requested_vtk_frame_count` and `requested_vtk_frame_gate=pass`; a run configured
+   to save fewer than the minimum final-window frames is rejected before interpreting accuracy.
    The gate independently parses `source_time_steps` and cross-checks the parsed count, first/last step, strict
    increase, uniform spacing and available-frame coverage. Do not rely on manually written `pass` flags when the source
    step list is missing, duplicated, irregular or not the final available window.
