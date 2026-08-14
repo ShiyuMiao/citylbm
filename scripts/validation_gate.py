@@ -742,17 +742,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "wind_tunnel_protocol_matched",
         ]
     )
-    boundary_evidence_supported = (
-        external_boundary_equivalence_supported
-        if external_boundary_equivalence_supported is not None
-        else boundary_evidence_supported_by_token
-    )
+    boundary_evidence_supported = external_boundary_equivalence_supported is True
     boundary_diagnostic_ok = (
         boundary_gate == "diagnostic_clearance_ok_verify_against_aij"
         and frontal_blockage is not None
         and frontal_blockage <= args.max_frontal_blockage_ratio
     )
-    boundary_external_ok = external_boundary_protocol_gate in {"", "pass"}
+    boundary_external_ok = external_boundary_protocol_gate == "pass"
     boundary_clearance_ok = clearance_numeric_gate in {"", "pass"}
     boundary_evidence_ok = boundary_evidence_gate == "pass" and boundary_evidence_supported and boundary_clearance_ok
     add_gate(
@@ -773,6 +769,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_evidence_source={boundary_evidence_source or 'missing'}; "
             f"boundary_equivalence_basis={boundary_equivalence_basis or 'missing'}; "
             f"boundary_evidence_supported={boundary_evidence_supported}; "
+            f"boundary_equivalence_token_inferred={boundary_evidence_supported_by_token}; "
             f"clearance_numeric_gate={clearance_numeric_gate or 'missing'}; "
             f"clearance_numeric_gate_reasons={clearance_numeric_reasons or 'none'}; "
             f"missing_boundary_evidence_fields={external_boundary_missing_fields_text or 'none'}"
