@@ -148,20 +148,43 @@ def interpolate(samples: Sequence[Dict[str, float]], key: str, z: float) -> Opti
     return None
 
 
-def vtk_files(path: Path, pattern: str, average_last_n: int) -> List[Path]:
+def discover_vtk_files(path: Path, pattern: str) -> List[Path]:
     if path.is_file():
         return [path]
     files = sorted(path.glob(pattern), key=lambda item: step_from_name(item))
     if not files:
         raise SystemExit(f"No VTK files matched {pattern} in {path}")
-    if average_last_n > 0:
-        files = files[-average_last_n:]
     return files
+
+
+def select_average_window(files: Sequence[Path], average_last_n: int) -> List[Path]:
+    if average_last_n > 0:
+        return list(files[-average_last_n:])
+    return list(files)
 
 
 def step_from_name(path: Path) -> int:
     matches = re.findall(r"(\d+)", path.stem)
     return int(matches[-1]) if matches else 0
+
+
+def is_strictly_increasing(values: Sequence[int]) -> bool:
+    return bool(values) and all(values[i] > values[i - 1] for i in range(1, len(values)))
+
+
+def has_uniform_spacing(values: Sequence[int]) -> bool:
+    if not values:
+        return False
+    if len(values) < 3:
+        return True
+    spacing = values[1] - values[0]
+    return spacing > 0 and all(values[i] - values[i - 1] == spacing for i in range(2, len(values)))
+
+
+def is_last_window(selected_steps: Sequence[int], available_steps: Sequence[int]) -> bool:
+    if not selected_steps:
+        return False
+    return list(selected_steps) == list(available_steps[-len(selected_steps):])
 
 
 def parse_header_line(text: str, name: str, count: int) -> Optional[Tuple[float, ...]]:
@@ -371,7 +394,13 @@ def main() -> int:
     metadata = read_json(Path(args.metadata).resolve() if args.metadata else None)
     wind = parse_vector(args.wind_direction)
     af_samples = read_af_csv(af_path)
-    files = vtk_files(vtk_path, args.pattern, args.average_last_n)
+    all_files = discover_vtk_files(vtk_path, args.pattern)
+    files = select_average_window(all_files, args.average_last_n)
+    available_steps = [step_from_name(path) for path in all_files]
+    source_steps = [step_from_name(path) for path in files]
+    selected_last_window = is_last_window(source_steps, available_steps)
+    source_steps_increasing = is_strictly_increasing(source_steps)
+    source_spacing_uniform = has_uniform_spacing(source_steps)
     frames = [read_vtk_metadata(path) for path in files]
     first = frames[0]
     for frame in frames[1:]:
@@ -453,7 +482,18 @@ def main() -> int:
     k_mae_ratio = k_mae / k_den if k_mae is not None and k_den and k_den > 1.0e-12 else None
     k_bias_ratio = k_bias / k_den if k_bias is not None and k_den and k_den > 1.0e-12 else None
     frame_count = len(frames)
-    time_gate = PASS if frame_count >= args.min_frames else FAIL
+    time_gate_reasons: List[str] = []
+    if args.average_last_n <= 0:
+        time_gate_reasons.append("averaging_window_not_explicit")
+    if frame_count < args.min_frames:
+        time_gate_reasons.append(f"averaged_frame_count_below_{args.min_frames}")
+    if not selected_last_window:
+        time_gate_reasons.append("not_last_available_window")
+    if not source_steps_increasing:
+        time_gate_reasons.append("source_steps_not_strictly_increasing")
+    if not source_spacing_uniform:
+        time_gate_reasons.append("source_step_spacing_not_uniform")
+    time_gate = PASS if not time_gate_reasons else FAIL
     u_gate = PASS if u_mae_ratio is not None and u_mae_ratio <= args.max_u_mae_ratio else FAIL
     k_gate = PASS if k_mae_ratio is not None and k_mae_ratio <= args.max_k_mae_ratio else FAIL
     overall = PASS if time_gate == PASS and u_gate == PASS and k_gate == PASS else FAIL
@@ -467,10 +507,20 @@ def main() -> int:
         "metadata": str(Path(args.metadata).resolve()) if args.metadata else "",
         "metadata_case_name": metadata.get("Name") or metadata.get("CaseName") or "",
         "vtk_files": [str(path) for path in files],
-        "source_time_steps": [step_from_name(path) for path in files],
-        "source_time_steps_csv": ",".join(str(step_from_name(path)) for path in files),
+        "available_frame_count": len(all_files),
+        "all_available_time_steps": available_steps,
+        "all_available_time_steps_csv": ",".join(str(step) for step in available_steps),
+        "source_time_steps": source_steps,
+        "source_time_steps_csv": ",".join(str(step) for step in source_steps),
+        "source_first_time_step": source_steps[0] if source_steps else None,
+        "source_last_time_step": source_steps[-1] if source_steps else None,
+        "latest_available_time_step": available_steps[-1] if available_steps else None,
         "frame_count": frame_count,
         "min_frames": args.min_frames,
+        "average_last_n_requested": args.average_last_n,
+        "selected_last_window": selected_last_window,
+        "source_steps_strictly_increasing": source_steps_increasing,
+        "source_step_spacing_uniform": source_spacing_uniform,
         "wind_direction": wind,
         "plane_axis": axis,
         "plane_mode": plane_mode,
@@ -481,6 +531,8 @@ def main() -> int:
         "velocity_scale": args.velocity_scale,
         "negative_streamwise_fraction": negative_streamwise / total_samples if total_samples else None,
         "time_averaging_gate": time_gate,
+        "time_averaging_gate_reasons": time_gate_reasons,
+        "time_averaging_gate_reasons_csv": ";".join(time_gate_reasons),
         "inlet_u_profile_gate": u_gate,
         "inlet_k_profile_gate": k_gate,
         "inlet_profile_gate": overall,

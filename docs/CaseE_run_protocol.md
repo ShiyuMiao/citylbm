@@ -62,6 +62,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `scripts\audit_inlet_profile_from_vtk.py` on the output VTK sequence, compare against `AF_caseE.csv`, and archive the
   resulting `inlet_profile_audit.json` and `.csv`. This audit checks that `Wind Profile=3` actually preserved both
   `U(z)` and the AF third-column `k(m2/s2)` statistics at the selected inlet/empty-tunnel plane.
+  It also records all available VTK steps, selected source steps, `selected_last_window`,
+  `source_steps_strictly_increasing`, `source_step_spacing_uniform`, and `time_averaging_gate_reasons`. Short,
+  non-final or irregular inlet windows fail before probe accuracy is interpreted.
 - Post-processing reads the final averaged velocity field, not an initial transient.
   In `Read VTK`, set `Average Last N > 0` and archive the `Averaging Audit` JSON output.
   This JSON records the actual averaged frame count, source time steps, mean speed, mean/max pointwise speed standard

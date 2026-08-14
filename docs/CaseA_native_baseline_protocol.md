@@ -109,8 +109,10 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Inlet distribution treatment: macroscopic velocity only, equilibrium/distribution reconstruction, precursor field, or
   other archived method.
 - Inlet `U` and `k` preservation metrics from the empty tunnel.
-- Inlet/empty-tunnel profile-audit JSON and CSV from real post-spinup VTK frames, including the selected plane, source
-  VTK steps, `U_MAE_ratio`, `U_bias_ratio`, `k_MAE_ratio`, `k_bias_ratio`, and the `inlet_profile_gate`.
+- Inlet/empty-tunnel profile-audit JSON and CSV from real post-spinup VTK frames, including the selected plane, all
+  available VTK steps, selected source VTK steps, `selected_last_window`, `source_steps_strictly_increasing`,
+  `source_step_spacing_uniform`, `time_averaging_gate_reasons`, `U_MAE_ratio`, `U_bias_ratio`, `k_MAE_ratio`,
+  `k_bias_ratio`, and the `inlet_profile_gate`.
 - Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept, max absolute error,
   `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
 - Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance, compared-component consistency and
@@ -162,6 +164,8 @@ The JSON report also includes `diagnostic_priority`, which must be followed in o
 first close coordinate/component/Uref/probe issues, then final-window time averaging, then AF `U/k` preservation, then
 turbulent-inlet method and length scale, then boundary/roughness/blockage, and only then interpret the remaining
 systematic bias as a physics/protocol problem.
+The inlet `U/k` audit follows the same final-window rule as the VTK/probe average: short, non-final or irregular
+source steps fail before the result can be interpreted as solver accuracy.
 The command intentionally omits `--allow-velocity-only-inlet`; add that flag only for explicitly labelled diagnostic
 STG-lite sensitivity runs, not for the native FluidX3D baseline or a paper-grade CityLBM equivalence claim.
 If `bias_diagnosis` reports `scale_like_error`, audit `Uref`, SI/LBM velocity conversion and compared component before
