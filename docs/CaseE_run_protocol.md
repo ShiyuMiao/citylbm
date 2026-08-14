@@ -80,8 +80,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   component sign errors.
 - The turbulent-inlet correlation must be verified from the same real final-window VTK frames with
   `scripts\audit_inlet_correlation_from_vtk.py`. This audit records streamwise fluctuation variance, temporal lag-1
-  correlation and adjacent spatial correlation. It is required because preserving AF `k` magnitude alone does not prove
-  a digital-filter, SEM, precursor/recycling or otherwise correlated turbulent inlet.
+  signed correlation, temporal lag-1 absolute correlation for diagnosis, and adjacent spatial correlation. It is
+  required because preserving AF `k` magnitude alone does not prove a digital-filter, SEM, precursor/recycling or
+  otherwise correlated turbulent inlet.
 - The STG length-scale gate is not passed by choosing a convenient number of lattice cells. It passes only when
   `STG Length Source`/`SyntheticTurbulentInletLengthScaleSource` contains an archived evidence tag such as
   `aij_length_scale_verified`, `official_length_scale_verified`, `precursor_length_scale`,
@@ -205,8 +206,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Inlet profile preservation audit: selected plane, source VTK steps, `inlet_profile_gate`, `inlet_u_profile_gate`,
   `inlet_k_profile_gate`, `inlet_u_mae_ratio`, `inlet_u_rmse_ratio`, `inlet_k_mae_ratio`, and
   `inlet_k_rmse_ratio`
-- Inlet correlation audit: `inlet_correlation_gate`, temporal lag-1 absolute correlation, adjacent spatial correlation
-  and streamwise fluctuation variance
+- Inlet correlation audit: `inlet_correlation_gate`, signed temporal lag-1 correlation, temporal lag-1 absolute
+  correlation, adjacent spatial correlation and streamwise fluctuation variance
 - Native baseline gate and `validation_gate_report.json`
 - Protocol gate from `validation_protocol_audit.json`
 - Systematic bias flag and `bias_diagnosis`. If mean bias remains around `-0.20` to `-0.35` speed-ratio units, do not

@@ -818,6 +818,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         or get_any(inlet_correlation_audit, ["inlet_correlation_gate"])
         or ""
     ).strip().lower()
+    inlet_temporal_lag1 = as_float(
+        get_any(metrics, ["inlet_temporal_lag1_correlation", "InletTemporalLag1Correlation"])
+        or get_any(inlet_correlation_audit, ["temporal_lag1_mean_correlation"])
+    )
     inlet_temporal_lag1_abs = as_float(
         get_any(metrics, ["inlet_temporal_lag1_abs_correlation", "InletTemporalLag1AbsCorrelation"])
         or get_any(inlet_correlation_audit, ["temporal_lag1_abs_mean_correlation"])
@@ -846,6 +850,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         PASS if inlet_correlation_gate == "pass" and inlet_correlation_audit_exists else FAIL,
         (
             f"inlet_correlation_gate={inlet_correlation_gate or 'missing'}; "
+            f"temporal_lag1_mean_correlation={inlet_temporal_lag1}; "
             f"temporal_lag1_abs_mean_correlation={inlet_temporal_lag1_abs}; "
             f"spatial_adjacent_mean_correlation={inlet_spatial_adjacent}; "
             f"mean_streamwise_fluctuation_variance={inlet_streamwise_variance}; "

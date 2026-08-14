@@ -61,9 +61,9 @@ AIJ Case E is treated as a paper-grade validation experiment.
    proves downstream `U/k` preservation. Paper-grade promotion should use a validated DFM/SEM/precursor/recycling inlet
    or another documented distribution-consistent treatment.
    In addition to RMS/k preservation, run `scripts/audit_inlet_correlation_from_vtk.py` on the same final-window VTK
-   frames. The correlation audit records streamwise fluctuation variance, temporal lag-1 correlation and adjacent
-   spatial correlation; a missing or failing audit means the inlet remains diagnostic even when the AF k magnitude is
-   approximately preserved.
+   frames. The correlation audit records streamwise fluctuation variance, signed temporal lag-1 correlation, temporal
+   lag-1 absolute correlation for diagnosis, and adjacent spatial correlation; a missing or failing audit means the
+   inlet remains diagnostic even when the AF k magnitude is approximately preserved.
 
 6. Time-averaging gate.
    Do not report a single instantaneous VTK frame as validation. Archive post-spinup probe time means and, when VTK is
@@ -133,7 +133,7 @@ AIJ Case E is treated as a paper-grade validation experiment.
   `k_bias_ratio`, and the
   `inlet_profile_gate`.
 - Inlet correlation-audit JSON from the same final-window VTK frames, including `inlet_correlation_gate`,
-  `temporal_lag1_abs_mean_correlation`, `spatial_adjacent_mean_correlation` and
+  `temporal_lag1_mean_correlation`, `temporal_lag1_abs_mean_correlation`, `spatial_adjacent_mean_correlation` and
   `mean_streamwise_fluctuation_variance`.
 - Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept, max absolute error,
   `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.

@@ -65,7 +65,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--velocity-scale", type=float, default=1.0)
     parser.add_argument("--sample-limit", type=int, default=20000)
     parser.add_argument("--min-streamwise-variance", type=float, default=1.0e-12)
-    parser.add_argument("--min-temporal-lag1-abs-correlation", type=float, default=0.10)
+    parser.add_argument("--min-temporal-lag1-correlation", type=float, default=0.10)
     parser.add_argument("--min-spatial-adjacent-correlation", type=float, default=0.05)
     return parser.parse_args()
 
@@ -206,9 +206,9 @@ def main() -> int:
         reasons.append("source_step_spacing_not_uniform")
     if mean_variance is None or mean_variance <= args.min_streamwise_variance:
         reasons.append("streamwise_fluctuation_variance_missing_or_too_small")
-    if temporal_abs_corr is None or temporal_abs_corr < args.min_temporal_lag1_abs_correlation:
+    if temporal_corr is None or temporal_corr < args.min_temporal_lag1_correlation:
         reasons.append(
-            f"temporal_lag1_abs_correlation_below_{args.min_temporal_lag1_abs_correlation:.6g}"
+            f"temporal_lag1_correlation_below_{args.min_temporal_lag1_correlation:.6g}"
         )
     if spatial_corr is None or spatial_corr < args.min_spatial_adjacent_correlation:
         reasons.append(
@@ -245,7 +245,7 @@ def main() -> int:
         "temporal_lag1_abs_mean_correlation": temporal_abs_corr,
         "spatial_adjacent_mean_correlation": spatial_corr,
         "min_streamwise_variance": args.min_streamwise_variance,
-        "min_temporal_lag1_abs_correlation": args.min_temporal_lag1_abs_correlation,
+        "min_temporal_lag1_correlation": args.min_temporal_lag1_correlation,
         "min_spatial_adjacent_correlation": args.min_spatial_adjacent_correlation,
         "inlet_correlation_gate": gate,
         "inlet_correlation_gate_reasons": reasons or ["inlet_correlation_evidence_present"],
@@ -259,9 +259,10 @@ def main() -> int:
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_json.write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
     print(
-        "inlet_correlation_gate={gate}; temporal_abs={temporal}; spatial={spatial}; reasons={reasons}".format(
+        "inlet_correlation_gate={gate}; temporal_lag1={temporal}; temporal_lag1_abs={temporal_abs}; spatial={spatial}; reasons={reasons}".format(
             gate=gate,
-            temporal=temporal_abs_corr,
+            temporal=temporal_corr,
+            temporal_abs=temporal_abs_corr,
             spatial=spatial_corr,
             reasons=";".join(report["inlet_correlation_gate_reasons"]),
         )

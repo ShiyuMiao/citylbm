@@ -125,6 +125,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   and final gate. This checks real final-window inlet VTK frames for streamwise fluctuation variance, temporal lag-1
   correlation and adjacent spatial correlation, so a run cannot rely on RMS/k preservation alone to claim correlated
   turbulent inflow.
+- The inlet correlation audit now gates on signed positive temporal lag-1 correlation, not only absolute lag-1
+  correlation. This prevents alternating or white-noise-like RMS/k perturbations from passing as physically correlated
+  turbulent inflow evidence.
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.
