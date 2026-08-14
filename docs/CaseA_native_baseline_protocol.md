@@ -190,7 +190,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 - STG correlation-length evidence source: record `STG Length Source`,
   `SyntheticTurbulentInletLengthScaleSource` and `SyntheticTurbulentInletLengthScaleGate`. Empty or user-selected
   lattice-cell values are diagnostic only; paper-grade promotion requires archived AIJ/official, precursor/recycling,
-  digital-filter, synthetic-eddy, SEM/DFM or validated length-scale-model evidence.
+  digital-filter, synthetic-eddy, SEM/DFM or validated length-scale-model evidence. The machine gate requires both a
+  supported source and `SyntheticTurbulentInletLengthScaleGate=pass`; source-like text alone is diagnostic context.
 - Inlet `U` and `k` preservation metrics from the empty tunnel.
 - Inlet/empty-tunnel profile-audit JSON and CSV from real post-spinup VTK frames, including the selected plane, all
   available VTK steps, selected source VTK steps, `selected_last_window`, `source_steps_strictly_increasing`,

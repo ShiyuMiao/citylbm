@@ -1077,7 +1077,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "validated_length_scale_model",
         ]
     )
-    length_gate_pass = inlet_length_gate == "pass" or length_scale_supported
+    length_gate_pass = inlet_length_gate == "pass" and length_scale_supported
     add_gate(
         gates,
         "inlet_length_scale",
@@ -1087,7 +1087,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source={inlet_length_source or 'missing'}; "
             f"gate={inlet_length_gate or 'missing'}; "
             f"synthetic_correlation_length_m={synthetic_corr_length_m}; "
-            f"length_scale_supported={length_scale_supported}"
+            f"length_scale_source_supported={length_scale_supported}"
         ),
         "Use AIJ-documented turbulence length scales, a precursor/recycling field, or a validated DFM/SEM length-scale model; a user-selected STG correlation length is diagnostic only.",
     )
