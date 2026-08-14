@@ -166,6 +166,13 @@ TEMPLATE_FIELDS = [
     "empty_tunnel_k_bias_ratio",
     "native_fluidx3d_baseline_id",
     "native_baseline_gate",
+    "native_citylbm_parity_audit",
+    "native_citylbm_parity_gate",
+    "native_citylbm_parity_gate_reasons",
+    "native_citylbm_parity_native_metrics",
+    "native_citylbm_parity_matched_field_count",
+    "native_citylbm_parity_mismatched_field_count",
+    "native_citylbm_parity_mismatched_fields",
     "probe_mapping_table",
     "probe_vtk_source_window_gate",
     "probe_vtk_source_window_reasons",
@@ -242,6 +249,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--boundary-protocol-audit", help="Optional boundary_protocol_audit.json from audit_boundary_protocol.py.")
     parser.add_argument("--component-sensitivity-audit", help="Optional component/Uref sensitivity JSON from audit_component_sensitivity.py.")
     parser.add_argument("--grid-sensitivity-audit", help="Optional grid_sensitivity_audit.json from audit_grid_sensitivity.py.")
+    parser.add_argument("--native-citylbm-parity-audit", help="Optional native_citylbm_parity_audit.json from audit_native_citylbm_parity.py.")
     parser.add_argument("--case", default="", help="Case label to write and optionally filter official rows.")
     parser.add_argument("--wind-direction", default="", help="Wind direction label to write and optionally filter official rows.")
     parser.add_argument("--software", default="citylbm")
@@ -715,6 +723,7 @@ def main() -> int:
     boundary_protocol_audit = read_json(Path(args.boundary_protocol_audit).resolve() if args.boundary_protocol_audit else None)
     component_sensitivity_audit = read_json(Path(args.component_sensitivity_audit).resolve() if args.component_sensitivity_audit else None)
     grid_sensitivity_audit = read_json(Path(args.grid_sensitivity_audit).resolve() if args.grid_sensitivity_audit else None)
+    native_citylbm_parity_audit = read_json(Path(args.native_citylbm_parity_audit).resolve() if args.native_citylbm_parity_audit else None)
 
     probe_rows = read_csv(probe_path)
     official_rows = filter_official(read_csv(official_path), args.case, args.wind_direction)
@@ -1178,6 +1187,21 @@ def main() -> int:
             "empty_tunnel_k_bias_ratio": args.empty_tunnel_k_bias_ratio or fmt(inlet_k_bias_ratio),
             "native_fluidx3d_baseline_id": args.native_baseline_id,
             "native_baseline_gate": args.native_baseline_gate,
+            "native_citylbm_parity_audit": str(Path(args.native_citylbm_parity_audit).resolve()) if args.native_citylbm_parity_audit else "",
+            "native_citylbm_parity_gate": audit_gate(native_citylbm_parity_audit, "native_citylbm_parity_gate"),
+            "native_citylbm_parity_gate_reasons": ";".join(
+                str(reason) for reason in native_citylbm_parity_audit.get("native_citylbm_parity_gate_reasons", [])
+            )
+            if isinstance(native_citylbm_parity_audit.get("native_citylbm_parity_gate_reasons"), list)
+            else str(native_citylbm_parity_audit.get("native_citylbm_parity_gate_reasons", "")),
+            "native_citylbm_parity_native_metrics": audit_field(native_citylbm_parity_audit, "native_metrics"),
+            "native_citylbm_parity_matched_field_count": audit_field(native_citylbm_parity_audit, "matched_field_count"),
+            "native_citylbm_parity_mismatched_field_count": audit_field(native_citylbm_parity_audit, "mismatched_field_count"),
+            "native_citylbm_parity_mismatched_fields": ";".join(
+                str(field) for field in native_citylbm_parity_audit.get("mismatched_fields", [])
+            )
+            if isinstance(native_citylbm_parity_audit.get("mismatched_fields"), list)
+            else str(native_citylbm_parity_audit.get("mismatched_fields", "")),
             "probe_mapping_table": str(probe_path),
             "probe_vtk_source_window_gate": probe_source_window_gate,
             "probe_vtk_source_window_reasons": ";".join(probe_source_reasons),

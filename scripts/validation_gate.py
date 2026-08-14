@@ -69,6 +69,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-grid-rmse-change-ratio", type=float, default=0.10)
     parser.add_argument("--max-grid-bias-change-ratio", type=float, default=0.05)
     parser.add_argument("--grid-dx-tolerance", type=float, default=1.0e-9)
+    parser.add_argument("--min-native-citylbm-parity-field-count", type=int, default=20)
     parser.add_argument("--expected-compared-component", default="", help="Require a specific Data Probe compared_component, e.g. speed_ratio or streamwise_ratio.")
     parser.add_argument("--expected-uref", type=float, default=None, help="Require the metrics/Data Probe Uref to match this value.")
     parser.add_argument("--uref-tolerance", type=float, default=1.0e-6)
@@ -394,11 +395,22 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
             "Run native FluidX3D with the same setup, grid, averaging and probes, then compare before changing CityLBM.",
         )
 
+    parity_gate = by_key.get("native_citylbm_parity")
+    if parity_gate is None or parity_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            8,
+            "native_citylbm_parity",
+            parity_gate,
+            "CityLBM accuracy cannot be compared with native FluidX3D unless the paired runs use the same protocol.",
+            "Archive native_citylbm_parity_audit.json proving matched case, wind, dx, averaging, Uref, inlet, boundary and probe settings.",
+        )
+
     grid_gate = by_key.get("grid_sensitivity")
     if grid_gate is None or grid_gate.get("status") != PASS:
         add_priority(
             priorities,
-            8,
+            9,
             "grid_sensitivity",
             grid_gate,
             "A single high-resolution run cannot prove that residual bias is independent of dx.",
@@ -412,7 +424,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     if systematic_gate is not None and systematic_gate.get("status") != PASS:
         add_priority(
             priorities,
-            9,
+            10,
             "systematic_bias_root_cause",
             systematic_gate,
             f"Metrics report systematic bias: {systematic_flag or 'flagged'}; {bias_diagnosis or 'no diagnosis string'}.",
@@ -421,7 +433,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     elif mean_gate is not None and mean_gate.get("status") != PASS:
         add_priority(
             priorities,
-            10,
+            11,
             "mean_velocity_accuracy",
             mean_gate,
             "Mean-flow metrics still fail after prerequisite evidence gates.",
@@ -754,6 +766,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     boundary_audit_path = find_first(run_dir, ["boundary_protocol_audit.json"])
     component_sensitivity_audit_path = find_first(run_dir, ["component_sensitivity_audit.json"])
     grid_sensitivity_audit_path = find_first(run_dir, ["grid_sensitivity_audit.json"])
+    native_citylbm_parity_audit_path = find_first(run_dir, ["native_citylbm_parity_audit.json"])
     manifest_path = find_first(run_dir, ["native_fluidx3d_baseline_manifest.json"])
     metrics_path = Path(args.metrics).resolve() if args.metrics else find_metrics(run_dir)
     probe_path = Path(args.probe_audit).resolve() if args.probe_audit else None
@@ -764,9 +777,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     external_boundary_audit = read_json(boundary_audit_path)
     component_sensitivity_audit = read_json(component_sensitivity_audit_path)
     grid_sensitivity_audit = read_json(grid_sensitivity_audit_path)
+    native_citylbm_parity_audit = read_json(native_citylbm_parity_audit_path)
     manifest = read_json(manifest_path)
     metrics, metrics_path = read_metrics(metrics_path)
     items = load_protocol_items(audit)
+    software_label = str(args.software or get_any(metrics, ["software", "Software"]) or "").strip().lower()
+    citylbm_result = "citylbm" in software_label and "native" not in software_label
     gates: List[Dict[str, Any]] = []
 
     add_gate(
@@ -777,6 +793,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and audit_path
         and boundary_audit_path
         and grid_sensitivity_audit_path
+        and (native_citylbm_parity_audit_path or not citylbm_result)
         and metrics_path
         and metrics
         else FAIL,
@@ -784,9 +801,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"metadata={metadata_path or 'missing'}; audit={audit_path or 'missing'}; "
             f"boundary_audit={boundary_audit_path or 'missing'}; "
             f"grid_sensitivity_audit={grid_sensitivity_audit_path or 'missing'}; "
+            f"native_citylbm_parity_audit={native_citylbm_parity_audit_path or ('missing' if citylbm_result else ('not_required_for_' + (software_label or 'unknown')))}; "
             f"metrics={metrics_path or 'missing'}"
         ),
-        "Archive case_metadata.json, validation_protocol_audit.json, boundary_protocol_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run.",
+        "Archive case_metadata.json, validation_protocol_audit.json, boundary_protocol_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
     )
 
     run_freshness_gate = str(
@@ -1770,6 +1788,73 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Run and archive a paired native FluidX3D baseline using an explicit complete source tree with setup/defines/lbm source hashes, then compare the same setup, grid, averaging and probes.",
     )
 
+    parity_gate = str(
+        get_first_available(
+            get_any(native_citylbm_parity_audit, ["native_citylbm_parity_gate"]),
+            get_any(metrics, ["native_citylbm_parity_gate", "NativeCitylbmParityGate"]),
+        )
+        or ""
+    ).strip().lower()
+    parity_reasons = str(
+        get_first_available(
+            get_any(native_citylbm_parity_audit, ["native_citylbm_parity_gate_reasons"]),
+            get_any(metrics, ["native_citylbm_parity_gate_reasons", "NativeCitylbmParityGateReasons"]),
+        )
+        or ""
+    )
+    parity_native_metrics = str(
+        get_first_available(
+            get_any(native_citylbm_parity_audit, ["native_metrics"]),
+            get_any(metrics, ["native_citylbm_parity_native_metrics", "NativeCitylbmParityNativeMetrics"]),
+        )
+        or ""
+    ).strip()
+    parity_matched_count = as_int(
+        get_first_available(
+            get_any(native_citylbm_parity_audit, ["matched_field_count"]),
+            get_any(metrics, ["native_citylbm_parity_matched_field_count", "NativeCitylbmParityMatchedFieldCount"]),
+        )
+    )
+    parity_mismatched_count = as_int(
+        get_first_available(
+            get_any(native_citylbm_parity_audit, ["mismatched_field_count"]),
+            get_any(metrics, ["native_citylbm_parity_mismatched_field_count", "NativeCitylbmParityMismatchedFieldCount"]),
+        )
+    )
+    parity_mismatched_fields = str(
+        get_first_available(
+            get_any(native_citylbm_parity_audit, ["mismatched_fields"]),
+            get_any(metrics, ["native_citylbm_parity_mismatched_fields", "NativeCitylbmParityMismatchedFields"]),
+        )
+        or ""
+    )
+    parity_ok = (
+        not citylbm_result
+        or (
+            native_citylbm_parity_audit_path is not None
+            and parity_gate == "pass"
+            and parity_native_metrics
+            and parity_matched_count is not None
+            and parity_matched_count >= args.min_native_citylbm_parity_field_count
+            and parity_mismatched_count == 0
+        )
+    )
+    add_gate(
+        gates,
+        "native_citylbm_parity",
+        PASS if parity_ok else FAIL,
+        (
+            f"software={software_label or 'missing'}; citylbm_result={citylbm_result}; "
+            f"native_citylbm_parity_audit={native_citylbm_parity_audit_path or 'missing'}; "
+            f"native_citylbm_parity_gate={parity_gate or 'missing'}; "
+            f"native_metrics={parity_native_metrics or 'missing'}; "
+            f"matched_field_count={parity_matched_count}; required >= {args.min_native_citylbm_parity_field_count}; "
+            f"mismatched_field_count={parity_mismatched_count}; mismatched_fields={parity_mismatched_fields or 'none'}; "
+            f"native_citylbm_parity_gate_reasons={parity_reasons or 'none'}"
+        ),
+        "Before using native FluidX3D as the accuracy baseline for CityLBM, archive a parity audit proving the same case, wind, dx, averaging, Uref, inlet, boundary and probe settings.",
+    )
+
     grid_gate = str(
         get_first_available(
             get_any(grid_sensitivity_audit, ["grid_sensitivity_gate"]),
@@ -2328,6 +2413,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_grid_rmse_change_ratio": args.max_grid_rmse_change_ratio,
             "max_grid_bias_change_ratio": args.max_grid_bias_change_ratio,
             "grid_dx_tolerance": args.grid_dx_tolerance,
+            "min_native_citylbm_parity_field_count": args.min_native_citylbm_parity_field_count,
             "expected_compared_component": args.expected_compared_component,
             "expected_uref": args.expected_uref,
             "uref_tolerance": args.uref_tolerance,
@@ -2343,6 +2429,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "boundary_protocol_audit": str(boundary_audit_path) if boundary_audit_path else "",
             "component_sensitivity_audit": str(component_sensitivity_audit_path) if component_sensitivity_audit_path else "",
             "grid_sensitivity_audit": str(grid_sensitivity_audit_path) if grid_sensitivity_audit_path else "",
+            "native_citylbm_parity_audit": str(native_citylbm_parity_audit_path) if native_citylbm_parity_audit_path else "",
             "native_fluidx3d_baseline_manifest": str(manifest_path) if manifest_path else "",
             "metrics": str(metrics_path) if metrics_path else "",
             "probe_audit": str(probe_path) if probe_path else "",

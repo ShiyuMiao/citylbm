@@ -64,6 +64,11 @@ def parse_args() -> argparse.Namespace:
         default=[],
         help="Metrics CSV/JSON from another matched dx run. Repeat to build grid_sensitivity_audit.json.",
     )
+    parser.add_argument(
+        "--paired-native-metrics",
+        default="",
+        help="Native FluidX3D metrics CSV/JSON used to audit paired CityLBM/native comparability.",
+    )
     parser.add_argument("--average-last-n", type=int, default=10, help="Average the last N VTK frames.")
     parser.add_argument("--min-avg-frames", type=int, default=10, help="Minimum frames required by the time-average gate.")
     parser.add_argument("--pattern", default="u-*.vtk", help="VTK glob pattern.")
@@ -214,6 +219,7 @@ def main() -> int:
     component_sensitivity_json = out_dir / "component_sensitivity_audit.json"
     component_sensitivity_csv = out_dir / "component_sensitivity_audit.csv"
     grid_sensitivity_json = out_dir / "grid_sensitivity_audit.json"
+    native_citylbm_parity_json = out_dir / "native_citylbm_parity_audit.json"
     metrics_csv = out_dir / "validation_metrics.csv"
     comparison_csv = out_dir / "probe_comparison.csv"
     gate_json = out_dir / "validation_gate_report.json"
@@ -248,6 +254,7 @@ def main() -> int:
             "GridSensitivityMetrics": [
                 str(Path(item).expanduser().resolve()) for item in args.grid_sensitivity_metrics
             ],
+            "PairedNativeMetrics": str(Path(args.paired_native_metrics).expanduser().resolve()) if args.paired_native_metrics else "",
         },
         "Artifacts": {
             "NativeFluidX3DBaselineManifest": str(native_manifest_path) if native_manifest_path else "",
@@ -260,6 +267,7 @@ def main() -> int:
             "ComponentSensitivityAuditJson": str(component_sensitivity_json),
             "ComponentSensitivityAuditCsv": str(component_sensitivity_csv),
             "GridSensitivityAuditJson": str(grid_sensitivity_json),
+            "NativeCityLBMParityAuditJson": str(native_citylbm_parity_json),
             "ValidationMetricsCsv": str(metrics_csv),
             "ProbeComparisonCsv": str(comparison_csv),
             "ValidationGateReport": str(gate_json),
@@ -503,6 +511,35 @@ def main() -> int:
             metrics_with_grid_cmd = list(metrics_cmd)
             metrics_with_grid_cmd.extend(["--grid-sensitivity-audit", str(grid_sensitivity_json)])
             manifest["Steps"].append(run_step("validation_metrics_from_probe_audit_with_grid", metrics_with_grid_cmd))
+            write_manifest(manifest_path, manifest)
+
+        if args.paired_native_metrics:
+            parity_cmd = [
+                py,
+                str(script_dir / "audit_native_citylbm_parity.py"),
+                "--citylbm-metrics",
+                str(metrics_csv),
+                "--native-metrics",
+                str(Path(args.paired_native_metrics).expanduser().resolve()),
+                "--out",
+                str(native_citylbm_parity_json),
+                "--case",
+                args.case,
+                "--wind-direction",
+                args.wind_direction_label,
+                "--citylbm-software",
+                args.software,
+                "--native-software",
+                "native-fluidx3d",
+            ]
+            manifest["Steps"].append(run_step("audit_native_citylbm_parity", parity_cmd, allow_fail=True))
+            write_manifest(manifest_path, manifest)
+
+            metrics_with_parity_cmd = list(metrics_cmd)
+            if args.grid_sensitivity_metrics:
+                metrics_with_parity_cmd.extend(["--grid-sensitivity-audit", str(grid_sensitivity_json)])
+            metrics_with_parity_cmd.extend(["--native-citylbm-parity-audit", str(native_citylbm_parity_json)])
+            manifest["Steps"].append(run_step("validation_metrics_from_probe_audit_with_native_citylbm_parity", metrics_with_parity_cmd))
             write_manifest(manifest_path, manifest)
 
         gate_cmd = [

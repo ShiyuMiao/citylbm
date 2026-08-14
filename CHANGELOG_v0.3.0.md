@@ -195,18 +195,23 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now writes `diagnostic_priority` to the JSON report and console output. Failed runs are triaged
   in the required order: coordinate/component/Uref/probe evidence plus component/Uref sensitivity, time averaging, inlet
   `U/k` preservation, turbulent inlet method, length scale and correlation evidence, boundary/roughness/blockage, native
-  FluidX3D baseline, grid sensitivity, then residual systematic-bias root cause.
+  FluidX3D baseline, native/CityLBM parity, grid sensitivity, then residual systematic-bias root cause.
 - Added `scripts/audit_grid_sensitivity.py` and wired its output into the metrics template, validation chain and final
   gate. Paper-grade runs now require `grid_sensitivity_audit.json` with at least two matched dx levels, a finest dx that
   matches the reported metrics row, sufficient refinement ratio, and bounded finest-vs-next-coarse `U_RMSE_ratio` and
   `U_bias_ratio` changes. This makes a single improved high-resolution run diagnostic rather than publishable evidence.
+- Added `scripts/audit_native_citylbm_parity.py` and wired its output into the metrics template, validation chain and
+  final gate. A CityLBM validation row now requires `native_citylbm_parity_audit.json` proving that the paired native
+  FluidX3D row used the same case, wind direction, grid, VTK cadence, averaging, Uref, inlet/boundary setup and probe
+  component before CityLBM accuracy is interpreted as inherited from native FluidX3D.
 
 ## Remaining scientific work
 
 - Native FluidX3D Case A strict baseline must be run with the same geometry, inflow, averaging window and measurement extraction.
 - The inlet-profile audit must be run on newly generated native and CityLBM VTK sequences; without this JSON, high probe
   R2 is not enough to diagnose whether the solver preserved the official AF `U/k` inlet.
-- If native FluidX3D is significantly closer to AIJ measurements, the same settings must be ported into CityLBM.
+- If native FluidX3D is significantly closer to AIJ measurements, the same settings must be ported into CityLBM and
+  verified with `native_citylbm_parity_audit.json` rather than by manual label matching.
 - Case E should then be run with dx=2-3 m, long time averaging, at least one matched grid-sensitivity companion run, and
   the official AF/RS files.
 - The new default `10000/500` run is still a minimum validation workflow, not final stationarity proof; paper runs must

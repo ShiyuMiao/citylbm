@@ -44,6 +44,9 @@
 - The paper-grade inlet-method gate now requires an explicit supported `inlet_method_class` plus distribution-consistent treatment; a protocol pass flag or method-name-only metadata can no longer pass the turbulent-inlet evidence gate.
 - Added `scripts/audit_grid_sensitivity.py`; `validation_gate.py` now requires `grid_sensitivity_audit.json` with at
   least two matched dx levels, bounded finest-vs-coarser RMSE/bias change, and a finest dx matching the metrics row.
+- Added `scripts/audit_native_citylbm_parity.py`; CityLBM validation rows now need paired native FluidX3D metrics with
+  matched case, wind direction, dx, averaging, Uref, inlet/boundary and probe settings before inherited native accuracy
+  can be claimed.
 - Added a 2026-08-14 native Case A strict preflight record: fresh empty-tunnel and building configurations were generated from official AF/RS inputs, but FluidX3D was not launched because boundary-equivalence and roughness/precursor source gates remain open.
 - Native FluidX3D metadata fields such as `TurbulenceMethod`, `InletUpdateInterval`, `SyntheticEddy`, `RecyclingRescaling` and `RoughnessLayout` are now mapped into the standard validation metrics row, so synthetic-eddy and digital-filter candidates remain diagnostic unless distribution-consistent inlet evidence, validated length-scale evidence and final-window correlation audits are archived.
 - Added a separate `roughness_or_precursor` validation gate so AIJ Case A/E runs cannot pass paper-grade boundary checks through domain-clearance/blockage evidence alone when wind-tunnel roughness geometry, validated rough-wall treatment or precursor/recycling equivalence is missing.

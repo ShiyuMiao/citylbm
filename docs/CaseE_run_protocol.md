@@ -151,6 +151,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   windows, omits hashes, uses stale/copy-forward VTK evidence, or disagrees with the metrics `source_time_steps`.
 - A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
   extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
+- For a CityLBM-driven Case E validation row, run `scripts\audit_native_citylbm_parity.py` or pass
+  `--paired-native-metrics <native_validation_metrics.csv>` to the evidence chain. The resulting
+  `native_citylbm_parity_audit.json` must show matched case, wind direction, `dx`, steps, VTK cadence, averaging window,
+  `Uref`, inlet/boundary settings, compared component and probe table before CityLBM accuracy is compared against native
+  FluidX3D.
 - `case_metadata.json` must be archived with the run. It records the boundary-condition summary, expected VTK frame count,
   time-averaging requirement, and known protocol risks.
 - `native_fluidx3d_baseline_manifest.json` and `.md` must be archived. This manifest lists the exact generated
@@ -185,7 +190,7 @@ python scripts\audit_boundary_protocol.py <run_dir> --metadata <case_metadata.js
   package with one command:
 
 ```powershell
-python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --boundary-evidence <boundary_evidence_casee_ac_N.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 10 --min-avg-frames 10 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250
+python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --boundary-evidence <boundary_evidence_casee_ac_N.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 10 --min-avg-frames 10 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250 --paired-native-metrics <native_validation_metrics.csv>
 ```
 
   The command creates `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,
@@ -194,6 +199,8 @@ python scripts\run_native_validation_chain.py <run_dir> --official <official_dat
   `validation_gate_report.json` under `<run_dir>\validation_chain`. It does not start a CFD simulation and must not be
   used to imply that Case E was rerun unless the VTK frames in `<run_dir>` were newly produced by the current Rhino 7/
   Grasshopper/CityLBM experiment.
+  When `--paired-native-metrics` is supplied, it also writes `native_citylbm_parity_audit.json` and appends the parity
+  fields to `validation_metrics.csv`.
 
 - Run the machine gate after postprocessing:
 
@@ -228,6 +235,11 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   `grid_sensitivity_next_coarse_dx_m`, `grid_sensitivity_refinement_ratio`,
   `grid_sensitivity_rmse_change_ratio` and `grid_sensitivity_bias_change_ratio`. A single `dx=2-3 m` run remains
   diagnostic until these fields show bounded change from the next coarser/finer matched run.
+- Native/CityLBM parity audit for CityLBM rows: `native_citylbm_parity_audit.json`,
+  `native_citylbm_parity_gate`, `native_citylbm_parity_native_metrics`,
+  `native_citylbm_parity_matched_field_count`, `native_citylbm_parity_mismatched_field_count` and
+  `native_citylbm_parity_mismatched_fields`. A CityLBM row without this audit cannot be used to claim inherited native
+  FluidX3D accuracy.
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
 - `time_averaging` gate must use the final available VTK window, contain at least 10 frames, have strictly increasing
   uniformly spaced source steps, and satisfy `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20`
@@ -286,8 +298,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   do not skip lower-rank failures: coordinate/component/Uref/probe closure plus component/Uref sensitivity precedes time averaging; time averaging
   precedes inlet `U/k` preservation; inlet `U/k` preservation precedes turbulent-inlet method and length-scale claims;
   inlet correlation evidence precedes boundary/roughness/blockage evidence; boundary/roughness/blockage evidence
-  precedes native baseline and grid-sensitivity evidence; only after those pass can a remaining `-34 pp` style low bias
-  be interpreted as a solver/protocol physics problem.
+  precedes native baseline, native/CityLBM parity and grid-sensitivity evidence; only after those pass can a remaining
+  `-34 pp` style low bias be interpreted as a solver/protocol physics problem.
 
 ## Current v0.3.0 limitation
 

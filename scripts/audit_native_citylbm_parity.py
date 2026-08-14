@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+"""Audit whether a CityLBM validation row is comparable to a native FluidX3D row.
+
+The script does not run CFD. It checks that the two archived metrics rows use
+the same case, wind direction, grid, averaging, normalization, probe component
+and core solver/boundary/inlet settings before a CityLBM result is interpreted
+as inheriting native FluidX3D accuracy.
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import math
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Tuple
+
+
+TEXT_FIELDS = [
+    "case",
+    "wind_direction",
+    "compared_component",
+    "wind_vector",
+    "inlet_face",
+    "outlet_face",
+    "lateral_faces",
+    "velocity_set",
+    "les_model",
+    "synthetic_inlet_method",
+    "inlet_distribution_treatment",
+    "inlet_method_class",
+    "wall_roughness_treatment",
+    "boundary_evidence_class",
+]
+
+NUMERIC_FIELDS = [
+    "dx_m",
+    "steps",
+    "save_interval",
+    "averaging_window",
+    "requested_time_steps",
+    "requested_vtk_save_interval",
+    "requested_vtk_frame_count",
+    "Uref_mps",
+    "Zref_m",
+    "geometry_scale",
+    "smagorinsky_cs",
+    "target_max_profile_velocity_lbm",
+    "estimated_max_profile_mach",
+    "lbm_tau",
+    "physical_viscosity_m2s",
+    "probe_tolerance_m",
+    "valid_n",
+]
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Audit paired native FluidX3D and CityLBM metrics parity.")
+    parser.add_argument("--citylbm-metrics", required=True, help="CityLBM validation metrics CSV/JSON.")
+    parser.add_argument("--native-metrics", required=True, help="Native FluidX3D validation metrics CSV/JSON.")
+    parser.add_argument("--out", required=True, help="Output native_citylbm_parity_audit.json.")
+    parser.add_argument("--case", default="", help="Optional case filter.")
+    parser.add_argument("--wind-direction", default="", help="Optional wind-direction filter.")
+    parser.add_argument("--citylbm-software", default="citylbm")
+    parser.add_argument("--native-software", default="native-fluidx3d")
+    parser.add_argument("--numeric-tolerance", type=float, default=1.0e-9)
+    parser.add_argument(
+        "--optional-field",
+        action="append",
+        default=[],
+        help="Field allowed to be missing on both rows without failing the parity gate.",
+    )
+    return parser.parse_args()
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def as_float(value: Any) -> Optional[float]:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        parsed = float(value)
+        return None if math.isnan(parsed) or math.isinf(parsed) else parsed
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        parsed = float(text)
+    except ValueError:
+        return None
+    return None if math.isnan(parsed) or math.isinf(parsed) else parsed
+
+
+def normalize_text(value: Any) -> str:
+    return " ".join(str(value or "").strip().lower().replace("\\", "/").split())
+
+
+def read_rows(path: Path) -> List[Dict[str, Any]]:
+    if path.suffix.lower() == ".json":
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+        if isinstance(data, list):
+            return [row for row in data if isinstance(row, dict)]
+        return [data] if isinstance(data, dict) else []
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def text_matches(value: Any, expected: str) -> bool:
+    return not expected or normalize_text(value) == normalize_text(expected)
+
+
+def select_row(
+    rows: List[Dict[str, Any]],
+    software: str,
+    case: str,
+    wind_direction: str,
+) -> Tuple[Optional[Dict[str, Any]], str]:
+    candidates: List[Dict[str, Any]] = []
+    for row in rows:
+        if not text_matches(row.get("software"), software):
+            continue
+        if not text_matches(row.get("case"), case):
+            continue
+        if not text_matches(row.get("wind_direction"), wind_direction):
+            continue
+        candidates.append(row)
+    if not candidates:
+        return None, "no_matching_row"
+    if len(candidates) > 1:
+        return candidates[-1], f"multiple_matching_rows_selected_last:{len(candidates)}"
+    return candidates[0], ""
+
+
+def compare_text(field: str, city: Dict[str, Any], native: Dict[str, Any], optional: set[str]) -> Dict[str, Any]:
+    city_value = normalize_text(city.get(field))
+    native_value = normalize_text(native.get(field))
+    missing = not city_value and not native_value
+    match = city_value == native_value and (not missing or field in optional)
+    return {
+        "field": field,
+        "kind": "text",
+        "citylbm": city.get(field, ""),
+        "native": native.get(field, ""),
+        "match": match,
+        "reason": "both_missing_optional" if missing and field in optional else ("match" if match else "mismatch_or_missing"),
+    }
+
+
+def compare_numeric(
+    field: str,
+    city: Dict[str, Any],
+    native: Dict[str, Any],
+    tolerance: float,
+    optional: set[str],
+) -> Dict[str, Any]:
+    city_value = as_float(city.get(field))
+    native_value = as_float(native.get(field))
+    missing = city_value is None and native_value is None
+    diff = abs(city_value - native_value) if city_value is not None and native_value is not None else None
+    match = (diff is not None and diff <= tolerance) or (missing and field in optional)
+    return {
+        "field": field,
+        "kind": "numeric",
+        "citylbm": city.get(field, ""),
+        "native": native.get(field, ""),
+        "absolute_difference": diff,
+        "tolerance": tolerance,
+        "match": match,
+        "reason": "both_missing_optional" if missing and field in optional else ("match" if match else "mismatch_or_missing"),
+    }
+
+
+def main() -> int:
+    args = parse_args()
+    city_path = Path(args.citylbm_metrics).expanduser().resolve()
+    native_path = Path(args.native_metrics).expanduser().resolve()
+    out_path = Path(args.out).expanduser().resolve()
+    optional = {field.strip() for field in args.optional_field if field.strip()}
+
+    reasons: List[str] = []
+    try:
+        city_rows = read_rows(city_path)
+    except (OSError, json.JSONDecodeError, csv.Error) as exc:
+        city_rows = []
+        reasons.append(f"citylbm_metrics_unreadable:{exc}")
+    try:
+        native_rows = read_rows(native_path)
+    except (OSError, json.JSONDecodeError, csv.Error) as exc:
+        native_rows = []
+        reasons.append(f"native_metrics_unreadable:{exc}")
+
+    city_row, city_select_reason = select_row(city_rows, args.citylbm_software, args.case, args.wind_direction)
+    native_row, native_select_reason = select_row(native_rows, args.native_software, args.case, args.wind_direction)
+    if city_select_reason and not city_select_reason.startswith("multiple_matching"):
+        reasons.append("citylbm_" + city_select_reason)
+    if native_select_reason and not native_select_reason.startswith("multiple_matching"):
+        reasons.append("native_" + native_select_reason)
+
+    comparisons: List[Dict[str, Any]] = []
+    if city_row is not None and native_row is not None:
+        comparisons.extend(compare_text(field, city_row, native_row, optional) for field in TEXT_FIELDS)
+        comparisons.extend(
+            compare_numeric(field, city_row, native_row, args.numeric_tolerance, optional)
+            for field in NUMERIC_FIELDS
+        )
+
+    mismatches = [item for item in comparisons if not item["match"]]
+    if mismatches:
+        reasons.append("paired_condition_mismatch:" + ",".join(item["field"] for item in mismatches))
+
+    gate = "pass" if not reasons else "fail"
+    report = {
+        "schema": "citylbm.native_citylbm_parity_audit.v1",
+        "generated_at_utc": utc_now(),
+        "native_citylbm_parity_gate": gate,
+        "native_citylbm_parity_gate_reasons": reasons or ["native_citylbm_conditions_match"],
+        "citylbm_metrics": str(city_path),
+        "native_metrics": str(native_path),
+        "case_filter": args.case,
+        "wind_direction_filter": args.wind_direction,
+        "citylbm_software_filter": args.citylbm_software,
+        "native_software_filter": args.native_software,
+        "citylbm_row_selection_warning": city_select_reason,
+        "native_row_selection_warning": native_select_reason,
+        "matched_field_count": sum(1 for item in comparisons if item["match"]),
+        "mismatched_field_count": len(mismatches),
+        "mismatched_fields": [item["field"] for item in mismatches],
+        "comparisons": comparisons,
+        "recommended_next_action": (
+            "Rerun the native and CityLBM cases with the same case, wind direction, dx, steps, VTK cadence, "
+            "averaging window, Uref, inlet/boundary setup, probe component and probe table before comparing accuracy."
+        ),
+    }
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+    print(f"native_citylbm_parity_gate={gate}; reasons={';'.join(report['native_citylbm_parity_gate_reasons'])}")
+    return 0 if gate == "pass" else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

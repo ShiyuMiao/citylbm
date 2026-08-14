@@ -191,7 +191,14 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    ratio must meet the configured threshold, and the finest-vs-next-coarse `U_RMSE_ratio` and `U_bias_ratio` changes
    must be bounded. A single high-resolution Case A run is still diagnostic, even if it improves the result.
 
-9. Promotion gate.
+9. Native/CityLBM parity gate.
+   For a CityLBM-driven Case A run, archive `native_citylbm_parity_audit.json` from
+   `scripts/audit_native_citylbm_parity.py`. The audit must show that the CityLBM metrics row and the native FluidX3D
+   metrics row use the same case, wind direction, `dx`, steps, VTK cadence, averaging window, `Uref`, inlet/boundary
+   settings, probe component and probe table. Without this paired-condition audit, CityLBM-vs-native differences cannot
+   be interpreted as software-integration error or inherited FluidX3D accuracy.
+
+10. Promotion gate.
    CityLBM may inherit native FluidX3D settings only after native Case A has a passing or explicitly bounded diagnostic
    record. If native FluidX3D underpredicts mean speed or `k`, do not tune CityLBM to hide the discrepancy; fix or
    document the native physics first.
@@ -207,6 +214,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
   `grid_sensitivity_finest_dx_m`, `grid_sensitivity_next_coarse_dx_m`,
   `grid_sensitivity_refinement_ratio`, `grid_sensitivity_rmse_change_ratio` and
   `grid_sensitivity_bias_change_ratio`. The final gate requires this audit in addition to the single-run `dx`.
+- For CityLBM parity runs, `native_citylbm_parity_audit.json`, including `native_citylbm_parity_gate`,
+  `native_citylbm_parity_native_metrics`, `native_citylbm_parity_matched_field_count`,
+  `native_citylbm_parity_mismatched_field_count` and `native_citylbm_parity_mismatched_fields`.
 - LBM stability evidence: target maximum lattice velocity, estimated maximum Mach number, `tau`, `nu_lbm`, physical
   viscosity, Reynolds number, velocity set, LES/subgrid model and solver-log stability warning status. The machine
   gate now fails this block unless the runtime metrics row records a passing stability gate such as
@@ -316,16 +326,17 @@ The metrics row must also carry `run_freshness_gate`, `run_freshness_gate_reason
 `oldest_selected_vtk_mtime_utc`; `validation_gate.py` fails `run_freshness` when these fields are missing or show stale
 VTK output.
 
-For a CityLBM-driven parity run, change `--software citylbm` and keep the same metrics/probe schema. A passing paper-grade
+For a CityLBM-driven parity run, change `--software citylbm`, pass the already completed native metrics row with
+`--paired-native-metrics <native_validation_metrics.csv>`, and keep the same metrics/probe schema. A passing paper-grade
 record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,
-`native_baseline_gate=pass`, `lbm_stability_gate=solver_log_no_stability_warnings`,
+`native_baseline_gate=pass`, `native_citylbm_parity_gate=pass`, `lbm_stability_gate=solver_log_no_stability_warnings`,
 `solver_stability_warnings=none`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
 `inlet_profile_gate=pass`, zero failed probes, bounded probe projection distance/tolerance, bounded mean-velocity bias/RMSE, and reported `k` bias/RMSE. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
 The JSON report also includes `diagnostic_priority`, which must be followed in order before changing physics parameters:
 first close coordinate/component/Uref/probe issues and the component/Uref sensitivity audit, then final-window time
 averaging, then AF `U/k` preservation, then turbulent-inlet method, length scale and correlation evidence, then
-boundary/roughness/blockage, then the native FluidX3D baseline and grid sensitivity, and only then interpret the
+boundary/roughness/blockage, then the native FluidX3D baseline, native/CityLBM parity and grid sensitivity, and only then interpret the
 remaining systematic bias as a physics/protocol problem.
 The inlet `U/k` audit follows the same final-window rule as the VTK/probe average: short, non-final or irregular
 source steps fail before the result can be interpreted as solver accuracy.
