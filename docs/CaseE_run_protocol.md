@@ -87,7 +87,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `scripts\audit_inlet_correlation_from_vtk.py`. This audit records streamwise fluctuation variance, temporal lag-1
   signed correlation, temporal lag-1 absolute correlation for diagnosis, and adjacent spatial correlation. It is
   required because preserving AF `k` magnitude alone does not prove a digital-filter, SEM, precursor/recycling or
-  otherwise correlated turbulent inlet.
+  otherwise correlated turbulent inlet. The audit must also pass temporal/spatial finite-correlation coverage fractions
+  so a sparse subset of correlated non-degenerate samples cannot represent the full inlet plane.
 - The STG length-scale gate is not passed by choosing a convenient number of lattice cells. It passes only when
   `STG Length Source`/`SyntheticTurbulentInletLengthScaleSource` contains an archived evidence tag such as
   `aij_length_scale_verified`, `official_length_scale_verified`, `precursor_length_scale`,
@@ -221,7 +222,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   `inlet_k_profile_gate`, `inlet_u_mae_ratio`, `inlet_u_rmse_ratio`, `inlet_k_mae_ratio`, and
   `inlet_k_rmse_ratio`
 - Inlet correlation audit: `inlet_correlation_gate`, signed temporal lag-1 correlation, temporal lag-1 absolute
-  correlation, adjacent spatial correlation and streamwise fluctuation variance
+  correlation, adjacent spatial correlation, temporal/spatial finite correlation fractions and streamwise fluctuation
+  variance
 - Paper-grade inlet method gate: `paper_grade_inlet_method` must pass. A velocity-field-only STG-lite run remains
   diagnostic even if `--allow-velocity-only-inlet` is used for sensitivity analysis.
 - Native baseline gate and `validation_gate_report.json`

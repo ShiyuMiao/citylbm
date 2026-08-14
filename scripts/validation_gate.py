@@ -54,6 +54,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-probe-failure-fraction", type=float, default=0.0)
     parser.add_argument("--max-probe-distance-dx-ratio", type=float, default=1.0)
     parser.add_argument("--max-probe-tolerance-dx-ratio", type=float, default=1.0)
+    parser.add_argument("--min-inlet-temporal-finite-fraction", type=float, default=0.80)
+    parser.add_argument("--min-inlet-spatial-finite-fraction", type=float, default=0.80)
     parser.add_argument("--max-frontal-blockage-ratio", type=float, default=0.05)
     parser.add_argument("--max-estimated-mach", type=float, default=0.20)
     parser.add_argument("--min-lbm-tau", type=float, default=0.500001)
@@ -194,6 +196,13 @@ def get_any(mapping: Dict[str, Any], keys: Iterable[str]) -> Any:
     for key in keys:
         if key in mapping and mapping[key] not in (None, ""):
             return mapping[key]
+    return None
+
+
+def get_first_available(*values: Any) -> Any:
+    for value in values:
+        if value not in (None, ""):
+            return value
     return None
 
 
@@ -1110,6 +1119,18 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         get_any(metrics, ["inlet_streamwise_fluctuation_variance", "InletStreamwiseFluctuationVariance"])
         or get_any(inlet_correlation_audit, ["mean_streamwise_fluctuation_variance"])
     )
+    inlet_temporal_finite_fraction = as_float(
+        get_first_available(
+            get_any(metrics, ["inlet_temporal_finite_correlation_fraction", "InletTemporalFiniteCorrelationFraction"]),
+            get_any(inlet_correlation_audit, ["temporal_finite_correlation_fraction"]),
+        )
+    )
+    inlet_spatial_finite_fraction = as_float(
+        get_first_available(
+            get_any(metrics, ["inlet_spatial_finite_correlation_fraction", "InletSpatialFiniteCorrelationFraction"]),
+            get_any(inlet_correlation_audit, ["spatial_finite_correlation_fraction"]),
+        )
+    )
     metric_inlet_correlation_audit = str(
         get_any(metrics, ["inlet_correlation_audit", "InletCorrelationAudit"]) or ""
     ).strip()
@@ -1120,16 +1141,26 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         except OSError:
             metric_inlet_correlation_audit_exists = False
     inlet_correlation_audit_exists = bool(inlet_correlation_audit_path and inlet_correlation_audit_path.exists()) or metric_inlet_correlation_audit_exists
+    inlet_correlation_coverage_ok = (
+        inlet_temporal_finite_fraction is not None
+        and inlet_temporal_finite_fraction >= args.min_inlet_temporal_finite_fraction
+        and inlet_spatial_finite_fraction is not None
+        and inlet_spatial_finite_fraction >= args.min_inlet_spatial_finite_fraction
+    )
     add_gate(
         gates,
         "inlet_correlation",
-        PASS if inlet_correlation_gate == "pass" and inlet_correlation_audit_exists else FAIL,
+        PASS if inlet_correlation_gate == "pass" and inlet_correlation_audit_exists and inlet_correlation_coverage_ok else FAIL,
         (
             f"inlet_correlation_gate={inlet_correlation_gate or 'missing'}; "
             f"temporal_lag1_mean_correlation={inlet_temporal_lag1}; "
             f"temporal_lag1_abs_mean_correlation={inlet_temporal_lag1_abs}; "
             f"spatial_adjacent_mean_correlation={inlet_spatial_adjacent}; "
             f"mean_streamwise_fluctuation_variance={inlet_streamwise_variance}; "
+            f"temporal_finite_correlation_fraction={inlet_temporal_finite_fraction}; "
+            f"required >= {args.min_inlet_temporal_finite_fraction}; "
+            f"spatial_finite_correlation_fraction={inlet_spatial_finite_fraction}; "
+            f"required >= {args.min_inlet_spatial_finite_fraction}; "
             f"audit={inlet_correlation_audit_path or metric_inlet_correlation_audit or 'missing'}; "
             f"audit_exists={inlet_correlation_audit_exists}"
         ),
@@ -1602,6 +1633,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_probe_failure_fraction": args.max_probe_failure_fraction,
             "max_probe_distance_dx_ratio": args.max_probe_distance_dx_ratio,
             "max_probe_tolerance_dx_ratio": args.max_probe_tolerance_dx_ratio,
+            "min_inlet_temporal_finite_fraction": args.min_inlet_temporal_finite_fraction,
+            "min_inlet_spatial_finite_fraction": args.min_inlet_spatial_finite_fraction,
             "max_frontal_blockage_ratio": args.max_frontal_blockage_ratio,
             "max_estimated_mach": args.max_estimated_mach,
             "min_lbm_tau": args.min_lbm_tau,

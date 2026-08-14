@@ -122,6 +122,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    frames. The correlation audit records streamwise fluctuation variance, signed temporal lag-1 correlation, temporal
    lag-1 absolute correlation for diagnosis, and adjacent spatial correlation; a missing or failing audit means the
    inlet remains diagnostic even when the AF k magnitude is approximately preserved.
+   The audit must also report finite temporal and spatial correlation coverage fractions; a high mean correlation from
+   only a sparse subset of non-degenerate samples is not enough for a paper-grade turbulent-inlet claim.
    The inlet `U/k` preservation gate follows the same final-window evidence rule as the global time-average gate:
    `inlet_profile_source_time_steps` must be archived from real VTK frames, match `inlet_profile_frame_count`, represent
    the last available uniformly spaced window, and carry `inlet_profile_time_averaging_gate=pass`. An `empty_tunnel_gate`
@@ -208,7 +210,7 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
   `inlet_profile_gate`.
 - Inlet correlation-audit JSON from the same final-window VTK frames, including `inlet_correlation_gate`,
   `temporal_lag1_mean_correlation`, `temporal_lag1_abs_mean_correlation`, `spatial_adjacent_mean_correlation` and
-  `mean_streamwise_fluctuation_variance`.
+  `mean_streamwise_fluctuation_variance`, plus temporal/spatial finite correlation fractions.
 - Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept, max absolute error,
   `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
 - Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance, compared-component consistency and

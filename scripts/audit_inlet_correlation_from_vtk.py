@@ -67,6 +67,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-streamwise-variance", type=float, default=1.0e-12)
     parser.add_argument("--min-temporal-lag1-correlation", type=float, default=0.10)
     parser.add_argument("--min-spatial-adjacent-correlation", type=float, default=0.05)
+    parser.add_argument("--min-temporal-finite-fraction", type=float, default=0.80)
+    parser.add_argument("--min-spatial-finite-fraction", type=float, default=0.80)
     return parser.parse_args()
 
 
@@ -192,6 +194,8 @@ def main() -> int:
     temporal_corr = mean(temporal_corrs)
     temporal_abs_corr = mean(temporal_abs_corrs)
     spatial_corr = mean(spatial_corrs)
+    temporal_finite_fraction = len(temporal_corrs) / float(len(selected)) if selected else None
+    spatial_finite_fraction = len(spatial_corrs) / float(len(pairs)) if pairs else None
 
     reasons: List[str] = []
     if args.average_last_n <= 0:
@@ -210,9 +214,17 @@ def main() -> int:
         reasons.append(
             f"temporal_lag1_correlation_below_{args.min_temporal_lag1_correlation:.6g}"
         )
+    if temporal_finite_fraction is None or temporal_finite_fraction < args.min_temporal_finite_fraction:
+        reasons.append(
+            f"temporal_finite_fraction_below_{args.min_temporal_finite_fraction:.6g}"
+        )
     if spatial_corr is None or spatial_corr < args.min_spatial_adjacent_correlation:
         reasons.append(
             f"spatial_adjacent_correlation_below_{args.min_spatial_adjacent_correlation:.6g}"
+        )
+    if spatial_finite_fraction is None or spatial_finite_fraction < args.min_spatial_finite_fraction:
+        reasons.append(
+            f"spatial_finite_fraction_below_{args.min_spatial_finite_fraction:.6g}"
         )
 
     gate = PASS if not reasons else FAIL
@@ -240,6 +252,8 @@ def main() -> int:
         "adjacent_pair_count": len(pairs),
         "finite_temporal_correlation_count": len(temporal_corrs),
         "finite_spatial_correlation_count": len(spatial_corrs),
+        "temporal_finite_correlation_fraction": temporal_finite_fraction,
+        "spatial_finite_correlation_fraction": spatial_finite_fraction,
         "mean_streamwise_fluctuation_variance": mean_variance,
         "temporal_lag1_mean_correlation": temporal_corr,
         "temporal_lag1_abs_mean_correlation": temporal_abs_corr,
@@ -247,6 +261,8 @@ def main() -> int:
         "min_streamwise_variance": args.min_streamwise_variance,
         "min_temporal_lag1_correlation": args.min_temporal_lag1_correlation,
         "min_spatial_adjacent_correlation": args.min_spatial_adjacent_correlation,
+        "min_temporal_finite_fraction": args.min_temporal_finite_fraction,
+        "min_spatial_finite_fraction": args.min_spatial_finite_fraction,
         "inlet_correlation_gate": gate,
         "inlet_correlation_gate_reasons": reasons or ["inlet_correlation_evidence_present"],
         "paper_grade_note": (
