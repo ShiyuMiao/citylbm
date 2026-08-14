@@ -149,6 +149,10 @@ TEMPLATE_FIELDS = [
     "native_fluidx3d_baseline_id",
     "native_baseline_gate",
     "probe_mapping_table",
+    "probe_vtk_source_window_gate",
+    "probe_vtk_source_window_reasons",
+    "probe_vtk_source_time_steps",
+    "probe_vtk_source_hash_set_count",
     "probe_id_field",
     "probe_tolerance_m",
     "compared_component",
@@ -623,6 +627,19 @@ def audit_field(audit: Dict[str, Any], key: str) -> str:
     return ""
 
 
+def normalize_source_steps_text(text: Any) -> str:
+    raw = str(text or "").strip()
+    if not raw:
+        return ""
+    parts = [part for part in raw.replace(";", ",").replace(" ", ",").split(",") if part.strip()]
+    return ",".join(parts)
+
+
+def source_step_count(text: str) -> int:
+    normalized = normalize_source_steps_text(text)
+    return len([part for part in normalized.split(",") if part.strip()])
+
+
 def audit_gate(audit: Dict[str, Any], key: str) -> str:
     value = audit.get(key)
     return str(value).strip().lower() if value not in (None, "") else ""
@@ -687,6 +704,12 @@ def main() -> int:
     if not official_value_col:
         raise SystemExit("Could not detect official measured value column. Use --official-value-column.")
 
+    source_time_steps = audit_source_steps(read_vtk_audit)
+    if not source_time_steps:
+        source_time_steps = audit_source_steps(inlet_profile_audit)
+    if not source_time_steps:
+        source_time_steps = args.source_time_steps
+
     official = build_official_lookup(official_rows, official_id_col)
     sim_values: List[float] = []
     exp_values: List[float] = []
@@ -702,6 +725,11 @@ def main() -> int:
     compared_component = ""
     compared_components: List[str] = []
     tolerance = ""
+    probe_source_steps_values: List[str] = []
+    probe_source_hash_sets: List[str] = []
+    probe_missing_source_steps = 0
+    probe_missing_source_hashes = 0
+    probe_hash_count_mismatches = 0
 
     for row in probe_rows:
         probe_id = get_value(row, args.probe_id_column).strip()
@@ -750,6 +778,22 @@ def main() -> int:
             compared_components.append(row_compared_component)
         if not tolerance:
             tolerance = get_value(row, "tolerance")
+        probe_source_steps = normalize_source_steps_text(get_value(row, "vtk_source_time_steps"))
+        if probe_source_steps:
+            probe_source_steps_values.append(probe_source_steps)
+        else:
+            probe_missing_source_steps += 1
+        probe_source_hashes = [
+            part.strip()
+            for part in get_value(row, "vtk_source_sha256").replace(",", ";").split(";")
+            if part.strip()
+        ]
+        if probe_source_hashes:
+            probe_source_hash_sets.append(";".join(probe_source_hashes))
+        else:
+            probe_missing_source_hashes += 1
+        if probe_source_steps and probe_source_hashes and len(probe_source_hashes) != source_step_count(probe_source_steps):
+            probe_hash_count_mismatches += 1
         comparison_rows.append(
             {
                 "probe_id": probe_id,
@@ -814,7 +858,28 @@ def main() -> int:
         inferred_zref = as_float(metadata_field(metadata, "ReferenceHeightM", "ZrefM", "ReferenceHeight"))
     coordinate_delta_count = len(official_coordinate_deltas)
     max_coordinate_delta = max(official_coordinate_deltas) if official_coordinate_deltas else None
+    unique_probe_source_steps = sorted(set(probe_source_steps_values))
+    unique_probe_source_hash_sets = sorted(set(probe_source_hash_sets))
+    expected_probe_source_steps = normalize_source_steps_text(source_time_steps)
+    probe_source_reasons: List[str] = []
+    if not expected_probe_source_steps:
+        probe_source_reasons.append("missing_expected_source_time_steps")
+    if probe_missing_source_steps:
+        probe_source_reasons.append(f"missing_probe_source_steps:{probe_missing_source_steps}")
+    if len(unique_probe_source_steps) != 1:
+        probe_source_reasons.append(f"mixed_probe_source_steps:{len(unique_probe_source_steps)}")
+    elif expected_probe_source_steps and unique_probe_source_steps[0] != expected_probe_source_steps:
+        probe_source_reasons.append("probe_source_steps_do_not_match_metrics_source_time_steps")
+    if probe_missing_source_hashes:
+        probe_source_reasons.append(f"missing_probe_source_hashes:{probe_missing_source_hashes}")
+    if probe_hash_count_mismatches:
+        probe_source_reasons.append(f"probe_source_hash_count_mismatch:{probe_hash_count_mismatches}")
+    if len(unique_probe_source_hash_sets) != 1:
+        probe_source_reasons.append(f"mixed_probe_source_hash_sets:{len(unique_probe_source_hash_sets)}")
+    probe_source_window_gate = "pass" if not probe_source_reasons else "fail"
     protocol_failures: List[str] = []
+    if probe_source_window_gate != "pass":
+        protocol_failures.append("fail_probe_vtk_source_window")
     if args.u_ref is None and len(unique_probe_urefs) > 1:
         protocol_failures.append("fail_mixed_probe_uref")
     if component_consistency_gate != "pass":
@@ -847,11 +912,6 @@ def main() -> int:
         audit_int(inlet_profile_audit, "frame_count"),
         args.averaging_window,
     )
-    source_time_steps = audit_source_steps(read_vtk_audit)
-    if not source_time_steps:
-        source_time_steps = audit_source_steps(inlet_profile_audit)
-    if not source_time_steps:
-        source_time_steps = args.source_time_steps
     available_frame_count = first_int(
         audit_int(read_vtk_audit, "available_frame_count"),
         audit_int(inlet_profile_audit, "available_frame_count"),
@@ -1068,6 +1128,10 @@ def main() -> int:
             "native_fluidx3d_baseline_id": args.native_baseline_id,
             "native_baseline_gate": args.native_baseline_gate,
             "probe_mapping_table": str(probe_path),
+            "probe_vtk_source_window_gate": probe_source_window_gate,
+            "probe_vtk_source_window_reasons": ";".join(probe_source_reasons),
+            "probe_vtk_source_time_steps": ";".join(unique_probe_source_steps),
+            "probe_vtk_source_hash_set_count": fmt(len(unique_probe_source_hash_sets)),
             "probe_id_field": args.probe_id_column,
             "probe_tolerance_m": tolerance,
             "compared_component": compared_component,

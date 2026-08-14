@@ -283,12 +283,13 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     coordinate_gate = by_key.get("coordinate_normalization")
     compared_gate = by_key.get("compared_component")
     projection_gate = by_key.get("probe_projection_distance")
+    probe_source_gate = by_key.get("probe_source_window")
     probe_gate = by_key.get("probe_mapping")
     sensitivity_gate = by_key.get("component_normalization_sensitivity")
-    if any(gate is None or gate.get("status") != PASS for gate in [coordinate_gate, compared_gate, projection_gate, probe_gate, sensitivity_gate]):
+    if any(gate is None or gate.get("status") != PASS for gate in [coordinate_gate, compared_gate, projection_gate, probe_source_gate, probe_gate, sensitivity_gate]):
         coordinate_priority_gate = next(
             (
-                gate for gate in [coordinate_gate, compared_gate, projection_gate, probe_gate, sensitivity_gate]
+                gate for gate in [coordinate_gate, compared_gate, projection_gate, probe_source_gate, probe_gate, sensitivity_gate]
                 if gate is None or gate.get("status") != PASS
             ),
             coordinate_gate,
@@ -595,6 +596,65 @@ def read_probe_coordinate_normalization_audit(
             if vector is not None
         }
     )
+    return result
+
+
+def read_probe_source_window_audit(path: Optional[Path], expected_source_steps_text: str) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "valid_count": None,
+        "expected_source_steps": expected_source_steps_text,
+        "missing_source_steps_count": 0,
+        "source_steps_mismatch_count": 0,
+        "unique_source_steps_count": None,
+        "missing_source_hash_count": 0,
+        "source_hash_count_mismatch_count": 0,
+        "unique_source_hash_set_count": None,
+        "error": None,
+    }
+    expected_steps, expected_error = parsed_source_steps(expected_source_steps_text)
+    if expected_error:
+        result["error"] = expected_error
+        return result
+    if not path or not path.exists():
+        result["error"] = "probe audit CSV not found"
+        return result
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        result["valid_count"] = 0
+        result["error"] = "probe audit CSV has no rows"
+        return result
+
+    valid_count = 0
+    source_step_sets = set()
+    source_hash_sets = set()
+    for row in rows:
+        failed_flag = as_bool(get_any(row, ["failed", "Failed", "out_of_tolerance", "OutOfTolerance"]))
+        status = str(get_any(row, ["status", "Status", "validation_status", "ValidationStatus"]) or "").lower()
+        if failed_flag is True or "fail" in status or "out" in status:
+            continue
+        valid_count += 1
+        step_text = str(get_any(row, ["vtk_source_time_steps", "VtkSourceTimeSteps"]) or "").strip()
+        if not step_text:
+            result["missing_source_steps_count"] += 1
+        else:
+            row_steps, row_error = parsed_source_steps(step_text)
+            if row_error or row_steps != expected_steps:
+                result["source_steps_mismatch_count"] += 1
+            source_step_sets.add(",".join(str(step) for step in row_steps))
+
+        hash_text = str(get_any(row, ["vtk_source_sha256", "VtkSourceSha256"]) or "").strip()
+        hashes = [part.strip() for part in hash_text.replace(",", ";").split(";") if part.strip()]
+        if not hashes:
+            result["missing_source_hash_count"] += 1
+        elif step_text and len(hashes) != len(expected_steps):
+            result["source_hash_count_mismatch_count"] += 1
+        if hashes:
+            source_hash_sets.add(";".join(hashes))
+
+    result["valid_count"] = valid_count
+    result["unique_source_steps_count"] = len(source_step_sets)
+    result["unique_source_hash_set_count"] = len(source_hash_sets)
     return result
 
 
@@ -1544,6 +1604,39 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Export the Data Probe audit CSV with official probe IDs, x/y/z, Uref, wind vector, compared_component, nearest_distance and tolerance.",
     )
     detailed_probe_audit_ok = probe_audit_traceable or probe_summary_override
+    probe_source = read_probe_source_window_audit(probe_path, source_step_text)
+    probe_source_window_ok = (
+        probe_audit_traceable
+        and has_real_source_steps
+        and probe_source["valid_count"] is not None
+        and probe_source["valid_count"] > 0
+        and probe_source["missing_source_steps_count"] == 0
+        and probe_source["source_steps_mismatch_count"] == 0
+        and probe_source["unique_source_steps_count"] == 1
+        and probe_source["missing_source_hash_count"] == 0
+        and probe_source["source_hash_count_mismatch_count"] == 0
+        and probe_source["unique_source_hash_set_count"] == 1
+        and not probe_source["error"]
+    )
+    add_gate(
+        gates,
+        "probe_source_window",
+        PASS if probe_source_window_ok else FAIL,
+        (
+            f"expected_source_time_steps={source_step_text or 'missing'}; "
+            f"real_source_time_steps_present={has_real_source_steps}; "
+            f"probe_valid_count={probe_source['valid_count']}; "
+            f"missing_probe_source_steps={probe_source['missing_source_steps_count']}; "
+            f"probe_source_steps_mismatch={probe_source['source_steps_mismatch_count']}; "
+            f"unique_probe_source_steps={probe_source['unique_source_steps_count']}; "
+            f"missing_probe_source_hashes={probe_source['missing_source_hash_count']}; "
+            f"probe_source_hash_count_mismatch={probe_source['source_hash_count_mismatch_count']}; "
+            f"unique_probe_source_hash_sets={probe_source['unique_source_hash_set_count']}; "
+            f"probe_audit_traceable={probe_audit_traceable}; "
+            f"error={probe_source['error'] or 'none'}"
+        ),
+        "Use the same final-window VTK frames for time averaging, inlet/profile audits and RS probe extraction, and archive per-probe VTK source hashes.",
+    )
     (
         projection_valid_count,
         max_probe_distance,

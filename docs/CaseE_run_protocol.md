@@ -139,6 +139,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   Native VTK probe audit rows must include VTK origin, spacing, dimensions, source time steps, source file hashes and
   nearest-grid coordinates. These fields are required to separate coordinate-frame/projection mistakes from true
   velocity-field error before interpreting Case E bias.
+  The `vtk_source_time_steps` and `vtk_source_sha256` values in every valid probe row must match the same final-window
+  VTK frames used by `Read VTK`, `audit_native_run.py`, `audit_inlet_profile_from_vtk.py` and
+  `audit_inlet_correlation_from_vtk.py`. `validation_gate.py` fails `probe_source_window` if probe extraction mixes
+  windows, omits hashes, uses stale/copy-forward VTK evidence, or disagrees with the metrics `source_time_steps`.
 - A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
   extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
 - `case_metadata.json` must be archived with the run. It records the boundary-condition summary, expected VTK frame count,
@@ -235,6 +239,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Per-probe `Uref`, wind vector, `normalization_valid` and `wind_direction_valid` coverage from the Data Probe audit
   CSV. For paper-grade Case E, every valid probe must carry the same finite normalization basis and declared wind vector;
   a correct summary metrics row is diagnostic if the per-probe audit is missing or mixed.
+- Probe source-window parity: `probe_vtk_source_window_gate`, `probe_vtk_source_window_reasons`,
+  `probe_vtk_source_time_steps` and `probe_vtk_source_hash_set_count`. These fields must show that the official-point
+  probe table was sampled from the same final averaged VTK window as the inlet and time-averaging audits.
 - Native FluidX3D baseline run id or archive path
 - Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
 - Inlet profile preservation audit: selected plane, source VTK steps, `inlet_profile_gate`, `inlet_u_profile_gate`,

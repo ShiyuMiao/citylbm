@@ -172,6 +172,10 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    The machine gate now enforces `probe_projection_distance`: every valid probe must record `nearest_distance` and
    `tolerance`, the maximum distance must be within the recorded tolerance, and both maximum distance and tolerance must
    stay within the configured `dx` ratio. Increasing tolerance to rescue a missing slice point is diagnostic only.
+   The gate also enforces `probe_source_window`: every valid probe row must carry `vtk_source_time_steps` and
+   `vtk_source_sha256`, the source steps must match the metrics/inlet final-window `source_time_steps`, and the hash
+   count must match the averaged frame count. Probe rows sampled from stale, mixed or undocumented VTK frames are
+   diagnostic even when the final metric row reports acceptable error values.
 
 8. Promotion gate.
    CityLBM may inherit native FluidX3D settings only after native Case A has a passing or explicitly bounded diagnostic
@@ -228,6 +232,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
   `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
 - Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance, compared-component consistency and
   coordinate-delta coverage across all valid probes.
+- Probe source-window diagnostics: `probe_vtk_source_window_gate`, `probe_vtk_source_time_steps`,
+  `probe_vtk_source_hash_set_count` and any `probe_vtk_source_window_reasons`, proving that probe extraction used the
+  same final-window VTK frames as the averaging and inlet-profile audits.
 
 ## Machine Gate
 

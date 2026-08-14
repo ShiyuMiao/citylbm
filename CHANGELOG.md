@@ -25,6 +25,7 @@
 - Native-run audits now record requested solver steps, VTK save interval/start step and expected VTK frame count; the final time-averaging gate fails configurations that were planned to save fewer than the minimum final-window frames.
 - Native-run audits now record run-freshness evidence and fail the new `run_freshness` gate when selected VTK frames are older than the current setup/metadata artifacts.
 - Native VTK probe extraction now writes VTK origin, spacing, dimensions, source time steps, source hashes and nearest-grid coordinates into the probe audit CSV for coordinate/projection traceability.
+- Probe-derived metrics now record `probe_vtk_source_window_gate`, source time steps and hash-set counts; `validation_gate.py` fails `probe_source_window` when valid probes are not sampled from the same final-window VTK frames used by the averaging and inlet audits.
 - The systematic-bias gate now infers under/overprediction directly from `U_bias_ratio` using the validation threshold, so a missing `systematic_bias_flag` cannot hide a `-34 pp` style low-bias run.
 - The compared-component gate now requires `compared_component_consistency_gate=pass` and no missing per-probe component labels, preventing mixed or partially audited speed/streamwise comparisons from passing as paper-grade evidence.
 - Added a `probe_projection_distance` gate that reads per-probe `nearest_distance` and `tolerance` from the Data Probe audit CSV and fails runs whose projection distance/tolerance is missing, exceeds tolerance or is too large relative to `dx`.
