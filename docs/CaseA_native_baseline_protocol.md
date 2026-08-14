@@ -60,6 +60,10 @@ AIJ Case E is treated as a paper-grade validation experiment.
    gate only accepts it with the explicit `--allow-velocity-only-inlet` diagnostic override after an empty-tunnel run
    proves downstream `U/k` preservation. Paper-grade promotion should use a validated DFM/SEM/precursor/recycling inlet
    or another documented distribution-consistent treatment.
+   In addition to RMS/k preservation, run `scripts/audit_inlet_correlation_from_vtk.py` on the same final-window VTK
+   frames. The correlation audit records streamwise fluctuation variance, temporal lag-1 correlation and adjacent
+   spatial correlation; a missing or failing audit means the inlet remains diagnostic even when the AF k magnitude is
+   approximately preserved.
 
 6. Time-averaging gate.
    Do not report a single instantaneous VTK frame as validation. Archive post-spinup probe time means and, when VTK is
@@ -120,6 +124,9 @@ AIJ Case E is treated as a paper-grade validation experiment.
   `source_step_spacing_uniform`, `time_averaging_gate_reasons`, `negative_streamwise_fraction`,
   `inlet_streamwise_direction_gate`, `U_MAE_ratio`, `U_bias_ratio`, `k_MAE_ratio`, `k_bias_ratio`, and the
   `inlet_profile_gate`.
+- Inlet correlation-audit JSON from the same final-window VTK frames, including `inlet_correlation_gate`,
+  `temporal_lag1_abs_mean_correlation`, `spatial_adjacent_mean_correlation` and
+  `mean_streamwise_fluctuation_variance`.
 - Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept, max absolute error,
   `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
 - Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance, compared-component consistency and
@@ -140,9 +147,11 @@ python scripts\audit_native_run.py <run_dir> --metadata <case_metadata.json> --s
 
 python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
 
+python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_correlation_audit.json
+
 python scripts\probe_vtk_points.py <run_dir>\output --official <RS-caseA.csv> --case CaseA --wind-direction-label <direction> --wind-direction 1,0,0 --u-ref <Uref> --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 10 --out <probe_audit.csv>
 
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
 
 Before the final gate, archive the AIJ boundary evidence as JSON and audit it:
@@ -158,7 +167,7 @@ python scripts\run_native_validation_chain.py <run_dir> --official <RS-caseA.csv
 ```
 
 The command writes `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,
-`boundary_protocol_audit.json`, `probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
+`inlet_correlation_audit.json`, `boundary_protocol_audit.json`, `probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
 `validation_gate_report.json` under
 `<run_dir>\validation_chain`. It does not run FluidX3D; it only audits newly generated VTK frames and solver evidence
 that already exist in the run directory.
@@ -176,8 +185,8 @@ record must archive `validation_gate_report.json` and the metrics row must inclu
 diagnostic only even if selected plots look reasonable.
 The JSON report also includes `diagnostic_priority`, which must be followed in order before changing physics parameters:
 first close coordinate/component/Uref/probe issues, then final-window time averaging, then AF `U/k` preservation, then
-turbulent-inlet method and length scale, then boundary/roughness/blockage, and only then interpret the remaining
-systematic bias as a physics/protocol problem.
+turbulent-inlet method, length scale and correlation evidence, then boundary/roughness/blockage, and only then interpret
+the remaining systematic bias as a physics/protocol problem.
 The inlet `U/k` audit follows the same final-window rule as the VTK/probe average: short, non-final or irregular
 source steps fail before the result can be interpreted as solver accuracy.
 It also fails when more than 5% of sampled inlet velocities project opposite to the declared wind vector, which catches

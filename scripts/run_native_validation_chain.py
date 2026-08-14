@@ -196,6 +196,7 @@ def main() -> int:
     native_audit_json = out_dir / "native_run_audit.json"
     inlet_audit_json = out_dir / "inlet_profile_audit.json"
     inlet_audit_csv = out_dir / "inlet_profile_audit.csv"
+    inlet_correlation_json = out_dir / "inlet_correlation_audit.json"
     boundary_audit_json = out_dir / "boundary_protocol_audit.json"
     probe_audit_csv = out_dir / "probe_audit.csv"
     metrics_csv = out_dir / "validation_metrics.csv"
@@ -234,6 +235,7 @@ def main() -> int:
             "NativeRunAudit": str(native_audit_json),
             "InletProfileAuditJson": str(inlet_audit_json),
             "InletProfileAuditCsv": str(inlet_audit_csv),
+            "InletCorrelationAuditJson": str(inlet_correlation_json),
             "BoundaryProtocolAuditJson": str(boundary_audit_json),
             "ProbeAuditCsv": str(probe_audit_csv),
             "ValidationMetricsCsv": str(metrics_csv),
@@ -321,6 +323,30 @@ def main() -> int:
         manifest["Steps"].append(run_step("audit_inlet_profile_from_vtk", inlet_cmd))
         write_manifest(manifest_path, manifest)
 
+        inlet_correlation_cmd = [
+            py,
+            str(script_dir / "audit_inlet_correlation_from_vtk.py"),
+            str(vtk_dir),
+            "--metadata",
+            str(metadata),
+            "--pattern",
+            args.pattern,
+            "--average-last-n",
+            str(args.average_last_n),
+            "--min-frames",
+            str(args.min_avg_frames),
+            "--wind-direction",
+            args.wind_vector,
+            "--plane-axis",
+            "auto-inlet",
+            "--out-json",
+            str(inlet_correlation_json),
+            "--velocity-scale",
+            str(args.velocity_scale),
+        ]
+        manifest["Steps"].append(run_step("audit_inlet_correlation_from_vtk", inlet_correlation_cmd, allow_fail=True))
+        write_manifest(manifest_path, manifest)
+
         probe_cmd = [
             py,
             str(script_dir / "probe_vtk_points.py"),
@@ -370,6 +396,8 @@ def main() -> int:
             str(native_audit_json),
             "--inlet-profile-audit",
             str(inlet_audit_json),
+            "--inlet-correlation-audit",
+            str(inlet_correlation_json),
             "--boundary-protocol-audit",
             str(boundary_audit_json),
             "--case",

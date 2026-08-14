@@ -306,14 +306,15 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
 
     inlet_gate = by_key.get("inlet_turbulence")
     length_gate = by_key.get("inlet_length_scale")
-    if any(gate is None or gate.get("status") != PASS for gate in [inlet_gate, length_gate]):
+    correlation_gate = by_key.get("inlet_correlation")
+    if any(gate is None or gate.get("status") != PASS for gate in [inlet_gate, length_gate, correlation_gate]):
         add_priority(
             priorities,
             4,
             "turbulent_inlet_method",
             inlet_gate,
-            "Velocity-field-only or length-scale-free STG-lite cannot establish paper-grade AIJ turbulent inflow.",
-            "Use a distribution-consistent DFM/SEM/precursor/recycling inlet or archive validated turbulence length-scale evidence.",
+            "Velocity-field-only, length-scale-free or correlation-unverified STG-lite cannot establish paper-grade AIJ turbulent inflow.",
+            "Use a distribution-consistent DFM/SEM/precursor/recycling inlet or archive validated turbulence length-scale and inlet correlation evidence.",
         )
 
     boundary_gate = by_key.get("boundary_protocol")
@@ -465,6 +466,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     run_dir = Path(args.run_dir).resolve()
     metadata_path = find_first(run_dir, ["case_metadata.json"])
     audit_path = find_first(run_dir, ["validation_protocol_audit.json"])
+    inlet_correlation_audit_path = find_first(run_dir, ["inlet_correlation_audit.json"])
     boundary_audit_path = find_first(run_dir, ["boundary_protocol_audit.json"])
     manifest_path = find_first(run_dir, ["native_fluidx3d_baseline_manifest.json"])
     metrics_path = Path(args.metrics).resolve() if args.metrics else find_metrics(run_dir)
@@ -472,6 +474,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
 
     metadata = read_json(metadata_path)
     audit = read_json(audit_path)
+    inlet_correlation_audit = read_json(inlet_correlation_audit_path)
     external_boundary_audit = read_json(boundary_audit_path)
     manifest = read_json(manifest_path)
     metrics, metrics_path = read_metrics(metrics_path)
@@ -803,6 +806,48 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Use a distribution-consistent DFM/SEM/precursor/recycling inlet and pass empty-tunnel U/k preservation; velocity-only STG-lite is diagnostic unless explicitly allowed.",
     )
 
+    inlet_correlation_gate = str(
+        get_any(metrics, ["inlet_correlation_gate", "InletCorrelationGate"])
+        or get_any(inlet_correlation_audit, ["inlet_correlation_gate"])
+        or ""
+    ).strip().lower()
+    inlet_temporal_lag1_abs = as_float(
+        get_any(metrics, ["inlet_temporal_lag1_abs_correlation", "InletTemporalLag1AbsCorrelation"])
+        or get_any(inlet_correlation_audit, ["temporal_lag1_abs_mean_correlation"])
+    )
+    inlet_spatial_adjacent = as_float(
+        get_any(metrics, ["inlet_spatial_adjacent_correlation", "InletSpatialAdjacentCorrelation"])
+        or get_any(inlet_correlation_audit, ["spatial_adjacent_mean_correlation"])
+    )
+    inlet_streamwise_variance = as_float(
+        get_any(metrics, ["inlet_streamwise_fluctuation_variance", "InletStreamwiseFluctuationVariance"])
+        or get_any(inlet_correlation_audit, ["mean_streamwise_fluctuation_variance"])
+    )
+    metric_inlet_correlation_audit = str(
+        get_any(metrics, ["inlet_correlation_audit", "InletCorrelationAudit"]) or ""
+    ).strip()
+    metric_inlet_correlation_audit_exists = False
+    if metric_inlet_correlation_audit:
+        try:
+            metric_inlet_correlation_audit_exists = Path(metric_inlet_correlation_audit).expanduser().exists()
+        except OSError:
+            metric_inlet_correlation_audit_exists = False
+    inlet_correlation_audit_exists = bool(inlet_correlation_audit_path and inlet_correlation_audit_path.exists()) or metric_inlet_correlation_audit_exists
+    add_gate(
+        gates,
+        "inlet_correlation",
+        PASS if inlet_correlation_gate == "pass" and inlet_correlation_audit_exists else FAIL,
+        (
+            f"inlet_correlation_gate={inlet_correlation_gate or 'missing'}; "
+            f"temporal_lag1_abs_mean_correlation={inlet_temporal_lag1_abs}; "
+            f"spatial_adjacent_mean_correlation={inlet_spatial_adjacent}; "
+            f"mean_streamwise_fluctuation_variance={inlet_streamwise_variance}; "
+            f"audit={inlet_correlation_audit_path or metric_inlet_correlation_audit or 'missing'}; "
+            f"audit_exists={inlet_correlation_audit_exists}"
+        ),
+        "Run scripts/audit_inlet_correlation_from_vtk.py on real final-window inlet VTK frames; RMS/k alone is not enough to prove correlated turbulent inflow.",
+    )
+
     inlet_length_status = protocol_status(items, "inlet_turbulence_length_scale")
     inlet_length_source = str(
         get_any(metrics, ["inlet_length_scale_source", "SyntheticTurbulentInletLengthScaleSource"])
@@ -1124,6 +1169,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "artifacts": {
             "case_metadata": str(metadata_path) if metadata_path else "",
             "validation_protocol_audit": str(audit_path) if audit_path else "",
+            "inlet_correlation_audit": str(inlet_correlation_audit_path) if inlet_correlation_audit_path else "",
             "boundary_protocol_audit": str(boundary_audit_path) if boundary_audit_path else "",
             "native_fluidx3d_baseline_manifest": str(manifest_path) if manifest_path else "",
             "metrics": str(metrics_path) if metrics_path else "",

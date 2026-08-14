@@ -71,6 +71,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `negative_streamwise_fraction`, and `inlet_streamwise_direction_gate`. Short, non-final or irregular inlet windows
   fail before probe accuracy is interpreted, and a high reverse-streamwise fraction flags wind-vector or velocity
   component sign errors.
+- The turbulent-inlet correlation must be verified from the same real final-window VTK frames with
+  `scripts\audit_inlet_correlation_from_vtk.py`. This audit records streamwise fluctuation variance, temporal lag-1
+  correlation and adjacent spatial correlation. It is required because preserving AF `k` magnitude alone does not prove
+  a digital-filter, SEM, precursor/recycling or otherwise correlated turbulent inlet.
 - Post-processing reads the final averaged velocity field, not an initial transient.
   In `Read VTK`, set `Average Last N > 0` and archive the `Averaging Audit` JSON output.
   This JSON records the actual averaged frame count, source time steps, mean speed, mean/max pointwise speed standard
@@ -116,9 +120,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 ```powershell
 python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
 
+python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_correlation_audit.json
+
 python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 10 --out <probe_audit.csv>
 
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
 ```
 
 Generate the boundary protocol audit before the final gate:
@@ -135,7 +141,7 @@ python scripts\run_native_validation_chain.py <run_dir> --official <official_dat
 ```
 
   The command creates `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,
-  `boundary_protocol_audit.json`, `probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
+  `inlet_correlation_audit.json`, `boundary_protocol_audit.json`, `probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
   `validation_gate_report.json` under `<run_dir>\validation_chain`. It does not start a CFD simulation and must not be
   used to imply that Case E was rerun unless the VTK frames in `<run_dir>` were newly produced by the current Rhino 7/
   Grasshopper/CityLBM experiment.
@@ -176,6 +182,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
 - Inlet profile preservation audit: selected plane, source VTK steps, `inlet_profile_gate`, `inlet_u_profile_gate`,
   `inlet_k_profile_gate`, `inlet_u_mae_ratio`, and `inlet_k_mae_ratio`
+- Inlet correlation audit: `inlet_correlation_gate`, temporal lag-1 absolute correlation, adjacent spatial correlation
+  and streamwise fluctuation variance
 - Native baseline gate and `validation_gate_report.json`
 - Protocol gate from `validation_protocol_audit.json`
 - Systematic bias flag and `bias_diagnosis`. If mean bias remains around `-0.20` to `-0.35` speed-ratio units, do not
@@ -185,10 +193,11 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - `validation_gate_report.json` `diagnostic_priority` ranks the next actions after a failed run. For SCI-grade Case E,
   do not skip lower-rank failures: coordinate/component/Uref/probe closure precedes time averaging; time averaging
   precedes inlet `U/k` preservation; inlet `U/k` preservation precedes turbulent-inlet method and length-scale claims;
-  boundary/roughness/blockage evidence precedes interpreting a remaining `-34 pp` style low bias as solver accuracy.
+  inlet correlation evidence precedes boundary/roughness/blockage evidence; boundary/roughness/blockage evidence
+  precedes interpreting a remaining `-34 pp` style low bias as solver accuracy.
 
 ## Current v0.3.0 limitation
 
-CityLBM v0.3.0 reads, converts and records `k(m2/s2)`. It also provides an optional experimental STG-lite inlet that converts isotropic `k` to bounded deterministic spectral velocity perturbations using `sigma=sqrt(2k/3)`, with inlet refresh controlled by `SyntheticTurbulenceUpdateInterval`. The synthetic spectral-mode amplitudes are projected normal to their wave vectors to reduce non-physical divergent inlet fluctuations, and the spectral normalization targets the component RMS implied by isotropic `k` rather than the lower former diagnostic amplitude. This is a software-level improvement over the former metadata-only `k` chain and the earlier sparse-eddy diagnostic pattern, but it is not a full digital-filter, precursor/recycling, or Reynolds-stress turbulent inflow because the AF table does not provide Reynolds-stress tensors, turbulent length scales or a precursor field. The v0.3.0 machine gate therefore treats velocity-field-only STG-lite as non-paper-grade by default; it can only be explicitly allowed for diagnostic sensitivity analysis with `--allow-velocity-only-inlet`. Any paper claim must state whether the validation used metadata-only inflow, STG-lite diagnostic inflow, or a later distribution-consistent turbulent inlet.
+CityLBM v0.3.0 reads, converts and records `k(m2/s2)`. It also provides an optional experimental STG-lite inlet that converts isotropic `k` to bounded deterministic spectral velocity perturbations using `sigma=sqrt(2k/3)`, with inlet refresh controlled by `SyntheticTurbulenceUpdateInterval`. The synthetic spectral-mode amplitudes are projected normal to their wave vectors to reduce non-physical divergent inlet fluctuations, and the spectral normalization targets the component RMS implied by isotropic `k` rather than the lower former diagnostic amplitude. This is a software-level improvement over the former metadata-only `k` chain and the earlier sparse-eddy diagnostic pattern, but it is not a full digital-filter, precursor/recycling, or Reynolds-stress turbulent inflow because the AF table does not provide Reynolds-stress tensors, turbulent length scales or a precursor field. The inlet correlation audit is therefore a necessary precondition that checks real VTK fluctuation correlation, not a replacement for a validated digital-filter/SEM/precursor inlet. The v0.3.0 machine gate treats velocity-field-only STG-lite as non-paper-grade by default; it can only be explicitly allowed for diagnostic sensitivity analysis with `--allow-velocity-only-inlet`. Any paper claim must state whether the validation used metadata-only inflow, STG-lite diagnostic inflow, or a later distribution-consistent turbulent inlet.
 
 The current boundary conditions are also a simplified FluidX3D `TYPE_E` setup: velocity-profile inlet, pressure/free-outflow outlet approximation, lateral/top `TYPE_E`, and no-slip ground/buildings. CityLBM v0.3.0 initializes all `TYPE_E` boundary velocities from the mean wind profile before uploading flags/velocity fields, so outlet/lateral/top boundaries no longer start from zero velocity after their early boundary-return path. This removes one plausible software-side damping source, but it does not make the boundary protocol identical to the AIJ wind tunnel. CityLBM v0.3.0 records domain clearance and approximate frontal/plan blockage ratios in `BoundaryProtocolAudit`, and `validation_gate.py` fails the boundary gate when approximate frontal blockage exceeds the diagnostic threshold. These fields help detect protocol-scale errors, but they remain screening diagnostics until compared with the AIJ wind-tunnel boundary setup or replaced by a stronger inlet/outlet treatment.

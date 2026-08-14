@@ -111,6 +111,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `validation_gate.py` now carry an inlet streamwise-direction gate. If more than 5% of sampled inlet velocities project
   opposite to the declared wind vector, the inlet profile gate fails before wind-sign or compared-component mistakes can
   be mistaken for solver accuracy error.
+- Added `scripts/audit_inlet_correlation_from_vtk.py` and wired it into the native validation chain, metrics builder
+  and final gate. This checks real final-window inlet VTK frames for streamwise fluctuation variance, temporal lag-1
+  correlation and adjacent spatial correlation, so a run cannot rely on RMS/k preservation alone to claim correlated
+  turbulent inflow.
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.
@@ -134,8 +138,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   while being mistaken for fresh CFD simulations.
 - `validation_gate.py` now writes `diagnostic_priority` to the JSON report and console output. Failed runs are triaged
   in the required order: coordinate/component/Uref/probe evidence, time averaging, inlet `U/k` preservation, turbulent
-  inlet method and length scale, boundary/roughness/blockage, native FluidX3D baseline, then residual systematic-bias
-  root cause.
+  inlet method, length scale and correlation evidence, boundary/roughness/blockage, native FluidX3D baseline, then
+  residual systematic-bias root cause.
 
 ## Remaining scientific work
 
@@ -149,6 +153,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - The STG-lite inlet is not a full digital-filter, precursor/recycling, or Reynolds-stress method; it lacks Reynolds-stress tensors, turbulent length scales and validated precursor inflow.
 - The STG-lite inlet is velocity-field-only in v0.3.0. It remains diagnostic until empty-tunnel tests prove downstream
   `U/k` preservation or the inlet is replaced by a distribution-consistent DFM/SEM/precursor/recycling implementation.
+- The inlet correlation audit is a precondition, not a complete turbulence-model validation: passing it proves measurable
+  time/space correlation in sampled VTK frames, but not Reynolds-stress tensors, digital-filter correctness, precursor
+  consistency or distribution-function reconstruction.
 - The boundary condition model remains simplified and must be audited against the AIJ wind-tunnel setup before making paper-grade accuracy claims.
 - Ground roughness is not yet represented by a rough-wall/wall-function boundary; the AF mean profile alone does not prove
   correct near-ground turbulence or speed-ratio behavior.

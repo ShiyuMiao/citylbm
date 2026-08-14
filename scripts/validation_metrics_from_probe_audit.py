@@ -94,6 +94,11 @@ TEMPLATE_FIELDS = [
     "synthetic_correlation_length_m",
     "inlet_length_scale_source",
     "inlet_length_scale_gate",
+    "inlet_correlation_audit",
+    "inlet_correlation_gate",
+    "inlet_temporal_lag1_abs_correlation",
+    "inlet_spatial_adjacent_correlation",
+    "inlet_streamwise_fluctuation_variance",
     "inlet_profile_audit",
     "inlet_profile_frame_count",
     "inlet_profile_source_time_steps",
@@ -157,6 +162,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--metadata", help="Optional case_metadata.json.")
     parser.add_argument("--read-vtk-audit", help="Optional Read VTK Averaging Audit JSON.")
     parser.add_argument("--inlet-profile-audit", help="Optional inlet/empty-tunnel profile audit JSON from audit_inlet_profile_from_vtk.py.")
+    parser.add_argument("--inlet-correlation-audit", help="Optional inlet correlation audit JSON from audit_inlet_correlation_from_vtk.py.")
     parser.add_argument("--boundary-protocol-audit", help="Optional boundary_protocol_audit.json from audit_boundary_protocol.py.")
     parser.add_argument("--case", default="", help="Case label to write and optionally filter official rows.")
     parser.add_argument("--wind-direction", default="", help="Wind direction label to write and optionally filter official rows.")
@@ -463,6 +469,7 @@ def main() -> int:
     metadata = read_json(Path(args.metadata).resolve() if args.metadata else None)
     read_vtk_audit = read_json(Path(args.read_vtk_audit).resolve() if args.read_vtk_audit else None)
     inlet_profile_audit = read_json(Path(args.inlet_profile_audit).resolve() if args.inlet_profile_audit else None)
+    inlet_correlation_audit = read_json(Path(args.inlet_correlation_audit).resolve() if args.inlet_correlation_audit else None)
     boundary_protocol_audit = read_json(Path(args.boundary_protocol_audit).resolve() if args.boundary_protocol_audit else None)
 
     probe_rows = read_csv(probe_path)
@@ -732,6 +739,11 @@ def main() -> int:
             "synthetic_correlation_length_m": metadata_field(metadata, "SyntheticTurbulenceCorrelationLengthM"),
             "inlet_length_scale_source": metadata_field(metadata, "SyntheticTurbulentInletLengthScaleSource"),
             "inlet_length_scale_gate": metadata_field(metadata, "SyntheticTurbulentInletLengthScaleGate"),
+            "inlet_correlation_audit": str(Path(args.inlet_correlation_audit).resolve()) if args.inlet_correlation_audit else "",
+            "inlet_correlation_gate": audit_gate(inlet_correlation_audit, "inlet_correlation_gate"),
+            "inlet_temporal_lag1_abs_correlation": fmt(audit_float(inlet_correlation_audit, "temporal_lag1_abs_mean_correlation")),
+            "inlet_spatial_adjacent_correlation": fmt(audit_float(inlet_correlation_audit, "spatial_adjacent_mean_correlation")),
+            "inlet_streamwise_fluctuation_variance": fmt(audit_float(inlet_correlation_audit, "mean_streamwise_fluctuation_variance")),
             "inlet_profile_audit": str(Path(args.inlet_profile_audit).resolve()) if args.inlet_profile_audit else "",
             "inlet_profile_frame_count": fmt(audit_int(inlet_profile_audit, "frame_count")),
             "inlet_profile_source_time_steps": audit_source_steps(inlet_profile_audit),
