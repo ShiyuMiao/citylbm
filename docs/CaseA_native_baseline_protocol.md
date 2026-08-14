@@ -104,12 +104,15 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    `inlet_boundary`, `outlet_boundary`, `lateral_boundary`, `top_boundary`, `ground_wall_treatment`,
    `roughness_treatment`, `floor_roughness_source`, `blockage_source`, `fetch_clearance_source`,
    `inlet_fetch_clearance_h`, `downstream_clearance_h`, `min_lateral_clearance_h`, `top_clearance_h`,
-   `outlet_reflection_check` and `side_top_boundary_check`, with `boundary_evidence_gate=pass`. The equivalence basis
-   must use an archived tag such as `aij_verified`, `wind_tunnel_protocol_matched`, `empty_tunnel_passed`,
-   `validated_boundary_model`, `precursor_boundary` or `recycling_boundary`. Missing fields, unsupported equivalence
-   basis or clearance below the configured H thresholds keep the boundary gate diagnostic/fail. The validation gate
-   requires a generated `boundary_protocol_audit.json` with `boundary_protocol_gate=pass` and
-   `boundary_equivalence_supported=true`; token-like text in metadata or metrics is diagnostic context only.
+   `outlet_reflection_check` and `side_top_boundary_check`, with `boundary_evidence_gate=pass`. It must also provide
+   `boundary_evidence_class` and at least one `boundary_evidence_files` entry that resolves to an archived support
+   file. The equivalence basis must use an archived tag such as `aij_verified`, `wind_tunnel_protocol_matched`,
+   `empty_tunnel_passed`, `validated_boundary_model`, `precursor_boundary` or `recycling_boundary`. Missing fields,
+   unsupported equivalence basis, unsupported evidence class, missing support files or clearance below the configured H
+   thresholds keep the boundary gate diagnostic/fail. The validation gate requires a generated
+   `boundary_protocol_audit.json` with `boundary_protocol_gate=pass`, `boundary_equivalence_supported=true`,
+   `boundary_evidence_class_supported=true` and `boundary_evidence_files_all_exist=true`; token-like text in metadata
+   or metrics is diagnostic context only.
 
 5. Inlet distribution-consistency gate.
    If the inlet turbulence is generated from `k`, archive whether the implementation reconstructs FluidX3D distribution
@@ -185,9 +188,10 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 - Approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate.
 - Boundary mode and boundary-source justification.
 - `boundary_protocol_audit.json`, including `boundary_missing_evidence_fields`, `boundary_equivalence_basis`,
-  `boundary_equivalence_supported`, `clearance_numeric_gate` and `clearance_numeric_gate_reasons`; this file must be
-  generated from metadata plus an explicit AIJ boundary evidence JSON before paper-grade promotion. A metadata-only or
-  metrics-only boundary summary cannot pass the paper-grade boundary gate.
+  `boundary_equivalence_supported`, `boundary_evidence_class`, `boundary_evidence_class_supported`,
+  `boundary_evidence_files_all_exist`, `clearance_numeric_gate` and `clearance_numeric_gate_reasons`; this file must be
+  generated from metadata plus an explicit AIJ boundary evidence JSON before paper-grade promotion. A metadata-only,
+  metrics-only or token-only boundary summary cannot pass the paper-grade boundary gate.
 - `TYPE_E` boundary velocity initialization policy. CityLBM v0.3.0 generated cases initialize outlet, lateral and top
   `TYPE_E` nodes from the mean wind profile before device upload to avoid zero-speed boundary damping; archive the
   generated `setup.cpp` evidence for native and CityLBM parity runs.

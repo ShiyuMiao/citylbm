@@ -18,6 +18,8 @@ from typing import Any, Dict, Iterable, List, Optional
 
 
 REQUIRED_EVIDENCE_FIELDS = [
+    "boundary_evidence_class",
+    "boundary_evidence_files",
     "aij_case",
     "wind_direction",
     "boundary_equivalence_basis",
@@ -46,6 +48,15 @@ BOUNDARY_EQUIVALENCE_TOKENS = [
     "recycling_boundary",
     "wind_tunnel_protocol_matched",
 ]
+
+SUPPORTED_EVIDENCE_CLASSES = {
+    "official_aij_documentation",
+    "wind_tunnel_protocol_matched",
+    "empty_tunnel_boundary_preservation",
+    "precursor_boundary",
+    "recycling_boundary",
+    "validated_boundary_model",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -166,6 +177,40 @@ def equivalence_supported(*values: Any) -> bool:
     return any(token in text for token in BOUNDARY_EQUIVALENCE_TOKENS)
 
 
+def as_list(value: Any) -> List[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    text = str(value).strip()
+    if not text:
+        return []
+    return [part.strip() for part in text.replace(";", ",").split(",") if part.strip()]
+
+
+def resolve_evidence_files(paths: List[str], evidence_path: Optional[Path], run_dir: Path) -> Dict[str, Any]:
+    base_dirs: List[Path] = []
+    if evidence_path is not None:
+        base_dirs.append(evidence_path.parent)
+    base_dirs.append(run_dir)
+
+    resolved: List[str] = []
+    missing: List[str] = []
+    for raw_path in paths:
+        candidate = Path(raw_path).expanduser()
+        candidates = [candidate] if candidate.is_absolute() else [base / candidate for base in base_dirs]
+        existing = next((path for path in candidates if path.exists()), None)
+        if existing is None:
+            missing.append(raw_path)
+        else:
+            resolved.append(str(existing.resolve()))
+    return {
+        "resolved": resolved,
+        "missing": missing,
+        "all_exist": bool(paths) and not missing,
+    }
+
+
 def main() -> int:
     args = parse_args()
     run_dir = Path(args.run_dir).expanduser().resolve()
@@ -207,12 +252,24 @@ def main() -> int:
         evidence.get("source"),
         metadata_evidence_source,
     )
+    boundary_evidence_class = first_non_empty(
+        evidence.get("boundary_evidence_class"),
+        evidence.get("evidence_class"),
+        evidence.get("boundary_evidence_type"),
+    ).lower()
+    evidence_files = as_list(
+        evidence.get("boundary_evidence_files")
+        or evidence.get("evidence_files")
+        or evidence.get("supporting_files")
+    )
+    evidence_file_status = resolve_evidence_files(evidence_files, evidence_path, run_dir)
     boundary_equivalence_basis = first_non_empty(
         evidence.get("boundary_equivalence_basis"),
         metadata.get("BoundaryEquivalenceBasis"),
         boundary_audit.get("BoundaryEquivalenceBasis"),
     )
     boundary_equivalence_supported = equivalence_supported(boundary_equivalence_basis, boundary_evidence_source)
+    boundary_evidence_class_supported = boundary_evidence_class in SUPPORTED_EVIDENCE_CLASSES
     upstream_clearance_h = evidence_float(
         evidence, "inlet_fetch_clearance_h", boundary_audit, "ClearanceByBuildingHeight", "Upstream"
     )
@@ -242,6 +299,8 @@ def main() -> int:
         explicit_gate == "pass"
         and not missing
         and boundary_equivalence_supported
+        and boundary_evidence_class_supported
+        and evidence_file_status["all_exist"]
         and clearance_numeric_gate_pass
     )
     blockage_gate_pass = frontal_blockage is not None and frontal_blockage <= args.max_frontal_blockage_ratio
@@ -264,6 +323,13 @@ def main() -> int:
         reasons.append(f"boundary_evidence_gate_{explicit_gate or 'missing'}")
     if not boundary_equivalence_supported:
         reasons.append("boundary_equivalence_basis_missing_or_unsupported")
+    if not boundary_evidence_class_supported:
+        reasons.append(f"boundary_evidence_class_{boundary_evidence_class or 'missing'}_unsupported")
+    if not evidence_file_status["all_exist"]:
+        if not evidence_files:
+            reasons.append("boundary_evidence_files_missing")
+        else:
+            reasons.append("boundary_evidence_files_not_found:" + ",".join(evidence_file_status["missing"]))
     reasons.extend(clearance_reasons)
     if metadata_evidence_gate and metadata_evidence_gate != "pass" and not evidence_gate_pass:
         reasons.append(f"metadata_boundary_evidence_gate_{metadata_evidence_gate}")
@@ -290,6 +356,13 @@ def main() -> int:
         "missing_evidence_fields": missing,
         "boundary_equivalence_basis": boundary_equivalence_basis,
         "boundary_equivalence_supported": boundary_equivalence_supported,
+        "boundary_evidence_class": boundary_evidence_class,
+        "boundary_evidence_class_supported": boundary_evidence_class_supported,
+        "supported_boundary_evidence_classes": sorted(SUPPORTED_EVIDENCE_CLASSES),
+        "boundary_evidence_files": evidence_files,
+        "boundary_evidence_files_resolved": evidence_file_status["resolved"],
+        "boundary_evidence_files_missing": evidence_file_status["missing"],
+        "boundary_evidence_files_all_exist": evidence_file_status["all_exist"],
         "inlet_fetch_clearance_h": upstream_clearance_h,
         "downstream_clearance_h": downstream_clearance_h,
         "min_lateral_clearance_h": lateral_clearance_h,

@@ -87,6 +87,9 @@ TEMPLATE_FIELDS = [
     "boundary_missing_evidence_fields",
     "boundary_equivalence_basis",
     "boundary_equivalence_supported",
+    "boundary_evidence_class",
+    "boundary_evidence_class_supported",
+    "boundary_evidence_files_all_exist",
     "clearance_numeric_gate",
     "boundary_clearance_reasons",
     "boundary_summary",
@@ -931,6 +934,9 @@ def main() -> int:
             "boundary_missing_evidence_fields": boundary_missing_fields_text,
             "boundary_equivalence_basis": str(boundary_protocol_audit.get("boundary_equivalence_basis", "")),
             "boundary_equivalence_supported": csv_bool(boundary_protocol_audit.get("boundary_equivalence_supported")),
+            "boundary_evidence_class": str(boundary_protocol_audit.get("boundary_evidence_class", "")),
+            "boundary_evidence_class_supported": csv_bool(boundary_protocol_audit.get("boundary_evidence_class_supported")),
+            "boundary_evidence_files_all_exist": csv_bool(boundary_protocol_audit.get("boundary_evidence_files_all_exist")),
             "clearance_numeric_gate": str(boundary_protocol_audit.get("clearance_numeric_gate", "")),
             "boundary_clearance_reasons": ";".join(
                 str(reason) for reason in boundary_protocol_audit.get("clearance_numeric_gate_reasons", [])
