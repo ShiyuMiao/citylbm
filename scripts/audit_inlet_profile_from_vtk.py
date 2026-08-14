@@ -397,6 +397,15 @@ def rmse(values: Sequence[float]) -> Optional[float]:
     return math.sqrt(sum(value * value for value in values) / len(values))
 
 
+def stddev(values: Sequence[float]) -> Optional[float]:
+    if not values:
+        return None
+    center = mean(values)
+    if center is None:
+        return None
+    return math.sqrt(sum((value - center) ** 2 for value in values) / len(values))
+
+
 def main() -> int:
     args = parse_args()
     vtk_path = Path(args.vtk_dir).resolve()
@@ -425,9 +434,18 @@ def main() -> int:
     negative_streamwise = 0
     total_samples = 0
     frame_vectors = [read_selected_vectors(frame, selected, args.velocity_scale) for frame in frames]
+    point_mean_speeds: List[float] = []
+    point_speed_stddevs: List[float] = []
     for idx in selected:
         coord = coordinate(idx, first["dimensions"], first["origin"], first["spacing"])
         velocities = [vectors[idx] for vectors in frame_vectors]
+        speed_values = [math.sqrt(sum(component * component for component in v)) for v in velocities]
+        point_mean_speed = mean(speed_values)
+        point_speed_stddev = stddev(speed_values)
+        if point_mean_speed is not None:
+            point_mean_speeds.append(point_mean_speed)
+        if point_speed_stddev is not None:
+            point_speed_stddevs.append(point_speed_stddev)
         streamwise_values = [sum(v[i] * wind[i] for i in range(3)) for v in velocities]
         negative_streamwise += sum(1 for value in streamwise_values if value < 0.0)
         total_samples += len(streamwise_values)
@@ -498,6 +516,23 @@ def main() -> int:
     k_rmse_ratio = k_rmse / k_den if k_rmse is not None and k_den and k_den > 1.0e-12 else None
     k_bias_ratio = k_bias / k_den if k_bias is not None and k_den and k_den > 1.0e-12 else None
     frame_count = len(frames)
+    mean_speed_mps = mean(point_mean_speeds)
+    mean_speed_stddev_mps = mean(point_speed_stddevs)
+    max_speed_stddev_mps = max(point_speed_stddevs) if point_speed_stddevs else None
+    mean_speed_stddev_ratio = (
+        mean_speed_stddev_mps / mean_speed_mps
+        if mean_speed_mps is not None
+        and mean_speed_mps > 1.0e-12
+        and mean_speed_stddev_mps is not None
+        else None
+    )
+    max_speed_stddev_ratio = (
+        max_speed_stddev_mps / mean_speed_mps
+        if mean_speed_mps is not None
+        and mean_speed_mps > 1.0e-12
+        and max_speed_stddev_mps is not None
+        else None
+    )
     time_gate_reasons: List[str] = []
     if args.average_last_n <= 0:
         time_gate_reasons.append("averaging_window_not_explicit")
@@ -554,6 +589,13 @@ def main() -> int:
         "selected_point_count": len(selected),
         "height_bin_count": len(rows),
         "velocity_scale": args.velocity_scale,
+        "mean_speed_mps": mean_speed_mps,
+        "mean_speed_stddev_mps": mean_speed_stddev_mps,
+        "max_speed_stddev_mps": max_speed_stddev_mps,
+        "mean_speed_stddev_ratio": mean_speed_stddev_ratio,
+        "max_speed_stddev_ratio": max_speed_stddev_ratio,
+        "speed_stability_point_count": len(point_speed_stddevs),
+        "speed_stability_source": "selected_plane_point_speed_magnitude_final_window",
         "negative_streamwise_fraction": negative_streamwise_fraction,
         "max_negative_streamwise_fraction": args.max_negative_streamwise_fraction,
         "inlet_streamwise_direction_gate": direction_gate,
@@ -584,7 +626,9 @@ def main() -> int:
         },
         "notes": (
             "k is estimated from temporal velocity variance on the selected VTK plane; "
-            "this is reliable only when frames are post-spinup and uniformly spaced."
+            "this is reliable only when frames are post-spinup and uniformly spaced. "
+            "Time stability ratios are computed from pointwise speed-magnitude standard deviations "
+            "on the same selected final-window plane."
         ),
         "profile_rows": rows,
     }
@@ -609,11 +653,13 @@ def main() -> int:
             for row in rows:
                 writer.writerow(row)
     print(
-        "inlet_profile_gate={gate}; frames={frames}; points={points}; negative_streamwise_fraction={neg}; U_MAE_ratio={u}; U_RMSE_ratio={u_rmse}; k_MAE_ratio={k}; k_RMSE_ratio={k_rmse}".format(
+        "inlet_profile_gate={gate}; frames={frames}; points={points}; negative_streamwise_fraction={neg}; mean_speed_stddev_ratio={mean_std}; max_speed_stddev_ratio={max_std}; U_MAE_ratio={u}; U_RMSE_ratio={u_rmse}; k_MAE_ratio={k}; k_RMSE_ratio={k_rmse}".format(
             gate=overall,
             frames=frame_count,
             points=len(selected),
             neg="" if negative_streamwise_fraction is None else f"{negative_streamwise_fraction:.6g}",
+            mean_std="" if mean_speed_stddev_ratio is None else f"{mean_speed_stddev_ratio:.6g}",
+            max_std="" if max_speed_stddev_ratio is None else f"{max_speed_stddev_ratio:.6g}",
             u="" if u_mae_ratio is None else f"{u_mae_ratio:.6g}",
             u_rmse="" if u_rmse_ratio is None else f"{u_rmse_ratio:.6g}",
             k="" if k_mae_ratio is None else f"{k_mae_ratio:.6g}",

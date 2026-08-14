@@ -99,6 +99,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   When full-field statistics are not supplied manually, the script deterministically samples up to 20,000 points from
   the selected final VTK frames and computes `mean_speed_stddev_ratio` and `max_speed_stddev_ratio` from the real
   velocity time series.
+  If no Grasshopper `Read VTK` audit is available, `scripts\audit_inlet_profile_from_vtk.py` also computes these
+  stationarity ratios from pointwise speed-magnitude time series on the same selected final-window inlet/profile plane,
+  and the metrics builder can carry them into the standard validation row.
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
 - The probe audit table must contain official point number, original coordinate, interpolation distance,
   compared velocity component, compared value, wind-vector components, `wind_direction_valid`, `normalization_valid`,
@@ -190,7 +193,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
 - `time_averaging` gate must use the final available VTK window, contain at least 10 frames, have strictly increasing
   uniformly spaced source steps, and satisfy `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20`
-  unless a stricter case-specific stationarity criterion is documented.
+  from the Read VTK audit, native-run audit, or inlet-profile audit unless a stricter case-specific stationarity
+  criterion is documented.
 - Inlet/outlet/lateral/top boundary faces and upstream/downstream/lateral/top clearances in building-height units
 - Domain size, maximum building height, approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate
 - `boundary_protocol_audit.json`, `boundary_evidence_gate` and `boundary_missing_evidence_fields`

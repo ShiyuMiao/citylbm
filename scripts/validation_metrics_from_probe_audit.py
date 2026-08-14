@@ -481,6 +481,13 @@ def first_int(*values: Optional[int]) -> Optional[int]:
     return None
 
 
+def first_float(*values: Optional[float]) -> Optional[float]:
+    for value in values:
+        if value is not None:
+            return value
+    return None
+
+
 def first_text(*values: Any) -> str:
     for value in values:
         if value not in (None, ""):
@@ -725,11 +732,26 @@ def main() -> int:
         read_vtk_audit.get("time_averaging_gate_reasons_csv"),
         inlet_profile_audit.get("time_averaging_gate_reasons_csv"),
     )
-    mean_speed = args.mean_speed if args.mean_speed is not None else audit_float(read_vtk_audit, "mean_speed_mps")
-    mean_speed_stddev = args.mean_speed_stddev if args.mean_speed_stddev is not None else audit_float(read_vtk_audit, "mean_speed_stddev_mps")
-    max_speed_stddev = args.max_speed_stddev if args.max_speed_stddev is not None else audit_float(read_vtk_audit, "max_speed_stddev_mps")
-    mean_speed_stddev_ratio = args.mean_speed_stddev_ratio if args.mean_speed_stddev_ratio is not None else audit_float(read_vtk_audit, "mean_speed_stddev_ratio")
-    max_speed_stddev_ratio = args.max_speed_stddev_ratio if args.max_speed_stddev_ratio is not None else audit_float(read_vtk_audit, "max_speed_stddev_ratio")
+    mean_speed = args.mean_speed if args.mean_speed is not None else first_float(
+        audit_float(read_vtk_audit, "mean_speed_mps"),
+        audit_float(inlet_profile_audit, "mean_speed_mps"),
+    )
+    mean_speed_stddev = args.mean_speed_stddev if args.mean_speed_stddev is not None else first_float(
+        audit_float(read_vtk_audit, "mean_speed_stddev_mps"),
+        audit_float(inlet_profile_audit, "mean_speed_stddev_mps"),
+    )
+    max_speed_stddev = args.max_speed_stddev if args.max_speed_stddev is not None else first_float(
+        audit_float(read_vtk_audit, "max_speed_stddev_mps"),
+        audit_float(inlet_profile_audit, "max_speed_stddev_mps"),
+    )
+    mean_speed_stddev_ratio = args.mean_speed_stddev_ratio if args.mean_speed_stddev_ratio is not None else first_float(
+        audit_float(read_vtk_audit, "mean_speed_stddev_ratio"),
+        audit_float(inlet_profile_audit, "mean_speed_stddev_ratio"),
+    )
+    max_speed_stddev_ratio = args.max_speed_stddev_ratio if args.max_speed_stddev_ratio is not None else first_float(
+        audit_float(read_vtk_audit, "max_speed_stddev_ratio"),
+        audit_float(inlet_profile_audit, "max_speed_stddev_ratio"),
+    )
     inlet_profile_gate = audit_gate(inlet_profile_audit, "inlet_profile_gate")
     inlet_u_profile_gate = audit_gate(inlet_profile_audit, "inlet_u_profile_gate")
     inlet_k_profile_gate = audit_gate(inlet_profile_audit, "inlet_k_profile_gate")

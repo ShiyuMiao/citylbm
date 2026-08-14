@@ -73,8 +73,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
    frames; shorter runs must be labelled smoke tests. The audit must show `selected_last_window=true`,
    `source_steps_strictly_increasing=true`, `source_step_spacing_uniform=true`, and
    `source_last_time_step=latest_available_time_step`. The same gate also requires `mean_speed_stddev_ratio <= 0.05`
-   and `max_speed_stddev_ratio <= 0.20` from the Read VTK averaging audit unless a stricter case-specific stationarity
-   criterion is documented.
+   and `max_speed_stddev_ratio <= 0.20` from the Read VTK averaging audit, native-run audit, or inlet-profile audit
+   unless a stricter case-specific stationarity criterion is documented.
 
 7. Probe audit gate.
    Probe extraction must record official point IDs, coordinates, selected velocity component, `Uref`, nearest VTK/probe
@@ -202,7 +202,8 @@ The inlet `U/k` audit follows the same final-window rule as the VTK/probe averag
 source steps fail before the result can be interpreted as solver accuracy.
 When a native FluidX3D run has no Grasshopper Read VTK audit, `scripts/validation_metrics_from_probe_audit.py` uses the
 inlet-profile audit as the authoritative source for `available_frame_count`, selected source time steps, last-window
-selection, source-step monotonicity and uniform-spacing fields in the standard metrics row.
+selection, source-step monotonicity, uniform-spacing fields and selected-plane speed-stability ratios in the standard
+metrics row.
 It also fails when more than 5% of sampled inlet velocities project opposite to the declared wind vector, which catches
 wind-sign and streamwise-component mistakes before AF/profile or probe errors are interpreted.
 The command intentionally omits `--allow-velocity-only-inlet`; add that flag only for explicitly labelled diagnostic
