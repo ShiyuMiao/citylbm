@@ -129,8 +129,12 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.
 - `scripts/validation_metrics_from_probe_audit.py` can now ingest the inlet-profile audit JSON and write
-  `inlet_profile_gate`, `inlet_u_profile_gate`, `inlet_k_profile_gate`, `inlet_u_mae_ratio` and `inlet_k_mae_ratio`
+  `inlet_profile_gate`, `inlet_u_profile_gate`, `inlet_k_profile_gate`, `inlet_u_mae_ratio`, `inlet_u_rmse_ratio`,
+  `inlet_k_mae_ratio` and `inlet_k_rmse_ratio`
   into the standard metrics row.
+- Inlet-profile audits now compute `U_RMSE` and `k_RMSE` from the real post-spinup VTK frame window. The standard
+  metrics row carries `k_RMSE_m2s2` and `k_RMSE_ratio`, and `validation_gate.py` requires the k RMSE ratio in addition
+  to k bias so local turbulent-energy errors cannot be hidden by cancellation.
 - `scripts/validation_gate.py` now has a separate `inlet_profile_preservation` gate. Paper-grade validation fails when
   real VTK frames do not prove that the requested AF `U(z)` and `k(z)` are preserved at the inlet/empty-tunnel audit
   plane.

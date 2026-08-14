@@ -199,7 +199,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Native FluidX3D baseline run id or archive path
 - Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
 - Inlet profile preservation audit: selected plane, source VTK steps, `inlet_profile_gate`, `inlet_u_profile_gate`,
-  `inlet_k_profile_gate`, `inlet_u_mae_ratio`, and `inlet_k_mae_ratio`
+  `inlet_k_profile_gate`, `inlet_u_mae_ratio`, `inlet_u_rmse_ratio`, `inlet_k_mae_ratio`, and
+  `inlet_k_rmse_ratio`
 - Inlet correlation audit: `inlet_correlation_gate`, temporal lag-1 absolute correlation, adjacent spatial correlation
   and streamwise fluctuation variance
 - Native baseline gate and `validation_gate_report.json`

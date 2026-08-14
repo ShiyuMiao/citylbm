@@ -47,6 +47,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-slope", type=float, default=1.30)
     parser.add_argument("--max-intercept-abs", type=float, default=0.20)
     parser.add_argument("--max-k-bias-ratio", type=float, default=0.30)
+    parser.add_argument("--max-k-rmse-ratio", type=float, default=0.50)
     parser.add_argument("--max-empty-tunnel-u-bias-ratio", type=float, default=0.05)
     parser.add_argument("--max-empty-tunnel-k-bias-ratio", type=float, default=0.15)
     parser.add_argument("--max-official-coordinate-delta-m", type=float, default=1.0e-6)
@@ -742,7 +743,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_profile_frame_count = as_int(get_any(metrics, ["inlet_profile_frame_count"]))
     inlet_profile_source_steps = str(get_any(metrics, ["inlet_profile_source_time_steps"]) or "").strip()
     inlet_u_mae_ratio = as_float(get_any(metrics, ["inlet_u_mae_ratio"]))
+    inlet_u_rmse_ratio = as_float(get_any(metrics, ["inlet_u_rmse_ratio"]))
     inlet_k_mae_ratio = as_float(get_any(metrics, ["inlet_k_mae_ratio"]))
+    inlet_k_rmse_ratio = as_float(get_any(metrics, ["inlet_k_rmse_ratio"]))
     empty_u_bias = as_float(get_any(metrics, ["empty_tunnel_U_bias_ratio", "empty_tunnel_u_bias_ratio"]))
     empty_k_bias = as_float(get_any(metrics, ["empty_tunnel_k_bias_ratio", "empty_tunnel_K_bias_ratio"]))
     empty_gate = str(get_any(metrics, ["empty_tunnel_gate", "inlet_k_preservation_gate"]) or "").strip().lower()
@@ -790,7 +793,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_negative_streamwise_fraction={inlet_negative_streamwise_fraction}; "
             f"inlet_profile_frame_count={inlet_profile_frame_count}; required >= {args.min_avg_frames}; "
             f"inlet_profile_source_time_steps={inlet_profile_source_steps or 'missing'}; "
-            f"inlet_u_mae_ratio={inlet_u_mae_ratio}; inlet_k_mae_ratio={inlet_k_mae_ratio}"
+            f"inlet_u_mae_ratio={inlet_u_mae_ratio}; inlet_u_rmse_ratio={inlet_u_rmse_ratio}; "
+            f"inlet_k_mae_ratio={inlet_k_mae_ratio}; inlet_k_rmse_ratio={inlet_k_rmse_ratio}"
         ),
         "Run scripts/audit_inlet_profile_from_vtk.py on real post-spinup VTK frames and pass U(z)/k(z) preservation before paper-grade validation.",
     )
@@ -1181,12 +1185,25 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
 
     k_bias_ratio = as_float(get_any(metrics, ["k_bias_ratio", "K_bias_ratio"]))
-    if k_bias_ratio is None:
+    k_rmse_ratio = as_float(get_any(metrics, ["k_RMSE_ratio", "K_RMSE_ratio", "inlet_k_rmse_ratio"]))
+    if k_bias_ratio is None or k_rmse_ratio is None:
         k_status = FAIL
-        k_evidence = "k_bias_ratio=missing"
+        missing = []
+        if k_bias_ratio is None:
+            missing.append("k_bias_ratio")
+        if k_rmse_ratio is None:
+            missing.append("k_RMSE_ratio")
+        k_evidence = "missing " + ",".join(missing)
     else:
-        k_status = PASS if abs(k_bias_ratio) <= args.max_k_bias_ratio else FAIL
-        k_evidence = f"k_bias_ratio={k_bias_ratio}; required abs <= {args.max_k_bias_ratio}"
+        k_status = (
+            PASS
+            if abs(k_bias_ratio) <= args.max_k_bias_ratio and k_rmse_ratio <= args.max_k_rmse_ratio
+            else FAIL
+        )
+        k_evidence = (
+            f"k_bias_ratio={k_bias_ratio}; required abs <= {args.max_k_bias_ratio}; "
+            f"k_RMSE_ratio={k_rmse_ratio}; required <= {args.max_k_rmse_ratio}"
+        )
     add_gate(
         gates,
         "k_preservation_or_accuracy",
@@ -1236,6 +1253,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_slope": args.max_slope,
             "max_intercept_abs": args.max_intercept_abs,
             "max_k_bias_ratio": args.max_k_bias_ratio,
+            "max_k_rmse_ratio": args.max_k_rmse_ratio,
             "max_empty_tunnel_u_bias_ratio": args.max_empty_tunnel_u_bias_ratio,
             "max_empty_tunnel_k_bias_ratio": args.max_empty_tunnel_k_bias_ratio,
             "max_official_coordinate_delta_m": args.max_official_coordinate_delta_m,

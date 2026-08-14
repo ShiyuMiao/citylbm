@@ -391,6 +391,12 @@ def mae(values: Sequence[float]) -> Optional[float]:
     return sum(abs(value) for value in values) / len(values)
 
 
+def rmse(values: Sequence[float]) -> Optional[float]:
+    if not values:
+        return None
+    return math.sqrt(sum(value * value for value in values) / len(values))
+
+
 def main() -> int:
     args = parse_args()
     vtk_path = Path(args.vtk_dir).resolve()
@@ -478,14 +484,18 @@ def main() -> int:
         )
 
     u_mae = mae(u_errors)
+    u_rmse = rmse(u_errors)
     u_bias = mean(u_errors)
     u_den = mean(af_u_values)
     u_mae_ratio = u_mae / u_den if u_mae is not None and u_den and u_den > 1.0e-12 else None
+    u_rmse_ratio = u_rmse / u_den if u_rmse is not None and u_den and u_den > 1.0e-12 else None
     u_bias_ratio = u_bias / u_den if u_bias is not None and u_den and u_den > 1.0e-12 else None
     k_mae = mae(k_errors)
+    k_rmse = rmse(k_errors)
     k_bias = mean(k_errors)
     k_den = mean(af_k_values)
     k_mae_ratio = k_mae / k_den if k_mae is not None and k_den and k_den > 1.0e-12 else None
+    k_rmse_ratio = k_rmse / k_den if k_rmse is not None and k_den and k_den > 1.0e-12 else None
     k_bias_ratio = k_bias / k_den if k_bias is not None and k_den and k_den > 1.0e-12 else None
     frame_count = len(frames)
     time_gate_reasons: List[str] = []
@@ -556,12 +566,16 @@ def main() -> int:
         "inlet_k_profile_gate": k_gate,
         "inlet_profile_gate": overall,
         "U_MAE_mps": u_mae,
+        "U_RMSE_mps": u_rmse,
         "U_bias_mps": u_bias,
         "U_MAE_ratio": u_mae_ratio,
+        "U_RMSE_ratio": u_rmse_ratio,
         "U_bias_ratio": u_bias_ratio,
         "k_MAE_m2s2": k_mae,
+        "k_RMSE_m2s2": k_rmse,
         "k_bias_m2s2": k_bias,
         "k_MAE_ratio": k_mae_ratio,
+        "k_RMSE_ratio": k_rmse_ratio,
         "k_bias_ratio": k_bias_ratio,
         "thresholds": {
             "max_u_mae_ratio": args.max_u_mae_ratio,
@@ -595,13 +609,15 @@ def main() -> int:
             for row in rows:
                 writer.writerow(row)
     print(
-        "inlet_profile_gate={gate}; frames={frames}; points={points}; negative_streamwise_fraction={neg}; U_MAE_ratio={u}; k_MAE_ratio={k}".format(
+        "inlet_profile_gate={gate}; frames={frames}; points={points}; negative_streamwise_fraction={neg}; U_MAE_ratio={u}; U_RMSE_ratio={u_rmse}; k_MAE_ratio={k}; k_RMSE_ratio={k_rmse}".format(
             gate=overall,
             frames=frame_count,
             points=len(selected),
             neg="" if negative_streamwise_fraction is None else f"{negative_streamwise_fraction:.6g}",
             u="" if u_mae_ratio is None else f"{u_mae_ratio:.6g}",
+            u_rmse="" if u_rmse_ratio is None else f"{u_rmse_ratio:.6g}",
             k="" if k_mae_ratio is None else f"{k_mae_ratio:.6g}",
+            k_rmse="" if k_rmse_ratio is None else f"{k_rmse_ratio:.6g}",
         )
     )
     return 0 if overall == PASS else 2

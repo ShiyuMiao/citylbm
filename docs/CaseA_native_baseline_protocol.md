@@ -129,7 +129,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Inlet/empty-tunnel profile-audit JSON and CSV from real post-spinup VTK frames, including the selected plane, all
   available VTK steps, selected source VTK steps, `selected_last_window`, `source_steps_strictly_increasing`,
   `source_step_spacing_uniform`, `time_averaging_gate_reasons`, `negative_streamwise_fraction`,
-  `inlet_streamwise_direction_gate`, `U_MAE_ratio`, `U_bias_ratio`, `k_MAE_ratio`, `k_bias_ratio`, and the
+  `inlet_streamwise_direction_gate`, `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `k_MAE_ratio`, `k_RMSE_ratio`,
+  `k_bias_ratio`, and the
   `inlet_profile_gate`.
 - Inlet correlation-audit JSON from the same final-window VTK frames, including `inlet_correlation_gate`,
   `temporal_lag1_abs_mean_correlation`, `spatial_adjacent_mean_correlation` and
@@ -191,7 +192,7 @@ For a CityLBM-driven parity run, change `--software citylbm` and keep the same m
 record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,
 `native_baseline_gate=pass`, `lbm_stability_gate=solver_log_no_stability_warnings`,
 `solver_stability_warnings=none`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
-`inlet_profile_gate=pass`, zero failed probes, bounded mean-velocity bias/RMSE, and reported `k` bias. If the gate returns `FAIL`, the run is
+`inlet_profile_gate=pass`, zero failed probes, bounded mean-velocity bias/RMSE, and reported `k` bias/RMSE. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
 The JSON report also includes `diagnostic_priority`, which must be followed in order before changing physics parameters:
 first close coordinate/component/Uref/probe issues and the component/Uref sensitivity audit, then final-window time

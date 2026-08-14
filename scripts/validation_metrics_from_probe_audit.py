@@ -107,8 +107,10 @@ TEMPLATE_FIELDS = [
     "inlet_profile_gate",
     "inlet_u_profile_gate",
     "inlet_u_mae_ratio",
+    "inlet_u_rmse_ratio",
     "inlet_k_profile_gate",
     "inlet_k_mae_ratio",
+    "inlet_k_rmse_ratio",
     "empty_tunnel_gate",
     "empty_tunnel_U_bias_ratio",
     "empty_tunnel_k_bias_ratio",
@@ -152,6 +154,7 @@ TEMPLATE_FIELDS = [
     "bias_diagnosis",
     "k_MAE_m2s2",
     "k_RMSE_m2s2",
+    "k_RMSE_ratio",
     "k_bias_m2s2",
     "k_bias_ratio",
     "systematic_bias_flag",
@@ -671,10 +674,13 @@ def main() -> int:
     inlet_streamwise_direction_gate = audit_gate(inlet_profile_audit, "inlet_streamwise_direction_gate")
     inlet_negative_streamwise_fraction = audit_float(inlet_profile_audit, "negative_streamwise_fraction")
     inlet_u_mae_ratio = audit_float(inlet_profile_audit, "U_MAE_ratio")
+    inlet_u_rmse_ratio = audit_float(inlet_profile_audit, "U_RMSE_ratio")
     inlet_k_mae_ratio = audit_float(inlet_profile_audit, "k_MAE_ratio")
+    inlet_k_rmse_ratio = audit_float(inlet_profile_audit, "k_RMSE_ratio")
     inlet_u_bias_ratio = audit_float(inlet_profile_audit, "U_bias_ratio")
     inlet_k_bias_ratio = audit_float(inlet_profile_audit, "k_bias_ratio")
     inlet_k_mae = audit_float(inlet_profile_audit, "k_MAE_m2s2")
+    inlet_k_rmse = audit_float(inlet_profile_audit, "k_RMSE_m2s2")
     inlet_k_bias = audit_float(inlet_profile_audit, "k_bias_m2s2")
     metrics = {field: "" for field in TEMPLATE_FIELDS}
     metrics.update(
@@ -764,8 +770,10 @@ def main() -> int:
             "inlet_profile_gate": inlet_profile_gate,
             "inlet_u_profile_gate": inlet_u_profile_gate,
             "inlet_u_mae_ratio": fmt(inlet_u_mae_ratio),
+            "inlet_u_rmse_ratio": fmt(inlet_u_rmse_ratio),
             "inlet_k_profile_gate": inlet_k_profile_gate,
             "inlet_k_mae_ratio": fmt(inlet_k_mae_ratio),
+            "inlet_k_rmse_ratio": fmt(inlet_k_rmse_ratio),
             "empty_tunnel_gate": args.empty_tunnel_gate or inlet_profile_gate,
             "empty_tunnel_U_bias_ratio": args.empty_tunnel_u_bias_ratio or fmt(inlet_u_bias_ratio),
             "empty_tunnel_k_bias_ratio": args.empty_tunnel_k_bias_ratio or fmt(inlet_k_bias_ratio),
@@ -808,7 +816,8 @@ def main() -> int:
             "U_scaled_improvement_ratio": fmt(scaled_improvement),
             "bias_diagnosis": bias_diagnosis,
             "k_MAE_m2s2": args.k_mae or fmt(inlet_k_mae),
-            "k_RMSE_m2s2": args.k_rmse,
+            "k_RMSE_m2s2": args.k_rmse or fmt(inlet_k_rmse),
+            "k_RMSE_ratio": fmt(inlet_k_rmse_ratio),
             "k_bias_m2s2": args.k_bias or fmt(inlet_k_bias),
             "k_bias_ratio": args.k_bias_ratio or fmt(inlet_k_bias_ratio),
             "systematic_bias_flag": systematic_flag,
