@@ -681,6 +681,27 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         or metadata.get("BoundaryProtocolEvidenceGate")
         or ""
     ).strip().lower()
+    boundary_equivalence_basis = str(
+        get_any(external_boundary_audit, ["boundary_equivalence_basis"])
+        or get_any(metrics, ["boundary_equivalence_basis", "BoundaryEquivalenceBasis"])
+        or get_any(boundary_audit, ["BoundaryEquivalenceBasis"])
+        or metadata.get("BoundaryEquivalenceBasis")
+        or ""
+    )
+    external_boundary_equivalence_supported = as_bool(
+        get_any(external_boundary_audit, ["boundary_equivalence_supported"])
+        or get_any(metrics, ["boundary_equivalence_supported", "BoundaryEquivalenceSupported"])
+    )
+    clearance_numeric_gate = str(
+        get_any(external_boundary_audit, ["clearance_numeric_gate"])
+        or get_any(metrics, ["clearance_numeric_gate", "BoundaryClearanceNumericGate"])
+        or ""
+    ).strip().lower()
+    clearance_numeric_reasons = str(
+        get_any(external_boundary_audit, ["clearance_numeric_gate_reasons"])
+        or get_any(metrics, ["boundary_clearance_reasons", "BoundaryClearanceReasons"])
+        or ""
+    )
     external_boundary_protocol_gate = str(
         get_any(external_boundary_audit, ["boundary_protocol_gate"]) or ""
     ).strip().lower()
@@ -689,8 +710,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         external_boundary_missing_fields_text = ",".join(str(field) for field in external_boundary_missing_fields)
     else:
         external_boundary_missing_fields_text = str(external_boundary_missing_fields or "")
-    boundary_evidence_supported = any(
-        token in boundary_evidence_source.lower()
+    boundary_evidence_supported_by_token = any(
+        token in (boundary_evidence_source + " " + boundary_equivalence_basis).lower()
         for token in [
             "aij_verified",
             "empty_tunnel_passed",
@@ -700,19 +721,26 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "wind_tunnel_protocol_matched",
         ]
     )
+    boundary_evidence_supported = (
+        external_boundary_equivalence_supported
+        if external_boundary_equivalence_supported is not None
+        else boundary_evidence_supported_by_token
+    )
     boundary_diagnostic_ok = (
         boundary_gate == "diagnostic_clearance_ok_verify_against_aij"
         and frontal_blockage is not None
         and frontal_blockage <= args.max_frontal_blockage_ratio
     )
-    boundary_evidence_ok = boundary_evidence_gate == "pass" or boundary_evidence_supported
+    boundary_external_ok = external_boundary_protocol_gate in {"", "pass"}
+    boundary_clearance_ok = clearance_numeric_gate in {"", "pass"}
+    boundary_evidence_ok = boundary_evidence_gate == "pass" and boundary_evidence_supported and boundary_clearance_ok
     add_gate(
         gates,
         "boundary_protocol",
         PASS
         if boundary_diagnostic_ok
         and boundary_evidence_ok
-        and external_boundary_protocol_gate in {"", "pass"}
+        and boundary_external_ok
         else FAIL,
         (
             f"boundary_protocol_gate={boundary_gate or 'missing'}; "
@@ -722,7 +750,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"required frontal <= {args.max_frontal_blockage_ratio}; "
             f"boundary_evidence_gate={boundary_evidence_gate or 'missing'}; "
             f"boundary_evidence_source={boundary_evidence_source or 'missing'}; "
+            f"boundary_equivalence_basis={boundary_equivalence_basis or 'missing'}; "
             f"boundary_evidence_supported={boundary_evidence_supported}; "
+            f"clearance_numeric_gate={clearance_numeric_gate or 'missing'}; "
+            f"clearance_numeric_gate_reasons={clearance_numeric_reasons or 'none'}; "
             f"missing_boundary_evidence_fields={external_boundary_missing_fields_text or 'none'}"
         ),
         "Fix domain extents/model placement, reduce blockage, and archive AIJ-equivalent boundary/fetch/roughness evidence or an empty-tunnel/native boundary-preservation check.",

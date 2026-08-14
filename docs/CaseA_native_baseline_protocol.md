@@ -49,9 +49,14 @@ AIJ Case E is treated as a paper-grade validation experiment.
    `BoundaryProtocolAudit`. The ratios are axis-aligned screening diagnostics; compare them with the official AIJ
    wind-tunnel blockage protocol before paper-grade promotion.
    Run `scripts/audit_boundary_protocol.py` or the full chain with `--boundary-evidence <boundary_evidence.json>`.
-   The evidence JSON must explicitly document `aij_case`, `wind_direction`, `inlet_boundary`, `outlet_boundary`,
-   `lateral_boundary`, `top_boundary`, `ground_wall_treatment`, `roughness_treatment`, `blockage_source` and
-   `fetch_clearance_source`, with `boundary_evidence_gate=pass`. Missing fields keep the boundary gate diagnostic/fail.
+   The evidence JSON must explicitly document `aij_case`, `wind_direction`, `boundary_equivalence_basis`,
+   `inlet_boundary`, `outlet_boundary`, `lateral_boundary`, `top_boundary`, `ground_wall_treatment`,
+   `roughness_treatment`, `floor_roughness_source`, `blockage_source`, `fetch_clearance_source`,
+   `inlet_fetch_clearance_h`, `downstream_clearance_h`, `min_lateral_clearance_h`, `top_clearance_h`,
+   `outlet_reflection_check` and `side_top_boundary_check`, with `boundary_evidence_gate=pass`. The equivalence basis
+   must use an archived tag such as `aij_verified`, `wind_tunnel_protocol_matched`, `empty_tunnel_passed`,
+   `validated_boundary_model`, `precursor_boundary` or `recycling_boundary`. Missing fields, unsupported equivalence
+   basis or clearance below the configured H thresholds keep the boundary gate diagnostic/fail.
 
 5. Inlet distribution-consistency gate.
    If the inlet turbulence is generated from `k`, archive whether the implementation reconstructs FluidX3D distribution
@@ -111,8 +116,9 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Domain extents in `H`: upstream, downstream, lateral and top clearance.
 - Approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate.
 - Boundary mode and boundary-source justification.
-- `boundary_protocol_audit.json`, including `boundary_missing_evidence_fields`; this file must be generated from
-  metadata plus an explicit AIJ boundary evidence JSON before paper-grade promotion.
+- `boundary_protocol_audit.json`, including `boundary_missing_evidence_fields`, `boundary_equivalence_basis`,
+  `boundary_equivalence_supported`, `clearance_numeric_gate` and `clearance_numeric_gate_reasons`; this file must be
+  generated from metadata plus an explicit AIJ boundary evidence JSON before paper-grade promotion.
 - `TYPE_E` boundary velocity initialization policy. CityLBM v0.3.0 generated cases initialize outlet, lateral and top
   `TYPE_E` nodes from the mean wind profile before device upload to avoid zero-speed boundary damping; archive the
   generated `setup.cpp` evidence for native and CityLBM parity runs.

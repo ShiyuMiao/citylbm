@@ -63,9 +63,14 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   boundary-type record. The blockage ratios are axis-aligned diagnostics from model/domain bounds; verify them against
   the official AIJ wind-tunnel blockage definition before making paper-grade claims.
 - Archive an explicit AIJ boundary evidence JSON and generate `boundary_protocol_audit.json`. The evidence JSON must
-  include `aij_case`, `wind_direction`, `inlet_boundary`, `outlet_boundary`, `lateral_boundary`, `top_boundary`,
-  `ground_wall_treatment`, `roughness_treatment`, `blockage_source`, `fetch_clearance_source` and
-  `boundary_evidence_gate=pass`. Domain clearance alone is diagnostic and cannot pass the paper-grade boundary gate.
+  include `aij_case`, `wind_direction`, `boundary_equivalence_basis`, `inlet_boundary`, `outlet_boundary`,
+  `lateral_boundary`, `top_boundary`, `ground_wall_treatment`, `roughness_treatment`, `floor_roughness_source`,
+  `blockage_source`, `fetch_clearance_source`, `inlet_fetch_clearance_h`, `downstream_clearance_h`,
+  `min_lateral_clearance_h`, `top_clearance_h`, `outlet_reflection_check`, `side_top_boundary_check` and
+  `boundary_evidence_gate=pass`. `boundary_equivalence_basis` must be backed by an archived tag such as
+  `aij_verified`, `wind_tunnel_protocol_matched`, `empty_tunnel_passed`, `validated_boundary_model`,
+  `precursor_boundary` or `recycling_boundary`. Domain clearance alone is diagnostic and cannot pass the paper-grade
+  boundary gate.
 - `validation_protocol_audit.json` and `validation_protocol_audit.md` exist in both case root and output directory.
   Treat any `risk` or `fail` item as a blocker for paper-grade validation claims until resolved or explicitly justified.
 - VTK files are newly generated for the current run directory, not copied from older experiments.
@@ -198,7 +203,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   criterion is documented.
 - Inlet/outlet/lateral/top boundary faces and upstream/downstream/lateral/top clearances in building-height units
 - Domain size, maximum building height, approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate
-- `boundary_protocol_audit.json`, `boundary_evidence_gate` and `boundary_missing_evidence_fields`
+- `boundary_protocol_audit.json`, `boundary_evidence_gate`, `boundary_missing_evidence_fields`,
+  `boundary_equivalence_basis`, `boundary_equivalence_supported`, `clearance_numeric_gate` and
+  `boundary_clearance_reasons`
 - Mean probe distance and maximum probe distance
 - Compared component consistency gate, unique compared components and official coordinate-delta coverage count
 - Native FluidX3D baseline run id or archive path
@@ -224,4 +231,4 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 
 CityLBM v0.3.0 reads, converts and records `k(m2/s2)`. It also provides an optional experimental STG-lite inlet that converts isotropic `k` to bounded deterministic spectral velocity perturbations using `sigma=sqrt(2k/3)`, with inlet refresh controlled by `SyntheticTurbulenceUpdateInterval`. The synthetic spectral-mode amplitudes are projected normal to their wave vectors to reduce non-physical divergent inlet fluctuations, and the spectral normalization targets the component RMS implied by isotropic `k` rather than the lower former diagnostic amplitude. This is a software-level improvement over the former metadata-only `k` chain and the earlier sparse-eddy diagnostic pattern, but it is not a full digital-filter, precursor/recycling, or Reynolds-stress turbulent inflow because the AF table does not provide Reynolds-stress tensors, turbulent length scales or a precursor field. The inlet correlation audit is therefore a necessary precondition that checks real VTK fluctuation correlation, not a replacement for a validated digital-filter/SEM/precursor inlet. The v0.3.0 machine gate treats velocity-field-only STG-lite as non-paper-grade by default; it can only be explicitly allowed for diagnostic sensitivity analysis with `--allow-velocity-only-inlet`. Any paper claim must state whether the validation used metadata-only inflow, STG-lite diagnostic inflow, or a later distribution-consistent turbulent inlet.
 
-The current boundary conditions are also a simplified FluidX3D `TYPE_E` setup: velocity-profile inlet, pressure/free-outflow outlet approximation, lateral/top `TYPE_E`, and no-slip ground/buildings. CityLBM v0.3.0 initializes all `TYPE_E` boundary velocities from the mean wind profile before uploading flags/velocity fields, so outlet/lateral/top boundaries no longer start from zero velocity after their early boundary-return path. This removes one plausible software-side damping source, but it does not make the boundary protocol identical to the AIJ wind tunnel. CityLBM v0.3.0 records domain clearance and approximate frontal/plan blockage ratios in `BoundaryProtocolAudit`, and `validation_gate.py` fails the boundary gate when approximate frontal blockage exceeds the diagnostic threshold. These fields help detect protocol-scale errors, but they remain screening diagnostics until compared with the AIJ wind-tunnel boundary setup or replaced by a stronger inlet/outlet treatment.
+The current boundary conditions are also a simplified FluidX3D `TYPE_E` setup: velocity-profile inlet, pressure/free-outflow outlet approximation, lateral/top `TYPE_E`, and no-slip ground/buildings. CityLBM v0.3.0 initializes all `TYPE_E` boundary velocities from the mean wind profile before uploading flags/velocity fields, so outlet/lateral/top boundaries no longer start from zero velocity after their early boundary-return path. This removes one plausible software-side damping source, but it does not make the boundary protocol identical to the AIJ wind tunnel. CityLBM v0.3.0 records domain clearance and approximate frontal/plan blockage ratios in `BoundaryProtocolAudit`, and `validation_gate.py` fails the boundary gate when approximate frontal blockage exceeds the diagnostic threshold, the AIJ-equivalence basis is missing/unsupported, or upstream/downstream/lateral/top clearance evidence is below the configured H thresholds. These fields help detect protocol-scale errors, but they remain screening diagnostics until compared with the AIJ wind-tunnel boundary setup or replaced by a stronger inlet/outlet treatment.

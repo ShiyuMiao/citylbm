@@ -85,6 +85,10 @@ TEMPLATE_FIELDS = [
     "boundary_evidence_gate",
     "boundary_protocol_audit",
     "boundary_missing_evidence_fields",
+    "boundary_equivalence_basis",
+    "boundary_equivalence_supported",
+    "clearance_numeric_gate",
+    "boundary_clearance_reasons",
     "boundary_summary",
     "synthetic_inlet_method",
     "inlet_distribution_treatment",
@@ -828,11 +832,19 @@ def main() -> int:
             "approx_frontal_blockage_ratio": blockage_audit.get("ApproxFrontalBlockageRatio", ""),
             "approx_plan_blockage_ratio": blockage_audit.get("ApproxPlanBlockageRatio", ""),
             "blockage_protocol_gate": blockage_audit.get("Gate", ""),
-            "boundary_protocol_gate": str(boundary_audit.get("Gate", "")),
+            "boundary_protocol_gate": str(boundary_protocol_audit.get("boundary_protocol_gate", "")) or str(boundary_audit.get("Gate", "")),
             "boundary_evidence_source": str(boundary_protocol_audit.get("boundary_evidence_source", "")) or metadata_field(metadata, "BoundaryProtocolEvidenceSource") or boundary_audit.get("ProtocolEvidenceSource", ""),
             "boundary_evidence_gate": str(boundary_protocol_audit.get("boundary_evidence_gate", "")) or metadata_field(metadata, "BoundaryProtocolEvidenceGate") or boundary_audit.get("ProtocolEvidenceGate", ""),
             "boundary_protocol_audit": str(Path(args.boundary_protocol_audit).resolve()) if args.boundary_protocol_audit else "",
             "boundary_missing_evidence_fields": boundary_missing_fields_text,
+            "boundary_equivalence_basis": str(boundary_protocol_audit.get("boundary_equivalence_basis", "")),
+            "boundary_equivalence_supported": csv_bool(boundary_protocol_audit.get("boundary_equivalence_supported")),
+            "clearance_numeric_gate": str(boundary_protocol_audit.get("clearance_numeric_gate", "")),
+            "boundary_clearance_reasons": ";".join(
+                str(reason) for reason in boundary_protocol_audit.get("clearance_numeric_gate_reasons", [])
+            )
+            if isinstance(boundary_protocol_audit.get("clearance_numeric_gate_reasons"), list)
+            else str(boundary_protocol_audit.get("clearance_numeric_gate_reasons", "")),
             "boundary_summary": metadata_field(metadata, "BoundaryConditionSummary"),
             "synthetic_inlet_method": metadata_field(metadata, "SyntheticTurbulentInletMethod"),
             "inlet_distribution_treatment": metadata_field(metadata, "SyntheticTurbulentInletDistributionTreatment"),

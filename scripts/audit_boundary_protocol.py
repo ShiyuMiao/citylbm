@@ -20,14 +20,31 @@ from typing import Any, Dict, Iterable, List, Optional
 REQUIRED_EVIDENCE_FIELDS = [
     "aij_case",
     "wind_direction",
+    "boundary_equivalence_basis",
     "inlet_boundary",
     "outlet_boundary",
     "lateral_boundary",
     "top_boundary",
     "ground_wall_treatment",
     "roughness_treatment",
+    "floor_roughness_source",
     "blockage_source",
     "fetch_clearance_source",
+    "inlet_fetch_clearance_h",
+    "downstream_clearance_h",
+    "min_lateral_clearance_h",
+    "top_clearance_h",
+    "outlet_reflection_check",
+    "side_top_boundary_check",
+]
+
+BOUNDARY_EQUIVALENCE_TOKENS = [
+    "aij_verified",
+    "empty_tunnel_passed",
+    "validated_boundary_model",
+    "precursor_boundary",
+    "recycling_boundary",
+    "wind_tunnel_protocol_matched",
 ]
 
 
@@ -44,6 +61,10 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--out", required=True, help="Output boundary_protocol_audit.json.")
     parser.add_argument("--max-frontal-blockage-ratio", type=float, default=0.05)
+    parser.add_argument("--min-upstream-clearance-h", type=float, default=5.0)
+    parser.add_argument("--min-downstream-clearance-h", type=float, default=10.0)
+    parser.add_argument("--min-lateral-clearance-h", type=float, default=5.0)
+    parser.add_argument("--min-top-clearance-h", type=float, default=5.0)
     return parser.parse_args()
 
 
@@ -109,6 +130,42 @@ def first_non_empty(*values: Any) -> str:
     return ""
 
 
+def evidence_float(
+    evidence: Dict[str, Any],
+    key: str,
+    metadata: Dict[str, Any],
+    *metadata_keys: str,
+) -> Optional[float]:
+    parsed = as_float(evidence.get(key))
+    if parsed is not None:
+        return parsed
+    return as_float(nested(metadata, *metadata_keys))
+
+
+def combined_evidence(
+    evidence: Dict[str, Any],
+    boundary_audit: Dict[str, Any],
+) -> Dict[str, Any]:
+    combined = dict(evidence)
+    fallback_pairs = {
+        "inlet_fetch_clearance_h": ("ClearanceByBuildingHeight", "Upstream"),
+        "downstream_clearance_h": ("ClearanceByBuildingHeight", "Downstream"),
+        "min_lateral_clearance_h": ("ClearanceByBuildingHeight", "MinLateral"),
+        "top_clearance_h": ("ClearanceByBuildingHeight", "Top"),
+    }
+    for key, metadata_keys in fallback_pairs.items():
+        if not non_empty(combined, key):
+            value = nested(boundary_audit, *metadata_keys)
+            if value is not None:
+                combined[key] = value
+    return combined
+
+
+def equivalence_supported(*values: Any) -> bool:
+    text = " ".join(str(value or "").lower() for value in values)
+    return any(token in text for token in BOUNDARY_EQUIVALENCE_TOKENS)
+
+
 def main() -> int:
     args = parse_args()
     run_dir = Path(args.run_dir).expanduser().resolve()
@@ -138,13 +195,55 @@ def main() -> int:
         metadata.get("BoundaryProtocolEvidenceSource"),
     )
 
-    missing = missing_fields(evidence, REQUIRED_EVIDENCE_FIELDS)
+    combined = combined_evidence(evidence, boundary_audit)
+    missing = missing_fields(combined, REQUIRED_EVIDENCE_FIELDS)
     explicit_gate = first_non_empty(
         evidence.get("boundary_evidence_gate"),
         evidence.get("BoundaryProtocolEvidenceGate"),
         evidence.get("gate"),
     ).lower()
-    evidence_gate_pass = explicit_gate == "pass" and not missing
+    boundary_evidence_source = first_non_empty(
+        evidence.get("boundary_evidence_source"),
+        evidence.get("source"),
+        metadata_evidence_source,
+    )
+    boundary_equivalence_basis = first_non_empty(
+        evidence.get("boundary_equivalence_basis"),
+        metadata.get("BoundaryEquivalenceBasis"),
+        boundary_audit.get("BoundaryEquivalenceBasis"),
+    )
+    boundary_equivalence_supported = equivalence_supported(boundary_equivalence_basis, boundary_evidence_source)
+    upstream_clearance_h = evidence_float(
+        evidence, "inlet_fetch_clearance_h", boundary_audit, "ClearanceByBuildingHeight", "Upstream"
+    )
+    downstream_clearance_h = evidence_float(
+        evidence, "downstream_clearance_h", boundary_audit, "ClearanceByBuildingHeight", "Downstream"
+    )
+    lateral_clearance_h = evidence_float(
+        evidence, "min_lateral_clearance_h", boundary_audit, "ClearanceByBuildingHeight", "MinLateral"
+    )
+    top_clearance_h = evidence_float(
+        evidence, "top_clearance_h", boundary_audit, "ClearanceByBuildingHeight", "Top"
+    )
+    clearance_reasons: List[str] = []
+    clearance_checks = [
+        ("upstream_clearance_h", upstream_clearance_h, args.min_upstream_clearance_h),
+        ("downstream_clearance_h", downstream_clearance_h, args.min_downstream_clearance_h),
+        ("min_lateral_clearance_h", lateral_clearance_h, args.min_lateral_clearance_h),
+        ("top_clearance_h", top_clearance_h, args.min_top_clearance_h),
+    ]
+    for name, value, minimum in clearance_checks:
+        if value is None:
+            clearance_reasons.append(f"{name}_missing")
+        elif value < minimum:
+            clearance_reasons.append(f"{name}_below_{minimum:g}")
+    clearance_numeric_gate_pass = not clearance_reasons
+    evidence_gate_pass = (
+        explicit_gate == "pass"
+        and not missing
+        and boundary_equivalence_supported
+        and clearance_numeric_gate_pass
+    )
     blockage_gate_pass = frontal_blockage is not None and frontal_blockage <= args.max_frontal_blockage_ratio
     clearance_gate_pass = metadata_gate == "diagnostic_clearance_ok_verify_against_aij"
 
@@ -163,6 +262,9 @@ def main() -> int:
         reasons.append("missing_evidence_fields:" + ",".join(missing))
     if explicit_gate != "pass":
         reasons.append(f"boundary_evidence_gate_{explicit_gate or 'missing'}")
+    if not boundary_equivalence_supported:
+        reasons.append("boundary_equivalence_basis_missing_or_unsupported")
+    reasons.extend(clearance_reasons)
     if metadata_evidence_gate and metadata_evidence_gate != "pass" and not evidence_gate_pass:
         reasons.append(f"metadata_boundary_evidence_gate_{metadata_evidence_gate}")
 
@@ -186,12 +288,23 @@ def main() -> int:
         "blockage_gate": "pass" if blockage_gate_pass else "fail",
         "evidence_required_fields": REQUIRED_EVIDENCE_FIELDS,
         "missing_evidence_fields": missing,
+        "boundary_equivalence_basis": boundary_equivalence_basis,
+        "boundary_equivalence_supported": boundary_equivalence_supported,
+        "inlet_fetch_clearance_h": upstream_clearance_h,
+        "downstream_clearance_h": downstream_clearance_h,
+        "min_lateral_clearance_h": lateral_clearance_h,
+        "top_clearance_h": top_clearance_h,
+        "min_required_upstream_clearance_h": args.min_upstream_clearance_h,
+        "min_required_downstream_clearance_h": args.min_downstream_clearance_h,
+        "min_required_lateral_clearance_h": args.min_lateral_clearance_h,
+        "min_required_top_clearance_h": args.min_top_clearance_h,
+        "clearance_numeric_gate": "pass" if clearance_numeric_gate_pass else "fail",
+        "clearance_numeric_gate_reasons": clearance_reasons or ["clearance_numeric_evidence_complete"],
+        "outlet_reflection_check": evidence.get("outlet_reflection_check", ""),
+        "side_top_boundary_check": evidence.get("side_top_boundary_check", ""),
+        "floor_roughness_source": evidence.get("floor_roughness_source", ""),
         "boundary_evidence_gate": "pass" if evidence_gate_pass else "fail",
-        "boundary_evidence_source": first_non_empty(
-            evidence.get("boundary_evidence_source"),
-            evidence.get("source"),
-            metadata_evidence_source,
-        ),
+        "boundary_evidence_source": boundary_evidence_source,
         "boundary_protocol_gate": boundary_protocol_gate,
         "boundary_protocol_gate_reasons": reasons or ["boundary_protocol_evidence_complete"],
         "recommended_next_action": (
@@ -202,7 +315,7 @@ def main() -> int:
     }
 
     for key in REQUIRED_EVIDENCE_FIELDS:
-        report[key] = evidence.get(key, "")
+        report[key] = combined.get(key, "")
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")

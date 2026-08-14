@@ -56,6 +56,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_metrics_from_probe_audit.py`, the metrics template and `validation_gate.py` now carry
   `boundary_protocol_audit` and `boundary_missing_evidence_fields`, making missing inlet/outlet/lateral/top, roughness,
   blockage-source and fetch-clearance evidence visible in the metrics row and final gate report.
+- `audit_boundary_protocol.py` now requires structured AIJ-equivalence evidence, not only `boundary_evidence_gate=pass`.
+  The external evidence or generated metadata must expose `boundary_equivalence_basis`, upstream/downstream/lateral/top
+  clearance in building-height units, floor roughness source, outlet reflection check and side/top boundary check. The
+  final validation gate now reports `boundary_equivalence_supported`, `clearance_numeric_gate` and clearance reasons.
 - `case_metadata.json` and `validation_protocol_audit` now separate analytic inflow roughness from actual wall treatment:
   ground/buildings remain `TYPE_S` no-slip in v0.3.0, with no FluidX3D rough-wall or wall-function boundary.
 - The validation audit now also records native FluidX3D baseline requirement, LBM stability scaling, wind-direction sign,
@@ -189,8 +193,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - The boundary condition model remains simplified and must be audited against the AIJ wind-tunnel setup before making paper-grade accuracy claims.
 - Ground roughness is not yet represented by a rough-wall/wall-function boundary; the AF mean profile alone does not prove
   correct near-ground turbulence or speed-ratio behavior.
-- `BoundaryProtocolAudit` uses diagnostic clearance defaults and does not replace the official AIJ wind-tunnel boundary,
-  fetch and blockage protocol.
+- `BoundaryProtocolAudit` uses configurable diagnostic clearance defaults and does not replace the official AIJ wind-tunnel
+  boundary, fetch and blockage protocol; the external evidence JSON must still identify the AIJ-equivalence basis and
+  outlet/side/top/floor roughness checks.
 - A run without `boundary_protocol_audit.json` and a passing external AIJ boundary evidence JSON is not paper-grade,
   even if probe R2, screenshots or speed-ratio plots look acceptable.
 - A high R2 alone is not sufficient. Mean bias, regression slope/intercept, probe mapping and native-vs-CityLBM parity must be acceptable before claiming publishable validation accuracy.
