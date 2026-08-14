@@ -117,8 +117,14 @@ namespace CityLBM.Components.Simulation
             pManager.AddNumberParameter("STG Max Frac", "STGF",
                 "Upper bound for STG-lite sigma as a fraction of local mean speed. Validation default is 0.35.",
                 GH_ParamAccess.item, 0.35);
+            pManager.AddTextParameter("STG Length Source", "STGLs",
+                "Evidence tag for the STG correlation length source. Leave empty for diagnostic user-selected length.\n" +
+                "Accepted paper-gate tags include aij_length_scale_verified, official_length_scale_verified, " +
+                "precursor_length_scale, digital_filter_length_scale, synthetic_eddy_length_scale, sem_length_scale, " +
+                "dfm_length_scale, or validated_length_scale_model.",
+                GH_ParamAccess.item, "");
 
-            for (int i = 2; i <= 16; i++) pManager[i].Optional = true;
+            for (int i = 2; i <= 17; i++) pManager[i].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
@@ -152,6 +158,7 @@ namespace CityLBM.Components.Simulation
             double syntheticCorrCells = 4.0;
             int syntheticUpdateInterval = 25;
             double syntheticMaxFraction = 0.35;
+            string syntheticLengthSource = "";
 
             if (!DA.GetData(0, ref ghScene)) return;
             if (!DA.GetData(1, ref ghGrid)) return;
@@ -170,6 +177,7 @@ namespace CityLBM.Components.Simulation
             DA.GetData(14, ref cancel);
             DA.GetData(15, ref syntheticUpdateInterval);
             DA.GetData(16, ref syntheticMaxFraction);
+            DA.GetData(17, ref syntheticLengthSource);
 
             // ── GH 加载期保护 ────────────────────────────────────────────
             // 使用宽限期策略：组件创建后 3 秒内认为 GH 可能还在加载
@@ -304,6 +312,7 @@ namespace CityLBM.Components.Simulation
                 settings.SyntheticTurbulenceCorrelationCells = Math.Max(1.0, Math.Min(64.0, syntheticCorrCells));
                 settings.SyntheticTurbulenceUpdateInterval = Math.Max(1, Math.Min(1000, syntheticUpdateInterval));
                 settings.SyntheticTurbulenceMaxFractionOfMean = Math.Max(0.05, Math.Min(0.80, syntheticMaxFraction));
+                settings.SyntheticTurbulenceLengthScaleSource = (syntheticLengthSource ?? "").Trim();
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
                     $"[v0.3.0] STG-lite inlet enabled for CustomTable+k. Update={settings.SyntheticTurbulenceUpdateInterval}, cap={settings.SyntheticTurbulenceMaxFractionOfMean:F2}. Experimental; not full DFM/precursor/Reynolds-stress inflow.");
             }

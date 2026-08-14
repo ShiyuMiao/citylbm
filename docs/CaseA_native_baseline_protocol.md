@@ -118,6 +118,10 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Inlet turbulence method: off, STG-lite, synthetic-eddy, digital-filter, recycling-rescaling or precursor.
 - Inlet distribution treatment: macroscopic velocity only, equilibrium/distribution reconstruction, precursor field, or
   other archived method.
+- STG correlation-length evidence source: record `STG Length Source`,
+  `SyntheticTurbulentInletLengthScaleSource` and `SyntheticTurbulentInletLengthScaleGate`. Empty or user-selected
+  lattice-cell values are diagnostic only; paper-grade promotion requires archived AIJ/official, precursor/recycling,
+  digital-filter, synthetic-eddy, SEM/DFM or validated length-scale-model evidence.
 - Inlet `U` and `k` preservation metrics from the empty tunnel.
 - Inlet/empty-tunnel profile-audit JSON and CSV from real post-spinup VTK frames, including the selected plane, all
   available VTK steps, selected source VTK steps, `selected_last_window`, `source_steps_strictly_increasing`,

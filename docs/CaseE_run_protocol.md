@@ -33,7 +33,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `solver_stability_warnings=none`.
 - For AF files with `k(m2/s2)`, enable `Run Simulation / Synthetic Inlet` only when testing the experimental STG-lite inlet.
   Record `STG Scale`/synthetic scale, `STG Corr Cells`/correlation cells, `STG Update`/pattern-update interval, `STG Max Frac`/amplitude cap,
-  and the generated `case_metadata.json` fields `SyntheticTurbulentInletRequested` and `SyntheticTurbulentInletInjected`.
+  `STG Length Source`/correlation-length evidence source, and the generated `case_metadata.json` fields
+  `SyntheticTurbulentInletRequested`, `SyntheticTurbulentInletInjected`,
+  `SyntheticTurbulentInletLengthScaleSource` and `SyntheticTurbulentInletLengthScaleGate`.
+  Leave `STG Length Source` empty unless the selected correlation length is backed by archived AIJ/official,
+  precursor/recycling, DFM/SEM or validated synthetic-eddy length-scale evidence.
 - Do not compare a single early VTK frame as a final result.
 - CityLBM v0.3.0 validation runs must use an explicit external FluidX3D source path in `Run Simulation / FX3D`.
   The legacy bundled v0.5.0 fallback is disabled for controlled validation because it is not the baseline.
@@ -75,6 +79,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `scripts\audit_inlet_correlation_from_vtk.py`. This audit records streamwise fluctuation variance, temporal lag-1
   correlation and adjacent spatial correlation. It is required because preserving AF `k` magnitude alone does not prove
   a digital-filter, SEM, precursor/recycling or otherwise correlated turbulent inlet.
+- The STG length-scale gate is not passed by choosing a convenient number of lattice cells. It passes only when
+  `STG Length Source`/`SyntheticTurbulentInletLengthScaleSource` contains an archived evidence tag such as
+  `aij_length_scale_verified`, `official_length_scale_verified`, `precursor_length_scale`,
+  `digital_filter_length_scale`, `synthetic_eddy_length_scale`, `sem_length_scale`, `dfm_length_scale` or
+  `validated_length_scale_model`; otherwise the run remains diagnostic.
 - Post-processing reads the final averaged velocity field, not an initial transient.
   In `Read VTK`, set `Average Last N > 0` and archive the `Averaging Audit` JSON output.
   This JSON records the actual averaged frame count, source time steps, mean speed, mean/max pointwise speed standard

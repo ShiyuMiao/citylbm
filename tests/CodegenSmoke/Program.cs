@@ -30,6 +30,7 @@ namespace CityLBM.CodegenSmoke
                     EnableSyntheticTurbulentInlet = true,
                     SyntheticTurbulenceIntensityScale = 1.0,
                     SyntheticTurbulenceCorrelationCells = 4.0,
+                    SyntheticTurbulenceLengthScaleSource = "aij_length_scale_verified: smoke-test archived integral length evidence",
                     SyntheticTurbulenceUpdateInterval = 7,
                     SyntheticTurbulenceMaxFractionOfMean = 0.42
                 };
@@ -91,8 +92,8 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "\"SyntheticTurbulenceUpdateInterval\": 7");
                 Require(metadata, "\"SyntheticTurbulenceMaxFractionOfMean\": 0.42");
                 Require(metadata, "\"SyntheticTurbulenceCorrelationLengthM\": 8.0");
-                Require(metadata, "not derived from AIJ length-scale data or a precursor field");
-                Require(metadata, "diagnostic_only_missing_official_or_precursor_length_scale");
+                Require(metadata, "aij_length_scale_verified: smoke-test archived integral length evidence");
+                Require(metadata, "\"SyntheticTurbulentInletLengthScaleGate\": \"pass\"");
                 Require(metadata, "refreshed on TYPE_E inlet nodes in batch and graphics modes");
                 Require(metadata, "\"ExpectedVtkFrameCount\": 10");
                 Require(metadata, "\"TimeAveragingRunGate\": \"pass_minimum_frame_count\"");
@@ -106,6 +107,7 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "\"SolverStabilityWarnings\": \"not_available_until_solver_log_is_archived\"");
                 Require(audit, "inlet_distribution_consistency");
                 Require(audit, "inlet_turbulence_length_scale");
+                Require(audit, "source='aij_length_scale_verified: smoke-test archived integral length evidence', gate=pass");
                 Require(audit, "STG-lite");
                 Require(audit, "LbmTau=");
                 Require(audit, "VelocitySet=D3Q19");
@@ -117,6 +119,7 @@ namespace CityLBM.CodegenSmoke
                 Require(nativeManifest, "Native FluidX3D original setup");
                 Require(nativeManifest, "Native FluidX3D lbm.hpp");
                 Require(nativeManifest, "auto-detected paths are not sufficient evidence");
+                Require(nativeManifest, "aij_length_scale_verified: smoke-test archived integral length evidence");
                 Require(metadata, "ClearanceChecks");
                 Require(metadata, "DomainContainsBuildings");
                 Require(metadata, "BlockageDiagnostics");
