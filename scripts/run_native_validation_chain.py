@@ -711,7 +711,9 @@ def main() -> int:
             gate_cmd.append("--allow-velocity-only-inlet")
         if args.allow_diagnostic:
             gate_cmd.append("--allow-diagnostic")
-        gate_step = run_step("validation_gate", gate_cmd, allow_fail=args.allow_diagnostic)
+        # The final gate is the main diagnostic artifact. Keep the chain
+        # manifest complete even when the gate fails, then return the gate code.
+        gate_step = run_step("validation_gate", gate_cmd, allow_fail=True)
         manifest["Steps"].append(gate_step)
 
         gate_report = read_json(gate_json)
@@ -719,6 +721,7 @@ def main() -> int:
         gate_failed = gate_verdict != "PASS"
         manifest["ValidationGateVerdict"] = gate_verdict or "unknown"
         manifest["PaperGrade"] = bool(gate_report.get("paper_grade")) if gate_report else False
+        manifest["DiagnosticPriority"] = gate_report.get("diagnostic_priority", []) if gate_report else []
         manifest["ChainStatus"] = "diagnostic" if gate_failed and args.allow_diagnostic else ("pass" if not gate_failed else "fail")
         manifest["ExitCode"] = 0 if args.allow_diagnostic else gate_step["returncode"]
         write_manifest(manifest_path, manifest)
