@@ -1092,6 +1092,24 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         or metadata.get("TurbulenceMethod")
         or ""
     ).strip()
+    inlet_method_class = str(
+        get_any(metrics, ["inlet_method_class", "paper_grade_inlet_method_class", "InletMethodClass"])
+        or metadata.get("PaperGradeInletMethodClass")
+        or metadata.get("InletMethodClass")
+        or ""
+    ).strip()
+    inlet_method_class_supported = as_bool(
+        get_any(
+            metrics,
+            [
+                "inlet_method_class_supported",
+                "paper_grade_inlet_method_class_supported",
+                "InletMethodClassSupported",
+            ],
+        )
+        or metadata.get("PaperGradeInletMethodClassSupported")
+        or metadata.get("InletMethodClassSupported")
+    )
     inlet_profile_gate = str(get_any(metrics, ["inlet_profile_gate"]) or "").strip().lower()
     inlet_u_profile_gate = str(get_any(metrics, ["inlet_u_profile_gate"]) or "").strip().lower()
     inlet_k_profile_gate = str(get_any(metrics, ["inlet_k_profile_gate"]) or "").strip().lower()
@@ -1155,6 +1173,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     treatment_text = inlet_treatment.lower()
     method_text = synthetic_inlet_method.lower()
+    method_class_text = inlet_method_class.lower()
     treatment_distribution_consistent = any(
         token in treatment_text
         for token in [
@@ -1179,6 +1198,22 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         ]
     )
     method_name_only = bool(method_text) and not inlet_treatment.strip()
+    inferred_method_class_supported = any(
+        token in method_class_text
+        for token in [
+            "digital_filter",
+            "dfm",
+            "sem",
+            "synthetic_eddy_distribution_consistent",
+            "precursor",
+            "recycling_rescaling",
+        ]
+    ) and not any(token in method_class_text for token in ["diagnostic", "velocity_field_only", "stg_lite", "stg-lite"])
+    paper_method_class_ok = (
+        bool(method_class_text)
+        and (inlet_method_class_supported is True or inferred_method_class_supported)
+        and not method_name_only
+    )
     inlet_gate_status = PASS
     if inlet_status == "fail" or distribution_status == "fail":
         inlet_gate_status = FAIL
@@ -1234,9 +1269,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
 
     paper_grade_inlet_pass = (
         empty_tunnel_pass
+        and paper_method_class_ok
         and (
             treatment_distribution_consistent
-            or distribution_status == "pass"
+            and distribution_status == "pass"
         )
         and not treatment_velocity_only
     )
@@ -1246,10 +1282,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         PASS if paper_grade_inlet_pass else FAIL,
         (
             f"method={synthetic_inlet_method or 'missing'}; "
+            f"method_class={inlet_method_class or 'missing'}; "
+            f"method_class_supported={inlet_method_class_supported}; "
+            f"inferred_method_class_supported={inferred_method_class_supported}; "
             f"treatment={inlet_treatment or 'missing'}; "
             f"inlet_distribution_consistency={distribution_status or 'missing'}; "
             f"velocity_field_only={treatment_velocity_only}; "
             f"method_name_only={method_name_only}; "
+            f"paper_method_class_ok={paper_method_class_ok}; "
             f"distribution_consistent={treatment_distribution_consistent}; "
             f"empty_tunnel_or_inlet_profile_pass={empty_tunnel_pass}; "
             f"allow_velocity_only_inlet={args.allow_velocity_only_inlet}"

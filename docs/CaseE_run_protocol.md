@@ -232,7 +232,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   correlation, adjacent spatial correlation, temporal/spatial finite correlation fractions and streamwise fluctuation
   variance
 - Paper-grade inlet method gate: `paper_grade_inlet_method` must pass. A velocity-field-only STG-lite run remains
-  diagnostic even if `--allow-velocity-only-inlet` is used for sensitivity analysis.
+  diagnostic even if `--allow-velocity-only-inlet` is used for sensitivity analysis. The metrics row must also record
+  an explicit `inlet_method_class` and `inlet_method_class_supported=true`; a method name or protocol pass flag alone
+  is not enough without a distribution-consistent treatment.
 - Native baseline gate and `validation_gate_report.json`
 - Protocol gate from `validation_protocol_audit.json`
 - Systematic bias flag and `bias_diagnosis`. If mean bias remains around `-0.20` to `-0.35` speed-ratio units, do not

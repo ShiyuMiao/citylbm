@@ -95,6 +95,8 @@ TEMPLATE_FIELDS = [
     "boundary_summary",
     "synthetic_inlet_method",
     "inlet_distribution_treatment",
+    "inlet_method_class",
+    "inlet_method_class_supported",
     "wall_roughness_treatment",
     "synthetic_update_interval",
     "synthetic_max_fraction",
@@ -485,6 +487,49 @@ def infer_inlet_distribution_treatment(metadata: Dict[str, Any]) -> str:
     if "hash" in method or "random" in method:
         return "uncorrelated_rms_k_velocity_field_only"
     return ""
+
+
+def infer_inlet_method_class(metadata: Dict[str, Any]) -> str:
+    explicit = metadata_field(metadata, "PaperGradeInletMethodClass", "InletMethodClass")
+    if explicit:
+        return explicit
+    method = infer_synthetic_inlet_method(metadata).lower()
+    treatment = infer_inlet_distribution_treatment(metadata).lower()
+    text = f"{method} {treatment}"
+    if "velocity_field_only" in text or "stg-lite" in text or "diagnostic" in text:
+        return "diagnostic_velocity_field_only"
+    if "precursor" in text:
+        return "precursor"
+    if "recycling" in text:
+        return "recycling_rescaling"
+    if "digital_filter" in text or "digital-filter" in text:
+        return "digital_filter"
+    if "sem_distribution" in text or "synthetic_eddy_distribution_consistent" in text:
+        return "synthetic_eddy_distribution_consistent"
+    if "dfm_distribution" in text:
+        return "dfm"
+    return ""
+
+
+def infer_inlet_method_class_supported(metadata: Dict[str, Any]) -> str:
+    explicit = metadata_field(metadata, "InletMethodClassSupported", "PaperGradeInletMethodClassSupported")
+    if explicit:
+        return explicit
+    method_class = infer_inlet_method_class(metadata).lower()
+    if not method_class:
+        return ""
+    supported = any(
+        token in method_class
+        for token in [
+            "digital_filter",
+            "dfm",
+            "sem",
+            "synthetic_eddy_distribution_consistent",
+            "precursor",
+            "recycling_rescaling",
+        ]
+    ) and "diagnostic" not in method_class and "velocity_field_only" not in method_class
+    return "true" if supported else "false"
 
 
 def infer_synthetic_update_interval(metadata: Dict[str, Any]) -> str:
@@ -946,6 +991,8 @@ def main() -> int:
             "boundary_summary": metadata_field(metadata, "BoundaryConditionSummary"),
             "synthetic_inlet_method": infer_synthetic_inlet_method(metadata),
             "inlet_distribution_treatment": infer_inlet_distribution_treatment(metadata),
+            "inlet_method_class": infer_inlet_method_class(metadata),
+            "inlet_method_class_supported": infer_inlet_method_class_supported(metadata),
             "wall_roughness_treatment": infer_wall_roughness_treatment(metadata),
             "synthetic_update_interval": infer_synthetic_update_interval(metadata),
             "synthetic_max_fraction": metadata_field(metadata, "SyntheticTurbulenceMaxFractionOfMean"),
