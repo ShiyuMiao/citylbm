@@ -215,6 +215,7 @@ def main() -> int:
 
     native_audit_json = out_dir / "native_run_audit.json"
     inlet_source_json = out_dir / "inlet_source_audit.json"
+    boundary_source_json = out_dir / "boundary_source_audit.json"
     inlet_audit_json = out_dir / "inlet_profile_audit.json"
     inlet_audit_csv = out_dir / "inlet_profile_audit.csv"
     inlet_correlation_json = out_dir / "inlet_correlation_audit.json"
@@ -264,6 +265,7 @@ def main() -> int:
             "NativeFluidX3DBaselineManifest": str(native_manifest_path) if native_manifest_path else "",
             "NativeRunAudit": str(native_audit_json),
             "InletSourceAuditJson": str(inlet_source_json),
+            "BoundarySourceAuditJson": str(boundary_source_json),
             "InletProfileAuditJson": str(inlet_audit_json),
             "InletProfileAuditCsv": str(inlet_audit_csv),
             "InletCorrelationAuditJson": str(inlet_correlation_json),
@@ -326,6 +328,17 @@ def main() -> int:
                 str(inlet_source_json),
             ]
             manifest["Steps"].append(run_step("audit_inlet_source", inlet_source_cmd, allow_fail=True))
+            boundary_source_cmd = [
+                py,
+                str(script_dir / "audit_boundary_source.py"),
+                "--setup",
+                str(setup_cpp),
+                "--metadata",
+                str(metadata),
+                "--out",
+                str(boundary_source_json),
+            ]
+            manifest["Steps"].append(run_step("audit_boundary_source", boundary_source_cmd, allow_fail=True))
         else:
             missing_source_audit = {
                 "generated_at_utc": utc_now(),
@@ -343,9 +356,41 @@ def main() -> int:
                 "setup_cpp_sha256": "",
             }
             inlet_source_json.write_text(json.dumps(missing_source_audit, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+            missing_boundary_source_audit = {
+                "generated_at_utc": utc_now(),
+                "setup_cpp": "",
+                "metadata": str(metadata),
+                "boundary_source_gate": "fail",
+                "boundary_source_gate_reasons": ["setup_cpp_missing"],
+                "boundary_source_gate_reasons_csv": "setup_cpp_missing",
+                "paper_grade_boundary_source_gate": "fail",
+                "paper_grade_boundary_source_gate_reasons": ["setup_cpp_missing"],
+                "paper_grade_boundary_source_gate_reasons_csv": "setup_cpp_missing",
+                "boundary_source_method_class": "none",
+                "boundary_source_coherent": False,
+                "boundary_source_simplified": True,
+                "boundary_source_wind_tunnel_equivalent": False,
+                "setup_cpp_sha256": "",
+            }
+            boundary_source_json.write_text(
+                json.dumps(missing_boundary_source_audit, indent=2, ensure_ascii=True) + "\n",
+                encoding="utf-8",
+            )
             manifest["Steps"].append(
                 {
                     "Name": "audit_inlet_source",
+                    "Command": "",
+                    "StartedAtUtc": utc_now(),
+                    "FinishedAtUtc": utc_now(),
+                    "ReturnCode": 2,
+                    "Stdout": "",
+                    "Stderr": "setup.cpp missing",
+                    "AllowedToFail": True,
+                }
+            )
+            manifest["Steps"].append(
+                {
+                    "Name": "audit_boundary_source",
                     "Command": "",
                     "StartedAtUtc": utc_now(),
                     "FinishedAtUtc": utc_now(),
@@ -503,6 +548,8 @@ def main() -> int:
             str(inlet_correlation_json),
             "--inlet-source-audit",
             str(inlet_source_json),
+            "--boundary-source-audit",
+            str(boundary_source_json),
             "--boundary-protocol-audit",
             str(boundary_audit_json),
             "--component-sensitivity-audit",

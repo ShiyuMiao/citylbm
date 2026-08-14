@@ -117,6 +117,16 @@ TEMPLATE_FIELDS = [
     "clearance_numeric_gate",
     "boundary_clearance_reasons",
     "boundary_summary",
+    "boundary_source_audit",
+    "boundary_source_gate",
+    "boundary_source_gate_reasons",
+    "paper_grade_boundary_source_gate",
+    "paper_grade_boundary_source_gate_reasons",
+    "boundary_source_method_class",
+    "boundary_source_coherent",
+    "boundary_source_simplified",
+    "boundary_source_wind_tunnel_equivalent",
+    "boundary_source_setup_sha256",
     "inlet_source_audit",
     "inlet_source_gate",
     "inlet_source_gate_reasons",
@@ -256,6 +266,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--inlet-profile-audit", help="Optional inlet/empty-tunnel profile audit JSON from audit_inlet_profile_from_vtk.py.")
     parser.add_argument("--inlet-correlation-audit", help="Optional inlet correlation audit JSON from audit_inlet_correlation_from_vtk.py.")
     parser.add_argument("--inlet-source-audit", help="Optional inlet_source_audit.json from audit_inlet_source.py.")
+    parser.add_argument("--boundary-source-audit", help="Optional boundary_source_audit.json from audit_boundary_source.py.")
     parser.add_argument("--boundary-protocol-audit", help="Optional boundary_protocol_audit.json from audit_boundary_protocol.py.")
     parser.add_argument("--component-sensitivity-audit", help="Optional component/Uref sensitivity JSON from audit_component_sensitivity.py.")
     parser.add_argument("--grid-sensitivity-audit", help="Optional grid_sensitivity_audit.json from audit_grid_sensitivity.py.")
@@ -731,6 +742,7 @@ def main() -> int:
     inlet_profile_audit = read_json(Path(args.inlet_profile_audit).resolve() if args.inlet_profile_audit else None)
     inlet_correlation_audit = read_json(Path(args.inlet_correlation_audit).resolve() if args.inlet_correlation_audit else None)
     inlet_source_audit = read_json(Path(args.inlet_source_audit).resolve() if args.inlet_source_audit else None)
+    boundary_source_audit = read_json(Path(args.boundary_source_audit).resolve() if args.boundary_source_audit else None)
     boundary_protocol_audit = read_json(Path(args.boundary_protocol_audit).resolve() if args.boundary_protocol_audit else None)
     component_sensitivity_audit = read_json(Path(args.component_sensitivity_audit).resolve() if args.component_sensitivity_audit else None)
     grid_sensitivity_audit = read_json(Path(args.grid_sensitivity_audit).resolve() if args.grid_sensitivity_audit else None)
@@ -1145,6 +1157,26 @@ def main() -> int:
             if isinstance(boundary_protocol_audit.get("clearance_numeric_gate_reasons"), list)
             else str(boundary_protocol_audit.get("clearance_numeric_gate_reasons", "")),
             "boundary_summary": metadata_field(metadata, "BoundaryConditionSummary"),
+            "boundary_source_audit": str(Path(args.boundary_source_audit).resolve()) if args.boundary_source_audit else "",
+            "boundary_source_gate": audit_gate(boundary_source_audit, "boundary_source_gate"),
+            "boundary_source_gate_reasons": ";".join(
+                str(reason) for reason in boundary_source_audit.get("boundary_source_gate_reasons", [])
+            )
+            if isinstance(boundary_source_audit.get("boundary_source_gate_reasons"), list)
+            else audit_field(boundary_source_audit, "boundary_source_gate_reasons_csv"),
+            "paper_grade_boundary_source_gate": audit_gate(boundary_source_audit, "paper_grade_boundary_source_gate"),
+            "paper_grade_boundary_source_gate_reasons": ";".join(
+                str(reason) for reason in boundary_source_audit.get("paper_grade_boundary_source_gate_reasons", [])
+            )
+            if isinstance(boundary_source_audit.get("paper_grade_boundary_source_gate_reasons"), list)
+            else audit_field(boundary_source_audit, "paper_grade_boundary_source_gate_reasons_csv"),
+            "boundary_source_method_class": audit_field(boundary_source_audit, "boundary_source_method_class"),
+            "boundary_source_coherent": first_bool_text(boundary_source_audit.get("boundary_source_coherent")),
+            "boundary_source_simplified": first_bool_text(boundary_source_audit.get("boundary_source_simplified")),
+            "boundary_source_wind_tunnel_equivalent": first_bool_text(
+                boundary_source_audit.get("boundary_source_wind_tunnel_equivalent")
+            ),
+            "boundary_source_setup_sha256": audit_field(boundary_source_audit, "setup_cpp_sha256"),
             "inlet_source_audit": str(Path(args.inlet_source_audit).resolve()) if args.inlet_source_audit else "",
             "inlet_source_gate": audit_gate(inlet_source_audit, "inlet_source_gate"),
             "inlet_source_gate_reasons": ";".join(

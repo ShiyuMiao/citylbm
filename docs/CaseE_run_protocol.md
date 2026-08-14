@@ -75,6 +75,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `aij_verified`, `wind_tunnel_protocol_matched`, `empty_tunnel_passed`, `validated_boundary_model`,
   `precursor_boundary` or `recycling_boundary`. Domain clearance or token-only equivalence text is diagnostic and
   cannot pass the paper-grade boundary gate without a supported evidence class and archived support file.
+- Audit the generated boundary source before accepting the boundary protocol. Run
+  `scripts\audit_boundary_source.py --setup <case_dir>\src\setup.cpp --metadata <case_metadata.json> --out <case_dir>\boundary_source_audit.json`
+  and archive `setup_cpp_sha256`, `boundary_source_method_class`, `boundary_source_simplified` and
+  `boundary_source_wind_tunnel_equivalent`. A simplified `TYPE_E` outlet/lateral/top setup with `TYPE_S` no-slip
+  floor/buildings remains diagnostic and cannot satisfy SCI-grade Case E boundary evidence by metadata alone.
 - `validation_protocol_audit.json` and `validation_protocol_audit.md` exist in both case root and output directory.
   Treat any `risk` or `fail` item as a blocker for paper-grade validation claims until resolved or explicitly justified.
 - VTK files are newly generated for the current run directory, not copied from older experiments. The native audit must
@@ -198,8 +203,9 @@ python scripts\audit_boundary_protocol.py <run_dir> --metadata <case_metadata.js
 python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --boundary-evidence <boundary_evidence_casee_ac_N.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 10 --min-avg-frames 10 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250 --paired-native-metrics <native_validation_metrics.csv>
 ```
 
-  The command creates `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,
-  `inlet_correlation_audit.json`, `boundary_protocol_audit.json`, `probe_audit.csv`,
+  The command creates `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_source_audit.json`,
+  `boundary_source_audit.json`, `inlet_profile_audit.json/.csv`, `inlet_correlation_audit.json`,
+  `boundary_protocol_audit.json`, `probe_audit.csv`,
   `component_sensitivity_audit.json/.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
   `validation_gate_report.json` under `<run_dir>\validation_chain`. It does not start a CFD simulation and must not be
   used to imply that Case E was rerun unless the VTK frames in `<run_dir>` were newly produced by the current Rhino 7/

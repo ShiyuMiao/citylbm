@@ -37,6 +37,7 @@
   roughness, blockage, fetch/clearance, outlet-reflection and side/top-boundary checks. Text values such as `unknown`,
   `unverified`, `not_checked` or `diagnostic_only` keep the boundary gate failing even if `boundary_evidence_gate=pass`
   is present.
+- Added `scripts/audit_boundary_source.py`; validation packages must now archive `boundary_source_audit.json` with the generated `setup.cpp` hash and boundary implementation class. Simplified `TYPE_E` outlet/lateral/top source code now blocks paper-grade boundary promotion even when text evidence exists.
 - The inlet length-scale gate now requires both `inlet_length_scale_gate=pass` and a supported AIJ/official, precursor/recycling, DFM/SEM, digital-filter or validated-model length-scale source; source tokens alone no longer pass.
 - Inlet correlation audits now require finite temporal/spatial correlation coverage fractions, preventing sparse or degenerate inlet fluctuations from passing on correlation mean values alone.
 - The inlet correlation gate now independently enforces the audited final-window source steps and numeric correlation thresholds, so RMS/k-preserving but uncorrelated or wrong-window inlet fluctuations cannot pass through a hand-filled `inlet_correlation_gate`.

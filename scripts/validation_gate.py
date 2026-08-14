@@ -369,11 +369,12 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
             "Use a distribution-consistent DFM/SEM/precursor/recycling inlet or archive validated turbulence length-scale and inlet correlation evidence.",
         )
 
+    boundary_source_gate = by_key.get("boundary_source_evidence")
     boundary_gate = by_key.get("boundary_protocol")
     roughness_gate = by_key.get("roughness_or_precursor")
-    if any(gate is None or gate.get("status") != PASS for gate in [boundary_gate, roughness_gate]):
+    if any(gate is None or gate.get("status") != PASS for gate in [boundary_source_gate, boundary_gate, roughness_gate]):
         boundary_priority_gate = next(
-            (gate for gate in [boundary_gate, roughness_gate] if gate is None or gate.get("status") != PASS),
+            (gate for gate in [boundary_source_gate, boundary_gate, roughness_gate] if gate is None or gate.get("status") != PASS),
             boundary_gate,
         )
         add_priority(
@@ -765,6 +766,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit_path = find_first(run_dir, ["validation_protocol_audit.json"])
     inlet_correlation_audit_path = find_first(run_dir, ["inlet_correlation_audit.json"])
     inlet_source_audit_path = find_first(run_dir, ["inlet_source_audit.json"])
+    boundary_source_audit_path = find_first(run_dir, ["boundary_source_audit.json"])
     boundary_audit_path = find_first(run_dir, ["boundary_protocol_audit.json"])
     component_sensitivity_audit_path = find_first(run_dir, ["component_sensitivity_audit.json"])
     grid_sensitivity_audit_path = find_first(run_dir, ["grid_sensitivity_audit.json"])
@@ -777,6 +779,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit = read_json(audit_path)
     inlet_correlation_audit = read_json(inlet_correlation_audit_path)
     inlet_source_audit = read_json(inlet_source_audit_path)
+    boundary_source_audit = read_json(boundary_source_audit_path)
     external_boundary_audit = read_json(boundary_audit_path)
     component_sensitivity_audit = read_json(component_sensitivity_audit_path)
     grid_sensitivity_audit = read_json(grid_sensitivity_audit_path)
@@ -795,6 +798,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         if metadata_path
         and audit_path
         and inlet_source_audit_path
+        and boundary_source_audit_path
         and boundary_audit_path
         and grid_sensitivity_audit_path
         and (native_citylbm_parity_audit_path or not citylbm_result)
@@ -804,12 +808,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         (
             f"metadata={metadata_path or 'missing'}; audit={audit_path or 'missing'}; "
             f"inlet_source_audit={inlet_source_audit_path or 'missing'}; "
+            f"boundary_source_audit={boundary_source_audit_path or 'missing'}; "
             f"boundary_audit={boundary_audit_path or 'missing'}; "
             f"grid_sensitivity_audit={grid_sensitivity_audit_path or 'missing'}; "
             f"native_citylbm_parity_audit={native_citylbm_parity_audit_path or ('missing' if citylbm_result else ('not_required_for_' + (software_label or 'unknown')))}; "
             f"metrics={metrics_path or 'missing'}"
         ),
-        "Archive case_metadata.json, validation_protocol_audit.json, inlet_source_audit.json, boundary_protocol_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
+        "Archive case_metadata.json, validation_protocol_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
     )
 
     run_freshness_gate = str(
@@ -1154,6 +1159,68 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         external_boundary_missing_fields_text = ",".join(str(field) for field in external_boundary_missing_fields)
     else:
         external_boundary_missing_fields_text = str(external_boundary_missing_fields or "")
+    boundary_source_gate = str(
+        get_first_available(
+            get_any(boundary_source_audit, ["boundary_source_gate"]),
+            get_any(metrics, ["boundary_source_gate", "BoundarySourceGate"]),
+        )
+        or ""
+    ).strip().lower()
+    boundary_source_reasons = str(
+        get_first_available(
+            get_any(boundary_source_audit, ["boundary_source_gate_reasons_csv"]),
+            get_any(boundary_source_audit, ["boundary_source_gate_reasons"]),
+            get_any(metrics, ["boundary_source_gate_reasons", "BoundarySourceGateReasons"]),
+        )
+        or ""
+    )
+    paper_grade_boundary_source_gate = str(
+        get_first_available(
+            get_any(boundary_source_audit, ["paper_grade_boundary_source_gate"]),
+            get_any(metrics, ["paper_grade_boundary_source_gate", "PaperGradeBoundarySourceGate"]),
+        )
+        or ""
+    ).strip().lower()
+    paper_grade_boundary_source_reasons = str(
+        get_first_available(
+            get_any(boundary_source_audit, ["paper_grade_boundary_source_gate_reasons_csv"]),
+            get_any(boundary_source_audit, ["paper_grade_boundary_source_gate_reasons"]),
+            get_any(metrics, ["paper_grade_boundary_source_gate_reasons", "PaperGradeBoundarySourceGateReasons"]),
+        )
+        or ""
+    )
+    boundary_source_method_class = str(
+        get_first_available(
+            get_any(boundary_source_audit, ["boundary_source_method_class"]),
+            get_any(metrics, ["boundary_source_method_class", "BoundarySourceMethodClass"]),
+        )
+        or ""
+    ).strip()
+    boundary_source_coherent = as_bool(
+        get_first_available(
+            get_any(boundary_source_audit, ["boundary_source_coherent"]),
+            get_any(metrics, ["boundary_source_coherent", "BoundarySourceCoherent"]),
+        )
+    )
+    boundary_source_simplified = as_bool(
+        get_first_available(
+            get_any(boundary_source_audit, ["boundary_source_simplified"]),
+            get_any(metrics, ["boundary_source_simplified", "BoundarySourceSimplified"]),
+        )
+    )
+    boundary_source_wind_tunnel_equivalent = as_bool(
+        get_first_available(
+            get_any(boundary_source_audit, ["boundary_source_wind_tunnel_equivalent"]),
+            get_any(metrics, ["boundary_source_wind_tunnel_equivalent", "BoundarySourceWindTunnelEquivalent"]),
+        )
+    )
+    boundary_source_setup_sha256 = str(
+        get_first_available(
+            get_any(boundary_source_audit, ["setup_cpp_sha256"]),
+            get_any(metrics, ["boundary_source_setup_sha256", "BoundarySourceSetupSha256"]),
+        )
+        or ""
+    ).strip()
     boundary_evidence_supported_by_token = any(
         token in (boundary_evidence_source + " " + boundary_equivalence_basis).lower()
         for token in [
@@ -1183,16 +1250,52 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and all(value is True for value in boundary_condition_support_values.values())
         and boundary_clearance_ok
     )
+    boundary_source_evidence_ok = (
+        boundary_source_audit_path is not None
+        and boundary_source_gate == "pass"
+        and boundary_source_coherent is True
+        and bool(boundary_source_method_class)
+        and bool(boundary_source_setup_sha256)
+    )
+    paper_grade_boundary_source_ok = (
+        boundary_source_evidence_ok
+        and paper_grade_boundary_source_gate == "pass"
+        and boundary_source_wind_tunnel_equivalent is True
+        and boundary_source_simplified is not True
+    )
+    add_gate(
+        gates,
+        "boundary_source_evidence",
+        PASS if boundary_source_evidence_ok else FAIL,
+        (
+            f"boundary_source_audit={boundary_source_audit_path or 'missing'}; "
+            f"boundary_source_gate={boundary_source_gate or 'missing'}; "
+            f"paper_grade_boundary_source_gate={paper_grade_boundary_source_gate or 'missing'}; "
+            f"source_method_class={boundary_source_method_class or 'missing'}; "
+            f"source_coherent={boundary_source_coherent}; "
+            f"source_simplified={boundary_source_simplified}; "
+            f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
+            f"setup_cpp_sha256={boundary_source_setup_sha256 or 'missing'}; "
+            f"boundary_source_gate_reasons={boundary_source_reasons or 'none'}"
+        ),
+        "Run scripts/audit_boundary_source.py on the generated setup.cpp and archive the source hash and boundary implementation class before interpreting boundary-sensitive validation metrics.",
+    )
     add_gate(
         gates,
         "boundary_protocol",
         PASS
         if boundary_diagnostic_ok
+        and paper_grade_boundary_source_ok
         and boundary_evidence_ok
         and boundary_external_ok
         else FAIL,
         (
             f"boundary_protocol_gate={boundary_gate or 'missing'}; "
+            f"boundary_source_gate={boundary_source_gate or 'missing'}; "
+            f"paper_grade_boundary_source_gate={paper_grade_boundary_source_gate or 'missing'}; "
+            f"source_method_class={boundary_source_method_class or 'missing'}; "
+            f"source_simplified={boundary_source_simplified}; "
+            f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
             f"external_boundary_protocol_gate={external_boundary_protocol_gate or 'missing'}; "
             f"approx_frontal_blockage_ratio={frontal_blockage}; "
             f"blockage_protocol_gate={blockage_gate or 'missing'}; "
@@ -1211,9 +1314,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_equivalence_token_inferred={boundary_evidence_supported_by_token}; "
             f"clearance_numeric_gate={clearance_numeric_gate or 'missing'}; "
             f"clearance_numeric_gate_reasons={clearance_numeric_reasons or 'none'}; "
+            f"paper_grade_boundary_source_gate_reasons={paper_grade_boundary_source_reasons or 'none'}; "
             f"missing_boundary_evidence_fields={external_boundary_missing_fields_text or 'none'}"
         ),
-        "Fix domain extents/model placement, reduce blockage, and archive AIJ-equivalent boundary/fetch/roughness evidence or an empty-tunnel/native boundary-preservation check.",
+        "Fix domain extents/model placement, reduce blockage, archive setup.cpp boundary-source evidence, and replace/justify simplified TYPE_E boundaries with AIJ-equivalent boundary/fetch/roughness evidence or an empty-tunnel/native boundary-preservation check.",
     )
 
     roughness_layout = metadata.get("RoughnessLayout") if isinstance(metadata.get("RoughnessLayout"), dict) else {}
@@ -2520,6 +2624,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "case_metadata": str(metadata_path) if metadata_path else "",
             "validation_protocol_audit": str(audit_path) if audit_path else "",
             "inlet_source_audit": str(inlet_source_audit_path) if inlet_source_audit_path else "",
+            "boundary_source_audit": str(boundary_source_audit_path) if boundary_source_audit_path else "",
             "inlet_correlation_audit": str(inlet_correlation_audit_path) if inlet_correlation_audit_path else "",
             "boundary_protocol_audit": str(boundary_audit_path) if boundary_audit_path else "",
             "component_sensitivity_audit": str(component_sensitivity_audit_path) if component_sensitivity_audit_path else "",

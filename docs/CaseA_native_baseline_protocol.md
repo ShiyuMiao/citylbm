@@ -111,10 +111,13 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    unsupported equivalence basis, unsupported evidence class, missing support files or clearance below the configured H
    thresholds keep the boundary gate diagnostic/fail. The validation gate requires a generated
    `boundary_protocol_audit.json` with `boundary_protocol_gate=pass`, `boundary_equivalence_supported=true`,
-   `boundary_evidence_class_supported=true`, `boundary_evidence_files_all_exist=true` and
-   `boundary_evidence_files_all_hashed=true`. It also requires `boundary_condition_fields_supported=true` plus
-   individual support booleans for inlet, outlet, lateral, top, ground-wall treatment, roughness treatment, floor
-   roughness source, blockage source, fetch/clearance source, outlet-reflection check and side/top-boundary check.
+    `boundary_evidence_class_supported=true`, `boundary_evidence_files_all_exist=true` and
+    `boundary_evidence_files_all_hashed=true`. It also requires `boundary_condition_fields_supported=true` plus
+    individual support booleans for inlet, outlet, lateral, top, ground-wall treatment, roughness treatment, floor
+    roughness source, blockage source, fetch/clearance source, outlet-reflection check and side/top-boundary check.
+   Run `scripts/audit_boundary_source.py` on the generated `setup.cpp` and archive `boundary_source_audit.json`. The
+   final gate fails paper-grade `boundary_protocol` when source code still shows a simplified `TYPE_E` outlet/lateral/top
+   box with `TYPE_S` no-slip ground/buildings and no non-reflecting, precursor/recycling or rough-wall evidence.
    Token-like text in metadata or metrics is diagnostic context only.
 
 5. Inlet distribution-consistency gate.
@@ -288,6 +291,8 @@ python scripts\audit_native_run.py <run_dir> --metadata <case_metadata.json> --s
 
 python scripts\audit_inlet_source.py --setup <run_dir>\src\setup.cpp --metadata <case_metadata.json> --out <run_dir>\inlet_source_audit.json
 
+python scripts\audit_boundary_source.py --setup <run_dir>\src\setup.cpp --metadata <case_metadata.json> --out <run_dir>\boundary_source_audit.json
+
 python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
 
 python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_correlation_audit.json
@@ -296,7 +301,7 @@ python scripts\probe_vtk_points.py <run_dir>\output --official <RS-caseA.csv> --
 
 python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --case CaseA --wind-direction <direction> --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
 
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-source-audit <run_dir>\inlet_source_audit.json --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --component-sensitivity-audit <run_dir>\component_sensitivity_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-source-audit <run_dir>\inlet_source_audit.json --boundary-source-audit <run_dir>\boundary_source_audit.json --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --component-sensitivity-audit <run_dir>\component_sensitivity_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
 
 Before the final gate, archive the AIJ boundary evidence as JSON and audit it:
