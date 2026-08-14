@@ -184,7 +184,14 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    count must match the averaged frame count. Probe rows sampled from stale, mixed or undocumented VTK frames are
    diagnostic even when the final metric row reports acceptable error values.
 
-8. Promotion gate.
+8. Grid-sensitivity gate.
+   Archive at least two matched dx levels before interpreting a residual low-bias pattern as solver accuracy. Run
+   `scripts/audit_grid_sensitivity.py` on the completed validation metrics rows and archive
+   `grid_sensitivity_audit.json`. The finest-grid row must be the row passed to `validation_gate.py`, the refinement
+   ratio must meet the configured threshold, and the finest-vs-next-coarse `U_RMSE_ratio` and `U_bias_ratio` changes
+   must be bounded. A single high-resolution Case A run is still diagnostic, even if it improves the result.
+
+9. Promotion gate.
    CityLBM may inherit native FluidX3D settings only after native Case A has a passing or explicitly bounded diagnostic
    record. If native FluidX3D underpredicts mean speed or `k`, do not tune CityLBM to hide the discrepancy; fix or
    document the native physics first.
@@ -196,6 +203,10 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
   `NativeFluidX3DSourceValidation` record.
 - `setup.cpp`, `defines.hpp`, `buildings.stl`, run log and postprocess script hashes.
 - `dx`, lattice dimensions, `tau`, target Reynolds number, velocity set and LES/subgrid settings.
+- `grid_sensitivity_audit.json`, including `grid_sensitivity_gate`, `grid_sensitivity_run_count`,
+  `grid_sensitivity_finest_dx_m`, `grid_sensitivity_next_coarse_dx_m`,
+  `grid_sensitivity_refinement_ratio`, `grid_sensitivity_rmse_change_ratio` and
+  `grid_sensitivity_bias_change_ratio`. The final gate requires this audit in addition to the single-run `dx`.
 - LBM stability evidence: target maximum lattice velocity, estimated maximum Mach number, `tau`, `nu_lbm`, physical
   viscosity, Reynolds number, velocity set, LES/subgrid model and solver-log stability warning status. The machine
   gate now fails this block unless the runtime metrics row records a passing stability gate such as
@@ -314,7 +325,8 @@ diagnostic only even if selected plots look reasonable.
 The JSON report also includes `diagnostic_priority`, which must be followed in order before changing physics parameters:
 first close coordinate/component/Uref/probe issues and the component/Uref sensitivity audit, then final-window time
 averaging, then AF `U/k` preservation, then turbulent-inlet method, length scale and correlation evidence, then
-boundary/roughness/blockage, and only then interpret the remaining systematic bias as a physics/protocol problem.
+boundary/roughness/blockage, then the native FluidX3D baseline and grid sensitivity, and only then interpret the
+remaining systematic bias as a physics/protocol problem.
 The inlet `U/k` audit follows the same final-window rule as the VTK/probe average: short, non-final or irregular
 source steps fail before the result can be interpreted as solver accuracy.
 When a native FluidX3D run has no Grasshopper Read VTK audit, `scripts/validation_metrics_from_probe_audit.py` uses the

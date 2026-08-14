@@ -63,6 +63,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-estimated-mach", type=float, default=0.20)
     parser.add_argument("--min-lbm-tau", type=float, default=0.500001)
     parser.add_argument("--max-lbm-tau", type=float, default=2.0)
+    parser.add_argument("--max-paper-dx-m", type=float, default=3.0)
+    parser.add_argument("--min-grid-sensitivity-run-count", type=int, default=2)
+    parser.add_argument("--min-grid-refinement-ratio", type=float, default=1.25)
+    parser.add_argument("--max-grid-rmse-change-ratio", type=float, default=0.10)
+    parser.add_argument("--max-grid-bias-change-ratio", type=float, default=0.05)
+    parser.add_argument("--grid-dx-tolerance", type=float, default=1.0e-9)
     parser.add_argument("--expected-compared-component", default="", help="Require a specific Data Probe compared_component, e.g. speed_ratio or streamwise_ratio.")
     parser.add_argument("--expected-uref", type=float, default=None, help="Require the metrics/Data Probe Uref to match this value.")
     parser.add_argument("--uref-tolerance", type=float, default=1.0e-6)
@@ -388,6 +394,17 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
             "Run native FluidX3D with the same setup, grid, averaging and probes, then compare before changing CityLBM.",
         )
 
+    grid_gate = by_key.get("grid_sensitivity")
+    if grid_gate is None or grid_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            8,
+            "grid_sensitivity",
+            grid_gate,
+            "A single high-resolution run cannot prove that residual bias is independent of dx.",
+            "Run at least two matched grid levels and bound the finest-grid RMSE/bias change before interpreting solver accuracy.",
+        )
+
     systematic_gate = by_key.get("systematic_bias")
     mean_gate = by_key.get("mean_velocity_accuracy")
     systematic_flag = str(get_any(metrics, ["systematic_bias_flag"]) or "").strip().lower()
@@ -395,7 +412,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     if systematic_gate is not None and systematic_gate.get("status") != PASS:
         add_priority(
             priorities,
-            8,
+            9,
             "systematic_bias_root_cause",
             systematic_gate,
             f"Metrics report systematic bias: {systematic_flag or 'flagged'}; {bias_diagnosis or 'no diagnosis string'}.",
@@ -404,7 +421,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     elif mean_gate is not None and mean_gate.get("status") != PASS:
         add_priority(
             priorities,
-            8,
+            10,
             "mean_velocity_accuracy",
             mean_gate,
             "Mean-flow metrics still fail after prerequisite evidence gates.",
@@ -736,6 +753,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_correlation_audit_path = find_first(run_dir, ["inlet_correlation_audit.json"])
     boundary_audit_path = find_first(run_dir, ["boundary_protocol_audit.json"])
     component_sensitivity_audit_path = find_first(run_dir, ["component_sensitivity_audit.json"])
+    grid_sensitivity_audit_path = find_first(run_dir, ["grid_sensitivity_audit.json"])
     manifest_path = find_first(run_dir, ["native_fluidx3d_baseline_manifest.json"])
     metrics_path = Path(args.metrics).resolve() if args.metrics else find_metrics(run_dir)
     probe_path = Path(args.probe_audit).resolve() if args.probe_audit else None
@@ -745,6 +763,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_correlation_audit = read_json(inlet_correlation_audit_path)
     external_boundary_audit = read_json(boundary_audit_path)
     component_sensitivity_audit = read_json(component_sensitivity_audit_path)
+    grid_sensitivity_audit = read_json(grid_sensitivity_audit_path)
     manifest = read_json(manifest_path)
     metrics, metrics_path = read_metrics(metrics_path)
     items = load_protocol_items(audit)
@@ -753,12 +772,21 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     add_gate(
         gates,
         "artifact_presence",
-        PASS if metadata_path and audit_path and metrics_path and metrics else FAIL,
+        PASS
+        if metadata_path
+        and audit_path
+        and boundary_audit_path
+        and grid_sensitivity_audit_path
+        and metrics_path
+        and metrics
+        else FAIL,
         (
             f"metadata={metadata_path or 'missing'}; audit={audit_path or 'missing'}; "
-            f"boundary_audit={boundary_audit_path or 'missing'}; metrics={metrics_path or 'missing'}"
+            f"boundary_audit={boundary_audit_path or 'missing'}; "
+            f"grid_sensitivity_audit={grid_sensitivity_audit_path or 'missing'}; "
+            f"metrics={metrics_path or 'missing'}"
         ),
-        "Archive case_metadata.json, validation_protocol_audit.json, boundary_protocol_audit.json and metrics CSV/JSON for every run.",
+        "Archive case_metadata.json, validation_protocol_audit.json, boundary_protocol_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run.",
     )
 
     run_freshness_gate = str(
@@ -1742,6 +1770,96 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Run and archive a paired native FluidX3D baseline using an explicit complete source tree with setup/defines/lbm source hashes, then compare the same setup, grid, averaging and probes.",
     )
 
+    grid_gate = str(
+        get_first_available(
+            get_any(grid_sensitivity_audit, ["grid_sensitivity_gate"]),
+            get_any(metrics, ["grid_sensitivity_gate", "GridSensitivityGate"]),
+        )
+        or ""
+    ).strip().lower()
+    grid_reasons = str(
+        get_first_available(
+            get_any(grid_sensitivity_audit, ["grid_sensitivity_gate_reasons"]),
+            get_any(metrics, ["grid_sensitivity_gate_reasons", "GridSensitivityGateReasons"]),
+        )
+        or ""
+    )
+    grid_run_count = as_int(
+        get_first_available(
+            get_any(grid_sensitivity_audit, ["grid_sensitivity_run_count"]),
+            get_any(metrics, ["grid_sensitivity_run_count", "GridSensitivityRunCount"]),
+        )
+    )
+    grid_fine_dx = as_float(
+        get_first_available(
+            get_any(grid_sensitivity_audit, ["grid_sensitivity_finest_dx_m"]),
+            get_any(metrics, ["grid_sensitivity_finest_dx_m", "GridSensitivityFinestDxM"]),
+        )
+    )
+    grid_next_coarse_dx = as_float(
+        get_first_available(
+            get_any(grid_sensitivity_audit, ["grid_sensitivity_next_coarse_dx_m"]),
+            get_any(metrics, ["grid_sensitivity_next_coarse_dx_m", "GridSensitivityNextCoarseDxM"]),
+        )
+    )
+    grid_refinement_ratio = as_float(
+        get_first_available(
+            get_any(grid_sensitivity_audit, ["grid_sensitivity_refinement_ratio"]),
+            get_any(metrics, ["grid_sensitivity_refinement_ratio", "GridSensitivityRefinementRatio"]),
+        )
+    )
+    grid_rmse_change = as_float(
+        get_first_available(
+            get_any(grid_sensitivity_audit, ["grid_sensitivity_rmse_change_ratio"]),
+            get_any(metrics, ["grid_sensitivity_rmse_change_ratio", "GridSensitivityRmseChangeRatio"]),
+        )
+    )
+    grid_bias_change = as_float(
+        get_first_available(
+            get_any(grid_sensitivity_audit, ["grid_sensitivity_bias_change_ratio"]),
+            get_any(metrics, ["grid_sensitivity_bias_change_ratio", "GridSensitivityBiasChangeRatio"]),
+        )
+    )
+    current_dx_for_grid = as_float(get_any(metrics, ["dx_m", "dx", "DxM", "Dx"]))
+    grid_fine_matches_current = (
+        grid_fine_dx is not None
+        and current_dx_for_grid is not None
+        and abs(grid_fine_dx - current_dx_for_grid) <= args.grid_dx_tolerance
+    )
+    grid_sensitivity_ok = (
+        grid_sensitivity_audit_path is not None
+        and grid_gate == "pass"
+        and grid_run_count is not None
+        and grid_run_count >= args.min_grid_sensitivity_run_count
+        and grid_fine_dx is not None
+        and grid_fine_dx <= args.max_paper_dx_m
+        and grid_fine_matches_current
+        and grid_refinement_ratio is not None
+        and grid_refinement_ratio >= args.min_grid_refinement_ratio
+        and grid_rmse_change is not None
+        and grid_rmse_change <= args.max_grid_rmse_change_ratio
+        and grid_bias_change is not None
+        and grid_bias_change <= args.max_grid_bias_change_ratio
+    )
+    add_gate(
+        gates,
+        "grid_sensitivity",
+        PASS if grid_sensitivity_ok else FAIL,
+        (
+            f"grid_sensitivity_audit={grid_sensitivity_audit_path or 'missing'}; "
+            f"grid_sensitivity_gate={grid_gate or 'missing'}; "
+            f"grid_sensitivity_run_count={grid_run_count}; required >= {args.min_grid_sensitivity_run_count}; "
+            f"current_dx_m={current_dx_for_grid}; finest_dx_m={grid_fine_dx}; required <= {args.max_paper_dx_m}; "
+            f"finest_dx_matches_current={grid_fine_matches_current}; "
+            f"next_coarse_dx_m={grid_next_coarse_dx}; refinement_ratio={grid_refinement_ratio}; "
+            f"required >= {args.min_grid_refinement_ratio}; "
+            f"rmse_change_ratio={grid_rmse_change}; required <= {args.max_grid_rmse_change_ratio}; "
+            f"bias_change_ratio={grid_bias_change}; required <= {args.max_grid_bias_change_ratio}; "
+            f"grid_sensitivity_gate_reasons={grid_reasons or 'none'}"
+        ),
+        "Archive at least two matched grid levels and show the finest-grid U_RMSE/U_bias changes are bounded before interpreting residual systematic bias.",
+    )
+
     probe_total, probe_failed, probe_error = read_probe_counts(probe_path)
     probe_audit_traceable = probe_total is not None and probe_total > 0
     probe_summary_override = args.allow_summary_only_probe_metrics
@@ -2204,6 +2322,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_estimated_mach": args.max_estimated_mach,
             "min_lbm_tau": args.min_lbm_tau,
             "max_lbm_tau": args.max_lbm_tau,
+            "max_paper_dx_m": args.max_paper_dx_m,
+            "min_grid_sensitivity_run_count": args.min_grid_sensitivity_run_count,
+            "min_grid_refinement_ratio": args.min_grid_refinement_ratio,
+            "max_grid_rmse_change_ratio": args.max_grid_rmse_change_ratio,
+            "max_grid_bias_change_ratio": args.max_grid_bias_change_ratio,
+            "grid_dx_tolerance": args.grid_dx_tolerance,
             "expected_compared_component": args.expected_compared_component,
             "expected_uref": args.expected_uref,
             "uref_tolerance": args.uref_tolerance,
@@ -2218,6 +2342,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "inlet_correlation_audit": str(inlet_correlation_audit_path) if inlet_correlation_audit_path else "",
             "boundary_protocol_audit": str(boundary_audit_path) if boundary_audit_path else "",
             "component_sensitivity_audit": str(component_sensitivity_audit_path) if component_sensitivity_audit_path else "",
+            "grid_sensitivity_audit": str(grid_sensitivity_audit_path) if grid_sensitivity_audit_path else "",
             "native_fluidx3d_baseline_manifest": str(manifest_path) if manifest_path else "",
             "metrics": str(metrics_path) if metrics_path else "",
             "probe_audit": str(probe_path) if probe_path else "",

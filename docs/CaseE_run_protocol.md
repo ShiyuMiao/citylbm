@@ -24,7 +24,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 ## Simulation settings
 
 - First smoke run: `dx=5 m`, `steps=2000-5000`, `save interval=500 or 1000`
-- Formal validation: `dx=2-3 m`, `steps>=10000`, save enough final VTK frames for time averaging
+- Formal validation: `dx=2-3 m`, `steps>=10000`, save enough final VTK frames for time averaging. This dx is still
+  not sufficient by itself: archive at least one matched coarser/finer metrics row and run
+  `scripts\audit_grid_sensitivity.py` so `grid_sensitivity_audit.json` proves bounded finest-grid RMSE/bias change.
 - Use LES consistently and record `Cs`, viscosity, grid dimensions and GPU model.
 - Archive LBM stability evidence for the exact native/CityLBM run: target maximum lattice velocity, estimated maximum
   Mach number, `tau`, `nu_lbm`, physical viscosity, Reynolds number, velocity set, LES/subgrid model and solver-log
@@ -221,6 +223,11 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   normalization scale, scaled-improvement ratio and `component_normalization_gate`. A failing audit means speed-ratio
   versus streamwise-ratio selection or Uref/SI conversion must be fixed before interpreting physical-model error.
 - Grid spacing, steps, averaging window and VTK frame list
+- Grid-sensitivity audit: `grid_sensitivity_audit.json`, `grid_sensitivity_gate`,
+  `grid_sensitivity_run_count`, `grid_sensitivity_finest_dx_m`,
+  `grid_sensitivity_next_coarse_dx_m`, `grid_sensitivity_refinement_ratio`,
+  `grid_sensitivity_rmse_change_ratio` and `grid_sensitivity_bias_change_ratio`. A single `dx=2-3 m` run remains
+  diagnostic until these fields show bounded change from the next coarser/finer matched run.
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
 - `time_averaging` gate must use the final available VTK window, contain at least 10 frames, have strictly increasing
   uniformly spaced source steps, and satisfy `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20`
@@ -279,7 +286,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   do not skip lower-rank failures: coordinate/component/Uref/probe closure plus component/Uref sensitivity precedes time averaging; time averaging
   precedes inlet `U/k` preservation; inlet `U/k` preservation precedes turbulent-inlet method and length-scale claims;
   inlet correlation evidence precedes boundary/roughness/blockage evidence; boundary/roughness/blockage evidence
-  precedes interpreting a remaining `-34 pp` style low bias as solver accuracy.
+  precedes native baseline and grid-sensitivity evidence; only after those pass can a remaining `-34 pp` style low bias
+  be interpreted as a solver/protocol physics problem.
 
 ## Current v0.3.0 limitation
 

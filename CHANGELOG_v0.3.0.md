@@ -195,7 +195,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now writes `diagnostic_priority` to the JSON report and console output. Failed runs are triaged
   in the required order: coordinate/component/Uref/probe evidence plus component/Uref sensitivity, time averaging, inlet
   `U/k` preservation, turbulent inlet method, length scale and correlation evidence, boundary/roughness/blockage, native
-  FluidX3D baseline, then residual systematic-bias root cause.
+  FluidX3D baseline, grid sensitivity, then residual systematic-bias root cause.
+- Added `scripts/audit_grid_sensitivity.py` and wired its output into the metrics template, validation chain and final
+  gate. Paper-grade runs now require `grid_sensitivity_audit.json` with at least two matched dx levels, a finest dx that
+  matches the reported metrics row, sufficient refinement ratio, and bounded finest-vs-next-coarse `U_RMSE_ratio` and
+  `U_bias_ratio` changes. This makes a single improved high-resolution run diagnostic rather than publishable evidence.
 
 ## Remaining scientific work
 
@@ -203,7 +207,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - The inlet-profile audit must be run on newly generated native and CityLBM VTK sequences; without this JSON, high probe
   R2 is not enough to diagnose whether the solver preserved the official AF `U/k` inlet.
 - If native FluidX3D is significantly closer to AIJ measurements, the same settings must be ported into CityLBM.
-- Case E should then be run with dx=2-3 m, long time averaging and the official AF/RS files.
+- Case E should then be run with dx=2-3 m, long time averaging, at least one matched grid-sensitivity companion run, and
+  the official AF/RS files.
 - The new default `10000/500` run is still a minimum validation workflow, not final stationarity proof; paper runs must
   archive actual averaged source frames, stability diagnostics and solver logs.
 - The STG-lite inlet is not a full digital-filter, precursor/recycling, or Reynolds-stress method; it lacks Reynolds-stress tensors, turbulent length scales and validated precursor inflow.

@@ -58,6 +58,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--vtk-save-start-step", default="", help="Optional first VTK save step for run-configuration frame-count preflight.")
     parser.add_argument("--geometry-scale", default="", help="Optional geometry scale recorded in metrics.")
     parser.add_argument("--profile-csv", default="", help="Optional profile CSV path recorded in metrics.")
+    parser.add_argument(
+        "--grid-sensitivity-metrics",
+        action="append",
+        default=[],
+        help="Metrics CSV/JSON from another matched dx run. Repeat to build grid_sensitivity_audit.json.",
+    )
     parser.add_argument("--average-last-n", type=int, default=10, help="Average the last N VTK frames.")
     parser.add_argument("--min-avg-frames", type=int, default=10, help="Minimum frames required by the time-average gate.")
     parser.add_argument("--pattern", default="u-*.vtk", help="VTK glob pattern.")
@@ -92,6 +98,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-estimated-mach", type=float, default=0.12)
     parser.add_argument("--min-lbm-tau", type=float, default=0.5001)
     parser.add_argument("--max-lbm-tau", type=float, default=2.0)
+    parser.add_argument("--max-paper-dx-m", type=float, default=3.0)
+    parser.add_argument("--min-grid-sensitivity-run-count", type=int, default=2)
+    parser.add_argument("--min-grid-refinement-ratio", type=float, default=1.25)
+    parser.add_argument("--max-grid-rmse-change-ratio", type=float, default=0.10)
+    parser.add_argument("--max-grid-bias-change-ratio", type=float, default=0.05)
     parser.add_argument("--vtk-stability-sample-limit", type=int, default=20000)
     parser.add_argument(
         "--allow-velocity-only-inlet",
@@ -202,6 +213,7 @@ def main() -> int:
     probe_audit_csv = out_dir / "probe_audit.csv"
     component_sensitivity_json = out_dir / "component_sensitivity_audit.json"
     component_sensitivity_csv = out_dir / "component_sensitivity_audit.csv"
+    grid_sensitivity_json = out_dir / "grid_sensitivity_audit.json"
     metrics_csv = out_dir / "validation_metrics.csv"
     comparison_csv = out_dir / "probe_comparison.csv"
     gate_json = out_dir / "validation_gate_report.json"
@@ -233,6 +245,9 @@ def main() -> int:
             "VtkSaveStartStep": args.vtk_save_start_step,
             "ComparedComponent": args.compared_component,
             "Interpolation": args.interpolation,
+            "GridSensitivityMetrics": [
+                str(Path(item).expanduser().resolve()) for item in args.grid_sensitivity_metrics
+            ],
         },
         "Artifacts": {
             "NativeFluidX3DBaselineManifest": str(native_manifest_path) if native_manifest_path else "",
@@ -244,6 +259,7 @@ def main() -> int:
             "ProbeAuditCsv": str(probe_audit_csv),
             "ComponentSensitivityAuditJson": str(component_sensitivity_json),
             "ComponentSensitivityAuditCsv": str(component_sensitivity_csv),
+            "GridSensitivityAuditJson": str(grid_sensitivity_json),
             "ValidationMetricsCsv": str(metrics_csv),
             "ProbeComparisonCsv": str(comparison_csv),
             "ValidationGateReport": str(gate_json),
@@ -455,6 +471,40 @@ def main() -> int:
         manifest["Steps"].append(run_step("validation_metrics_from_probe_audit", metrics_cmd))
         write_manifest(manifest_path, manifest)
 
+        if args.grid_sensitivity_metrics:
+            grid_cmd = [
+                py,
+                str(script_dir / "audit_grid_sensitivity.py"),
+                "--out",
+                str(grid_sensitivity_json),
+                "--case",
+                args.case,
+                "--wind-direction",
+                args.wind_direction_label,
+                "--software",
+                args.software,
+                "--max-paper-dx-m",
+                str(args.max_paper_dx_m),
+                "--min-grid-sensitivity-run-count",
+                str(args.min_grid_sensitivity_run_count),
+                "--min-grid-refinement-ratio",
+                str(args.min_grid_refinement_ratio),
+                "--max-grid-rmse-change-ratio",
+                str(args.max_grid_rmse_change_ratio),
+                "--max-grid-bias-change-ratio",
+                str(args.max_grid_bias_change_ratio),
+            ]
+            for metrics_item in args.grid_sensitivity_metrics:
+                grid_cmd.extend(["--metrics", str(Path(metrics_item).expanduser().resolve())])
+            grid_cmd.extend(["--metrics", str(metrics_csv)])
+            manifest["Steps"].append(run_step("audit_grid_sensitivity", grid_cmd, allow_fail=True))
+            write_manifest(manifest_path, manifest)
+
+            metrics_with_grid_cmd = list(metrics_cmd)
+            metrics_with_grid_cmd.extend(["--grid-sensitivity-audit", str(grid_sensitivity_json)])
+            manifest["Steps"].append(run_step("validation_metrics_from_probe_audit_with_grid", metrics_with_grid_cmd))
+            write_manifest(manifest_path, manifest)
+
         gate_cmd = [
             py,
             str(script_dir / "validation_gate.py"),
@@ -503,6 +553,16 @@ def main() -> int:
             str(args.min_lbm_tau),
             "--max-lbm-tau",
             str(args.max_lbm_tau),
+            "--max-paper-dx-m",
+            str(args.max_paper_dx_m),
+            "--min-grid-sensitivity-run-count",
+            str(args.min_grid_sensitivity_run_count),
+            "--min-grid-refinement-ratio",
+            str(args.min_grid_refinement_ratio),
+            "--max-grid-rmse-change-ratio",
+            str(args.max_grid_rmse_change_ratio),
+            "--max-grid-bias-change-ratio",
+            str(args.max_grid_bias_change_ratio),
             "--expected-compared-component",
             args.compared_component,
             "--expected-uref",

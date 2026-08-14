@@ -184,6 +184,15 @@ TEMPLATE_FIELDS = [
     "component_rmse_improvement_ratio",
     "normalization_best_fit_scale",
     "normalization_scaled_improvement_ratio",
+    "grid_sensitivity_audit",
+    "grid_sensitivity_gate",
+    "grid_sensitivity_gate_reasons",
+    "grid_sensitivity_run_count",
+    "grid_sensitivity_finest_dx_m",
+    "grid_sensitivity_next_coarse_dx_m",
+    "grid_sensitivity_refinement_ratio",
+    "grid_sensitivity_rmse_change_ratio",
+    "grid_sensitivity_bias_change_ratio",
     "failed_probe_count_by_tolerance",
     "valid_n",
     "failed_n",
@@ -232,6 +241,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--inlet-correlation-audit", help="Optional inlet correlation audit JSON from audit_inlet_correlation_from_vtk.py.")
     parser.add_argument("--boundary-protocol-audit", help="Optional boundary_protocol_audit.json from audit_boundary_protocol.py.")
     parser.add_argument("--component-sensitivity-audit", help="Optional component/Uref sensitivity JSON from audit_component_sensitivity.py.")
+    parser.add_argument("--grid-sensitivity-audit", help="Optional grid_sensitivity_audit.json from audit_grid_sensitivity.py.")
     parser.add_argument("--case", default="", help="Case label to write and optionally filter official rows.")
     parser.add_argument("--wind-direction", default="", help="Wind direction label to write and optionally filter official rows.")
     parser.add_argument("--software", default="citylbm")
@@ -704,6 +714,7 @@ def main() -> int:
     inlet_correlation_audit = read_json(Path(args.inlet_correlation_audit).resolve() if args.inlet_correlation_audit else None)
     boundary_protocol_audit = read_json(Path(args.boundary_protocol_audit).resolve() if args.boundary_protocol_audit else None)
     component_sensitivity_audit = read_json(Path(args.component_sensitivity_audit).resolve() if args.component_sensitivity_audit else None)
+    grid_sensitivity_audit = read_json(Path(args.grid_sensitivity_audit).resolve() if args.grid_sensitivity_audit else None)
 
     probe_rows = read_csv(probe_path)
     official_rows = filter_official(read_csv(official_path), args.case, args.wind_direction)
@@ -1185,6 +1196,19 @@ def main() -> int:
             "component_rmse_improvement_ratio": fmt(audit_float(component_sensitivity_audit, "component_rmse_improvement_ratio")),
             "normalization_best_fit_scale": fmt(audit_float(component_sensitivity_audit, "selected_best_fit_scale_to_exp")),
             "normalization_scaled_improvement_ratio": fmt(audit_float(component_sensitivity_audit, "selected_scaled_improvement_ratio")),
+            "grid_sensitivity_audit": str(Path(args.grid_sensitivity_audit).resolve()) if args.grid_sensitivity_audit else "",
+            "grid_sensitivity_gate": audit_gate(grid_sensitivity_audit, "grid_sensitivity_gate"),
+            "grid_sensitivity_gate_reasons": ";".join(
+                str(reason) for reason in grid_sensitivity_audit.get("grid_sensitivity_gate_reasons", [])
+            )
+            if isinstance(grid_sensitivity_audit.get("grid_sensitivity_gate_reasons"), list)
+            else str(grid_sensitivity_audit.get("grid_sensitivity_gate_reasons", "")),
+            "grid_sensitivity_run_count": audit_field(grid_sensitivity_audit, "grid_sensitivity_run_count"),
+            "grid_sensitivity_finest_dx_m": fmt(audit_float(grid_sensitivity_audit, "grid_sensitivity_finest_dx_m")),
+            "grid_sensitivity_next_coarse_dx_m": fmt(audit_float(grid_sensitivity_audit, "grid_sensitivity_next_coarse_dx_m")),
+            "grid_sensitivity_refinement_ratio": fmt(audit_float(grid_sensitivity_audit, "grid_sensitivity_refinement_ratio")),
+            "grid_sensitivity_rmse_change_ratio": fmt(audit_float(grid_sensitivity_audit, "grid_sensitivity_rmse_change_ratio")),
+            "grid_sensitivity_bias_change_ratio": fmt(audit_float(grid_sensitivity_audit, "grid_sensitivity_bias_change_ratio")),
             "failed_probe_count_by_tolerance": failed,
             "valid_n": valid_n,
             "failed_n": failed,
