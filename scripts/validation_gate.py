@@ -606,6 +606,30 @@ def source_frame_details(metrics: Dict[str, Any]) -> Tuple[Optional[int], str, b
     return None, "", False
 
 
+def parsed_source_steps(text: str) -> Tuple[List[int], Optional[str]]:
+    if not text.strip():
+        return [], "source_time_steps_missing"
+    parts = [part for part in text.replace(";", ",").replace(" ", ",").split(",") if part.strip()]
+    steps: List[int] = []
+    for part in parts:
+        value = as_int(part)
+        if value is None:
+            return [], f"source_time_steps_unparseable:{part}"
+        steps.append(value)
+    return steps, None
+
+
+def strictly_increasing(values: List[int]) -> bool:
+    return all(b > a for a, b in zip(values, values[1:]))
+
+
+def uniformly_spaced(values: List[int]) -> bool:
+    if len(values) <= 2:
+        return True
+    spacing = values[1] - values[0]
+    return spacing > 0 and all((b - a) == spacing for a, b in zip(values, values[1:]))
+
+
 def get_manifest_source_record(manifest: Dict[str, Any], role: str) -> Dict[str, Any]:
     records = manifest.get("RequiredSourceFiles")
     if not isinstance(records, list):
@@ -674,6 +698,20 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     selected_last_window = as_bool(get_any(metrics, ["selected_last_window", "SelectedLastWindow"]))
     source_steps_increasing = as_bool(get_any(metrics, ["source_steps_strictly_increasing", "SourceStepsStrictlyIncreasing"]))
     source_spacing_uniform = as_bool(get_any(metrics, ["source_step_spacing_uniform", "SourceStepSpacingUniform"]))
+    parsed_steps, parsed_steps_error = parsed_source_steps(source_step_text)
+    parsed_frame_count = len(parsed_steps) if parsed_steps else None
+    parsed_first_step = parsed_steps[0] if parsed_steps else None
+    parsed_last_step = parsed_steps[-1] if parsed_steps else None
+    parsed_steps_increasing = strictly_increasing(parsed_steps) if parsed_steps else False
+    parsed_spacing_uniform = uniformly_spaced(parsed_steps) if parsed_steps else False
+    source_step_count_matches = parsed_frame_count is not None and frame_count == parsed_frame_count
+    source_first_matches = source_first_step is None or source_first_step == parsed_first_step
+    source_last_matches = source_last_step is None or source_last_step == parsed_last_step
+    available_covers_source_window = (
+        available_frame_count is not None
+        and parsed_frame_count is not None
+        and available_frame_count >= parsed_frame_count
+    )
     metrics_time_gate = str(get_any(metrics, ["time_averaging_gate", "TimeAveragingGate"]) or "").strip().lower()
     metrics_time_gate_reasons = str(get_any(metrics, ["time_averaging_gate_reasons", "TimeAveragingGateReasons"]) or "").strip()
     mean_speed_stddev_ratio = as_float(get_any(metrics, ["mean_speed_stddev_ratio", "MeanSpeedStdDevRatio"]))
@@ -690,6 +728,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         has_real_source_steps
         and frame_count is not None
         and frame_count >= args.min_avg_frames
+        and parsed_steps_error is None
+        and source_step_count_matches
+        and parsed_steps_increasing
+        and parsed_spacing_uniform
+        and source_first_matches
+        and source_last_matches
+        and available_covers_source_window
         and selected_last_window is True
         and source_steps_increasing is True
         and source_spacing_uniform is True
@@ -708,6 +753,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"{frame_source}: {frame_count}; required >= {args.min_avg_frames}; "
             f"real_source_time_steps_present={has_real_source_steps}; "
             f"source_time_steps={source_step_text or 'missing'}; "
+            f"parsed_source_step_count={parsed_frame_count}; source_step_count_matches={source_step_count_matches}; "
+            f"parsed_first_step={parsed_first_step}; parsed_last_step={parsed_last_step}; "
+            f"source_first_matches={source_first_matches}; source_last_matches={source_last_matches}; "
+            f"parsed_steps_strictly_increasing={parsed_steps_increasing}; "
+            f"parsed_step_spacing_uniform={parsed_spacing_uniform}; "
+            f"available_covers_source_window={available_covers_source_window}; "
+            f"parsed_source_steps_error={parsed_steps_error or 'none'}; "
             f"requested_averaging_window={requested_avg_window}; "
             f"expected_vtk_frame_count={expected_vtk_frame_count}; "
             f"available_frame_count={available_frame_count}; source_first_step={source_first_step}; "

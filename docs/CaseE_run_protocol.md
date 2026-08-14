@@ -112,6 +112,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   If no Grasshopper `Read VTK` audit is available, `scripts\audit_inlet_profile_from_vtk.py` also computes these
   stationarity ratios from pointwise speed-magnitude time series on the same selected final-window inlet/profile plane,
   and the metrics builder can carry them into the standard validation row.
+  The validation gate parses the archived `source_time_steps` list itself and fails duplicated, non-increasing,
+  non-uniform, count-mismatched or non-final source windows even when summary fields say `pass`.
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
 - The probe audit table must contain official point number, original coordinate, interpolation distance,
   compared velocity component, compared value, wind-vector components, `wind_direction_valid`, `normalization_valid`,

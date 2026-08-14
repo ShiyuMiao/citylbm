@@ -21,6 +21,7 @@
 - Added `scripts/validation_metrics_from_probe_audit.py` to merge Data Probe audit rows with official AIJ measurements and output the standard validation metrics row.
 - Time-averaging metrics now prefer real VTK audit frame counts and source time-step lists over requested CLI averaging windows, so short final-window runs cannot appear as longer paper-grade averages in validation tables.
 - The paper-grade time-averaging gate now requires real archived `source_time_steps` and an explicit `time_averaging_gate=pass`; requested `AverageLastN` or `ExpectedVtkFrameCount` values are recorded only as diagnostic context.
+- The time-averaging gate now independently parses `source_time_steps` and cross-checks count, first/last step, strict increase, uniform spacing and available-frame coverage; summary pass flags alone cannot hide an irregular or non-final VTK window.
 - Native VTK probe extraction now writes VTK origin, spacing, dimensions, source time steps, source hashes and nearest-grid coordinates into the probe audit CSV for coordinate/projection traceability.
 - The compared-component gate now requires `compared_component_consistency_gate=pass` and no missing per-probe component labels, preventing mixed or partially audited speed/streamwise comparisons from passing as paper-grade evidence.
 - Added a `probe_projection_distance` gate that reads per-probe `nearest_distance` and `tolerance` from the Data Probe audit CSV and fails runs whose projection distance/tolerance is missing, exceeds tolerance or is too large relative to `dx`.
