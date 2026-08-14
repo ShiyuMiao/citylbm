@@ -110,6 +110,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Added `scripts/probe_vtk_points.py` to sample native FluidX3D/CityLBM VTK frames at official RS probe points and emit
   the same Data-Probe-compatible audit CSV used by Grasshopper, including official coordinates, nearest-node distance,
   Uref, wind-vector evidence, compared component, time-averaged value and per-probe failure flags.
+- Native VTK probe extraction now defaults to structured-grid trilinear velocity sampling instead of nearest-node
+  sampling, while keeping nearest-node distance as a separate coverage/tolerance audit field. This reduces avoidable
+  RS probe projection error at `dx=2-3 m` without hiding out-of-domain probes.
 - Probe-derived metrics now preserve the actual `Uref` used by `Data Probe` and read `WindDirectionUnitVector` from
   `case_metadata.json`, so wind/normalization evidence is not lost during validation-gate reporting.
 

@@ -42,7 +42,13 @@ def parse_args() -> argparse.Namespace:
         choices=["speed_ratio", "streamwise_ratio", "speed", "streamwise_velocity", "u", "v", "w"],
         default="speed_ratio",
     )
-    parser.add_argument("--tolerance", type=float, default=0.0, help="Max nearest-neighbor distance in meters. 0 disables failure by tolerance.")
+    parser.add_argument(
+        "--interpolation",
+        choices=["trilinear", "nearest"],
+        default="trilinear",
+        help="Velocity sampling method. Trilinear is recommended for structured VTK validation.",
+    )
+    parser.add_argument("--tolerance", type=float, default=0.0, help="Max nearest-node distance in meters. 0 disables failure by tolerance.")
     parser.add_argument("--velocity-scale", type=float, default=1.0)
     return parser.parse_args()
 
@@ -269,6 +275,62 @@ def nearest_index(
     return idx, coord, distance
 
 
+def clamp_cell(value: float, max_index: int) -> Tuple[int, int, float]:
+    if max_index <= 0:
+        return 0, 0, 0.0
+    lower = int(math.floor(value))
+    if lower < 0:
+        return 0, 0, 0.0
+    if lower >= max_index:
+        return max_index, max_index, 0.0
+    upper = lower + 1
+    fraction = value - lower
+    return lower, upper, fraction
+
+
+def trilinear_indices(
+    point: Tuple[float, float, float],
+    dims: Tuple[int, int, int],
+    origin: Tuple[float, float, float],
+    spacing: Tuple[float, float, float],
+) -> List[Tuple[int, float]]:
+    axes = []
+    for axis in range(3):
+        if abs(spacing[axis]) <= 1.0e-12:
+            axes.append((0, 0, 0.0))
+            continue
+        coordinate = (point[axis] - origin[axis]) / spacing[axis]
+        axes.append(clamp_cell(coordinate, dims[axis] - 1))
+    (i0, i1, fx), (j0, j1, fy), (k0, k1, fz) = axes
+    weights = []
+    for k, wz in [(k0, 1.0 - fz), (k1, fz)]:
+        for j, wy in [(j0, 1.0 - fy), (j1, fy)]:
+            for i, wx in [(i0, 1.0 - fx), (i1, fx)]:
+                weight = wx * wy * wz
+                if weight <= 0.0:
+                    continue
+                idx = i + dims[0] * (j + dims[1] * k)
+                weights.append((idx, weight))
+    return weights
+
+
+def sample_frame_velocity(
+    frame: Dict[str, Any],
+    point: Tuple[float, float, float],
+    interpolation: str,
+) -> Tuple[Tuple[float, float, float], int]:
+    if interpolation == "nearest":
+        vtk_index, _coord, _distance = nearest_index(point, frame["dimensions"], frame["origin"], frame["spacing"])
+        return read_vector_at_index(frame, vtk_index), 1
+    weighted_indices = trilinear_indices(point, frame["dimensions"], frame["origin"], frame["spacing"])
+    velocity = [0.0, 0.0, 0.0]
+    for idx, weight in weighted_indices:
+        vector = read_vector_at_index(frame, idx)
+        for axis in range(3):
+            velocity[axis] += vector[axis] * weight
+    return (velocity[0], velocity[1], velocity[2]), len(weighted_indices)
+
+
 def fmt(value: Any) -> str:
     if value is None:
         return ""
@@ -332,8 +394,15 @@ def main() -> int:
         if any(value is None for value in point_values):
             continue
         point = tuple(float(value) for value in point_values)  # type: ignore[assignment]
-        vtk_index, vtk_coord, distance = nearest_index(point, first["dimensions"], first["origin"], first["spacing"])
-        velocities = [read_vector_at_index(frame, vtk_index) for frame in frames]
+        _vtk_index, _vtk_coord, distance = nearest_index(
+            point,
+            first["dimensions"],
+            first["origin"],
+            first["spacing"],
+        )
+        frame_samples = [sample_frame_velocity(frame, point, args.interpolation) for frame in frames]
+        velocities = [sample[0] for sample in frame_samples]
+        nearby_count = max(sample[1] for sample in frame_samples) if frame_samples else 0
         mean_velocity = tuple(
             sum(velocity[axis] for velocity in velocities) / len(velocities) * args.velocity_scale
             for axis in range(3)
@@ -370,8 +439,8 @@ def main() -> int:
                 "speed_ratio": speed_ratio,
                 "streamwise_ratio": streamwise_ratio,
                 "nearest_distance": distance,
-                "nearby_point_count": 1,
-                "method": f"nearest_neighbor_vtk_average_last_{len(frames)}",
+                "nearby_point_count": nearby_count,
+                "method": f"{args.interpolation}_vtk_average_last_{len(frames)}",
                 "compared_component": args.compared_component,
                 "compared_value": value,
                 "tolerance": args.tolerance,

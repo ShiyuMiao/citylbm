@@ -88,6 +88,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `official_coordinate_delta_count`; the machine gate fails if valid probes mix components or if coordinate deltas are
   not available for every valid official probe. Native FluidX3D reruns outside Grasshopper must generate the same audit
   schema with `scripts\probe_vtk_points.py`, filtered to `case=ac` and `Wind_direction=N`, before building metrics.
+  Use structured-grid trilinear sampling for the velocity value; the nearest-node distance remains the coverage and
+  tolerance evidence.
 - A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
   extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
 - `case_metadata.json` must be archived with the run. It records the boundary-condition summary, expected VTK frame count,
@@ -105,7 +107,7 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 ```powershell
 python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
 
-python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --tolerance <probe_tolerance_m> --average-last-n 10 --out <probe_audit.csv>
+python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 10 --out <probe_audit.csv>
 
 python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
 ```
