@@ -150,12 +150,14 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    distance, tolerance, failure status, valid count and failed count. In CityLBM this is produced by `Data Probe`
    outputs `Audit CSV`, `Validation Status`, `Compared Value` and `Probe ID`. The `Search Radius` input must be
   archived because v0.3.0 applies it as the actual interpolation-neighbor distance filter. The audit CSV must also
-  record wind-vector components, `wind_direction_valid` and `normalization_valid` so speed-ratio and streamwise-ratio
-  comparisons remain traceable. Native VTK probe extraction must also record VTK origin, spacing, dimensions, source
-  time steps, source file hashes and nearest-grid coordinates so coordinate-frame and projection errors can be audited
-  from the same table. The validation metrics must record `compared_component_consistency_gate`,
+   record wind-vector components, `wind_direction_valid` and `normalization_valid` so speed-ratio and streamwise-ratio
+   comparisons remain traceable. Native VTK probe extraction must also record VTK origin, spacing, dimensions, source
+   time steps, source file hashes and nearest-grid coordinates so coordinate-frame and projection errors can be audited
+   from the same table. The validation metrics must record `compared_component_consistency_gate`,
    `compared_component_unique_values` and `official_coordinate_delta_count`; every valid probe must use one explicit
-   component and must have an official coordinate-delta check. The machine gate requires
+   component and must have an official coordinate-delta check. The Data Probe audit CSV must also keep one consistent
+   finite `Uref`, one consistent wind vector, and valid `normalization_valid`/`wind_direction_valid` flags for every
+   valid probe; a correct summary metrics row alone is not sufficient. The machine gate requires
    `compared_component_consistency_gate=pass`; a single component label in a summary row is not enough if the per-probe
    component audit is missing or incomplete. Native FluidX3D runs that bypass Grasshopper must use
    `scripts/probe_vtk_points.py` to emit the same Data-Probe-compatible audit CSV before metrics are built. Use

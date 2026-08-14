@@ -218,6 +218,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   `boundary_clearance_reasons`
 - Mean probe distance and maximum probe distance
 - Compared component consistency gate, unique compared components and official coordinate-delta coverage count
+- Per-probe `Uref`, wind vector, `normalization_valid` and `wind_direction_valid` coverage from the Data Probe audit
+  CSV. For paper-grade Case E, every valid probe must carry the same finite normalization basis and declared wind vector;
+  a correct summary metrics row is diagnostic if the per-probe audit is missing or mixed.
 - Native FluidX3D baseline run id or archive path
 - Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
 - Inlet profile preservation audit: selected plane, source VTK steps, `inlet_profile_gate`, `inlet_u_profile_gate`,

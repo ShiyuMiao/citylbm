@@ -498,6 +498,95 @@ def read_probe_projection_audit(
     )
 
 
+def read_probe_coordinate_normalization_audit(
+    path: Optional[Path],
+    expected_uref: Optional[float],
+    uref_tolerance: float,
+    expected_wind_vector: Optional[Tuple[float, float, float]],
+    wind_vector_tolerance: float,
+) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "valid_count": None,
+        "missing_normalization_count": 0,
+        "invalid_normalization_count": 0,
+        "missing_wind_direction_count": 0,
+        "invalid_wind_direction_count": 0,
+        "missing_uref_count": 0,
+        "uref_mismatch_count": 0,
+        "unique_uref_count": None,
+        "missing_wind_vector_count": 0,
+        "wind_vector_mismatch_count": 0,
+        "unique_wind_vector_count": None,
+        "error": None,
+    }
+    if not path or not path.exists():
+        result["error"] = "probe audit CSV not found"
+        return result
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        result["valid_count"] = 0
+        result["error"] = "probe audit CSV has no rows"
+        return result
+
+    valid_count = 0
+    urefs: List[float] = []
+    wind_vectors: List[Tuple[float, float, float]] = []
+    for row in rows:
+        failed_flag = as_bool(get_any(row, ["failed", "Failed", "out_of_tolerance", "OutOfTolerance"]))
+        status = str(get_any(row, ["status", "Status", "validation_status", "ValidationStatus"]) or "").lower()
+        if failed_flag is True or "fail" in status or "out" in status:
+            continue
+        valid_count += 1
+
+        normalization = as_bool(get_any(row, ["normalization_valid", "NormalizationValid"]))
+        if normalization is None:
+            result["missing_normalization_count"] += 1
+        elif normalization is False:
+            result["invalid_normalization_count"] += 1
+
+        wind_valid = as_bool(get_any(row, ["wind_direction_valid", "WindDirectionValid"]))
+        if wind_valid is None:
+            result["missing_wind_direction_count"] += 1
+        elif wind_valid is False:
+            result["invalid_wind_direction_count"] += 1
+
+        row_uref = as_float(get_any(row, ["Uref", "Uref_mps", "U_ref", "ReferenceWindSpeedMps"]))
+        if row_uref is None:
+            result["missing_uref_count"] += 1
+        else:
+            urefs.append(row_uref)
+            if expected_uref is not None and abs(row_uref - expected_uref) > uref_tolerance:
+                result["uref_mismatch_count"] += 1
+
+        row_wind = parse_vector(get_any(row, ["wind_vector", "WindVector"]))
+        if row_wind is None:
+            wx = as_float(get_any(row, ["wind_x", "WindX"]))
+            wy = as_float(get_any(row, ["wind_y", "WindY"]))
+            wz = as_float(get_any(row, ["wind_z", "WindZ"]))
+            if wx is not None and wy is not None and wz is not None:
+                row_wind = (wx, wy, wz)
+        if row_wind is None:
+            result["missing_wind_vector_count"] += 1
+        else:
+            wind_vectors.append(row_wind)
+            delta = vector_delta(row_wind, expected_wind_vector)
+            if expected_wind_vector is not None and (delta is None or delta > wind_vector_tolerance):
+                result["wind_vector_mismatch_count"] += 1
+
+    result["valid_count"] = valid_count
+    result["unique_uref_count"] = len({round(value, 12) for value in urefs})
+    normalized_winds = [normalize_vector(vector) for vector in wind_vectors]
+    result["unique_wind_vector_count"] = len(
+        {
+            tuple(round(component, 12) for component in vector)
+            for vector in normalized_winds
+            if vector is not None
+        }
+    )
+    return result
+
+
 def source_frame_details(metrics: Dict[str, Any]) -> Tuple[Optional[int], str, bool]:
     source_steps = get_any(metrics, ["source_time_steps", "SourceTimeSteps", "source_steps"])
     if source_steps:
@@ -1384,6 +1473,31 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and valid_metric_count > 0
         and coord_delta_count == valid_metric_count
     )
+    probe_coord_norm = read_probe_coordinate_normalization_audit(
+        probe_path,
+        args.expected_uref,
+        args.uref_tolerance,
+        expected_wind_vector,
+        args.wind_vector_tolerance,
+    )
+    probe_coord_norm_ok = (
+        probe_summary_override
+        or (
+            probe_audit_traceable
+            and probe_coord_norm["valid_count"] is not None
+            and probe_coord_norm["valid_count"] > 0
+            and probe_coord_norm["missing_normalization_count"] == 0
+            and probe_coord_norm["invalid_normalization_count"] == 0
+            and probe_coord_norm["missing_wind_direction_count"] == 0
+            and probe_coord_norm["invalid_wind_direction_count"] == 0
+            and probe_coord_norm["missing_uref_count"] == 0
+            and probe_coord_norm["uref_mismatch_count"] == 0
+            and probe_coord_norm["unique_uref_count"] == 1
+            and probe_coord_norm["missing_wind_vector_count"] == 0
+            and probe_coord_norm["wind_vector_mismatch_count"] == 0
+            and probe_coord_norm["unique_wind_vector_count"] == 1
+        )
+    )
     add_gate(
         gates,
         "coordinate_normalization",
@@ -1395,6 +1509,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and wind_vector_ok
         and coord_ok
         and coord_coverage_ok
+        and probe_coord_norm_ok
         else FAIL,
         (
             f"normalization_valid={normalization_valid}; wind_direction_valid={wind_valid}; "
@@ -1403,8 +1518,20 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"wind_vector_unit_delta={wind_delta}; wind_vector_tolerance={args.wind_vector_tolerance}; "
             f"max_official_coordinate_delta_m={coord_delta}; required <= {args.max_official_coordinate_delta_m}; "
             f"official_coordinate_delta_count={coord_delta_count}; valid_n={valid_metric_count}; "
+            f"probe_norm_valid_count={probe_coord_norm['valid_count']}; "
+            f"probe_missing_normalization_count={probe_coord_norm['missing_normalization_count']}; "
+            f"probe_invalid_normalization_count={probe_coord_norm['invalid_normalization_count']}; "
+            f"probe_missing_wind_direction_count={probe_coord_norm['missing_wind_direction_count']}; "
+            f"probe_invalid_wind_direction_count={probe_coord_norm['invalid_wind_direction_count']}; "
+            f"probe_missing_uref_count={probe_coord_norm['missing_uref_count']}; "
+            f"probe_uref_mismatch_count={probe_coord_norm['uref_mismatch_count']}; "
+            f"probe_unique_uref_count={probe_coord_norm['unique_uref_count']}; "
+            f"probe_missing_wind_vector_count={probe_coord_norm['missing_wind_vector_count']}; "
+            f"probe_wind_vector_mismatch_count={probe_coord_norm['wind_vector_mismatch_count']}; "
+            f"probe_unique_wind_vector_count={probe_coord_norm['unique_wind_vector_count']}; "
             f"probe_audit_traceable={probe_audit_traceable}; "
-            f"allow_summary_only_probe_metrics={probe_summary_override}"
+            f"allow_summary_only_probe_metrics={probe_summary_override}; "
+            f"{probe_coord_norm['error'] or ''}"
         ),
         "Audit Uref/Zref, wind sign, compared component and RS probe coordinate transform.",
     )
