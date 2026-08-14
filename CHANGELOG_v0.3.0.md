@@ -63,6 +63,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Boundary support files are now read and SHA256-hashed by `audit_boundary_protocol.py`. Empty, unreadable or
   existence-only files keep `boundary_evidence_files_all_hashed=false`, and the final validation gate fails until the
   evidence artifacts are non-empty and traceable in the run archive.
+- `validation_gate.py` now requires boundary-equivalence support, evidence-file hashes, supported boundary-condition
+  fields and clearance checks to come from the archived `boundary_protocol_audit.json` itself. Metrics CSV fields can
+  no longer self-report those boundary evidence booleans in place of the external audit file.
 - `audit_boundary_protocol.py`, the metrics template and `validation_gate.py` now require independent support booleans
   for inlet, outlet, lateral, top, ground-wall treatment, roughness treatment, floor roughness source, blockage source,
   fetch/clearance source, outlet-reflection check and side/top-boundary check. A text-filled evidence JSON with values

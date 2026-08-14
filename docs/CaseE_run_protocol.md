@@ -75,6 +75,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `aij_verified`, `wind_tunnel_protocol_matched`, `empty_tunnel_passed`, `validated_boundary_model`,
   `precursor_boundary` or `recycling_boundary`. Domain clearance or token-only equivalence text is diagnostic and
   cannot pass the paper-grade boundary gate without a supported evidence class and archived support file.
+  The final gate reads these boundary support booleans from `boundary_protocol_audit.json`; copying equivalent-looking
+  `boundary_*_supported=true` fields into `validation_metrics.csv` is not accepted as AIJ boundary evidence.
 - Audit the generated boundary source before accepting the boundary protocol. Run
   `scripts\audit_boundary_source.py --setup <case_dir>\src\setup.cpp --metadata <case_metadata.json> --out <case_dir>\boundary_source_audit.json`
   and archive `setup_cpp_sha256`, `boundary_source_method_class`, `boundary_source_simplified` and

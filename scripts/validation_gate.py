@@ -1140,14 +1140,39 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         )
         for key in boundary_condition_support_keys
     }
+    external_boundary_condition_support_values = {
+        key: as_bool(get_any(external_boundary_audit, [key]))
+        for key in boundary_condition_support_keys
+    }
     external_boundary_equivalence_supported = as_bool(
         get_any(external_boundary_audit, ["boundary_equivalence_supported"])
         or get_any(metrics, ["boundary_equivalence_supported", "BoundaryEquivalenceSupported"])
+    )
+    external_boundary_equivalence_supported_from_audit = as_bool(
+        get_any(external_boundary_audit, ["boundary_equivalence_supported"])
+    )
+    external_boundary_evidence_gate = str(
+        get_any(external_boundary_audit, ["boundary_evidence_gate"]) or ""
+    ).strip().lower()
+    external_boundary_evidence_class_supported = as_bool(
+        get_any(external_boundary_audit, ["boundary_evidence_class_supported"])
+    )
+    external_boundary_evidence_files_all_exist = as_bool(
+        get_any(external_boundary_audit, ["boundary_evidence_files_all_exist"])
+    )
+    external_boundary_evidence_files_all_hashed = as_bool(
+        get_any(external_boundary_audit, ["boundary_evidence_files_all_hashed"])
+    )
+    external_boundary_condition_fields_supported = as_bool(
+        get_any(external_boundary_audit, ["boundary_condition_fields_supported"])
     )
     clearance_numeric_gate = str(
         get_any(external_boundary_audit, ["clearance_numeric_gate"])
         or get_any(metrics, ["clearance_numeric_gate", "BoundaryClearanceNumericGate"])
         or ""
+    ).strip().lower()
+    external_clearance_numeric_gate = str(
+        get_any(external_boundary_audit, ["clearance_numeric_gate"]) or ""
     ).strip().lower()
     clearance_numeric_reasons = str(
         get_any(external_boundary_audit, ["clearance_numeric_gate_reasons"])
@@ -1243,8 +1268,22 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     boundary_external_ok = external_boundary_protocol_gate == "pass"
     boundary_clearance_ok = clearance_numeric_gate in {"", "pass"}
+    external_boundary_audit_evidence_complete = (
+        boundary_audit_path is not None
+        and boundary_external_ok
+        and external_boundary_evidence_gate == "pass"
+        and external_boundary_equivalence_supported_from_audit is True
+        and external_boundary_evidence_class_supported is True
+        and external_boundary_evidence_files_all_exist is True
+        and external_boundary_evidence_files_all_hashed is True
+        and external_boundary_condition_fields_supported is True
+        and all(value is True for value in external_boundary_condition_support_values.values())
+        and external_clearance_numeric_gate == "pass"
+        and not external_boundary_missing_fields_text
+    )
     boundary_evidence_ok = (
         boundary_evidence_gate == "pass"
+        and external_boundary_audit_evidence_complete
         and boundary_evidence_supported
         and boundary_evidence_class_supported is True
         and boundary_evidence_files_all_exist is True
@@ -1307,6 +1346,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_evidence_source={boundary_evidence_source or 'missing'}; "
             f"boundary_equivalence_basis={boundary_equivalence_basis or 'missing'}; "
             f"boundary_evidence_supported={boundary_evidence_supported}; "
+            f"external_boundary_equivalence_supported_from_audit={external_boundary_equivalence_supported_from_audit}; "
+            f"external_boundary_audit_evidence_complete={external_boundary_audit_evidence_complete}; "
+            f"external_boundary_evidence_gate={external_boundary_evidence_gate or 'missing'}; "
+            f"external_boundary_evidence_class_supported={external_boundary_evidence_class_supported}; "
+            f"external_boundary_evidence_files_all_exist={external_boundary_evidence_files_all_exist}; "
+            f"external_boundary_evidence_files_all_hashed={external_boundary_evidence_files_all_hashed}; "
+            f"external_boundary_condition_fields_supported={external_boundary_condition_fields_supported}; "
+            f"external_boundary_condition_support_values={external_boundary_condition_support_values}; "
             f"boundary_evidence_class={boundary_evidence_class or 'missing'}; "
             f"boundary_evidence_class_supported={boundary_evidence_class_supported}; "
             f"boundary_evidence_files_all_exist={boundary_evidence_files_all_exist}; "
@@ -1316,6 +1363,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_condition_support_reasons={boundary_condition_support_reasons or 'none'}; "
             f"boundary_equivalence_token_inferred={boundary_evidence_supported_by_token}; "
             f"clearance_numeric_gate={clearance_numeric_gate or 'missing'}; "
+            f"external_clearance_numeric_gate={external_clearance_numeric_gate or 'missing'}; "
             f"clearance_numeric_gate_reasons={clearance_numeric_reasons or 'none'}; "
             f"paper_grade_boundary_source_gate_reasons={paper_grade_boundary_source_reasons or 'none'}; "
             f"missing_boundary_evidence_fields={external_boundary_missing_fields_text or 'none'}"
