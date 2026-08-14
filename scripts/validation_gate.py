@@ -235,6 +235,129 @@ def add_gate(gates: List[Dict[str, Any]], key: str, status: str, evidence: str, 
     )
 
 
+def gate_by_key(gates: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    return {str(gate.get("key") or ""): gate for gate in gates}
+
+
+def add_priority(
+    priorities: List[Dict[str, Any]],
+    rank: int,
+    key: str,
+    gate: Optional[Dict[str, Any]],
+    reason: str,
+    action: str,
+) -> None:
+    priorities.append(
+        {
+            "rank": rank,
+            "key": key,
+            "gate_status": str(gate.get("status") or "MISSING") if gate else "MISSING",
+            "reason": reason,
+            "next_action": action,
+        }
+    )
+
+
+def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, Any]) -> List[Dict[str, Any]]:
+    by_key = gate_by_key(gates)
+    priorities: List[Dict[str, Any]] = []
+
+    coordinate_gate = by_key.get("coordinate_normalization")
+    compared_gate = by_key.get("compared_component")
+    probe_gate = by_key.get("probe_mapping")
+    if any(gate is None or gate.get("status") != PASS for gate in [coordinate_gate, compared_gate, probe_gate]):
+        add_priority(
+            priorities,
+            1,
+            "coordinate_component_normalization",
+            coordinate_gate,
+            "Probe coordinates, wind sign, compared component and Uref must be closed before interpreting bias.",
+            "Fix RS probe projection, wind vector, compared_component and Uref/SI velocity conversion first.",
+        )
+
+    time_gate = by_key.get("time_averaging")
+    if time_gate is None or time_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            2,
+            "time_averaging_stationarity",
+            time_gate,
+            "A short or unstable final VTK window can create apparent systematic velocity bias.",
+            "Rerun or postprocess with at least the required final-window frames and stable mean/max speed stddev ratios.",
+        )
+
+    inlet_profile_gate = by_key.get("inlet_profile_preservation")
+    k_gate = by_key.get("k_preservation_or_accuracy")
+    if any(gate is None or gate.get("status") != PASS for gate in [inlet_profile_gate, k_gate]):
+        add_priority(
+            priorities,
+            3,
+            "inlet_profile_u_k_preservation",
+            inlet_profile_gate,
+            "The AF U(z)/k(z) table must be preserved in real VTK frames before probe accuracy is meaningful.",
+            "Run an empty-tunnel or inlet-plane VTK audit and fix profile conversion, k scaling or inlet application.",
+        )
+
+    inlet_gate = by_key.get("inlet_turbulence")
+    length_gate = by_key.get("inlet_length_scale")
+    if any(gate is None or gate.get("status") != PASS for gate in [inlet_gate, length_gate]):
+        add_priority(
+            priorities,
+            4,
+            "turbulent_inlet_method",
+            inlet_gate,
+            "Velocity-field-only or length-scale-free STG-lite cannot establish paper-grade AIJ turbulent inflow.",
+            "Use a distribution-consistent DFM/SEM/precursor/recycling inlet or archive validated turbulence length-scale evidence.",
+        )
+
+    boundary_gate = by_key.get("boundary_protocol")
+    if boundary_gate is None or boundary_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            5,
+            "boundary_roughness_blockage",
+            boundary_gate,
+            "Simplified TYPE_E boundaries, missing rough-wall treatment or excessive blockage can drive systematic underprediction.",
+            "Audit AIJ-equivalent inlet/outlet/lateral/top/floor conditions, roughness treatment, fetch and blockage.",
+        )
+
+    native_gate = by_key.get("native_baseline")
+    if native_gate is None or native_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            6,
+            "native_fluidx3d_baseline",
+            native_gate,
+            "CityLBM accuracy cannot be separated from native FluidX3D/protocol error without a paired native baseline.",
+            "Run native FluidX3D with the same setup, grid, averaging and probes, then compare before changing CityLBM.",
+        )
+
+    systematic_gate = by_key.get("systematic_bias")
+    mean_gate = by_key.get("mean_velocity_accuracy")
+    systematic_flag = str(get_any(metrics, ["systematic_bias_flag"]) or "").strip().lower()
+    bias_diagnosis = str(get_any(metrics, ["bias_diagnosis"]) or "").strip()
+    if systematic_gate is not None and systematic_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            7,
+            "systematic_bias_root_cause",
+            systematic_gate,
+            f"Metrics report systematic bias: {systematic_flag or 'flagged'}; {bias_diagnosis or 'no diagnosis string'}.",
+            "After ranks 1-6 pass, treat remaining bias as a physics/protocol issue and test inlet, boundary, roughness and grid sensitivity.",
+        )
+    elif mean_gate is not None and mean_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            7,
+            "mean_velocity_accuracy",
+            mean_gate,
+            "Mean-flow metrics still fail after prerequisite evidence gates.",
+            "Use the regression slope/intercept, RMSE and bias fields to design the next native-vs-CityLBM sensitivity run.",
+        )
+
+    return priorities
+
+
 def load_protocol_items(audit: Dict[str, Any]) -> List[Dict[str, Any]]:
     if not audit:
         return []
@@ -931,6 +1054,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     failing = [gate for gate in gates if gate["status"] == FAIL]
     warnings = [gate for gate in gates if gate["status"] == WARN]
     verdict = FAIL if failing else (WARN if warnings else PASS)
+    diagnostic_priority = build_diagnostic_priority(gates, metrics)
     return {
         "schema": "citylbm.validation_gate.v1",
         "run_dir": str(run_dir),
@@ -939,6 +1063,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "verdict": verdict,
         "paper_grade": verdict == PASS,
         "gates": gates,
+        "diagnostic_priority": diagnostic_priority,
         "thresholds": {
             "min_avg_frames": args.min_avg_frames,
             "max_mean_speed_stddev_ratio": args.max_mean_speed_stddev_ratio,
@@ -983,6 +1108,18 @@ def print_report(report: Dict[str, Any]) -> None:
         print(f"- [{gate['status']}] {gate['key']}: {gate['evidence']}")
         if gate["status"] != PASS and gate["required_next_action"]:
             print(f"  next: {gate['required_next_action']}")
+    priorities = report.get("diagnostic_priority", [])
+    if priorities:
+        print("Diagnostic priority:")
+        for item in priorities:
+            print(
+                "- rank {rank}: {key} [{status}] - {action}".format(
+                    rank=item.get("rank"),
+                    key=item.get("key"),
+                    status=item.get("gate_status"),
+                    action=item.get("next_action"),
+                )
+            )
 
 
 def main() -> int:

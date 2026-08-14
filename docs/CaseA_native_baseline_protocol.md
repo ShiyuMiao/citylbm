@@ -158,6 +158,10 @@ record must archive `validation_gate_report.json` and the metrics row must inclu
 `solver_stability_warnings=none`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
 `inlet_profile_gate=pass`, zero failed probes, bounded mean-velocity bias/RMSE, and reported `k` bias. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
+The JSON report also includes `diagnostic_priority`, which must be followed in order before changing physics parameters:
+first close coordinate/component/Uref/probe issues, then final-window time averaging, then AF `U/k` preservation, then
+turbulent-inlet method and length scale, then boundary/roughness/blockage, and only then interpret the remaining
+systematic bias as a physics/protocol problem.
 The command intentionally omits `--allow-velocity-only-inlet`; add that flag only for explicitly labelled diagnostic
 STG-lite sensitivity runs, not for the native FluidX3D baseline or a paper-grade CityLBM equivalence claim.
 If `bias_diagnosis` reports `scale_like_error`, audit `Uref`, SI/LBM velocity conversion and compared component before

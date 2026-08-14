@@ -165,6 +165,10 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   tune parameters first. If best-fit scaling removes much of the error, audit Uref, velocity-unit conversion, compared
   component and wind-direction sign. If scaled RMSE remains large, audit inlet turbulence, boundary treatment, roughness
   and probe projection.
+- `validation_gate_report.json` `diagnostic_priority` ranks the next actions after a failed run. For SCI-grade Case E,
+  do not skip lower-rank failures: coordinate/component/Uref/probe closure precedes time averaging; time averaging
+  precedes inlet `U/k` preservation; inlet `U/k` preservation precedes turbulent-inlet method and length-scale claims;
+  boundary/roughness/blockage evidence precedes interpreting a remaining `-34 pp` style low bias as solver accuracy.
 
 ## Current v0.3.0 limitation
 

@@ -119,6 +119,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   VTK packages. It runs the native run audit, inlet `U/k` profile audit, trilinear probe extraction, metrics builder and
   validation gate, then writes `validation_chain_manifest.json` so Case A/Case E reruns cannot skip required evidence
   while being mistaken for fresh CFD simulations.
+- `validation_gate.py` now writes `diagnostic_priority` to the JSON report and console output. Failed runs are triaged
+  in the required order: coordinate/component/Uref/probe evidence, time averaging, inlet `U/k` preservation, turbulent
+  inlet method and length scale, boundary/roughness/blockage, native FluidX3D baseline, then residual systematic-bias
+  root cause.
 
 ## Remaining scientific work
 
