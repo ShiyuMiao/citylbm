@@ -135,6 +135,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Inlet-profile audits now compute `U_RMSE` and `k_RMSE` from the real post-spinup VTK frame window. The standard
   metrics row carries `k_RMSE_m2s2` and `k_RMSE_ratio`, and `validation_gate.py` requires the k RMSE ratio in addition
   to k bias so local turbulent-energy errors cannot be hidden by cancellation.
+- For native FluidX3D baselines, `scripts/validation_metrics_from_probe_audit.py` now falls back to
+  `audit_inlet_profile_from_vtk.py` time-window evidence when a Grasshopper Read VTK audit is not present. The standard
+  metrics row can therefore carry `available_frame_count`, `source_first_time_step`, `source_last_time_step`,
+  `latest_available_time_step`, `selected_last_window`, source-step monotonicity and spacing from the same real VTK
+  inlet-profile audit used for `U/k` preservation.
 - `scripts/validation_gate.py` now has a separate `inlet_profile_preservation` gate. Paper-grade validation fails when
   real VTK frames do not prove that the requested AF `U(z)` and `k(z)` are preserved at the inlet/empty-tunnel audit
   plane.

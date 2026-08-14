@@ -200,6 +200,9 @@ averaging, then AF `U/k` preservation, then turbulent-inlet method, length scale
 boundary/roughness/blockage, and only then interpret the remaining systematic bias as a physics/protocol problem.
 The inlet `U/k` audit follows the same final-window rule as the VTK/probe average: short, non-final or irregular
 source steps fail before the result can be interpreted as solver accuracy.
+When a native FluidX3D run has no Grasshopper Read VTK audit, `scripts/validation_metrics_from_probe_audit.py` uses the
+inlet-profile audit as the authoritative source for `available_frame_count`, selected source time steps, last-window
+selection, source-step monotonicity and uniform-spacing fields in the standard metrics row.
 It also fails when more than 5% of sampled inlet velocities project opposite to the declared wind vector, which catches
 wind-sign and streamwise-component mistakes before AF/profile or probe errors are interpreted.
 The command intentionally omits `--allow-velocity-only-inlet`; add that flag only for explicitly labelled diagnostic

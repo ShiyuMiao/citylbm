@@ -474,6 +474,28 @@ def audit_gate(audit: Dict[str, Any], key: str) -> str:
     return str(value).strip().lower() if value not in (None, "") else ""
 
 
+def first_int(*values: Optional[int]) -> Optional[int]:
+    for value in values:
+        if value is not None:
+            return value
+    return None
+
+
+def first_text(*values: Any) -> str:
+    for value in values:
+        if value not in (None, ""):
+            return str(value)
+    return ""
+
+
+def first_bool_text(*values: Any) -> str:
+    for value in values:
+        parsed = as_bool(value)
+        if parsed is not None:
+            return csv_bool(parsed)
+    return ""
+
+
 def main() -> int:
     args = parse_args()
     probe_path = Path(args.probe_audit).resolve()
@@ -662,7 +684,47 @@ def main() -> int:
     averaging_window = args.averaging_window
     if averaging_window is None:
         averaging_window = audit_int(read_vtk_audit, "averaged_frame_count")
+    if averaging_window is None:
+        averaging_window = audit_int(inlet_profile_audit, "frame_count")
     source_time_steps = args.source_time_steps or audit_source_steps(read_vtk_audit)
+    if not source_time_steps:
+        source_time_steps = audit_source_steps(inlet_profile_audit)
+    available_frame_count = first_int(
+        audit_int(read_vtk_audit, "available_frame_count"),
+        audit_int(inlet_profile_audit, "available_frame_count"),
+    )
+    source_first_time_step = first_int(
+        audit_int(read_vtk_audit, "source_first_time_step"),
+        audit_int(inlet_profile_audit, "source_first_time_step"),
+    )
+    source_last_time_step = first_int(
+        audit_int(read_vtk_audit, "source_last_time_step"),
+        audit_int(inlet_profile_audit, "source_last_time_step"),
+    )
+    latest_available_time_step = first_int(
+        audit_int(read_vtk_audit, "latest_available_time_step"),
+        audit_int(inlet_profile_audit, "latest_available_time_step"),
+    )
+    selected_last_window = first_bool_text(
+        read_vtk_audit.get("selected_last_window"),
+        inlet_profile_audit.get("selected_last_window"),
+    )
+    source_steps_strictly_increasing = first_bool_text(
+        read_vtk_audit.get("source_steps_strictly_increasing"),
+        inlet_profile_audit.get("source_steps_strictly_increasing"),
+    )
+    source_step_spacing_uniform = first_bool_text(
+        read_vtk_audit.get("source_step_spacing_uniform"),
+        inlet_profile_audit.get("source_step_spacing_uniform"),
+    )
+    time_averaging_gate = first_text(
+        read_vtk_audit.get("time_averaging_gate"),
+        inlet_profile_audit.get("time_averaging_gate"),
+    )
+    time_averaging_gate_reasons = first_text(
+        read_vtk_audit.get("time_averaging_gate_reasons_csv"),
+        inlet_profile_audit.get("time_averaging_gate_reasons_csv"),
+    )
     mean_speed = args.mean_speed if args.mean_speed is not None else audit_float(read_vtk_audit, "mean_speed_mps")
     mean_speed_stddev = args.mean_speed_stddev if args.mean_speed_stddev is not None else audit_float(read_vtk_audit, "mean_speed_stddev_mps")
     max_speed_stddev = args.max_speed_stddev if args.max_speed_stddev is not None else audit_float(read_vtk_audit, "max_speed_stddev_mps")
@@ -693,16 +755,16 @@ def main() -> int:
             "steps": fmt(args.steps),
             "save_interval": fmt(args.save_interval),
             "averaging_window": fmt(averaging_window),
-            "available_frame_count": fmt(audit_int(read_vtk_audit, "available_frame_count")),
+            "available_frame_count": fmt(available_frame_count),
             "source_time_steps": source_time_steps,
-            "source_first_time_step": fmt(audit_int(read_vtk_audit, "source_first_time_step")),
-            "source_last_time_step": fmt(audit_int(read_vtk_audit, "source_last_time_step")),
-            "latest_available_time_step": fmt(audit_int(read_vtk_audit, "latest_available_time_step")),
-            "selected_last_window": csv_bool(as_bool(read_vtk_audit.get("selected_last_window"))),
-            "source_steps_strictly_increasing": csv_bool(as_bool(read_vtk_audit.get("source_steps_strictly_increasing"))),
-            "source_step_spacing_uniform": csv_bool(as_bool(read_vtk_audit.get("source_step_spacing_uniform"))),
-            "time_averaging_gate": str(read_vtk_audit.get("time_averaging_gate", "")),
-            "time_averaging_gate_reasons": str(read_vtk_audit.get("time_averaging_gate_reasons_csv", "")),
+            "source_first_time_step": fmt(source_first_time_step),
+            "source_last_time_step": fmt(source_last_time_step),
+            "latest_available_time_step": fmt(latest_available_time_step),
+            "selected_last_window": selected_last_window,
+            "source_steps_strictly_increasing": source_steps_strictly_increasing,
+            "source_step_spacing_uniform": source_step_spacing_uniform,
+            "time_averaging_gate": time_averaging_gate,
+            "time_averaging_gate_reasons": time_averaging_gate_reasons,
             "mean_speed_mps": fmt(mean_speed),
             "mean_speed_stddev_mps": fmt(mean_speed_stddev),
             "max_speed_stddev_mps": fmt(max_speed_stddev),
