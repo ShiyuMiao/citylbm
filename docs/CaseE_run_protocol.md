@@ -91,6 +91,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `negative_streamwise_fraction`, and `inlet_streamwise_direction_gate`. Short, non-final or irregular inlet windows
   fail before probe accuracy is interpreted, and a high reverse-streamwise fraction flags wind-vector or velocity
   component sign errors.
+- The generated FluidX3D source must also be audited before interpreting the VTK result. Run
+  `scripts\audit_inlet_source.py --setup <case_dir>\src\setup.cpp --metadata <case_metadata.json> --out <case_dir>\inlet_source_audit.json`
+  and archive the resulting `setup_cpp_sha256`, `inlet_source_method_class`,
+  `inlet_source_distribution_consistent` and `inlet_source_velocity_field_only` fields. A method name or metadata flag is
+  not sufficient for SCI-grade Case E validation if the generated source only refreshes macroscopic velocity fields.
 - The turbulent-inlet correlation must be verified from the same real final-window VTK frames with
   `scripts\audit_inlet_correlation_from_vtk.py`. This audit records streamwise fluctuation variance, temporal lag-1
   signed correlation, temporal lag-1 absolute correlation for diagnosis, and adjacent spatial correlation. It is

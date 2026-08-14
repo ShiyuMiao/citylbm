@@ -347,14 +347,15 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
             "Run an empty-tunnel or inlet-plane VTK audit and fix profile conversion, k scaling or inlet application.",
         )
 
+    source_gate = by_key.get("inlet_source_evidence")
     inlet_gate = by_key.get("inlet_turbulence")
     paper_inlet_gate = by_key.get("paper_grade_inlet_method")
     length_gate = by_key.get("inlet_length_scale")
     correlation_gate = by_key.get("inlet_correlation")
-    if any(gate is None or gate.get("status") != PASS for gate in [inlet_gate, paper_inlet_gate, length_gate, correlation_gate]):
+    if any(gate is None or gate.get("status") != PASS for gate in [source_gate, inlet_gate, paper_inlet_gate, length_gate, correlation_gate]):
         inlet_priority_gate = next(
             (
-                gate for gate in [inlet_gate, paper_inlet_gate, length_gate, correlation_gate]
+                gate for gate in [source_gate, inlet_gate, paper_inlet_gate, length_gate, correlation_gate]
                 if gate is None or gate.get("status") != PASS
             ),
             inlet_gate,
@@ -763,6 +764,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     metadata_path = find_first(run_dir, ["case_metadata.json"])
     audit_path = find_first(run_dir, ["validation_protocol_audit.json"])
     inlet_correlation_audit_path = find_first(run_dir, ["inlet_correlation_audit.json"])
+    inlet_source_audit_path = find_first(run_dir, ["inlet_source_audit.json"])
     boundary_audit_path = find_first(run_dir, ["boundary_protocol_audit.json"])
     component_sensitivity_audit_path = find_first(run_dir, ["component_sensitivity_audit.json"])
     grid_sensitivity_audit_path = find_first(run_dir, ["grid_sensitivity_audit.json"])
@@ -774,6 +776,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     metadata = read_json(metadata_path)
     audit = read_json(audit_path)
     inlet_correlation_audit = read_json(inlet_correlation_audit_path)
+    inlet_source_audit = read_json(inlet_source_audit_path)
     external_boundary_audit = read_json(boundary_audit_path)
     component_sensitivity_audit = read_json(component_sensitivity_audit_path)
     grid_sensitivity_audit = read_json(grid_sensitivity_audit_path)
@@ -791,6 +794,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         PASS
         if metadata_path
         and audit_path
+        and inlet_source_audit_path
         and boundary_audit_path
         and grid_sensitivity_audit_path
         and (native_citylbm_parity_audit_path or not citylbm_result)
@@ -799,12 +803,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         else FAIL,
         (
             f"metadata={metadata_path or 'missing'}; audit={audit_path or 'missing'}; "
+            f"inlet_source_audit={inlet_source_audit_path or 'missing'}; "
             f"boundary_audit={boundary_audit_path or 'missing'}; "
             f"grid_sensitivity_audit={grid_sensitivity_audit_path or 'missing'}; "
             f"native_citylbm_parity_audit={native_citylbm_parity_audit_path or ('missing' if citylbm_result else ('not_required_for_' + (software_label or 'unknown')))}; "
             f"metrics={metrics_path or 'missing'}"
         ),
-        "Archive case_metadata.json, validation_protocol_audit.json, boundary_protocol_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
+        "Archive case_metadata.json, validation_protocol_audit.json, inlet_source_audit.json, boundary_protocol_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
     )
 
     run_freshness_gate = str(
@@ -1322,6 +1327,62 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         or metadata.get("PaperGradeInletMethodClassSupported")
         or metadata.get("InletMethodClassSupported")
     )
+    inlet_source_gate = str(
+        get_first_available(
+            get_any(inlet_source_audit, ["inlet_source_gate"]),
+            get_any(metrics, ["inlet_source_gate", "InletSourceGate"]),
+        )
+        or ""
+    ).strip().lower()
+    inlet_source_reasons = str(
+        get_first_available(
+            get_any(inlet_source_audit, ["inlet_source_gate_reasons_csv"]),
+            get_any(inlet_source_audit, ["inlet_source_gate_reasons"]),
+            get_any(metrics, ["inlet_source_gate_reasons", "InletSourceGateReasons"]),
+        )
+        or ""
+    )
+    paper_grade_inlet_source_gate = str(
+        get_first_available(
+            get_any(inlet_source_audit, ["paper_grade_inlet_source_gate"]),
+            get_any(metrics, ["paper_grade_inlet_source_gate", "PaperGradeInletSourceGate"]),
+        )
+        or ""
+    ).strip().lower()
+    paper_grade_inlet_source_reasons = str(
+        get_first_available(
+            get_any(inlet_source_audit, ["paper_grade_inlet_source_gate_reasons_csv"]),
+            get_any(inlet_source_audit, ["paper_grade_inlet_source_gate_reasons"]),
+            get_any(metrics, ["paper_grade_inlet_source_gate_reasons", "PaperGradeInletSourceGateReasons"]),
+        )
+        or ""
+    )
+    inlet_source_method_class = str(
+        get_first_available(
+            get_any(inlet_source_audit, ["inlet_source_method_class"]),
+            get_any(metrics, ["inlet_source_method_class", "InletSourceMethodClass"]),
+        )
+        or ""
+    ).strip()
+    inlet_source_distribution_consistent = as_bool(
+        get_first_available(
+            get_any(inlet_source_audit, ["inlet_source_distribution_consistent"]),
+            get_any(metrics, ["inlet_source_distribution_consistent", "InletSourceDistributionConsistent"]),
+        )
+    )
+    inlet_source_velocity_field_only = as_bool(
+        get_first_available(
+            get_any(inlet_source_audit, ["inlet_source_velocity_field_only"]),
+            get_any(metrics, ["inlet_source_velocity_field_only", "InletSourceVelocityFieldOnly"]),
+        )
+    )
+    inlet_source_setup_sha256 = str(
+        get_first_available(
+            get_any(inlet_source_audit, ["setup_cpp_sha256"]),
+            get_any(metrics, ["inlet_source_setup_sha256", "InletSourceSetupSha256"]),
+        )
+        or ""
+    ).strip()
     inlet_profile_gate = str(get_any(metrics, ["inlet_profile_gate"]) or "").strip().lower()
     inlet_u_profile_gate = str(get_any(metrics, ["inlet_u_profile_gate"]) or "").strip().lower()
     inlet_k_profile_gate = str(get_any(metrics, ["inlet_k_profile_gate"]) or "").strip().lower()
@@ -1464,6 +1525,29 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Run scripts/audit_inlet_profile_from_vtk.py on real post-spinup VTK frames and pass U(z)/k(z) preservation before paper-grade validation.",
     )
 
+    inlet_source_evidence_ok = (
+        inlet_source_audit_path is not None
+        and inlet_source_gate == "pass"
+        and bool(inlet_source_method_class)
+        and bool(inlet_source_setup_sha256)
+    )
+    add_gate(
+        gates,
+        "inlet_source_evidence",
+        PASS if inlet_source_evidence_ok else FAIL,
+        (
+            f"inlet_source_audit={inlet_source_audit_path or 'missing'}; "
+            f"inlet_source_gate={inlet_source_gate or 'missing'}; "
+            f"paper_grade_inlet_source_gate={paper_grade_inlet_source_gate or 'missing'}; "
+            f"source_method_class={inlet_source_method_class or 'missing'}; "
+            f"source_distribution_consistent={inlet_source_distribution_consistent}; "
+            f"source_velocity_field_only={inlet_source_velocity_field_only}; "
+            f"setup_cpp_sha256={inlet_source_setup_sha256 or 'missing'}; "
+            f"inlet_source_gate_reasons={inlet_source_reasons or 'none'}"
+        ),
+        "Run scripts/audit_inlet_source.py on the generated setup.cpp and archive the source hash and inlet implementation class before interpreting probe accuracy.",
+    )
+
     add_gate(
         gates,
         "inlet_turbulence",
@@ -1481,6 +1565,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
 
     paper_grade_inlet_pass = (
         empty_tunnel_pass
+        and inlet_source_evidence_ok
+        and paper_grade_inlet_source_gate == "pass"
+        and inlet_source_distribution_consistent is True
+        and inlet_source_velocity_field_only is not True
         and paper_method_class_ok
         and (
             treatment_distribution_consistent
@@ -1497,6 +1585,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"method_class={inlet_method_class or 'missing'}; "
             f"method_class_supported={inlet_method_class_supported}; "
             f"inferred_method_class_supported={inferred_method_class_supported}; "
+            f"source_method_class={inlet_source_method_class or 'missing'}; "
+            f"inlet_source_gate={inlet_source_gate or 'missing'}; "
+            f"paper_grade_inlet_source_gate={paper_grade_inlet_source_gate or 'missing'}; "
+            f"source_distribution_consistent={inlet_source_distribution_consistent}; "
+            f"source_velocity_field_only={inlet_source_velocity_field_only}; "
             f"treatment={inlet_treatment or 'missing'}; "
             f"inlet_distribution_consistency={distribution_status or 'missing'}; "
             f"velocity_field_only={treatment_velocity_only}; "
@@ -1504,6 +1597,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"paper_method_class_ok={paper_method_class_ok}; "
             f"distribution_consistent={treatment_distribution_consistent}; "
             f"empty_tunnel_or_inlet_profile_pass={empty_tunnel_pass}; "
+            f"paper_grade_inlet_source_gate_reasons={paper_grade_inlet_source_reasons or 'none'}; "
             f"allow_velocity_only_inlet={args.allow_velocity_only_inlet}"
         ),
         (
@@ -2425,6 +2519,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "artifacts": {
             "case_metadata": str(metadata_path) if metadata_path else "",
             "validation_protocol_audit": str(audit_path) if audit_path else "",
+            "inlet_source_audit": str(inlet_source_audit_path) if inlet_source_audit_path else "",
             "inlet_correlation_audit": str(inlet_correlation_audit_path) if inlet_correlation_audit_path else "",
             "boundary_protocol_audit": str(boundary_audit_path) if boundary_audit_path else "",
             "component_sensitivity_audit": str(component_sensitivity_audit_path) if component_sensitivity_audit_path else "",

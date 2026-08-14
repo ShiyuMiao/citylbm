@@ -117,6 +117,15 @@ TEMPLATE_FIELDS = [
     "clearance_numeric_gate",
     "boundary_clearance_reasons",
     "boundary_summary",
+    "inlet_source_audit",
+    "inlet_source_gate",
+    "inlet_source_gate_reasons",
+    "paper_grade_inlet_source_gate",
+    "paper_grade_inlet_source_gate_reasons",
+    "inlet_source_method_class",
+    "inlet_source_distribution_consistent",
+    "inlet_source_velocity_field_only",
+    "inlet_source_setup_sha256",
     "synthetic_inlet_method",
     "inlet_distribution_treatment",
     "inlet_method_class",
@@ -246,6 +255,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--read-vtk-audit", help="Optional Read VTK Averaging Audit JSON.")
     parser.add_argument("--inlet-profile-audit", help="Optional inlet/empty-tunnel profile audit JSON from audit_inlet_profile_from_vtk.py.")
     parser.add_argument("--inlet-correlation-audit", help="Optional inlet correlation audit JSON from audit_inlet_correlation_from_vtk.py.")
+    parser.add_argument("--inlet-source-audit", help="Optional inlet_source_audit.json from audit_inlet_source.py.")
     parser.add_argument("--boundary-protocol-audit", help="Optional boundary_protocol_audit.json from audit_boundary_protocol.py.")
     parser.add_argument("--component-sensitivity-audit", help="Optional component/Uref sensitivity JSON from audit_component_sensitivity.py.")
     parser.add_argument("--grid-sensitivity-audit", help="Optional grid_sensitivity_audit.json from audit_grid_sensitivity.py.")
@@ -720,6 +730,7 @@ def main() -> int:
     read_vtk_audit = read_json(Path(args.read_vtk_audit).resolve() if args.read_vtk_audit else None)
     inlet_profile_audit = read_json(Path(args.inlet_profile_audit).resolve() if args.inlet_profile_audit else None)
     inlet_correlation_audit = read_json(Path(args.inlet_correlation_audit).resolve() if args.inlet_correlation_audit else None)
+    inlet_source_audit = read_json(Path(args.inlet_source_audit).resolve() if args.inlet_source_audit else None)
     boundary_protocol_audit = read_json(Path(args.boundary_protocol_audit).resolve() if args.boundary_protocol_audit else None)
     component_sensitivity_audit = read_json(Path(args.component_sensitivity_audit).resolve() if args.component_sensitivity_audit else None)
     grid_sensitivity_audit = read_json(Path(args.grid_sensitivity_audit).resolve() if args.grid_sensitivity_audit else None)
@@ -1134,6 +1145,27 @@ def main() -> int:
             if isinstance(boundary_protocol_audit.get("clearance_numeric_gate_reasons"), list)
             else str(boundary_protocol_audit.get("clearance_numeric_gate_reasons", "")),
             "boundary_summary": metadata_field(metadata, "BoundaryConditionSummary"),
+            "inlet_source_audit": str(Path(args.inlet_source_audit).resolve()) if args.inlet_source_audit else "",
+            "inlet_source_gate": audit_gate(inlet_source_audit, "inlet_source_gate"),
+            "inlet_source_gate_reasons": ";".join(
+                str(reason) for reason in inlet_source_audit.get("inlet_source_gate_reasons", [])
+            )
+            if isinstance(inlet_source_audit.get("inlet_source_gate_reasons"), list)
+            else audit_field(inlet_source_audit, "inlet_source_gate_reasons_csv"),
+            "paper_grade_inlet_source_gate": audit_gate(inlet_source_audit, "paper_grade_inlet_source_gate"),
+            "paper_grade_inlet_source_gate_reasons": ";".join(
+                str(reason) for reason in inlet_source_audit.get("paper_grade_inlet_source_gate_reasons", [])
+            )
+            if isinstance(inlet_source_audit.get("paper_grade_inlet_source_gate_reasons"), list)
+            else audit_field(inlet_source_audit, "paper_grade_inlet_source_gate_reasons_csv"),
+            "inlet_source_method_class": audit_field(inlet_source_audit, "inlet_source_method_class"),
+            "inlet_source_distribution_consistent": first_bool_text(
+                inlet_source_audit.get("inlet_source_distribution_consistent")
+            ),
+            "inlet_source_velocity_field_only": first_bool_text(
+                inlet_source_audit.get("inlet_source_velocity_field_only")
+            ),
+            "inlet_source_setup_sha256": audit_field(inlet_source_audit, "setup_cpp_sha256"),
             "synthetic_inlet_method": infer_synthetic_inlet_method(metadata),
             "inlet_distribution_treatment": infer_inlet_distribution_treatment(metadata),
             "inlet_method_class": infer_inlet_method_class(metadata),

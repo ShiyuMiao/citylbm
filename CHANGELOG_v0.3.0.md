@@ -176,6 +176,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `--allow-velocity-only-inlet` override can no longer make a velocity-field-only STG-lite run paper-grade; formal
   validation still requires a distribution-consistent digital-filter, SEM/DFM, precursor or recycling inlet plus
   final-window U/k preservation evidence.
+- Added `scripts/audit_inlet_source.py` and wired `inlet_source_audit.json` into the metrics template, native validation
+  chain and final gate. The audit hashes the generated `setup.cpp`, classifies the actual inlet implementation and fails
+  paper-grade promotion when a method is only velocity-field forcing or when metadata claims distribution consistency
+  without matching source evidence.
 - Added `scripts/probe_vtk_points.py` to sample native FluidX3D/CityLBM VTK frames at official RS probe points and emit
   the same Data-Probe-compatible audit CSV used by Grasshopper, including official coordinates, nearest-node distance,
   Uref, wind-vector evidence, compared component, time-averaged value and per-probe failure flags.
@@ -189,12 +193,12 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Probe-derived metrics now preserve the actual `Uref` used by `Data Probe` and read `WindDirectionUnitVector` from
   `case_metadata.json`, so wind/normalization evidence is not lost during validation-gate reporting.
 - Added `scripts/run_native_validation_chain.py` as a one-command post-run evidence chain for native FluidX3D/CityLBM
-  VTK packages. It runs the native run audit, inlet `U/k` profile audit, trilinear probe extraction, metrics builder and
+  VTK packages. It runs the native run audit, generated `setup.cpp` inlet-source audit, inlet `U/k` profile audit, trilinear probe extraction, metrics builder and
   validation gate, then writes `validation_chain_manifest.json` so Case A/Case E reruns cannot skip required evidence
   while being mistaken for fresh CFD simulations.
 - `validation_gate.py` now writes `diagnostic_priority` to the JSON report and console output. Failed runs are triaged
   in the required order: coordinate/component/Uref/probe evidence plus component/Uref sensitivity, time averaging, inlet
-  `U/k` preservation, turbulent inlet method, length scale and correlation evidence, boundary/roughness/blockage, native
+  `U/k` preservation, generated-source inlet evidence, turbulent inlet method, length scale and correlation evidence, boundary/roughness/blockage, native
   FluidX3D baseline, native/CityLBM parity, grid sensitivity, then residual systematic-bias root cause.
 - Added `scripts/audit_grid_sensitivity.py` and wired its output into the metrics template, validation chain and final
   gate. Paper-grade runs now require `grid_sensitivity_audit.json` with at least two matched dx levels, a finest dx that

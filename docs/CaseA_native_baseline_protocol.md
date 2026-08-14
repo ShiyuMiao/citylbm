@@ -124,6 +124,11 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    gate only accepts it with the explicit `--allow-velocity-only-inlet` diagnostic override after an empty-tunnel run
    proves downstream `U/k` preservation. Paper-grade promotion should use a validated DFM/SEM/precursor/recycling inlet
    or another documented distribution-consistent treatment.
+   Run `scripts/audit_inlet_source.py` on the generated `setup.cpp` before interpreting any VTK result. Archive
+   `inlet_source_audit.json` with `setup_cpp_sha256`, `inlet_source_method_class`,
+   `inlet_source_distribution_consistent` and `inlet_source_velocity_field_only`; `validation_gate.py` fails
+   `paper_grade_inlet_method` when metadata claims a distribution-consistent inlet but the generated source only shows
+   macroscopic velocity-field forcing.
    In addition to RMS/k preservation, run `scripts/audit_inlet_correlation_from_vtk.py` on the same final-window VTK
    frames. The correlation audit records streamwise fluctuation variance, signed temporal lag-1 correlation, temporal
    lag-1 absolute correlation for diagnosis, and adjacent spatial correlation; a missing or failing audit means the
@@ -281,6 +286,8 @@ If metrics are produced from Grasshopper `Data Probe`, build the metrics row fir
 ```powershell
 python scripts\audit_native_run.py <run_dir> --metadata <case_metadata.json> --solver-log <solver.log> --average-last-n 10 --out <native_run_audit.json>
 
+python scripts\audit_inlet_source.py --setup <run_dir>\src\setup.cpp --metadata <case_metadata.json> --out <run_dir>\inlet_source_audit.json
+
 python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
 
 python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_correlation_audit.json
@@ -289,7 +296,7 @@ python scripts\probe_vtk_points.py <run_dir>\output --official <RS-caseA.csv> --
 
 python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --case CaseA --wind-direction <direction> --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
 
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --component-sensitivity-audit <run_dir>\component_sensitivity_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-source-audit <run_dir>\inlet_source_audit.json --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --component-sensitivity-audit <run_dir>\component_sensitivity_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
 
 Before the final gate, archive the AIJ boundary evidence as JSON and audit it:
