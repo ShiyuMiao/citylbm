@@ -90,6 +90,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    precursor/recycling development, or another documented treatment. In CityLBM v0.3.0 `RoughnessLength` shapes analytic
    mean-profile generation only; ground/buildings remain `TYPE_S` no-slip, so this gate must be closed by empty-tunnel
    `U/k` preservation before Case A/Case E is promoted.
+   The machine gate reports this separately as `roughness_or_precursor`. A passing boundary-clearance/blockage audit is
+   not enough: the run must also archive source-driven AIJ roughness geometry, a validated rough-wall treatment, or a
+   passing empty-tunnel precursor/recycling equivalence record.
 
 4. Boundary blockage gate.
    Archive domain dimensions, maximum building height, upstream/downstream/lateral/top clearance in `H`, approximate

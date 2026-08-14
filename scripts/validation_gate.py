@@ -328,12 +328,17 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         )
 
     boundary_gate = by_key.get("boundary_protocol")
-    if boundary_gate is None or boundary_gate.get("status") != PASS:
+    roughness_gate = by_key.get("roughness_or_precursor")
+    if any(gate is None or gate.get("status") != PASS for gate in [boundary_gate, roughness_gate]):
+        boundary_priority_gate = next(
+            (gate for gate in [boundary_gate, roughness_gate] if gate is None or gate.get("status") != PASS),
+            boundary_gate,
+        )
         add_priority(
             priorities,
             5,
             "boundary_roughness_blockage",
-            boundary_gate,
+            boundary_priority_gate,
             "Simplified TYPE_E boundaries, missing rough-wall treatment or excessive blockage can drive systematic underprediction.",
             "Audit AIJ-equivalent inlet/outlet/lateral/top/floor conditions, roughness treatment, fetch and blockage.",
         )
@@ -765,6 +770,86 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"missing_boundary_evidence_fields={external_boundary_missing_fields_text or 'none'}"
         ),
         "Fix domain extents/model placement, reduce blockage, and archive AIJ-equivalent boundary/fetch/roughness evidence or an empty-tunnel/native boundary-preservation check.",
+    )
+
+    roughness_layout = metadata.get("RoughnessLayout") if isinstance(metadata.get("RoughnessLayout"), dict) else {}
+    equivalent_precursor = metadata.get("EquivalentPrecursor") if isinstance(metadata.get("EquivalentPrecursor"), dict) else {}
+    wall_roughness_treatment = str(
+        get_any(metrics, ["wall_roughness_treatment", "WallRoughnessTreatment"])
+        or metadata.get("WallRoughnessTreatment")
+        or ""
+    ).strip()
+    external_roughness_treatment = str(get_any(external_boundary_audit, ["roughness_treatment"]) or "").strip()
+    floor_roughness_source = str(
+        get_any(external_boundary_audit, ["floor_roughness_source"])
+        or get_any(metrics, ["floor_roughness_source", "FloorRoughnessSource"])
+        or get_any(roughness_layout, ["SourceReferences"])
+        or ""
+    ).strip()
+    roughness_layout_enabled = as_bool(roughness_layout.get("Enabled"))
+    roughness_layout_paper = as_bool(roughness_layout.get("PaperSourceAdmissible"))
+    roughness_voxel_count = as_int(roughness_layout.get("VoxelizedBoxCount"))
+    precursor_enabled = as_bool(equivalent_precursor.get("Enabled"))
+    precursor_empty_gate = as_bool(equivalent_precursor.get("EmptyTunnelGatePass"))
+    precursor_paper = as_bool(equivalent_precursor.get("PaperAdmissible"))
+    precursor_method_class = str(equivalent_precursor.get("MethodClass") or "").strip()
+    roughness_text = " ".join(
+        [
+            wall_roughness_treatment,
+            external_roughness_treatment,
+            floor_roughness_source,
+            precursor_method_class,
+        ]
+    ).lower()
+    roughness_source_supported = any(
+        token in roughness_text
+        for token in [
+            "aij_verified",
+            "official",
+            "wind_tunnel_protocol_matched",
+            "roughness_layout_source",
+            "validated_rough_wall",
+            "empty_tunnel_passed",
+            "precursor",
+            "recycling",
+        ]
+    )
+    roughness_layout_ok = (
+        roughness_layout_enabled is True
+        and roughness_layout_paper is True
+        and roughness_voxel_count is not None
+        and roughness_voxel_count > 0
+    )
+    precursor_ok = precursor_enabled is True and precursor_empty_gate is True and precursor_paper is True
+    external_roughness_ok = (
+        boundary_evidence_gate == "pass"
+        and bool(external_roughness_treatment)
+        and bool(floor_roughness_source)
+        and roughness_source_supported
+    )
+    roughness_or_precursor_ok = roughness_layout_ok or precursor_ok or external_roughness_ok
+    add_gate(
+        gates,
+        "roughness_or_precursor",
+        PASS if roughness_or_precursor_ok else FAIL,
+        (
+            f"wall_roughness_treatment={wall_roughness_treatment or 'missing'}; "
+            f"external_roughness_treatment={external_roughness_treatment or 'missing'}; "
+            f"floor_roughness_source={floor_roughness_source or 'missing'}; "
+            f"roughness_layout_enabled={roughness_layout_enabled}; "
+            f"roughness_layout_paper_admissible={roughness_layout_paper}; "
+            f"roughness_voxel_count={roughness_voxel_count}; "
+            f"equivalent_precursor_enabled={precursor_enabled}; "
+            f"equivalent_precursor_empty_gate={precursor_empty_gate}; "
+            f"equivalent_precursor_paper_admissible={precursor_paper}; "
+            f"precursor_method_class={precursor_method_class or 'missing'}; "
+            f"roughness_source_supported={roughness_source_supported}; "
+            f"boundary_evidence_gate={boundary_evidence_gate or 'missing'}"
+        ),
+        (
+            "Archive source-driven AIJ roughness geometry, a validated rough-wall treatment, or a passing "
+            "empty-tunnel precursor/recycling equivalence record before promoting Case A/E validation."
+        ),
     )
 
     inlet_status = protocol_status(items, "inlet_turbulence_k")
