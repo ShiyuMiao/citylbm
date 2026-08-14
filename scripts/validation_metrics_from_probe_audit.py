@@ -442,6 +442,85 @@ def nested(metadata: Dict[str, Any], parent: str, key: str) -> str:
     return ""
 
 
+def infer_synthetic_inlet_method(metadata: Dict[str, Any]) -> str:
+    method = metadata_field(metadata, "SyntheticTurbulentInletMethod", "TurbulenceMethod")
+    if method:
+        return method
+    if as_bool(nested(metadata, "SyntheticEddy", "Enabled")) is True:
+        return "synthetic-eddy"
+    if as_bool(nested(metadata, "RecyclingRescaling", "Enabled")) is True:
+        return "recycling-rescaling"
+    return ""
+
+
+def infer_inlet_distribution_treatment(metadata: Dict[str, Any]) -> str:
+    explicit = metadata_field(metadata, "SyntheticTurbulentInletDistributionTreatment")
+    if explicit:
+        return explicit
+    method = infer_synthetic_inlet_method(metadata).lower()
+    if as_bool(nested(metadata, "SyntheticEddy", "Enabled")) is True or "synthetic" in method:
+        if as_bool(nested(metadata, "SyntheticEddy", "DeviceSemStressDdf")) is True:
+            return "synthetic_eddy_stress_ddf_diagnostic_unverified"
+        if as_bool(nested(metadata, "SyntheticEddy", "DeviceSideInlet")) is True:
+            return "synthetic_eddy_velocity_field_only"
+        return "synthetic_eddy_host_velocity_field_only"
+    if "digital" in method:
+        return "digital_filter_velocity_field_only_unless_distribution_evidence_archived"
+    if "recycling" in method:
+        return "recycling_rescaling_velocity_field_only_unless_precursor_evidence_archived"
+    if "hash" in method or "random" in method:
+        return "uncorrelated_rms_k_velocity_field_only"
+    return ""
+
+
+def infer_synthetic_update_interval(metadata: Dict[str, Any]) -> str:
+    return metadata_field(metadata, "SyntheticTurbulenceUpdateInterval", "InletUpdateInterval")
+
+
+def infer_synthetic_correlation_length_m(metadata: Dict[str, Any]) -> str:
+    explicit = metadata_field(metadata, "SyntheticTurbulenceCorrelationLengthM")
+    if explicit:
+        return explicit
+    dx = as_float(metadata.get("Dx"))
+    lx_cells = as_float(nested(metadata, "SyntheticEddy", "LxCells"))
+    if dx is not None and lx_cells is not None:
+        return fmt(dx * lx_cells)
+    return ""
+
+
+def infer_inlet_length_scale_source(metadata: Dict[str, Any]) -> str:
+    explicit = metadata_field(metadata, "SyntheticTurbulentInletLengthScaleSource")
+    if explicit:
+        return explicit
+    if as_bool(nested(metadata, "SyntheticEddy", "Enabled")) is True:
+        return "synthetic_eddy_case_parameter_no_external_length_scale_source"
+    if "digital" in infer_synthetic_inlet_method(metadata).lower():
+        return "digital_filter_case_parameter_no_external_length_scale_source"
+    return ""
+
+
+def infer_inlet_length_scale_gate(metadata: Dict[str, Any]) -> str:
+    explicit = metadata_field(metadata, "SyntheticTurbulentInletLengthScaleGate")
+    if explicit:
+        return explicit
+    source = infer_inlet_length_scale_source(metadata)
+    if source:
+        return "diagnostic_missing_validated_length_scale_source"
+    return ""
+
+
+def infer_wall_roughness_treatment(metadata: Dict[str, Any]) -> str:
+    explicit = metadata_field(metadata, "WallRoughnessTreatment")
+    if explicit:
+        return explicit
+    if as_bool(nested(metadata, "RoughnessLayout", "Enabled")) is False:
+        return "roughness_layout_disabled_no_wind_tunnel_source"
+    rough_wall = metadata.get("RoughWallDrag") if isinstance(metadata.get("RoughWallDrag"), dict) else {}
+    if as_bool(rough_wall.get("VolumeForceEnabled")) is True:
+        return "equivalent_rough_wall_drag_diagnostic"
+    return ""
+
+
 def audit_float(audit: Dict[str, Any], key: str) -> Optional[float]:
     return as_float(audit.get(key))
 
@@ -848,14 +927,14 @@ def main() -> int:
             if isinstance(boundary_protocol_audit.get("clearance_numeric_gate_reasons"), list)
             else str(boundary_protocol_audit.get("clearance_numeric_gate_reasons", "")),
             "boundary_summary": metadata_field(metadata, "BoundaryConditionSummary"),
-            "synthetic_inlet_method": metadata_field(metadata, "SyntheticTurbulentInletMethod"),
-            "inlet_distribution_treatment": metadata_field(metadata, "SyntheticTurbulentInletDistributionTreatment"),
-            "wall_roughness_treatment": metadata_field(metadata, "WallRoughnessTreatment"),
-            "synthetic_update_interval": metadata_field(metadata, "SyntheticTurbulenceUpdateInterval"),
+            "synthetic_inlet_method": infer_synthetic_inlet_method(metadata),
+            "inlet_distribution_treatment": infer_inlet_distribution_treatment(metadata),
+            "wall_roughness_treatment": infer_wall_roughness_treatment(metadata),
+            "synthetic_update_interval": infer_synthetic_update_interval(metadata),
             "synthetic_max_fraction": metadata_field(metadata, "SyntheticTurbulenceMaxFractionOfMean"),
-            "synthetic_correlation_length_m": metadata_field(metadata, "SyntheticTurbulenceCorrelationLengthM"),
-            "inlet_length_scale_source": metadata_field(metadata, "SyntheticTurbulentInletLengthScaleSource"),
-            "inlet_length_scale_gate": metadata_field(metadata, "SyntheticTurbulentInletLengthScaleGate"),
+            "synthetic_correlation_length_m": infer_synthetic_correlation_length_m(metadata),
+            "inlet_length_scale_source": infer_inlet_length_scale_source(metadata),
+            "inlet_length_scale_gate": infer_inlet_length_scale_gate(metadata),
             "inlet_correlation_audit": str(Path(args.inlet_correlation_audit).resolve()) if args.inlet_correlation_audit else "",
             "inlet_correlation_gate": audit_gate(inlet_correlation_audit, "inlet_correlation_gate"),
             "inlet_temporal_lag1_correlation": fmt(audit_float(inlet_correlation_audit, "temporal_lag1_mean_correlation")),

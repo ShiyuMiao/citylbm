@@ -8,7 +8,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Case: AIJ Case A isolated building.
 - Purpose: establish a native FluidX3D reference with controlled inlet, boundary, coordinate, averaging and probe
   extraction settings.
-- Evidence status in this repository: protocol-ready, not newly run.
+- Evidence status in this repository: protocol-ready with a newly generated strict preflight record; no new CFD solver
+  result is archived.
 - Required platform: native FluidX3D source tree with `FluidX3D.sln` or `makefile`, not the placeholder
   `src/Resources/FluidX3D/FluidX3D.source.zip`.
 - For CityLBM v0.3.0 validation runs, the `Run Simulation / FX3D` input must be explicitly set. Mode 1/2/3 reject
