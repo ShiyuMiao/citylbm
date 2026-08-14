@@ -307,14 +307,22 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         )
 
     inlet_gate = by_key.get("inlet_turbulence")
+    paper_inlet_gate = by_key.get("paper_grade_inlet_method")
     length_gate = by_key.get("inlet_length_scale")
     correlation_gate = by_key.get("inlet_correlation")
-    if any(gate is None or gate.get("status") != PASS for gate in [inlet_gate, length_gate, correlation_gate]):
+    if any(gate is None or gate.get("status") != PASS for gate in [inlet_gate, paper_inlet_gate, length_gate, correlation_gate]):
+        inlet_priority_gate = next(
+            (
+                gate for gate in [inlet_gate, paper_inlet_gate, length_gate, correlation_gate]
+                if gate is None or gate.get("status") != PASS
+            ),
+            inlet_gate,
+        )
         add_priority(
             priorities,
             4,
             "turbulent_inlet_method",
-            inlet_gate,
+            inlet_priority_gate,
             "Velocity-field-only, length-scale-free or correlation-unverified STG-lite cannot establish paper-grade AIJ turbulent inflow.",
             "Use a distribution-consistent DFM/SEM/precursor/recycling inlet or archive validated turbulence length-scale and inlet correlation evidence.",
         )
@@ -842,6 +850,33 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"allow_velocity_only_inlet={args.allow_velocity_only_inlet}"
         ),
         "Use a distribution-consistent DFM/SEM/precursor/recycling inlet and pass empty-tunnel U/k preservation; velocity-only STG-lite is diagnostic unless explicitly allowed.",
+    )
+
+    paper_grade_inlet_pass = (
+        empty_tunnel_pass
+        and (
+            treatment_distribution_consistent
+            or distribution_status == "pass"
+        )
+        and not treatment_velocity_only
+    )
+    add_gate(
+        gates,
+        "paper_grade_inlet_method",
+        PASS if paper_grade_inlet_pass else FAIL,
+        (
+            f"treatment={inlet_treatment or 'missing'}; "
+            f"inlet_distribution_consistency={distribution_status or 'missing'}; "
+            f"velocity_field_only={treatment_velocity_only}; "
+            f"distribution_consistent={treatment_distribution_consistent}; "
+            f"empty_tunnel_or_inlet_profile_pass={empty_tunnel_pass}; "
+            f"allow_velocity_only_inlet={args.allow_velocity_only_inlet}"
+        ),
+        (
+            "For paper-grade validation, use a distribution-consistent digital-filter, SEM/DFM, precursor or "
+            "recycling inlet. The --allow-velocity-only-inlet override is diagnostic only and cannot satisfy "
+            "this paper-grade inlet-method gate."
+        ),
     )
 
     inlet_correlation_gate = str(

@@ -154,6 +154,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_gate.py` now has a separate `inlet_profile_preservation` gate. Paper-grade validation fails when
   real VTK frames do not prove that the requested AF `U(z)` and `k(z)` are preserved at the inlet/empty-tunnel audit
   plane.
+- `validation_gate.py` now adds a separate `paper_grade_inlet_method` gate. The diagnostic
+  `--allow-velocity-only-inlet` override can no longer make a velocity-field-only STG-lite run paper-grade; formal
+  validation still requires a distribution-consistent digital-filter, SEM/DFM, precursor or recycling inlet plus
+  final-window U/k preservation evidence.
 - Added `scripts/probe_vtk_points.py` to sample native FluidX3D/CityLBM VTK frames at official RS probe points and emit
   the same Data-Probe-compatible audit CSV used by Grasshopper, including official coordinates, nearest-node distance,
   Uref, wind-vector evidence, compared component, time-averaged value and per-probe failure flags.

@@ -181,6 +181,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   By default, the gate fails CityLBM's current velocity-field-only STG-lite inlet because it does not reconstruct
   FluidX3D distribution functions. The optional `--allow-velocity-only-inlet` flag is reserved for explicitly labelled
   diagnostic sensitivity runs after an empty-tunnel `U/k` preservation check; do not use it for SCI-grade Case E claims.
+  A separate `paper_grade_inlet_method` gate remains failed under this override until the run uses a
+  distribution-consistent digital-filter, SEM/DFM, precursor or recycling inlet with final-window U/k preservation.
 
 ## Metrics to report
 
@@ -215,6 +217,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   `inlet_k_rmse_ratio`
 - Inlet correlation audit: `inlet_correlation_gate`, signed temporal lag-1 correlation, temporal lag-1 absolute
   correlation, adjacent spatial correlation and streamwise fluctuation variance
+- Paper-grade inlet method gate: `paper_grade_inlet_method` must pass. A velocity-field-only STG-lite run remains
+  diagnostic even if `--allow-velocity-only-inlet` is used for sensitivity analysis.
 - Native baseline gate and `validation_gate_report.json`
 - Protocol gate from `validation_protocol_audit.json`
 - Systematic bias flag and `bias_diagnosis`. If mean bias remains around `-0.20` to `-0.35` speed-ratio units, do not

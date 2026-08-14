@@ -213,7 +213,10 @@ metrics row.
 It also fails when more than 5% of sampled inlet velocities project opposite to the declared wind vector, which catches
 wind-sign and streamwise-component mistakes before AF/profile or probe errors are interpreted.
 The command intentionally omits `--allow-velocity-only-inlet`; add that flag only for explicitly labelled diagnostic
-STG-lite sensitivity runs, not for the native FluidX3D baseline or a paper-grade CityLBM equivalence claim.
+STG-lite sensitivity runs, not for the native FluidX3D baseline or a paper-grade CityLBM equivalence claim. Even when
+that diagnostic override is used, `validation_gate.py` still fails the separate `paper_grade_inlet_method` gate until
+the inlet treatment is distribution-consistent, digital-filter/SEM/DFM, precursor or recycling based and the final-window
+U/k preservation evidence passes.
 If `bias_diagnosis` reports `scale_like_error`, audit `Uref`, SI/LBM velocity conversion and compared component before
 changing inlet or boundary parameters. If the scaled error remains large, prioritize boundary, roughness and inlet
 physics.
