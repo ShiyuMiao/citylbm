@@ -139,7 +139,7 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
 - The probe audit table must contain official point number, original coordinate, interpolation distance,
   compared velocity component, compared value, wind-vector components, `wind_direction_valid`, `normalization_valid`,
-  tolerance, out-of-tolerance flag and failure flag.
+  tolerance, out-of-tolerance flag, failure flag and `failure_reason`.
 - In `Data Probe`, connect `Uref=3.928296`, `Wind Direction=(0,-1,0)`, `Probe IDs` from the official `RS_caseE.csv`
   point-number field, `Tolerance` from the run protocol, and `Compared Component`.
   Use `speed_ratio` when comparing with AIJ velocity-ratio magnitudes; use `streamwise_ratio` only if the validation
