@@ -56,6 +56,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-probe-tolerance-dx-ratio", type=float, default=1.0)
     parser.add_argument("--min-inlet-temporal-finite-fraction", type=float, default=0.80)
     parser.add_argument("--min-inlet-spatial-finite-fraction", type=float, default=0.80)
+    parser.add_argument("--min-inlet-streamwise-variance", type=float, default=1.0e-12)
+    parser.add_argument("--min-inlet-temporal-lag1-correlation", type=float, default=0.10)
+    parser.add_argument("--min-inlet-spatial-adjacent-correlation", type=float, default=0.05)
     parser.add_argument("--max-frontal-blockage-ratio", type=float, default=0.05)
     parser.add_argument("--max-estimated-mach", type=float, default=0.20)
     parser.add_argument("--min-lbm-tau", type=float, default=0.500001)
@@ -661,7 +664,10 @@ def read_probe_source_window_audit(path: Optional[Path], expected_source_steps_t
 def source_frame_details(metrics: Dict[str, Any]) -> Tuple[Optional[int], str, bool]:
     source_steps = get_any(metrics, ["source_time_steps", "SourceTimeSteps", "source_steps"])
     if source_steps:
-        text = str(source_steps).strip()
+        if isinstance(source_steps, list):
+            text = ",".join(str(step) for step in source_steps)
+        else:
+            text = str(source_steps).strip()
         if not text:
             return None, "", False
         separators = [",", ";", " "]
@@ -1460,32 +1466,146 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         get_any(metrics, ["inlet_correlation_audit", "InletCorrelationAudit"]) or ""
     ).strip()
     metric_inlet_correlation_audit_exists = False
+    metric_inlet_correlation_audit_json: Dict[str, Any] = {}
     if metric_inlet_correlation_audit:
         try:
-            metric_inlet_correlation_audit_exists = Path(metric_inlet_correlation_audit).expanduser().exists()
+            metric_inlet_correlation_audit_path = Path(metric_inlet_correlation_audit).expanduser()
+            metric_inlet_correlation_audit_exists = metric_inlet_correlation_audit_path.exists()
+            if metric_inlet_correlation_audit_exists and not inlet_correlation_audit:
+                metric_inlet_correlation_audit_json = read_json(metric_inlet_correlation_audit_path)
         except OSError:
             metric_inlet_correlation_audit_exists = False
+    if not inlet_correlation_audit and metric_inlet_correlation_audit_json:
+        inlet_correlation_audit = metric_inlet_correlation_audit_json
+    inlet_correlation_gate = str(
+        get_any(metrics, ["inlet_correlation_gate", "InletCorrelationGate"])
+        or get_any(inlet_correlation_audit, ["inlet_correlation_gate"])
+        or ""
+    ).strip().lower()
+    inlet_temporal_lag1 = as_float(
+        get_any(metrics, ["inlet_temporal_lag1_correlation", "InletTemporalLag1Correlation"])
+        or get_any(inlet_correlation_audit, ["temporal_lag1_mean_correlation"])
+    )
+    inlet_temporal_lag1_abs = as_float(
+        get_any(metrics, ["inlet_temporal_lag1_abs_correlation", "InletTemporalLag1AbsCorrelation"])
+        or get_any(inlet_correlation_audit, ["temporal_lag1_abs_mean_correlation"])
+    )
+    inlet_spatial_adjacent = as_float(
+        get_any(metrics, ["inlet_spatial_adjacent_correlation", "InletSpatialAdjacentCorrelation"])
+        or get_any(inlet_correlation_audit, ["spatial_adjacent_mean_correlation"])
+    )
+    inlet_streamwise_variance = as_float(
+        get_any(metrics, ["inlet_streamwise_fluctuation_variance", "InletStreamwiseFluctuationVariance"])
+        or get_any(inlet_correlation_audit, ["mean_streamwise_fluctuation_variance"])
+    )
+    inlet_temporal_finite_fraction = as_float(
+        get_first_available(
+            get_any(metrics, ["inlet_temporal_finite_correlation_fraction", "InletTemporalFiniteCorrelationFraction"]),
+            get_any(inlet_correlation_audit, ["temporal_finite_correlation_fraction"]),
+        )
+    )
+    inlet_spatial_finite_fraction = as_float(
+        get_first_available(
+            get_any(metrics, ["inlet_spatial_finite_correlation_fraction", "InletSpatialFiniteCorrelationFraction"]),
+            get_any(inlet_correlation_audit, ["spatial_finite_correlation_fraction"]),
+        )
+    )
     inlet_correlation_audit_exists = bool(inlet_correlation_audit_path and inlet_correlation_audit_path.exists()) or metric_inlet_correlation_audit_exists
+    inlet_correlation_source_steps = get_first_available(
+        get_any(metrics, ["inlet_correlation_source_time_steps", "InletCorrelationSourceTimeSteps"]),
+        get_any(inlet_correlation_audit, ["source_time_steps_csv", "source_time_steps"]),
+    )
+    inlet_correlation_source_count, inlet_correlation_source_step_text, inlet_correlation_has_source_steps = source_frame_details(
+        {"source_time_steps": inlet_correlation_source_steps}
+    )
+    inlet_correlation_frame_count = as_int(
+        get_first_available(
+            get_any(metrics, ["inlet_correlation_frame_count", "InletCorrelationFrameCount"]),
+            get_any(inlet_correlation_audit, ["frame_count"]),
+        )
+    )
+    inlet_correlation_selected_last_window = as_bool(
+        get_first_available(
+            get_any(metrics, ["inlet_correlation_selected_last_window", "InletCorrelationSelectedLastWindow"]),
+            get_any(inlet_correlation_audit, ["selected_last_window"]),
+        )
+    )
+    inlet_correlation_steps_increasing = as_bool(
+        get_first_available(
+            get_any(metrics, ["inlet_correlation_source_steps_strictly_increasing", "InletCorrelationSourceStepsStrictlyIncreasing"]),
+            get_any(inlet_correlation_audit, ["source_steps_strictly_increasing"]),
+        )
+    )
+    inlet_correlation_spacing_uniform = as_bool(
+        get_first_available(
+            get_any(metrics, ["inlet_correlation_source_step_spacing_uniform", "InletCorrelationSourceStepSpacingUniform"]),
+            get_any(inlet_correlation_audit, ["source_step_spacing_uniform"]),
+        )
+    )
+    inlet_correlation_steps, inlet_correlation_steps_error = parsed_source_steps(inlet_correlation_source_step_text)
+    inlet_correlation_source_matches = (
+        has_real_source_steps
+        and parsed_steps_error is None
+        and inlet_correlation_steps_error is None
+        and inlet_correlation_steps == parsed_steps
+    )
+    inlet_correlation_window_ok = (
+        inlet_correlation_has_source_steps
+        and inlet_correlation_source_matches
+        and inlet_correlation_frame_count is not None
+        and inlet_correlation_source_count is not None
+        and inlet_correlation_frame_count == inlet_correlation_source_count
+        and inlet_correlation_frame_count >= args.min_avg_frames
+        and inlet_correlation_selected_last_window is True
+        and inlet_correlation_steps_increasing is True
+        and inlet_correlation_spacing_uniform is True
+    )
     inlet_correlation_coverage_ok = (
         inlet_temporal_finite_fraction is not None
         and inlet_temporal_finite_fraction >= args.min_inlet_temporal_finite_fraction
         and inlet_spatial_finite_fraction is not None
         and inlet_spatial_finite_fraction >= args.min_inlet_spatial_finite_fraction
     )
+    inlet_correlation_values_ok = (
+        inlet_streamwise_variance is not None
+        and inlet_streamwise_variance > args.min_inlet_streamwise_variance
+        and inlet_temporal_lag1 is not None
+        and inlet_temporal_lag1 >= args.min_inlet_temporal_lag1_correlation
+        and inlet_spatial_adjacent is not None
+        and inlet_spatial_adjacent >= args.min_inlet_spatial_adjacent_correlation
+    )
     add_gate(
         gates,
         "inlet_correlation",
-        PASS if inlet_correlation_gate == "pass" and inlet_correlation_audit_exists and inlet_correlation_coverage_ok else FAIL,
+        PASS
+        if inlet_correlation_gate == "pass"
+        and inlet_correlation_audit_exists
+        and inlet_correlation_window_ok
+        and inlet_correlation_coverage_ok
+        and inlet_correlation_values_ok
+        else FAIL,
         (
             f"inlet_correlation_gate={inlet_correlation_gate or 'missing'}; "
             f"temporal_lag1_mean_correlation={inlet_temporal_lag1}; "
+            f"required >= {args.min_inlet_temporal_lag1_correlation}; "
             f"temporal_lag1_abs_mean_correlation={inlet_temporal_lag1_abs}; "
             f"spatial_adjacent_mean_correlation={inlet_spatial_adjacent}; "
+            f"required >= {args.min_inlet_spatial_adjacent_correlation}; "
             f"mean_streamwise_fluctuation_variance={inlet_streamwise_variance}; "
+            f"required > {args.min_inlet_streamwise_variance}; "
             f"temporal_finite_correlation_fraction={inlet_temporal_finite_fraction}; "
             f"required >= {args.min_inlet_temporal_finite_fraction}; "
             f"spatial_finite_correlation_fraction={inlet_spatial_finite_fraction}; "
             f"required >= {args.min_inlet_spatial_finite_fraction}; "
+            f"inlet_correlation_source_time_steps={inlet_correlation_source_step_text or 'missing'}; "
+            f"expected_source_time_steps={source_step_text or 'missing'}; "
+            f"inlet_correlation_source_matches={inlet_correlation_source_matches}; "
+            f"inlet_correlation_frame_count={inlet_correlation_frame_count}; required >= {args.min_avg_frames}; "
+            f"inlet_correlation_source_count={inlet_correlation_source_count}; "
+            f"inlet_correlation_selected_last_window={inlet_correlation_selected_last_window}; "
+            f"inlet_correlation_source_steps_strictly_increasing={inlet_correlation_steps_increasing}; "
+            f"inlet_correlation_source_step_spacing_uniform={inlet_correlation_spacing_uniform}; "
+            f"inlet_correlation_source_steps_error={inlet_correlation_steps_error or 'none'}; "
             f"audit={inlet_correlation_audit_path or metric_inlet_correlation_audit or 'missing'}; "
             f"audit_exists={inlet_correlation_audit_exists}"
         ),

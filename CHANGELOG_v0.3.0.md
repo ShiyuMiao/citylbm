@@ -139,6 +139,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   and final gate. This checks real final-window inlet VTK frames for streamwise fluctuation variance, temporal lag-1
   correlation and adjacent spatial correlation, so a run cannot rely on RMS/k preservation alone to claim correlated
   turbulent inflow.
+- The final `inlet_correlation` gate now independently checks correlation source-window parity and numeric thresholds:
+  source time steps must match the global averaged VTK window, the audit must use a final uniformly spaced window, and
+  streamwise variance, temporal lag-1 correlation and spatial adjacent correlation must exceed configured minima.
 - The inlet correlation audit now gates on signed positive temporal lag-1 correlation, not only absolute lag-1
   correlation. This prevents alternating or white-noise-like RMS/k perturbations from passing as physically correlated
   turbulent inflow evidence.

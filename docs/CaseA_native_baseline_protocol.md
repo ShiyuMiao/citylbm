@@ -125,6 +125,10 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    frames. The correlation audit records streamwise fluctuation variance, signed temporal lag-1 correlation, temporal
    lag-1 absolute correlation for diagnosis, and adjacent spatial correlation; a missing or failing audit means the
    inlet remains diagnostic even when the AF k magnitude is approximately preserved.
+   The final gate independently checks this audit rather than trusting a summary flag: the correlation source time steps
+   must match the global averaged `source_time_steps`, the window must be the final uniformly spaced window, and the
+   default thresholds require streamwise variance `>1e-12`, temporal lag-1 correlation `>=0.10` and spatial adjacent
+   correlation `>=0.05`.
    The audit must also report finite temporal and spatial correlation coverage fractions; a high mean correlation from
    only a sparse subset of non-degenerate samples is not enough for a paper-grade turbulent-inlet claim.
    The inlet `U/k` preservation gate follows the same final-window evidence rule as the global time-average gate:
@@ -228,6 +232,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 - Inlet correlation-audit JSON from the same final-window VTK frames, including `inlet_correlation_gate`,
   `temporal_lag1_mean_correlation`, `temporal_lag1_abs_mean_correlation`, `spatial_adjacent_mean_correlation` and
   `mean_streamwise_fluctuation_variance`, plus temporal/spatial finite correlation fractions.
+  The metrics row must also carry `inlet_correlation_source_time_steps`, `inlet_correlation_frame_count`,
+  `inlet_correlation_selected_last_window`, `inlet_correlation_source_steps_strictly_increasing` and
+  `inlet_correlation_source_step_spacing_uniform`.
 - Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept, max absolute error,
   `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
 - Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance, compared-component consistency and

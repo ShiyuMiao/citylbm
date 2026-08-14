@@ -95,6 +95,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   required because preserving AF `k` magnitude alone does not prove a digital-filter, SEM, precursor/recycling or
   otherwise correlated turbulent inlet. The audit must also pass temporal/spatial finite-correlation coverage fractions
   so a sparse subset of correlated non-degenerate samples cannot represent the full inlet plane.
+  `validation_gate.py` independently checks that the correlation audit uses the same final averaged `source_time_steps`
+  as the run metrics and that streamwise variance, temporal lag-1 correlation and spatial adjacent correlation exceed
+  the configured thresholds. A hand-filled `inlet_correlation_gate=pass` is not sufficient when the source window,
+  numeric correlation evidence or audit file is missing.
 - The STG length-scale gate is not passed by choosing a convenient number of lattice cells. It passes only when
   `STG Length Source`/`SyntheticTurbulentInletLengthScaleSource` contains an archived evidence tag such as
   `aij_length_scale_verified`, `official_length_scale_verified`, `precursor_length_scale`,
@@ -250,6 +254,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Inlet correlation audit: `inlet_correlation_gate`, signed temporal lag-1 correlation, temporal lag-1 absolute
   correlation, adjacent spatial correlation, temporal/spatial finite correlation fractions and streamwise fluctuation
   variance
+  Correlation source-window fields must also be reported: `inlet_correlation_frame_count`,
+  `inlet_correlation_source_time_steps`, `inlet_correlation_selected_last_window`,
+  `inlet_correlation_source_steps_strictly_increasing` and `inlet_correlation_source_step_spacing_uniform`.
 - Paper-grade inlet method gate: `paper_grade_inlet_method` must pass. A velocity-field-only STG-lite run remains
   diagnostic even if `--allow-velocity-only-inlet` is used for sensitivity analysis. The metrics row must also record
   an explicit `inlet_method_class` and `inlet_method_class_supported=true`; a method name or protocol pass flag alone
