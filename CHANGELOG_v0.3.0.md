@@ -171,6 +171,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   metrics row can therefore carry `available_frame_count`, `source_first_time_step`, `source_last_time_step`,
   `latest_available_time_step`, `selected_last_window`, source-step monotonicity and spacing from the same real VTK
   inlet-profile audit used for `U/k` preservation.
+- Time-averaging stability metrics now carry `mean_speed_statistics_source`; `validation_gate.py` only accepts sampled
+  VTK/audit-derived stability statistics, so command-line or hand-entered standard-deviation ratios cannot satisfy the
+  paper-grade averaging gate.
 - `scripts/audit_inlet_profile_from_vtk.py` now also computes `mean_speed_stddev_ratio` and
   `max_speed_stddev_ratio` from pointwise speed-magnitude time series on the selected final-window plane. Native
   baseline metrics can inherit these stationarity fields from the inlet-profile audit when no Grasshopper `Read VTK`

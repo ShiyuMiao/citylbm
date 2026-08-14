@@ -55,6 +55,7 @@ TEMPLATE_FIELDS = [
     "max_speed_stddev_mps",
     "mean_speed_stddev_ratio",
     "max_speed_stddev_ratio",
+    "mean_speed_statistics_source",
     "profile_csv",
     "geometry_scale",
     "Uref_mps",
@@ -1037,6 +1038,27 @@ def main() -> int:
         audit_float(read_vtk_audit, "max_speed_stddev_ratio"),
         audit_float(inlet_profile_audit, "max_speed_stddev_ratio"),
     )
+    speed_statistics_cli_override = any(
+        value is not None
+        for value in [
+            args.mean_speed_stddev,
+            args.max_speed_stddev,
+            args.mean_speed_stddev_ratio,
+            args.max_speed_stddev_ratio,
+        ]
+    )
+    audit_speed_statistics_source = first_text(
+        read_vtk_audit.get("mean_speed_statistics_source"),
+        inlet_profile_audit.get("mean_speed_statistics_source"),
+    )
+    if speed_statistics_cli_override:
+        mean_speed_statistics_source = "cli"
+    elif audit_speed_statistics_source:
+        mean_speed_statistics_source = audit_speed_statistics_source
+    elif mean_speed_stddev_ratio is not None and max_speed_stddev_ratio is not None and (read_vtk_audit or inlet_profile_audit):
+        mean_speed_statistics_source = "sampled_vtk"
+    else:
+        mean_speed_statistics_source = ""
     inlet_profile_gate = audit_gate(inlet_profile_audit, "inlet_profile_gate")
     inlet_u_profile_gate = audit_gate(inlet_profile_audit, "inlet_u_profile_gate")
     inlet_k_profile_gate = audit_gate(inlet_profile_audit, "inlet_k_profile_gate")
@@ -1087,6 +1109,7 @@ def main() -> int:
             "max_speed_stddev_mps": fmt(max_speed_stddev),
             "mean_speed_stddev_ratio": fmt(mean_speed_stddev_ratio),
             "max_speed_stddev_ratio": fmt(max_speed_stddev_ratio),
+            "mean_speed_statistics_source": mean_speed_statistics_source,
             "profile_csv": args.profile_csv,
             "geometry_scale": args.geometry_scale,
             "Uref_mps": fmt(inferred_uref),

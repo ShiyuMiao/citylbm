@@ -888,6 +888,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     metrics_time_gate_reasons = str(get_any(metrics, ["time_averaging_gate_reasons", "TimeAveragingGateReasons"]) or "").strip()
     mean_speed_stddev_ratio = as_float(get_any(metrics, ["mean_speed_stddev_ratio", "MeanSpeedStdDevRatio"]))
     max_speed_stddev_ratio = as_float(get_any(metrics, ["max_speed_stddev_ratio", "MaxSpeedStdDevRatio"]))
+    mean_speed_statistics_source = str(
+        get_any(metrics, ["mean_speed_statistics_source", "MeanSpeedStatisticsSource"]) or ""
+    ).strip().lower()
+    speed_statistics_source_ok = mean_speed_statistics_source in {
+        "sampled_vtk",
+        "vtk_sampled",
+        "read_vtk_audit",
+        "native_run_audit",
+        "inlet_profile_audit",
+    }
     mean_speed_stable = (
         mean_speed_stddev_ratio is not None
         and mean_speed_stddev_ratio <= args.max_mean_speed_stddev_ratio
@@ -917,6 +927,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and requested_vtk_frame_gate == "pass"
         and requested_vtk_frame_count is not None
         and requested_vtk_frame_count >= args.min_avg_frames
+        and speed_statistics_source_ok
         and mean_speed_stable
         and point_speed_stable
     )
@@ -949,6 +960,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_step_spacing_uniform={source_spacing_uniform}; "
             f"metrics_time_averaging_gate={metrics_time_gate or 'missing'}; "
             f"metrics_time_averaging_gate_reasons={metrics_time_gate_reasons or 'none'}; "
+            f"mean_speed_statistics_source={mean_speed_statistics_source or 'missing'}; "
+            f"speed_statistics_source_ok={speed_statistics_source_ok}; "
             f"mean_speed_stddev_ratio={mean_speed_stddev_ratio}; required <= {args.max_mean_speed_stddev_ratio}; "
             f"max_speed_stddev_ratio={max_speed_stddev_ratio}; required <= {args.max_point_speed_stddev_ratio}"
         ),

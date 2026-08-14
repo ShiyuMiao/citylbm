@@ -594,6 +594,7 @@ def main() -> int:
         "max_speed_stddev_mps": max_speed_stddev_mps,
         "mean_speed_stddev_ratio": mean_speed_stddev_ratio,
         "max_speed_stddev_ratio": max_speed_stddev_ratio,
+        "mean_speed_statistics_source": "sampled_vtk",
         "speed_stability_point_count": len(point_speed_stddevs),
         "speed_stability_source": "selected_plane_point_speed_magnitude_final_window",
         "negative_streamwise_fraction": negative_streamwise_fraction,
