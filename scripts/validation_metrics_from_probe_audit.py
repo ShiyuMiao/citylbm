@@ -693,14 +693,16 @@ def main() -> int:
         boundary_missing_fields_text = ";".join(str(field) for field in boundary_missing_fields)
     else:
         boundary_missing_fields_text = str(boundary_missing_fields or "")
-    averaging_window = args.averaging_window
-    if averaging_window is None:
-        averaging_window = audit_int(read_vtk_audit, "averaged_frame_count")
-    if averaging_window is None:
-        averaging_window = audit_int(inlet_profile_audit, "frame_count")
-    source_time_steps = args.source_time_steps or audit_source_steps(read_vtk_audit)
+    averaging_window = first_int(
+        audit_int(read_vtk_audit, "averaged_frame_count"),
+        audit_int(inlet_profile_audit, "frame_count"),
+        args.averaging_window,
+    )
+    source_time_steps = audit_source_steps(read_vtk_audit)
     if not source_time_steps:
         source_time_steps = audit_source_steps(inlet_profile_audit)
+    if not source_time_steps:
+        source_time_steps = args.source_time_steps
     available_frame_count = first_int(
         audit_int(read_vtk_audit, "available_frame_count"),
         audit_int(inlet_profile_audit, "available_frame_count"),

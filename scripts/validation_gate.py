@@ -432,9 +432,6 @@ def read_probe_component_audit(path: Optional[Path]) -> Tuple[Optional[int], Lis
 
 
 def source_frame_count(metrics: Dict[str, Any]) -> Optional[int]:
-    direct = as_int(get_any(metrics, ["averaging_window", "AverageLastN", "average_last_n"]))
-    if direct:
-        return direct
     source_steps = get_any(metrics, ["source_time_steps", "SourceTimeSteps", "source_steps"])
     if source_steps:
         text = str(source_steps).strip()
@@ -447,6 +444,9 @@ def source_frame_count(metrics: Dict[str, Any]) -> Optional[int]:
                 parts = [p for p in text.replace(";", ",").replace(" ", ",").split(",") if p.strip()]
                 break
         return len(parts)
+    direct = as_int(get_any(metrics, ["averaging_window", "AverageLastN", "average_last_n"]))
+    if direct:
+        return direct
     return None
 
 

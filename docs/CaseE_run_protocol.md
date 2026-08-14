@@ -105,6 +105,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   When full-field statistics are not supplied manually, the script deterministically samples up to 20,000 points from
   the selected final VTK frames and computes `mean_speed_stddev_ratio` and `max_speed_stddev_ratio` from the real
   velocity time series.
+  The metrics table must report the real audited `averaged_frame_count` and `source_time_steps`; the requested
+  `Average Last N` value is only a fallback when no audit is available and is not sufficient for paper-grade evidence.
   If no Grasshopper `Read VTK` audit is available, `scripts\audit_inlet_profile_from_vtk.py` also computes these
   stationarity ratios from pointwise speed-magnitude time series on the same selected final-window inlet/profile plane,
   and the metrics builder can carry them into the standard validation row.

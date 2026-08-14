@@ -193,6 +193,9 @@ When `--mean-speed-stddev-ratio` and `--max-speed-stddev-ratio` are omitted, `au
 samples up to 20,000 points from the selected final VTK frames and computes these stability ratios from the real
 velocity time series. Explicit CLI ratios can still be used when a stricter full-field or probe-specific averaging
 analysis has already been archived.
+The validation metrics row must use the actual audit `averaged_frame_count` and `source_time_steps`, not only the
+requested `--average-last-n` value. A run with four real final VTK frames remains four-frame diagnostic evidence even if
+the requested averaging window was ten frames.
 
 For a CityLBM-driven parity run, change `--software citylbm` and keep the same metrics/probe schema. A passing paper-grade
 record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,
