@@ -122,6 +122,10 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    frames. The correlation audit records streamwise fluctuation variance, signed temporal lag-1 correlation, temporal
    lag-1 absolute correlation for diagnosis, and adjacent spatial correlation; a missing or failing audit means the
    inlet remains diagnostic even when the AF k magnitude is approximately preserved.
+   The inlet `U/k` preservation gate follows the same final-window evidence rule as the global time-average gate:
+   `inlet_profile_source_time_steps` must be archived from real VTK frames, match `inlet_profile_frame_count`, represent
+   the last available uniformly spaced window, and carry `inlet_profile_time_averaging_gate=pass`. An `empty_tunnel_gate`
+   or small `U/k` bias value without that source-window evidence remains diagnostic.
 
 6. Time-averaging gate.
    Do not report a single instantaneous VTK frame as validation. Archive post-spinup probe time means and, when VTK is

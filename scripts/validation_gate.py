@@ -875,8 +875,20 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_k_profile_gate = str(get_any(metrics, ["inlet_k_profile_gate"]) or "").strip().lower()
     inlet_streamwise_direction_gate = str(get_any(metrics, ["inlet_streamwise_direction_gate"]) or "").strip().lower()
     inlet_negative_streamwise_fraction = as_float(get_any(metrics, ["inlet_negative_streamwise_fraction"]))
+    inlet_profile_available_frame_count = as_int(get_any(metrics, ["inlet_profile_available_frame_count"]))
     inlet_profile_frame_count = as_int(get_any(metrics, ["inlet_profile_frame_count"]))
     inlet_profile_source_steps = str(get_any(metrics, ["inlet_profile_source_time_steps"]) or "").strip()
+    inlet_profile_source_frame_count, inlet_profile_source_step_text, inlet_profile_has_source_steps = source_frame_details(
+        {"source_time_steps": inlet_profile_source_steps}
+    )
+    inlet_profile_source_first_step = as_int(get_any(metrics, ["inlet_profile_source_first_time_step"]))
+    inlet_profile_source_last_step = as_int(get_any(metrics, ["inlet_profile_source_last_time_step"]))
+    inlet_profile_latest_available_step = as_int(get_any(metrics, ["inlet_profile_latest_available_time_step"]))
+    inlet_profile_selected_last_window = as_bool(get_any(metrics, ["inlet_profile_selected_last_window"]))
+    inlet_profile_steps_increasing = as_bool(get_any(metrics, ["inlet_profile_source_steps_strictly_increasing"]))
+    inlet_profile_spacing_uniform = as_bool(get_any(metrics, ["inlet_profile_source_step_spacing_uniform"]))
+    inlet_profile_time_gate = str(get_any(metrics, ["inlet_profile_time_averaging_gate"]) or "").strip().lower()
+    inlet_profile_time_gate_reasons = str(get_any(metrics, ["inlet_profile_time_averaging_gate_reasons"]) or "").strip()
     inlet_u_mae_ratio = as_float(get_any(metrics, ["inlet_u_mae_ratio"]))
     inlet_u_rmse_ratio = as_float(get_any(metrics, ["inlet_u_rmse_ratio"]))
     inlet_k_mae_ratio = as_float(get_any(metrics, ["inlet_k_mae_ratio"]))
@@ -884,19 +896,36 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     empty_u_bias = as_float(get_any(metrics, ["empty_tunnel_U_bias_ratio", "empty_tunnel_u_bias_ratio"]))
     empty_k_bias = as_float(get_any(metrics, ["empty_tunnel_k_bias_ratio", "empty_tunnel_K_bias_ratio"]))
     empty_gate = str(get_any(metrics, ["empty_tunnel_gate", "inlet_k_preservation_gate"]) or "").strip().lower()
+    inlet_profile_window_ok = (
+        inlet_profile_has_source_steps
+        and inlet_profile_frame_count is not None
+        and inlet_profile_source_frame_count is not None
+        and inlet_profile_frame_count == inlet_profile_source_frame_count
+        and inlet_profile_frame_count >= args.min_avg_frames
+        and inlet_profile_selected_last_window is True
+        and inlet_profile_steps_increasing is True
+        and inlet_profile_spacing_uniform is True
+        and inlet_profile_source_last_step is not None
+        and inlet_profile_latest_available_step is not None
+        and inlet_profile_source_last_step == inlet_profile_latest_available_step
+        and inlet_profile_time_gate == "pass"
+    )
     inlet_profile_pass = (
         inlet_profile_gate == "pass"
         and inlet_u_profile_gate == "pass"
         and inlet_k_profile_gate == "pass"
         and inlet_streamwise_direction_gate == "pass"
-        and inlet_profile_frame_count is not None
-        and inlet_profile_frame_count >= args.min_avg_frames
+        and inlet_profile_window_ok
     )
     empty_tunnel_pass = (
         inlet_profile_pass
-        or empty_gate == "pass"
         or (
-            empty_u_bias is not None
+            inlet_profile_window_ok
+            and empty_gate == "pass"
+        )
+        or (
+            inlet_profile_window_ok
+            and empty_u_bias is not None
             and abs(empty_u_bias) <= args.max_empty_tunnel_u_bias_ratio
             and empty_k_bias is not None
             and abs(empty_k_bias) <= args.max_empty_tunnel_k_bias_ratio
@@ -948,7 +977,18 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_streamwise_direction_gate={inlet_streamwise_direction_gate or 'missing'}; "
             f"inlet_negative_streamwise_fraction={inlet_negative_streamwise_fraction}; "
             f"inlet_profile_frame_count={inlet_profile_frame_count}; required >= {args.min_avg_frames}; "
-            f"inlet_profile_source_time_steps={inlet_profile_source_steps or 'missing'}; "
+            f"inlet_profile_available_frame_count={inlet_profile_available_frame_count}; "
+            f"inlet_profile_source_frame_count={inlet_profile_source_frame_count}; "
+            f"inlet_profile_real_source_time_steps_present={inlet_profile_has_source_steps}; "
+            f"inlet_profile_source_time_steps={inlet_profile_source_step_text or 'missing'}; "
+            f"inlet_profile_source_first_step={inlet_profile_source_first_step}; "
+            f"inlet_profile_source_last_step={inlet_profile_source_last_step}; "
+            f"inlet_profile_latest_available_step={inlet_profile_latest_available_step}; "
+            f"inlet_profile_selected_last_window={inlet_profile_selected_last_window}; "
+            f"inlet_profile_source_steps_strictly_increasing={inlet_profile_steps_increasing}; "
+            f"inlet_profile_source_step_spacing_uniform={inlet_profile_spacing_uniform}; "
+            f"inlet_profile_time_averaging_gate={inlet_profile_time_gate or 'missing'}; "
+            f"inlet_profile_time_averaging_gate_reasons={inlet_profile_time_gate_reasons or 'none'}; "
             f"inlet_u_mae_ratio={inlet_u_mae_ratio}; inlet_u_rmse_ratio={inlet_u_rmse_ratio}; "
             f"inlet_k_mae_ratio={inlet_k_mae_ratio}; inlet_k_rmse_ratio={inlet_k_rmse_ratio}"
         ),
