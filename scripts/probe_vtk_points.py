@@ -406,8 +406,54 @@ def main() -> int:
     out_rows: List[Dict[str, Any]] = []
     for index, row in enumerate(official_rows):
         probe_id = get_value(row, probe_id_col).strip()
-        point_values = [as_float(get_value(row, column)) for column in [x_col, y_col, z_col]]
+        raw_point_values = [get_value(row, column).strip() for column in [x_col, y_col, z_col]]
+        point_values = [as_float(value) for value in raw_point_values]
         if any(value is None for value in point_values):
+            out_rows.append(
+                {
+                    "probe_id": probe_id,
+                    "probe_index": index + 1,
+                    "x": raw_point_values[0],
+                    "y": raw_point_values[1],
+                    "z": raw_point_values[2],
+                    "u": "",
+                    "v": "",
+                    "w": "",
+                    "speed": "",
+                    "wind_x": wind[0],
+                    "wind_y": wind[1],
+                    "wind_z": wind[2],
+                    "wind_direction_valid": "true",
+                    "streamwise_velocity": "",
+                    "Uref": args.u_ref,
+                    "normalization_valid": "true" if args.u_ref > 0 and math.isfinite(args.u_ref) else "false",
+                    "speed_ratio": "",
+                    "streamwise_ratio": "",
+                    "nearest_distance": "",
+                    "nearest_grid_x": "",
+                    "nearest_grid_y": "",
+                    "nearest_grid_z": "",
+                    "nearby_point_count": 0,
+                    "method": f"{args.interpolation}_vtk_average_last_{len(frames)}",
+                    "vtk_average_frame_count": len(frames),
+                    "vtk_source_time_steps": source_steps_csv,
+                    "vtk_dimensions": f"{dims[0]},{dims[1]},{dims[2]}",
+                    "vtk_origin_x": origin[0],
+                    "vtk_origin_y": origin[1],
+                    "vtk_origin_z": origin[2],
+                    "vtk_spacing_x": spacing[0],
+                    "vtk_spacing_y": spacing[1],
+                    "vtk_spacing_z": spacing[2],
+                    "vtk_source_files": source_files_csv,
+                    "vtk_source_sha256": source_hashes_csv,
+                    "compared_component": args.compared_component,
+                    "compared_value": "",
+                    "tolerance": args.tolerance,
+                    "out_of_tolerance": "false",
+                    "failed": "true",
+                    "failure_reason": "invalid_probe_coordinate",
+                }
+            )
             continue
         point = tuple(float(value) for value in point_values)  # type: ignore[assignment]
         _vtk_index, vtk_coord, distance = nearest_index(
@@ -434,6 +480,11 @@ def main() -> int:
         wind_valid = all(math.isfinite(component) for component in wind)
         out_of_tolerance = args.tolerance > 0 and distance > args.tolerance
         failed = out_of_tolerance or not math.isfinite(value)
+        failure_reason = ""
+        if out_of_tolerance:
+            failure_reason = "out_of_tolerance"
+        elif not math.isfinite(value):
+            failure_reason = "invalid_compared_value"
         out_rows.append(
             {
                 "probe_id": probe_id,
@@ -476,6 +527,7 @@ def main() -> int:
                 "tolerance": args.tolerance,
                 "out_of_tolerance": "true" if out_of_tolerance else "false",
                 "failed": "true" if failed else "false",
+                "failure_reason": failure_reason,
             }
         )
     out_path = Path(args.out).resolve()
@@ -521,6 +573,7 @@ def main() -> int:
         "tolerance",
         "out_of_tolerance",
         "failed",
+        "failure_reason",
     ]
     with out_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
