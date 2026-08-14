@@ -39,6 +39,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--official", required=True, help="Official RS/probe CSV.")
     parser.add_argument("--af-csv", required=True, help="Official AF inlet profile CSV with z,U,k columns.")
     parser.add_argument("--metadata", required=True, help="case_metadata.json generated with the run.")
+    parser.add_argument(
+        "--boundary-evidence",
+        default="",
+        help="Optional JSON documenting AIJ-equivalent boundary/fetch/roughness evidence.",
+    )
     parser.add_argument("--solver-log", default="", help="Optional solver stdout/stderr log.")
     parser.add_argument("--case", required=True, help="Case label used by the official CSV and metrics row.")
     parser.add_argument("--wind-direction-label", default="", help="Official wind-direction label, e.g. N.")
@@ -191,6 +196,7 @@ def main() -> int:
     native_audit_json = out_dir / "native_run_audit.json"
     inlet_audit_json = out_dir / "inlet_profile_audit.json"
     inlet_audit_csv = out_dir / "inlet_profile_audit.csv"
+    boundary_audit_json = out_dir / "boundary_protocol_audit.json"
     probe_audit_csv = out_dir / "probe_audit.csv"
     metrics_csv = out_dir / "validation_metrics.csv"
     comparison_csv = out_dir / "probe_comparison.csv"
@@ -211,6 +217,7 @@ def main() -> int:
             "OfficialCsv": str(official),
             "AfCsv": str(af_csv),
             "Metadata": str(metadata),
+            "BoundaryEvidence": str(Path(args.boundary_evidence).expanduser().resolve()) if args.boundary_evidence else "",
             "SolverLog": str(solver_log) if solver_log else "",
             "Case": args.case,
             "WindDirectionLabel": args.wind_direction_label,
@@ -227,6 +234,7 @@ def main() -> int:
             "NativeRunAudit": str(native_audit_json),
             "InletProfileAuditJson": str(inlet_audit_json),
             "InletProfileAuditCsv": str(inlet_audit_csv),
+            "BoundaryProtocolAuditJson": str(boundary_audit_json),
             "ProbeAuditCsv": str(probe_audit_csv),
             "ValidationMetricsCsv": str(metrics_csv),
             "ProbeComparisonCsv": str(comparison_csv),
@@ -263,6 +271,22 @@ def main() -> int:
         if solver_log:
             native_cmd.extend(["--solver-log", str(solver_log)])
         manifest["Steps"].append(run_step("audit_native_run", native_cmd))
+        write_manifest(manifest_path, manifest)
+
+        boundary_cmd = [
+            py,
+            str(script_dir / "audit_boundary_protocol.py"),
+            str(run_dir),
+            "--metadata",
+            str(metadata),
+            "--out",
+            str(boundary_audit_json),
+            "--max-frontal-blockage-ratio",
+            str(args.max_frontal_blockage_ratio),
+        ]
+        if args.boundary_evidence:
+            boundary_cmd.extend(["--evidence", str(Path(args.boundary_evidence).expanduser().resolve())])
+        manifest["Steps"].append(run_step("audit_boundary_protocol", boundary_cmd, allow_fail=True))
         write_manifest(manifest_path, manifest)
 
         inlet_cmd = [
@@ -346,6 +370,8 @@ def main() -> int:
             str(native_audit_json),
             "--inlet-profile-audit",
             str(inlet_audit_json),
+            "--boundary-protocol-audit",
+            str(boundary_audit_json),
             "--case",
             args.case,
             "--wind-direction",

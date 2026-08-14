@@ -45,6 +45,12 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now separate diagnostic
   boundary clearance/blockage from AIJ-equivalent boundary evidence. Clearances alone no longer pass the boundary gate
   unless the run also archives an official AIJ/empty-tunnel/validated-boundary evidence source.
+- Added `scripts/audit_boundary_protocol.py` and wired it into `scripts/run_native_validation_chain.py`. Each post-run
+  evidence chain now writes `boundary_protocol_audit.json`; without an explicit AIJ boundary/fetch/roughness evidence
+  JSON the boundary gate remains diagnostic/failing instead of treating domain clearance as a paper-grade match.
+- `validation_metrics_from_probe_audit.py`, the metrics template and `validation_gate.py` now carry
+  `boundary_protocol_audit` and `boundary_missing_evidence_fields`, making missing inlet/outlet/lateral/top, roughness,
+  blockage-source and fetch-clearance evidence visible in the metrics row and final gate report.
 - `case_metadata.json` and `validation_protocol_audit` now separate analytic inflow roughness from actual wall treatment:
   ground/buildings remain `TYPE_S` no-slip in v0.3.0, with no FluidX3D rough-wall or wall-function boundary.
 - The validation audit now also records native FluidX3D baseline requirement, LBM stability scaling, wind-direction sign,
@@ -148,4 +154,6 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   correct near-ground turbulence or speed-ratio behavior.
 - `BoundaryProtocolAudit` uses diagnostic clearance defaults and does not replace the official AIJ wind-tunnel boundary,
   fetch and blockage protocol.
+- A run without `boundary_protocol_audit.json` and a passing external AIJ boundary evidence JSON is not paper-grade,
+  even if probe R2, screenshots or speed-ratio plots look acceptable.
 - A high R2 alone is not sufficient. Mean bias, regression slope/intercept, probe mapping and native-vs-CityLBM parity must be acceptable before claiming publishable validation accuracy.

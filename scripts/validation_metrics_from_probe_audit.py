@@ -83,6 +83,8 @@ TEMPLATE_FIELDS = [
     "boundary_protocol_gate",
     "boundary_evidence_source",
     "boundary_evidence_gate",
+    "boundary_protocol_audit",
+    "boundary_missing_evidence_fields",
     "boundary_summary",
     "synthetic_inlet_method",
     "inlet_distribution_treatment",
@@ -155,6 +157,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--metadata", help="Optional case_metadata.json.")
     parser.add_argument("--read-vtk-audit", help="Optional Read VTK Averaging Audit JSON.")
     parser.add_argument("--inlet-profile-audit", help="Optional inlet/empty-tunnel profile audit JSON from audit_inlet_profile_from_vtk.py.")
+    parser.add_argument("--boundary-protocol-audit", help="Optional boundary_protocol_audit.json from audit_boundary_protocol.py.")
     parser.add_argument("--case", default="", help="Case label to write and optionally filter official rows.")
     parser.add_argument("--wind-direction", default="", help="Wind direction label to write and optionally filter official rows.")
     parser.add_argument("--software", default="citylbm")
@@ -460,6 +463,7 @@ def main() -> int:
     metadata = read_json(Path(args.metadata).resolve() if args.metadata else None)
     read_vtk_audit = read_json(Path(args.read_vtk_audit).resolve() if args.read_vtk_audit else None)
     inlet_profile_audit = read_json(Path(args.inlet_profile_audit).resolve() if args.inlet_profile_audit else None)
+    boundary_protocol_audit = read_json(Path(args.boundary_protocol_audit).resolve() if args.boundary_protocol_audit else None)
 
     probe_rows = read_csv(probe_path)
     official_rows = filter_official(read_csv(official_path), args.case, args.wind_direction)
@@ -628,6 +632,11 @@ def main() -> int:
 
     boundary_audit = metadata.get("BoundaryProtocolAudit") if isinstance(metadata.get("BoundaryProtocolAudit"), dict) else {}
     blockage_audit = boundary_audit.get("BlockageDiagnostics") if isinstance(boundary_audit.get("BlockageDiagnostics"), dict) else {}
+    boundary_missing_fields = boundary_protocol_audit.get("missing_evidence_fields")
+    if isinstance(boundary_missing_fields, list):
+        boundary_missing_fields_text = ";".join(str(field) for field in boundary_missing_fields)
+    else:
+        boundary_missing_fields_text = str(boundary_missing_fields or "")
     averaging_window = args.averaging_window
     if averaging_window is None:
         averaging_window = audit_int(read_vtk_audit, "averaged_frame_count")
@@ -710,8 +719,10 @@ def main() -> int:
             "approx_plan_blockage_ratio": blockage_audit.get("ApproxPlanBlockageRatio", ""),
             "blockage_protocol_gate": blockage_audit.get("Gate", ""),
             "boundary_protocol_gate": str(boundary_audit.get("Gate", "")),
-            "boundary_evidence_source": metadata_field(metadata, "BoundaryProtocolEvidenceSource") or boundary_audit.get("ProtocolEvidenceSource", ""),
-            "boundary_evidence_gate": metadata_field(metadata, "BoundaryProtocolEvidenceGate") or boundary_audit.get("ProtocolEvidenceGate", ""),
+            "boundary_evidence_source": str(boundary_protocol_audit.get("boundary_evidence_source", "")) or metadata_field(metadata, "BoundaryProtocolEvidenceSource") or boundary_audit.get("ProtocolEvidenceSource", ""),
+            "boundary_evidence_gate": str(boundary_protocol_audit.get("boundary_evidence_gate", "")) or metadata_field(metadata, "BoundaryProtocolEvidenceGate") or boundary_audit.get("ProtocolEvidenceGate", ""),
+            "boundary_protocol_audit": str(Path(args.boundary_protocol_audit).resolve()) if args.boundary_protocol_audit else "",
+            "boundary_missing_evidence_fields": boundary_missing_fields_text,
             "boundary_summary": metadata_field(metadata, "BoundaryConditionSummary"),
             "synthetic_inlet_method": metadata_field(metadata, "SyntheticTurbulentInletMethod"),
             "inlet_distribution_treatment": metadata_field(metadata, "SyntheticTurbulentInletDistributionTreatment"),

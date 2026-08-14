@@ -115,12 +115,18 @@ def find_first(base: Path, names: Iterable[str]) -> Optional[Path]:
         candidate = base / name
         if candidate.exists():
             return candidate
+        nested_candidate = base / "validation_chain" / name
+        if nested_candidate.exists():
+            return nested_candidate
     parent = base.parent
     if parent != base:
         for name in names:
             candidate = parent / name
             if candidate.exists():
                 return candidate
+            nested_candidate = parent / "validation_chain" / name
+            if nested_candidate.exists():
+                return nested_candidate
     return None
 
 
@@ -459,12 +465,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     run_dir = Path(args.run_dir).resolve()
     metadata_path = find_first(run_dir, ["case_metadata.json"])
     audit_path = find_first(run_dir, ["validation_protocol_audit.json"])
+    boundary_audit_path = find_first(run_dir, ["boundary_protocol_audit.json"])
     manifest_path = find_first(run_dir, ["native_fluidx3d_baseline_manifest.json"])
     metrics_path = Path(args.metrics).resolve() if args.metrics else find_metrics(run_dir)
     probe_path = Path(args.probe_audit).resolve() if args.probe_audit else None
 
     metadata = read_json(metadata_path)
     audit = read_json(audit_path)
+    external_boundary_audit = read_json(boundary_audit_path)
     manifest = read_json(manifest_path)
     metrics, metrics_path = read_metrics(metrics_path)
     items = load_protocol_items(audit)
@@ -474,8 +482,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         gates,
         "artifact_presence",
         PASS if metadata_path and audit_path and metrics_path and metrics else FAIL,
-        f"metadata={metadata_path or 'missing'}; audit={audit_path or 'missing'}; metrics={metrics_path or 'missing'}",
-        "Archive case_metadata.json, validation_protocol_audit.json and metrics CSV/JSON for every run.",
+        (
+            f"metadata={metadata_path or 'missing'}; audit={audit_path or 'missing'}; "
+            f"boundary_audit={boundary_audit_path or 'missing'}; metrics={metrics_path or 'missing'}"
+        ),
+        "Archive case_metadata.json, validation_protocol_audit.json, boundary_protocol_audit.json and metrics CSV/JSON for every run.",
     )
 
     frame_count = source_frame_count(metrics)
@@ -633,7 +644,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
 
     boundary_gate = str(
-        get_any(metrics, ["boundary_protocol_gate", "BoundaryProtocolGate"])
+        get_any(external_boundary_audit, ["metadata_boundary_protocol_gate"])
+        or get_any(metrics, ["boundary_protocol_gate", "BoundaryProtocolGate"])
         or get_any(metadata.get("BoundaryProtocolAudit", {}), ["Gate"])
         or ""
     )
@@ -649,17 +661,27 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         or ""
     )
     boundary_evidence_source = str(
-        get_any(metrics, ["boundary_evidence_source", "BoundaryProtocolEvidenceSource"])
+        get_any(external_boundary_audit, ["boundary_evidence_source"])
+        or get_any(metrics, ["boundary_evidence_source", "BoundaryProtocolEvidenceSource"])
         or get_any(boundary_audit, ["ProtocolEvidenceSource"])
         or metadata.get("BoundaryProtocolEvidenceSource")
         or ""
     )
     boundary_evidence_gate = str(
-        get_any(metrics, ["boundary_evidence_gate", "BoundaryProtocolEvidenceGate"])
+        get_any(external_boundary_audit, ["boundary_evidence_gate"])
+        or get_any(metrics, ["boundary_evidence_gate", "BoundaryProtocolEvidenceGate"])
         or get_any(boundary_audit, ["ProtocolEvidenceGate"])
         or metadata.get("BoundaryProtocolEvidenceGate")
         or ""
     ).strip().lower()
+    external_boundary_protocol_gate = str(
+        get_any(external_boundary_audit, ["boundary_protocol_gate"]) or ""
+    ).strip().lower()
+    external_boundary_missing_fields = external_boundary_audit.get("missing_evidence_fields")
+    if isinstance(external_boundary_missing_fields, list):
+        external_boundary_missing_fields_text = ",".join(str(field) for field in external_boundary_missing_fields)
+    else:
+        external_boundary_missing_fields_text = str(external_boundary_missing_fields or "")
     boundary_evidence_supported = any(
         token in boundary_evidence_source.lower()
         for token in [
@@ -683,15 +705,18 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         PASS
         if boundary_diagnostic_ok
         and boundary_evidence_ok
+        and external_boundary_protocol_gate in {"", "pass"}
         else FAIL,
         (
             f"boundary_protocol_gate={boundary_gate or 'missing'}; "
+            f"external_boundary_protocol_gate={external_boundary_protocol_gate or 'missing'}; "
             f"approx_frontal_blockage_ratio={frontal_blockage}; "
             f"blockage_protocol_gate={blockage_gate or 'missing'}; "
             f"required frontal <= {args.max_frontal_blockage_ratio}; "
             f"boundary_evidence_gate={boundary_evidence_gate or 'missing'}; "
             f"boundary_evidence_source={boundary_evidence_source or 'missing'}; "
-            f"boundary_evidence_supported={boundary_evidence_supported}"
+            f"boundary_evidence_supported={boundary_evidence_supported}; "
+            f"missing_boundary_evidence_fields={external_boundary_missing_fields_text or 'none'}"
         ),
         "Fix domain extents/model placement, reduce blockage, and archive AIJ-equivalent boundary/fetch/roughness evidence or an empty-tunnel/native boundary-preservation check.",
     )
@@ -1099,6 +1124,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "artifacts": {
             "case_metadata": str(metadata_path) if metadata_path else "",
             "validation_protocol_audit": str(audit_path) if audit_path else "",
+            "boundary_protocol_audit": str(boundary_audit_path) if boundary_audit_path else "",
             "native_fluidx3d_baseline_manifest": str(manifest_path) if manifest_path else "",
             "metrics": str(metrics_path) if metrics_path else "",
             "probe_audit": str(probe_path) if probe_path else "",

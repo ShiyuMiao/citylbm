@@ -48,6 +48,10 @@ AIJ Case E is treated as a paper-grade validation experiment.
    frontal blockage ratio and approximate plan blockage ratio. CityLBM v0.3.0 writes these fields in
    `BoundaryProtocolAudit`. The ratios are axis-aligned screening diagnostics; compare them with the official AIJ
    wind-tunnel blockage protocol before paper-grade promotion.
+   Run `scripts/audit_boundary_protocol.py` or the full chain with `--boundary-evidence <boundary_evidence.json>`.
+   The evidence JSON must explicitly document `aij_case`, `wind_direction`, `inlet_boundary`, `outlet_boundary`,
+   `lateral_boundary`, `top_boundary`, `ground_wall_treatment`, `roughness_treatment`, `blockage_source` and
+   `fetch_clearance_source`, with `boundary_evidence_gate=pass`. Missing fields keep the boundary gate diagnostic/fail.
 
 5. Inlet distribution-consistency gate.
    If the inlet turbulence is generated from `k`, archive whether the implementation reconstructs FluidX3D distribution
@@ -100,6 +104,8 @@ AIJ Case E is treated as a paper-grade validation experiment.
 - Domain extents in `H`: upstream, downstream, lateral and top clearance.
 - Approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate.
 - Boundary mode and boundary-source justification.
+- `boundary_protocol_audit.json`, including `boundary_missing_evidence_fields`; this file must be generated from
+  metadata plus an explicit AIJ boundary evidence JSON before paper-grade promotion.
 - `TYPE_E` boundary velocity initialization policy. CityLBM v0.3.0 generated cases initialize outlet, lateral and top
   `TYPE_E` nodes from the mean wind profile before device upload to avoid zero-speed boundary damping; archive the
   generated `setup.cpp` evidence for native and CityLBM parity runs.
@@ -139,14 +145,21 @@ python scripts\probe_vtk_points.py <run_dir>\output --official <RS-caseA.csv> --
 python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
 
+Before the final gate, archive the AIJ boundary evidence as JSON and audit it:
+
+```powershell
+python scripts\audit_boundary_protocol.py <run_dir> --metadata <case_metadata.json> --evidence <boundary_evidence.json> --out <run_dir>\boundary_protocol_audit.json
+```
+
 For a native FluidX3D run that bypasses Grasshopper, the same evidence chain can be generated with one command:
 
 ```powershell
-python scripts\run_native_validation_chain.py <run_dir> --official <RS-caseA.csv> --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --solver-log <solver.log> --case CaseA --wind-direction-label <direction> --wind-vector 1,0,0 --u-ref <Uref> --software native-fluidx3d --average-last-n 10 --min-avg-frames 10 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m>
+python scripts\run_native_validation_chain.py <run_dir> --official <RS-caseA.csv> --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --boundary-evidence <boundary_evidence.json> --solver-log <solver.log> --case CaseA --wind-direction-label <direction> --wind-vector 1,0,0 --u-ref <Uref> --software native-fluidx3d --average-last-n 10 --min-avg-frames 10 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m>
 ```
 
 The command writes `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,
-`probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and `validation_gate_report.json` under
+`boundary_protocol_audit.json`, `probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
+`validation_gate_report.json` under
 `<run_dir>\validation_chain`. It does not run FluidX3D; it only audits newly generated VTK frames and solver evidence
 that already exist in the run directory.
 

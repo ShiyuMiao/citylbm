@@ -55,6 +55,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   approximate frontal/plan blockage ratios, blockage gate, boundary protocol gate, and the simplified `TYPE_E`/`TYPE_S`
   boundary-type record. The blockage ratios are axis-aligned diagnostics from model/domain bounds; verify them against
   the official AIJ wind-tunnel blockage definition before making paper-grade claims.
+- Archive an explicit AIJ boundary evidence JSON and generate `boundary_protocol_audit.json`. The evidence JSON must
+  include `aij_case`, `wind_direction`, `inlet_boundary`, `outlet_boundary`, `lateral_boundary`, `top_boundary`,
+  `ground_wall_treatment`, `roughness_treatment`, `blockage_source`, `fetch_clearance_source` and
+  `boundary_evidence_gate=pass`. Domain clearance alone is diagnostic and cannot pass the paper-grade boundary gate.
 - `validation_protocol_audit.json` and `validation_protocol_audit.md` exist in both case root and output directory.
   Treat any `risk` or `fail` item as a blocker for paper-grade validation claims until resolved or explicitly justified.
 - VTK files are newly generated for the current run directory, not copied from older experiments.
@@ -117,17 +121,24 @@ python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\R
 python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
 ```
 
+Generate the boundary protocol audit before the final gate:
+
+```powershell
+python scripts\audit_boundary_protocol.py <run_dir> --metadata <case_metadata.json> --evidence <boundary_evidence_casee_ac_N.json> --out <run_dir>\boundary_protocol_audit.json
+```
+
 - For a native FluidX3D or CityLBM run package with newly generated VTK frames, produce the complete post-run evidence
   package with one command:
 
 ```powershell
-python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 10 --min-avg-frames 10 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250
+python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --boundary-evidence <boundary_evidence_casee_ac_N.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 10 --min-avg-frames 10 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250
 ```
 
   The command creates `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,
-  `probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and `validation_gate_report.json` under
-  `<run_dir>\validation_chain`. It does not start a CFD simulation and must not be used to imply that Case E was rerun
-  unless the VTK frames in `<run_dir>` were newly produced by the current Rhino 7/Grasshopper/CityLBM experiment.
+  `boundary_protocol_audit.json`, `probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
+  `validation_gate_report.json` under `<run_dir>\validation_chain`. It does not start a CFD simulation and must not be
+  used to imply that Case E was rerun unless the VTK frames in `<run_dir>` were newly produced by the current Rhino 7/
+  Grasshopper/CityLBM experiment.
 
 - Run the machine gate after postprocessing:
 
@@ -158,6 +169,7 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   unless a stricter case-specific stationarity criterion is documented.
 - Inlet/outlet/lateral/top boundary faces and upstream/downstream/lateral/top clearances in building-height units
 - Domain size, maximum building height, approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate
+- `boundary_protocol_audit.json`, `boundary_evidence_gate` and `boundary_missing_evidence_fields`
 - Mean probe distance and maximum probe distance
 - Compared component consistency gate, unique compared components and official coordinate-delta coverage count
 - Native FluidX3D baseline run id or archive path
