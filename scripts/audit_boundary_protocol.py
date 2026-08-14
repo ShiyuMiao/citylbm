@@ -9,6 +9,7 @@ numeric metrics can be treated as paper-grade AIJ validation.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import sys
@@ -196,6 +197,9 @@ def resolve_evidence_files(paths: List[str], evidence_path: Optional[Path], run_
 
     resolved: List[str] = []
     missing: List[str] = []
+    hashed: List[Dict[str, Any]] = []
+    unreadable: List[str] = []
+    empty: List[str] = []
     for raw_path in paths:
         candidate = Path(raw_path).expanduser()
         candidates = [candidate] if candidate.is_absolute() else [base / candidate for base in base_dirs]
@@ -203,11 +207,33 @@ def resolve_evidence_files(paths: List[str], evidence_path: Optional[Path], run_
         if existing is None:
             missing.append(raw_path)
         else:
-            resolved.append(str(existing.resolve()))
+            resolved_path = existing.resolve()
+            resolved_text = str(resolved_path)
+            resolved.append(resolved_text)
+            try:
+                content = resolved_path.read_bytes()
+            except OSError:
+                unreadable.append(resolved_text)
+                continue
+            size = len(content)
+            if size <= 0:
+                empty.append(resolved_text)
+            hashed.append(
+                {
+                    "path": resolved_text,
+                    "size_bytes": size,
+                    "sha256": hashlib.sha256(content).hexdigest(),
+                }
+            )
+    all_hashed = bool(paths) and not missing and not unreadable and not empty and len(hashed) == len(paths)
     return {
         "resolved": resolved,
         "missing": missing,
+        "unreadable": unreadable,
+        "empty": empty,
+        "sha256": hashed,
         "all_exist": bool(paths) and not missing,
+        "all_hashed": all_hashed,
     }
 
 
@@ -300,7 +326,7 @@ def main() -> int:
         and not missing
         and boundary_equivalence_supported
         and boundary_evidence_class_supported
-        and evidence_file_status["all_exist"]
+        and evidence_file_status["all_hashed"]
         and clearance_numeric_gate_pass
     )
     blockage_gate_pass = frontal_blockage is not None and frontal_blockage <= args.max_frontal_blockage_ratio
@@ -330,6 +356,11 @@ def main() -> int:
             reasons.append("boundary_evidence_files_missing")
         else:
             reasons.append("boundary_evidence_files_not_found:" + ",".join(evidence_file_status["missing"]))
+    elif not evidence_file_status["all_hashed"]:
+        if evidence_file_status["unreadable"]:
+            reasons.append("boundary_evidence_files_unreadable:" + ",".join(evidence_file_status["unreadable"]))
+        if evidence_file_status["empty"]:
+            reasons.append("boundary_evidence_files_empty:" + ",".join(evidence_file_status["empty"]))
     reasons.extend(clearance_reasons)
     if metadata_evidence_gate and metadata_evidence_gate != "pass" and not evidence_gate_pass:
         reasons.append(f"metadata_boundary_evidence_gate_{metadata_evidence_gate}")
@@ -362,7 +393,11 @@ def main() -> int:
         "boundary_evidence_files": evidence_files,
         "boundary_evidence_files_resolved": evidence_file_status["resolved"],
         "boundary_evidence_files_missing": evidence_file_status["missing"],
+        "boundary_evidence_files_unreadable": evidence_file_status["unreadable"],
+        "boundary_evidence_files_empty": evidence_file_status["empty"],
+        "boundary_evidence_files_sha256": evidence_file_status["sha256"],
         "boundary_evidence_files_all_exist": evidence_file_status["all_exist"],
+        "boundary_evidence_files_all_hashed": evidence_file_status["all_hashed"],
         "inlet_fetch_clearance_h": upstream_clearance_h,
         "downstream_clearance_h": downstream_clearance_h,
         "min_lateral_clearance_h": lateral_clearance_h,

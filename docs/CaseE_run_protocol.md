@@ -68,7 +68,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `blockage_source`, `fetch_clearance_source`, `inlet_fetch_clearance_h`, `downstream_clearance_h`,
   `min_lateral_clearance_h`, `top_clearance_h`, `outlet_reflection_check`, `side_top_boundary_check`,
   `boundary_evidence_class`, at least one existing `boundary_evidence_files` support artifact and
-  `boundary_evidence_gate=pass`. `boundary_equivalence_basis` must be backed by an archived tag such as
+  `boundary_evidence_gate=pass`. Each support artifact must be non-empty and recorded with SHA256 in
+  `boundary_protocol_audit.json`. `boundary_equivalence_basis` must be backed by an archived tag such as
   `aij_verified`, `wind_tunnel_protocol_matched`, `empty_tunnel_passed`, `validated_boundary_model`,
   `precursor_boundary` or `recycling_boundary`. Domain clearance or token-only equivalence text is diagnostic and
   cannot pass the paper-grade boundary gate without a supported evidence class and archived support file.
@@ -219,7 +220,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Domain size, maximum building height, approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate
 - `boundary_protocol_audit.json`, `boundary_evidence_gate`, `boundary_missing_evidence_fields`,
   `boundary_equivalence_basis`, `boundary_equivalence_supported`, `boundary_evidence_class`,
-  `boundary_evidence_class_supported`, `boundary_evidence_files_all_exist`, `clearance_numeric_gate` and
+  `boundary_evidence_class_supported`, `boundary_evidence_files_all_exist`,
+  `boundary_evidence_files_all_hashed`, evidence-file SHA256 records, `clearance_numeric_gate` and
   `boundary_clearance_reasons`
 - Mean probe distance and maximum probe distance
 - Compared component consistency gate, unique compared components and official coordinate-delta coverage count

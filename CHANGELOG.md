@@ -30,6 +30,7 @@
 - The coordinate/normalization gate now audits per-probe `Uref`, wind-vector and normalization flags from the Data Probe CSV; a correct summary metrics row alone cannot hide mixed or missing probe-level normalization evidence.
 - The boundary gate now requires an explicit `boundary_protocol_audit.json` pass with `boundary_equivalence_supported=true`; AIJ-equivalence tokens in metadata/metrics are kept as diagnostic text and no longer pass the paper-grade boundary gate by themselves.
 - Boundary evidence now also requires a supported `boundary_evidence_class` and at least one existing `boundary_evidence_files` artifact; token-only AIJ-equivalence text remains diagnostic and cannot satisfy the boundary gate by itself.
+- Boundary support artifacts must now be non-empty and SHA256-hashed in `boundary_protocol_audit.json`; existence-only files cannot pass the paper-grade boundary gate.
 - The inlet length-scale gate now requires both `inlet_length_scale_gate=pass` and a supported AIJ/official, precursor/recycling, DFM/SEM, digital-filter or validated-model length-scale source; source tokens alone no longer pass.
 - Inlet correlation audits now require finite temporal/spatial correlation coverage fractions, preventing sparse or degenerate inlet fluctuations from passing on correlation mean values alone.
 - Inlet `U/k` preservation now requires real archived final-window source steps from `audit_inlet_profile_from_vtk.py`; `empty_tunnel_gate=pass` or bias values alone cannot satisfy the inlet evidence gate without the source-window audit.

@@ -96,6 +96,7 @@ TEMPLATE_FIELDS = [
     "boundary_evidence_class",
     "boundary_evidence_class_supported",
     "boundary_evidence_files_all_exist",
+    "boundary_evidence_files_all_hashed",
     "clearance_numeric_gate",
     "boundary_clearance_reasons",
     "boundary_summary",
@@ -1000,6 +1001,7 @@ def main() -> int:
             "boundary_evidence_class": str(boundary_protocol_audit.get("boundary_evidence_class", "")),
             "boundary_evidence_class_supported": csv_bool(boundary_protocol_audit.get("boundary_evidence_class_supported")),
             "boundary_evidence_files_all_exist": csv_bool(boundary_protocol_audit.get("boundary_evidence_files_all_exist")),
+            "boundary_evidence_files_all_hashed": csv_bool(boundary_protocol_audit.get("boundary_evidence_files_all_hashed")),
             "clearance_numeric_gate": str(boundary_protocol_audit.get("clearance_numeric_gate", "")),
             "boundary_clearance_reasons": ";".join(
                 str(reason) for reason in boundary_protocol_audit.get("clearance_numeric_gate_reasons", [])
