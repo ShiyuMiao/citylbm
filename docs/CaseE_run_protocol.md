@@ -112,6 +112,18 @@ python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\R
 python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
 ```
 
+- For a native FluidX3D or CityLBM run package with newly generated VTK frames, produce the complete post-run evidence
+  package with one command:
+
+```powershell
+python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 10 --min-avg-frames 10 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250
+```
+
+  The command creates `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,
+  `probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and `validation_gate_report.json` under
+  `<run_dir>\validation_chain`. It does not start a CFD simulation and must not be used to imply that Case E was rerun
+  unless the VTK frames in `<run_dir>` were newly produced by the current Rhino 7/Grasshopper/CityLBM experiment.
+
 - Run the machine gate after postprocessing:
 
 ```powershell

@@ -115,6 +115,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   RS probe projection error at `dx=2-3 m` without hiding out-of-domain probes.
 - Probe-derived metrics now preserve the actual `Uref` used by `Data Probe` and read `WindDirectionUnitVector` from
   `case_metadata.json`, so wind/normalization evidence is not lost during validation-gate reporting.
+- Added `scripts/run_native_validation_chain.py` as a one-command post-run evidence chain for native FluidX3D/CityLBM
+  VTK packages. It runs the native run audit, inlet `U/k` profile audit, trilinear probe extraction, metrics builder and
+  validation gate, then writes `validation_chain_manifest.json` so Case A/Case E reruns cannot skip required evidence
+  while being mistaken for fresh CFD simulations.
 
 ## Remaining scientific work
 

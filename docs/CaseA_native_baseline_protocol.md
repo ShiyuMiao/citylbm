@@ -136,6 +136,17 @@ python scripts\probe_vtk_points.py <run_dir>\output --official <RS-caseA.csv> --
 python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
 
+For a native FluidX3D run that bypasses Grasshopper, the same evidence chain can be generated with one command:
+
+```powershell
+python scripts\run_native_validation_chain.py <run_dir> --official <RS-caseA.csv> --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --solver-log <solver.log> --case CaseA --wind-direction-label <direction> --wind-vector 1,0,0 --u-ref <Uref> --software native-fluidx3d --average-last-n 10 --min-avg-frames 10 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m>
+```
+
+The command writes `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,
+`probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and `validation_gate_report.json` under
+`<run_dir>\validation_chain`. It does not run FluidX3D; it only audits newly generated VTK frames and solver evidence
+that already exist in the run directory.
+
 When `--mean-speed-stddev-ratio` and `--max-speed-stddev-ratio` are omitted, `audit_native_run.py` deterministically
 samples up to 20,000 points from the selected final VTK frames and computes these stability ratios from the real
 velocity time series. Explicit CLI ratios can still be used when a stricter full-field or probe-specific averaging
