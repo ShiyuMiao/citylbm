@@ -537,6 +537,8 @@ def main() -> int:
             args.pattern,
             "--average-last-n",
             str(args.average_last_n),
+            "--min-avg-frames",
+            str(args.min_avg_frames),
             "--case",
             args.case,
             "--wind-direction-label",

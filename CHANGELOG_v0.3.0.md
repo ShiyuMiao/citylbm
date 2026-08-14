@@ -189,6 +189,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   Uref, wind-vector evidence, compared component, time-averaged value and per-probe failure flags.
 - Native VTK probe extraction now records unparsable official probe coordinates as explicit failed rows with
   `failure_reason=invalid_probe_coordinate` instead of silently dropping those probes from `failed_n`.
+- Native VTK probe extraction now defaults to a 10-frame final-window average and refuses to write a validation probe
+  audit when the selected VTK window is shorter than `--min-avg-frames`; one-frame extraction must be explicitly marked
+  as smoke-test behavior by lowering that threshold.
 - Native VTK probe extraction now defaults to structured-grid trilinear velocity sampling instead of nearest-node
   sampling, while keeping nearest-node distance as a separate coverage/tolerance audit field. This reduces avoidable
   RS probe projection error at `dx=2-3 m` without hiding out-of-domain probes.

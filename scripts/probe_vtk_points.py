@@ -29,7 +29,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--official", required=True, help="Official RS/probe CSV with ID and x/y/z columns.")
     parser.add_argument("--out", required=True, help="Output Data-Probe-compatible CSV.")
     parser.add_argument("--pattern", default="u-*.vtk", help="VTK glob when input is a directory.")
-    parser.add_argument("--average-last-n", type=int, default=1, help="Average last N VTK frames before probing.")
+    parser.add_argument("--average-last-n", type=int, default=10, help="Average last N VTK frames before probing.")
+    parser.add_argument(
+        "--min-avg-frames",
+        type=int,
+        default=10,
+        help="Minimum selected VTK frames required before writing a validation probe audit. Use 1 only for smoke tests.",
+    )
     parser.add_argument("--probe-id-column", default="", help="Official probe ID column. Auto-detected when omitted.")
     parser.add_argument("--case", default="", help="Optional official CSV case filter, e.g. ac or CaseA.")
     parser.add_argument("--wind-direction-label", default="", help="Optional official CSV wind-direction filter, e.g. N.")
@@ -375,6 +381,11 @@ def compared_value(
 def main() -> int:
     args = parse_args()
     vtk_paths = vtk_files(Path(args.vtk).resolve(), args.pattern, args.average_last_n)
+    if args.min_avg_frames > 0 and len(vtk_paths) < args.min_avg_frames:
+        raise SystemExit(
+            f"Selected VTK frame count {len(vtk_paths)} is below --min-avg-frames {args.min_avg_frames}. "
+            "Rerun with a longer final-window average, or explicitly lower --min-avg-frames for smoke tests."
+        )
     frames = [read_vtk_metadata(path) for path in vtk_paths]
     first = frames[0]
     for frame in frames[1:]:
