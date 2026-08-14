@@ -52,6 +52,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-empty-tunnel-k-bias-ratio", type=float, default=0.15)
     parser.add_argument("--max-official-coordinate-delta-m", type=float, default=1.0e-6)
     parser.add_argument("--max-probe-failure-fraction", type=float, default=0.0)
+    parser.add_argument("--max-probe-distance-dx-ratio", type=float, default=1.0)
+    parser.add_argument("--max-probe-tolerance-dx-ratio", type=float, default=1.0)
     parser.add_argument("--max-frontal-blockage-ratio", type=float, default=0.05)
     parser.add_argument("--max-estimated-mach", type=float, default=0.20)
     parser.add_argument("--min-lbm-tau", type=float, default=0.500001)
@@ -271,14 +273,22 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
 
     coordinate_gate = by_key.get("coordinate_normalization")
     compared_gate = by_key.get("compared_component")
+    projection_gate = by_key.get("probe_projection_distance")
     probe_gate = by_key.get("probe_mapping")
     sensitivity_gate = by_key.get("component_normalization_sensitivity")
-    if any(gate is None or gate.get("status") != PASS for gate in [coordinate_gate, compared_gate, probe_gate, sensitivity_gate]):
+    if any(gate is None or gate.get("status") != PASS for gate in [coordinate_gate, compared_gate, projection_gate, probe_gate, sensitivity_gate]):
+        coordinate_priority_gate = next(
+            (
+                gate for gate in [coordinate_gate, compared_gate, projection_gate, probe_gate, sensitivity_gate]
+                if gate is None or gate.get("status") != PASS
+            ),
+            coordinate_gate,
+        )
         add_priority(
             priorities,
             1,
             "coordinate_component_normalization",
-            coordinate_gate,
+            coordinate_priority_gate,
             "Probe coordinates, wind sign, compared component and Uref must be closed before interpreting bias.",
             "Fix RS probe projection, wind vector, compared_component and Uref/SI velocity conversion first; rerun component/Uref sensitivity before interpreting bias.",
         )
@@ -437,6 +447,46 @@ def read_probe_component_audit(path: Optional[Path]) -> Tuple[Optional[int], Lis
         else:
             missing_component_count += 1
     return valid_count, sorted(components), missing_component_count, None
+
+
+def read_probe_projection_audit(
+    path: Optional[Path],
+) -> Tuple[Optional[int], Optional[float], Optional[float], int, int, Optional[str]]:
+    if not path or not path.exists():
+        return None, None, None, 0, 0, "probe audit CSV not found"
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        return 0, None, None, 0, 0, "probe audit CSV has no rows"
+    valid_count = 0
+    distances: List[float] = []
+    tolerances: List[float] = []
+    missing_distance_count = 0
+    missing_tolerance_count = 0
+    for row in rows:
+        failed_flag = as_bool(get_any(row, ["failed", "Failed", "out_of_tolerance", "OutOfTolerance"]))
+        status = str(get_any(row, ["status", "Status", "validation_status", "ValidationStatus"]) or "").lower()
+        if failed_flag is True or "fail" in status or "out" in status:
+            continue
+        valid_count += 1
+        distance = as_float(get_any(row, ["nearest_distance", "NearestDistance", "probe_distance_m", "ProbeDistanceM"]))
+        tolerance = as_float(get_any(row, ["tolerance", "Tolerance", "probe_tolerance_m", "ProbeToleranceM"]))
+        if distance is None:
+            missing_distance_count += 1
+        else:
+            distances.append(distance)
+        if tolerance is None:
+            missing_tolerance_count += 1
+        else:
+            tolerances.append(tolerance)
+    return (
+        valid_count,
+        max(distances) if distances else None,
+        max(tolerances) if tolerances else None,
+        missing_distance_count,
+        missing_tolerance_count,
+        None,
+    )
 
 
 def source_frame_details(metrics: Dict[str, Any]) -> Tuple[Optional[int], str, bool]:
@@ -1198,6 +1248,66 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Export the Data Probe audit CSV with official probe IDs, x/y/z, Uref, wind vector, compared_component, nearest_distance and tolerance.",
     )
     detailed_probe_audit_ok = probe_audit_traceable or probe_summary_override
+    (
+        projection_valid_count,
+        max_probe_distance,
+        max_probe_tolerance,
+        missing_probe_distance_count,
+        missing_probe_tolerance_count,
+        probe_projection_error,
+    ) = read_probe_projection_audit(probe_path)
+    dx_m = as_float(get_any(metrics, ["dx_m", "dx", "DxM", "Dx"]))
+    distance_within_tolerance = (
+        max_probe_distance is not None
+        and max_probe_tolerance is not None
+        and max_probe_distance <= max_probe_tolerance + 1.0e-9
+    )
+    distance_dx_ratio = (
+        max_probe_distance / dx_m
+        if max_probe_distance is not None and dx_m is not None and dx_m > 0.0
+        else None
+    )
+    tolerance_dx_ratio = (
+        max_probe_tolerance / dx_m
+        if max_probe_tolerance is not None and dx_m is not None and dx_m > 0.0
+        else None
+    )
+    distance_dx_ok = (
+        distance_dx_ratio is not None
+        and distance_dx_ratio <= args.max_probe_distance_dx_ratio
+    )
+    tolerance_dx_ok = (
+        tolerance_dx_ratio is not None
+        and tolerance_dx_ratio <= args.max_probe_tolerance_dx_ratio
+    )
+    projection_complete = (
+        projection_valid_count is not None
+        and projection_valid_count > 0
+        and missing_probe_distance_count == 0
+        and missing_probe_tolerance_count == 0
+    )
+    add_gate(
+        gates,
+        "probe_projection_distance",
+        PASS
+        if probe_audit_traceable
+        and projection_complete
+        and distance_within_tolerance
+        and distance_dx_ok
+        and tolerance_dx_ok
+        else FAIL,
+        (
+            f"probe_valid_count={projection_valid_count}; dx_m={dx_m}; "
+            f"max_probe_distance_m={max_probe_distance}; max_probe_tolerance_m={max_probe_tolerance}; "
+            f"missing_distance_count={missing_probe_distance_count}; "
+            f"missing_tolerance_count={missing_probe_tolerance_count}; "
+            f"distance_within_tolerance={distance_within_tolerance}; "
+            f"distance_dx_ratio={distance_dx_ratio}; required <= {args.max_probe_distance_dx_ratio}; "
+            f"tolerance_dx_ratio={tolerance_dx_ratio}; required <= {args.max_probe_tolerance_dx_ratio}; "
+            f"probe_audit_traceable={probe_audit_traceable}; {probe_projection_error or ''}"
+        ).strip(),
+        "Keep RS probe interpolation/projection distances traceable and bounded by dx; do not rescue missing slice points with an overly large tolerance.",
+    )
 
     normalization_valid = as_bool(get_any(metrics, ["normalization_valid", "NormalizationValid"]))
     wind_valid = as_bool(get_any(metrics, ["wind_direction_valid", "WindDirectionValid"]))
@@ -1490,6 +1600,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_empty_tunnel_k_bias_ratio": args.max_empty_tunnel_k_bias_ratio,
             "max_official_coordinate_delta_m": args.max_official_coordinate_delta_m,
             "max_probe_failure_fraction": args.max_probe_failure_fraction,
+            "max_probe_distance_dx_ratio": args.max_probe_distance_dx_ratio,
+            "max_probe_tolerance_dx_ratio": args.max_probe_tolerance_dx_ratio,
             "max_frontal_blockage_ratio": args.max_frontal_blockage_ratio,
             "max_estimated_mach": args.max_estimated_mach,
             "min_lbm_tau": args.min_lbm_tau,

@@ -156,6 +156,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    `scripts/probe_vtk_points.py` to emit the same Data-Probe-compatible audit CSV before metrics are built. Use
    `--interpolation trilinear` for structured VTK validation and treat `nearest_distance` as a coverage/tolerance audit,
    not as the velocity sampling method.
+   The machine gate now enforces `probe_projection_distance`: every valid probe must record `nearest_distance` and
+   `tolerance`, the maximum distance must be within the recorded tolerance, and both maximum distance and tolerance must
+   stay within the configured `dx` ratio. Increasing tolerance to rescue a missing slice point is diagnostic only.
 
 8. Promotion gate.
    CityLBM may inherit native FluidX3D settings only after native Case A has a passing or explicitly bounded diagnostic
@@ -267,7 +270,7 @@ For a CityLBM-driven parity run, change `--software citylbm` and keep the same m
 record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,
 `native_baseline_gate=pass`, `lbm_stability_gate=solver_log_no_stability_warnings`,
 `solver_stability_warnings=none`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
-`inlet_profile_gate=pass`, zero failed probes, bounded mean-velocity bias/RMSE, and reported `k` bias/RMSE. If the gate returns `FAIL`, the run is
+`inlet_profile_gate=pass`, zero failed probes, bounded probe projection distance/tolerance, bounded mean-velocity bias/RMSE, and reported `k` bias/RMSE. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
 The JSON report also includes `diagnostic_priority`, which must be followed in order before changing physics parameters:
 first close coordinate/component/Uref/probe issues and the component/Uref sensitivity audit, then final-window time
