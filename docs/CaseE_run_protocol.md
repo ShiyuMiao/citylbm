@@ -241,9 +241,10 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Native baseline gate and `validation_gate_report.json`
 - Protocol gate from `validation_protocol_audit.json`
 - Systematic bias flag and `bias_diagnosis`. If mean bias remains around `-0.20` to `-0.35` speed-ratio units, do not
-  tune parameters first. If best-fit scaling removes much of the error, audit Uref, velocity-unit conversion, compared
-  component and wind-direction sign. If scaled RMSE remains large, audit inlet turbulence, boundary treatment, roughness
-  and probe projection.
+  tune parameters first. The validation gate also infers systematic bias directly from `U_bias_ratio` when the
+  configured threshold is exceeded, even if the metrics row forgot to set `systematic_bias_flag`. If best-fit scaling
+  removes much of the error, audit Uref, velocity-unit conversion, compared component and wind-direction sign. If
+  scaled RMSE remains large, audit inlet turbulence, boundary treatment, roughness and probe projection.
 - `validation_gate_report.json` `diagnostic_priority` ranks the next actions after a failed run. For SCI-grade Case E,
   do not skip lower-rank failures: coordinate/component/Uref/probe closure plus component/Uref sensitivity precedes time averaging; time averaging
   precedes inlet `U/k` preservation; inlet `U/k` preservation precedes turbulent-inlet method and length-scale claims;

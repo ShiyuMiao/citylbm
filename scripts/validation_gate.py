@@ -1846,16 +1846,27 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     best_scale = as_float(get_any(metrics, ["U_best_fit_scale_to_exp"]))
     scaled_rmse = as_float(get_any(metrics, ["U_scaled_RMSE_ratio"]))
     scaled_improvement = as_float(get_any(metrics, ["U_scaled_improvement_ratio"]))
+    systematic_tokens = {"true", "1", "yes", "fail", "risk", "underprediction", "overprediction"}
+    inferred_systematic_bias = u_bias is not None and abs(u_bias) > args.max_u_bias_ratio
+    inferred_systematic_direction = (
+        "underprediction"
+        if inferred_systematic_bias and u_bias is not None and u_bias < 0
+        else ("overprediction" if inferred_systematic_bias and u_bias is not None and u_bias > 0 else "")
+    )
+    systematic_bias_present = systematic_flag in systematic_tokens or inferred_systematic_bias
     add_gate(
         gates,
         "systematic_bias",
-        FAIL if systematic_flag in {"true", "1", "yes", "fail", "risk", "underprediction"} else PASS,
+        FAIL if systematic_bias_present else PASS,
         (
             f"systematic_bias_flag={systematic_flag or 'missing/false'}; "
+            f"inferred_from_U_bias={inferred_systematic_bias}; "
+            f"inferred_direction={inferred_systematic_direction or 'none'}; "
+            f"U_bias_ratio={u_bias}; threshold={args.max_u_bias_ratio}; "
             f"best_scale={best_scale}; scaled_RMSE={scaled_rmse}; "
             f"scaled_improvement={scaled_improvement}; diagnosis={bias_diagnosis or 'missing'}"
         ),
-        "Investigate protocol/physics setup before tuning if a systematic low-bias flag is present.",
+        "Investigate Uref/component/probe mapping first, then inlet, boundary, roughness and time averaging before tuning if systematic bias is present.",
     )
 
     failing = [gate for gate in gates if gate["status"] == FAIL]

@@ -246,7 +246,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--k-rmse", default="")
     parser.add_argument("--k-bias", default="")
     parser.add_argument("--k-bias-ratio", default="")
-    parser.add_argument("--systematic-bias-threshold", type=float, default=0.20)
+    parser.add_argument("--systematic-bias-threshold", type=float, default=0.15)
     parser.add_argument("--append", action="store_true", help="Append to metrics CSV if it exists.")
     return parser.parse_args()
 

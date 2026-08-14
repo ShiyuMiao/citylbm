@@ -303,9 +303,10 @@ STG-lite sensitivity runs, not for the native FluidX3D baseline or a paper-grade
 that diagnostic override is used, `validation_gate.py` still fails the separate `paper_grade_inlet_method` gate until
 the inlet treatment is distribution-consistent, digital-filter/SEM/DFM, precursor or recycling based and the final-window
 U/k preservation evidence passes.
-If `bias_diagnosis` reports `scale_like_error`, audit `Uref`, SI/LBM velocity conversion and compared component before
-changing inlet or boundary parameters. If the scaled error remains large, prioritize boundary, roughness and inlet
-physics.
+The validation gate infers `systematic_bias` directly from `U_bias_ratio` when its magnitude exceeds the configured
+threshold, even if `systematic_bias_flag` is missing from the metrics row. If `bias_diagnosis` reports
+`scale_like_error`, audit `Uref`, SI/LBM velocity conversion and compared component before changing inlet or boundary
+parameters. If the scaled error remains large, prioritize boundary, roughness and inlet physics.
 
 ## Current Blockers
 
