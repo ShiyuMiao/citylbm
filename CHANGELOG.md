@@ -20,6 +20,7 @@
 - Added `scripts/validation_gate.py` to fail run packages that lack paper-grade evidence for averaging, inlet U/k preservation, native baseline linkage, probe mapping, coordinate normalization or bounded error metrics.
 - Added `scripts/validation_metrics_from_probe_audit.py` to merge Data Probe audit rows with official AIJ measurements and output the standard validation metrics row.
 - Time-averaging metrics now prefer real VTK audit frame counts and source time-step lists over requested CLI averaging windows, so short final-window runs cannot appear as longer paper-grade averages in validation tables.
+- Native VTK probe extraction now writes VTK origin, spacing, dimensions, source time steps, source hashes and nearest-grid coordinates into the probe audit CSV for coordinate/projection traceability.
 
 ### Known limits
 

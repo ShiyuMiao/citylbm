@@ -85,9 +85,11 @@ AIJ Case E is treated as a paper-grade validation experiment.
    Probe extraction must record official point IDs, coordinates, selected velocity component, `Uref`, nearest VTK/probe
    distance, tolerance, failure status, valid count and failed count. In CityLBM this is produced by `Data Probe`
    outputs `Audit CSV`, `Validation Status`, `Compared Value` and `Probe ID`. The `Search Radius` input must be
-   archived because v0.3.0 applies it as the actual interpolation-neighbor distance filter. The audit CSV must also
-   record wind-vector components, `wind_direction_valid` and `normalization_valid` so speed-ratio and streamwise-ratio
-   comparisons remain traceable. The validation metrics must record `compared_component_consistency_gate`,
+  archived because v0.3.0 applies it as the actual interpolation-neighbor distance filter. The audit CSV must also
+  record wind-vector components, `wind_direction_valid` and `normalization_valid` so speed-ratio and streamwise-ratio
+  comparisons remain traceable. Native VTK probe extraction must also record VTK origin, spacing, dimensions, source
+  time steps, source file hashes and nearest-grid coordinates so coordinate-frame and projection errors can be audited
+  from the same table. The validation metrics must record `compared_component_consistency_gate`,
    `compared_component_unique_values` and `official_coordinate_delta_count`; every valid probe must use one explicit
    component and must have an official coordinate-delta check. Native FluidX3D runs that bypass Grasshopper must use
    `scripts/probe_vtk_points.py` to emit the same Data-Probe-compatible audit CSV before metrics are built. Use

@@ -126,6 +126,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   schema with `scripts\probe_vtk_points.py`, filtered to `case=ac` and `Wind_direction=N`, before building metrics.
   Use structured-grid trilinear sampling for the velocity value; the nearest-node distance remains the coverage and
   tolerance evidence.
+  Native VTK probe audit rows must include VTK origin, spacing, dimensions, source time steps, source file hashes and
+  nearest-grid coordinates. These fields are required to separate coordinate-frame/projection mistakes from true
+  velocity-field error before interpreting Case E bias.
 - A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
   extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
 - `case_metadata.json` must be archived with the run. It records the boundary-condition summary, expected VTK frame count,

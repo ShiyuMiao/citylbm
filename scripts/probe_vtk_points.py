@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import math
 import re
 import struct
@@ -152,6 +153,14 @@ def vtk_files(path: Path, pattern: str, average_last_n: int) -> List[Path]:
 def step_from_name(path: Path) -> int:
     matches = re.findall(r"(\d+)", path.stem)
     return int(matches[-1]) if matches else 0
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def parse_header_line(text: str, name: str, count: int) -> Optional[Tuple[float, ...]]:
@@ -371,6 +380,13 @@ def main() -> int:
     for frame in frames[1:]:
         if frame["dimensions"] != first["dimensions"] or frame["origin"] != first["origin"] or frame["spacing"] != first["spacing"]:
             raise SystemExit("Selected VTK frames must share dimensions, origin and spacing.")
+    source_steps = [step_from_name(path) for path in vtk_paths]
+    source_steps_csv = ",".join(str(step) for step in source_steps)
+    source_files_csv = ";".join(str(path) for path in vtk_paths)
+    source_hashes_csv = ";".join(sha256(path) for path in vtk_paths)
+    dims = first["dimensions"]
+    origin = first["origin"]
+    spacing = first["spacing"]
     official_rows = filter_official_rows(
         read_csv(Path(args.official).resolve()),
         args.case,
@@ -394,11 +410,11 @@ def main() -> int:
         if any(value is None for value in point_values):
             continue
         point = tuple(float(value) for value in point_values)  # type: ignore[assignment]
-        _vtk_index, _vtk_coord, distance = nearest_index(
+        _vtk_index, vtk_coord, distance = nearest_index(
             point,
-            first["dimensions"],
-            first["origin"],
-            first["spacing"],
+            dims,
+            origin,
+            spacing,
         )
         frame_samples = [sample_frame_velocity(frame, point, args.interpolation) for frame in frames]
         velocities = [sample[0] for sample in frame_samples]
@@ -439,8 +455,22 @@ def main() -> int:
                 "speed_ratio": speed_ratio,
                 "streamwise_ratio": streamwise_ratio,
                 "nearest_distance": distance,
+                "nearest_grid_x": vtk_coord[0],
+                "nearest_grid_y": vtk_coord[1],
+                "nearest_grid_z": vtk_coord[2],
                 "nearby_point_count": nearby_count,
                 "method": f"{args.interpolation}_vtk_average_last_{len(frames)}",
+                "vtk_average_frame_count": len(frames),
+                "vtk_source_time_steps": source_steps_csv,
+                "vtk_dimensions": f"{dims[0]},{dims[1]},{dims[2]}",
+                "vtk_origin_x": origin[0],
+                "vtk_origin_y": origin[1],
+                "vtk_origin_z": origin[2],
+                "vtk_spacing_x": spacing[0],
+                "vtk_spacing_y": spacing[1],
+                "vtk_spacing_z": spacing[2],
+                "vtk_source_files": source_files_csv,
+                "vtk_source_sha256": source_hashes_csv,
                 "compared_component": args.compared_component,
                 "compared_value": value,
                 "tolerance": args.tolerance,
@@ -470,8 +500,22 @@ def main() -> int:
         "speed_ratio",
         "streamwise_ratio",
         "nearest_distance",
+        "nearest_grid_x",
+        "nearest_grid_y",
+        "nearest_grid_z",
         "nearby_point_count",
         "method",
+        "vtk_average_frame_count",
+        "vtk_source_time_steps",
+        "vtk_dimensions",
+        "vtk_origin_x",
+        "vtk_origin_y",
+        "vtk_origin_z",
+        "vtk_spacing_x",
+        "vtk_spacing_y",
+        "vtk_spacing_z",
+        "vtk_source_files",
+        "vtk_source_sha256",
         "compared_component",
         "compared_value",
         "tolerance",
