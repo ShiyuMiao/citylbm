@@ -436,23 +436,23 @@ def read_probe_component_audit(path: Optional[Path]) -> Tuple[Optional[int], Lis
     return valid_count, sorted(components), None
 
 
-def source_frame_count(metrics: Dict[str, Any]) -> Optional[int]:
+def source_frame_details(metrics: Dict[str, Any]) -> Tuple[Optional[int], str, bool]:
     source_steps = get_any(metrics, ["source_time_steps", "SourceTimeSteps", "source_steps"])
     if source_steps:
         text = str(source_steps).strip()
         if not text:
-            return None
+            return None, "", False
         separators = [",", ";", " "]
         parts = [text]
         for sep in separators:
             if sep in text:
                 parts = [p for p in text.replace(";", ",").replace(" ", ",").split(",") if p.strip()]
                 break
-        return len(parts)
-    direct = as_int(get_any(metrics, ["averaging_window", "AverageLastN", "average_last_n"]))
-    if direct:
-        return direct
-    return None
+        return len(parts), text, True
+    requested = as_int(get_any(metrics, ["averaging_window", "AverageLastN", "average_last_n"]))
+    if requested:
+        return None, "", False
+    return None, "", False
 
 
 def get_manifest_source_record(manifest: Dict[str, Any], role: str) -> Dict[str, Any]:
@@ -509,13 +509,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Archive case_metadata.json, validation_protocol_audit.json, boundary_protocol_audit.json and metrics CSV/JSON for every run.",
     )
 
-    frame_count = source_frame_count(metrics)
-    if frame_count is None:
-        expected = as_int(metadata.get("ExpectedVtkFrameCount"))
-        frame_count = expected
-        frame_source = "case_metadata expected frame count"
+    frame_count, source_step_text, has_real_source_steps = source_frame_details(metrics)
+    requested_avg_window = as_int(get_any(metrics, ["averaging_window", "AverageLastN", "average_last_n"]))
+    expected_vtk_frame_count = as_int(metadata.get("ExpectedVtkFrameCount"))
+    if has_real_source_steps:
+        frame_source = "metrics real source_time_steps"
     else:
-        frame_source = "metrics source_time_steps/averaging_window"
+        frame_source = "missing real source_time_steps"
     available_frame_count = as_int(get_any(metrics, ["available_frame_count", "AvailableFrameCount"]))
     source_first_step = as_int(get_any(metrics, ["source_first_time_step", "SourceFirstTimeStep"]))
     source_last_step = as_int(get_any(metrics, ["source_last_time_step", "SourceLastTimeStep"]))
@@ -536,7 +536,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and max_speed_stddev_ratio <= args.max_point_speed_stddev_ratio
     )
     time_window_ok = (
-        frame_count is not None
+        has_real_source_steps
+        and frame_count is not None
         and frame_count >= args.min_avg_frames
         and selected_last_window is True
         and source_steps_increasing is True
@@ -544,7 +545,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and source_last_step is not None
         and latest_available_step is not None
         and source_last_step == latest_available_step
-        and metrics_time_gate in {"", "pass"}
+        and metrics_time_gate == "pass"
         and mean_speed_stable
         and point_speed_stable
     )
@@ -554,6 +555,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         PASS if time_window_ok else FAIL,
         (
             f"{frame_source}: {frame_count}; required >= {args.min_avg_frames}; "
+            f"real_source_time_steps_present={has_real_source_steps}; "
+            f"source_time_steps={source_step_text or 'missing'}; "
+            f"requested_averaging_window={requested_avg_window}; "
+            f"expected_vtk_frame_count={expected_vtk_frame_count}; "
             f"available_frame_count={available_frame_count}; source_first_step={source_first_step}; "
             f"source_last_step={source_last_step}; latest_available_step={latest_available_step}; "
             f"selected_last_window={selected_last_window}; source_steps_strictly_increasing={source_steps_increasing}; "

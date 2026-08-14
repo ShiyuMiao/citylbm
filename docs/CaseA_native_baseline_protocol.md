@@ -130,7 +130,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    `source_steps_strictly_increasing=true`, `source_step_spacing_uniform=true`, and
    `source_last_time_step=latest_available_time_step`. The same gate also requires `mean_speed_stddev_ratio <= 0.05`
    and `max_speed_stddev_ratio <= 0.20` from the Read VTK averaging audit, native-run audit, or inlet-profile audit
-   unless a stricter case-specific stationarity criterion is documented.
+   unless a stricter case-specific stationarity criterion is documented. The machine gate only counts archived
+   `source_time_steps` from real VTK/audit frames as averaging evidence; `AverageLastN`, `--average-last-n` and
+   `ExpectedVtkFrameCount` are request or estimate fields and cannot pass the paper-grade time gate by themselves.
 
 7. Probe audit gate.
    Probe extraction must record official point IDs, coordinates, selected velocity component, `Uref`, nearest VTK/probe
@@ -248,7 +250,8 @@ velocity time series. Explicit CLI ratios can still be used when a stricter full
 analysis has already been archived.
 The validation metrics row must use the actual audit `averaged_frame_count` and `source_time_steps`, not only the
 requested `--average-last-n` value. A run with four real final VTK frames remains four-frame diagnostic evidence even if
-the requested averaging window was ten frames.
+the requested averaging window was ten frames. A run with no archived `source_time_steps` remains diagnostic even when
+`ExpectedVtkFrameCount` or a CLI averaging request is greater than the minimum frame threshold.
 
 For a CityLBM-driven parity run, change `--software citylbm` and keep the same metrics/probe schema. A passing paper-grade
 record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,
