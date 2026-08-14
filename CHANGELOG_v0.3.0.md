@@ -118,6 +118,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   ratios are not supplied on the command line. It deterministically samples up to 20,000 points across the selected final
   frames, records the sampling method, and feeds `mean_speed_stddev_ratio` / `max_speed_stddev_ratio` into the same
   time-averaging gate used by Grasshopper `Read VTK`.
+- `scripts/audit_native_run.py`, `validation_metrics_from_probe_audit.py`, the metrics template and `validation_gate.py`
+  now carry `run_freshness_gate`, `latest_reference_mtime_utc` and `oldest_selected_vtk_mtime_utc`, so stale VTK frames
+  copied from older setups cannot be promoted as newly generated Case A/E evidence.
 - Added `scripts/audit_inlet_profile_from_vtk.py` to read real post-spinup `u-*.vtk` frames, sample an inlet or
   empty-tunnel cross-plane, reconstruct time-mean streamwise `U(z)` and temporal-variance `k(z)`, and compare both
   against the official AF table. This replaces hand-filled empty-tunnel `U/k` evidence with an archived JSON/CSV audit.

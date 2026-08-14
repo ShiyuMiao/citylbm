@@ -37,6 +37,10 @@ TEMPLATE_FIELDS = [
     "requested_vtk_frame_count",
     "requested_vtk_frame_gate",
     "requested_vtk_frame_gate_reasons",
+    "run_freshness_gate",
+    "run_freshness_gate_reasons",
+    "latest_reference_mtime_utc",
+    "oldest_selected_vtk_mtime_utc",
     "source_time_steps",
     "source_first_time_step",
     "source_last_time_step",
@@ -858,6 +862,8 @@ def main() -> int:
     requested_vtk_frame_count = audit_int(read_vtk_audit, "requested_vtk_frame_count")
     requested_vtk_frame_gate = first_text(read_vtk_audit.get("requested_vtk_frame_gate"))
     requested_vtk_frame_gate_reasons = first_text(read_vtk_audit.get("requested_vtk_frame_gate_reasons_csv"))
+    run_freshness_gate = first_text(read_vtk_audit.get("run_freshness_gate"))
+    run_freshness_gate_reasons = first_text(read_vtk_audit.get("run_freshness_gate_reasons_csv"))
     source_first_time_step = first_int(
         audit_int(read_vtk_audit, "source_first_time_step"),
         audit_int(inlet_profile_audit, "source_first_time_step"),
@@ -942,6 +948,10 @@ def main() -> int:
             "requested_vtk_frame_count": fmt(requested_vtk_frame_count),
             "requested_vtk_frame_gate": requested_vtk_frame_gate,
             "requested_vtk_frame_gate_reasons": requested_vtk_frame_gate_reasons,
+            "run_freshness_gate": run_freshness_gate,
+            "run_freshness_gate_reasons": run_freshness_gate_reasons,
+            "latest_reference_mtime_utc": first_text(read_vtk_audit.get("latest_reference_mtime_utc")),
+            "oldest_selected_vtk_mtime_utc": first_text(read_vtk_audit.get("oldest_selected_vtk_mtime_utc")),
             "source_time_steps": source_time_steps,
             "source_first_time_step": fmt(source_first_time_step),
             "source_last_time_step": fmt(source_last_time_step),

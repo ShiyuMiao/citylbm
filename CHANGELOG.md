@@ -23,6 +23,7 @@
 - The paper-grade time-averaging gate now requires real archived `source_time_steps` and an explicit `time_averaging_gate=pass`; requested `AverageLastN` or `ExpectedVtkFrameCount` values are recorded only as diagnostic context.
 - The time-averaging gate now independently parses `source_time_steps` and cross-checks count, first/last step, strict increase, uniform spacing and available-frame coverage; summary pass flags alone cannot hide an irregular or non-final VTK window.
 - Native-run audits now record requested solver steps, VTK save interval/start step and expected VTK frame count; the final time-averaging gate fails configurations that were planned to save fewer than the minimum final-window frames.
+- Native-run audits now record run-freshness evidence and fail the new `run_freshness` gate when selected VTK frames are older than the current setup/metadata artifacts.
 - Native VTK probe extraction now writes VTK origin, spacing, dimensions, source time steps, source hashes and nearest-grid coordinates into the probe audit CSV for coordinate/projection traceability.
 - The systematic-bias gate now infers under/overprediction directly from `U_bias_ratio` using the validation threshold, so a missing `systematic_bias_flag` cannot hide a `-34 pp` style low-bias run.
 - The compared-component gate now requires `compared_component_consistency_gate=pass` and no missing per-probe component labels, preventing mixed or partially audited speed/streamwise comparisons from passing as paper-grade evidence.

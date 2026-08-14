@@ -270,7 +270,10 @@ The command writes `validation_chain_manifest.json`, `native_run_audit.json`, `i
 `component_sensitivity_audit.json/.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
 `validation_gate_report.json` under
 `<run_dir>\validation_chain`. It does not run FluidX3D; it only audits newly generated VTK frames and solver evidence
-that already exist in the run directory.
+that already exist in the run directory. `native_run_audit.json` must report `run_freshness_gate=pass`, proving that the
+selected final-window VTK frames are newer than the current run-definition artifacts such as `setup.cpp`, `defines.hpp`,
+`buildings.stl`, `domain_origin.json` and/or `case_metadata.json`. Stale VTK frames copied from an older setup keep the
+run diagnostic.
 
 When `--mean-speed-stddev-ratio` and `--max-speed-stddev-ratio` are omitted, `audit_native_run.py` deterministically
 samples up to 20,000 points from the selected final VTK frames and computes these stability ratios from the real
@@ -280,6 +283,9 @@ The validation metrics row must use the actual audit `averaged_frame_count` and 
 requested `--average-last-n` value. A run with four real final VTK frames remains four-frame diagnostic evidence even if
 the requested averaging window was ten frames. A run with no archived `source_time_steps` remains diagnostic even when
 `ExpectedVtkFrameCount` or a CLI averaging request is greater than the minimum frame threshold.
+The metrics row must also carry `run_freshness_gate`, `run_freshness_gate_reasons`, `latest_reference_mtime_utc` and
+`oldest_selected_vtk_mtime_utc`; `validation_gate.py` fails `run_freshness` when these fields are missing or show stale
+VTK output.
 
 For a CityLBM-driven parity run, change `--software citylbm` and keep the same metrics/probe schema. A passing paper-grade
 record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,

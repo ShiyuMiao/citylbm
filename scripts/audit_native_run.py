@@ -14,6 +14,7 @@ import json
 import math
 import re
 import struct
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -79,6 +80,10 @@ def sha256(path: Path) -> str:
     return h.hexdigest().upper()
 
 
+def mtime_utc(path: Path) -> str:
+    return datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat().replace("+00:00", "Z")
+
+
 def extract_time_step(path: Path) -> Optional[int]:
     matches = re.findall(r"\d+", path.stem)
     if not matches:
@@ -93,6 +98,74 @@ def find_vtk_files(run_dir: Path) -> List[Path]:
         candidates.extend(output_dir.glob("*.vtk"))
     unique = {str(path.resolve()).lower(): path for path in candidates}
     return sorted(unique.values(), key=lambda p: (extract_time_step(p) is None, extract_time_step(p) or 0, p.name))
+
+
+def find_reference_file(run_dir: Path, name: str) -> Optional[Path]:
+    candidates = [
+        run_dir / name,
+        run_dir / "src" / name,
+        run_dir / "input" / name,
+        run_dir / "output" / name,
+    ]
+    return next((path.resolve() for path in candidates if path.exists()), None)
+
+
+def run_freshness_audit(
+    run_dir: Path,
+    metadata_path: Optional[Path],
+    selected_vtk_files: Sequence[Path],
+) -> Dict[str, Any]:
+    references: Dict[str, Path] = {}
+    if metadata_path and metadata_path.exists():
+        references["case_metadata.json"] = metadata_path.resolve()
+    for name in ["setup.cpp", "defines.hpp", "buildings.stl", "domain_origin.json"]:
+        found = find_reference_file(run_dir, name)
+        if found is not None:
+            references[name] = found
+
+    reference_records = [
+        {
+            "role": role,
+            "path": str(path),
+            "mtime_utc": mtime_utc(path),
+            "sha256": sha256(path),
+        }
+        for role, path in sorted(references.items())
+    ]
+    vtk_records = [
+        {
+            "path": str(path.resolve()),
+            "time_step": extract_time_step(path),
+            "mtime_utc": mtime_utc(path),
+            "sha256": sha256(path),
+        }
+        for path in selected_vtk_files
+    ]
+    reference_mtimes = [path.stat().st_mtime for path in references.values()]
+    vtk_mtimes = [path.stat().st_mtime for path in selected_vtk_files]
+    reasons: List[str] = []
+    if not selected_vtk_files:
+        reasons.append("selected_vtk_files_missing")
+    if not references:
+        reasons.append("freshness_reference_artifacts_missing")
+    if reference_mtimes and vtk_mtimes:
+        latest_reference_mtime = max(reference_mtimes)
+        stale = [
+            str(path.resolve())
+            for path in selected_vtk_files
+            if path.stat().st_mtime < latest_reference_mtime
+        ]
+        if stale:
+            reasons.append("selected_vtk_older_than_latest_reference:" + ";".join(stale))
+    return {
+        "run_freshness_gate": "pass" if not reasons else "diagnostic_only",
+        "run_freshness_gate_reasons": reasons,
+        "run_freshness_gate_reasons_csv": ";".join(reasons),
+        "freshness_reference_files": reference_records,
+        "freshness_selected_vtk_files": vtk_records,
+        "latest_reference_mtime_utc": max((record["mtime_utc"] for record in reference_records), default=""),
+        "oldest_selected_vtk_mtime_utc": min((record["mtime_utc"] for record in vtk_records), default=""),
+    }
 
 
 def is_strictly_increasing(values: List[int]) -> bool:
@@ -403,7 +476,8 @@ def expected_vtk_frame_preflight(
 
 def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
     run_dir = Path(args.run_dir).resolve()
-    metadata = read_json(Path(args.metadata).resolve() if args.metadata else None)
+    metadata_path = Path(args.metadata).resolve() if args.metadata else None
+    metadata = read_json(metadata_path)
     vtk_files = find_vtk_files(run_dir)
     steps = [extract_time_step(path) for path in vtk_files]
     known_steps = sorted(step for step in steps if step is not None)
@@ -421,6 +495,7 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         selected_vtk_files,
         args.vtk_stability_sample_limit,
     )
+    freshness_audit = run_freshness_audit(run_dir, metadata_path, selected_vtk_files)
     mean_speed_mps = (
         args.mean_speed_mps
         if args.mean_speed_mps is not None
@@ -520,6 +595,13 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "time_averaging_gate": "pass" if not reasons else "diagnostic_only",
         "time_averaging_gate_reasons": reasons,
         "time_averaging_gate_reasons_csv": ";".join(reasons),
+        "run_freshness_gate": freshness_audit["run_freshness_gate"],
+        "run_freshness_gate_reasons": freshness_audit["run_freshness_gate_reasons"],
+        "run_freshness_gate_reasons_csv": freshness_audit["run_freshness_gate_reasons_csv"],
+        "freshness_reference_files": freshness_audit["freshness_reference_files"],
+        "freshness_selected_vtk_files": freshness_audit["freshness_selected_vtk_files"],
+        "latest_reference_mtime_utc": freshness_audit["latest_reference_mtime_utc"],
+        "oldest_selected_vtk_mtime_utc": freshness_audit["oldest_selected_vtk_mtime_utc"],
         "vtk_files": [
             {
                 "path": str(path),
@@ -565,6 +647,12 @@ def main() -> int:
             audit["time_averaging_gate"],
             audit["lbm_stability_gate"],
             audit["solver_stability_warnings"],
+        )
+    )
+    print(
+        "freshness_gate={}; freshness_reasons={}".format(
+            audit["run_freshness_gate"],
+            audit["run_freshness_gate_reasons_csv"] or "none",
         )
     )
     return 0

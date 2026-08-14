@@ -302,11 +302,22 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
             "Fix RS probe projection, wind vector, compared_component and Uref/SI velocity conversion first; rerun component/Uref sensitivity before interpreting bias.",
         )
 
+    freshness_gate = by_key.get("run_freshness")
+    if freshness_gate is None or freshness_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            2,
+            "run_freshness",
+            freshness_gate,
+            "Old VTK frames can make a new Case A/E setup appear to have valid metrics while actually postprocessing stale output.",
+            "Regenerate VTK after the current setup.cpp/defines/buildings/metadata inputs and rerun the native audit before interpreting accuracy.",
+        )
+
     time_gate = by_key.get("time_averaging")
     if time_gate is None or time_gate.get("status") != PASS:
         add_priority(
             priorities,
-            2,
+            3,
             "time_averaging_stationarity",
             time_gate,
             "A short or unstable final VTK window can create apparent systematic velocity bias.",
@@ -318,7 +329,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     if any(gate is None or gate.get("status") != PASS for gate in [inlet_profile_gate, k_gate]):
         add_priority(
             priorities,
-            3,
+            4,
             "inlet_profile_u_k_preservation",
             inlet_profile_gate,
             "The AF U(z)/k(z) table must be preserved in real VTK frames before probe accuracy is meaningful.",
@@ -339,7 +350,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         )
         add_priority(
             priorities,
-            4,
+            5,
             "turbulent_inlet_method",
             inlet_priority_gate,
             "Velocity-field-only, length-scale-free or correlation-unverified STG-lite cannot establish paper-grade AIJ turbulent inflow.",
@@ -355,7 +366,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         )
         add_priority(
             priorities,
-            5,
+            6,
             "boundary_roughness_blockage",
             boundary_priority_gate,
             "Simplified TYPE_E boundaries, missing rough-wall treatment or excessive blockage can drive systematic underprediction.",
@@ -366,7 +377,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     if native_gate is None or native_gate.get("status") != PASS:
         add_priority(
             priorities,
-            6,
+            7,
             "native_fluidx3d_baseline",
             native_gate,
             "CityLBM accuracy cannot be separated from native FluidX3D/protocol error without a paired native baseline.",
@@ -380,16 +391,16 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     if systematic_gate is not None and systematic_gate.get("status") != PASS:
         add_priority(
             priorities,
-            7,
+            8,
             "systematic_bias_root_cause",
             systematic_gate,
             f"Metrics report systematic bias: {systematic_flag or 'flagged'}; {bias_diagnosis or 'no diagnosis string'}.",
-            "After ranks 1-6 pass, treat remaining bias as a physics/protocol issue and test inlet, boundary, roughness and grid sensitivity.",
+            "After ranks 1-7 pass, treat remaining bias as a physics/protocol issue and test inlet, boundary, roughness and grid sensitivity.",
         )
     elif mean_gate is not None and mean_gate.get("status") != PASS:
         add_priority(
             priorities,
-            7,
+            8,
             "mean_velocity_accuracy",
             mean_gate,
             "Mean-flow metrics still fail after prerequisite evidence gates.",
@@ -682,6 +693,36 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_audit={boundary_audit_path or 'missing'}; metrics={metrics_path or 'missing'}"
         ),
         "Archive case_metadata.json, validation_protocol_audit.json, boundary_protocol_audit.json and metrics CSV/JSON for every run.",
+    )
+
+    run_freshness_gate = str(
+        get_any(metrics, ["run_freshness_gate", "RunFreshnessGate"]) or ""
+    ).strip().lower()
+    run_freshness_reasons = str(
+        get_any(metrics, ["run_freshness_gate_reasons", "RunFreshnessGateReasons"]) or ""
+    ).strip()
+    latest_reference_mtime = str(
+        get_any(metrics, ["latest_reference_mtime_utc", "LatestReferenceMtimeUtc"]) or ""
+    ).strip()
+    oldest_selected_vtk_mtime = str(
+        get_any(metrics, ["oldest_selected_vtk_mtime_utc", "OldestSelectedVtkMtimeUtc"]) or ""
+    ).strip()
+    run_freshness_ok = (
+        run_freshness_gate == "pass"
+        and bool(latest_reference_mtime)
+        and bool(oldest_selected_vtk_mtime)
+    )
+    add_gate(
+        gates,
+        "run_freshness",
+        PASS if run_freshness_ok else FAIL,
+        (
+            f"run_freshness_gate={run_freshness_gate or 'missing'}; "
+            f"latest_reference_mtime_utc={latest_reference_mtime or 'missing'}; "
+            f"oldest_selected_vtk_mtime_utc={oldest_selected_vtk_mtime or 'missing'}; "
+            f"run_freshness_gate_reasons={run_freshness_reasons or 'none'}"
+        ),
+        "Regenerate VTK after the current setup.cpp/defines/buildings/metadata inputs and archive the native run audit proving selected VTK frames are newer than the run-definition artifacts.",
     )
 
     frame_count, source_step_text, has_real_source_steps = source_frame_details(metrics)

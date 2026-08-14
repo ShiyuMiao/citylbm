@@ -75,7 +75,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   cannot pass the paper-grade boundary gate without a supported evidence class and archived support file.
 - `validation_protocol_audit.json` and `validation_protocol_audit.md` exist in both case root and output directory.
   Treat any `risk` or `fail` item as a blocker for paper-grade validation claims until resolved or explicitly justified.
-- VTK files are newly generated for the current run directory, not copied from older experiments.
+- VTK files are newly generated for the current run directory, not copied from older experiments. The native audit must
+  report `run_freshness_gate=pass`, with `latest_reference_mtime_utc` from the run-definition artifacts
+  (`setup.cpp`, `defines.hpp`, `buildings.stl`, `domain_origin.json` and/or `case_metadata.json`) and
+  `oldest_selected_vtk_mtime_utc` from the selected final-window VTK frames. A stale VTK frame that is older than the
+  current setup/metadata keeps the run diagnostic even if the metrics are numerically acceptable.
 - The AF inlet profile must be verified from real post-spinup VTK frames before probe accuracy is interpreted. Run
   `scripts\audit_inlet_profile_from_vtk.py` on the output VTK sequence, compare against `AF_caseE.csv`, and archive the
   resulting `inlet_profile_audit.json` and `.csv`. This audit checks that `Wind Profile=3` actually preserved both
@@ -104,7 +108,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   A short window with large residual fluctuation is diagnostic only and must not be treated as paper-grade time averaging.
   For native FluidX3D runs outside Grasshopper, run `scripts\audit_native_run.py` on the run directory and pass its JSON
   to `validation_metrics_from_probe_audit.py --read-vtk-audit`. This records VTK frame hashes, selected final time steps,
-  solver-log stability warnings and LBM stability fields in the same schema used by the `Read VTK` audit output.
+  run-freshness evidence, solver-log stability warnings and LBM stability fields in the same schema used by the
+  `Read VTK` audit output.
   When full-field statistics are not supplied manually, the script deterministically samples up to 20,000 points from
   the selected final VTK frames and computes `mean_speed_stddev_ratio` and `max_speed_stddev_ratio` from the real
   velocity time series.
@@ -223,6 +228,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   `boundary_evidence_class_supported`, `boundary_evidence_files_all_exist`,
   `boundary_evidence_files_all_hashed`, evidence-file SHA256 records, `clearance_numeric_gate` and
   `boundary_clearance_reasons`
+- Run freshness: `run_freshness_gate`, `run_freshness_gate_reasons`, `latest_reference_mtime_utc` and
+  `oldest_selected_vtk_mtime_utc`
 - Mean probe distance and maximum probe distance
 - Compared component consistency gate, unique compared components and official coordinate-delta coverage count
 - Per-probe `Uref`, wind vector, `normalization_valid` and `wind_direction_valid` coverage from the Data Probe audit
