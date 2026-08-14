@@ -415,15 +415,16 @@ def read_probe_counts(path: Optional[Path]) -> Tuple[Optional[int], Optional[int
     return len(rows), failed, None
 
 
-def read_probe_component_audit(path: Optional[Path]) -> Tuple[Optional[int], List[str], Optional[str]]:
+def read_probe_component_audit(path: Optional[Path]) -> Tuple[Optional[int], List[str], Optional[int], Optional[str]]:
     if not path or not path.exists():
-        return None, [], "probe audit CSV not found"
+        return None, [], None, "probe audit CSV not found"
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         rows = list(csv.DictReader(handle))
     if not rows:
-        return 0, [], "probe audit CSV has no rows"
+        return 0, [], 0, "probe audit CSV has no rows"
     components = set()
     valid_count = 0
+    missing_component_count = 0
     for row in rows:
         failed_flag = as_bool(get_any(row, ["failed", "Failed", "out_of_tolerance", "OutOfTolerance"]))
         status = str(get_any(row, ["status", "Status", "validation_status", "ValidationStatus"]) or "").lower()
@@ -433,7 +434,9 @@ def read_probe_component_audit(path: Optional[Path]) -> Tuple[Optional[int], Lis
         component = str(get_any(row, ["compared_component", "ComparedComponent"]) or "").strip().lower()
         if component:
             components.add(component)
-    return valid_count, sorted(components), None
+        else:
+            missing_component_count += 1
+    return valid_count, sorted(components), missing_component_count, None
 
 
 def source_frame_details(metrics: Dict[str, Any]) -> Tuple[Optional[int], str, bool]:
@@ -1208,7 +1211,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
 
     component_gate = str(get_any(metrics, ["compared_component_consistency_gate", "ComparedComponentConsistencyGate"]) or "").strip().lower()
     metric_component = str(get_any(metrics, ["compared_component", "velocity_component", "ComparedComponent"]) or "").strip().lower()
-    probe_valid_component_count, probe_components, probe_component_error = read_probe_component_audit(probe_path)
+    probe_valid_component_count, probe_components, probe_missing_component_count, probe_component_error = read_probe_component_audit(probe_path)
     expected_component = args.expected_compared_component.strip().lower()
     if probe_components:
         unique_components = probe_components
@@ -1216,10 +1219,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         unique_components = [c for c in metric_component.split(";") if c] if ";" in metric_component else ([metric_component] if metric_component else [])
     component_consistent = (
         detailed_probe_audit_ok
-        and
-        (component_gate == "pass" or component_gate == "")
+        and component_gate == "pass"
         and len(unique_components) == 1
         and bool(unique_components[0])
+        and (probe_missing_component_count in {None, 0})
         and (not expected_component or unique_components[0] == expected_component)
     )
     add_gate(
@@ -1232,6 +1235,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"probe_components={';'.join(unique_components) or 'missing'}; "
             f"expected={expected_component or 'not_set'}; "
             f"probe_valid_component_count={probe_valid_component_count}; "
+            f"probe_missing_component_count={probe_missing_component_count}; "
             f"probe_audit_traceable={probe_audit_traceable}; "
             f"allow_summary_only_probe_metrics={probe_summary_override}; "
             f"{probe_component_error or ''}"

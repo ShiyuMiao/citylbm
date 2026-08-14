@@ -144,7 +144,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
   time steps, source file hashes and nearest-grid coordinates so coordinate-frame and projection errors can be audited
   from the same table. The validation metrics must record `compared_component_consistency_gate`,
    `compared_component_unique_values` and `official_coordinate_delta_count`; every valid probe must use one explicit
-   component and must have an official coordinate-delta check. Native FluidX3D runs that bypass Grasshopper must use
+   component and must have an official coordinate-delta check. The machine gate requires
+   `compared_component_consistency_gate=pass`; a single component label in a summary row is not enough if the per-probe
+   component audit is missing or incomplete. Native FluidX3D runs that bypass Grasshopper must use
    `scripts/probe_vtk_points.py` to emit the same Data-Probe-compatible audit CSV before metrics are built. Use
    `--interpolation trilinear` for structured VTK validation and treat `nearest_distance` as a coverage/tolerance audit,
    not as the velocity sampling method.
