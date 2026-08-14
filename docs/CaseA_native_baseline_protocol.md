@@ -105,6 +105,9 @@ AIJ Case E is treated as a paper-grade validation experiment.
   viscosity, Reynolds number, velocity set, LES/subgrid model and solver-log stability warning status. The machine
   gate now fails this block unless the runtime metrics row records a passing stability gate such as
   `solver_log_no_stability_warnings`.
+  CityLBM v0.3.0 generates `nu_lbm = nu_SI * velocity_scale_mps_to_lbm / dx` and does not silently clamp `tau` to 0.55.
+  A near-0.5 `tau` is a stability risk to document and resolve with solver evidence, not a reason to inflate viscosity
+  inside the generator.
 - Domain extents in `H`: upstream, downstream, lateral and top clearance.
 - Approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate.
 - Boundary mode and boundary-source justification.

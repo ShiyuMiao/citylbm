@@ -444,7 +444,7 @@ namespace CityLBM.Solver
 
             // 2. 生成 defines.hpp
             string definesPath = Path.Combine(caseDir, "defines.hpp");
-            GenerateDefinesHpp(grid, settings, definesPath, enableGraphics);
+            GenerateDefinesHpp(scene, grid, settings, definesPath, enableGraphics);
 
             // 3. 生成 setup.cpp（使用 FluidX3D 真实 API）
             // 注意：STL 和 VTK 路径使用相对路径，部署到 FluidX3D 后可正确运行
@@ -1574,7 +1574,7 @@ namespace CityLBM.Solver
         /// 只设置 CityLBM 需要的宏；其他宏保留 FluidX3D 默认值
         /// </summary>
         /// <param name="enableGraphics">是否启用实时渲染窗口（Mode 3 后台运行时应传 false）</param>
-        private void GenerateDefinesHpp(CartesianGrid grid, SimulationSettings settings, string definesPath, bool enableGraphics = true)
+        private void GenerateDefinesHpp(Scene scene, CartesianGrid grid, SimulationSettings settings, string definesPath, bool enableGraphics = true)
         {
             var sb = new StringBuilder();
             sb.AppendLine("// ====================================================");
@@ -1723,17 +1723,18 @@ namespace CityLBM.Solver
             }
             sb.AppendLine();
 
-            // 松弛时间（由粘度和网格间距推算）
-            double dx = grid.Dx;                // 格子物理尺寸（m，对应 CartesianGrid.Dx）
-            double dt = dx / 1.0;               // 时间步长（使用格子单位，u_max≈0.1c）
-            double nu_lbm = settings.Viscosity * dt / (dx * dx); // LBM 无量纲粘度
-            double tau = 3.0 * nu_lbm + 0.5;   // 松弛时间
-            tau = Math.Max(0.55, Math.Min(tau, 2.0)); // 限定在稳定范围
+            double dx = Math.Max(grid.Dx, 1.0e-9);
+            double velocityScale = ComputeVelocityScaleMpsToLbm(scene);
+            double nu_lbm = ComputeNuLbm(settings, grid, scene);
+            double tau = ComputeTau(settings, grid, scene);
 
-            sb.AppendLine("// ---- 松弛时间（由粘度自动计算）----");
+            sb.AppendLine("// ---- LBM viscosity scaling ----");
             sb.AppendLine($"// nu_physical = {settings.Viscosity:E3} m²/s");
-            sb.AppendLine($"// dx = {dx:F4} m, tau = {tau:F4}");
-            sb.AppendLine($"#define TAU {tau.ToString("F6", System.Globalization.CultureInfo.InvariantCulture)}f");
+            sb.AppendLine($"// velocity_scale_mps_to_lbm = {velocityScale:E8}");
+            sb.AppendLine("// nu_lbm = nu_physical * velocity_scale_mps_to_lbm / dx");
+            sb.AppendLine($"// dx = {dx:F4} m, nu_lbm = {nu_lbm:E8}, tau = {tau:F8}");
+            sb.AppendLine("// CityLBM v0.3.0 does not silently clamp tau; validation gates and solver logs must prove stability.");
+            sb.AppendLine($"#define TAU {tau.ToString("E8", System.Globalization.CultureInfo.InvariantCulture)}f");
             sb.AppendLine();
 
             File.WriteAllText(definesPath, sb.ToString(), Encoding.UTF8);
@@ -1793,19 +1794,17 @@ namespace CityLBM.Solver
             sb.AppendLine();
 
             // LBM 无量纲速度（格子单位）
-            double uMax = 0.1; // LBM 稳定上限约 0.1c
-            double uScale = uMax / Math.Max(GetProfileScaleSpeed(scene), 0.001);
+            double uMax = TargetMaxProfileVelocityLbm; // LBM 稳定上限约 0.1c
+            double uScale = ComputeVelocityScaleMpsToLbm(scene);
             var windDir = NormalizeWindDirection(scene.WindDirection);
             bool syntheticInletActive = IsSyntheticTurbulentInletActive(scene, settings);
             double ulbm_x = windDir.X * uMax;
             double ulbm_y = windDir.Y * uMax;
             double ulbm_z = Math.Max(0, windDir.Z * uMax);
 
-            // LBM 运动粘度（格子单位）
-            double nu_lbm_val = (3.0 * settings.Viscosity * 1.0 / (grid.Dx * grid.Dx));
-            double tau_val = 3.0 * nu_lbm_val + 0.5;
-            tau_val = Math.Max(0.55, Math.Min(tau_val, 2.0));
-            double nu_final = (tau_val - 0.5) / 3.0;
+            // LBM viscosity in lattice units. Do not clamp this value here; stability is audited from tau and solver logs.
+            double nu_final = ComputeNuLbm(settings, grid, scene);
+            double tau_val = ComputeTau(settings, grid, scene);
 
             sb.AppendLine("void main_setup() {");
             sb.AppendLine($"    // LBM 物理参数 (u_max = {uMax}, tau = {tau_val:F4}, nu = {nu_final:E4})");
@@ -1866,8 +1865,9 @@ namespace CityLBM.Solver
 
             // 正确：LBM 构造函数参数是 nu（LBM 运动粘度），不是 TAU
             sb.AppendLine("    // 初始化 LBM（参数：Nx, Ny, Nz, nu_lbm）");
-            sb.AppendLine($"    // nu_lbm = (TAU-0.5)/3 = ({tau_val:F4}-0.5)/3 = {nu_final:F6}");
-            sb.AppendLine($"    LBM lbm(SX, SY, SZ, {nu_final.ToString("F8", System.Globalization.CultureInfo.InvariantCulture)}f);");
+            sb.AppendLine($"    // velocity_scale_mps_to_lbm = {uScale:E8}; nu_lbm = nu_SI * velocity_scale_mps_to_lbm / dx = {nu_final:E8}; tau = {tau_val:F8}");
+            sb.AppendLine("    // CityLBM v0.3.0 no longer clamps tau to 0.55; validation gates and solver logs must prove stability.");
+            sb.AppendLine($"    LBM lbm(SX, SY, SZ, {nu_final.ToString("E8", System.Globalization.CultureInfo.InvariantCulture)}f);");
 
             // ── v0.2.0: Smagorinsky LES 模型初始化 ──
             if (settings.EnableSmagorinskyLES)
@@ -2171,6 +2171,8 @@ namespace CityLBM.Solver
         /// 而 CityLBM 使用物理世界坐标（Z 从地面=0 开始）。
         /// 后处理组件读取此文件后计算偏移量：offset = DomainOrigin - VTK.ORIGIN
         /// </summary>
+        private const double TargetMaxProfileVelocityLbm = 0.1;
+
         private double GetProfileScaleSpeed(Scene scene)
         {
             if (scene.WindProfile == WindProfileType.CustomTable &&
@@ -2185,16 +2187,20 @@ namespace CityLBM.Solver
             return scene.WindSpeed;
         }
 
-        private double ComputeTau(SimulationSettings settings, CartesianGrid grid)
+        private double ComputeVelocityScaleMpsToLbm(Scene scene)
         {
-            double nuLbm = 3.0 * settings.Viscosity / (grid.Dx * grid.Dx);
-            double tau = 3.0 * nuLbm + 0.5;
-            return Math.Max(0.55, Math.Min(tau, 2.0));
+            return TargetMaxProfileVelocityLbm / Math.Max(GetProfileScaleSpeed(scene), 0.001);
         }
 
-        private double ComputeNuLbm(SimulationSettings settings, CartesianGrid grid)
+        private double ComputeTau(SimulationSettings settings, CartesianGrid grid, Scene scene)
         {
-            return (ComputeTau(settings, grid) - 0.5) / 3.0;
+            return 3.0 * ComputeNuLbm(settings, grid, scene) + 0.5;
+        }
+
+        private double ComputeNuLbm(SimulationSettings settings, CartesianGrid grid, Scene scene)
+        {
+            double dx = Math.Max(grid.Dx, 1.0e-9);
+            return settings.Viscosity * ComputeVelocityScaleMpsToLbm(scene) / dx;
         }
 
         private double EstimateRunReynoldsNumber(Scene scene, CartesianGrid grid, SimulationSettings settings)
@@ -2432,8 +2438,8 @@ namespace CityLBM.Solver
                 bool hasK = scene.CustomWindProfile != null && scene.CustomWindProfile.Any(s => s.HasK);
                 bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
                 var boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
-                double tau = ComputeTau(settings, grid);
-                double nuLbm = ComputeNuLbm(settings, grid);
+                double tau = ComputeTau(settings, grid, scene);
+                double nuLbm = ComputeNuLbm(settings, grid, scene);
                 double reynolds = EstimateRunReynoldsNumber(scene, grid, settings);
                 int expectedFrames = settings.SaveInterval > 0
                     ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
@@ -2452,11 +2458,13 @@ namespace CityLBM.Solver
                     ProfileScaleSpeedMps = GetProfileScaleSpeed(scene),
                     VelocityScaleMpsToLbm = uScale,
                     VelocityScaleLbmToMps = 1.0 / uScale,
-                    TargetMaxProfileVelocityLbm = 0.1,
-                    EstimatedMaxProfileMach = 0.1 / Math.Sqrt(1.0 / 3.0),
+                    TargetMaxProfileVelocityLbm = FluidX3DInterface.TargetMaxProfileVelocityLbm,
+                    EstimatedMaxProfileMach = FluidX3DInterface.TargetMaxProfileVelocityLbm / Math.Sqrt(1.0 / 3.0),
                     LbmStabilityGate = "requires_solver_log_and_runtime_statistics",
                     LbmTau = tau,
                     LbmNu = nuLbm,
+                    LbmViscosityUnitConversion = "nu_lbm = nu_SI * VelocityScaleMpsToLbm / dx",
+                    TauClampingPolicy = "not_clamped_in_case_generation; validation_gate_and_solver_log_must_prove_stability",
                     PhysicalViscosityM2s = settings.Viscosity,
                     EstimatedReynoldsNumber = reynolds,
                     VelocitySet = "D3Q19",
@@ -2962,11 +2970,13 @@ namespace CityLBM.Solver
                         },
                         ReferenceWindSpeedMps = scene.WindSpeed,
                         ReferenceHeightM = scene.ReferenceHeight,
-                        TargetMaxProfileVelocityLbm = 0.1,
-                        EstimatedMaxProfileMach = 0.1 / Math.Sqrt(1.0 / 3.0),
+                        TargetMaxProfileVelocityLbm = FluidX3DInterface.TargetMaxProfileVelocityLbm,
+                        EstimatedMaxProfileMach = FluidX3DInterface.TargetMaxProfileVelocityLbm / Math.Sqrt(1.0 / 3.0),
                         LbmStabilityGate = "requires_solver_log_and_runtime_statistics",
-                        LbmTau = ComputeTau(settings, grid),
-                        LbmNu = ComputeNuLbm(settings, grid),
+                        LbmTau = ComputeTau(settings, grid, scene),
+                        LbmNu = ComputeNuLbm(settings, grid, scene),
+                        LbmViscosityUnitConversion = "nu_lbm = nu_SI * VelocityScaleMpsToLbm / dx",
+                        TauClampingPolicy = "not_clamped_in_case_generation; validation_gate_and_solver_log_must_prove_stability",
                         PhysicalViscosityM2s = settings.Viscosity,
                         EstimatedReynoldsNumber = EstimateRunReynoldsNumber(scene, grid, settings),
                         VelocitySet = "D3Q19",
@@ -3115,10 +3125,10 @@ namespace CityLBM.Solver
             string lengthScaleSource = GetSyntheticTurbulenceLengthScaleSource(scene, settings);
             string lengthScaleGate = GetSyntheticTurbulenceLengthScaleGate(scene, settings);
             bool lengthScaleSupported = lengthScaleGate == "pass";
-            double maxProfileVelocityLbm = 0.1;
+            double maxProfileVelocityLbm = TargetMaxProfileVelocityLbm;
             double estimatedMach = maxProfileVelocityLbm / Math.Sqrt(1.0 / 3.0);
-            double tau = ComputeTau(settings, grid);
-            double nuLbm = ComputeNuLbm(settings, grid);
+            double tau = ComputeTau(settings, grid, scene);
+            double nuLbm = ComputeNuLbm(settings, grid, scene);
             double reynolds = EstimateRunReynoldsNumber(scene, grid, settings);
             BoundaryProtocolAudit boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
             bool boundaryClearanceOk = boundaryAudit.MeetsDiagnosticDomain;

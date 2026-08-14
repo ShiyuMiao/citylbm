@@ -31,6 +31,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   stability warnings. The v0.3.0 machine gate fails paper-grade promotion unless the runtime metrics row records a
   passing stability gate such as `lbm_stability_gate=solver_log_no_stability_warnings` and
   `solver_stability_warnings=none`.
+  In v0.3.0, generated cases compute `nu_lbm = nu_SI * velocity_scale_mps_to_lbm / dx` and do not clamp `tau` upward to
+  0.55. If `tau` is too close to 0.5, treat that as a stability/protocol issue to solve with grid, velocity-scale,
+  LES/subgrid and solver-log evidence, not as a value to hide in case generation.
 - For AF files with `k(m2/s2)`, enable `Run Simulation / Synthetic Inlet` only when testing the experimental STG-lite inlet.
   Record `STG Scale`/synthetic scale, `STG Corr Cells`/correlation cells, `STG Update`/pattern-update interval, `STG Max Frac`/amplitude cap,
   `STG Length Source`/correlation-length evidence source, and the generated `case_metadata.json` fields

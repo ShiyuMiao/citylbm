@@ -53,7 +53,7 @@ namespace CityLBM.CodegenSmoke
                     setupPath,
                     "buildings.stl",
                     "output");
-                InvokePrivate(solver, "GenerateDefinesHpp", grid, settings, definesPath, true);
+                InvokePrivate(solver, "GenerateDefinesHpp", scene, grid, settings, definesPath, true);
                 File.WriteAllText(stlPath, "solid smoke\nendsolid smoke\n");
                 InvokePrivate(solver, "SaveDomainOrigin", caseDir, grid.Origin, grid.DomainBounds, grid.Nx, grid.Ny, grid.Nz, grid.Dx);
                 InvokePrivate(solver, "SaveCaseMetadata", caseDir, scene, grid, settings);
@@ -61,6 +61,7 @@ namespace CityLBM.CodegenSmoke
                 InvokePrivate(solver, "SaveNativeFluidX3DBaselineManifest", caseDir, scene, grid, settings, setupPath, definesPath, stlPath);
 
                 string setup = File.ReadAllText(setupPath);
+                string defines = File.ReadAllText(definesPath);
                 string metadata = File.ReadAllText(Path.Combine(caseDir, "case_metadata.json"));
                 string audit = File.ReadAllText(Path.Combine(caseDir, "validation_protocol_audit.json"));
                 string nativeManifest = File.ReadAllText(Path.Combine(caseDir, "native_fluidx3d_baseline_manifest.json"));
@@ -74,6 +75,12 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "float advected_x = (float)x - dir_x * mean_mag * (float)t_step;");
                 Require(setup, "float phase = kx * advected_x + ky * advected_y + kz * advected_z;");
                 Require(setup, "Target component RMS follows isotropic k");
+                Require(setup, "nu_lbm = nu_SI * velocity_scale_mps_to_lbm / dx");
+                Require(setup, "no longer clamps tau to 0.55");
+                Require(setup, "LBM lbm(SX, SY, SZ, 1.29310345E-007f)");
+                Require(defines, "velocity_scale_mps_to_lbm");
+                Require(defines, "nu_lbm = nu_physical * velocity_scale_mps_to_lbm / dx");
+                Require(defines, "#define TAU 5.00000388E-001f");
                 Require(setup, "citylbm_stg_update_interval = 7u");
                 Require(setup, "citylbm_stg_max_fraction = 0.420000f");
                 Require(setup, "syntheticTurbulentInlet");
@@ -100,6 +107,8 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "Mode 1/2/3 require ExpectedVtkFrameCount");
                 Require(metadata, "\"LbmTau\"");
                 Require(metadata, "\"LbmNu\"");
+                Require(metadata, "nu_lbm = nu_SI * VelocityScaleMpsToLbm / dx");
+                Require(metadata, "not_clamped_in_case_generation");
                 Require(metadata, "\"EstimatedReynoldsNumber\"");
                 Require(metadata, "\"VelocitySet\": \"D3Q19\"");
                 Require(metadata, "\"LesModel\"");
@@ -115,6 +124,8 @@ namespace CityLBM.CodegenSmoke
                 Require(nativeManifest, "NativeFluidX3DPathExplicitlyProvided");
                 Require(nativeManifest, "NativeFluidX3DSourceValidation");
                 Require(nativeManifest, "\"LbmStabilityGate\": \"requires_solver_log_and_runtime_statistics\"");
+                Require(nativeManifest, "nu_lbm = nu_SI * VelocityScaleMpsToLbm / dx");
+                Require(nativeManifest, "not_clamped_in_case_generation");
                 Require(nativeManifest, "\"BaselineId\": \"citylbm-v0.3.0-stg_codegen_smoke-");
                 Require(nativeManifest, "Native FluidX3D original setup");
                 Require(nativeManifest, "Native FluidX3D lbm.hpp");

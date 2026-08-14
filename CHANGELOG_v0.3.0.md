@@ -99,6 +99,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   evidence: target lattice velocity, estimated Mach number, `tau`, `nu_lbm`, physical viscosity, Reynolds number,
   velocity set, LES/subgrid model and solver-log stability warnings. A generated case is not enough; the machine gate
   requires runtime stability evidence before treating native FluidX3D or CityLBM results as paper-grade.
+- Generated `setup.cpp` and `defines.hpp` now compute lattice viscosity from the same velocity-scale contract used for
+  the inlet profile: `nu_lbm = nu_SI * velocity_scale_mps_to_lbm / dx`. CityLBM no longer silently clamps `tau` to
+  `0.55`, because that changes the physical Reynolds number and can create artificial diffusion and systematic
+  underprediction. Runs with `tau` too close to 0.5 must be handled by the stability gate, solver logs, grid/scale
+  choices and LES evidence rather than by hidden viscosity inflation.
 - Added `scripts/audit_native_run.py` to turn a native FluidX3D run directory into a reusable audit JSON containing VTK
   frame hashes, selected final time steps, time-averaging gate fields, solver-log stability warning status and LBM
   stability metadata for downstream metrics/gate checks.
