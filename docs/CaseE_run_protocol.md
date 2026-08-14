@@ -43,6 +43,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `SyntheticTurbulentInletLengthScaleSource` and `SyntheticTurbulentInletLengthScaleGate`.
   Leave `STG Length Source` empty unless the selected correlation length is backed by archived AIJ/official,
   precursor/recycling, DFM/SEM or validated synthetic-eddy length-scale evidence.
+  The final gate reads inlet-source and inlet-correlation pass evidence from `inlet_source_audit.json` and
+  `inlet_correlation_audit.json`; copying passing `inlet_source_*` or `inlet_correlation_*` fields into
+  `validation_metrics.csv` is not accepted as turbulent-inlet evidence.
 - Do not compare a single early VTK frame as a final result.
 - CityLBM v0.3.0 validation runs must use an explicit external FluidX3D source path in `Run Simulation / FX3D`.
   The legacy bundled v0.5.0 fallback is disabled for controlled validation because it is not the baseline.

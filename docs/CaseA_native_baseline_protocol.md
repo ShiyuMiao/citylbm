@@ -140,6 +140,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    must match the global averaged `source_time_steps`, the window must be the final uniformly spaced window, and the
    default thresholds require streamwise variance `>1e-12`, temporal lag-1 correlation `>=0.10` and spatial adjacent
    correlation `>=0.05`.
+   The metrics CSV may summarize `inlet_source_*` and `inlet_correlation_*` fields, but it is not accepted as a substitute
+   for the archived source-audit JSON and VTK correlation-audit JSON.
    The audit must also report finite temporal and spatial correlation coverage fractions; a high mean correlation from
    only a sparse subset of non-degenerate samples is not enough for a paper-grade turbulent-inlet claim.
    The inlet `U/k` preservation gate follows the same final-window evidence rule as the global time-average gate:

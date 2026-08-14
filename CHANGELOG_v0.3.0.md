@@ -153,6 +153,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - The inlet correlation audit now gates on signed positive temporal lag-1 correlation, not only absolute lag-1
   correlation. This prevents alternating or white-noise-like RMS/k perturbations from passing as physically correlated
   turbulent inflow evidence.
+- `validation_gate.py` now requires inlet-source and inlet-correlation pass evidence to come from the archived
+  `inlet_source_audit.json` and `inlet_correlation_audit.json` values themselves. Metrics CSV fields can summarize
+  those audits, but cannot replace the generated-source hash or final-window VTK correlation audit.
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.

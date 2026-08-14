@@ -1538,6 +1538,22 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         )
         or ""
     ).strip()
+    audit_inlet_source_gate = str(get_any(inlet_source_audit, ["inlet_source_gate"]) or "").strip().lower()
+    audit_paper_grade_inlet_source_gate = str(
+        get_any(inlet_source_audit, ["paper_grade_inlet_source_gate"]) or ""
+    ).strip().lower()
+    audit_inlet_source_method_class = str(
+        get_any(inlet_source_audit, ["inlet_source_method_class"]) or ""
+    ).strip()
+    audit_inlet_source_distribution_consistent = as_bool(
+        get_any(inlet_source_audit, ["inlet_source_distribution_consistent"])
+    )
+    audit_inlet_source_velocity_field_only = as_bool(
+        get_any(inlet_source_audit, ["inlet_source_velocity_field_only"])
+    )
+    audit_inlet_source_setup_sha256 = str(
+        get_any(inlet_source_audit, ["setup_cpp_sha256"]) or ""
+    ).strip()
     inlet_profile_gate = str(get_any(metrics, ["inlet_profile_gate"]) or "").strip().lower()
     inlet_u_profile_gate = str(get_any(metrics, ["inlet_u_profile_gate"]) or "").strip().lower()
     inlet_k_profile_gate = str(get_any(metrics, ["inlet_k_profile_gate"]) or "").strip().lower()
@@ -1682,9 +1698,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
 
     inlet_source_evidence_ok = (
         inlet_source_audit_path is not None
-        and inlet_source_gate == "pass"
-        and bool(inlet_source_method_class)
-        and bool(inlet_source_setup_sha256)
+        and audit_inlet_source_gate == "pass"
+        and bool(audit_inlet_source_method_class)
+        and bool(audit_inlet_source_setup_sha256)
     )
     add_gate(
         gates,
@@ -1698,6 +1714,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_distribution_consistent={inlet_source_distribution_consistent}; "
             f"source_velocity_field_only={inlet_source_velocity_field_only}; "
             f"setup_cpp_sha256={inlet_source_setup_sha256 or 'missing'}; "
+            f"audit_only_inlet_source_gate={audit_inlet_source_gate or 'missing'}; "
+            f"audit_only_paper_grade_inlet_source_gate={audit_paper_grade_inlet_source_gate or 'missing'}; "
+            f"audit_only_source_method_class={audit_inlet_source_method_class or 'missing'}; "
+            f"audit_only_source_distribution_consistent={audit_inlet_source_distribution_consistent}; "
+            f"audit_only_source_velocity_field_only={audit_inlet_source_velocity_field_only}; "
+            f"audit_only_setup_cpp_sha256={audit_inlet_source_setup_sha256 or 'missing'}; "
             f"inlet_source_gate_reasons={inlet_source_reasons or 'none'}"
         ),
         "Run scripts/audit_inlet_source.py on the generated setup.cpp and archive the source hash and inlet implementation class before interpreting probe accuracy.",
@@ -1721,9 +1743,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     paper_grade_inlet_pass = (
         empty_tunnel_pass
         and inlet_source_evidence_ok
-        and paper_grade_inlet_source_gate == "pass"
-        and inlet_source_distribution_consistent is True
-        and inlet_source_velocity_field_only is not True
+        and audit_paper_grade_inlet_source_gate == "pass"
+        and audit_inlet_source_distribution_consistent is True
+        and audit_inlet_source_velocity_field_only is not True
         and paper_method_class_ok
         and (
             treatment_distribution_consistent
@@ -1745,6 +1767,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"paper_grade_inlet_source_gate={paper_grade_inlet_source_gate or 'missing'}; "
             f"source_distribution_consistent={inlet_source_distribution_consistent}; "
             f"source_velocity_field_only={inlet_source_velocity_field_only}; "
+            f"audit_only_paper_grade_inlet_source_gate={audit_paper_grade_inlet_source_gate or 'missing'}; "
+            f"audit_only_source_distribution_consistent={audit_inlet_source_distribution_consistent}; "
+            f"audit_only_source_velocity_field_only={audit_inlet_source_velocity_field_only}; "
             f"treatment={inlet_treatment or 'missing'}; "
             f"inlet_distribution_consistency={distribution_status or 'missing'}; "
             f"velocity_field_only={treatment_velocity_only}; "
@@ -1811,69 +1836,45 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     if not inlet_correlation_audit and metric_inlet_correlation_audit_json:
         inlet_correlation_audit = metric_inlet_correlation_audit_json
     inlet_correlation_gate = str(
-        get_any(metrics, ["inlet_correlation_gate", "InletCorrelationGate"])
-        or get_any(inlet_correlation_audit, ["inlet_correlation_gate"])
+        get_any(inlet_correlation_audit, ["inlet_correlation_gate"])
         or ""
     ).strip().lower()
     inlet_temporal_lag1 = as_float(
-        get_any(metrics, ["inlet_temporal_lag1_correlation", "InletTemporalLag1Correlation"])
-        or get_any(inlet_correlation_audit, ["temporal_lag1_mean_correlation"])
+        get_any(inlet_correlation_audit, ["temporal_lag1_mean_correlation"])
     )
     inlet_temporal_lag1_abs = as_float(
-        get_any(metrics, ["inlet_temporal_lag1_abs_correlation", "InletTemporalLag1AbsCorrelation"])
-        or get_any(inlet_correlation_audit, ["temporal_lag1_abs_mean_correlation"])
+        get_any(inlet_correlation_audit, ["temporal_lag1_abs_mean_correlation"])
     )
     inlet_spatial_adjacent = as_float(
-        get_any(metrics, ["inlet_spatial_adjacent_correlation", "InletSpatialAdjacentCorrelation"])
-        or get_any(inlet_correlation_audit, ["spatial_adjacent_mean_correlation"])
+        get_any(inlet_correlation_audit, ["spatial_adjacent_mean_correlation"])
     )
     inlet_streamwise_variance = as_float(
-        get_any(metrics, ["inlet_streamwise_fluctuation_variance", "InletStreamwiseFluctuationVariance"])
-        or get_any(inlet_correlation_audit, ["mean_streamwise_fluctuation_variance"])
+        get_any(inlet_correlation_audit, ["mean_streamwise_fluctuation_variance"])
     )
     inlet_temporal_finite_fraction = as_float(
-        get_first_available(
-            get_any(metrics, ["inlet_temporal_finite_correlation_fraction", "InletTemporalFiniteCorrelationFraction"]),
-            get_any(inlet_correlation_audit, ["temporal_finite_correlation_fraction"]),
-        )
+        get_any(inlet_correlation_audit, ["temporal_finite_correlation_fraction"])
     )
     inlet_spatial_finite_fraction = as_float(
-        get_first_available(
-            get_any(metrics, ["inlet_spatial_finite_correlation_fraction", "InletSpatialFiniteCorrelationFraction"]),
-            get_any(inlet_correlation_audit, ["spatial_finite_correlation_fraction"]),
-        )
+        get_any(inlet_correlation_audit, ["spatial_finite_correlation_fraction"])
     )
     inlet_correlation_audit_exists = bool(inlet_correlation_audit_path and inlet_correlation_audit_path.exists()) or metric_inlet_correlation_audit_exists
     inlet_correlation_source_steps = get_first_available(
-        get_any(metrics, ["inlet_correlation_source_time_steps", "InletCorrelationSourceTimeSteps"]),
         get_any(inlet_correlation_audit, ["source_time_steps_csv", "source_time_steps"]),
     )
     inlet_correlation_source_count, inlet_correlation_source_step_text, inlet_correlation_has_source_steps = source_frame_details(
         {"source_time_steps": inlet_correlation_source_steps}
     )
     inlet_correlation_frame_count = as_int(
-        get_first_available(
-            get_any(metrics, ["inlet_correlation_frame_count", "InletCorrelationFrameCount"]),
-            get_any(inlet_correlation_audit, ["frame_count"]),
-        )
+        get_any(inlet_correlation_audit, ["frame_count"])
     )
     inlet_correlation_selected_last_window = as_bool(
-        get_first_available(
-            get_any(metrics, ["inlet_correlation_selected_last_window", "InletCorrelationSelectedLastWindow"]),
-            get_any(inlet_correlation_audit, ["selected_last_window"]),
-        )
+        get_any(inlet_correlation_audit, ["selected_last_window"])
     )
     inlet_correlation_steps_increasing = as_bool(
-        get_first_available(
-            get_any(metrics, ["inlet_correlation_source_steps_strictly_increasing", "InletCorrelationSourceStepsStrictlyIncreasing"]),
-            get_any(inlet_correlation_audit, ["source_steps_strictly_increasing"]),
-        )
+        get_any(inlet_correlation_audit, ["source_steps_strictly_increasing"])
     )
     inlet_correlation_spacing_uniform = as_bool(
-        get_first_available(
-            get_any(metrics, ["inlet_correlation_source_step_spacing_uniform", "InletCorrelationSourceStepSpacingUniform"]),
-            get_any(inlet_correlation_audit, ["source_step_spacing_uniform"]),
-        )
+        get_any(inlet_correlation_audit, ["source_step_spacing_uniform"])
     )
     inlet_correlation_steps, inlet_correlation_steps_error = parsed_source_steps(inlet_correlation_source_step_text)
     inlet_correlation_source_matches = (
@@ -1939,6 +1940,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_correlation_source_steps_strictly_increasing={inlet_correlation_steps_increasing}; "
             f"inlet_correlation_source_step_spacing_uniform={inlet_correlation_spacing_uniform}; "
             f"inlet_correlation_source_steps_error={inlet_correlation_steps_error or 'none'}; "
+            f"correlation_values_source=audit_json_only; "
             f"audit={inlet_correlation_audit_path or metric_inlet_correlation_audit or 'missing'}; "
             f"audit_exists={inlet_correlation_audit_exists}"
         ),
