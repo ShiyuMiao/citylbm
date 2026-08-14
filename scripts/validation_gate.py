@@ -2456,49 +2456,36 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             metric_component_sensitivity_audit_exists = False
 
     component_normalization_gate = str(
-        get_any(metrics, ["component_normalization_gate", "ComponentNormalizationGate"])
-        or component_sensitivity_audit.get("component_normalization_gate")
-        or ""
+        component_sensitivity_audit.get("component_normalization_gate") or ""
     ).strip().lower()
     component_sensitivity_gate = str(
-        get_any(metrics, ["component_sensitivity_gate", "ComponentSensitivityGate"])
-        or component_sensitivity_audit.get("component_sensitivity_gate")
-        or ""
+        component_sensitivity_audit.get("component_sensitivity_gate") or ""
     ).strip().lower()
     normalization_scale_gate = str(
-        get_any(metrics, ["normalization_scale_gate", "NormalizationScaleGate"])
-        or component_sensitivity_audit.get("normalization_scale_gate")
-        or ""
+        component_sensitivity_audit.get("normalization_scale_gate") or ""
     ).strip().lower()
     selected_component = str(
         component_sensitivity_audit.get("selected_component")
-        or get_any(metrics, ["compared_component", "velocity_component", "ComparedComponent"])
         or ""
     ).strip().lower()
     best_component = str(
-        get_any(metrics, ["best_component_by_rmse", "BestComponentByRmse"])
-        or component_sensitivity_audit.get("best_component_by_rmse")
+        component_sensitivity_audit.get("best_component_by_rmse")
         or ""
     ).strip().lower()
     selected_component_rmse = as_float(
-        get_any(metrics, ["selected_component_rmse_ratio", "SelectedComponentRmseRatio"])
-        or component_sensitivity_audit.get("selected_component_rmse")
+        component_sensitivity_audit.get("selected_component_rmse")
     )
     best_component_rmse = as_float(
-        get_any(metrics, ["best_component_rmse_ratio", "BestComponentRmseRatio"])
-        or component_sensitivity_audit.get("best_component_rmse")
+        component_sensitivity_audit.get("best_component_rmse")
     )
     component_rmse_improvement = as_float(
-        get_any(metrics, ["component_rmse_improvement_ratio", "ComponentRmseImprovementRatio"])
-        or component_sensitivity_audit.get("component_rmse_improvement_ratio")
+        component_sensitivity_audit.get("component_rmse_improvement_ratio")
     )
     normalization_best_scale = as_float(
-        get_any(metrics, ["normalization_best_fit_scale", "NormalizationBestFitScale"])
-        or component_sensitivity_audit.get("selected_best_fit_scale_to_exp")
+        component_sensitivity_audit.get("selected_best_fit_scale_to_exp")
     )
     normalization_scaled_improvement = as_float(
-        get_any(metrics, ["normalization_scaled_improvement_ratio", "NormalizationScaledImprovementRatio"])
-        or component_sensitivity_audit.get("selected_scaled_improvement_ratio")
+        component_sensitivity_audit.get("selected_scaled_improvement_ratio")
     )
     component_sensitivity_audit_exists = (
         bool(component_sensitivity_audit_path and component_sensitivity_audit_path.exists())
@@ -2553,6 +2540,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"normalization_scale_not_explained={normalization_scale_not_explained}; "
             f"max_normalization_best_scale_deviation={args.max_normalization_best_scale_deviation}; "
             f"min_normalization_scaled_improvement_ratio={args.min_normalization_scaled_improvement_ratio}; "
+            f"metrics_component_normalization_gate={get_any(metrics, ['component_normalization_gate', 'ComponentNormalizationGate']) or 'ignored'}; "
+            f"metrics_component_sensitivity_gate={get_any(metrics, ['component_sensitivity_gate', 'ComponentSensitivityGate']) or 'ignored'}; "
+            f"metrics_normalization_scale_gate={get_any(metrics, ['normalization_scale_gate', 'NormalizationScaleGate']) or 'ignored'}; "
             f"audit={component_sensitivity_audit_path or metric_component_sensitivity_audit or 'missing'}; "
             f"audit_exists={component_sensitivity_audit_exists}"
         ),

@@ -191,6 +191,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    The machine gate now enforces `probe_projection_distance`: every valid probe must record `nearest_distance` and
    `tolerance`, the maximum distance must be within the recorded tolerance, and both maximum distance and tolerance must
    stay within the configured `dx` ratio. Increasing tolerance to rescue a missing slice point is diagnostic only.
+   Component and Uref sensitivity must be archived as `component_sensitivity_audit.json`; final validation reads the
+   selected component, best component, RMSE comparison and best-fit Uref scale from that audit file, not from
+   self-reported fields in the metrics row.
    The gate also enforces `probe_source_window`: every valid probe row must carry `vtk_source_time_steps` and
    `vtk_source_sha256`, the source steps must match the metrics/inlet final-window `source_time_steps`, and the hash
    count must match the averaged frame count. Probe rows sampled from stale, mixed or undocumented VTK frames are

@@ -162,6 +162,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   Native VTK probe audit rows must include VTK origin, spacing, dimensions, source time steps, source file hashes and
   nearest-grid coordinates. These fields are required to separate coordinate-frame/projection mistakes from true
   velocity-field error before interpreting Case E bias.
+  Run `scripts\audit_component_sensitivity.py` and archive `component_sensitivity_audit.json`; the final gate reads
+  selected component, best component, component RMSE improvement and Uref best-fit scale from that audit file, not from
+  self-reported fields in `validation_metrics.csv`.
   The `vtk_source_time_steps` and `vtk_source_sha256` values in every valid probe row must match the same final-window
   VTK frames used by `Read VTK`, `audit_native_run.py`, `audit_inlet_profile_from_vtk.py` and
   `audit_inlet_correlation_from_vtk.py`. `validation_gate.py` fails `probe_source_window` if probe extraction mixes

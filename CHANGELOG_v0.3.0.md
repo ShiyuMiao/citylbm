@@ -110,6 +110,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_gate.py` now requires the per-probe `Data Probe` audit CSV for coordinate, normalization and
   compared-component traceability. Summary-only metrics are allowed only through an explicit diagnostic override and
   should not be used for paper-grade validation claims.
+- `scripts/validation_gate.py` now requires component/Uref sensitivity values to come from archived
+  `component_sensitivity_audit.json`; metrics rows may point to that audit, but can no longer self-report
+  component-normalization pass fields, best component, RMSE comparison or best-fit Uref scale.
 - `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now track LBM stability
   evidence: target lattice velocity, estimated Mach number, `tau`, `nu_lbm`, physical viscosity, Reynolds number,
   velocity set, LES/subgrid model and solver-log stability warnings. A generated case is not enough; the machine gate
