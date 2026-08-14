@@ -101,6 +101,19 @@ TEMPLATE_FIELDS = [
     "boundary_evidence_class_supported",
     "boundary_evidence_files_all_exist",
     "boundary_evidence_files_all_hashed",
+    "boundary_condition_fields_supported",
+    "boundary_condition_support_reasons",
+    "inlet_boundary_supported",
+    "outlet_boundary_supported",
+    "lateral_boundary_supported",
+    "top_boundary_supported",
+    "ground_wall_treatment_supported",
+    "roughness_treatment_supported",
+    "floor_roughness_source_supported",
+    "blockage_source_supported",
+    "fetch_clearance_source_supported",
+    "outlet_reflection_check_supported",
+    "side_top_boundary_check_supported",
     "clearance_numeric_gate",
     "boundary_clearance_reasons",
     "boundary_summary",
@@ -1077,6 +1090,23 @@ def main() -> int:
             "boundary_evidence_class_supported": csv_bool(boundary_protocol_audit.get("boundary_evidence_class_supported")),
             "boundary_evidence_files_all_exist": csv_bool(boundary_protocol_audit.get("boundary_evidence_files_all_exist")),
             "boundary_evidence_files_all_hashed": csv_bool(boundary_protocol_audit.get("boundary_evidence_files_all_hashed")),
+            "boundary_condition_fields_supported": csv_bool(boundary_protocol_audit.get("boundary_condition_fields_supported")),
+            "boundary_condition_support_reasons": ";".join(
+                str(reason) for reason in boundary_protocol_audit.get("boundary_condition_support_reasons", [])
+            )
+            if isinstance(boundary_protocol_audit.get("boundary_condition_support_reasons"), list)
+            else str(boundary_protocol_audit.get("boundary_condition_support_reasons", "")),
+            "inlet_boundary_supported": csv_bool(boundary_protocol_audit.get("inlet_boundary_supported")),
+            "outlet_boundary_supported": csv_bool(boundary_protocol_audit.get("outlet_boundary_supported")),
+            "lateral_boundary_supported": csv_bool(boundary_protocol_audit.get("lateral_boundary_supported")),
+            "top_boundary_supported": csv_bool(boundary_protocol_audit.get("top_boundary_supported")),
+            "ground_wall_treatment_supported": csv_bool(boundary_protocol_audit.get("ground_wall_treatment_supported")),
+            "roughness_treatment_supported": csv_bool(boundary_protocol_audit.get("roughness_treatment_supported")),
+            "floor_roughness_source_supported": csv_bool(boundary_protocol_audit.get("floor_roughness_source_supported")),
+            "blockage_source_supported": csv_bool(boundary_protocol_audit.get("blockage_source_supported")),
+            "fetch_clearance_source_supported": csv_bool(boundary_protocol_audit.get("fetch_clearance_source_supported")),
+            "outlet_reflection_check_supported": csv_bool(boundary_protocol_audit.get("outlet_reflection_check_supported")),
+            "side_top_boundary_check_supported": csv_bool(boundary_protocol_audit.get("side_top_boundary_check_supported")),
             "clearance_numeric_gate": str(boundary_protocol_audit.get("clearance_numeric_gate", "")),
             "boundary_clearance_reasons": ";".join(
                 str(reason) for reason in boundary_protocol_audit.get("clearance_numeric_gate_reasons", [])

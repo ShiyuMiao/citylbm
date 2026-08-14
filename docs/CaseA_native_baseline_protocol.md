@@ -112,7 +112,10 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    thresholds keep the boundary gate diagnostic/fail. The validation gate requires a generated
    `boundary_protocol_audit.json` with `boundary_protocol_gate=pass`, `boundary_equivalence_supported=true`,
    `boundary_evidence_class_supported=true`, `boundary_evidence_files_all_exist=true` and
-   `boundary_evidence_files_all_hashed=true`; token-like text in metadata or metrics is diagnostic context only.
+   `boundary_evidence_files_all_hashed=true`. It also requires `boundary_condition_fields_supported=true` plus
+   individual support booleans for inlet, outlet, lateral, top, ground-wall treatment, roughness treatment, floor
+   roughness source, blockage source, fetch/clearance source, outlet-reflection check and side/top-boundary check.
+   Token-like text in metadata or metrics is diagnostic context only.
 
 5. Inlet distribution-consistency gate.
    If the inlet turbulence is generated from `k`, archive whether the implementation reconstructs FluidX3D distribution
@@ -206,7 +209,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 - `boundary_protocol_audit.json`, including `boundary_missing_evidence_fields`, `boundary_equivalence_basis`,
   `boundary_equivalence_supported`, `boundary_evidence_class`, `boundary_evidence_class_supported`,
   `boundary_evidence_files_all_exist`, `boundary_evidence_files_all_hashed`, evidence-file SHA256 records,
-  `clearance_numeric_gate` and `clearance_numeric_gate_reasons`; this file must be generated from metadata plus an
+  `boundary_condition_fields_supported`, per-condition `*_supported` booleans, `clearance_numeric_gate` and
+  `clearance_numeric_gate_reasons`; this file must be generated from metadata plus an
   explicit AIJ boundary evidence JSON before paper-grade promotion. A metadata-only, metrics-only or token-only
   boundary summary cannot pass the paper-grade boundary gate.
 - `TYPE_E` boundary velocity initialization policy. CityLBM v0.3.0 generated cases initialize outlet, lateral and top

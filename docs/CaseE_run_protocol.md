@@ -236,6 +236,13 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   `boundary_evidence_class_supported`, `boundary_evidence_files_all_exist`,
   `boundary_evidence_files_all_hashed`, evidence-file SHA256 records, `clearance_numeric_gate` and
   `boundary_clearance_reasons`
+- Boundary-condition support fields: `boundary_condition_fields_supported`,
+  `boundary_condition_support_reasons`, `inlet_boundary_supported`, `outlet_boundary_supported`,
+  `lateral_boundary_supported`, `top_boundary_supported`, `ground_wall_treatment_supported`,
+  `roughness_treatment_supported`, `floor_roughness_source_supported`, `blockage_source_supported`,
+  `fetch_clearance_source_supported`, `outlet_reflection_check_supported` and
+  `side_top_boundary_check_supported`. A text-filled evidence JSON is not enough; unsupported values such as
+  `unknown`, `unverified`, `not_checked`, `diagnostic_only` or `assumed_only` keep the run diagnostic.
 - Run freshness: `run_freshness_gate`, `run_freshness_gate_reasons`, `latest_reference_mtime_utc` and
   `oldest_selected_vtk_mtime_utc`
 - Mean probe distance and maximum probe distance
@@ -279,3 +286,10 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 CityLBM v0.3.0 reads, converts and records `k(m2/s2)`. It also provides an optional experimental STG-lite inlet that converts isotropic `k` to bounded deterministic spectral velocity perturbations using `sigma=sqrt(2k/3)`, with inlet refresh controlled by `SyntheticTurbulenceUpdateInterval`. The synthetic spectral-mode amplitudes are projected normal to their wave vectors to reduce non-physical divergent inlet fluctuations, and the spectral normalization targets the component RMS implied by isotropic `k` rather than the lower former diagnostic amplitude. This is a software-level improvement over the former metadata-only `k` chain and the earlier sparse-eddy diagnostic pattern, but it is not a full digital-filter, precursor/recycling, or Reynolds-stress turbulent inflow because the AF table does not provide Reynolds-stress tensors, turbulent length scales or a precursor field. The inlet correlation audit is therefore a necessary precondition that checks real VTK fluctuation correlation, not a replacement for a validated digital-filter/SEM/precursor inlet. The v0.3.0 machine gate treats velocity-field-only STG-lite as non-paper-grade by default; it can only be explicitly allowed for diagnostic sensitivity analysis with `--allow-velocity-only-inlet`. Any paper claim must state whether the validation used metadata-only inflow, STG-lite diagnostic inflow, or a later distribution-consistent turbulent inlet.
 
 The current boundary conditions are also a simplified FluidX3D `TYPE_E` setup: velocity-profile inlet, pressure/free-outflow outlet approximation, lateral/top `TYPE_E`, and no-slip ground/buildings. CityLBM v0.3.0 initializes all `TYPE_E` boundary velocities from the mean wind profile before uploading flags/velocity fields, so outlet/lateral/top boundaries no longer start from zero velocity after their early boundary-return path. This removes one plausible software-side damping source, but it does not make the boundary protocol identical to the AIJ wind tunnel. CityLBM v0.3.0 records domain clearance and approximate frontal/plan blockage ratios in `BoundaryProtocolAudit`, and `validation_gate.py` fails the boundary gate when approximate frontal blockage exceeds the diagnostic threshold, the AIJ-equivalence basis is missing/unsupported, or upstream/downstream/lateral/top clearance evidence is below the configured H thresholds. These fields help detect protocol-scale errors, but they remain screening diagnostics until compared with the AIJ wind-tunnel boundary setup or replaced by a stronger inlet/outlet treatment.
+
+The boundary evidence audit now also rejects vague per-condition descriptions. Each inlet, outlet, lateral, top,
+ground-wall, roughness, blockage, fetch, outlet-reflection and side/top-boundary item must carry a supported evidence
+tag such as `aij_verified`, `wind_tunnel_protocol_matched`, `empty_tunnel_passed`, `validated_boundary_model`,
+`non_reflecting_checked`, `reflection_checked`, `roughness_layout_source`, `blockage_verified` or `fetch_verified`.
+This is intentionally stricter than a normal smoke test because a remaining Case E bias cannot be interpreted as solver
+accuracy until the wind-tunnel boundary protocol is independently supported.

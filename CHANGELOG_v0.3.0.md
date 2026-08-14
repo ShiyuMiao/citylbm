@@ -63,6 +63,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Boundary support files are now read and SHA256-hashed by `audit_boundary_protocol.py`. Empty, unreadable or
   existence-only files keep `boundary_evidence_files_all_hashed=false`, and the final validation gate fails until the
   evidence artifacts are non-empty and traceable in the run archive.
+- `audit_boundary_protocol.py`, the metrics template and `validation_gate.py` now require independent support booleans
+  for inlet, outlet, lateral, top, ground-wall treatment, roughness treatment, floor roughness source, blockage source,
+  fetch/clearance source, outlet-reflection check and side/top-boundary check. A text-filled evidence JSON with values
+  such as `unknown`, `unverified`, `not_checked`, `diagnostic_only` or `assumed_only` remains diagnostic even when
+  `boundary_evidence_gate=pass` is present.
 - `case_metadata.json` and `validation_protocol_audit` now separate analytic inflow roughness from actual wall treatment:
   ground/buildings remain `TYPE_S` no-slip in v0.3.0, with no FluidX3D rough-wall or wall-function boundary.
 - The validation audit now also records native FluidX3D baseline requirement, LBM stability scaling, wind-direction sign,

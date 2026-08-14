@@ -1048,6 +1048,39 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         get_any(external_boundary_audit, ["boundary_evidence_files_all_hashed"])
         or get_any(metrics, ["boundary_evidence_files_all_hashed", "BoundaryEvidenceFilesAllHashed"])
     )
+    boundary_condition_fields_supported = as_bool(
+        get_first_available(
+            get_any(external_boundary_audit, ["boundary_condition_fields_supported"]),
+            get_any(metrics, ["boundary_condition_fields_supported", "BoundaryConditionFieldsSupported"]),
+        )
+    )
+    boundary_condition_support_reasons = str(
+        get_any(external_boundary_audit, ["boundary_condition_support_reasons"])
+        or get_any(metrics, ["boundary_condition_support_reasons", "BoundaryConditionSupportReasons"])
+        or ""
+    )
+    boundary_condition_support_keys = [
+        "inlet_boundary_supported",
+        "outlet_boundary_supported",
+        "lateral_boundary_supported",
+        "top_boundary_supported",
+        "ground_wall_treatment_supported",
+        "roughness_treatment_supported",
+        "floor_roughness_source_supported",
+        "blockage_source_supported",
+        "fetch_clearance_source_supported",
+        "outlet_reflection_check_supported",
+        "side_top_boundary_check_supported",
+    ]
+    boundary_condition_support_values = {
+        key: as_bool(
+            get_first_available(
+                get_any(external_boundary_audit, [key]),
+                get_any(metrics, [key, "".join(part.capitalize() for part in key.split("_"))]),
+            )
+        )
+        for key in boundary_condition_support_keys
+    }
     external_boundary_equivalence_supported = as_bool(
         get_any(external_boundary_audit, ["boundary_equivalence_supported"])
         or get_any(metrics, ["boundary_equivalence_supported", "BoundaryEquivalenceSupported"])
@@ -1095,6 +1128,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and boundary_evidence_class_supported is True
         and boundary_evidence_files_all_exist is True
         and boundary_evidence_files_all_hashed is True
+        and boundary_condition_fields_supported is True
+        and all(value is True for value in boundary_condition_support_values.values())
         and boundary_clearance_ok
     )
     add_gate(
@@ -1119,6 +1154,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_evidence_class_supported={boundary_evidence_class_supported}; "
             f"boundary_evidence_files_all_exist={boundary_evidence_files_all_exist}; "
             f"boundary_evidence_files_all_hashed={boundary_evidence_files_all_hashed}; "
+            f"boundary_condition_fields_supported={boundary_condition_fields_supported}; "
+            f"boundary_condition_support_values={boundary_condition_support_values}; "
+            f"boundary_condition_support_reasons={boundary_condition_support_reasons or 'none'}; "
             f"boundary_equivalence_token_inferred={boundary_evidence_supported_by_token}; "
             f"clearance_numeric_gate={clearance_numeric_gate or 'missing'}; "
             f"clearance_numeric_gate_reasons={clearance_numeric_reasons or 'none'}; "

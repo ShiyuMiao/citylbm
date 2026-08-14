@@ -59,6 +59,53 @@ SUPPORTED_EVIDENCE_CLASSES = {
     "validated_boundary_model",
 }
 
+SUPPORTED_CONDITION_TOKENS = [
+    "aij_verified",
+    "empty_tunnel_passed",
+    "validated_boundary_model",
+    "precursor_boundary",
+    "recycling_boundary",
+    "wind_tunnel_protocol_matched",
+    "official",
+    "measured",
+    "sha256",
+    "source_documented",
+    "non_reflecting_checked",
+    "reflection_checked",
+    "profile_preserved",
+    "roughness_layout_source",
+    "validated_rough_wall",
+    "blockage_verified",
+    "fetch_verified",
+]
+
+UNSUPPORTED_CONDITION_TOKENS = [
+    "unknown",
+    "unverified",
+    "not_checked",
+    "not check",
+    "todo",
+    "placeholder",
+    "diagnostic_only",
+    "assumed_only",
+    "missing",
+    "none",
+]
+
+CONDITION_SUPPORT_FIELDS = [
+    "inlet_boundary",
+    "outlet_boundary",
+    "lateral_boundary",
+    "top_boundary",
+    "ground_wall_treatment",
+    "roughness_treatment",
+    "floor_roughness_source",
+    "blockage_source",
+    "fetch_clearance_source",
+    "outlet_reflection_check",
+    "side_top_boundary_check",
+]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -176,6 +223,19 @@ def combined_evidence(
 def equivalence_supported(*values: Any) -> bool:
     text = " ".join(str(value or "").lower() for value in values)
     return any(token in text for token in BOUNDARY_EQUIVALENCE_TOKENS)
+
+
+def condition_supported(value: Any) -> bool:
+    text = str(value or "").strip().lower()
+    if not text:
+        return False
+    if any(token in text for token in UNSUPPORTED_CONDITION_TOKENS):
+        return False
+    return any(token in text for token in SUPPORTED_CONDITION_TOKENS)
+
+
+def condition_support_map(evidence: Dict[str, Any]) -> Dict[str, bool]:
+    return {field: condition_supported(evidence.get(field)) for field in CONDITION_SUPPORT_FIELDS}
 
 
 def as_list(value: Any) -> List[str]:
@@ -296,6 +356,9 @@ def main() -> int:
     )
     boundary_equivalence_supported = equivalence_supported(boundary_equivalence_basis, boundary_evidence_source)
     boundary_evidence_class_supported = boundary_evidence_class in SUPPORTED_EVIDENCE_CLASSES
+    condition_support = condition_support_map(combined)
+    unsupported_conditions = [field for field, supported in condition_support.items() if not supported]
+    boundary_condition_fields_supported = not unsupported_conditions
     upstream_clearance_h = evidence_float(
         evidence, "inlet_fetch_clearance_h", boundary_audit, "ClearanceByBuildingHeight", "Upstream"
     )
@@ -326,6 +389,7 @@ def main() -> int:
         and not missing
         and boundary_equivalence_supported
         and boundary_evidence_class_supported
+        and boundary_condition_fields_supported
         and evidence_file_status["all_hashed"]
         and clearance_numeric_gate_pass
     )
@@ -351,6 +415,8 @@ def main() -> int:
         reasons.append("boundary_equivalence_basis_missing_or_unsupported")
     if not boundary_evidence_class_supported:
         reasons.append(f"boundary_evidence_class_{boundary_evidence_class or 'missing'}_unsupported")
+    if unsupported_conditions:
+        reasons.append("unsupported_boundary_condition_fields:" + ",".join(unsupported_conditions))
     if not evidence_file_status["all_exist"]:
         if not evidence_files:
             reasons.append("boundary_evidence_files_missing")
@@ -390,6 +456,14 @@ def main() -> int:
         "boundary_evidence_class": boundary_evidence_class,
         "boundary_evidence_class_supported": boundary_evidence_class_supported,
         "supported_boundary_evidence_classes": sorted(SUPPORTED_EVIDENCE_CLASSES),
+        "supported_boundary_condition_tokens": SUPPORTED_CONDITION_TOKENS,
+        "unsupported_boundary_condition_tokens": UNSUPPORTED_CONDITION_TOKENS,
+        "boundary_condition_fields_supported": boundary_condition_fields_supported,
+        "boundary_condition_support_reasons": (
+            ["boundary_condition_fields_supported"]
+            if boundary_condition_fields_supported
+            else ["unsupported_boundary_condition_fields:" + ",".join(unsupported_conditions)]
+        ),
         "boundary_evidence_files": evidence_files,
         "boundary_evidence_files_resolved": evidence_file_status["resolved"],
         "boundary_evidence_files_missing": evidence_file_status["missing"],
@@ -409,8 +483,11 @@ def main() -> int:
         "clearance_numeric_gate": "pass" if clearance_numeric_gate_pass else "fail",
         "clearance_numeric_gate_reasons": clearance_reasons or ["clearance_numeric_evidence_complete"],
         "outlet_reflection_check": evidence.get("outlet_reflection_check", ""),
+        "outlet_reflection_check_supported": condition_support["outlet_reflection_check"],
         "side_top_boundary_check": evidence.get("side_top_boundary_check", ""),
+        "side_top_boundary_check_supported": condition_support["side_top_boundary_check"],
         "floor_roughness_source": evidence.get("floor_roughness_source", ""),
+        "floor_roughness_source_supported": condition_support["floor_roughness_source"],
         "boundary_evidence_gate": "pass" if evidence_gate_pass else "fail",
         "boundary_evidence_source": boundary_evidence_source,
         "boundary_protocol_gate": boundary_protocol_gate,
@@ -424,6 +501,8 @@ def main() -> int:
 
     for key in REQUIRED_EVIDENCE_FIELDS:
         report[key] = combined.get(key, "")
+    for key in CONDITION_SUPPORT_FIELDS:
+        report[f"{key}_supported"] = condition_support[key]
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
