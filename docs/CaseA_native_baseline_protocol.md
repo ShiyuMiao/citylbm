@@ -15,6 +15,53 @@ AIJ Case E is treated as a paper-grade validation experiment.
   auto-detected paths. The path must contain `FluidX3D.sln`, `Makefile` or `CMakeLists.txt`, plus `src/setup.cpp`,
   `src/defines.hpp`, `src/lbm.hpp` and `src/lbm.cpp`.
 
+## 2026-08-14 Strict Preflight Evidence
+
+Evidence type: `newly_run_preflight`, not a CFD result. The strict wrapper generated fresh native FluidX3D Case A
+empty-tunnel and building cases from the official AF/RS inputs, then stopped before launching FluidX3D because
+paper-grade protocol gates remain open.
+
+Command:
+
+```powershell
+.\run_native_casea_strict_gate.ps1 -Dx 0.006 -Tau 0.5003333333333333 -EmptyTimeSteps 30000 -EmptySpinupSteps 5000 -BuildingTimeSteps 60000 -BuildingSpinupSteps 10000 -SampleInterval 100 -InletDiagnosticInterval 100 -VtkSaveInterval 1000 -VtkSaveStartStep 10000 -TurbulenceMethod synthetic-eddy -SyntheticEddyCount 384 -BoundaryMode side_periodic_top_profile_e -RunBuildingIfEmptyPass -PreflightOnly -CaseTagPrefix native_casea_strict_20260814_preflight
+```
+
+Generated cases:
+
+- Empty tunnel:
+  `F:\Grade2master2\CITYLBM开发文件\citylbm_v0.2.0_portable\validation\casea_v020_rerun_20260716\native_cases\AIJ_CaseA_native_casea_strict_20260814_preflight_empty_20260814_20260814`
+- Building:
+  `F:\Grade2master2\CITYLBM开发文件\citylbm_v0.2.0_portable\validation\casea_v020_rerun_20260716\native_cases\AIJ_CaseA_native_casea_strict_20260814_preflight_building_20260814_20260814`
+
+Generated configuration evidence:
+
+- Grid: `547 x 280 x 160 = 24,505,600` cells.
+- Official probe count: `186`.
+- Building geometry: generated ideal Case A block from the protocol script, not an external STL import.
+- Target Reynolds number: `ReH=24000.000000026626`.
+- `dx=0.006 m`, `tau=0.5003333333333333`, `UrefLbm=0.1`.
+- Turbulence method: `synthetic-eddy`, `SyntheticEddyCount=384`.
+- Averaging request: building `TimeSteps=60000`, `SpinupSteps=10000`, `SampleInterval=100`; estimated post-spinup
+  probe samples `501`.
+- VTK request: `VtkSaveInterval=1000`, `VtkSaveStartStep=10000`; estimated post-spinup frames `51`.
+
+Passed preflight checks include correlated turbulent inlet selection, official AF turbulence-amplitude usage,
+Reynolds-number matching, device-side synthetic-eddy update consistency, no direct velocity overwrite conditioning,
+time-average length, same-run VTK evidence request, VTK temporal coverage, coordinate/normalization metadata and
+explicit `+X` streamwise comparison protocol.
+
+Blocking checks:
+
+- `wind_tunnel_boundary_equivalence_source`: no archived source/evidence yet proves that the generated FluidX3D
+  boundary conditions are equivalent to the AIJ wind-tunnel protocol.
+- `wind_tunnel_roughness_or_precursor_source`: no archived roughness-block layout, rough-wall calibration, passing
+  empty-tunnel gate, precursor or recycling-rescaling evidence is available.
+
+Decision: do not launch or promote the building run as paper-grade evidence until the boundary-equivalence and
+roughness/precursor gates are closed. A diagnostic override may be used for software debugging, but its metrics must not
+be migrated into CityLBM or reported as native FluidX3D accuracy.
+
 ## Inputs
 
 - Official inflow table: `AF_caseA.csv`.

@@ -21,6 +21,7 @@
 - Added `scripts/validation_metrics_from_probe_audit.py` to merge Data Probe audit rows with official AIJ measurements and output the standard validation metrics row.
 - Time-averaging metrics now prefer real VTK audit frame counts and source time-step lists over requested CLI averaging windows, so short final-window runs cannot appear as longer paper-grade averages in validation tables.
 - Native VTK probe extraction now writes VTK origin, spacing, dimensions, source time steps, source hashes and nearest-grid coordinates into the probe audit CSV for coordinate/projection traceability.
+- Added a 2026-08-14 native Case A strict preflight record: fresh empty-tunnel and building configurations were generated from official AF/RS inputs, but FluidX3D was not launched because boundary-equivalence and roughness/precursor source gates remain open.
 
 ### Known limits
 
