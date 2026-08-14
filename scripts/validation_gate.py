@@ -271,14 +271,15 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     coordinate_gate = by_key.get("coordinate_normalization")
     compared_gate = by_key.get("compared_component")
     probe_gate = by_key.get("probe_mapping")
-    if any(gate is None or gate.get("status") != PASS for gate in [coordinate_gate, compared_gate, probe_gate]):
+    sensitivity_gate = by_key.get("component_normalization_sensitivity")
+    if any(gate is None or gate.get("status") != PASS for gate in [coordinate_gate, compared_gate, probe_gate, sensitivity_gate]):
         add_priority(
             priorities,
             1,
             "coordinate_component_normalization",
             coordinate_gate,
             "Probe coordinates, wind sign, compared component and Uref must be closed before interpreting bias.",
-            "Fix RS probe projection, wind vector, compared_component and Uref/SI velocity conversion first.",
+            "Fix RS probe projection, wind vector, compared_component and Uref/SI velocity conversion first; rerun component/Uref sensitivity before interpreting bias.",
         )
 
     time_gate = by_key.get("time_averaging")
@@ -468,6 +469,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit_path = find_first(run_dir, ["validation_protocol_audit.json"])
     inlet_correlation_audit_path = find_first(run_dir, ["inlet_correlation_audit.json"])
     boundary_audit_path = find_first(run_dir, ["boundary_protocol_audit.json"])
+    component_sensitivity_audit_path = find_first(run_dir, ["component_sensitivity_audit.json"])
     manifest_path = find_first(run_dir, ["native_fluidx3d_baseline_manifest.json"])
     metrics_path = Path(args.metrics).resolve() if args.metrics else find_metrics(run_dir)
     probe_path = Path(args.probe_audit).resolve() if args.probe_audit else None
@@ -476,6 +478,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit = read_json(audit_path)
     inlet_correlation_audit = read_json(inlet_correlation_audit_path)
     external_boundary_audit = read_json(boundary_audit_path)
+    component_sensitivity_audit = read_json(component_sensitivity_audit_path)
     manifest = read_json(manifest_path)
     metrics, metrics_path = read_metrics(metrics_path)
     items = load_protocol_items(audit)
@@ -1041,6 +1044,89 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Use one explicit Data Probe Compared Component for all official probes and match it to the AIJ table definition.",
     )
 
+    metric_component_sensitivity_audit = str(
+        get_any(metrics, ["component_sensitivity_audit", "ComponentSensitivityAudit"]) or ""
+    ).strip()
+    metric_component_sensitivity_audit_exists = False
+    if metric_component_sensitivity_audit:
+        try:
+            metric_component_sensitivity_path = Path(metric_component_sensitivity_audit).expanduser()
+            metric_component_sensitivity_audit_exists = metric_component_sensitivity_path.exists()
+            if metric_component_sensitivity_audit_exists and not component_sensitivity_audit:
+                component_sensitivity_audit = read_json(metric_component_sensitivity_path)
+        except OSError:
+            metric_component_sensitivity_audit_exists = False
+
+    component_normalization_gate = str(
+        get_any(metrics, ["component_normalization_gate", "ComponentNormalizationGate"])
+        or component_sensitivity_audit.get("component_normalization_gate")
+        or ""
+    ).strip().lower()
+    component_sensitivity_gate = str(
+        get_any(metrics, ["component_sensitivity_gate", "ComponentSensitivityGate"])
+        or component_sensitivity_audit.get("component_sensitivity_gate")
+        or ""
+    ).strip().lower()
+    normalization_scale_gate = str(
+        get_any(metrics, ["normalization_scale_gate", "NormalizationScaleGate"])
+        or component_sensitivity_audit.get("normalization_scale_gate")
+        or ""
+    ).strip().lower()
+    selected_component = str(
+        component_sensitivity_audit.get("selected_component")
+        or get_any(metrics, ["compared_component", "velocity_component", "ComparedComponent"])
+        or ""
+    ).strip().lower()
+    best_component = str(
+        get_any(metrics, ["best_component_by_rmse", "BestComponentByRmse"])
+        or component_sensitivity_audit.get("best_component_by_rmse")
+        or ""
+    ).strip().lower()
+    selected_component_rmse = as_float(
+        get_any(metrics, ["selected_component_rmse_ratio", "SelectedComponentRmseRatio"])
+        or component_sensitivity_audit.get("selected_component_rmse")
+    )
+    best_component_rmse = as_float(
+        get_any(metrics, ["best_component_rmse_ratio", "BestComponentRmseRatio"])
+        or component_sensitivity_audit.get("best_component_rmse")
+    )
+    component_rmse_improvement = as_float(
+        get_any(metrics, ["component_rmse_improvement_ratio", "ComponentRmseImprovementRatio"])
+        or component_sensitivity_audit.get("component_rmse_improvement_ratio")
+    )
+    normalization_best_scale = as_float(
+        get_any(metrics, ["normalization_best_fit_scale", "NormalizationBestFitScale"])
+        or component_sensitivity_audit.get("selected_best_fit_scale_to_exp")
+    )
+    normalization_scaled_improvement = as_float(
+        get_any(metrics, ["normalization_scaled_improvement_ratio", "NormalizationScaledImprovementRatio"])
+        or component_sensitivity_audit.get("selected_scaled_improvement_ratio")
+    )
+    component_sensitivity_audit_exists = (
+        bool(component_sensitivity_audit_path and component_sensitivity_audit_path.exists())
+        or metric_component_sensitivity_audit_exists
+    )
+    add_gate(
+        gates,
+        "component_normalization_sensitivity",
+        PASS if component_normalization_gate == "pass" and component_sensitivity_audit_exists else FAIL,
+        (
+            f"component_normalization_gate={component_normalization_gate or 'missing'}; "
+            f"component_sensitivity_gate={component_sensitivity_gate or 'missing'}; "
+            f"normalization_scale_gate={normalization_scale_gate or 'missing'}; "
+            f"selected_component={selected_component or 'missing'}; "
+            f"best_component_by_rmse={best_component or 'missing'}; "
+            f"selected_component_rmse={selected_component_rmse}; "
+            f"best_component_rmse={best_component_rmse}; "
+            f"component_rmse_improvement_ratio={component_rmse_improvement}; "
+            f"normalization_best_fit_scale={normalization_best_scale}; "
+            f"normalization_scaled_improvement_ratio={normalization_scaled_improvement}; "
+            f"audit={component_sensitivity_audit_path or metric_component_sensitivity_audit or 'missing'}; "
+            f"audit_exists={component_sensitivity_audit_exists}"
+        ),
+        "Run scripts/audit_component_sensitivity.py and fix speed_ratio/streamwise_ratio/component selection or Uref/SI conversion before interpreting systematic bias.",
+    )
+
     valid_n = as_int(get_any(metrics, ["valid_n", "ValidN"]))
     failed_n = as_int(get_any(metrics, ["failed_n", "FailedN"]))
     if probe_total is not None:
@@ -1171,6 +1257,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "validation_protocol_audit": str(audit_path) if audit_path else "",
             "inlet_correlation_audit": str(inlet_correlation_audit_path) if inlet_correlation_audit_path else "",
             "boundary_protocol_audit": str(boundary_audit_path) if boundary_audit_path else "",
+            "component_sensitivity_audit": str(component_sensitivity_audit_path) if component_sensitivity_audit_path else "",
             "native_fluidx3d_baseline_manifest": str(manifest_path) if manifest_path else "",
             "metrics": str(metrics_path) if metrics_path else "",
             "probe_audit": str(probe_path) if probe_path else "",

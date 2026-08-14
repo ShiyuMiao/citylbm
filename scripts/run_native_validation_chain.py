@@ -199,6 +199,8 @@ def main() -> int:
     inlet_correlation_json = out_dir / "inlet_correlation_audit.json"
     boundary_audit_json = out_dir / "boundary_protocol_audit.json"
     probe_audit_csv = out_dir / "probe_audit.csv"
+    component_sensitivity_json = out_dir / "component_sensitivity_audit.json"
+    component_sensitivity_csv = out_dir / "component_sensitivity_audit.csv"
     metrics_csv = out_dir / "validation_metrics.csv"
     comparison_csv = out_dir / "probe_comparison.csv"
     gate_json = out_dir / "validation_gate_report.json"
@@ -238,6 +240,8 @@ def main() -> int:
             "InletCorrelationAuditJson": str(inlet_correlation_json),
             "BoundaryProtocolAuditJson": str(boundary_audit_json),
             "ProbeAuditCsv": str(probe_audit_csv),
+            "ComponentSensitivityAuditJson": str(component_sensitivity_json),
+            "ComponentSensitivityAuditCsv": str(component_sensitivity_csv),
             "ValidationMetricsCsv": str(metrics_csv),
             "ProbeComparisonCsv": str(comparison_csv),
             "ValidationGateReport": str(gate_json),
@@ -379,6 +383,27 @@ def main() -> int:
         manifest["Steps"].append(run_step("probe_vtk_points", probe_cmd))
         write_manifest(manifest_path, manifest)
 
+        component_sensitivity_cmd = [
+            py,
+            str(script_dir / "audit_component_sensitivity.py"),
+            "--probe-audit",
+            str(probe_audit_csv),
+            "--official",
+            str(official),
+            "--out-json",
+            str(component_sensitivity_json),
+            "--out-csv",
+            str(component_sensitivity_csv),
+            "--case",
+            args.case,
+            "--wind-direction",
+            args.wind_direction_label,
+            "--selected-component",
+            args.compared_component,
+        ]
+        manifest["Steps"].append(run_step("audit_component_sensitivity", component_sensitivity_cmd, allow_fail=True))
+        write_manifest(manifest_path, manifest)
+
         metrics_cmd = [
             py,
             str(script_dir / "validation_metrics_from_probe_audit.py"),
@@ -400,6 +425,8 @@ def main() -> int:
             str(inlet_correlation_json),
             "--boundary-protocol-audit",
             str(boundary_audit_json),
+            "--component-sensitivity-audit",
+            str(component_sensitivity_json),
             "--case",
             args.case,
             "--wind-direction",

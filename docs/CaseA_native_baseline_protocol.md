@@ -151,7 +151,9 @@ python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <
 
 python scripts\probe_vtk_points.py <run_dir>\output --official <RS-caseA.csv> --case CaseA --wind-direction-label <direction> --wind-direction 1,0,0 --u-ref <Uref> --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 10 --out <probe_audit.csv>
 
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
+python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --case CaseA --wind-direction <direction> --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
+
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --component-sensitivity-audit <run_dir>\component_sensitivity_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
 
 Before the final gate, archive the AIJ boundary evidence as JSON and audit it:
@@ -167,7 +169,8 @@ python scripts\run_native_validation_chain.py <run_dir> --official <RS-caseA.csv
 ```
 
 The command writes `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,
-`inlet_correlation_audit.json`, `boundary_protocol_audit.json`, `probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
+`inlet_correlation_audit.json`, `boundary_protocol_audit.json`, `probe_audit.csv`,
+`component_sensitivity_audit.json/.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
 `validation_gate_report.json` under
 `<run_dir>\validation_chain`. It does not run FluidX3D; it only audits newly generated VTK frames and solver evidence
 that already exist in the run directory.
@@ -184,9 +187,9 @@ record must archive `validation_gate_report.json` and the metrics row must inclu
 `inlet_profile_gate=pass`, zero failed probes, bounded mean-velocity bias/RMSE, and reported `k` bias. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
 The JSON report also includes `diagnostic_priority`, which must be followed in order before changing physics parameters:
-first close coordinate/component/Uref/probe issues, then final-window time averaging, then AF `U/k` preservation, then
-turbulent-inlet method, length scale and correlation evidence, then boundary/roughness/blockage, and only then interpret
-the remaining systematic bias as a physics/protocol problem.
+first close coordinate/component/Uref/probe issues and the component/Uref sensitivity audit, then final-window time
+averaging, then AF `U/k` preservation, then turbulent-inlet method, length scale and correlation evidence, then
+boundary/roughness/blockage, and only then interpret the remaining systematic bias as a physics/protocol problem.
 The inlet `U/k` audit follows the same final-window rule as the VTK/probe average: short, non-final or irregular
 source steps fail before the result can be interpreted as solver accuracy.
 It also fails when more than 5% of sampled inlet velocities project opposite to the declared wind vector, which catches

@@ -124,7 +124,9 @@ python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <
 
 python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 10 --out <probe_audit.csv>
 
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
+python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --case ac --wind-direction N --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
+
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --component-sensitivity-audit <run_dir>\component_sensitivity_audit.json --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
 ```
 
 Generate the boundary protocol audit before the final gate:
@@ -141,7 +143,8 @@ python scripts\run_native_validation_chain.py <run_dir> --official <official_dat
 ```
 
   The command creates `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,
-  `inlet_correlation_audit.json`, `boundary_protocol_audit.json`, `probe_audit.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
+  `inlet_correlation_audit.json`, `boundary_protocol_audit.json`, `probe_audit.csv`,
+  `component_sensitivity_audit.json/.csv`, `validation_metrics.csv`, `probe_comparison.csv` and
   `validation_gate_report.json` under `<run_dir>\validation_chain`. It does not start a CFD simulation and must not be
   used to imply that Case E was rerun unless the VTK frames in `<run_dir>` were newly produced by the current Rhino 7/
   Grasshopper/CityLBM experiment.
@@ -168,6 +171,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Maximum absolute error
 - Best-fit scale to official measurements, scaled RMSE and `bias_diagnosis` to separate Uref/unit/component errors from
   boundary/inlet physics errors.
+- Component/Uref sensitivity audit: selected compared component, best RMSE component, selected/best RMSE, best-fit
+  normalization scale, scaled-improvement ratio and `component_normalization_gate`. A failing audit means speed-ratio
+  versus streamwise-ratio selection or Uref/SI conversion must be fixed before interpreting physical-model error.
 - Grid spacing, steps, averaging window and VTK frame list
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
 - `time_averaging` gate must use the final available VTK window, contain at least 10 frames, have strictly increasing
@@ -191,7 +197,7 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   component and wind-direction sign. If scaled RMSE remains large, audit inlet turbulence, boundary treatment, roughness
   and probe projection.
 - `validation_gate_report.json` `diagnostic_priority` ranks the next actions after a failed run. For SCI-grade Case E,
-  do not skip lower-rank failures: coordinate/component/Uref/probe closure precedes time averaging; time averaging
+  do not skip lower-rank failures: coordinate/component/Uref/probe closure plus component/Uref sensitivity precedes time averaging; time averaging
   precedes inlet `U/k` preservation; inlet `U/k` preservation precedes turbulent-inlet method and length-scale claims;
   inlet correlation evidence precedes boundary/roughness/blockage evidence; boundary/roughness/blockage evidence
   precedes interpreting a remaining `-34 pp` style low bias as solver accuracy.
