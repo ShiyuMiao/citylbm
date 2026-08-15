@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import math
 import sys
@@ -111,6 +112,16 @@ def read_json(path: Optional[Path]) -> Dict[str, Any]:
         return {}
     with path.open("r", encoding="utf-8-sig") as handle:
         return json.load(handle)
+
+
+def sha256_file(path: Optional[Path]) -> str:
+    if not path or not path.exists():
+        return ""
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def read_metrics(path: Optional[Path]) -> Tuple[Dict[str, Any], Optional[Path]]:
@@ -2513,6 +2524,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     normalization_scaled_improvement = as_float(
         component_sensitivity_audit.get("selected_scaled_improvement_ratio")
     )
+    current_probe_audit_sha256 = sha256_file(probe_path)
+    component_probe_audit_sha256 = str(
+        get_any(component_sensitivity_audit, ["probe_audit_sha256", "ProbeAuditSha256"]) or ""
+    ).strip().lower()
+    component_probe_hash_matches = (
+        bool(current_probe_audit_sha256)
+        and bool(component_probe_audit_sha256)
+        and component_probe_audit_sha256 == current_probe_audit_sha256.lower()
+    )
     component_sensitivity_audit_exists = (
         bool(component_sensitivity_audit_path and component_sensitivity_audit_path.exists())
         or metric_component_sensitivity_audit_exists
@@ -2543,6 +2563,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and component_normalization_gate == "pass"
         and component_sensitivity_gate == "pass"
         and normalization_scale_gate == "pass"
+        and component_probe_hash_matches
         and component_choice_not_explained
         and normalization_scale_not_explained
     )
@@ -2564,6 +2585,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"normalization_best_fit_scale={normalization_best_scale}; "
             f"normalization_scaled_improvement_ratio={normalization_scaled_improvement}; "
             f"normalization_scale_not_explained={normalization_scale_not_explained}; "
+            f"component_probe_audit_sha256={component_probe_audit_sha256 or 'missing'}; "
+            f"current_probe_audit_sha256={current_probe_audit_sha256 or 'missing'}; "
+            f"component_probe_hash_matches={component_probe_hash_matches}; "
             f"max_normalization_best_scale_deviation={args.max_normalization_best_scale_deviation}; "
             f"min_normalization_scaled_improvement_ratio={args.min_normalization_scaled_improvement_ratio}; "
             f"metrics_component_normalization_gate={get_any(metrics, ['component_normalization_gate', 'ComponentNormalizationGate']) or 'ignored'}; "

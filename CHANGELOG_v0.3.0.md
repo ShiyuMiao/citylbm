@@ -270,6 +270,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `component_normalization_gate=pass`: if another velocity component materially reduces RMSE, or a best-fit scale far
   from 1.0 materially improves the selected component, the run remains diagnostic until component choice and Uref/SI
   scaling are resolved.
+- `audit_component_sensitivity.py` now records SHA256 hashes for the probe audit CSV and official RS table, and
+  `validation_gate.py` requires the component/Uref sensitivity audit probe hash to match the current `--probe-audit`.
+  Stale component-sensitivity JSON files can no longer explain away systematic bias for a different probe extraction.
 - Added `scripts/audit_grid_sensitivity.py` and wired its output into the metrics template, validation chain and final
   gate. Paper-grade runs now require `grid_sensitivity_audit.json` with at least two matched dx levels, a finest dx that
   matches the reported metrics row, sufficient refinement ratio, and bounded finest-vs-next-coarse `U_RMSE_ratio` and

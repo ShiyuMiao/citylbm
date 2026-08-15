@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import math
 from datetime import datetime, timezone
@@ -51,6 +52,14 @@ def parse_args() -> argparse.Namespace:
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def read_csv(path: Path) -> List[Dict[str, str]]:
@@ -319,7 +328,9 @@ def main() -> int:
         "schema": "citylbm.component_sensitivity_audit.v1",
         "generated_at_utc": utc_now(),
         "probe_audit": str(probe_path),
+        "probe_audit_sha256": sha256_file(probe_path),
         "official": str(official_path),
+        "official_sha256": sha256_file(official_path),
         "case": args.case,
         "wind_direction": args.wind_direction,
         "official_id_column": official_id_col,

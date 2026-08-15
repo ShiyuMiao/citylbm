@@ -193,7 +193,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   velocity-field error before interpreting Case E bias.
   Run `scripts\audit_component_sensitivity.py` and archive `component_sensitivity_audit.json`; the final gate reads
   selected component, best component, component RMSE improvement and Uref best-fit scale from that audit file, not from
-  self-reported fields in `validation_metrics.csv`.
+  self-reported fields in `validation_metrics.csv`. The audit must also record `probe_audit_sha256` matching the current
+  `probe_audit.csv`, plus `official_sha256` for the RS table; a stale sensitivity audit from another probe extraction
+  leaves the run diagnostic.
   The `vtk_source_time_steps` and `vtk_source_sha256` values in every valid probe row must match the same final-window
   VTK frames used by `Read VTK`, `audit_native_run.py`, `audit_inlet_profile_from_vtk.py` and
   `audit_inlet_correlation_from_vtk.py`. `validation_gate.py` fails `probe_source_window` if probe extraction mixes
@@ -286,6 +288,7 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Component/Uref sensitivity audit: selected compared component, best RMSE component, selected/best RMSE, best-fit
   normalization scale, scaled-improvement ratio and `component_normalization_gate`. A failing audit means speed-ratio
   versus streamwise-ratio selection or Uref/SI conversion must be fixed before interpreting physical-model error.
+  The audit's `probe_audit_sha256` must match the current probe audit CSV used by the final gate.
 - Grid spacing, steps, averaging window and VTK frame list
 - Grid-sensitivity audit: `grid_sensitivity_audit.json`, `grid_sensitivity_gate`,
   `grid_sensitivity_run_count`, `grid_sensitivity_finest_dx_m`,
