@@ -2170,6 +2170,22 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     boundary_source_comment_stripped_code_audit = as_bool(
         get_any(boundary_source_audit, ["advanced_boundary_evidence_uses_comment_stripped_code"])
     )
+    boundary_type_e_velocity_initialization = as_bool(
+        get_any(boundary_source_audit, ["has_type_e_velocity_initialization"])
+    )
+    boundary_type_e_velocity_initialization_guard = as_bool(
+        get_any(boundary_source_audit, ["has_type_e_velocity_initialization_guard"])
+    )
+    boundary_type_e_velocity_initialization_coordinates = as_bool(
+        get_any(boundary_source_audit, ["has_type_e_velocity_initialization_coordinates"])
+    )
+    boundary_type_e_velocity_initialization_velocity_write = as_bool(
+        get_any(boundary_source_audit, ["has_type_e_velocity_initialization_velocity_write"])
+    )
+    boundary_profile_type_e_velocity_initialization = as_bool(
+        get_any(boundary_source_audit, ["has_profile_type_e_velocity_initialization"])
+    )
+    boundary_has_profile_inlet = as_bool(get_any(boundary_source_audit, ["has_profile_inlet"]))
     boundary_source_setup_sha256 = str(
         get_any(boundary_source_audit, ["setup_cpp_sha256"]) or ""
     ).strip().lower()
@@ -2177,6 +2193,20 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         bool(current_setup_cpp_sha256)
         and bool(boundary_source_setup_sha256)
         and boundary_source_setup_sha256 == current_setup_cpp_sha256
+    )
+    boundary_type_e_velocity_initialization_required = (
+        boundary_source_method_class in {"simplified_type_e_box", "partial_type_e_boundary_source"}
+        or boundary_has_profile_inlet is True
+    )
+    boundary_type_e_velocity_initialization_ok = (
+        not boundary_type_e_velocity_initialization_required
+        or (
+            boundary_type_e_velocity_initialization is True
+            and boundary_type_e_velocity_initialization_guard is True
+            and boundary_type_e_velocity_initialization_coordinates is True
+            and boundary_type_e_velocity_initialization_velocity_write is True
+            and (boundary_has_profile_inlet is not True or boundary_profile_type_e_velocity_initialization is True)
+        )
     )
     boundary_evidence_supported_by_token = any(
         token in (boundary_evidence_source + " " + boundary_equivalence_basis).lower()
@@ -2227,6 +2257,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         boundary_source_audit_path is not None
         and boundary_source_gate == "pass"
         and boundary_source_coherent is True
+        and boundary_type_e_velocity_initialization_ok
         and bool(boundary_source_method_class)
         and bool(boundary_source_setup_sha256)
         and boundary_source_setup_hash_matches
@@ -2253,6 +2284,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
             f"source_advanced_code_evidence={boundary_source_advanced_code_evidence}; "
             f"comment_stripped_code_audit={boundary_source_comment_stripped_code_audit}; "
+            f"type_e_velocity_initialization={boundary_type_e_velocity_initialization}; "
+            f"type_e_velocity_initialization_guard={boundary_type_e_velocity_initialization_guard}; "
+            f"type_e_velocity_initialization_coordinates={boundary_type_e_velocity_initialization_coordinates}; "
+            f"type_e_velocity_initialization_velocity_write={boundary_type_e_velocity_initialization_velocity_write}; "
+            f"profile_type_e_velocity_initialization={boundary_profile_type_e_velocity_initialization}; "
+            f"has_profile_inlet={boundary_has_profile_inlet}; "
+            f"type_e_velocity_initialization_required={boundary_type_e_velocity_initialization_required}; "
+            f"type_e_velocity_initialization_ok={boundary_type_e_velocity_initialization_ok}; "
             f"setup_cpp_sha256={boundary_source_setup_sha256 or 'missing'}; "
             f"current_setup_cpp={setup_cpp_path or 'missing'}; "
             f"current_setup_cpp_sha256={current_setup_cpp_sha256 or 'missing'}; "
@@ -2282,6 +2321,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
             f"source_advanced_code_evidence={boundary_source_advanced_code_evidence}; "
             f"comment_stripped_code_audit={boundary_source_comment_stripped_code_audit}; "
+            f"type_e_velocity_initialization={boundary_type_e_velocity_initialization}; "
+            f"profile_type_e_velocity_initialization={boundary_profile_type_e_velocity_initialization}; "
+            f"type_e_velocity_initialization_required={boundary_type_e_velocity_initialization_required}; "
+            f"type_e_velocity_initialization_ok={boundary_type_e_velocity_initialization_ok}; "
             f"external_boundary_protocol_gate={external_boundary_protocol_gate or 'missing'}; "
             f"approx_frontal_blockage_ratio={frontal_blockage}; "
             f"blockage_protocol_gate={blockage_gate or 'missing'}; "

@@ -63,6 +63,41 @@ def count_regex(text: str, pattern: str) -> int:
     return len(re.findall(pattern, text, flags=re.IGNORECASE | re.MULTILINE))
 
 
+def find_type_e_velocity_initialization(code: str) -> Dict[str, Any]:
+    guard_match = re.search(
+        r"if\s*\(\s*lbm\.flags\s*\[\s*n\s*\]\s*!=\s*TYPE_E\s*\)\s*return\s*;",
+        code,
+        flags=re.IGNORECASE,
+    )
+    if not guard_match:
+        return {
+            "guard": False,
+            "coordinates": False,
+            "velocity_write": False,
+            "profile": False,
+            "uniform": False,
+        }
+
+    window = code[guard_match.start() : guard_match.start() + 1200]
+    has_coordinates = bool(re.search(r"lbm\.coordinates\s*\(\s*n\s*,\s*x\s*,\s*y\s*,\s*z\s*\)", window))
+    has_profile = bool(re.search(r"float3\s+u_e\s*=\s*windProfile\s*\(\s*z\s*\)", window))
+    has_uniform = all(
+        re.search(rf"lbm\.u\.{axis}\s*\[\s*n\s*\]\s*=\s*u_{axis}\s*;", window)
+        for axis in ["x", "y", "z"]
+    )
+    has_profile_write = all(
+        re.search(rf"lbm\.u\.{axis}\s*\[\s*n\s*\]\s*=\s*u_e\.{axis}\s*;", window)
+        for axis in ["x", "y", "z"]
+    )
+    return {
+        "guard": True,
+        "coordinates": has_coordinates,
+        "velocity_write": has_profile_write or has_uniform,
+        "profile": has_profile and has_profile_write,
+        "uniform": has_uniform,
+    }
+
+
 def strip_cpp_comments(text: str) -> str:
     without_block = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
     return re.sub(r"//.*", "", without_block)
@@ -106,13 +141,14 @@ def main() -> int:
     type_s_assignment_count = count_regex(code, r"lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_S")
     has_ground_no_slip = "if(z == 0u)" in code and "TYPE_S" in code
     has_building_voxel_solid = "voxelize_stl" in lower and "type_s" in lower
-    has_type_e_velocity_initialization = contains_any(
-        code,
-        [
-            "initialize all TYPE_E boundary velocities",
-            "lbm.flags[n] != TYPE_E",
-            "float3 u_e = windProfile(z)",
-        ],
+    type_e_velocity_initialization = find_type_e_velocity_initialization(code)
+    has_type_e_velocity_initialization = (
+        type_e_velocity_initialization["guard"]
+        and type_e_velocity_initialization["coordinates"]
+        and type_e_velocity_initialization["velocity_write"]
+    )
+    has_profile_type_e_velocity_initialization = (
+        has_type_e_velocity_initialization and type_e_velocity_initialization["profile"]
     )
     has_profile_inlet = contains_any(code, ["windProfile(z)", "profile_u_lbm", "profile_z_m"])
     has_outlet_type_e = bool(
@@ -226,6 +262,11 @@ def main() -> int:
 
     if not source_boundary_coherent:
         reasons.append("boundary_source_missing_coherent_type_e_type_s_setup")
+    if type_e_assignment_count > 0 and source_class in {"simplified_type_e_box", "partial_type_e_boundary_source"}:
+        if not has_type_e_velocity_initialization:
+            reasons.append("type_e_boundary_velocity_initialization_missing_or_incomplete")
+        if has_profile_inlet and not has_profile_type_e_velocity_initialization:
+            reasons.append("profile_type_e_boundary_velocity_initialization_missing")
     if metadata_claims_advanced and not source_wind_tunnel_equivalent:
         reasons.append("metadata_claims_advanced_boundary_without_source_evidence")
 
@@ -260,6 +301,13 @@ def main() -> int:
         "has_lateral_type_e": has_lateral_type_e,
         "has_top_type_e": has_top_type_e,
         "has_type_e_velocity_initialization": has_type_e_velocity_initialization,
+        "has_type_e_velocity_initialization_guard": type_e_velocity_initialization["guard"],
+        "has_type_e_velocity_initialization_coordinates": type_e_velocity_initialization["coordinates"],
+        "has_type_e_velocity_initialization_velocity_write": type_e_velocity_initialization["velocity_write"],
+        "has_profile_type_e_velocity_initialization": has_profile_type_e_velocity_initialization,
+        "has_uniform_type_e_velocity_initialization": (
+            has_type_e_velocity_initialization and type_e_velocity_initialization["uniform"]
+        ),
         "has_ground_no_slip": has_ground_no_slip,
         "has_building_voxel_solid": has_building_voxel_solid,
         "has_non_reflecting_outlet_evidence": has_non_reflecting_outlet,

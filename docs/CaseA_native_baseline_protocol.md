@@ -123,6 +123,12 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    Advanced boundary-source claims must come from comment-stripped generated C++ code:
    `boundary_source_advanced_code_evidence=true` and
    `advanced_boundary_evidence_uses_comment_stripped_code=true`. Comments or metadata labels alone are not accepted.
+   For the current simplified/profile `TYPE_E` boundary source, the audit must also report
+   `has_type_e_velocity_initialization=true`, `has_type_e_velocity_initialization_guard=true`,
+   `has_type_e_velocity_initialization_coordinates=true` and
+   `has_type_e_velocity_initialization_velocity_write=true`. Profile-inlet runs must additionally report
+   `has_profile_type_e_velocity_initialization=true`, proving the outlet/lateral/top `TYPE_E` nodes are initialized from
+   `windProfile(z)` instead of keeping zero velocity after the boundary-return path.
    Token-like text in metadata or metrics is diagnostic context only. `validation_gate.py` uses the boundary protocol,
    boundary-source and roughness/precursor audit files as the admissible evidence; metrics-table boundary fields are not
    allowed to repair missing or incomplete audit fields.
@@ -282,7 +288,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
   boundary summary cannot pass the paper-grade boundary gate.
 - `TYPE_E` boundary velocity initialization policy. CityLBM v0.3.0 generated cases initialize outlet, lateral and top
   `TYPE_E` nodes from the mean wind profile before device upload to avoid zero-speed boundary damping; archive the
-  generated `setup.cpp` evidence for native and CityLBM parity runs.
+  generated `setup.cpp` evidence for native and CityLBM parity runs. The machine gate reads this from
+  `boundary_source_audit.json`, not from notes in the metrics CSV.
 - Wall/roughness treatment: no-slip, rough-wall function, precursor/recycling, roughness blocks, or other documented
   approach.
 - Inlet turbulence method: off, STG-lite, synthetic-eddy, digital-filter, recycling-rescaling or precursor.

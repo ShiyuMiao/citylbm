@@ -140,6 +140,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `audit_boundary_source.py` now evaluates TYPE_E/TYPE_S assignments, profile inlet, outlet/lateral/top boundaries and
   rough-wall/precursor evidence from comment-stripped `setup.cpp` code. Boundary keywords or pseudo-code in comments are
   retained only as diagnostics and can no longer support a boundary-source gate.
+- `audit_boundary_source.py`, `validation_metrics_from_probe_audit.py`, the metrics template and `validation_gate.py`
+  now explicitly audit the CityLBM TYPE_E boundary-velocity initialization pass. Simplified/profile TYPE_E boundary
+  cases must show the generated guard on `lbm.flags[n]`, coordinate recovery and three-component `lbm.u` writes; profile
+  inlet cases must also show that outlet/lateral/top TYPE_E nodes are initialized from `windProfile(z)`. This prevents a
+  run package from passing source traceability while retaining the older zero-speed outlet/lateral/top damping risk.
 - Native FluidX3D baseline gating now recomputes SHA256 hashes for the manifest-listed `setup.cpp`, `defines.hpp`,
   `lbm.hpp` and `lbm.cpp` paths. A manifest can no longer pass by declaring `Exists=true` with a non-empty hash if the
   local source file is missing or has changed.

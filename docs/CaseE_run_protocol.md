@@ -102,6 +102,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   Advanced boundary tokens such as non-reflecting outlet, periodic side/top, rough-wall, precursor or recycling must
   come from comment-stripped generated C++ code. Archive `boundary_source_advanced_code_evidence=true` and
   `advanced_boundary_evidence_uses_comment_stripped_code=true` before treating the boundary source as AIJ-equivalent.
+  For the current simplified/profile `TYPE_E` boundary source, also archive the structured velocity-initialization
+  evidence from `boundary_source_audit.json`: `has_type_e_velocity_initialization=true`,
+  `has_type_e_velocity_initialization_guard=true`, `has_type_e_velocity_initialization_coordinates=true`,
+  `has_type_e_velocity_initialization_velocity_write=true` and, for CustomTable/profile inlet runs,
+  `has_profile_type_e_velocity_initialization=true`.
   The validation gate treats boundary protocol, boundary-source and roughness/precursor claims as audit-only evidence:
   metrics CSV/JSON fields with the same names are recorded as ignored context and cannot substitute for
   `boundary_protocol_audit.json` or `boundary_source_audit.json`.
@@ -445,6 +450,11 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 CityLBM v0.3.0 reads, converts and records `k(m2/s2)`. It also provides an optional experimental STG-lite inlet that converts isotropic `k` to bounded deterministic spectral velocity perturbations using `sigma=sqrt(2k/3)`, with inlet refresh controlled by `SyntheticTurbulenceUpdateInterval`. The synthetic spectral-mode amplitudes are projected normal to their wave vectors to reduce non-physical divergent inlet fluctuations, and the spectral normalization targets the component RMS implied by isotropic `k` rather than the lower former diagnostic amplitude. This is a software-level improvement over the former metadata-only `k` chain and the earlier sparse-eddy diagnostic pattern, but it is not a full digital-filter, precursor/recycling, or Reynolds-stress turbulent inflow because the AF table does not provide Reynolds-stress tensors, turbulent length scales or a precursor field. The inlet correlation audit is therefore a necessary precondition that checks real VTK fluctuation correlation, not a replacement for a validated digital-filter/SEM/precursor inlet. The v0.3.0 machine gate treats velocity-field-only STG-lite as non-paper-grade by default; it can only be explicitly allowed for diagnostic sensitivity analysis with `--allow-velocity-only-inlet`. Any paper claim must state whether the validation used metadata-only inflow, STG-lite diagnostic inflow, or a later distribution-consistent turbulent inlet.
 
 The current boundary conditions are also a simplified FluidX3D `TYPE_E` setup: velocity-profile inlet, pressure/free-outflow outlet approximation, lateral/top `TYPE_E`, and no-slip ground/buildings. CityLBM v0.3.0 initializes all `TYPE_E` boundary velocities from the mean wind profile before uploading flags/velocity fields, so outlet/lateral/top boundaries no longer start from zero velocity after their early boundary-return path. This removes one plausible software-side damping source, but it does not make the boundary protocol identical to the AIJ wind tunnel. CityLBM v0.3.0 records domain clearance and approximate frontal/plan blockage ratios in `BoundaryProtocolAudit`, and `validation_gate.py` fails the boundary gate when approximate frontal blockage exceeds the diagnostic threshold, the AIJ-equivalence basis is missing/unsupported, or upstream/downstream/lateral/top clearance evidence is below the configured H thresholds. These fields help detect protocol-scale errors, but they remain screening diagnostics until compared with the AIJ wind-tunnel boundary setup or replaced by a stronger inlet/outlet treatment.
+
+The final gate now requires the TYPE_E velocity-initialization source evidence to come from `boundary_source_audit.json`
+for simplified/profile boundary cases. For Case E CustomTable inflow, `has_profile_type_e_velocity_initialization=true`
+is required so the archived `setup.cpp` proves boundary nodes are initialized from `windProfile(z)` rather than from a
+stale zero field or a metrics-table claim.
 
 The boundary evidence audit now also rejects vague per-condition descriptions. Each inlet, outlet, lateral, top,
 ground-wall, roughness, blockage, fetch, outlet-reflection and side/top-boundary item must carry a supported evidence

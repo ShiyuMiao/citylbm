@@ -140,6 +140,12 @@ TEMPLATE_FIELDS = [
     "boundary_source_wind_tunnel_equivalent",
     "boundary_source_advanced_code_evidence",
     "boundary_source_comment_stripped_code_audit",
+    "boundary_type_e_velocity_initialization",
+    "boundary_type_e_velocity_initialization_guard",
+    "boundary_type_e_velocity_initialization_coordinates",
+    "boundary_type_e_velocity_initialization_velocity_write",
+    "boundary_profile_type_e_velocity_initialization",
+    "boundary_uniform_type_e_velocity_initialization",
     "boundary_source_setup_sha256",
     "inlet_source_audit",
     "inlet_source_gate",
@@ -1258,6 +1264,24 @@ def main() -> int:
             ),
             "boundary_source_comment_stripped_code_audit": first_bool_text(
                 boundary_source_audit.get("advanced_boundary_evidence_uses_comment_stripped_code")
+            ),
+            "boundary_type_e_velocity_initialization": first_bool_text(
+                boundary_source_audit.get("has_type_e_velocity_initialization")
+            ),
+            "boundary_type_e_velocity_initialization_guard": first_bool_text(
+                boundary_source_audit.get("has_type_e_velocity_initialization_guard")
+            ),
+            "boundary_type_e_velocity_initialization_coordinates": first_bool_text(
+                boundary_source_audit.get("has_type_e_velocity_initialization_coordinates")
+            ),
+            "boundary_type_e_velocity_initialization_velocity_write": first_bool_text(
+                boundary_source_audit.get("has_type_e_velocity_initialization_velocity_write")
+            ),
+            "boundary_profile_type_e_velocity_initialization": first_bool_text(
+                boundary_source_audit.get("has_profile_type_e_velocity_initialization")
+            ),
+            "boundary_uniform_type_e_velocity_initialization": first_bool_text(
+                boundary_source_audit.get("has_uniform_type_e_velocity_initialization")
             ),
             "boundary_source_setup_sha256": audit_field(boundary_source_audit, "setup_cpp_sha256"),
             "inlet_source_audit": str(Path(args.inlet_source_audit).resolve()) if args.inlet_source_audit else "",
