@@ -1252,6 +1252,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     boundary_source_wind_tunnel_equivalent = as_bool(
         get_any(boundary_source_audit, ["boundary_source_wind_tunnel_equivalent"])
     )
+    boundary_source_advanced_code_evidence = as_bool(
+        get_any(boundary_source_audit, ["boundary_source_advanced_code_evidence"])
+    )
+    boundary_source_comment_stripped_code_audit = as_bool(
+        get_any(boundary_source_audit, ["advanced_boundary_evidence_uses_comment_stripped_code"])
+    )
     boundary_source_setup_sha256 = str(
         get_any(boundary_source_audit, ["setup_cpp_sha256"]) or ""
     ).strip()
@@ -1310,6 +1316,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and paper_grade_boundary_source_gate == "pass"
         and boundary_source_wind_tunnel_equivalent is True
         and boundary_source_simplified is not True
+        and boundary_source_advanced_code_evidence is True
+        and boundary_source_comment_stripped_code_audit is True
     )
     add_gate(
         gates,
@@ -1323,6 +1331,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_coherent={boundary_source_coherent}; "
             f"source_simplified={boundary_source_simplified}; "
             f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
+            f"source_advanced_code_evidence={boundary_source_advanced_code_evidence}; "
+            f"comment_stripped_code_audit={boundary_source_comment_stripped_code_audit}; "
             f"setup_cpp_sha256={boundary_source_setup_sha256 or 'missing'}; "
             f"boundary_source_gate_reasons={boundary_source_reasons or 'none'}; "
             f"metrics_boundary_source_gate={get_any(metrics, ['boundary_source_gate', 'BoundarySourceGate']) or 'ignored'}; "
@@ -1347,6 +1357,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_method_class={boundary_source_method_class or 'missing'}; "
             f"source_simplified={boundary_source_simplified}; "
             f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
+            f"source_advanced_code_evidence={boundary_source_advanced_code_evidence}; "
+            f"comment_stripped_code_audit={boundary_source_comment_stripped_code_audit}; "
             f"external_boundary_protocol_gate={external_boundary_protocol_gate or 'missing'}; "
             f"approx_frontal_blockage_ratio={frontal_blockage}; "
             f"blockage_protocol_gate={blockage_gate or 'missing'}; "

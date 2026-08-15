@@ -224,6 +224,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/audit_boundary_source.py` now treats `TYPE_E`/`TYPE_S` symbol usage in generated `setup.cpp` as boundary-source
   evidence even when the constants are defined in included FluidX3D headers. This prevents coherent simplified boundary
   setups from being misreported as missing source, while still failing the paper-grade wind-tunnel-equivalence gate.
+- `scripts/audit_boundary_source.py` now strips C++ comments before accepting advanced boundary evidence such as
+  non-reflecting outlet, periodic side/top, rough-wall, precursor or recycling tokens. `validation_gate.py` requires this
+  comment-stripped code evidence for paper-grade boundary-source promotion, so explanatory comments cannot make a
+  simplified `TYPE_E` box look AIJ-equivalent.
 - `scripts/validation_gate.py` now treats boundary protocol, boundary-source and roughness/precursor claims as audit-only
   evidence. It reads the real `blockage_gate` emitted by `audit_boundary_protocol.py`; metrics-table fields such as
   `boundary_source_gate`, `boundary_evidence_gate` or roughness tokens are reported as ignored context and cannot make a

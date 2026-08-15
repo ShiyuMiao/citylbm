@@ -91,6 +91,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   The audit accepts `TYPE_E`/`TYPE_S` assignments as generated-source evidence even when those constants are defined by
   included FluidX3D headers; this avoids a false missing-source failure while keeping the simplified-boundary paper gate
   failed.
+  Advanced boundary tokens such as non-reflecting outlet, periodic side/top, rough-wall, precursor or recycling must
+  come from comment-stripped generated C++ code. Archive `boundary_source_advanced_code_evidence=true` and
+  `advanced_boundary_evidence_uses_comment_stripped_code=true` before treating the boundary source as AIJ-equivalent.
   The validation gate treats boundary protocol, boundary-source and roughness/precursor claims as audit-only evidence:
   metrics CSV/JSON fields with the same names are recorded as ignored context and cannot substitute for
   `boundary_protocol_audit.json` or `boundary_source_audit.json`.

@@ -63,6 +63,11 @@ def count_regex(text: str, pattern: str) -> int:
     return len(re.findall(pattern, text, flags=re.IGNORECASE | re.MULTILINE))
 
 
+def strip_cpp_comments(text: str) -> str:
+    without_block = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+    return re.sub(r"//.*", "", without_block)
+
+
 def main() -> int:
     args = parse_args()
     setup_path = Path(args.setup).expanduser().resolve()
@@ -80,6 +85,7 @@ def main() -> int:
         setup_hash = sha256(setup_path)
 
     lower = source.lower()
+    code = strip_cpp_comments(source)
     boundary_summary = str(metadata.get("BoundaryConditionSummary") or "")
     boundary_types = nested(metadata, "BoundaryProtocolAudit", "BoundaryTypes")
     boundary_types_text = json.dumps(boundary_types, ensure_ascii=True) if isinstance(boundary_types, dict) else ""
@@ -115,7 +121,7 @@ def main() -> int:
     )
     has_top_type_e = "if(z == Nz-1u) { lbm.flags[n] = TYPE_E; return; }" in source
     has_non_reflecting_outlet = contains_any(
-        source,
+        code,
         [
             "non_reflecting",
             "non-reflecting",
@@ -128,9 +134,9 @@ def main() -> int:
             "pressure outlet validated",
         ],
     )
-    has_periodic_side_top = contains_any(source, ["periodic boundary", "periodic_x", "periodic_y", "periodic_z"])
+    has_periodic_side_top = contains_any(code, ["periodic boundary", "periodic_x", "periodic_y", "periodic_z"])
     has_rough_wall_function = contains_any(
-        source,
+        code,
         [
             "rough_wall",
             "rough-wall",
@@ -140,7 +146,7 @@ def main() -> int:
             "aerodynamic roughness boundary",
         ],
     )
-    has_precursor_or_recycling = contains_any(source, ["precursor", "recycling_rescaling", "recycling-rescaling"])
+    has_precursor_or_recycling = contains_any(code, ["precursor", "recycling_rescaling", "recycling-rescaling"])
     has_boundary_source_comment = contains_any(source, ["BoundaryProtocolAudit", "TYPE_E", "TYPE_S"])
 
     simplified_type_e_box = (
@@ -179,6 +185,14 @@ def main() -> int:
         "precursor_or_recycling_boundary",
         "advanced_boundary_source_evidence",
     }
+    source_advanced_code_evidence = (
+        (source_class == "precursor_or_recycling_boundary" and has_precursor_or_recycling)
+        or (
+            source_class == "advanced_boundary_source_evidence"
+            and has_non_reflecting_outlet
+            and (has_periodic_side_top or has_rough_wall_function)
+        )
+    )
     source_simplified = source_class in {
         "simplified_type_e_box",
         "partial_type_e_boundary_source",
@@ -242,6 +256,8 @@ def main() -> int:
         "has_periodic_side_top_evidence": has_periodic_side_top,
         "has_rough_wall_function_evidence": has_rough_wall_function,
         "has_precursor_or_recycling_boundary_evidence": has_precursor_or_recycling,
+        "advanced_boundary_evidence_uses_comment_stripped_code": True,
+        "boundary_source_advanced_code_evidence": source_advanced_code_evidence,
         "has_boundary_source_comment": has_boundary_source_comment,
         "boundary_source_method_class": source_class,
         "boundary_source_coherent": source_boundary_coherent,

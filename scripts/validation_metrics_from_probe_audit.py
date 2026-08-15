@@ -127,6 +127,8 @@ TEMPLATE_FIELDS = [
     "boundary_source_coherent",
     "boundary_source_simplified",
     "boundary_source_wind_tunnel_equivalent",
+    "boundary_source_advanced_code_evidence",
+    "boundary_source_comment_stripped_code_audit",
     "boundary_source_setup_sha256",
     "inlet_source_audit",
     "inlet_source_gate",
@@ -1203,6 +1205,12 @@ def main() -> int:
             "boundary_source_simplified": first_bool_text(boundary_source_audit.get("boundary_source_simplified")),
             "boundary_source_wind_tunnel_equivalent": first_bool_text(
                 boundary_source_audit.get("boundary_source_wind_tunnel_equivalent")
+            ),
+            "boundary_source_advanced_code_evidence": first_bool_text(
+                boundary_source_audit.get("boundary_source_advanced_code_evidence")
+            ),
+            "boundary_source_comment_stripped_code_audit": first_bool_text(
+                boundary_source_audit.get("advanced_boundary_evidence_uses_comment_stripped_code")
             ),
             "boundary_source_setup_sha256": audit_field(boundary_source_audit, "setup_cpp_sha256"),
             "inlet_source_audit": str(Path(args.inlet_source_audit).resolve()) if args.inlet_source_audit else "",
