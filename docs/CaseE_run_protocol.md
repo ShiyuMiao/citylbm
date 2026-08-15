@@ -101,6 +101,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `scripts\audit_inlet_profile_from_vtk.py` on the output VTK sequence, compare against `AF_caseE.csv`, and archive the
   resulting `inlet_profile_audit.json` and `.csv`. This audit checks that `Wind Profile=3` actually preserved both
   `U(z)` and the AF third-column `k(m2/s2)` statistics at the selected inlet/empty-tunnel plane.
+  The final gate reads these pass/fail fields directly from `inlet_profile_audit.json`, not from self-reported
+  `validation_metrics.csv` fields.
   It also records all available VTK steps, selected source steps, `selected_last_window`,
   `source_steps_strictly_increasing`, `source_step_spacing_uniform`, `time_averaging_gate_reasons`,
   `negative_streamwise_fraction`, and `inlet_streamwise_direction_gate`. Short, non-final or irregular inlet windows

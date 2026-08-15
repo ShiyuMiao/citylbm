@@ -145,6 +145,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Added `scripts/audit_inlet_profile_from_vtk.py` to read real post-spinup `u-*.vtk` frames, sample an inlet or
   empty-tunnel cross-plane, reconstruct time-mean streamwise `U(z)` and temporal-variance `k(z)`, and compare both
   against the official AF table. This replaces hand-filled empty-tunnel `U/k` evidence with an archived JSON/CSV audit.
+- `validation_gate.py` now requires `inlet_profile_audit.json` and reads inlet `U/k` preservation, streamwise-direction
+  and inlet-window pass/fail evidence from that audit JSON only. Metrics rows can summarize inlet profile results, but
+  cannot self-report AF profile preservation.
 - `scripts/audit_inlet_profile_from_vtk.py` now records all available VTK steps and fails the inlet `U/k` gate when the
   selected average is not an explicit final window with strictly increasing, uniformly spaced time steps. This prevents
   short or non-final inlet samples from being interpreted as solver accuracy evidence.

@@ -142,6 +142,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    correlation `>=0.05`.
    The metrics CSV may summarize `inlet_source_*` and `inlet_correlation_*` fields, but it is not accepted as a substitute
    for the archived source-audit JSON and VTK correlation-audit JSON.
+   The final gate also reads inlet `U(z)`, `k(z)`, streamwise-direction and inlet-window pass/fail fields directly from
+   `inlet_profile_audit.json`; copied `inlet_profile_*` fields in `validation_metrics.csv` are not accepted as source evidence.
    The audit must also report finite temporal and spatial correlation coverage fractions; a high mean correlation from
    only a sparse subset of non-degenerate samples is not enough for a paper-grade turbulent-inlet claim.
    The inlet `U/k` preservation gate follows the same final-window evidence rule as the global time-average gate:

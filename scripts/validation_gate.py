@@ -768,6 +768,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     metadata_path = find_first(run_dir, ["case_metadata.json"])
     audit_path = find_first(run_dir, ["validation_protocol_audit.json"])
     inlet_correlation_audit_path = find_first(run_dir, ["inlet_correlation_audit.json"])
+    inlet_profile_audit_path = find_first(run_dir, ["inlet_profile_audit.json"])
     inlet_source_audit_path = find_first(run_dir, ["inlet_source_audit.json"])
     boundary_source_audit_path = find_first(run_dir, ["boundary_source_audit.json"])
     boundary_audit_path = find_first(run_dir, ["boundary_protocol_audit.json"])
@@ -791,6 +792,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     metadata = read_json(metadata_path)
     audit = read_json(audit_path)
     inlet_correlation_audit = read_json(inlet_correlation_audit_path)
+    inlet_profile_audit = read_json(inlet_profile_audit_path)
     inlet_source_audit = read_json(inlet_source_audit_path)
     boundary_source_audit = read_json(boundary_source_audit_path)
     external_boundary_audit = read_json(boundary_audit_path)
@@ -811,6 +813,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         PASS
         if metadata_path
         and audit_path
+        and inlet_profile_audit_path
         and inlet_source_audit_path
         and boundary_source_audit_path
         and boundary_audit_path
@@ -822,6 +825,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         else FAIL,
         (
             f"metadata={metadata_path or 'missing'}; audit={audit_path or 'missing'}; "
+            f"inlet_profile_audit={inlet_profile_audit_path or 'missing'}; "
             f"inlet_source_audit={inlet_source_audit_path or 'missing'}; "
             f"boundary_source_audit={boundary_source_audit_path or 'missing'}; "
             f"boundary_audit={boundary_audit_path or 'missing'}; "
@@ -830,7 +834,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_citylbm_parity_audit={native_citylbm_parity_audit_path or ('missing' if citylbm_result else ('not_required_for_' + (software_label or 'unknown')))}; "
             f"metrics={metrics_path or 'missing'}"
         ),
-        "Archive case_metadata.json, validation_protocol_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
+        "Archive case_metadata.json, validation_protocol_audit.json, inlet_profile_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
     )
 
     run_freshness_gate = str(
@@ -1585,32 +1589,41 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit_inlet_source_setup_sha256 = str(
         get_any(inlet_source_audit, ["setup_cpp_sha256"]) or ""
     ).strip()
-    inlet_profile_gate = str(get_any(metrics, ["inlet_profile_gate"]) or "").strip().lower()
-    inlet_u_profile_gate = str(get_any(metrics, ["inlet_u_profile_gate"]) or "").strip().lower()
-    inlet_k_profile_gate = str(get_any(metrics, ["inlet_k_profile_gate"]) or "").strip().lower()
-    inlet_streamwise_direction_gate = str(get_any(metrics, ["inlet_streamwise_direction_gate"]) or "").strip().lower()
-    inlet_negative_streamwise_fraction = as_float(get_any(metrics, ["inlet_negative_streamwise_fraction"]))
-    inlet_profile_available_frame_count = as_int(get_any(metrics, ["inlet_profile_available_frame_count"]))
-    inlet_profile_frame_count = as_int(get_any(metrics, ["inlet_profile_frame_count"]))
-    inlet_profile_source_steps = str(get_any(metrics, ["inlet_profile_source_time_steps"]) or "").strip()
+    inlet_profile_gate = str(get_any(inlet_profile_audit, ["inlet_profile_gate"]) or "").strip().lower()
+    inlet_u_profile_gate = str(get_any(inlet_profile_audit, ["inlet_u_profile_gate"]) or "").strip().lower()
+    inlet_k_profile_gate = str(get_any(inlet_profile_audit, ["inlet_k_profile_gate"]) or "").strip().lower()
+    inlet_streamwise_direction_gate = str(
+        get_any(inlet_profile_audit, ["inlet_streamwise_direction_gate"]) or ""
+    ).strip().lower()
+    inlet_negative_streamwise_fraction = as_float(get_any(inlet_profile_audit, ["negative_streamwise_fraction"]))
+    inlet_profile_available_frame_count = as_int(get_any(inlet_profile_audit, ["available_frame_count"]))
+    inlet_profile_frame_count = as_int(get_any(inlet_profile_audit, ["frame_count"]))
+    inlet_profile_source_steps = get_first_available(
+        get_any(inlet_profile_audit, ["source_time_steps_csv"]),
+        get_any(inlet_profile_audit, ["source_time_steps"]),
+    )
     inlet_profile_source_frame_count, inlet_profile_source_step_text, inlet_profile_has_source_steps = source_frame_details(
         {"source_time_steps": inlet_profile_source_steps}
     )
-    inlet_profile_source_first_step = as_int(get_any(metrics, ["inlet_profile_source_first_time_step"]))
-    inlet_profile_source_last_step = as_int(get_any(metrics, ["inlet_profile_source_last_time_step"]))
-    inlet_profile_latest_available_step = as_int(get_any(metrics, ["inlet_profile_latest_available_time_step"]))
-    inlet_profile_selected_last_window = as_bool(get_any(metrics, ["inlet_profile_selected_last_window"]))
-    inlet_profile_steps_increasing = as_bool(get_any(metrics, ["inlet_profile_source_steps_strictly_increasing"]))
-    inlet_profile_spacing_uniform = as_bool(get_any(metrics, ["inlet_profile_source_step_spacing_uniform"]))
-    inlet_profile_time_gate = str(get_any(metrics, ["inlet_profile_time_averaging_gate"]) or "").strip().lower()
-    inlet_profile_time_gate_reasons = str(get_any(metrics, ["inlet_profile_time_averaging_gate_reasons"]) or "").strip()
-    inlet_u_mae_ratio = as_float(get_any(metrics, ["inlet_u_mae_ratio"]))
-    inlet_u_rmse_ratio = as_float(get_any(metrics, ["inlet_u_rmse_ratio"]))
-    inlet_k_mae_ratio = as_float(get_any(metrics, ["inlet_k_mae_ratio"]))
-    inlet_k_rmse_ratio = as_float(get_any(metrics, ["inlet_k_rmse_ratio"]))
-    empty_u_bias = as_float(get_any(metrics, ["empty_tunnel_U_bias_ratio", "empty_tunnel_u_bias_ratio"]))
-    empty_k_bias = as_float(get_any(metrics, ["empty_tunnel_k_bias_ratio", "empty_tunnel_K_bias_ratio"]))
-    empty_gate = str(get_any(metrics, ["empty_tunnel_gate", "inlet_k_preservation_gate"]) or "").strip().lower()
+    inlet_profile_source_first_step = as_int(get_any(inlet_profile_audit, ["source_first_time_step"]))
+    inlet_profile_source_last_step = as_int(get_any(inlet_profile_audit, ["source_last_time_step"]))
+    inlet_profile_latest_available_step = as_int(get_any(inlet_profile_audit, ["latest_available_time_step"]))
+    inlet_profile_selected_last_window = as_bool(get_any(inlet_profile_audit, ["selected_last_window"]))
+    inlet_profile_steps_increasing = as_bool(get_any(inlet_profile_audit, ["source_steps_strictly_increasing"]))
+    inlet_profile_spacing_uniform = as_bool(get_any(inlet_profile_audit, ["source_step_spacing_uniform"]))
+    inlet_profile_time_gate = str(get_any(inlet_profile_audit, ["time_averaging_gate"]) or "").strip().lower()
+    inlet_profile_time_gate_reasons = str(
+        get_any(inlet_profile_audit, ["time_averaging_gate_reasons_csv"])
+        or get_any(inlet_profile_audit, ["time_averaging_gate_reasons"])
+        or ""
+    ).strip()
+    inlet_u_mae_ratio = as_float(get_any(inlet_profile_audit, ["U_MAE_ratio"]))
+    inlet_u_rmse_ratio = as_float(get_any(inlet_profile_audit, ["U_RMSE_ratio"]))
+    inlet_k_mae_ratio = as_float(get_any(inlet_profile_audit, ["k_MAE_ratio"]))
+    inlet_k_rmse_ratio = as_float(get_any(inlet_profile_audit, ["k_RMSE_ratio"]))
+    empty_u_bias = as_float(get_any(inlet_profile_audit, ["U_bias_ratio"]))
+    empty_k_bias = as_float(get_any(inlet_profile_audit, ["k_bias_ratio"]))
+    empty_gate = inlet_profile_gate
     inlet_profile_window_ok = (
         inlet_profile_has_source_steps
         and inlet_profile_frame_count is not None
@@ -1722,7 +1735,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_profile_time_averaging_gate={inlet_profile_time_gate or 'missing'}; "
             f"inlet_profile_time_averaging_gate_reasons={inlet_profile_time_gate_reasons or 'none'}; "
             f"inlet_u_mae_ratio={inlet_u_mae_ratio}; inlet_u_rmse_ratio={inlet_u_rmse_ratio}; "
-            f"inlet_k_mae_ratio={inlet_k_mae_ratio}; inlet_k_rmse_ratio={inlet_k_rmse_ratio}"
+            f"inlet_k_mae_ratio={inlet_k_mae_ratio}; inlet_k_rmse_ratio={inlet_k_rmse_ratio}; "
+            f"metrics_inlet_profile_gate={get_any(metrics, ['inlet_profile_gate']) or 'ignored'}; "
+            f"inlet_profile_audit={inlet_profile_audit_path or 'missing'}"
         ),
         "Run scripts/audit_inlet_profile_from_vtk.py on real post-spinup VTK frames and pass U(z)/k(z) preservation before paper-grade validation.",
     )
