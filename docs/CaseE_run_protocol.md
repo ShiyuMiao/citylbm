@@ -226,6 +226,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Boundary-source evidence must come from comment-stripped generated `setup.cpp` code. `audit_boundary_source.py` treats
   TYPE_E/TYPE_S assignments, profile inlet, outlet/lateral/top checks, rough-wall evidence and precursor/recycling
   evidence in comments as diagnostics only; commented pseudo-code cannot make a simplified boundary setup paper-grade.
+  The final validation gate recomputes the current run package `setup.cpp` SHA256 and requires both
+  `inlet_source_audit.json` and `boundary_source_audit.json` to match it; source audits copied from an older generated
+  case remain diagnostic.
 - For a CityLBM-driven Case E validation row, run `scripts\audit_native_citylbm_parity.py` or pass
   `--paired-native-metrics <native_validation_metrics.csv>` to the evidence chain. The resulting
   `native_citylbm_parity_audit.json` must show matched case, wind direction, `dx`, steps, VTK cadence, averaging window,

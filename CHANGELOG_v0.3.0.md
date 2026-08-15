@@ -137,6 +137,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native FluidX3D baseline gating now recomputes SHA256 hashes for the manifest-listed `setup.cpp`, `defines.hpp`,
   `lbm.hpp` and `lbm.cpp` paths. A manifest can no longer pass by declaring `Exists=true` with a non-empty hash if the
   local source file is missing or has changed.
+- `validation_gate.py` now binds `inlet_source_audit.json` and `boundary_source_audit.json` to the current run's
+  `setup.cpp` SHA256. Source audits copied from an older generated case fail even if their internal gate fields say
+  `pass`.
 - `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now track LBM stability
   evidence: target lattice velocity, estimated Mach number, `tau`, `nu_lbm`, physical viscosity, Reynolds number,
   velocity set, LES/subgrid model and solver-log stability warnings. A generated case is not enough; the machine gate

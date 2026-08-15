@@ -876,6 +876,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     component_sensitivity_audit_path = find_first(run_dir, ["component_sensitivity_audit.json"])
     grid_sensitivity_audit_path = find_first(run_dir, ["grid_sensitivity_audit.json"])
     native_citylbm_parity_audit_path = find_first(run_dir, ["native_citylbm_parity_audit.json"])
+    setup_cpp_path = find_first(run_dir, ["setup.cpp"])
     runtime_audit_path = find_first(
         run_dir,
         [
@@ -908,6 +909,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     software_label = str(args.software or get_any(metrics, ["software", "Software"]) or "").strip().lower()
     citylbm_result = "citylbm" in software_label and "native" not in software_label
     gates: List[Dict[str, Any]] = []
+    current_setup_cpp_sha256 = sha256_file(setup_cpp_path).lower()
     current_probe_audit_sha256 = sha256_file(probe_path)
     current_official_sha256 = sha256_file(official_path)
 
@@ -1373,7 +1375,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     boundary_source_setup_sha256 = str(
         get_any(boundary_source_audit, ["setup_cpp_sha256"]) or ""
-    ).strip()
+    ).strip().lower()
+    boundary_source_setup_hash_matches = (
+        bool(current_setup_cpp_sha256)
+        and bool(boundary_source_setup_sha256)
+        and boundary_source_setup_sha256 == current_setup_cpp_sha256
+    )
     boundary_evidence_supported_by_token = any(
         token in (boundary_evidence_source + " " + boundary_equivalence_basis).lower()
         for token in [
@@ -1423,6 +1430,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and boundary_source_coherent is True
         and bool(boundary_source_method_class)
         and bool(boundary_source_setup_sha256)
+        and boundary_source_setup_hash_matches
     )
     paper_grade_boundary_source_ok = (
         boundary_source_evidence_ok
@@ -1447,6 +1455,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_advanced_code_evidence={boundary_source_advanced_code_evidence}; "
             f"comment_stripped_code_audit={boundary_source_comment_stripped_code_audit}; "
             f"setup_cpp_sha256={boundary_source_setup_sha256 or 'missing'}; "
+            f"current_setup_cpp={setup_cpp_path or 'missing'}; "
+            f"current_setup_cpp_sha256={current_setup_cpp_sha256 or 'missing'}; "
+            f"setup_hash_matches_current={boundary_source_setup_hash_matches}; "
             f"boundary_source_gate_reasons={boundary_source_reasons or 'none'}; "
             f"metrics_boundary_source_gate={get_any(metrics, ['boundary_source_gate', 'BoundarySourceGate']) or 'ignored'}; "
             f"metrics_paper_grade_boundary_source_gate={get_any(metrics, ['paper_grade_boundary_source_gate', 'PaperGradeBoundarySourceGate']) or 'ignored'}; "
@@ -1651,7 +1662,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     inlet_source_setup_sha256 = str(
         get_any(inlet_source_audit, ["setup_cpp_sha256"]) or ""
-    ).strip()
+    ).strip().lower()
     audit_inlet_source_gate = str(get_any(inlet_source_audit, ["inlet_source_gate"]) or "").strip().lower()
     audit_paper_grade_inlet_source_gate = str(
         get_any(inlet_source_audit, ["paper_grade_inlet_source_gate"]) or ""
@@ -1667,7 +1678,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     audit_inlet_source_setup_sha256 = str(
         get_any(inlet_source_audit, ["setup_cpp_sha256"]) or ""
-    ).strip()
+    ).strip().lower()
+    inlet_source_setup_hash_matches = (
+        bool(current_setup_cpp_sha256)
+        and bool(audit_inlet_source_setup_sha256)
+        and audit_inlet_source_setup_sha256 == current_setup_cpp_sha256
+    )
     audit_inlet_source_comment_stripped = as_bool(
         get_any(
             inlet_source_audit,
@@ -1878,6 +1894,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and audit_inlet_source_gate == "pass"
         and bool(audit_inlet_source_method_class)
         and bool(audit_inlet_source_setup_sha256)
+        and inlet_source_setup_hash_matches
         and audit_inlet_source_comment_stripped is True
         and audit_stg_run_loop_ok
     )
@@ -1893,6 +1910,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_distribution_consistent={inlet_source_distribution_consistent}; "
             f"source_velocity_field_only={inlet_source_velocity_field_only}; "
             f"setup_cpp_sha256={inlet_source_setup_sha256 or 'missing'}; "
+            f"current_setup_cpp={setup_cpp_path or 'missing'}; "
+            f"current_setup_cpp_sha256={current_setup_cpp_sha256 or 'missing'}; "
+            f"setup_hash_matches_current={inlet_source_setup_hash_matches}; "
             f"audit_only_inlet_source_gate={audit_inlet_source_gate or 'missing'}; "
             f"audit_only_paper_grade_inlet_source_gate={audit_paper_grade_inlet_source_gate or 'missing'}; "
             f"audit_only_source_method_class={audit_inlet_source_method_class or 'missing'}; "
