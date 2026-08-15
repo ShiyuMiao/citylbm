@@ -1116,68 +1116,49 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
 
     boundary_gate = str(
         get_any(external_boundary_audit, ["metadata_boundary_protocol_gate"])
-        or get_any(metrics, ["boundary_protocol_gate", "BoundaryProtocolGate"])
-        or get_any(metadata.get("BoundaryProtocolAudit", {}), ["Gate"])
         or ""
     )
     boundary_audit = metadata.get("BoundaryProtocolAudit", {}) if isinstance(metadata.get("BoundaryProtocolAudit"), dict) else {}
     blockage_audit = boundary_audit.get("BlockageDiagnostics", {}) if isinstance(boundary_audit.get("BlockageDiagnostics"), dict) else {}
     frontal_blockage = as_float(
-        get_any(metrics, ["approx_frontal_blockage_ratio", "ApproxFrontalBlockageRatio"])
+        get_any(external_boundary_audit, ["approx_frontal_blockage_ratio", "ApproxFrontalBlockageRatio"])
         or get_any(blockage_audit, ["ApproxFrontalBlockageRatio"])
     )
     blockage_gate = str(
-        get_any(metrics, ["blockage_protocol_gate", "BlockageProtocolGate"])
+        get_any(external_boundary_audit, ["blockage_gate", "blockage_protocol_gate", "BlockageProtocolGate"])
         or get_any(blockage_audit, ["Gate"])
         or ""
     )
     boundary_evidence_source = str(
         get_any(external_boundary_audit, ["boundary_evidence_source"])
-        or get_any(metrics, ["boundary_evidence_source", "BoundaryProtocolEvidenceSource"])
-        or get_any(boundary_audit, ["ProtocolEvidenceSource"])
-        or metadata.get("BoundaryProtocolEvidenceSource")
         or ""
     )
     boundary_evidence_gate = str(
         get_any(external_boundary_audit, ["boundary_evidence_gate"])
-        or get_any(metrics, ["boundary_evidence_gate", "BoundaryProtocolEvidenceGate"])
-        or get_any(boundary_audit, ["ProtocolEvidenceGate"])
-        or metadata.get("BoundaryProtocolEvidenceGate")
         or ""
     ).strip().lower()
     boundary_equivalence_basis = str(
         get_any(external_boundary_audit, ["boundary_equivalence_basis"])
-        or get_any(metrics, ["boundary_equivalence_basis", "BoundaryEquivalenceBasis"])
-        or get_any(boundary_audit, ["BoundaryEquivalenceBasis"])
-        or metadata.get("BoundaryEquivalenceBasis")
         or ""
     )
     boundary_evidence_class = str(
         get_any(external_boundary_audit, ["boundary_evidence_class"])
-        or get_any(metrics, ["boundary_evidence_class", "BoundaryEvidenceClass"])
         or ""
     ).strip().lower()
     boundary_evidence_class_supported = as_bool(
         get_any(external_boundary_audit, ["boundary_evidence_class_supported"])
-        or get_any(metrics, ["boundary_evidence_class_supported", "BoundaryEvidenceClassSupported"])
     )
     boundary_evidence_files_all_exist = as_bool(
         get_any(external_boundary_audit, ["boundary_evidence_files_all_exist"])
-        or get_any(metrics, ["boundary_evidence_files_all_exist", "BoundaryEvidenceFilesAllExist"])
     )
     boundary_evidence_files_all_hashed = as_bool(
         get_any(external_boundary_audit, ["boundary_evidence_files_all_hashed"])
-        or get_any(metrics, ["boundary_evidence_files_all_hashed", "BoundaryEvidenceFilesAllHashed"])
     )
     boundary_condition_fields_supported = as_bool(
-        get_first_available(
-            get_any(external_boundary_audit, ["boundary_condition_fields_supported"]),
-            get_any(metrics, ["boundary_condition_fields_supported", "BoundaryConditionFieldsSupported"]),
-        )
+        get_any(external_boundary_audit, ["boundary_condition_fields_supported"])
     )
     boundary_condition_support_reasons = str(
         get_any(external_boundary_audit, ["boundary_condition_support_reasons"])
-        or get_any(metrics, ["boundary_condition_support_reasons", "BoundaryConditionSupportReasons"])
         or ""
     )
     boundary_condition_support_keys = [
@@ -1194,12 +1175,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "side_top_boundary_check_supported",
     ]
     boundary_condition_support_values = {
-        key: as_bool(
-            get_first_available(
-                get_any(external_boundary_audit, [key]),
-                get_any(metrics, [key, "".join(part.capitalize() for part in key.split("_"))]),
-            )
-        )
+        key: as_bool(get_any(external_boundary_audit, [key]))
         for key in boundary_condition_support_keys
     }
     external_boundary_condition_support_values = {
@@ -1208,7 +1184,6 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     }
     external_boundary_equivalence_supported = as_bool(
         get_any(external_boundary_audit, ["boundary_equivalence_supported"])
-        or get_any(metrics, ["boundary_equivalence_supported", "BoundaryEquivalenceSupported"])
     )
     external_boundary_equivalence_supported_from_audit = as_bool(
         get_any(external_boundary_audit, ["boundary_equivalence_supported"])
@@ -1230,7 +1205,6 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     clearance_numeric_gate = str(
         get_any(external_boundary_audit, ["clearance_numeric_gate"])
-        or get_any(metrics, ["clearance_numeric_gate", "BoundaryClearanceNumericGate"])
         or ""
     ).strip().lower()
     external_clearance_numeric_gate = str(
@@ -1238,7 +1212,6 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     ).strip().lower()
     clearance_numeric_reasons = str(
         get_any(external_boundary_audit, ["clearance_numeric_gate_reasons"])
-        or get_any(metrics, ["boundary_clearance_reasons", "BoundaryClearanceReasons"])
         or ""
     )
     external_boundary_protocol_gate = str(
@@ -1249,67 +1222,38 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         external_boundary_missing_fields_text = ",".join(str(field) for field in external_boundary_missing_fields)
     else:
         external_boundary_missing_fields_text = str(external_boundary_missing_fields or "")
-    boundary_source_gate = str(
-        get_first_available(
-            get_any(boundary_source_audit, ["boundary_source_gate"]),
-            get_any(metrics, ["boundary_source_gate", "BoundarySourceGate"]),
-        )
-        or ""
-    ).strip().lower()
+    boundary_source_gate = str(get_any(boundary_source_audit, ["boundary_source_gate"]) or "").strip().lower()
     boundary_source_reasons = str(
         get_first_available(
             get_any(boundary_source_audit, ["boundary_source_gate_reasons_csv"]),
             get_any(boundary_source_audit, ["boundary_source_gate_reasons"]),
-            get_any(metrics, ["boundary_source_gate_reasons", "BoundarySourceGateReasons"]),
         )
         or ""
     )
     paper_grade_boundary_source_gate = str(
-        get_first_available(
-            get_any(boundary_source_audit, ["paper_grade_boundary_source_gate"]),
-            get_any(metrics, ["paper_grade_boundary_source_gate", "PaperGradeBoundarySourceGate"]),
-        )
-        or ""
+        get_any(boundary_source_audit, ["paper_grade_boundary_source_gate"]) or ""
     ).strip().lower()
     paper_grade_boundary_source_reasons = str(
         get_first_available(
             get_any(boundary_source_audit, ["paper_grade_boundary_source_gate_reasons_csv"]),
             get_any(boundary_source_audit, ["paper_grade_boundary_source_gate_reasons"]),
-            get_any(metrics, ["paper_grade_boundary_source_gate_reasons", "PaperGradeBoundarySourceGateReasons"]),
         )
         or ""
     )
     boundary_source_method_class = str(
-        get_first_available(
-            get_any(boundary_source_audit, ["boundary_source_method_class"]),
-            get_any(metrics, ["boundary_source_method_class", "BoundarySourceMethodClass"]),
-        )
-        or ""
+        get_any(boundary_source_audit, ["boundary_source_method_class"]) or ""
     ).strip()
     boundary_source_coherent = as_bool(
-        get_first_available(
-            get_any(boundary_source_audit, ["boundary_source_coherent"]),
-            get_any(metrics, ["boundary_source_coherent", "BoundarySourceCoherent"]),
-        )
+        get_any(boundary_source_audit, ["boundary_source_coherent"])
     )
     boundary_source_simplified = as_bool(
-        get_first_available(
-            get_any(boundary_source_audit, ["boundary_source_simplified"]),
-            get_any(metrics, ["boundary_source_simplified", "BoundarySourceSimplified"]),
-        )
+        get_any(boundary_source_audit, ["boundary_source_simplified"])
     )
     boundary_source_wind_tunnel_equivalent = as_bool(
-        get_first_available(
-            get_any(boundary_source_audit, ["boundary_source_wind_tunnel_equivalent"]),
-            get_any(metrics, ["boundary_source_wind_tunnel_equivalent", "BoundarySourceWindTunnelEquivalent"]),
-        )
+        get_any(boundary_source_audit, ["boundary_source_wind_tunnel_equivalent"])
     )
     boundary_source_setup_sha256 = str(
-        get_first_available(
-            get_any(boundary_source_audit, ["setup_cpp_sha256"]),
-            get_any(metrics, ["boundary_source_setup_sha256", "BoundarySourceSetupSha256"]),
-        )
-        or ""
+        get_any(boundary_source_audit, ["setup_cpp_sha256"]) or ""
     ).strip()
     boundary_evidence_supported_by_token = any(
         token in (boundary_evidence_source + " " + boundary_equivalence_basis).lower()
@@ -1380,7 +1324,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_simplified={boundary_source_simplified}; "
             f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
             f"setup_cpp_sha256={boundary_source_setup_sha256 or 'missing'}; "
-            f"boundary_source_gate_reasons={boundary_source_reasons or 'none'}"
+            f"boundary_source_gate_reasons={boundary_source_reasons or 'none'}; "
+            f"metrics_boundary_source_gate={get_any(metrics, ['boundary_source_gate', 'BoundarySourceGate']) or 'ignored'}; "
+            f"metrics_paper_grade_boundary_source_gate={get_any(metrics, ['paper_grade_boundary_source_gate', 'PaperGradeBoundarySourceGate']) or 'ignored'}; "
+            f"metrics_boundary_source_method_class={get_any(metrics, ['boundary_source_method_class', 'BoundarySourceMethodClass']) or 'ignored'}"
         ),
         "Run scripts/audit_boundary_source.py on the generated setup.cpp and archive the source hash and boundary implementation class before interpreting boundary-sensitive validation metrics.",
     )
@@ -1428,7 +1375,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"external_clearance_numeric_gate={external_clearance_numeric_gate or 'missing'}; "
             f"clearance_numeric_gate_reasons={clearance_numeric_reasons or 'none'}; "
             f"paper_grade_boundary_source_gate_reasons={paper_grade_boundary_source_reasons or 'none'}; "
-            f"missing_boundary_evidence_fields={external_boundary_missing_fields_text or 'none'}"
+            f"missing_boundary_evidence_fields={external_boundary_missing_fields_text or 'none'}; "
+            f"metrics_boundary_protocol_gate={get_any(metrics, ['boundary_protocol_gate', 'BoundaryProtocolGate']) or 'ignored'}; "
+            f"metrics_boundary_evidence_gate={get_any(metrics, ['boundary_evidence_gate', 'BoundaryProtocolEvidenceGate']) or 'ignored'}; "
+            f"metrics_blockage_protocol_gate={get_any(metrics, ['blockage_protocol_gate', 'BlockageProtocolGate']) or 'ignored'}"
         ),
         "Fix domain extents/model placement, reduce blockage, archive setup.cpp boundary-source evidence, and replace/justify simplified TYPE_E boundaries with AIJ-equivalent boundary/fetch/roughness evidence or an empty-tunnel/native boundary-preservation check.",
     )
@@ -1436,14 +1386,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     roughness_layout = metadata.get("RoughnessLayout") if isinstance(metadata.get("RoughnessLayout"), dict) else {}
     equivalent_precursor = metadata.get("EquivalentPrecursor") if isinstance(metadata.get("EquivalentPrecursor"), dict) else {}
     wall_roughness_treatment = str(
-        get_any(metrics, ["wall_roughness_treatment", "WallRoughnessTreatment"])
+        get_any(external_boundary_audit, ["wall_roughness_treatment", "WallRoughnessTreatment"])
         or metadata.get("WallRoughnessTreatment")
         or ""
     ).strip()
     external_roughness_treatment = str(get_any(external_boundary_audit, ["roughness_treatment"]) or "").strip()
     floor_roughness_source = str(
         get_any(external_boundary_audit, ["floor_roughness_source"])
-        or get_any(metrics, ["floor_roughness_source", "FloorRoughnessSource"])
         or get_any(roughness_layout, ["SourceReferences"])
         or ""
     ).strip()
@@ -1505,7 +1454,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"equivalent_precursor_paper_admissible={precursor_paper}; "
             f"precursor_method_class={precursor_method_class or 'missing'}; "
             f"roughness_source_supported={roughness_source_supported}; "
-            f"boundary_evidence_gate={boundary_evidence_gate or 'missing'}"
+            f"boundary_evidence_gate={boundary_evidence_gate or 'missing'}; "
+            f"metrics_wall_roughness_treatment={get_any(metrics, ['wall_roughness_treatment', 'WallRoughnessTreatment']) or 'ignored'}; "
+            f"metrics_floor_roughness_source={get_any(metrics, ['floor_roughness_source', 'FloorRoughnessSource']) or 'ignored'}"
         ),
         (
             "Archive source-driven AIJ roughness geometry, a validated rough-wall treatment, or a passing "

@@ -120,7 +120,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    box with `TYPE_S` no-slip ground/buildings and no non-reflecting, precursor/recycling or rough-wall evidence.
    `TYPE_E`/`TYPE_S` may be defined in included FluidX3D headers; the audit therefore uses their generated-source
    assignments as source evidence, but that only proves boundary implementation traceability, not wind-tunnel equivalence.
-   Token-like text in metadata or metrics is diagnostic context only.
+   Token-like text in metadata or metrics is diagnostic context only. `validation_gate.py` uses the boundary protocol,
+   boundary-source and roughness/precursor audit files as the admissible evidence; metrics-table boundary fields are not
+   allowed to repair missing or incomplete audit fields.
 
 5. Inlet distribution-consistency gate.
    If the inlet turbulence is generated from `k`, archive whether the implementation reconstructs FluidX3D distribution

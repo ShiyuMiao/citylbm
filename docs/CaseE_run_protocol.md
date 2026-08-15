@@ -91,6 +91,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   The audit accepts `TYPE_E`/`TYPE_S` assignments as generated-source evidence even when those constants are defined by
   included FluidX3D headers; this avoids a false missing-source failure while keeping the simplified-boundary paper gate
   failed.
+  The validation gate treats boundary protocol, boundary-source and roughness/precursor claims as audit-only evidence:
+  metrics CSV/JSON fields with the same names are recorded as ignored context and cannot substitute for
+  `boundary_protocol_audit.json` or `boundary_source_audit.json`.
 - `validation_protocol_audit.json` and `validation_protocol_audit.md` exist in both case root and output directory.
   Treat any `risk` or `fail` item as a blocker for paper-grade validation claims until resolved or explicitly justified.
 - VTK files are newly generated for the current run directory, not copied from older experiments. The native audit must
