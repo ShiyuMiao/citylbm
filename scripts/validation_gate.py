@@ -3535,6 +3535,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     metrics_coord_delta = as_float(get_any(metrics, ["max_official_coordinate_delta_m", "MaxOfficialCoordinateDeltaM"]))
     metrics_coord_delta_count = as_int(get_any(metrics, ["official_coordinate_delta_count", "OfficialCoordinateDeltaCount"]))
     valid_metric_count = as_int(get_any(metrics, ["valid_n", "ValidN"]))
+    metrics_official_measurement_count = as_int(
+        get_any(metrics, ["official_measurement_count", "OfficialMeasurementCount"])
+    )
+    metrics_missing_official_probe_count = as_int(
+        get_any(metrics, ["missing_official_probe_count", "MissingOfficialProbeCount"])
+    )
+    metrics_official_probe_coverage_ratio = as_float(
+        get_any(metrics, ["official_probe_coverage_ratio", "OfficialProbeCoverageRatio"])
+    )
     probe_coord_norm = read_probe_coordinate_normalization_audit(
         probe_path,
         args.expected_uref,
@@ -3593,6 +3602,18 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and coord_valid_count == probe_identity_valid_count
         and probe_identity_valid_count == probe_identity["official_id_count"]
         and (valid_metric_count is None or valid_metric_count == probe_identity_valid_count)
+        and (
+            metrics_official_measurement_count is None
+            or metrics_official_measurement_count == probe_identity["official_id_count"]
+        )
+        and (
+            metrics_missing_official_probe_count is None
+            or metrics_missing_official_probe_count == probe_identity["missing_official_probe_id_count"]
+        )
+        and (
+            metrics_official_probe_coverage_ratio is None
+            or abs(metrics_official_probe_coverage_ratio - probe_identity["official_probe_coverage_ratio"]) <= 1.0e-12
+        )
     )
     probe_coord_norm_ok = (
         probe_summary_override
@@ -3648,6 +3669,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"probe_identity_unmatched_official_id_count={probe_identity['unmatched_official_id_count']}; "
             f"probe_identity_filter_case={identity_case or 'none'}; "
             f"probe_identity_filter_wind_direction={identity_wind_direction or 'none'}; "
+            f"metrics_official_measurement_count={metrics_official_measurement_count if metrics_official_measurement_count is not None else 'ignored'}; "
+            f"metrics_missing_official_probe_count={metrics_missing_official_probe_count if metrics_missing_official_probe_count is not None else 'ignored'}; "
+            f"metrics_official_probe_coverage_ratio={metrics_official_probe_coverage_ratio if metrics_official_probe_coverage_ratio is not None else 'ignored'}; "
             f"probe_identity_ok={probe_identity_ok}; "
             f"probe_identity_error={probe_identity['error'] or 'none'}; "
             f"metrics_max_official_coordinate_delta_m={metrics_coord_delta if metrics_coord_delta is not None else 'ignored'}; "
