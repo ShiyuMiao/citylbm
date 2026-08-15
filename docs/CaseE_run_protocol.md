@@ -138,12 +138,13 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   to `validation_metrics_from_probe_audit.py --read-vtk-audit`. This records VTK frame hashes, selected final time steps,
   run-freshness evidence, solver-log stability warnings and LBM stability fields in the same schema used by the
   `Read VTK` audit output. `validation_gate.py` uses this runtime audit JSON as the authoritative source for
-  run-freshness and solver-stability pass/fail decisions.
+  run-freshness, solver-stability and time-averaging pass/fail decisions.
   When full-field statistics are not supplied manually, the script deterministically samples up to 20,000 points from
   the selected final VTK frames and computes `mean_speed_stddev_ratio` and `max_speed_stddev_ratio` from the real
   velocity time series.
-  The metrics table must report the real audited `averaged_frame_count` and `source_time_steps`; the requested
-  `Average Last N` value is only a fallback when no audit is available and is not sufficient for paper-grade evidence.
+  The metrics table may summarize the real audited `averaged_frame_count` and `source_time_steps`, but the final
+  machine gate reads these fields from the runtime audit JSON, not from `validation_metrics.csv`. The requested
+  `Average Last N` value is only a request field and is not sufficient for paper-grade evidence.
   If no Grasshopper `Read VTK` audit is available, `scripts\audit_inlet_profile_from_vtk.py` also computes these
   stationarity ratios from pointwise speed-magnitude time series on the same selected final-window inlet/profile plane,
   and the metrics builder can carry them into the standard validation row.
@@ -275,8 +276,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
 - `time_averaging` gate must use the final available VTK window, contain at least 10 frames, have strictly increasing
   uniformly spaced source steps, and satisfy `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20`
-  from the Read VTK audit, native-run audit, or inlet-profile audit unless a stricter case-specific stationarity
-  criterion is documented.
+  from the Read VTK audit or native-run audit unless a stricter case-specific stationarity criterion is documented.
+  Self-reported `validation_metrics.csv` fields cannot pass this gate without the runtime audit artifact.
 - The native-run audit must also record `requested_time_steps`, `requested_vtk_save_interval`,
   `requested_vtk_save_start_step`, `requested_vtk_frame_count` and `requested_vtk_frame_gate=pass`. A Case E run
   planned to save fewer than 10 final-window VTK frames is diagnostic before accuracy metrics are interpreted.

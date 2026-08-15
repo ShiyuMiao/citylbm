@@ -871,26 +871,28 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Regenerate VTK after the current setup.cpp/defines/buildings/metadata inputs and archive the native run audit proving selected VTK frames are newer than the run-definition artifacts.",
     )
 
-    frame_count, source_step_text, has_real_source_steps = source_frame_details(metrics)
-    requested_avg_window = as_int(get_any(metrics, ["averaging_window", "AverageLastN", "average_last_n"]))
+    frame_count, source_step_text, has_real_source_steps = source_frame_details(runtime_audit)
+    requested_avg_window = as_int(
+        get_any(runtime_audit, ["average_last_n_requested", "AverageLastNRequested", "averaging_window", "AverageLastN", "average_last_n"])
+    )
     expected_vtk_frame_count = as_int(metadata.get("ExpectedVtkFrameCount"))
-    requested_time_steps = as_int(get_any(metrics, ["requested_time_steps", "RequestedTimeSteps"]))
-    requested_vtk_save_interval = as_int(get_any(metrics, ["requested_vtk_save_interval", "RequestedVtkSaveInterval"]))
-    requested_vtk_save_start_step = as_int(get_any(metrics, ["requested_vtk_save_start_step", "RequestedVtkSaveStartStep"]))
-    requested_vtk_frame_count = as_int(get_any(metrics, ["requested_vtk_frame_count", "RequestedVtkFrameCount"]))
-    requested_vtk_frame_gate = str(get_any(metrics, ["requested_vtk_frame_gate", "RequestedVtkFrameGate"]) or "").strip().lower()
-    requested_vtk_frame_gate_reasons = str(get_any(metrics, ["requested_vtk_frame_gate_reasons", "RequestedVtkFrameGateReasons"]) or "").strip()
+    requested_time_steps = as_int(get_any(runtime_audit, ["requested_time_steps", "RequestedTimeSteps"]))
+    requested_vtk_save_interval = as_int(get_any(runtime_audit, ["requested_vtk_save_interval", "RequestedVtkSaveInterval"]))
+    requested_vtk_save_start_step = as_int(get_any(runtime_audit, ["requested_vtk_save_start_step", "RequestedVtkSaveStartStep"]))
+    requested_vtk_frame_count = as_int(get_any(runtime_audit, ["requested_vtk_frame_count", "RequestedVtkFrameCount"]))
+    requested_vtk_frame_gate = str(get_any(runtime_audit, ["requested_vtk_frame_gate", "RequestedVtkFrameGate"]) or "").strip().lower()
+    requested_vtk_frame_gate_reasons = str(get_any(runtime_audit, ["requested_vtk_frame_gate_reasons_csv", "RequestedVtkFrameGateReasonsCsv", "requested_vtk_frame_gate_reasons", "RequestedVtkFrameGateReasons"]) or "").strip()
     if has_real_source_steps:
-        frame_source = "metrics real source_time_steps"
+        frame_source = "runtime_audit real source_time_steps"
     else:
-        frame_source = "missing real source_time_steps"
-    available_frame_count = as_int(get_any(metrics, ["available_frame_count", "AvailableFrameCount"]))
-    source_first_step = as_int(get_any(metrics, ["source_first_time_step", "SourceFirstTimeStep"]))
-    source_last_step = as_int(get_any(metrics, ["source_last_time_step", "SourceLastTimeStep"]))
-    latest_available_step = as_int(get_any(metrics, ["latest_available_time_step", "LatestAvailableTimeStep"]))
-    selected_last_window = as_bool(get_any(metrics, ["selected_last_window", "SelectedLastWindow"]))
-    source_steps_increasing = as_bool(get_any(metrics, ["source_steps_strictly_increasing", "SourceStepsStrictlyIncreasing"]))
-    source_spacing_uniform = as_bool(get_any(metrics, ["source_step_spacing_uniform", "SourceStepSpacingUniform"]))
+        frame_source = "missing runtime_audit real source_time_steps"
+    available_frame_count = as_int(get_any(runtime_audit, ["available_frame_count", "AvailableFrameCount"]))
+    source_first_step = as_int(get_any(runtime_audit, ["source_first_time_step", "SourceFirstTimeStep"]))
+    source_last_step = as_int(get_any(runtime_audit, ["source_last_time_step", "SourceLastTimeStep"]))
+    latest_available_step = as_int(get_any(runtime_audit, ["latest_available_time_step", "LatestAvailableTimeStep"]))
+    selected_last_window = as_bool(get_any(runtime_audit, ["selected_last_window", "SelectedLastWindow"]))
+    source_steps_increasing = as_bool(get_any(runtime_audit, ["source_steps_strictly_increasing", "SourceStepsStrictlyIncreasing"]))
+    source_spacing_uniform = as_bool(get_any(runtime_audit, ["source_step_spacing_uniform", "SourceStepSpacingUniform"]))
     parsed_steps, parsed_steps_error = parsed_source_steps(source_step_text)
     parsed_frame_count = len(parsed_steps) if parsed_steps else None
     parsed_first_step = parsed_steps[0] if parsed_steps else None
@@ -905,12 +907,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and parsed_frame_count is not None
         and available_frame_count >= parsed_frame_count
     )
-    metrics_time_gate = str(get_any(metrics, ["time_averaging_gate", "TimeAveragingGate"]) or "").strip().lower()
-    metrics_time_gate_reasons = str(get_any(metrics, ["time_averaging_gate_reasons", "TimeAveragingGateReasons"]) or "").strip()
-    mean_speed_stddev_ratio = as_float(get_any(metrics, ["mean_speed_stddev_ratio", "MeanSpeedStdDevRatio"]))
-    max_speed_stddev_ratio = as_float(get_any(metrics, ["max_speed_stddev_ratio", "MaxSpeedStdDevRatio"]))
+    runtime_time_gate = str(get_any(runtime_audit, ["time_averaging_gate", "TimeAveragingGate"]) or "").strip().lower()
+    runtime_time_gate_reasons = str(get_any(runtime_audit, ["time_averaging_gate_reasons_csv", "TimeAveragingGateReasonsCsv", "time_averaging_gate_reasons", "TimeAveragingGateReasons"]) or "").strip()
+    mean_speed_stddev_ratio = as_float(get_any(runtime_audit, ["mean_speed_stddev_ratio", "MeanSpeedStdDevRatio"]))
+    max_speed_stddev_ratio = as_float(get_any(runtime_audit, ["max_speed_stddev_ratio", "MaxSpeedStdDevRatio"]))
     mean_speed_statistics_source = str(
-        get_any(metrics, ["mean_speed_statistics_source", "MeanSpeedStatisticsSource"]) or ""
+        get_any(runtime_audit, ["mean_speed_statistics_source", "MeanSpeedStatisticsSource"]) or ""
     ).strip().lower()
     speed_statistics_source_ok = mean_speed_statistics_source in {
         "sampled_vtk",
@@ -944,7 +946,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and source_last_step is not None
         and latest_available_step is not None
         and source_last_step == latest_available_step
-        and metrics_time_gate == "pass"
+        and runtime_time_gate == "pass"
         and requested_vtk_frame_gate == "pass"
         and requested_vtk_frame_count is not None
         and requested_vtk_frame_count >= args.min_avg_frames
@@ -979,12 +981,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_last_step={source_last_step}; latest_available_step={latest_available_step}; "
             f"selected_last_window={selected_last_window}; source_steps_strictly_increasing={source_steps_increasing}; "
             f"source_step_spacing_uniform={source_spacing_uniform}; "
-            f"metrics_time_averaging_gate={metrics_time_gate or 'missing'}; "
-            f"metrics_time_averaging_gate_reasons={metrics_time_gate_reasons or 'none'}; "
+            f"runtime_time_averaging_gate={runtime_time_gate or 'missing'}; "
+            f"runtime_time_averaging_gate_reasons={runtime_time_gate_reasons or 'none'}; "
+            f"metrics_time_averaging_gate={get_any(metrics, ['time_averaging_gate', 'TimeAveragingGate']) or 'ignored'}; "
+            f"metrics_averaged_frame_count={get_any(metrics, ['averaged_frame_count', 'AveragedFrameCount']) or 'ignored'}; "
             f"mean_speed_statistics_source={mean_speed_statistics_source or 'missing'}; "
             f"speed_statistics_source_ok={speed_statistics_source_ok}; "
             f"mean_speed_stddev_ratio={mean_speed_stddev_ratio}; required <= {args.max_mean_speed_stddev_ratio}; "
-            f"max_speed_stddev_ratio={max_speed_stddev_ratio}; required <= {args.max_point_speed_stddev_ratio}"
+            f"max_speed_stddev_ratio={max_speed_stddev_ratio}; required <= {args.max_point_speed_stddev_ratio}; "
+            f"runtime_audit={runtime_audit_path or 'missing'}"
         ),
         "Rerun or postprocess with a longer statistically stable final-window average whose source steps are the last available, increasing and uniformly spaced.",
     )

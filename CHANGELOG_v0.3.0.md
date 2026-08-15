@@ -135,6 +135,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now reads run-freshness and solver-stability pass/fail evidence from archived
   `native_run_audit.json` or Read VTK audit JSON. Metrics rows may summarize these fields, but can no longer self-report
   fresh VTK output or clean solver stability without the runtime audit artifact.
+- `validation_gate.py` now also reads the paper-grade `time_averaging` gate from the runtime audit artifact only:
+  averaged frame count, source time steps, final-window selection, requested VTK frame preflight and sampled stability
+  ratios cannot be self-reported from `validation_metrics.csv`.
 - `validation_metrics_from_probe_audit.py`, the metrics template and `validation_gate.py` now carry
   `probe_vtk_source_window_gate`, probe source time steps and probe VTK hash-set counts. Valid probe rows must use the
   same final-window VTK frames as the averaging and inlet-profile/correlation audits, or the new `probe_source_window`

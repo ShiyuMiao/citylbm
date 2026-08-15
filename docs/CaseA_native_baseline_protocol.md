@@ -159,10 +159,10 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    frames; shorter runs must be labelled smoke tests. The audit must show `selected_last_window=true`,
    `source_steps_strictly_increasing=true`, `source_step_spacing_uniform=true`, and
    `source_last_time_step=latest_available_time_step`. The same gate also requires `mean_speed_stddev_ratio <= 0.05`
-   and `max_speed_stddev_ratio <= 0.20` from the Read VTK averaging audit, native-run audit, or inlet-profile audit
-   unless a stricter case-specific stationarity criterion is documented. The machine gate only counts sampled
-   VTK/audit-derived stability statistics (`mean_speed_statistics_source=sampled_vtk` or equivalent) and archived
-   `source_time_steps` from real VTK/audit frames as averaging evidence; command-line or hand-entered speed
+   and `max_speed_stddev_ratio <= 0.20` from the Read VTK averaging audit or native-run audit unless a stricter
+   case-specific stationarity criterion is documented. The machine gate only counts the archived runtime audit as the
+   authoritative time-averaging source: sampled VTK stability statistics (`mean_speed_statistics_source=sampled_vtk` or
+   equivalent) and archived `source_time_steps` must come from real VTK/audit frames; command-line or hand-entered speed
    standard-deviation ratios, `AverageLastN`, `--average-last-n` and
    `ExpectedVtkFrameCount` are request or estimate fields and cannot pass the paper-grade time gate by themselves.
    The native-run audit must also record `requested_time_steps`, `requested_vtk_save_interval`,
