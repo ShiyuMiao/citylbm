@@ -6,9 +6,14 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 
 - `Create Scene` now accepts `WP=3` for CustomTable profiles.
 - `AF_caseE.csv` style input is parsed as `z(m), U(m/s), k(m2/s2)`.
+- CustomTable `k` parsing is now strict all-or-none: if any valid CSV row provides `k(m2/s2)`, every valid row must
+  provide it, and duplicate `z` heights are rejected before case generation. This prevents missing turbulence rows from
+  being silently converted to `profile_k_lbm=0` and corrupting the inlet-energy profile.
 - The generated FluidX3D case uses the full `U(z)` table for inlet interpolation.
 - `Uref` is retained as metadata for normalization instead of replacing the inflow table.
 - The `k` column is preserved, converted to LBM units and stored in metadata.
+- `case_metadata.json` now records CustomTable row count, `k` row count, all-row `k` consistency, SI/LBM `k` ranges and
+  the first/last profile heights, so AIJ run packages can audit the inlet profile without reopening the CSV.
 - `domain_origin.json` now includes schema and version fields.
 - `case_metadata.json` records wind profile, velocity scaling, k status, grid and run settings.
 - `Read VTK` reports whether metadata-driven velocity scaling was applied.
@@ -76,9 +81,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - The validation audit now also records native FluidX3D baseline requirement, LBM stability scaling, wind-direction sign,
   probe-projection risk and systematic-bias gate so the known `-34 pp` underprediction pattern is treated as a protocol
   blocker rather than a tuning target.
-- `docs/validation_metrics_template.csv` now includes run-evidence fields for source time steps, compared velocity component,
-  averaged-field stability, boundary summary, synthetic inlet method, inlet distribution treatment, wall roughness
-  treatment, native baseline id, probe mapping distances and protocol gate.
+- `docs/validation_metrics_template.csv` now includes run-evidence fields for source time steps, CustomTable `k`
+  completeness/ranges, compared velocity component, averaged-field stability, boundary summary, synthetic inlet method,
+  inlet distribution treatment, wall roughness treatment, native baseline id, probe mapping distances and protocol gate.
 - `validation_metrics_from_probe_audit.py` now writes SHA256 hashes for the probe audit table and official measurement
   table, and `validation_gate.py` requires those hashes to match the current `--probe-audit` and `--official` inputs.
   A copied metrics row can no longer pass coordinate/component/Uref diagnostics for a different probe extraction or RS

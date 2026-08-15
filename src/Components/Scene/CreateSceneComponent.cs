@@ -45,7 +45,7 @@ namespace CityLBM.Components.Scene
                 "Automatic domain extension ratio when no custom domain is connected.",
                 GH_ParamAccess.item, 0.2);
             pManager.AddTextParameter("Wind Profile CSV", "CSV",
-                "CustomTable input for WP=3. Expected columns: z(m), U(m/s), optional k(m2/s2).",
+                "CustomTable input for WP=3. Expected columns: z(m), U(m/s), optional k(m2/s2). If k is present it must be present on every valid row.",
                 GH_ParamAccess.item, "");
             pManager[8].Optional = true;
         }
@@ -193,7 +193,7 @@ namespace CityLBM.Components.Scene
 
             if (string.IsNullOrWhiteSpace(csvPath))
             {
-                error = "WP=3 CustomTable requires Wind Profile CSV. Expected columns: z(m), U(m/s), optional k(m2/s2).";
+                error = "WP=3 CustomTable requires Wind Profile CSV. Expected columns: z(m), U(m/s), optional k(m2/s2). If k is present it must be present on every valid row.";
                 return false;
             }
 
@@ -254,7 +254,19 @@ namespace CityLBM.Components.Scene
             bool hasAnyK = samples.Any(s => s.HasK);
             bool hasPartialK = hasAnyK && samples.Any(s => !s.HasK);
             if (hasPartialK)
-                report = "Warning: CustomTable has a partial k column; rows without k will not provide turbulence metadata.";
+            {
+                error = "Wind Profile CSV has an incomplete k column. For validation, z,U,k lengths must match; every valid z,U row must include k(m2/s2), or no rows should include k.";
+                return false;
+            }
+
+            for (int i = 1; i < samples.Count; i++)
+            {
+                if (Math.Abs(samples[i].Z - samples[i - 1].Z) <= 1.0e-9)
+                {
+                    error = $"Wind Profile CSV contains duplicate z values at {samples[i].Z:F6} m. CustomTable validation requires unique heights for traceable interpolation.";
+                    return false;
+                }
+            }
 
             report += (report.Length > 0 ? "\n" : "") +
                       "CustomTable profile\n" +
@@ -263,7 +275,7 @@ namespace CityLBM.Components.Scene
                       $"  z range: {samples[0].Z:F3} to {samples[samples.Count - 1].Z:F3} m\n" +
                       $"  U range: {samples.Min(s => s.U):F4} to {samples.Max(s => s.U):F4} m/s\n" +
                       $"  k column: {(hasAnyK ? $"{kRows} rows, SI m2/s2" : "not provided")}\n" +
-                      "  Note: v0.3.0 records and converts k. Run Simulation can optionally use it for experimental STG-lite inlet fluctuations.";
+                      "  Note: v0.3.0 records and converts k. If provided, k must be complete for all rows. Run Simulation can optionally use it for experimental STG-lite inlet fluctuations.";
             return true;
         }
 
@@ -290,7 +302,7 @@ namespace CityLBM.Components.Scene
                     break;
                 case WindProfileType.CustomTable:
                     sb.AppendLine("U(z) is linearly interpolated from Wind Profile CSV.");
-                    sb.AppendLine("CSV columns: z(m), U(m/s), optional k(m2/s2).");
+                    sb.AppendLine("CSV columns: z(m), U(m/s), optional k(m2/s2). If k is present, every valid row must include it.");
                     sb.AppendLine("k is converted and recorded in metadata; Run Simulation can optionally use it for experimental STG-lite inlet fluctuations.");
                     break;
             }

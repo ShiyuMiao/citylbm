@@ -2217,6 +2217,8 @@ namespace CityLBM.Solver
             sb.AppendLine("    // CustomTable wind profile from CityLBM CSV. z is SI meters; U is converted to LBM units.");
             sb.AppendLine($"    const int profile_count = {samples.Count};");
             sb.AppendLine("    const float profile_origin_z_m = 0.0f;");
+            sb.AppendLine($"    const float profile_first_z_m = {samples.First().Z.ToString("F8", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const float profile_last_z_m = {samples.Last().Z.ToString("F8", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine("    const float profile_z_m[profile_count] = {" + JoinFloatArray(samples.Select(s => s.Z)) + "};");
             sb.AppendLine("    const float profile_z_lbm[profile_count] = {" + JoinFloatArray(samples.Select(s => s.Z / dx)) + "};");
             sb.AppendLine("    const float profile_u_lbm[profile_count] = {" + JoinFloatArray(samples.Select(s => s.U * uScale)) + "};");
@@ -2436,6 +2438,11 @@ namespace CityLBM.Solver
             {
                 double uScale = 0.1 / Math.Max(GetProfileScaleSpeed(scene), 0.001);
                 bool hasK = scene.CustomWindProfile != null && scene.CustomWindProfile.Any(s => s.HasK);
+                int customProfileRowCount = scene.CustomWindProfile == null ? 0 : scene.CustomWindProfile.Count;
+                int customProfileKRowCount = scene.CustomWindProfile == null ? 0 : scene.CustomWindProfile.Count(s => s.HasK);
+                bool customProfileKComplete = customProfileRowCount > 0 && customProfileKRowCount == customProfileRowCount;
+                double minKM2s2 = hasK ? scene.CustomWindProfile.Where(s => s.HasK).Min(s => s.K) : 0.0;
+                double maxKM2s2 = hasK ? scene.CustomWindProfile.Where(s => s.HasK).Max(s => s.K) : 0.0;
                 bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
                 var boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
                 double tau = ComputeTau(settings, grid, scene);
@@ -2487,9 +2494,18 @@ namespace CityLBM.Solver
                         ? "pass_minimum_frame_count"
                         : "smoke_only_too_few_frames_for_validation",
                     TimeAveragingRunGateRequiredForModes = "Mode 1/2/3 require ExpectedVtkFrameCount >= MinimumRecommendedAveragingFrames; Mode 0 may generate smoke-test cases.",
+                    CustomProfileRows = customProfileRowCount,
                     CustomProfileHasK = hasK,
-                    KColumnStatus = hasK ? "read_from_csv_and_converted_to_lbm_metadata" : "not_available",
+                    CustomProfileKRows = customProfileKRowCount,
+                    CustomProfileKComplete = customProfileKComplete,
+                    KColumnStatus = hasK
+                        ? (customProfileKComplete ? "read_from_csv_and_converted_to_lbm_metadata" : "invalid_partial_k_column")
+                        : "not_available",
                     KUnitConversion = "k_lbm = k_m2s2 * VelocityScaleMpsToLbm^2",
+                    KMinM2s2 = minKM2s2,
+                    KMaxM2s2 = maxKM2s2,
+                    KMinLbm = minKM2s2 * uScale * uScale,
+                    KMaxLbm = maxKM2s2 * uScale * uScale,
                     TurbulentInletLevel = syntheticActive
                         ? "Level 2.5 STG-lite spectral perturbation from isotropic k"
                         : (hasK ? "Level 2 metadata/diagnostic chain" : "none"),
@@ -2540,6 +2556,8 @@ namespace CityLBM.Solver
                     ValidationReadiness = "diagnostic_ready_not_paper_grade_until_native_baseline_grid_sensitivity_long_averaging_and_turbulent_inlet_are_verified",
                     KnownProtocolRisks = BuildProtocolRisks(scene, settings).ToList(),
                     ProfileOriginZM = 0.0,
+                    ProfileFirstZM = scene.CustomWindProfile == null || scene.CustomWindProfile.Count == 0 ? 0.0 : scene.CustomWindProfile.Min(s => s.Z),
+                    ProfileLastZM = scene.CustomWindProfile == null || scene.CustomWindProfile.Count == 0 ? 0.0 : scene.CustomWindProfile.Max(s => s.Z),
                     CustomProfile = scene.CustomWindProfile == null ? null : scene.CustomWindProfile.Select(s => new
                     {
                         ZM = s.Z,

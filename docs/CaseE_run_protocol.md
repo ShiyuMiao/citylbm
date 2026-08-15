@@ -15,6 +15,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Geometry scale: STL is `1:250`; scale by `250` before simulation or ensure generated STL is in full-scale meters.
 - Inflow profile: `AF_caseE.csv`
 - Required profile columns: `z(m), U(m/s), k(m2/s2)`
+- `k(m2/s2)` must be complete for all valid `z,U` rows. CityLBM v0.3.0 rejects partial `k` columns and duplicate
+  profile heights because either condition can corrupt `profile_k_lbm[]` interpolation and make later inlet-turbulence
+  errors untraceable.
 - CityLBM setting: `Wind Profile = 3` (`CustomTable`)
 - Wind vector: `(0,-1,0)` for N wind interpreted as north-to-south flow
 - Uref metadata: `3.928296 m/s @ 15.9 m`
@@ -58,7 +61,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 
 ## Required checks before accepting a run
 
-- Generated `setup.cpp` contains `profile_z_m[]`, `profile_z_lbm[]`, `profile_u_lbm[]`, `profile_k_m2s2[]`, `profile_k_lbm[]` and `profile_origin_z_m`.
+- Generated `setup.cpp` contains `profile_z_m[]`, `profile_z_lbm[]`, `profile_u_lbm[]`, `profile_k_m2s2[]`, `profile_k_lbm[]`, `profile_origin_z_m`, `profile_first_z_m` and `profile_last_z_m`.
+- `case_metadata.json` records `CustomProfileRows`, `CustomProfileKRows`, `CustomProfileKComplete`, `KMinM2s2`,
+  `KMaxM2s2`, `KMinLbm`, `KMaxLbm`, `ProfileFirstZM` and `ProfileLastZM`.
 - If STG-lite is enabled, generated `setup.cpp` also contains `syntheticTurbulentInlet`, `applySyntheticTurbulentInlet`,
   `citylbm_stg_*` constants and the divergence-reduced transverse spectral-mode projection.
 - The generated `validation_protocol_audit` must explicitly record `native_fluidx3d_baseline`, `boundary_conditions`,
