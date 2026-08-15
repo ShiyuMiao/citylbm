@@ -774,6 +774,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     component_sensitivity_audit_path = find_first(run_dir, ["component_sensitivity_audit.json"])
     grid_sensitivity_audit_path = find_first(run_dir, ["grid_sensitivity_audit.json"])
     native_citylbm_parity_audit_path = find_first(run_dir, ["native_citylbm_parity_audit.json"])
+    runtime_audit_path = find_first(
+        run_dir,
+        [
+            "native_run_audit.json",
+            "read_vtk_audit.json",
+            "read_vtk_averaging_audit.json",
+            "averaging_audit.json",
+            "ReadVTK_AveragingAudit.json",
+        ],
+    )
     manifest_path = find_first(run_dir, ["native_fluidx3d_baseline_manifest.json"])
     metrics_path = Path(args.metrics).resolve() if args.metrics else find_metrics(run_dir)
     probe_path = Path(args.probe_audit).resolve() if args.probe_audit else None
@@ -787,6 +797,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     component_sensitivity_audit = read_json(component_sensitivity_audit_path)
     grid_sensitivity_audit = read_json(grid_sensitivity_audit_path)
     native_citylbm_parity_audit = read_json(native_citylbm_parity_audit_path)
+    runtime_audit = read_json(runtime_audit_path)
     manifest = read_json(manifest_path)
     metrics, metrics_path = read_metrics(metrics_path)
     items = load_protocol_items(audit)
@@ -803,6 +814,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and inlet_source_audit_path
         and boundary_source_audit_path
         and boundary_audit_path
+        and runtime_audit_path
         and grid_sensitivity_audit_path
         and (native_citylbm_parity_audit_path or not citylbm_result)
         and metrics_path
@@ -813,24 +825,27 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_source_audit={inlet_source_audit_path or 'missing'}; "
             f"boundary_source_audit={boundary_source_audit_path or 'missing'}; "
             f"boundary_audit={boundary_audit_path or 'missing'}; "
+            f"runtime_audit={runtime_audit_path or 'missing'}; "
             f"grid_sensitivity_audit={grid_sensitivity_audit_path or 'missing'}; "
             f"native_citylbm_parity_audit={native_citylbm_parity_audit_path or ('missing' if citylbm_result else ('not_required_for_' + (software_label or 'unknown')))}; "
             f"metrics={metrics_path or 'missing'}"
         ),
-        "Archive case_metadata.json, validation_protocol_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
+        "Archive case_metadata.json, validation_protocol_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
     )
 
     run_freshness_gate = str(
-        get_any(metrics, ["run_freshness_gate", "RunFreshnessGate"]) or ""
+        get_any(runtime_audit, ["run_freshness_gate", "RunFreshnessGate"]) or ""
     ).strip().lower()
     run_freshness_reasons = str(
-        get_any(metrics, ["run_freshness_gate_reasons", "RunFreshnessGateReasons"]) or ""
+        get_any(runtime_audit, ["run_freshness_gate_reasons_csv", "RunFreshnessGateReasonsCsv"])
+        or get_any(runtime_audit, ["run_freshness_gate_reasons", "RunFreshnessGateReasons"])
+        or ""
     ).strip()
     latest_reference_mtime = str(
-        get_any(metrics, ["latest_reference_mtime_utc", "LatestReferenceMtimeUtc"]) or ""
+        get_any(runtime_audit, ["latest_reference_mtime_utc", "LatestReferenceMtimeUtc"]) or ""
     ).strip()
     oldest_selected_vtk_mtime = str(
-        get_any(metrics, ["oldest_selected_vtk_mtime_utc", "OldestSelectedVtkMtimeUtc"]) or ""
+        get_any(runtime_audit, ["oldest_selected_vtk_mtime_utc", "OldestSelectedVtkMtimeUtc"]) or ""
     ).strip()
     run_freshness_ok = (
         run_freshness_gate == "pass"
@@ -845,7 +860,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"run_freshness_gate={run_freshness_gate or 'missing'}; "
             f"latest_reference_mtime_utc={latest_reference_mtime or 'missing'}; "
             f"oldest_selected_vtk_mtime_utc={oldest_selected_vtk_mtime or 'missing'}; "
-            f"run_freshness_gate_reasons={run_freshness_reasons or 'none'}"
+            f"run_freshness_gate_reasons={run_freshness_reasons or 'none'}; "
+            f"metrics_run_freshness_gate={get_any(metrics, ['run_freshness_gate', 'RunFreshnessGate']) or 'ignored'}; "
+            f"runtime_audit={runtime_audit_path or 'missing'}"
         ),
         "Regenerate VTK after the current setup.cpp/defines/buildings/metadata inputs and archive the native run audit proving selected VTK frames are newer than the run-definition artifacts.",
     )
@@ -1011,14 +1028,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         or ""
     ).strip()
     solver_warnings = str(
-        get_any(metrics, ["solver_stability_warnings", "SolverStabilityWarnings"])
-        or metadata.get("SolverStabilityWarnings")
+        get_any(runtime_audit, ["solver_stability_warnings", "SolverStabilityWarnings"])
         or get_any(manifest.get("SharedRunConditions", {}), ["SolverStabilityWarnings"])
         or ""
     ).strip().lower()
     lbm_stability_gate = str(
-        get_any(metrics, ["lbm_stability_gate", "LbmStabilityGate"])
-        or metadata.get("LbmStabilityGate")
+        get_any(runtime_audit, ["lbm_stability_gate", "LbmStabilityGate"])
         or get_any(manifest.get("SharedRunConditions", {}), ["LbmStabilityGate"])
         or ""
     ).strip().lower()
@@ -1060,6 +1075,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"estimated_reynolds_number={estimated_re}; velocity_set={velocity_set or 'missing'}; "
             f"les_model={les_model or 'missing'}; solver_stability_warnings={solver_warnings or 'missing'}; "
             f"lbm_stability_gate={lbm_stability_gate or 'missing'}; "
+            f"metrics_lbm_stability_gate={get_any(metrics, ['lbm_stability_gate', 'LbmStabilityGate']) or 'ignored'}; "
+            f"metrics_solver_stability_warnings={get_any(metrics, ['solver_stability_warnings', 'SolverStabilityWarnings']) or 'ignored'}; "
+            f"runtime_audit={runtime_audit_path or 'missing'}; "
             f"protocol_status={stability_protocol_status or 'missing'}"
         ),
         "Archive solver log/runtime statistics proving no FluidX3D stability warnings, bounded Mach, valid tau/nu, Reynolds number, velocity set and LES/subgrid model before interpreting validation metrics.",

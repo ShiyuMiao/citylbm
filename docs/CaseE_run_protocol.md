@@ -94,6 +94,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   (`setup.cpp`, `defines.hpp`, `buildings.stl`, `domain_origin.json` and/or `case_metadata.json`) and
   `oldest_selected_vtk_mtime_utc` from the selected final-window VTK frames. A stale VTK frame that is older than the
   current setup/metadata keeps the run diagnostic even if the metrics are numerically acceptable.
+  The final gate reads this evidence from `native_run_audit.json` or an archived Read VTK audit JSON, not from
+  self-reported `validation_metrics.csv` fields.
 - The AF inlet profile must be verified from real post-spinup VTK frames before probe accuracy is interpreted. Run
   `scripts\audit_inlet_profile_from_vtk.py` on the output VTK sequence, compare against `AF_caseE.csv`, and archive the
   resulting `inlet_profile_audit.json` and `.csv`. This audit checks that `Wind Profile=3` actually preserved both
@@ -132,7 +134,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   For native FluidX3D runs outside Grasshopper, run `scripts\audit_native_run.py` on the run directory and pass its JSON
   to `validation_metrics_from_probe_audit.py --read-vtk-audit`. This records VTK frame hashes, selected final time steps,
   run-freshness evidence, solver-log stability warnings and LBM stability fields in the same schema used by the
-  `Read VTK` audit output.
+  `Read VTK` audit output. `validation_gate.py` uses this runtime audit JSON as the authoritative source for
+  run-freshness and solver-stability pass/fail decisions.
   When full-field statistics are not supplied manually, the script deterministically samples up to 20,000 points from
   the selected final VTK frames and computes `mean_speed_stddev_ratio` and `max_speed_stddev_ratio` from the real
   velocity time series.

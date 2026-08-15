@@ -342,8 +342,9 @@ requested `--average-last-n` value. A run with four real final VTK frames remain
 the requested averaging window was ten frames. A run with no archived `source_time_steps` remains diagnostic even when
 `ExpectedVtkFrameCount` or a CLI averaging request is greater than the minimum frame threshold.
 The metrics row must also carry `run_freshness_gate`, `run_freshness_gate_reasons`, `latest_reference_mtime_utc` and
-`oldest_selected_vtk_mtime_utc`; `validation_gate.py` fails `run_freshness` when these fields are missing or show stale
-VTK output.
+`oldest_selected_vtk_mtime_utc`; however, final `validation_gate.py` reads run freshness and solver-stability status
+directly from `native_run_audit.json` or an archived Read VTK audit JSON. Summary metrics fields are ignored for this
+gate, so stale or copy-forward VTK output cannot be promoted by editing `validation_metrics.csv`.
 
 For a CityLBM-driven parity run, change `--software citylbm`, pass the already completed native metrics row with
 `--paired-native-metrics <native_validation_metrics.csv>`, and keep the same metrics/probe schema. A passing paper-grade
