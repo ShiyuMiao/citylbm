@@ -416,7 +416,8 @@ boundary/roughness/blockage, then the native FluidX3D baseline, native/CityLBM p
 remaining systematic bias as a physics/protocol problem.
 The inlet `U/k` audit follows the same final-window rule as the VTK/probe average: short, non-final or irregular
 source steps, or inlet-profile source steps that differ from the global averaged VTK window, fail before the result can
-be interpreted as solver accuracy.
+be interpreted as solver accuracy. The inlet-profile and inlet-correlation audits must also cover at least
+`--min-avg-step-span` solver steps, not only the minimum frame count.
 When a native FluidX3D run has no Grasshopper Read VTK audit, `scripts/validation_metrics_from_probe_audit.py` uses the
 inlet-profile audit as the authoritative source for `available_frame_count`, selected source time steps, last-window
 selection, source-step monotonicity, uniform-spacing fields and selected-plane speed-stability ratios in the standard

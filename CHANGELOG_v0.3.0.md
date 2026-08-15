@@ -255,6 +255,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `run_native_validation_chain.py` now record and enforce the final-window solver-step span. A run can no longer pass
   paper-grade time averaging solely by saving many closely spaced VTK frames; the default minimum span is `1000` solver
   steps via `--min-avg-step-span`.
+- Inlet U/k preservation and inlet-correlation audits now use the same minimum final-window step-span rule. The
+  validation gate rejects inlet-profile or inlet-correlation evidence when its archived source VTK window is too short,
+  even if it has the minimum number of frames.
 - `scripts/audit_inlet_profile_from_vtk.py` now also computes `mean_speed_stddev_ratio` and
   `max_speed_stddev_ratio` from pointwise speed-magnitude time series on the selected final-window plane. Native
   baseline metrics can inherit these stationarity fields from the inlet-profile audit when no Grasshopper `Read VTK`

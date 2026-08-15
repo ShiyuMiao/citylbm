@@ -39,6 +39,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pattern", default="u-*.vtk", help="VTK glob when vtk_dir is a directory.")
     parser.add_argument("--average-last-n", type=int, default=10, help="Use last N frames.")
     parser.add_argument("--min-frames", type=int, default=10)
+    parser.add_argument("--min-step-span", type=int, default=1000)
     parser.add_argument("--wind-direction", default="1,0,0", help="Airflow vector, e.g. 0,-1,0.")
     parser.add_argument(
         "--plane-axis",
@@ -436,6 +437,7 @@ def main() -> int:
     selected_last_window = is_last_window(source_steps, available_steps)
     source_steps_increasing = is_strictly_increasing(source_steps)
     source_spacing_uniform = has_uniform_spacing(source_steps)
+    source_step_span = source_steps[-1] - source_steps[0] if len(source_steps) >= 2 else None
     frames = [read_vtk_metadata(path) for path in files]
     first = frames[0]
     for frame in frames[1:]:
@@ -558,6 +560,10 @@ def main() -> int:
         time_gate_reasons.append("source_steps_not_strictly_increasing")
     if not source_spacing_uniform:
         time_gate_reasons.append("source_step_spacing_not_uniform")
+    if source_step_span is None:
+        time_gate_reasons.append("source_step_span_missing")
+    elif source_step_span < args.min_step_span:
+        time_gate_reasons.append(f"source_step_span_below_{args.min_step_span}")
     time_gate = PASS if not time_gate_reasons else FAIL
     negative_streamwise_fraction = negative_streamwise / total_samples if total_samples else None
     direction_gate_reasons: List[str] = []
@@ -592,6 +598,8 @@ def main() -> int:
         "source_time_steps_csv": ",".join(str(step) for step in source_steps),
         "source_first_time_step": source_steps[0] if source_steps else None,
         "source_last_time_step": source_steps[-1] if source_steps else None,
+        "source_step_span": source_step_span,
+        "minimum_validation_average_step_span": args.min_step_span,
         "latest_available_time_step": available_steps[-1] if available_steps else None,
         "frame_count": frame_count,
         "min_frames": args.min_frames,

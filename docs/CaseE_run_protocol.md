@@ -428,13 +428,15 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Inlet profile preservation audit: selected plane, source VTK steps, `inlet_profile_gate`, `inlet_u_profile_gate`,
   `inlet_k_profile_gate`, `inlet_u_mae_ratio`, `inlet_u_rmse_ratio`, `inlet_k_mae_ratio`, and
   `inlet_k_rmse_ratio`. The source VTK steps must be identical to the runtime averaged `source_time_steps`, not merely
-  another valid final-window subset.
+  another valid final-window subset, and must cover at least `--min-avg-step-span` solver steps.
 - Inlet correlation audit: `inlet_correlation_gate`, signed temporal lag-1 correlation, temporal lag-1 absolute
   correlation, adjacent spatial correlation, temporal/spatial finite correlation fractions and streamwise fluctuation
   variance
   Correlation source-window fields must also be reported: `inlet_correlation_frame_count`,
   `inlet_correlation_source_time_steps`, `inlet_correlation_selected_last_window`,
-  `inlet_correlation_source_steps_strictly_increasing` and `inlet_correlation_source_step_spacing_uniform`.
+  `inlet_correlation_source_steps_strictly_increasing`, `inlet_correlation_source_step_spacing_uniform` and
+  `inlet_correlation_source_step_span`. The correlation audit must use the same final-window VTK steps as the runtime
+  audit and meet the same minimum solver-step span.
 - Inlet length-scale source audit closure: metadata/protocol pass status, positive
   `SyntheticTurbulenceCorrelationLengthM`, current `setup.cpp` source hash and source-audit-detected length-scale code
   evidence

@@ -49,6 +49,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pattern", default="u-*.vtk")
     parser.add_argument("--average-last-n", type=int, default=10)
     parser.add_argument("--min-frames", type=int, default=10)
+    parser.add_argument("--min-step-span", type=int, default=1000)
     parser.add_argument("--wind-direction", default="1,0,0")
     parser.add_argument(
         "--plane-axis",
@@ -159,6 +160,7 @@ def main() -> int:
     selected_last_window = is_last_window(source_steps, available_steps)
     source_steps_increasing = is_strictly_increasing(source_steps)
     source_spacing_uniform = has_uniform_spacing(source_steps)
+    source_step_span = source_steps[-1] - source_steps[0] if len(source_steps) >= 2 else None
 
     frames = [read_vtk_metadata(path) for path in files]
     first = frames[0]
@@ -214,6 +216,10 @@ def main() -> int:
         reasons.append("source_steps_not_strictly_increasing")
     if not source_spacing_uniform:
         reasons.append("source_step_spacing_not_uniform")
+    if source_step_span is None:
+        reasons.append("source_step_span_missing")
+    elif source_step_span < args.min_step_span:
+        reasons.append(f"source_step_span_below_{args.min_step_span}")
     if mean_variance is None or mean_variance <= args.min_streamwise_variance:
         reasons.append("streamwise_fluctuation_variance_missing_or_too_small")
     if temporal_corr is None or temporal_corr < args.min_temporal_lag1_correlation:
@@ -249,6 +255,8 @@ def main() -> int:
         "frame_count": len(frames),
         "source_time_steps": source_steps,
         "source_time_steps_csv": ",".join(str(step) for step in source_steps),
+        "source_step_span": source_step_span,
+        "minimum_validation_average_step_span": args.min_step_span,
         "selected_vtk_files": selected_vtk_files,
         "source_vtk_sha256": source_vtk_hashes,
         "source_vtk_sha256_csv": ";".join(source_vtk_hashes),

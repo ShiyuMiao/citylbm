@@ -2708,6 +2708,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     inlet_profile_source_first_step = as_int(get_any(inlet_profile_audit, ["source_first_time_step"]))
     inlet_profile_source_last_step = as_int(get_any(inlet_profile_audit, ["source_last_time_step"]))
+    inlet_profile_declared_step_span = as_int(get_any(inlet_profile_audit, ["source_step_span"]))
     inlet_profile_latest_available_step = as_int(get_any(inlet_profile_audit, ["latest_available_time_step"]))
     inlet_profile_selected_last_window = as_bool(get_any(inlet_profile_audit, ["selected_last_window"]))
     inlet_profile_steps_increasing = as_bool(get_any(inlet_profile_audit, ["source_steps_strictly_increasing"]))
@@ -2722,6 +2723,20 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_u_rmse_ratio = as_float(get_any(inlet_profile_audit, ["U_RMSE_ratio"]))
     inlet_k_mae_ratio = as_float(get_any(inlet_profile_audit, ["k_MAE_ratio"]))
     inlet_k_rmse_ratio = as_float(get_any(inlet_profile_audit, ["k_RMSE_ratio"]))
+    inlet_profile_computed_step_span = (
+        inlet_profile_parsed_steps[-1] - inlet_profile_parsed_steps[0]
+        if len(inlet_profile_parsed_steps) >= 2
+        else None
+    )
+    inlet_profile_step_span_matches = (
+        inlet_profile_declared_step_span is not None
+        and inlet_profile_computed_step_span is not None
+        and inlet_profile_declared_step_span == inlet_profile_computed_step_span
+    )
+    inlet_profile_step_span_long_enough = (
+        inlet_profile_computed_step_span is not None
+        and inlet_profile_computed_step_span >= args.min_avg_step_span
+    )
     empty_u_bias = as_float(get_any(inlet_profile_audit, ["U_bias_ratio"]))
     empty_k_bias = as_float(get_any(inlet_profile_audit, ["k_bias_ratio"]))
     empty_gate = inlet_profile_gate
@@ -2740,6 +2755,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and inlet_profile_source_last_step is not None
         and inlet_profile_latest_available_step is not None
         and inlet_profile_source_last_step == inlet_profile_latest_available_step
+        and inlet_profile_step_span_matches
+        and inlet_profile_step_span_long_enough
         and inlet_profile_time_gate == "pass"
     )
     inlet_profile_pass = (
@@ -2856,6 +2873,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_profile_source_steps_error={inlet_profile_steps_error or 'none'}; "
             f"inlet_profile_source_first_step={inlet_profile_source_first_step}; "
             f"inlet_profile_source_last_step={inlet_profile_source_last_step}; "
+            f"inlet_profile_declared_step_span={inlet_profile_declared_step_span}; "
+            f"inlet_profile_computed_step_span={inlet_profile_computed_step_span}; "
+            f"inlet_profile_step_span_matches={inlet_profile_step_span_matches}; "
+            f"inlet_profile_step_span_long_enough={inlet_profile_step_span_long_enough}; "
+            f"required_step_span >= {args.min_avg_step_span}; "
             f"inlet_profile_latest_available_step={inlet_profile_latest_available_step}; "
             f"inlet_profile_selected_last_window={inlet_profile_selected_last_window}; "
             f"inlet_profile_source_steps_strictly_increasing={inlet_profile_steps_increasing}; "
@@ -3052,6 +3074,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_correlation_frame_count = as_int(
         get_any(inlet_correlation_audit, ["frame_count"])
     )
+    inlet_correlation_declared_step_span = as_int(
+        get_any(inlet_correlation_audit, ["source_step_span"])
+    )
     inlet_correlation_selected_last_window = as_bool(
         get_any(inlet_correlation_audit, ["selected_last_window"])
     )
@@ -3062,6 +3087,20 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         get_any(inlet_correlation_audit, ["source_step_spacing_uniform"])
     )
     inlet_correlation_steps, inlet_correlation_steps_error = parsed_source_steps(inlet_correlation_source_step_text)
+    inlet_correlation_computed_step_span = (
+        inlet_correlation_steps[-1] - inlet_correlation_steps[0]
+        if len(inlet_correlation_steps) >= 2
+        else None
+    )
+    inlet_correlation_step_span_matches = (
+        inlet_correlation_declared_step_span is not None
+        and inlet_correlation_computed_step_span is not None
+        and inlet_correlation_declared_step_span == inlet_correlation_computed_step_span
+    )
+    inlet_correlation_step_span_long_enough = (
+        inlet_correlation_computed_step_span is not None
+        and inlet_correlation_computed_step_span >= args.min_avg_step_span
+    )
     inlet_correlation_source_matches = (
         has_real_source_steps
         and parsed_steps_error is None
@@ -3111,6 +3150,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and inlet_correlation_selected_last_window is True
         and inlet_correlation_steps_increasing is True
         and inlet_correlation_spacing_uniform is True
+        and inlet_correlation_step_span_matches
+        and inlet_correlation_step_span_long_enough
     )
     inlet_correlation_coverage_ok = (
         inlet_temporal_finite_fraction is not None
@@ -3157,6 +3198,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_correlation_source_hash_matches={inlet_correlation_source_hash_matches}; "
             f"inlet_correlation_frame_count={inlet_correlation_frame_count}; required >= {args.min_avg_frames}; "
             f"inlet_correlation_source_count={inlet_correlation_source_count}; "
+            f"inlet_correlation_declared_step_span={inlet_correlation_declared_step_span}; "
+            f"inlet_correlation_computed_step_span={inlet_correlation_computed_step_span}; "
+            f"inlet_correlation_step_span_matches={inlet_correlation_step_span_matches}; "
+            f"inlet_correlation_step_span_long_enough={inlet_correlation_step_span_long_enough}; "
+            f"required_step_span >= {args.min_avg_step_span}; "
             f"inlet_correlation_selected_last_window={inlet_correlation_selected_last_window}; "
             f"inlet_correlation_source_steps_strictly_increasing={inlet_correlation_steps_increasing}; "
             f"inlet_correlation_source_step_spacing_uniform={inlet_correlation_spacing_uniform}; "
