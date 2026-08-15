@@ -303,6 +303,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
   `inlet_correlation_source_step_spacing_uniform`.
 - Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept, max absolute error,
   `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
+- Metrics input hashes: `validation_metrics.csv` must record `probe_mapping_table_sha256` matching the current
+  `probe_audit.csv` and `official_measurement_sha256` matching the current official RS table passed to
+  `validation_gate.py`.
 - Component/Uref sensitivity audit hashes: `component_sensitivity_audit.json` must record `probe_audit_sha256` matching
   the current `probe_audit.csv` and `official_sha256` matching the official RS table passed to `validation_gate.py`.
 - Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance, compared-component consistency and
@@ -398,6 +401,8 @@ selection, source-step monotonicity, uniform-spacing fields and selected-plane s
 metrics row.
 It also fails when more than 5% of sampled inlet velocities project opposite to the declared wind vector, which catches
 wind-sign and streamwise-component mistakes before AF/profile or probe errors are interpreted.
+The gate also checks that `validation_metrics.csv` was built from the same `probe_audit.csv` and official RS table
+passed on the command line by comparing `probe_mapping_table_sha256` and `official_measurement_sha256`.
 The command intentionally omits `--allow-velocity-only-inlet`; add that flag only for explicitly labelled diagnostic
 STG-lite sensitivity runs, not for the native FluidX3D baseline or a paper-grade CityLBM equivalence claim. Even when
 that diagnostic override is used, `validation_gate.py` still fails the separate `paper_grade_inlet_method` gate until

@@ -79,6 +79,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `docs/validation_metrics_template.csv` now includes run-evidence fields for source time steps, compared velocity component,
   averaged-field stability, boundary summary, synthetic inlet method, inlet distribution treatment, wall roughness
   treatment, native baseline id, probe mapping distances and protocol gate.
+- `validation_metrics_from_probe_audit.py` now writes SHA256 hashes for the probe audit table and official measurement
+  table, and `validation_gate.py` requires those hashes to match the current `--probe-audit` and `--official` inputs.
+  A copied metrics row can no longer pass coordinate/component/Uref diagnostics for a different probe extraction or RS
+  table.
 - `Data Probe` now appends validation-audit outputs for `Uref`-based speed ratio, streamwise ratio, nearest VTK-sample
   distance and per-probe CSV rows without changing the existing first five outputs.
 - `Data Probe` now accepts optional official probe IDs, a probe-to-VTK tolerance and an explicit compared component.

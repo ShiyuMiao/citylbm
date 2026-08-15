@@ -183,6 +183,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `official_coordinate_delta_count`; the machine gate fails if valid probes mix components or if coordinate deltas are
   not available for every valid official probe. Native FluidX3D reruns outside Grasshopper must generate the same audit
   schema with `scripts\probe_vtk_points.py`, filtered to `case=ac` and `Wind_direction=N`, before building metrics.
+  The metrics row must also carry `probe_mapping_table_sha256` and `official_measurement_sha256`; the final gate checks
+  those against the current `--probe-audit` and `--official` files before any coordinate, component, Uref or bias metric
+  is interpreted.
   The final gate reads official-coordinate delta coverage from the per-probe audit rows by default; copied
   `max_official_coordinate_delta_m` or `official_coordinate_delta_count` values in `validation_metrics.csv` are
   diagnostic summaries, not proof of coordinate closure.
@@ -290,6 +293,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   versus streamwise-ratio selection or Uref/SI conversion must be fixed before interpreting physical-model error.
   The audit's `probe_audit_sha256` and `official_sha256` must match the current probe audit CSV and official RS table
   used by the final gate.
+- Metrics input-hash traceability: `validation_metrics.csv` must include `probe_mapping_table_sha256` and
+  `official_measurement_sha256`, both matching the files passed to the final gate.
 - Grid spacing, steps, averaging window and VTK frame list
 - Grid-sensitivity audit: `grid_sensitivity_audit.json`, `grid_sensitivity_gate`,
   `grid_sensitivity_run_count`, `grid_sensitivity_finest_dx_m`,

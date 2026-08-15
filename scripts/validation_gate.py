@@ -309,15 +309,25 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     priorities: List[Dict[str, Any]] = []
 
     coordinate_gate = by_key.get("coordinate_normalization")
+    metrics_hash_gate = by_key.get("metrics_input_hash_traceability")
     compared_gate = by_key.get("compared_component")
     projection_gate = by_key.get("probe_projection_distance")
     probe_source_gate = by_key.get("probe_source_window")
     probe_gate = by_key.get("probe_mapping")
     sensitivity_gate = by_key.get("component_normalization_sensitivity")
-    if any(gate is None or gate.get("status") != PASS for gate in [coordinate_gate, compared_gate, projection_gate, probe_source_gate, probe_gate, sensitivity_gate]):
+    coordinate_gates = [
+        metrics_hash_gate,
+        coordinate_gate,
+        compared_gate,
+        projection_gate,
+        probe_source_gate,
+        probe_gate,
+        sensitivity_gate,
+    ]
+    if any(gate is None or gate.get("status") != PASS for gate in coordinate_gates):
         coordinate_priority_gate = next(
             (
-                gate for gate in [coordinate_gate, compared_gate, projection_gate, probe_source_gate, probe_gate, sensitivity_gate]
+                gate for gate in coordinate_gates
                 if gate is None or gate.get("status") != PASS
             ),
             coordinate_gate,
@@ -844,6 +854,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     software_label = str(args.software or get_any(metrics, ["software", "Software"]) or "").strip().lower()
     citylbm_result = "citylbm" in software_label and "native" not in software_label
     gates: List[Dict[str, Any]] = []
+    current_probe_audit_sha256 = sha256_file(probe_path)
+    current_official_sha256 = sha256_file(official_path)
 
     add_gate(
         gates,
@@ -873,6 +885,37 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"metrics={metrics_path or 'missing'}"
         ),
         "Archive case_metadata.json, validation_protocol_audit.json, inlet_profile_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
+    )
+
+    metrics_probe_audit_sha256 = str(
+        get_any(metrics, ["probe_mapping_table_sha256", "ProbeMappingTableSha256"]) or ""
+    ).strip().lower()
+    metrics_official_sha256 = str(
+        get_any(metrics, ["official_measurement_sha256", "OfficialMeasurementSha256"]) or ""
+    ).strip().lower()
+    metrics_probe_hash_matches = (
+        bool(current_probe_audit_sha256)
+        and bool(metrics_probe_audit_sha256)
+        and metrics_probe_audit_sha256 == current_probe_audit_sha256.lower()
+    )
+    metrics_official_hash_matches = (
+        bool(current_official_sha256)
+        and bool(metrics_official_sha256)
+        and metrics_official_sha256 == current_official_sha256.lower()
+    )
+    add_gate(
+        gates,
+        "metrics_input_hash_traceability",
+        PASS if metrics_probe_hash_matches and metrics_official_hash_matches else FAIL,
+        (
+            f"metrics_probe_mapping_table_sha256={metrics_probe_audit_sha256 or 'missing'}; "
+            f"current_probe_audit_sha256={current_probe_audit_sha256 or 'missing'}; "
+            f"metrics_probe_hash_matches={metrics_probe_hash_matches}; "
+            f"metrics_official_measurement_sha256={metrics_official_sha256 or 'missing'}; "
+            f"current_official_sha256={current_official_sha256 or 'missing'}; "
+            f"metrics_official_hash_matches={metrics_official_hash_matches}"
+        ),
+        "Rebuild validation_metrics.csv from the current probe_audit.csv and official RS/measurement CSV before interpreting coordinate, component, Uref or bias diagnostics.",
     )
 
     run_freshness_gate = str(
@@ -2529,8 +2572,6 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     normalization_scaled_improvement = as_float(
         component_sensitivity_audit.get("selected_scaled_improvement_ratio")
     )
-    current_probe_audit_sha256 = sha256_file(probe_path)
-    current_official_sha256 = sha256_file(official_path)
     component_probe_audit_sha256 = str(
         get_any(component_sensitivity_audit, ["probe_audit_sha256", "ProbeAuditSha256"]) or ""
     ).strip().lower()
