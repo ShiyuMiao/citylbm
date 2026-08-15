@@ -184,6 +184,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now reads grid-sensitivity and native/CityLBM parity pass evidence from
   `grid_sensitivity_audit.json` and `native_citylbm_parity_audit.json` only. Metrics rows can summarize those audits,
   but cannot self-report grid convergence or native/CityLBM condition matching.
+- `scripts/audit_native_citylbm_parity.py` now compares paper-critical gate states and evidence hashes in addition to
+  nominal case settings. Native/CityLBM rows must match AF profile SHA256, official measurement SHA256, component
+  sensitivity official SHA256, inlet/boundary `setup.cpp` source-audit hashes and key inlet/boundary/probe/time gates
+  before CityLBM accuracy is interpreted against native FluidX3D.
 - Added `scripts/audit_inlet_profile_from_vtk.py` to read real post-spinup `u-*.vtk` frames, sample an inlet or
   empty-tunnel cross-plane, reconstruct time-mean streamwise `U(z)` and temporal-variance `k(z)`, and compare both
   against the official AF table. This replaces hand-filled empty-tunnel `U/k` evidence with an archived JSON/CSV audit.

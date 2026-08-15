@@ -235,7 +235,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    For a CityLBM-driven Case A run, archive `native_citylbm_parity_audit.json` from
    `scripts/audit_native_citylbm_parity.py`. The audit must show that the CityLBM metrics row and the native FluidX3D
    metrics row use the same case, wind direction, `dx`, steps, VTK cadence, averaging window, `Uref`, inlet/boundary
-   settings, probe component and probe table. Without this paired-condition audit, CityLBM-vs-native differences cannot
+   settings, probe component, probe table, source-audit gate states and evidence hashes. The required hashes include
+   the AF/profile CSV, official measurement CSV, component-sensitivity official table and generated inlet/boundary
+   `setup.cpp` source-audit files. Without this paired-condition audit, CityLBM-vs-native differences cannot
    be interpreted as software-integration error or inherited FluidX3D accuracy. Final validation reads matched and
    mismatched field counts from `native_citylbm_parity_audit.json`, not from the metrics row.
 
@@ -257,7 +259,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
   `grid_sensitivity_bias_change_ratio`. The final gate requires this audit in addition to the single-run `dx`.
 - For CityLBM parity runs, `native_citylbm_parity_audit.json`, including `native_citylbm_parity_gate`,
   `native_citylbm_parity_native_metrics`, `native_citylbm_parity_matched_field_count`,
-  `native_citylbm_parity_mismatched_field_count` and `native_citylbm_parity_mismatched_fields`.
+  `native_citylbm_parity_mismatched_field_count`, `native_citylbm_parity_mismatched_fields`,
+  `native_citylbm_parity_compared_gate_field_count` and `native_citylbm_parity_compared_hash_field_count`.
 - LBM stability evidence: target maximum lattice velocity, estimated maximum Mach number, `tau`, `nu_lbm`, physical
   viscosity, Reynolds number, velocity set, LES/subgrid model and solver-log stability warning status. The machine
   gate now fails this block unless the runtime metrics row records a passing stability gate such as

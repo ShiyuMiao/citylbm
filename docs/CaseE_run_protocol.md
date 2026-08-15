@@ -261,8 +261,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - For a CityLBM-driven Case E validation row, run `scripts\audit_native_citylbm_parity.py` or pass
   `--paired-native-metrics <native_validation_metrics.csv>` to the evidence chain. The resulting
   `native_citylbm_parity_audit.json` must show matched case, wind direction, `dx`, steps, VTK cadence, averaging window,
-  `Uref`, inlet/boundary settings, compared component and probe table before CityLBM accuracy is compared against native
-  FluidX3D.
+  `Uref`, inlet/boundary settings, compared component, probe table, source-audit gate states and evidence hashes before
+  CityLBM accuracy is compared against native FluidX3D. The hash comparison must cover the AF/profile CSV, official
+  measurement CSV, component-sensitivity official table and generated inlet/boundary `setup.cpp` source-audit files.
 - `case_metadata.json` must be archived with the run. It records the boundary-condition summary, expected VTK frame count,
   time-averaging requirement, and known protocol risks.
 - `native_fluidx3d_baseline_manifest.json` and `.md` must be archived. This manifest lists the exact generated
@@ -358,8 +359,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Native/CityLBM parity audit for CityLBM rows: `native_citylbm_parity_audit.json`,
   `native_citylbm_parity_gate`, `native_citylbm_parity_native_metrics`,
   `native_citylbm_parity_matched_field_count`, `native_citylbm_parity_mismatched_field_count` and
-  `native_citylbm_parity_mismatched_fields`. A CityLBM row without this audit cannot be used to claim inherited native
-  FluidX3D accuracy.
+  `native_citylbm_parity_mismatched_fields`. The audit must also report non-zero gate/hash comparison coverage through
+  `native_citylbm_parity_compared_gate_field_count` and `native_citylbm_parity_compared_hash_field_count`. A CityLBM row
+  without this audit cannot be used to claim inherited native FluidX3D accuracy.
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
 - `time_averaging` gate must use the final available VTK window, contain at least 10 frames, have strictly increasing
   uniformly spaced source steps, and satisfy `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20`

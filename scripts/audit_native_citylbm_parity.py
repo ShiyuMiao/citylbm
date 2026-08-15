@@ -35,6 +35,44 @@ TEXT_FIELDS = [
     "boundary_evidence_class",
 ]
 
+GATE_FIELDS = [
+    "requested_vtk_frame_gate",
+    "run_freshness_gate",
+    "time_averaging_gate",
+    "lbm_stability_gate",
+    "normalization_valid",
+    "compared_component_consistency_gate",
+    "wind_direction_valid",
+    "blockage_protocol_gate",
+    "boundary_protocol_gate",
+    "boundary_evidence_gate",
+    "boundary_source_gate",
+    "paper_grade_boundary_source_gate",
+    "inlet_source_gate",
+    "paper_grade_inlet_source_gate",
+    "inlet_method_class_supported",
+    "inlet_length_scale_gate",
+    "inlet_correlation_gate",
+    "inlet_profile_time_averaging_gate",
+    "inlet_streamwise_direction_gate",
+    "inlet_profile_gate",
+    "inlet_u_profile_gate",
+    "inlet_k_profile_gate",
+    "empty_tunnel_gate",
+    "probe_vtk_source_window_gate",
+    "component_normalization_gate",
+    "component_sensitivity_gate",
+    "normalization_scale_gate",
+]
+
+HASH_FIELDS = [
+    "profile_csv_sha256",
+    "official_measurement_sha256",
+    "component_sensitivity_official_sha256",
+    "inlet_source_setup_sha256",
+    "boundary_source_setup_sha256",
+]
+
 NUMERIC_FIELDS = [
     "dx_m",
     "steps",
@@ -150,6 +188,35 @@ def compare_text(field: str, city: Dict[str, Any], native: Dict[str, Any], optio
     }
 
 
+def normalize_hash(value: Any) -> str:
+    return str(value or "").strip().lower()
+
+
+def compare_hash(field: str, city: Dict[str, Any], native: Dict[str, Any], optional: set[str]) -> Dict[str, Any]:
+    city_value = normalize_hash(city.get(field))
+    native_value = normalize_hash(native.get(field))
+    missing = not city_value and not native_value
+    match = city_value == native_value and (not missing or field in optional)
+    if missing and field not in optional:
+        reason = "both_hashes_missing"
+    elif not city_value:
+        reason = "citylbm_hash_missing"
+    elif not native_value:
+        reason = "native_hash_missing"
+    elif match:
+        reason = "match"
+    else:
+        reason = "hash_mismatch"
+    return {
+        "field": field,
+        "kind": "hash",
+        "citylbm": city.get(field, ""),
+        "native": native.get(field, ""),
+        "match": match,
+        "reason": "both_missing_optional" if missing and field in optional else reason,
+    }
+
+
 def compare_numeric(
     field: str,
     city: Dict[str, Any],
@@ -203,6 +270,8 @@ def main() -> int:
     comparisons: List[Dict[str, Any]] = []
     if city_row is not None and native_row is not None:
         comparisons.extend(compare_text(field, city_row, native_row, optional) for field in TEXT_FIELDS)
+        comparisons.extend(compare_text(field, city_row, native_row, optional) for field in GATE_FIELDS)
+        comparisons.extend(compare_hash(field, city_row, native_row, optional) for field in HASH_FIELDS)
         comparisons.extend(
             compare_numeric(field, city_row, native_row, args.numeric_tolerance, optional)
             for field in NUMERIC_FIELDS
@@ -228,11 +297,16 @@ def main() -> int:
         "native_row_selection_warning": native_select_reason,
         "matched_field_count": sum(1 for item in comparisons if item["match"]),
         "mismatched_field_count": len(mismatches),
+        "compared_text_field_count": len(TEXT_FIELDS),
+        "compared_gate_field_count": len(GATE_FIELDS),
+        "compared_hash_field_count": len(HASH_FIELDS),
+        "compared_numeric_field_count": len(NUMERIC_FIELDS),
         "mismatched_fields": [item["field"] for item in mismatches],
         "comparisons": comparisons,
         "recommended_next_action": (
             "Rerun the native and CityLBM cases with the same case, wind direction, dx, steps, VTK cadence, "
-            "averaging window, Uref, inlet/boundary setup, probe component and probe table before comparing accuracy."
+            "averaging window, Uref, inlet/boundary setup, source-audit hashes, official/probe/profile evidence, "
+            "probe component and probe table before comparing accuracy."
         ),
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
