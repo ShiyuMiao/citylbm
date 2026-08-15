@@ -324,6 +324,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Generated `case_metadata.json` now records `WindProfileCsvSha256`; the inlet-profile audit records `af_csv_sha256`,
   and `validation_gate.py` requires the two hashes to match before accepting inlet `U/k` preservation. This prevents a
   run from proving preservation against the wrong AF table.
+- `validation_gate.py` now recomputes SHA256 hashes for the runtime-selected VTK files listed in
+  `native_run_audit.json` or a Read VTK audit. The selected files must exist in the archived run package and match the
+  audit-declared hashes before probe, inlet-profile or inlet-correlation source-window evidence is trusted.
 
 ## Remaining scientific work
 

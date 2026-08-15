@@ -352,6 +352,17 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
             "Regenerate VTK after the current setup.cpp/defines/buildings/metadata inputs and rerun the native audit before interpreting accuracy.",
         )
 
+    vtk_hash_gate = by_key.get("runtime_vtk_hash_traceability")
+    if vtk_hash_gate is None or vtk_hash_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            2,
+            "runtime_vtk_hash_traceability",
+            vtk_hash_gate,
+            "A runtime audit JSON can otherwise claim a final VTK window that is missing or no longer matches the archived files.",
+            "Recompute the runtime audit from the current selected VTK files and keep those exact VTK files with the run package.",
+        )
+
     time_gate = by_key.get("time_averaging")
     if time_gate is None or time_gate.get("status") != PASS:
         add_priority(
@@ -702,9 +713,33 @@ def runtime_selected_vtk_hashes(
     runtime_audit: Dict[str, Any],
     expected_source_steps_text: str,
 ) -> Tuple[List[str], str]:
+    status = runtime_selected_vtk_hash_status(runtime_audit, None, expected_source_steps_text)
+    declared_hashes = status["declared_hashes"]
+    return declared_hashes, ";".join(declared_hashes)
+
+
+def runtime_selected_vtk_hash_status(
+    runtime_audit: Dict[str, Any],
+    runtime_audit_path: Optional[Path],
+    expected_source_steps_text: str,
+) -> Dict[str, Any]:
     expected_steps, expected_error = parsed_source_steps(expected_source_steps_text)
+    result: Dict[str, Any] = {
+        "ok": False,
+        "error": None,
+        "expected_step_count": len(expected_steps),
+        "selected_file_count": 0,
+        "path_missing_count": 0,
+        "missing_file_count": 0,
+        "hash_mismatch_count": 0,
+        "declared_hashes": [],
+        "declared_hash_text": "",
+        "actual_hashes": [],
+        "actual_hash_text": "",
+    }
     if expected_error:
-        return [], ""
+        result["error"] = expected_error
+        return result
     records = get_any(
         runtime_audit,
         [
@@ -715,25 +750,79 @@ def runtime_selected_vtk_hashes(
         ],
     )
     if isinstance(records, list):
-        selected: List[Tuple[Optional[int], str, int]] = []
+        selected: List[Dict[str, Any]] = []
         for index, record in enumerate(records):
             if not isinstance(record, dict):
                 continue
             step = as_int(get_any(record, ["time_step", "TimeStep", "step", "Step"]))
             hashes = normalized_hash_list(get_any(record, ["sha256", "Sha256", "SHA256", "hash", "Hash"]))
-            if hashes:
-                selected.append((step, hashes[0], index))
+            declared_path = str(
+                get_any(record, ["path", "Path", "file", "File", "filename", "FileName"]) or ""
+            ).strip()
+            if hashes or declared_path:
+                selected.append(
+                    {
+                        "step": step,
+                        "declared_hash": hashes[0] if hashes else "",
+                        "index": index,
+                        "path": declared_path,
+                    }
+                )
         if selected:
             expected_step_set = set(expected_steps)
-            if expected_step_set and any(step is not None for step, _, _ in selected):
-                selected = [item for item in selected if item[0] in expected_step_set]
-            if selected and all(step is not None for step, _, _ in selected):
-                selected = sorted(selected, key=lambda item: int(item[0]))
+            if expected_step_set and any(item["step"] is not None for item in selected):
+                selected = [item for item in selected if item["step"] in expected_step_set]
+            if selected and all(item["step"] is not None for item in selected):
+                selected = sorted(selected, key=lambda item: int(item["step"]))
             else:
-                selected = sorted(selected, key=lambda item: item[2])
-            hashes = [item[1] for item in selected]
-            return hashes, ";".join(hashes)
-    hashes = normalized_hash_list(
+                selected = sorted(selected, key=lambda item: item["index"])
+            result["selected_file_count"] = len(selected)
+            declared_hashes: List[str] = []
+            actual_hashes: List[str] = []
+            base_dir = runtime_audit_path.parent if runtime_audit_path is not None else None
+            for item in selected:
+                declared_hash = str(item["declared_hash"]).strip().lower()
+                declared_hashes.append(declared_hash)
+                declared_path = str(item["path"]).strip()
+                if not declared_path:
+                    result["path_missing_count"] += 1
+                    actual_hashes.append("")
+                    continue
+                vtk_path = Path(declared_path).expanduser()
+                if not vtk_path.is_absolute() and base_dir is not None:
+                    vtk_path = base_dir / vtk_path
+                vtk_path = vtk_path.resolve()
+                if not vtk_path.exists():
+                    result["missing_file_count"] += 1
+                    actual_hashes.append("")
+                    continue
+                actual_hash = sha256_file(vtk_path).lower()
+                actual_hashes.append(actual_hash)
+                if declared_hash and actual_hash and declared_hash != actual_hash:
+                    result["hash_mismatch_count"] += 1
+            result["declared_hashes"] = declared_hashes
+            result["declared_hash_text"] = ";".join([value for value in declared_hashes if value])
+            result["actual_hashes"] = actual_hashes
+            result["actual_hash_text"] = ";".join([value for value in actual_hashes if value])
+            if not selected:
+                result["error"] = "runtime_selected_vtk_files_empty_after_step_filter"
+            elif not all(declared_hashes):
+                result["error"] = "runtime_selected_vtk_sha256_missing"
+            elif not all(actual_hashes):
+                result["error"] = "runtime_selected_vtk_actual_sha256_missing"
+            elif expected_steps and len(declared_hashes) != len(expected_steps):
+                result["error"] = "runtime_selected_vtk_count_mismatch"
+            elif declared_hashes != actual_hashes:
+                result["error"] = "runtime_selected_vtk_sha256_mismatch"
+            elif (
+                result["path_missing_count"] == 0
+                and result["missing_file_count"] == 0
+                and result["hash_mismatch_count"] == 0
+                and bool(expected_steps)
+            ):
+                result["ok"] = True
+            return result
+    fallback_hashes = normalized_hash_list(
         get_any(
             runtime_audit,
             [
@@ -746,7 +835,10 @@ def runtime_selected_vtk_hashes(
             ],
         )
     )
-    return hashes, ";".join(hashes)
+    result["declared_hashes"] = fallback_hashes
+    result["declared_hash_text"] = ";".join(fallback_hashes)
+    result["error"] = "runtime_selected_vtk_files_missing"
+    return result
 
 
 def read_probe_source_window_audit(
@@ -1111,7 +1203,28 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     parsed_last_step = parsed_steps[-1] if parsed_steps else None
     parsed_steps_increasing = strictly_increasing(parsed_steps) if parsed_steps else False
     parsed_spacing_uniform = uniformly_spaced(parsed_steps) if parsed_steps else False
-    expected_source_hashes, expected_source_hash_text = runtime_selected_vtk_hashes(runtime_audit, source_step_text)
+    runtime_vtk_hash_status = runtime_selected_vtk_hash_status(runtime_audit, runtime_audit_path, source_step_text)
+    expected_source_hashes = (
+        runtime_vtk_hash_status["actual_hashes"] if runtime_vtk_hash_status["ok"] else []
+    )
+    expected_source_hash_text = runtime_vtk_hash_status["actual_hash_text"]
+    add_gate(
+        gates,
+        "runtime_vtk_hash_traceability",
+        PASS if runtime_vtk_hash_status["ok"] else FAIL,
+        (
+            f"selected_file_count={runtime_vtk_hash_status['selected_file_count']}; "
+            f"expected_step_count={runtime_vtk_hash_status['expected_step_count']}; "
+            f"path_missing_count={runtime_vtk_hash_status['path_missing_count']}; "
+            f"missing_file_count={runtime_vtk_hash_status['missing_file_count']}; "
+            f"hash_mismatch_count={runtime_vtk_hash_status['hash_mismatch_count']}; "
+            f"declared_hashes={runtime_vtk_hash_status['declared_hash_text'] or 'missing'}; "
+            f"actual_hashes={runtime_vtk_hash_status['actual_hash_text'] or 'missing'}; "
+            f"error={runtime_vtk_hash_status['error'] or 'none'}; "
+            f"runtime_audit={runtime_audit_path or 'missing'}"
+        ),
+        "Regenerate the runtime audit from current selected VTK files and keep those files in the archived run package; JSON-declared VTK hashes alone are not accepted.",
+    )
     source_step_count_matches = parsed_frame_count is not None and frame_count == parsed_frame_count
     source_first_matches = source_first_step is None or source_first_step == parsed_first_step
     source_last_matches = source_last_step is None or source_last_step == parsed_last_step

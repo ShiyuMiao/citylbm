@@ -111,6 +111,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   current setup/metadata keeps the run diagnostic even if the metrics are numerically acceptable.
   The final gate reads this evidence from `native_run_audit.json` or an archived Read VTK audit JSON, not from
   self-reported `validation_metrics.csv` fields.
+  It also recomputes SHA256 for every runtime-selected VTK file path listed in that audit. Missing files, missing paths
+  or declared hashes that do not match the current disk files fail `runtime_vtk_hash_traceability`, and the downstream
+  probe/inlet source-window gates are not allowed to trust those runtime hashes.
 - The AF inlet profile must be verified from real post-spinup VTK frames before probe accuracy is interpreted. Run
   `scripts\audit_inlet_profile_from_vtk.py` on the output VTK sequence, compare against `AF_caseE.csv`, and archive the
   resulting `inlet_profile_audit.json` and `.csv`. This audit checks that `Wind Profile=3` actually preserved both
@@ -368,8 +371,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   `probe_vtk_source_time_steps` and `probe_vtk_source_hash_set_count`. These fields must show that the official-point
   probe table was sampled from the same final averaged VTK window as the inlet and time-averaging audits.
   The final gate also compares each per-probe `vtk_source_sha256` list with the runtime audit's selected VTK frame
-  hashes, so a stale probe CSV copied from older VTK frames remains diagnostic even if the reported source time steps
-  match.
+  hashes after those runtime hashes are recomputed from the archived VTK files, so a stale probe CSV copied from older
+  VTK frames remains diagnostic even if the reported source time steps match.
 - Native FluidX3D baseline run id or archive path
 - Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
 - Inlet profile preservation audit: selected plane, source VTK steps, `inlet_profile_gate`, `inlet_u_profile_gate`,
