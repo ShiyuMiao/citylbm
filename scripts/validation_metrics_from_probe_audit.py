@@ -45,6 +45,8 @@ TEMPLATE_FIELDS = [
     "source_time_steps",
     "source_first_time_step",
     "source_last_time_step",
+    "source_step_span",
+    "minimum_validation_average_step_span",
     "latest_available_time_step",
     "selected_last_window",
     "source_steps_strictly_increasing",
@@ -1058,6 +1060,16 @@ def main() -> int:
         audit_int(read_vtk_audit, "source_last_time_step"),
         audit_int(inlet_profile_audit, "source_last_time_step"),
     )
+    source_step_span = first_int(
+        audit_int(read_vtk_audit, "source_step_span"),
+        audit_int(inlet_profile_audit, "source_step_span"),
+    )
+    if source_step_span is None and source_first_time_step is not None and source_last_time_step is not None:
+        source_step_span = source_last_time_step - source_first_time_step
+    minimum_average_step_span = first_int(
+        audit_int(read_vtk_audit, "minimum_validation_average_step_span"),
+        audit_int(inlet_profile_audit, "minimum_validation_average_step_span"),
+    )
     latest_available_time_step = first_int(
         audit_int(read_vtk_audit, "latest_available_time_step"),
         audit_int(inlet_profile_audit, "latest_available_time_step"),
@@ -1167,6 +1179,8 @@ def main() -> int:
             "source_time_steps": source_time_steps,
             "source_first_time_step": fmt(source_first_time_step),
             "source_last_time_step": fmt(source_last_time_step),
+            "source_step_span": fmt(source_step_span),
+            "minimum_validation_average_step_span": fmt(minimum_average_step_span),
             "latest_available_time_step": fmt(latest_available_time_step),
             "selected_last_window": selected_last_window,
             "source_steps_strictly_increasing": source_steps_strictly_increasing,

@@ -72,6 +72,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--average-last-n", type=int, default=10, help="Average the last N VTK frames.")
     parser.add_argument("--min-avg-frames", type=int, default=10, help="Minimum frames required by the time-average gate.")
+    parser.add_argument("--min-avg-step-span", type=int, default=1000, help="Minimum solver-step span covered by the averaged final VTK window.")
     parser.add_argument("--pattern", default="u-*.vtk", help="VTK glob pattern.")
     parser.add_argument("--probe-tolerance", type=float, default=0.0, help="Max nearest-node probe distance in meters. 0 disables failure by tolerance.")
     parser.add_argument(
@@ -379,6 +380,8 @@ def main() -> int:
             str(args.average_last_n),
             "--min-avg-frames",
             str(args.min_avg_frames),
+            "--min-avg-step-span",
+            str(args.min_avg_step_span),
             "--max-mean-speed-stddev-ratio",
             str(args.max_mean_speed_stddev_ratio),
             "--max-point-speed-stddev-ratio",
@@ -738,6 +741,8 @@ def main() -> int:
             args.software,
             "--min-avg-frames",
             str(args.min_avg_frames),
+            "--min-avg-step-span",
+            str(args.min_avg_step_span),
             "--max-mean-speed-stddev-ratio",
             str(args.max_mean_speed_stddev_ratio),
             "--max-point-speed-stddev-ratio",

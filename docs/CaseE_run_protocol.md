@@ -51,8 +51,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `inlet_correlation_audit.json`; copying passing `inlet_source_*` or `inlet_correlation_*` fields into
   `validation_metrics.csv` is not accepted as turbulent-inlet evidence.
 - Do not compare a single early VTK frame as a final result.
-  The averaging gate requires at least 10 final-window frames plus sampled VTK stability statistics; command-line or
-  hand-entered mean/max speed standard-deviation ratios are diagnostic only.
+  The averaging gate requires at least 10 final-window frames, a final-window solver-step span of at least
+  `--min-avg-step-span` (`1000` by default), and sampled VTK stability statistics; command-line or hand-entered
+  mean/max speed standard-deviation ratios are diagnostic only.
 - CityLBM v0.3.0 validation runs must use an explicit external FluidX3D source path in `Run Simulation / FX3D`.
   The legacy bundled v0.5.0 fallback is disabled for controlled validation because it is not the baseline.
   Mode 1/2/3 reject auto-detected paths for validation. The FX3D path must point to a deployable native source root
@@ -211,7 +212,7 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   stationarity ratios from pointwise speed-magnitude time series on the same selected final-window inlet/profile plane,
   and the metrics builder can carry them into the standard validation row.
   The validation gate parses the archived `source_time_steps` list itself and fails duplicated, non-increasing,
-  non-uniform, count-mismatched or non-final source windows even when summary fields say `pass`.
+  non-uniform, count-mismatched, too-short-span or non-final source windows even when summary fields say `pass`.
 - Measurement interpolation uses the official `ac + N` points and records failed or out-of-domain probes.
 - The probe audit table must contain official point number, original coordinate, interpolation distance,
   compared velocity component, compared value, wind-vector components, `wind_direction_valid`, `normalization_valid`,
@@ -319,7 +320,7 @@ python scripts\audit_boundary_protocol.py <run_dir> --metadata <case_metadata.js
   package with one command:
 
 ```powershell
-python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --boundary-evidence <boundary_evidence_casee_ac_N.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 10 --min-avg-frames 10 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250 --paired-native-metrics <native_validation_metrics.csv>
+python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --boundary-evidence <boundary_evidence_casee_ac_N.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 10 --min-avg-frames 10 --min-avg-step-span 1000 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250 --paired-native-metrics <native_validation_metrics.csv>
 ```
 
   The command creates `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_source_audit.json`,
@@ -379,8 +380,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   evidence-hash fields for CityLBM/native parity.
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
 - `time_averaging` gate must use the final available VTK window, contain at least 10 frames, have strictly increasing
-  uniformly spaced source steps, and satisfy `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20`
-  from the Read VTK audit or native-run audit unless a stricter case-specific stationarity criterion is documented.
+  uniformly spaced source steps, cover at least `--min-avg-step-span` solver steps (`1000` by default), and satisfy
+  `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20` from the Read VTK audit or native-run audit
+  unless a stricter case-specific stationarity criterion is documented.
   Self-reported `validation_metrics.csv` fields cannot pass this gate without the runtime audit artifact.
   Command-line speed-stability ratios in `audit_native_run.py` are diagnostic only; the native run audit passes
   `time_averaging_gate` only when the ratios are computed from deterministic sampled VTK frames.

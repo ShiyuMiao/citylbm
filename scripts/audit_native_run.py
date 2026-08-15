@@ -45,6 +45,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out", required=True, help="Output audit JSON path.")
     parser.add_argument("--average-last-n", type=int, default=10)
     parser.add_argument("--min-avg-frames", type=int, default=10)
+    parser.add_argument("--min-avg-step-span", type=int, default=1000)
     parser.add_argument("--time-steps", type=int, default=None, help="Planned solver time steps for run-configuration frame-count preflight.")
     parser.add_argument("--vtk-save-interval", type=int, default=None, help="Planned VTK save interval for run-configuration frame-count preflight.")
     parser.add_argument("--vtk-save-start-step", type=int, default=None, help="First planned VTK save step. Defaults to save interval when omitted.")
@@ -482,6 +483,7 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
     steps = [extract_time_step(path) for path in vtk_files]
     known_steps = sorted(step for step in steps if step is not None)
     selected_steps = known_steps[-args.average_last_n :] if args.average_last_n > 0 else []
+    source_step_span = selected_steps[-1] - selected_steps[0] if len(selected_steps) >= 2 else None
     selected_last_window = bool(selected_steps) and selected_steps == known_steps[-len(selected_steps) :]
     increasing = is_strictly_increasing(selected_steps)
     uniform = has_uniform_spacing(selected_steps)
@@ -532,6 +534,10 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         reasons.append("averaging_disabled")
     if len(selected_steps) < args.min_avg_frames:
         reasons.append(f"averaged_frame_count_below_{args.min_avg_frames}")
+    if source_step_span is None:
+        reasons.append("source_step_span_missing")
+    elif source_step_span < args.min_avg_step_span:
+        reasons.append(f"source_step_span_below_{args.min_avg_step_span}")
     if not selected_last_window:
         reasons.append("not_last_available_window")
     if not increasing:
@@ -586,6 +592,7 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "source_time_steps_csv": ",".join(str(step) for step in selected_steps),
         "source_first_time_step": selected_steps[0] if selected_steps else None,
         "source_last_time_step": selected_steps[-1] if selected_steps else None,
+        "source_step_span": source_step_span,
         "latest_available_time_step": known_steps[-1] if known_steps else None,
         "selected_last_window": selected_last_window,
         "source_steps_strictly_increasing": increasing,
@@ -597,6 +604,7 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "max_speed_stddev_ratio": max_speed_stddev_ratio,
         "mean_speed_statistics_source": mean_speed_statistics_source,
         "minimum_validation_average_frames": args.min_avg_frames,
+        "minimum_validation_average_step_span": args.min_avg_step_span,
         "max_mean_speed_stddev_ratio": args.max_mean_speed_stddev_ratio,
         "max_point_speed_stddev_ratio": args.max_point_speed_stddev_ratio,
         "time_averaging_gate": "pass" if not reasons else "diagnostic_only",

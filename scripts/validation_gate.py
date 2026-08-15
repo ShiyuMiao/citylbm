@@ -44,6 +44,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--case", default="", help="Expected case label, e.g. CaseA or CaseE.")
     parser.add_argument("--software", default="", help="Expected software label, e.g. native-fluidx3d or citylbm.")
     parser.add_argument("--min-avg-frames", type=int, default=10)
+    parser.add_argument("--min-avg-step-span", type=int, default=1000)
     parser.add_argument("--max-mean-speed-stddev-ratio", type=float, default=0.05)
     parser.add_argument("--max-point-speed-stddev-ratio", type=float, default=0.20)
     parser.add_argument("--max-u-bias-ratio", type=float, default=0.15)
@@ -1801,6 +1802,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     available_frame_count = as_int(get_any(runtime_audit, ["available_frame_count", "AvailableFrameCount"]))
     source_first_step = as_int(get_any(runtime_audit, ["source_first_time_step", "SourceFirstTimeStep"]))
     source_last_step = as_int(get_any(runtime_audit, ["source_last_time_step", "SourceLastTimeStep"]))
+    declared_source_step_span = as_int(get_any(runtime_audit, ["source_step_span", "SourceStepSpan"]))
     latest_available_step = as_int(get_any(runtime_audit, ["latest_available_time_step", "LatestAvailableTimeStep"]))
     selected_last_window = as_bool(get_any(runtime_audit, ["selected_last_window", "SelectedLastWindow"]))
     source_steps_increasing = as_bool(get_any(runtime_audit, ["source_steps_strictly_increasing", "SourceStepsStrictlyIncreasing"]))
@@ -1865,6 +1867,20 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     source_step_count_matches = parsed_frame_count is not None and frame_count == parsed_frame_count
     source_first_matches = source_first_step is None or source_first_step == parsed_first_step
     source_last_matches = source_last_step is None or source_last_step == parsed_last_step
+    computed_source_step_span = (
+        parsed_last_step - parsed_first_step
+        if parsed_first_step is not None and parsed_last_step is not None
+        else None
+    )
+    source_step_span_matches = (
+        declared_source_step_span is not None
+        and computed_source_step_span is not None
+        and declared_source_step_span == computed_source_step_span
+    )
+    source_step_span_long_enough = (
+        computed_source_step_span is not None
+        and computed_source_step_span >= args.min_avg_step_span
+    )
     available_covers_source_window = (
         available_frame_count is not None
         and parsed_frame_count is not None
@@ -1902,6 +1918,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and parsed_spacing_uniform
         and source_first_matches
         and source_last_matches
+        and source_step_span_matches
+        and source_step_span_long_enough
         and available_covers_source_window
         and all_available_steps_error is None
         and all_available_steps_increasing
@@ -1934,6 +1952,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"parsed_source_step_count={parsed_frame_count}; source_step_count_matches={source_step_count_matches}; "
             f"parsed_first_step={parsed_first_step}; parsed_last_step={parsed_last_step}; "
             f"source_first_matches={source_first_matches}; source_last_matches={source_last_matches}; "
+            f"declared_source_step_span={declared_source_step_span}; computed_source_step_span={computed_source_step_span}; "
+            f"source_step_span_matches={source_step_span_matches}; "
+            f"source_step_span_long_enough={source_step_span_long_enough}; required >= {args.min_avg_step_span}; "
             f"parsed_steps_strictly_increasing={parsed_steps_increasing}; "
             f"parsed_step_spacing_uniform={parsed_spacing_uniform}; "
             f"available_covers_source_window={available_covers_source_window}; "

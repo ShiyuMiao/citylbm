@@ -186,8 +186,10 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    builder. CityLBM v0.3.0 defaults to `TimeSteps=10000` and `SaveInterval=500` so new cases produce about 20 VTK
    frames; shorter runs must be labelled smoke tests. The audit must show `selected_last_window=true`,
    `source_steps_strictly_increasing=true`, `source_step_spacing_uniform=true`, and
-   `source_last_time_step=latest_available_time_step`. The same gate also requires `mean_speed_stddev_ratio <= 0.05`
-   and `max_speed_stddev_ratio <= 0.20` from the Read VTK averaging audit or native-run audit unless a stricter
+   `source_last_time_step=latest_available_time_step`. It must also record `source_step_span`; v0.3.0 rejects a
+   paper-grade time average unless the final averaged window covers at least `--min-avg-step-span` solver steps
+   (`1000` by default). The same gate also requires `mean_speed_stddev_ratio <= 0.05` and
+   `max_speed_stddev_ratio <= 0.20` from the Read VTK averaging audit or native-run audit unless a stricter
    case-specific stationarity criterion is documented. The machine gate only counts the archived runtime audit as the
    authoritative time-averaging source: sampled VTK stability statistics (`mean_speed_statistics_source=sampled_vtk` or
    equivalent) and archived `source_time_steps` must come from real VTK/audit frames; command-line or hand-entered speed
