@@ -318,6 +318,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now binds the per-probe VTK source-window audit to the runtime-selected VTK SHA256 hashes from
   `native_run_audit.json` or the Read VTK audit. A copied probe CSV from older VTK frames fails even when its reported
   source time steps match the current averaging window.
+- `audit_inlet_profile_from_vtk.py` and `audit_inlet_correlation_from_vtk.py` now write SHA256 hashes for the selected
+  final-window VTK frames, and `validation_gate.py` requires those hashes to match the runtime-selected window. Stale
+  inlet U/k or turbulence-correlation audits can no longer pass by repeating only the same source time-step numbers.
 
 ## Remaining scientific work
 

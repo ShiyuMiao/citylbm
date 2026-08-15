@@ -121,7 +121,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `source_steps_strictly_increasing`, `source_step_spacing_uniform`, `time_averaging_gate_reasons`,
   `negative_streamwise_fraction`, and `inlet_streamwise_direction_gate`. Short, non-final or irregular inlet windows
   fail before probe accuracy is interpreted. The selected inlet-profile `source_time_steps` must also match the global
-  runtime averaging audit exactly; otherwise the run has mixed VTK windows and remains diagnostic. A high
+  runtime averaging audit exactly, and the selected VTK SHA256 hashes must match the runtime audit's selected VTK
+  hashes; otherwise the run has mixed VTK windows and remains diagnostic. A high
   reverse-streamwise fraction flags wind-vector or velocity component sign errors.
 - The generated FluidX3D source must also be audited before interpreting the VTK result. Run
   `scripts\audit_inlet_source.py --setup <case_dir>\src\setup.cpp --metadata <case_metadata.json> --out <case_dir>\inlet_source_audit.json`
@@ -148,9 +149,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   otherwise correlated turbulent inlet. The audit must also pass temporal/spatial finite-correlation coverage fractions
   so a sparse subset of correlated non-degenerate samples cannot represent the full inlet plane.
   `validation_gate.py` independently checks that the correlation audit uses the same final averaged `source_time_steps`
-  as the run metrics and that streamwise variance, temporal lag-1 correlation and spatial adjacent correlation exceed
-  the configured thresholds. A hand-filled `inlet_correlation_gate=pass` is not sufficient when the source window,
-  numeric correlation evidence or audit file is missing. The final gate accepts only the `inlet_correlation_audit.json`
+  and VTK SHA256 hashes as the runtime audit, and that streamwise variance, temporal lag-1 correlation and spatial
+  adjacent correlation exceed the configured thresholds. A hand-filled `inlet_correlation_gate=pass` is not sufficient
+  when the source window, numeric correlation evidence or audit file is missing. The final gate accepts only the
+  `inlet_correlation_audit.json`
   archived in the audited run package; a metrics-table `inlet_correlation_audit` path is ignored so old or external
   correlation JSON cannot be reused silently.
 - The STG length-scale gate is not passed by choosing a convenient number of lattice cells. It passes only when

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import math
 import re
@@ -74,6 +75,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--velocity-scale", type=float, default=1.0, help="Multiply VTK velocities by this scale.")
     return parser.parse_args()
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def as_float(value: Any) -> Optional[float]:
@@ -419,6 +428,11 @@ def main() -> int:
     files = select_average_window(all_files, args.average_last_n)
     available_steps = [step_from_name(path) for path in all_files]
     source_steps = [step_from_name(path) for path in files]
+    selected_vtk_files = [
+        {"path": str(path), "time_step": step_from_name(path), "sha256": sha256_file(path)}
+        for path in files
+    ]
+    source_vtk_hashes = [record["sha256"] for record in selected_vtk_files]
     selected_last_window = is_last_window(source_steps, available_steps)
     source_steps_increasing = is_strictly_increasing(source_steps)
     source_spacing_uniform = has_uniform_spacing(source_steps)
@@ -567,6 +581,9 @@ def main() -> int:
         "metadata": str(Path(args.metadata).resolve()) if args.metadata else "",
         "metadata_case_name": metadata.get("Name") or metadata.get("CaseName") or "",
         "vtk_files": [str(path) for path in files],
+        "selected_vtk_files": selected_vtk_files,
+        "source_vtk_sha256": source_vtk_hashes,
+        "source_vtk_sha256_csv": ";".join(source_vtk_hashes),
         "available_frame_count": len(all_files),
         "all_available_time_steps": available_steps,
         "all_available_time_steps_csv": ",".join(str(step) for step in available_steps),
