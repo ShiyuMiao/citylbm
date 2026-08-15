@@ -211,6 +211,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   perturbations. It recognizes `citylbm_stg_corr_cells`, spectral modes, Taylor frozen-turbulence advection and transverse
   wave-vector projection, while still marking the method as velocity-field-only and non-paper-grade until the inlet is
   distribution-consistent.
+- `scripts/audit_inlet_source.py` now also checks that `SyntheticTurbulenceUpdateInterval` is wired into the generated
+  solver loop: STG-lite must refresh with the current `lbm.get_t()` and the refresh must be coupled to a segmented
+  `lbm.run(steps_to_run)` advance. A token-only `citylbm_stg_update_interval` constant no longer passes the source audit.
 - Added `scripts/audit_boundary_source.py` and wired `boundary_source_audit.json` into the metrics template, native
   validation chain and final gate. The audit hashes the generated `setup.cpp`, classifies the actual boundary source
   implementation, and keeps simplified `TYPE_E` outlet/lateral/top plus no-slip-only floor/buildings from satisfying

@@ -121,7 +121,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   not sufficient for SCI-grade Case E validation if the generated source only refreshes macroscopic velocity fields.
   For STG-lite, the audit must also show the actual correlated-source features in generated code:
   `has_spectral_mode_evidence`, `has_taylor_advection_evidence`, `has_transverse_projection_evidence` and
-  `has_length_scale_evidence`. These fields separate correlated STG-lite from uncorrelated random perturbations, but a
+  `has_length_scale_evidence`, plus the run-loop fields `has_synthetic_inlet_refresh_with_current_time`,
+  `has_update_interval_run_control` and `has_segmented_stg_run_loop`. These fields separate correlated STG-lite from
+  uncorrelated random perturbations and prove that `SyntheticTurbulenceUpdateInterval` controls the generated
+  `lbm.run(steps_to_run)` refresh loop, but a
   correlated velocity-field-only inlet remains diagnostic until distribution-function consistency or a validated
   precursor/DFM/SEM/recycling treatment is implemented.
 - The turbulent-inlet correlation must be verified from the same real final-window VTK frames with

@@ -81,6 +81,10 @@ def count_regex(text: str, pattern: str) -> int:
     return len(re.findall(pattern, text, flags=re.IGNORECASE | re.MULTILINE))
 
 
+def has_regex(text: str, pattern: str) -> bool:
+    return re.search(pattern, text, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL) is not None
+
+
 def main() -> int:
     args = parse_args()
     setup_path = Path(args.setup).expanduser().resolve()
@@ -160,6 +164,26 @@ def main() -> int:
         ],
     )
     has_update_interval = "citylbm_stg_update_interval" in source_lower
+    refresh_current_time_calls = count_regex(
+        source,
+        r"applySyntheticTurbulentInlet\s*\(\s*\(?\s*uint\s*\)?\s*lbm\.get_t\s*\(\s*\)\s*\)",
+    )
+    has_stg_refresh_with_current_time = refresh_current_time_calls >= 1
+    has_update_interval_run_control = has_regex(
+        source,
+        r"steps_to_run\s*=\s*[^;\n]*citylbm_stg_update_interval",
+    ) or has_regex(
+        source,
+        r"steps_to_run\s*>\s*citylbm_stg_update_interval\s*\)\s*steps_to_run\s*=\s*citylbm_stg_update_interval",
+    )
+    has_segmented_stg_run_loop = (
+        has_update_interval_run_control
+        and has_regex(source, r"lbm\.run\s*\(\s*steps_to_run\s*\)")
+        and has_regex(
+            source,
+            r"applySyntheticTurbulentInlet\s*\(\s*\(?\s*uint\s*\)?\s*lbm\.get_t\s*\(\s*\)\s*\)\s*;\s*lbm\.run\s*\(\s*steps_to_run\s*\)",
+        )
+    )
     has_bounded_amplitude = contains_any(source, ["citylbm_stg_max_fraction", "max_fraction", "amplitude cap"])
 
     source_method_class = "none"
@@ -196,6 +220,8 @@ def main() -> int:
         reasons.append("synthetic_inlet_source_missing_profile_k_lbm")
     if synthetic_requested and has_stg_function and not has_stg_refresh_loop:
         reasons.append("synthetic_inlet_not_refreshed_in_run_loop")
+    if synthetic_requested and has_stg_function and not has_stg_refresh_with_current_time:
+        reasons.append("synthetic_inlet_missing_refresh_with_current_solver_time")
     if synthetic_requested and has_stg_function and not has_length_scale:
         reasons.append("synthetic_inlet_missing_length_scale_source")
     if synthetic_requested and has_stg_function and not has_spectral_modes:
@@ -206,6 +232,10 @@ def main() -> int:
         reasons.append("synthetic_inlet_missing_transverse_projection")
     if synthetic_requested and has_stg_function and not has_update_interval:
         reasons.append("synthetic_inlet_missing_update_interval")
+    if synthetic_requested and has_stg_function and has_update_interval and not has_update_interval_run_control:
+        reasons.append("synthetic_inlet_update_interval_not_used_in_run_loop")
+    if synthetic_requested and has_stg_function and not has_segmented_stg_run_loop:
+        reasons.append("synthetic_inlet_refresh_not_coupled_to_segmented_lbm_run")
     if synthetic_requested and has_stg_function and not has_bounded_amplitude:
         reasons.append("synthetic_inlet_missing_amplitude_cap")
 
@@ -249,6 +279,10 @@ def main() -> int:
         "has_transverse_projection_evidence": has_transverse_projection,
         "has_length_scale_evidence": has_length_scale,
         "has_update_interval": has_update_interval,
+        "stg_refresh_current_time_call_count": refresh_current_time_calls,
+        "has_synthetic_inlet_refresh_with_current_time": has_stg_refresh_with_current_time,
+        "has_update_interval_run_control": has_update_interval_run_control,
+        "has_segmented_stg_run_loop": has_segmented_stg_run_loop,
         "has_bounded_amplitude": has_bounded_amplitude,
         "inlet_source_method_class": source_method_class,
         "inlet_source_distribution_consistent": source_distribution_consistent,
