@@ -364,6 +364,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Probe source-window parity: `probe_vtk_source_window_gate`, `probe_vtk_source_window_reasons`,
   `probe_vtk_source_time_steps` and `probe_vtk_source_hash_set_count`. These fields must show that the official-point
   probe table was sampled from the same final averaged VTK window as the inlet and time-averaging audits.
+  The final gate also compares each per-probe `vtk_source_sha256` list with the runtime audit's selected VTK frame
+  hashes, so a stale probe CSV copied from older VTK frames remains diagnostic even if the reported source time steps
+  match.
 - Native FluidX3D baseline run id or archive path
 - Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
 - Inlet profile preservation audit: selected plane, source VTK steps, `inlet_profile_gate`, `inlet_u_profile_gate`,

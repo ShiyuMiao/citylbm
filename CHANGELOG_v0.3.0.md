@@ -315,6 +315,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   final gate. A CityLBM validation row now requires `native_citylbm_parity_audit.json` proving that the paired native
   FluidX3D row used the same case, wind direction, grid, VTK cadence, averaging, Uref, inlet/boundary setup and probe
   component before CityLBM accuracy is interpreted as inherited from native FluidX3D.
+- `validation_gate.py` now binds the per-probe VTK source-window audit to the runtime-selected VTK SHA256 hashes from
+  `native_run_audit.json` or the Read VTK audit. A copied probe CSV from older VTK frames fails even when its reported
+  source time steps match the current averaging window.
 
 ## Remaining scientific work
 

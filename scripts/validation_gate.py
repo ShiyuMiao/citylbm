@@ -683,15 +683,88 @@ def read_probe_coordinate_normalization_audit(
     return result
 
 
-def read_probe_source_window_audit(path: Optional[Path], expected_source_steps_text: str) -> Dict[str, Any]:
+def normalized_hash_list(value: Any) -> List[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        hashes: List[str] = []
+        for item in value:
+            hashes.extend(normalized_hash_list(item))
+        return hashes
+    text = str(value).strip()
+    if not text:
+        return []
+    parts = text.replace(",", ";").replace(" ", ";").split(";")
+    return [part.strip().lower() for part in parts if part.strip()]
+
+
+def runtime_selected_vtk_hashes(
+    runtime_audit: Dict[str, Any],
+    expected_source_steps_text: str,
+) -> Tuple[List[str], str]:
+    expected_steps, expected_error = parsed_source_steps(expected_source_steps_text)
+    if expected_error:
+        return [], ""
+    records = get_any(
+        runtime_audit,
+        [
+            "freshness_selected_vtk_files",
+            "FreshnessSelectedVtkFiles",
+            "selected_vtk_files",
+            "SelectedVtkFiles",
+        ],
+    )
+    if isinstance(records, list):
+        selected: List[Tuple[Optional[int], str, int]] = []
+        for index, record in enumerate(records):
+            if not isinstance(record, dict):
+                continue
+            step = as_int(get_any(record, ["time_step", "TimeStep", "step", "Step"]))
+            hashes = normalized_hash_list(get_any(record, ["sha256", "Sha256", "SHA256", "hash", "Hash"]))
+            if hashes:
+                selected.append((step, hashes[0], index))
+        if selected:
+            expected_step_set = set(expected_steps)
+            if expected_step_set and any(step is not None for step, _, _ in selected):
+                selected = [item for item in selected if item[0] in expected_step_set]
+            if selected and all(step is not None for step, _, _ in selected):
+                selected = sorted(selected, key=lambda item: int(item[0]))
+            else:
+                selected = sorted(selected, key=lambda item: item[2])
+            hashes = [item[1] for item in selected]
+            return hashes, ";".join(hashes)
+    hashes = normalized_hash_list(
+        get_any(
+            runtime_audit,
+            [
+                "source_vtk_sha256",
+                "SourceVtkSha256",
+                "vtk_source_sha256",
+                "VtkSourceSha256",
+                "selected_vtk_sha256",
+                "SelectedVtkSha256",
+            ],
+        )
+    )
+    return hashes, ";".join(hashes)
+
+
+def read_probe_source_window_audit(
+    path: Optional[Path],
+    expected_source_steps_text: str,
+    expected_source_hashes: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    normalized_expected_hashes = [str(value).strip().lower() for value in (expected_source_hashes or []) if str(value).strip()]
     result: Dict[str, Any] = {
         "valid_count": None,
         "expected_source_steps": expected_source_steps_text,
+        "expected_source_hashes": ";".join(normalized_expected_hashes),
         "missing_source_steps_count": 0,
         "source_steps_mismatch_count": 0,
         "unique_source_steps_count": None,
         "missing_source_hash_count": 0,
         "source_hash_count_mismatch_count": 0,
+        "source_hash_mismatch_count": 0,
         "unique_source_hash_set_count": None,
         "error": None,
     }
@@ -728,11 +801,13 @@ def read_probe_source_window_audit(path: Optional[Path], expected_source_steps_t
             source_step_sets.add(",".join(str(step) for step in row_steps))
 
         hash_text = str(get_any(row, ["vtk_source_sha256", "VtkSourceSha256"]) or "").strip()
-        hashes = [part.strip() for part in hash_text.replace(",", ";").split(";") if part.strip()]
+        hashes = normalized_hash_list(hash_text)
         if not hashes:
             result["missing_source_hash_count"] += 1
         elif step_text and len(hashes) != len(expected_steps):
             result["source_hash_count_mismatch_count"] += 1
+        if hashes and normalized_expected_hashes and hashes != normalized_expected_hashes:
+            result["source_hash_mismatch_count"] += 1
         if hashes:
             source_hash_sets.add(";".join(hashes))
 
@@ -2377,10 +2452,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Export the Data Probe audit CSV with official probe IDs, x/y/z, Uref, wind vector, compared_component, nearest_distance and tolerance.",
     )
     detailed_probe_audit_ok = probe_audit_traceable or probe_summary_override
-    probe_source = read_probe_source_window_audit(probe_path, source_step_text)
+    expected_source_hashes, expected_source_hash_text = runtime_selected_vtk_hashes(runtime_audit, source_step_text)
+    probe_source = read_probe_source_window_audit(probe_path, source_step_text, expected_source_hashes)
     probe_source_window_ok = (
         probe_audit_traceable
         and has_real_source_steps
+        and bool(expected_source_hashes)
         and probe_source["valid_count"] is not None
         and probe_source["valid_count"] > 0
         and probe_source["missing_source_steps_count"] == 0
@@ -2388,6 +2465,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and probe_source["unique_source_steps_count"] == 1
         and probe_source["missing_source_hash_count"] == 0
         and probe_source["source_hash_count_mismatch_count"] == 0
+        and probe_source["source_hash_mismatch_count"] == 0
         and probe_source["unique_source_hash_set_count"] == 1
         and not probe_source["error"]
     )
@@ -2397,6 +2475,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         PASS if probe_source_window_ok else FAIL,
         (
             f"expected_source_time_steps={source_step_text or 'missing'}; "
+            f"expected_source_hashes={expected_source_hash_text or 'missing'}; "
             f"real_source_time_steps_present={has_real_source_steps}; "
             f"probe_valid_count={probe_source['valid_count']}; "
             f"missing_probe_source_steps={probe_source['missing_source_steps_count']}; "
@@ -2404,6 +2483,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"unique_probe_source_steps={probe_source['unique_source_steps_count']}; "
             f"missing_probe_source_hashes={probe_source['missing_source_hash_count']}; "
             f"probe_source_hash_count_mismatch={probe_source['source_hash_count_mismatch_count']}; "
+            f"probe_source_hash_mismatch={probe_source['source_hash_mismatch_count']}; "
             f"unique_probe_source_hash_sets={probe_source['unique_source_hash_set_count']}; "
             f"probe_audit_traceable={probe_audit_traceable}; "
             f"error={probe_source['error'] or 'none'}"
