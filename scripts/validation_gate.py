@@ -1614,6 +1614,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit_inlet_source_setup_sha256 = str(
         get_any(inlet_source_audit, ["setup_cpp_sha256"]) or ""
     ).strip()
+    audit_inlet_source_comment_stripped = as_bool(
+        get_any(
+            inlet_source_audit,
+            [
+                "advanced_inlet_evidence_uses_comment_stripped_code",
+                "inlet_source_comment_stripped_code_audit",
+            ],
+        )
+    )
     audit_synthetic_inlet_requested = as_bool(
         get_any(inlet_source_audit, ["synthetic_inlet_requested"])
     )
@@ -1815,6 +1824,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and audit_inlet_source_gate == "pass"
         and bool(audit_inlet_source_method_class)
         and bool(audit_inlet_source_setup_sha256)
+        and audit_inlet_source_comment_stripped is True
         and audit_stg_run_loop_ok
     )
     add_gate(
@@ -1835,6 +1845,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"audit_only_source_distribution_consistent={audit_inlet_source_distribution_consistent}; "
             f"audit_only_source_velocity_field_only={audit_inlet_source_velocity_field_only}; "
             f"audit_only_setup_cpp_sha256={audit_inlet_source_setup_sha256 or 'missing'}; "
+            f"audit_comment_stripped_code_audit={audit_inlet_source_comment_stripped}; "
             f"audit_synthetic_inlet_requested={audit_synthetic_inlet_requested}; "
             f"audit_has_synthetic_inlet_function={audit_has_synthetic_inlet_function}; "
             f"audit_stg_run_loop_required={audit_stg_run_loop_required}; "
@@ -1871,6 +1882,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and audit_paper_grade_inlet_source_gate == "pass"
         and audit_inlet_source_distribution_consistent is True
         and audit_inlet_source_velocity_field_only is not True
+        and audit_inlet_source_comment_stripped is True
         and paper_method_class_ok
         and (
             treatment_distribution_consistent
@@ -1895,6 +1907,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"audit_only_paper_grade_inlet_source_gate={audit_paper_grade_inlet_source_gate or 'missing'}; "
             f"audit_only_source_distribution_consistent={audit_inlet_source_distribution_consistent}; "
             f"audit_only_source_velocity_field_only={audit_inlet_source_velocity_field_only}; "
+            f"audit_comment_stripped_code_audit={audit_inlet_source_comment_stripped}; "
             f"treatment={inlet_treatment or 'missing'}; "
             f"inlet_distribution_consistency={distribution_status or 'missing'}; "
             f"velocity_field_only={treatment_velocity_only}; "
@@ -1907,8 +1920,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         ),
         (
             "For paper-grade validation, use a distribution-consistent digital-filter, SEM/DFM, precursor or "
-            "recycling inlet. The --allow-velocity-only-inlet override is diagnostic only and cannot satisfy "
-            "this paper-grade inlet-method gate."
+            "recycling inlet proven from comment-stripped generated source code. The --allow-velocity-only-inlet "
+            "override is diagnostic only and cannot satisfy this paper-grade inlet-method gate."
         ),
     )
 

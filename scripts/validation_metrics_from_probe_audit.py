@@ -148,6 +148,11 @@ TEMPLATE_FIELDS = [
     "inlet_source_method_class",
     "inlet_source_distribution_consistent",
     "inlet_source_velocity_field_only",
+    "inlet_source_advanced_code_evidence",
+    "inlet_source_comment_stripped_code_audit",
+    "inlet_source_has_digital_filter_evidence",
+    "inlet_source_has_sem_evidence",
+    "inlet_source_has_precursor_or_recycling_evidence",
     "inlet_source_setup_sha256",
     "inlet_source_synthetic_requested",
     "inlet_source_has_synthetic_function",
@@ -1263,6 +1268,21 @@ def main() -> int:
             ),
             "inlet_source_velocity_field_only": first_bool_text(
                 inlet_source_audit.get("inlet_source_velocity_field_only")
+            ),
+            "inlet_source_advanced_code_evidence": first_bool_text(
+                inlet_source_audit.get("inlet_source_advanced_code_evidence")
+            ),
+            "inlet_source_comment_stripped_code_audit": first_bool_text(
+                inlet_source_audit.get("inlet_source_comment_stripped_code_audit")
+            ),
+            "inlet_source_has_digital_filter_evidence": first_bool_text(
+                inlet_source_audit.get("has_digital_filter_evidence")
+            ),
+            "inlet_source_has_sem_evidence": first_bool_text(
+                inlet_source_audit.get("has_sem_evidence")
+            ),
+            "inlet_source_has_precursor_or_recycling_evidence": first_bool_text(
+                inlet_source_audit.get("has_precursor_or_recycling_evidence")
             ),
             "inlet_source_setup_sha256": audit_field(inlet_source_audit, "setup_cpp_sha256"),
             "inlet_source_synthetic_requested": first_bool_text(

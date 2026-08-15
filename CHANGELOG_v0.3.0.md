@@ -226,6 +226,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/audit_inlet_source.py` now also checks that `SyntheticTurbulenceUpdateInterval` is wired into the generated
   solver loop: STG-lite must refresh with the current `lbm.get_t()` and the refresh must be coupled to a segmented
   `lbm.run(steps_to_run)` advance. A token-only `citylbm_stg_update_interval` constant no longer passes the source audit.
+- `scripts/audit_inlet_source.py` now removes C/C++ comments before classifying advanced inlet methods. Method names
+  that appear only in comments, such as "not a full digital-filter/SEM/precursor inlet", no longer count as
+  distribution-consistent source evidence.
 - `validation_gate.py`, `validation_metrics_from_probe_audit.py` and `docs/validation_metrics_template.csv` now carry the
   same STG run-loop evidence fields. A stale `inlet_source_audit.json` without those fields no longer satisfies
   `inlet_source_evidence` for STG-like inlets.
@@ -250,6 +253,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `inlet_source_evidence` reporting is now audit-only. Metrics-table `inlet_source_gate`,
   `paper_grade_inlet_source_gate` and `inlet_source_method_class` fields are reported as ignored context and cannot make
   a run pass without a complete `inlet_source_audit.json`.
+- The final gate now requires inlet-source advanced-method evidence to come from comment-stripped generated code. Older
+  `inlet_source_audit.json` files without `advanced_inlet_evidence_uses_comment_stripped_code=true` or
+  `inlet_source_comment_stripped_code_audit=true` remain diagnostic and must be regenerated.
 - Added `scripts/probe_vtk_points.py` to sample native FluidX3D/CityLBM VTK frames at official RS probe points and emit
   the same Data-Probe-compatible audit CSV used by Grasshopper, including official coordinates, nearest-node distance,
   Uref, wind-vector evidence, compared component, time-averaged value and per-probe failure flags.

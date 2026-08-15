@@ -85,6 +85,73 @@ def has_regex(text: str, pattern: str) -> bool:
     return re.search(pattern, text, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL) is not None
 
 
+def strip_cpp_comments(text: str) -> str:
+    """Remove C/C++ comments while preserving strings and line structure."""
+    output: List[str] = []
+    index = 0
+    in_string = False
+    in_char = False
+    escaped = False
+
+    while index < len(text):
+        char = text[index]
+        next_char = text[index + 1] if index + 1 < len(text) else ""
+
+        if in_string:
+            output.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            index += 1
+            continue
+
+        if in_char:
+            output.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == "'":
+                in_char = False
+            index += 1
+            continue
+
+        if char == '"':
+            in_string = True
+            output.append(char)
+            index += 1
+            continue
+
+        if char == "'":
+            in_char = True
+            output.append(char)
+            index += 1
+            continue
+
+        if char == "/" and next_char == "/":
+            while index < len(text) and text[index] not in "\r\n":
+                index += 1
+            output.append("\n")
+            continue
+
+        if char == "/" and next_char == "*":
+            index += 2
+            while index + 1 < len(text) and not (text[index] == "*" and text[index + 1] == "/"):
+                if text[index] in "\r\n":
+                    output.append("\n")
+                index += 1
+            index += 2
+            continue
+
+        output.append(char)
+        index += 1
+
+    return "".join(output)
+
+
 def main() -> int:
     args = parse_args()
     setup_path = Path(args.setup).expanduser().resolve()
@@ -101,7 +168,9 @@ def main() -> int:
         source = setup_path.read_text(encoding="utf-8-sig", errors="replace")
         setup_hash = sha256(setup_path)
 
-    source_lower = source.lower()
+    audited_source = strip_cpp_comments(source)
+    audited_source_lower = audited_source.lower()
+    audited_source_hash = hashlib.sha256(audited_source.encode("utf-8")).hexdigest().upper() if audited_source else ""
     metadata_method = metadata_value(metadata, "SyntheticTurbulentInletMethod", "TurbulenceMethod")
     metadata_treatment = metadata_value(metadata, "SyntheticTurbulentInletDistributionTreatment")
     metadata_class = metadata_value(metadata, "PaperGradeInletMethodClass", "InletMethodClass")
@@ -113,39 +182,36 @@ def main() -> int:
     if synthetic_enabled is True:
         synthetic_requested = True
 
-    has_custom_table = "profile_z_m" in source_lower and "profile_u_lbm" in source_lower
-    has_k_profile = "profile_k_lbm" in source_lower
-    has_stg_function = "applysyntheticturbulentinlet" in source_lower
-    has_stg_refresh_loop = count_regex(source, r"applySyntheticTurbulentInlet\s*\(") >= 2
-    has_velocity_field_write = contains_any(source, ["lbm.u.x", "lbm.u.y", "lbm.u.z"])
+    has_custom_table = "profile_z_m" in audited_source_lower and "profile_u_lbm" in audited_source_lower
+    has_k_profile = "profile_k_lbm" in audited_source_lower
+    has_stg_function = "applysyntheticturbulentinlet" in audited_source_lower
+    has_stg_refresh_loop = count_regex(audited_source, r"applySyntheticTurbulentInlet\s*\(") >= 2
+    has_velocity_field_write = contains_any(audited_source, ["lbm.u.x", "lbm.u.y", "lbm.u.z"])
     has_distribution_write = contains_any(
-        source,
+        audited_source,
         [
             "lbm.f[",
             "lbm.f0",
             "lbm.feq",
             "calculate_f_eq",
-            "equilibrium distribution",
-            "distribution-consistent",
-            "distribution_consistent",
             "device_sem_stress_ddf",
             "stress_ddf",
         ],
     )
-    has_digital_filter = contains_any(source, ["digital_filter", "digital-filter", "dfm", "filter kernel"])
-    has_sem = contains_any(source, ["synthetic_eddy_method", "sem_distribution", "synthetic eddy method"])
-    has_precursor = contains_any(source, ["precursor", "recycling_rescaling", "recycling-rescaling"])
+    has_digital_filter = contains_any(audited_source, ["digital_filter", "digital-filter", "dfm", "filter kernel"])
+    has_sem = contains_any(audited_source, ["synthetic_eddy_method", "sem_distribution", "synthetic eddy method"])
+    has_precursor = contains_any(audited_source, ["precursor", "recycling_rescaling", "recycling-rescaling"])
     has_spectral_modes = contains_any(
-        source,
+        audited_source,
         [
             "citylbm_stg_mode_count",
             "citylbm_mode_wave",
             "citylbm_mode_amplitude",
         ],
     )
-    has_taylor_advection = contains_any(source, ["advected_x", "advected_y", "advected_z", "frozen-turbulence"])
+    has_taylor_advection = contains_any(audited_source, ["advected_x", "advected_y", "advected_z", "frozen-turbulence"])
     has_transverse_projection = contains_any(
-        source,
+        audited_source,
         [
             "ak*kx/kk",
             "ak * kx / kk",
@@ -154,7 +220,7 @@ def main() -> int:
         ],
     )
     has_length_scale = contains_any(
-        source,
+        audited_source,
         [
             "correlation_length",
             "citylbm_stg_lx",
@@ -163,28 +229,28 @@ def main() -> int:
             "correlation cells",
         ],
     )
-    has_update_interval = "citylbm_stg_update_interval" in source_lower
+    has_update_interval = "citylbm_stg_update_interval" in audited_source_lower
     refresh_current_time_calls = count_regex(
-        source,
+        audited_source,
         r"applySyntheticTurbulentInlet\s*\(\s*\(?\s*uint\s*\)?\s*lbm\.get_t\s*\(\s*\)\s*\)",
     )
     has_stg_refresh_with_current_time = refresh_current_time_calls >= 1
     has_update_interval_run_control = has_regex(
-        source,
+        audited_source,
         r"steps_to_run\s*=\s*[^;\n]*citylbm_stg_update_interval",
     ) or has_regex(
-        source,
+        audited_source,
         r"steps_to_run\s*>\s*citylbm_stg_update_interval\s*\)\s*steps_to_run\s*=\s*citylbm_stg_update_interval",
     )
     has_segmented_stg_run_loop = (
         has_update_interval_run_control
-        and has_regex(source, r"lbm\.run\s*\(\s*steps_to_run\s*\)")
+        and has_regex(audited_source, r"lbm\.run\s*\(\s*steps_to_run\s*\)")
         and has_regex(
-            source,
+            audited_source,
             r"applySyntheticTurbulentInlet\s*\(\s*\(?\s*uint\s*\)?\s*lbm\.get_t\s*\(\s*\)\s*\)\s*;\s*lbm\.run\s*\(\s*steps_to_run\s*\)",
         )
     )
-    has_bounded_amplitude = contains_any(source, ["citylbm_stg_max_fraction", "max_fraction", "amplitude cap"])
+    has_bounded_amplitude = contains_any(audited_source, ["citylbm_stg_max_fraction", "max_fraction", "amplitude cap"])
 
     source_method_class = "none"
     if has_precursor:
@@ -207,6 +273,7 @@ def main() -> int:
         "digital_filter_distribution_consistent",
         "synthetic_eddy_distribution_consistent",
     }
+    advanced_code_evidence = has_digital_filter or has_sem or has_precursor
     source_velocity_only = source_method_class in {
         "stg_lite_velocity_field_only",
         "stg_lite_correlated_velocity_field_only",
@@ -259,6 +326,9 @@ def main() -> int:
         "generated_at_utc": utc_now(),
         "setup_cpp": str(setup_path),
         "setup_cpp_sha256": setup_hash,
+        "comment_stripped_setup_cpp_sha256": audited_source_hash,
+        "inlet_source_comment_stripped_code_audit": True,
+        "advanced_inlet_evidence_uses_comment_stripped_code": True,
         "metadata": str(metadata_path) if metadata_path else "",
         "metadata_method": metadata_method,
         "metadata_distribution_treatment": metadata_treatment,
@@ -271,6 +341,7 @@ def main() -> int:
         "has_synthetic_inlet_refresh_loop": has_stg_refresh_loop,
         "has_velocity_field_write": has_velocity_field_write,
         "has_distribution_function_write": has_distribution_write,
+        "inlet_source_advanced_code_evidence": advanced_code_evidence,
         "has_digital_filter_evidence": has_digital_filter,
         "has_sem_evidence": has_sem,
         "has_precursor_or_recycling_evidence": has_precursor,
