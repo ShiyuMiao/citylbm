@@ -264,6 +264,9 @@ TEMPLATE_FIELDS = [
     "failed_probe_count_by_tolerance",
     "valid_n",
     "failed_n",
+    "official_measurement_count",
+    "official_probe_coverage_ratio",
+    "missing_official_probe_count",
     "mean_probe_distance_m",
     "max_probe_distance_m",
     "max_official_coordinate_delta_m",
@@ -841,6 +844,7 @@ def main() -> int:
     probe_missing_source_steps = 0
     probe_missing_source_hashes = 0
     probe_hash_count_mismatches = 0
+    matched_official_probe_ids = set()
 
     for row in probe_rows:
         probe_id = get_value(row, args.probe_id_column).strip()
@@ -856,6 +860,7 @@ def main() -> int:
         if failed_flag is True or "fail" in validation_status or sim is None or exp is None:
             failed += 1
             continue
+        matched_official_probe_ids.add(probe_id)
         sim_values.append(sim)
         exp_values.append(exp)
         error = sim - exp
@@ -923,6 +928,14 @@ def main() -> int:
     valid_n = len(sim_values)
     if valid_n == 0:
         raise SystemExit("No valid matched probes after filtering failed rows.")
+    official_probe_ids = set(official.keys())
+    official_measurement_count = len(official_probe_ids)
+    missing_official_probe_count = len(official_probe_ids - matched_official_probe_ids)
+    official_probe_coverage_ratio = (
+        len(matched_official_probe_ids) / official_measurement_count
+        if official_measurement_count
+        else None
+    )
 
     u_mae = mean(abs_errors)
     u_rmse = rmse(errors)
@@ -1003,6 +1016,8 @@ def main() -> int:
         protocol_failures.append("fail_incomplete_official_coordinate_audit")
     elif max_coordinate_delta is None or max_coordinate_delta > 1.0e-6:
         protocol_failures.append("fail_probe_coordinate_mismatch")
+    if missing_official_probe_count > 0 or valid_n != official_measurement_count:
+        protocol_failures.append("fail_incomplete_official_probe_coverage")
     if failed > 0:
         protocol_failures.append("fail_unmatched_or_failed_probes")
     metrics_protocol_gate = (
@@ -1461,6 +1476,9 @@ def main() -> int:
             "failed_probe_count_by_tolerance": failed,
             "valid_n": valid_n,
             "failed_n": failed,
+            "official_measurement_count": official_measurement_count,
+            "official_probe_coverage_ratio": fmt(official_probe_coverage_ratio),
+            "missing_official_probe_count": missing_official_probe_count,
             "mean_probe_distance_m": fmt(mean(distances)),
             "max_probe_distance_m": fmt(max(distances) if distances else None),
             "max_official_coordinate_delta_m": fmt(max_coordinate_delta),
@@ -1490,6 +1508,8 @@ def main() -> int:
             "notes": (
                 f"official_id_column={official_id_col}; official_value_column={official_value_col}; "
                 f"matched={valid_n}; official_filtered={len(official_rows)}; "
+                f"missing_official_probe_count={missing_official_probe_count}; "
+                f"official_probe_coverage_ratio={fmt(official_probe_coverage_ratio)}; "
                 f"probe_uref_values={';'.join(fmt(value) for value in unique_probe_urefs) or 'none'}; "
                 f"metrics_protocol_failures={';'.join(protocol_failures) or 'none'}"
             ),

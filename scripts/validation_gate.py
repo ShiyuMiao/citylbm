@@ -551,6 +551,8 @@ def read_probe_counts(path: Optional[Path]) -> Tuple[Optional[int], Optional[int
 def read_probe_identity_audit(
     probe_path: Optional[Path],
     official_path: Optional[Path],
+    case: str = "",
+    wind_direction: str = "",
 ) -> Dict[str, Any]:
     result: Dict[str, Any] = {
         "valid_count": None,
@@ -559,7 +561,11 @@ def read_probe_identity_audit(
         "missing_probe_id_count": 0,
         "duplicate_probe_id_count": 0,
         "unique_probe_id_count": None,
+        "official_row_count": None,
         "official_id_count": None,
+        "matched_official_id_count": 0,
+        "missing_official_probe_id_count": 0,
+        "official_probe_coverage_ratio": None,
         "unmatched_official_id_count": 0,
         "error": None,
     }
@@ -611,6 +617,11 @@ def read_probe_identity_audit(
     if not official_rows:
         result["error"] = "official measurement CSV has no rows"
         return result
+    official_rows = filter_official_identity_rows(official_rows, case, wind_direction)
+    result["official_row_count"] = len(official_rows)
+    if not official_rows:
+        result["error"] = "official measurement CSV has no matching case/wind rows"
+        return result
     official_id_column = find_csv_column(official_rows, id_candidates)
     result["official_id_column"] = official_id_column
     if not official_id_column:
@@ -625,12 +636,52 @@ def read_probe_identity_audit(
     if not official_ids:
         result["error"] = "official_ids_empty"
         return result
+    probe_id_set = {normalized_column_key(probe_id) for probe_id in probe_ids}
+    matched_official_ids = official_ids & probe_id_set
+    result["matched_official_id_count"] = len(matched_official_ids)
+    result["missing_official_probe_id_count"] = len(official_ids - probe_id_set)
+    result["official_probe_coverage_ratio"] = (
+        len(matched_official_ids) / len(official_ids)
+        if official_ids
+        else None
+    )
     result["unmatched_official_id_count"] = sum(
         1
         for probe_id in probe_ids
         if normalized_column_key(probe_id) not in official_ids
     )
     return result
+
+
+def filter_official_identity_rows(
+    rows: List[Dict[str, str]],
+    case: str,
+    wind_direction: str,
+) -> List[Dict[str, str]]:
+    filtered = rows
+    case_text = str(case or "").strip().lower()
+    wind_text = str(wind_direction or "").strip().lower()
+    if case_text:
+        case_col = find_csv_column(filtered, ["case", "Case", "condition", "Condition"])
+        if case_col:
+            case_filtered = [
+                row
+                for row in filtered
+                if str(row.get(case_col) or "").strip().lower() == case_text
+            ]
+            if case_filtered:
+                filtered = case_filtered
+    if wind_text:
+        wind_col = find_csv_column(filtered, ["Wind_direction", "wind_direction", "direction", "wind", "Wind"])
+        if wind_col:
+            wind_filtered = [
+                row
+                for row in filtered
+                if str(row.get(wind_col) or "").strip().lower() == wind_text
+            ]
+            if wind_filtered:
+                filtered = wind_filtered
+    return filtered
 
 
 def read_probe_component_audit(path: Optional[Path]) -> Tuple[Optional[int], List[str], Optional[int], Optional[str]]:
@@ -3491,7 +3542,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         expected_wind_vector,
         args.wind_vector_tolerance,
     )
-    probe_identity = read_probe_identity_audit(probe_path, official_path)
+    identity_case = str(get_any(metrics, ["case", "Case"]) or args.case or "").strip()
+    identity_wind_direction = str(
+        get_any(metrics, ["wind_direction", "WindDirection", "Wind_direction"]) or ""
+    ).strip()
+    probe_identity = read_probe_identity_audit(
+        probe_path,
+        official_path,
+        identity_case,
+        identity_wind_direction,
+    )
     if probe_summary_override:
         coord_delta = metrics_coord_delta
         coord_delta_count = metrics_coord_delta_count
@@ -3525,9 +3585,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and probe_identity["unique_probe_id_count"] == probe_identity_valid_count
         and probe_identity["official_id_count"] is not None
         and probe_identity["official_id_count"] > 0
+        and probe_identity["matched_official_id_count"] == probe_identity["official_id_count"]
+        and probe_identity["missing_official_probe_id_count"] == 0
+        and probe_identity["official_probe_coverage_ratio"] == 1.0
         and probe_identity["unmatched_official_id_count"] == 0
         and probe_identity["error"] is None
         and coord_valid_count == probe_identity_valid_count
+        and probe_identity_valid_count == probe_identity["official_id_count"]
         and (valid_metric_count is None or valid_metric_count == probe_identity_valid_count)
     )
     probe_coord_norm_ok = (
@@ -3576,8 +3640,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"probe_identity_unique_probe_id_count={probe_identity['unique_probe_id_count']}; "
             f"probe_identity_missing_probe_id_count={probe_identity['missing_probe_id_count']}; "
             f"probe_identity_duplicate_probe_id_count={probe_identity['duplicate_probe_id_count']}; "
+            f"probe_identity_official_row_count={probe_identity['official_row_count']}; "
             f"probe_identity_official_id_count={probe_identity['official_id_count']}; "
+            f"probe_identity_matched_official_id_count={probe_identity['matched_official_id_count']}; "
+            f"probe_identity_missing_official_probe_id_count={probe_identity['missing_official_probe_id_count']}; "
+            f"probe_identity_official_probe_coverage_ratio={probe_identity['official_probe_coverage_ratio']}; "
             f"probe_identity_unmatched_official_id_count={probe_identity['unmatched_official_id_count']}; "
+            f"probe_identity_filter_case={identity_case or 'none'}; "
+            f"probe_identity_filter_wind_direction={identity_wind_direction or 'none'}; "
             f"probe_identity_ok={probe_identity_ok}; "
             f"probe_identity_error={probe_identity['error'] or 'none'}; "
             f"metrics_max_official_coordinate_delta_m={metrics_coord_delta if metrics_coord_delta is not None else 'ignored'}; "

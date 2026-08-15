@@ -131,6 +131,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_gate.py` now rechecks valid per-probe IDs against the current official RS/measurement table:
   every valid probe row must have a non-empty unique ID, and each ID must exist in the official table before
   coordinate/Uref/compared-component diagnostics can pass.
+- `validation_metrics_from_probe_audit.py`, `validation_metrics_template.csv` and `validation_gate.py` now close the
+  reverse probe-coverage check: every official probe ID for the selected case/wind must be represented exactly once by
+  a valid probe row. Missing official probes now set `fail_incomplete_official_probe_coverage` and keep the run
+  diagnostic, even if the remaining matched subset has good error statistics.
 - `scripts/validation_gate.py` now requires component/Uref sensitivity values to come from archived
   `component_sensitivity_audit.json`; metrics rows may point to that audit, but can no longer self-report
   component-normalization pass fields, best component, RMSE comparison or best-fit Uref scale.
