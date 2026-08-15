@@ -138,7 +138,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    The source audit must also show `has_synthetic_inlet_refresh_with_current_time`, `has_update_interval_run_control` and
    `has_segmented_stg_run_loop`. These fields prove that `SyntheticTurbulenceUpdateInterval` actually limits the
    generated `lbm.run(steps_to_run)` loop and that STG-lite refreshes from the current solver time rather than existing
-   only as metadata or an unused constant.
+   only as metadata or an unused constant. `validation_gate.py` rejects STG-like inlet source evidence from stale audit
+   JSON files that do not contain these run-loop fields.
    Run `scripts/audit_inlet_source.py` on the generated `setup.cpp` before interpreting any VTK result. Archive
    `inlet_source_audit.json` with `setup_cpp_sha256`, `inlet_source_method_class`,
    `inlet_source_distribution_consistent` and `inlet_source_velocity_field_only`; `validation_gate.py` fails

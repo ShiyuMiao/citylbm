@@ -1543,6 +1543,21 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit_inlet_source_setup_sha256 = str(
         get_any(inlet_source_audit, ["setup_cpp_sha256"]) or ""
     ).strip()
+    audit_synthetic_inlet_requested = as_bool(
+        get_any(inlet_source_audit, ["synthetic_inlet_requested"])
+    )
+    audit_has_synthetic_inlet_function = as_bool(
+        get_any(inlet_source_audit, ["has_synthetic_inlet_function"])
+    )
+    audit_has_stg_refresh_with_current_time = as_bool(
+        get_any(inlet_source_audit, ["has_synthetic_inlet_refresh_with_current_time"])
+    )
+    audit_has_update_interval_run_control = as_bool(
+        get_any(inlet_source_audit, ["has_update_interval_run_control"])
+    )
+    audit_has_segmented_stg_run_loop = as_bool(
+        get_any(inlet_source_audit, ["has_segmented_stg_run_loop"])
+    )
     inlet_profile_gate = str(get_any(inlet_profile_audit, ["inlet_profile_gate"]) or "").strip().lower()
     inlet_u_profile_gate = str(get_any(inlet_profile_audit, ["inlet_u_profile_gate"]) or "").strip().lower()
     inlet_k_profile_gate = str(get_any(inlet_profile_audit, ["inlet_k_profile_gate"]) or "").strip().lower()
@@ -1656,6 +1671,21 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and (inlet_method_class_supported is True or inferred_method_class_supported)
         and not method_name_only
     )
+    audit_method_class_text = audit_inlet_source_method_class.lower()
+    audit_stg_run_loop_required = (
+        audit_has_synthetic_inlet_function is True
+        or "stg" in audit_method_class_text
+        or "stg" in method_text
+        or "stg" in method_class_text
+    )
+    audit_stg_run_loop_ok = (
+        not audit_stg_run_loop_required
+        or (
+            audit_has_stg_refresh_with_current_time is True
+            and audit_has_update_interval_run_control is True
+            and audit_has_segmented_stg_run_loop is True
+        )
+    )
     inlet_gate_status = PASS
     if inlet_status == "fail" or distribution_status == "fail":
         inlet_gate_status = FAIL
@@ -1701,6 +1731,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and audit_inlet_source_gate == "pass"
         and bool(audit_inlet_source_method_class)
         and bool(audit_inlet_source_setup_sha256)
+        and audit_stg_run_loop_ok
     )
     add_gate(
         gates,
@@ -1720,12 +1751,19 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"audit_only_source_distribution_consistent={audit_inlet_source_distribution_consistent}; "
             f"audit_only_source_velocity_field_only={audit_inlet_source_velocity_field_only}; "
             f"audit_only_setup_cpp_sha256={audit_inlet_source_setup_sha256 or 'missing'}; "
+            f"audit_synthetic_inlet_requested={audit_synthetic_inlet_requested}; "
+            f"audit_has_synthetic_inlet_function={audit_has_synthetic_inlet_function}; "
+            f"audit_stg_run_loop_required={audit_stg_run_loop_required}; "
+            f"audit_has_synthetic_inlet_refresh_with_current_time={audit_has_stg_refresh_with_current_time}; "
+            f"audit_has_update_interval_run_control={audit_has_update_interval_run_control}; "
+            f"audit_has_segmented_stg_run_loop={audit_has_segmented_stg_run_loop}; "
+            f"audit_stg_run_loop_ok={audit_stg_run_loop_ok}; "
             f"inlet_source_gate_reasons={inlet_source_reasons or 'none'}; "
             f"metrics_inlet_source_gate={get_any(metrics, ['inlet_source_gate', 'InletSourceGate']) or 'ignored'}; "
             f"metrics_paper_grade_inlet_source_gate={get_any(metrics, ['paper_grade_inlet_source_gate', 'PaperGradeInletSourceGate']) or 'ignored'}; "
             f"metrics_inlet_source_method_class={get_any(metrics, ['inlet_source_method_class', 'InletSourceMethodClass']) or 'ignored'}"
         ),
-        "Run scripts/audit_inlet_source.py on the generated setup.cpp and archive the source hash and inlet implementation class before interpreting probe accuracy.",
+        "Run scripts/audit_inlet_source.py on the generated setup.cpp and archive the source hash, inlet implementation class and STG run-loop evidence before interpreting probe accuracy.",
     )
 
     add_gate(

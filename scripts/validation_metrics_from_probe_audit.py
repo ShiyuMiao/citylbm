@@ -137,6 +137,11 @@ TEMPLATE_FIELDS = [
     "inlet_source_distribution_consistent",
     "inlet_source_velocity_field_only",
     "inlet_source_setup_sha256",
+    "inlet_source_synthetic_requested",
+    "inlet_source_has_synthetic_function",
+    "inlet_source_refresh_with_current_time",
+    "inlet_source_update_interval_run_control",
+    "inlet_source_segmented_stg_run_loop",
     "synthetic_inlet_method",
     "inlet_distribution_treatment",
     "inlet_method_class",
@@ -1221,6 +1226,21 @@ def main() -> int:
                 inlet_source_audit.get("inlet_source_velocity_field_only")
             ),
             "inlet_source_setup_sha256": audit_field(inlet_source_audit, "setup_cpp_sha256"),
+            "inlet_source_synthetic_requested": first_bool_text(
+                inlet_source_audit.get("synthetic_inlet_requested")
+            ),
+            "inlet_source_has_synthetic_function": first_bool_text(
+                inlet_source_audit.get("has_synthetic_inlet_function")
+            ),
+            "inlet_source_refresh_with_current_time": first_bool_text(
+                inlet_source_audit.get("has_synthetic_inlet_refresh_with_current_time")
+            ),
+            "inlet_source_update_interval_run_control": first_bool_text(
+                inlet_source_audit.get("has_update_interval_run_control")
+            ),
+            "inlet_source_segmented_stg_run_loop": first_bool_text(
+                inlet_source_audit.get("has_segmented_stg_run_loop")
+            ),
             "synthetic_inlet_method": infer_synthetic_inlet_method(metadata),
             "inlet_distribution_treatment": infer_inlet_distribution_treatment(metadata),
             "inlet_method_class": infer_inlet_method_class(metadata),

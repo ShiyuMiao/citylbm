@@ -124,7 +124,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `has_length_scale_evidence`, plus the run-loop fields `has_synthetic_inlet_refresh_with_current_time`,
   `has_update_interval_run_control` and `has_segmented_stg_run_loop`. These fields separate correlated STG-lite from
   uncorrelated random perturbations and prove that `SyntheticTurbulenceUpdateInterval` controls the generated
-  `lbm.run(steps_to_run)` refresh loop, but a
+  `lbm.run(steps_to_run)` refresh loop. `validation_gate.py` treats missing run-loop fields as stale or incomplete
+  source-audit evidence for STG-like inlets, but a
   correlated velocity-field-only inlet remains diagnostic until distribution-function consistency or a validated
   precursor/DFM/SEM/recycling treatment is implemented.
 - The turbulent-inlet correlation must be verified from the same real final-window VTK frames with
