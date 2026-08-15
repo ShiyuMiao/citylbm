@@ -218,6 +218,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    `official_measurement_count` must match `valid_n`,
    `official_probe_coverage_ratio` must be `1.0`, and `missing_official_probe_count` must be `0`.
    A subset of official probes is diagnostic only, because it can hide poor locations and understate MAE/RMSE.
+   The metrics builder and final gate use the same normalized probe-ID key, ignoring case, spaces and punctuation.
+   Duplicate official IDs after this normalization must be fixed in the source table instead of being silently
+   overwritten.
    The Data Probe audit CSV must keep one consistent finite `Uref`, one consistent wind vector, and valid
    `normalization_valid`/`wind_direction_valid` flags for every
    valid probe; a correct summary metrics row alone is not sufficient. The machine gate requires

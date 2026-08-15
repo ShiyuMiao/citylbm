@@ -136,6 +136,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   a valid probe row. Missing official probes now set `fail_incomplete_official_probe_coverage` and keep the run
   diagnostic, even if the remaining matched subset has good error statistics.
   The final gate also cross-checks the metrics-row coverage fields against the per-probe audit recomputation.
+- `validation_metrics_from_probe_audit.py` now uses the same normalized probe-ID matching rule as `validation_gate.py`
+  when joining probe rows to official RS measurements, and rejects duplicate official IDs after normalization. Metrics
+  construction and final gate coverage can no longer silently disagree because of case, spacing or punctuation in AIJ
+  point labels.
 - `scripts/validation_gate.py` now requires component/Uref sensitivity values to come from archived
   `component_sensitivity_audit.json`; metrics rows may point to that audit, but can no longer self-report
   component-normalization pass fields, best component, RMSE comparison or best-fit Uref scale.

@@ -236,6 +236,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   It also rechecks valid per-probe IDs against the current official RS table: IDs must be non-empty, unique among valid
   probe rows and present in the official file passed with `--official`. Duplicated, missing or unmatched point numbers
   keep the run diagnostic even when distance and coordinate-delta summaries look acceptable.
+  The metrics builder and final gate use the same normalized probe-ID key, ignoring case, spaces and punctuation.
+  Duplicate official IDs after this normalization must be corrected in `RS_caseE.csv` or the filtered official subset,
+  not averaged or overwritten in post-processing.
   The reverse coverage is also mandatory: `official_measurement_count` must match `valid_n`,
   `official_probe_coverage_ratio` must be `1.0`, and `missing_official_probe_count` must be `0` for the filtered
   `case=ac`, `Wind_direction=N` official rows. A visually plausible subset of points is not acceptable for SCI-level

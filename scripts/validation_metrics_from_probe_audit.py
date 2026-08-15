@@ -395,6 +395,10 @@ def norm_key(key: str) -> str:
     return "".join(ch for ch in key.lower() if ch.isalnum())
 
 
+def normalized_probe_id(value: Any) -> str:
+    return "".join(ch for ch in str(value).strip().lower() if ch.isalnum())
+
+
 def find_column(rows: Sequence[Dict[str, str]], candidates: Iterable[str]) -> str:
     if not rows:
         return ""
@@ -496,8 +500,12 @@ def build_official_lookup(rows: List[Dict[str, str]], id_column: str) -> Dict[st
     lookup: Dict[str, Dict[str, str]] = {}
     for row in rows:
         probe_id = get_value(row, id_column).strip()
-        if probe_id:
-            lookup[probe_id] = row
+        key = normalized_probe_id(probe_id)
+        if not key:
+            continue
+        if key in lookup:
+            raise SystemExit(f"Duplicate official probe ID after normalization: {probe_id}")
+        lookup[key] = row
     return lookup
 
 
@@ -848,6 +856,10 @@ def main() -> int:
         source_time_steps = audit_source_steps(inlet_profile_audit)
     if not source_time_steps:
         source_time_steps = args.source_time_steps
+    minimum_average_step_span = first_int(
+        audit_int(read_vtk_audit, "minimum_validation_average_step_span"),
+        audit_int(inlet_profile_audit, "minimum_validation_average_step_span"),
+    )
 
     official = build_official_lookup(official_rows, official_id_col)
     sim_values: List[float] = []
@@ -877,7 +889,8 @@ def main() -> int:
 
     for row in probe_rows:
         probe_id = get_value(row, args.probe_id_column).strip()
-        official_row = official.get(probe_id)
+        probe_key = normalized_probe_id(probe_id)
+        official_row = official.get(probe_key)
         status = get_value(row, "failed").strip().lower()
         validation_status = get_value(row, "validation_status").strip().lower()
         if not official_row:
@@ -889,7 +902,7 @@ def main() -> int:
         if failed_flag is True or "fail" in validation_status or sim is None or exp is None:
             failed += 1
             continue
-        matched_official_probe_ids.add(probe_id)
+        matched_official_probe_ids.add(probe_key)
         sim_values.append(sim)
         exp_values.append(exp)
         error = sim - exp
