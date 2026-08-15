@@ -139,7 +139,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    `inlet_source_audit.json` with `setup_cpp_sha256`, `inlet_source_method_class`,
    `inlet_source_distribution_consistent` and `inlet_source_velocity_field_only`; `validation_gate.py` fails
    `paper_grade_inlet_method` when metadata claims a distribution-consistent inlet but the generated source only shows
-   macroscopic velocity-field forcing.
+   macroscopic velocity-field forcing. Metrics-table `inlet_source_*` fields are ignored context and cannot repair a
+   missing or incomplete source audit.
    In addition to RMS/k preservation, run `scripts/audit_inlet_correlation_from_vtk.py` on the same final-window VTK
    frames. The correlation audit records streamwise fluctuation variance, signed temporal lag-1 correlation, temporal
    lag-1 absolute correlation for diagnosis, and adjacent spatial correlation; a missing or failing audit means the

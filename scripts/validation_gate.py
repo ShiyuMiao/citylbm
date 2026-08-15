@@ -1496,60 +1496,36 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         or metadata.get("InletMethodClassSupported")
     )
     inlet_source_gate = str(
-        get_first_available(
-            get_any(inlet_source_audit, ["inlet_source_gate"]),
-            get_any(metrics, ["inlet_source_gate", "InletSourceGate"]),
-        )
-        or ""
+        get_any(inlet_source_audit, ["inlet_source_gate"]) or ""
     ).strip().lower()
     inlet_source_reasons = str(
         get_first_available(
             get_any(inlet_source_audit, ["inlet_source_gate_reasons_csv"]),
             get_any(inlet_source_audit, ["inlet_source_gate_reasons"]),
-            get_any(metrics, ["inlet_source_gate_reasons", "InletSourceGateReasons"]),
         )
         or ""
     )
     paper_grade_inlet_source_gate = str(
-        get_first_available(
-            get_any(inlet_source_audit, ["paper_grade_inlet_source_gate"]),
-            get_any(metrics, ["paper_grade_inlet_source_gate", "PaperGradeInletSourceGate"]),
-        )
-        or ""
+        get_any(inlet_source_audit, ["paper_grade_inlet_source_gate"]) or ""
     ).strip().lower()
     paper_grade_inlet_source_reasons = str(
         get_first_available(
             get_any(inlet_source_audit, ["paper_grade_inlet_source_gate_reasons_csv"]),
             get_any(inlet_source_audit, ["paper_grade_inlet_source_gate_reasons"]),
-            get_any(metrics, ["paper_grade_inlet_source_gate_reasons", "PaperGradeInletSourceGateReasons"]),
         )
         or ""
     )
     inlet_source_method_class = str(
-        get_first_available(
-            get_any(inlet_source_audit, ["inlet_source_method_class"]),
-            get_any(metrics, ["inlet_source_method_class", "InletSourceMethodClass"]),
-        )
-        or ""
+        get_any(inlet_source_audit, ["inlet_source_method_class"]) or ""
     ).strip()
     inlet_source_distribution_consistent = as_bool(
-        get_first_available(
-            get_any(inlet_source_audit, ["inlet_source_distribution_consistent"]),
-            get_any(metrics, ["inlet_source_distribution_consistent", "InletSourceDistributionConsistent"]),
-        )
+        get_any(inlet_source_audit, ["inlet_source_distribution_consistent"])
     )
     inlet_source_velocity_field_only = as_bool(
-        get_first_available(
-            get_any(inlet_source_audit, ["inlet_source_velocity_field_only"]),
-            get_any(metrics, ["inlet_source_velocity_field_only", "InletSourceVelocityFieldOnly"]),
-        )
+        get_any(inlet_source_audit, ["inlet_source_velocity_field_only"])
     )
     inlet_source_setup_sha256 = str(
-        get_first_available(
-            get_any(inlet_source_audit, ["setup_cpp_sha256"]),
-            get_any(metrics, ["inlet_source_setup_sha256", "InletSourceSetupSha256"]),
-        )
-        or ""
+        get_any(inlet_source_audit, ["setup_cpp_sha256"]) or ""
     ).strip()
     audit_inlet_source_gate = str(get_any(inlet_source_audit, ["inlet_source_gate"]) or "").strip().lower()
     audit_paper_grade_inlet_source_gate = str(
@@ -1744,7 +1720,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"audit_only_source_distribution_consistent={audit_inlet_source_distribution_consistent}; "
             f"audit_only_source_velocity_field_only={audit_inlet_source_velocity_field_only}; "
             f"audit_only_setup_cpp_sha256={audit_inlet_source_setup_sha256 or 'missing'}; "
-            f"inlet_source_gate_reasons={inlet_source_reasons or 'none'}"
+            f"inlet_source_gate_reasons={inlet_source_reasons or 'none'}; "
+            f"metrics_inlet_source_gate={get_any(metrics, ['inlet_source_gate', 'InletSourceGate']) or 'ignored'}; "
+            f"metrics_paper_grade_inlet_source_gate={get_any(metrics, ['paper_grade_inlet_source_gate', 'PaperGradeInletSourceGate']) or 'ignored'}; "
+            f"metrics_inlet_source_method_class={get_any(metrics, ['inlet_source_method_class', 'InletSourceMethodClass']) or 'ignored'}"
         ),
         "Run scripts/audit_inlet_source.py on the generated setup.cpp and archive the source hash and inlet implementation class before interpreting probe accuracy.",
     )

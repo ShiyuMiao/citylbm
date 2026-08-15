@@ -225,6 +225,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `native_baseline` gating no longer trusts `native_baseline_gate` from metrics. It recomputes the gate from
   `native_fluidx3d_baseline_manifest.json`, required native FluidX3D source hashes, BaselineId matching and the
   `native_fluidx3d_baseline` protocol item.
+- `inlet_source_evidence` reporting is now audit-only. Metrics-table `inlet_source_gate`,
+  `paper_grade_inlet_source_gate` and `inlet_source_method_class` fields are reported as ignored context and cannot make
+  a run pass without a complete `inlet_source_audit.json`.
 - Added `scripts/probe_vtk_points.py` to sample native FluidX3D/CityLBM VTK frames at official RS probe points and emit
   the same Data-Probe-compatible audit CSV used by Grasshopper, including official coordinates, nearest-node distance,
   Uref, wind-vector evidence, compared component, time-averaged value and per-probe failure flags.
