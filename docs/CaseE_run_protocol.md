@@ -87,7 +87,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `precursor_boundary` or `recycling_boundary`. Domain clearance or token-only equivalence text is diagnostic and
   cannot pass the paper-grade boundary gate without a supported evidence class and archived support file.
   The final gate reads these boundary support booleans from `boundary_protocol_audit.json`; copying equivalent-looking
-  `boundary_*_supported=true` fields into `validation_metrics.csv` is not accepted as AIJ boundary evidence.
+  `boundary_*_supported=true` fields into `validation_metrics.csv` is not accepted as AIJ boundary evidence. It also
+  recomputes the SHA256 of every `boundary_evidence_files_sha256` entry from the current archived files, so an edited,
+  missing or incompletely hashed support file invalidates the boundary evidence even if the JSON flag still says
+  `boundary_evidence_files_all_hashed=true`.
 - Audit the generated boundary source before accepting the boundary protocol. Run
   `scripts\audit_boundary_source.py --setup <case_dir>\src\setup.cpp --metadata <case_metadata.json> --out <case_dir>\boundary_source_audit.json`
   and archive `setup_cpp_sha256`, `boundary_source_method_class`, `boundary_source_simplified` and
@@ -248,6 +251,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   The final validation gate recomputes the current run package `setup.cpp` SHA256 and requires both
   `inlet_source_audit.json` and `boundary_source_audit.json` to match it; source audits copied from an older generated
   case remain diagnostic.
+  The same current-file rule applies to `boundary_protocol_audit.json` supporting files: the gate checks each archived
+  support path, size and SHA256 before accepting AIJ-equivalent boundary evidence.
 - For a CityLBM-driven Case E validation row, run `scripts\audit_native_citylbm_parity.py` or pass
   `--paired-native-metrics <native_validation_metrics.csv>` to the evidence chain. The resulting
   `native_citylbm_parity_audit.json` must show matched case, wind direction, `dx`, steps, VTK cadence, averaging window,

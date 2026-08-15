@@ -140,6 +140,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now binds `inlet_source_audit.json` and `boundary_source_audit.json` to the current run's
   `setup.cpp` SHA256. Source audits copied from an older generated case fail even if their internal gate fields say
   `pass`.
+- `validation_gate.py` now recomputes SHA256 for every file listed in `boundary_protocol_audit.json`
+  `boundary_evidence_files_sha256`. Boundary support files copied, edited, removed or incompletely hashed after the
+  protocol audit keep the run diagnostic even if the audit JSON still says `boundary_evidence_files_all_hashed=true`.
 - `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now track LBM stability
   evidence: target lattice velocity, estimated Mach number, `tau`, `nu_lbm`, physical viscosity, Reynolds number,
   velocity set, LES/subgrid model and solver-log stability warnings. A generated case is not enough; the machine gate

@@ -860,6 +860,121 @@ def resolve_audit_path(raw_path: str, audit_path: Optional[Path]) -> Path:
     return path.resolve()
 
 
+def boundary_evidence_file_hash_status(
+    boundary_audit: Dict[str, Any],
+    boundary_audit_path: Optional[Path],
+) -> Dict[str, Any]:
+    raw_files = get_any(
+        boundary_audit,
+        ["boundary_evidence_files", "BoundaryEvidenceFiles"],
+    )
+    if isinstance(raw_files, list):
+        declared_file_count = len([item for item in raw_files if str(item).strip()])
+    else:
+        declared_file_text = str(raw_files or "").strip()
+        declared_file_count = (
+            len([part for part in declared_file_text.replace(";", ",").split(",") if part.strip()])
+            if declared_file_text
+            else 0
+        )
+
+    records = get_any(
+        boundary_audit,
+        [
+            "boundary_evidence_files_sha256",
+            "BoundaryEvidenceFilesSha256",
+            "boundary_evidence_file_hashes",
+            "BoundaryEvidenceFileHashes",
+        ],
+    )
+    result: Dict[str, Any] = {
+        "ok": False,
+        "error": None,
+        "declared_file_count": declared_file_count,
+        "hash_record_count": 0,
+        "path_missing_count": 0,
+        "missing_file_count": 0,
+        "declared_hash_missing_count": 0,
+        "actual_hash_missing_count": 0,
+        "hash_mismatch_count": 0,
+        "size_mismatch_count": 0,
+        "declared_hashes": [],
+        "actual_hashes": [],
+        "actual_paths": [],
+    }
+    if not isinstance(records, list) or not records:
+        result["error"] = "boundary_evidence_hash_records_missing"
+        return result
+
+    result["hash_record_count"] = len(records)
+    declared_hashes: List[str] = []
+    actual_hashes: List[str] = []
+    actual_paths: List[str] = []
+    for record in records:
+        if not isinstance(record, dict):
+            result["path_missing_count"] += 1
+            declared_hashes.append("")
+            actual_hashes.append("")
+            actual_paths.append("")
+            continue
+        raw_path = str(get_any(record, ["path", "Path", "file", "File"]) or "").strip()
+        declared_hash_list = normalized_hash_list(
+            get_any(record, ["sha256", "Sha256", "SHA256", "hash", "Hash"])
+        )
+        declared_hash = declared_hash_list[0] if declared_hash_list else ""
+        declared_hashes.append(declared_hash)
+        if not declared_hash:
+            result["declared_hash_missing_count"] += 1
+        if not raw_path:
+            result["path_missing_count"] += 1
+            actual_hashes.append("")
+            actual_paths.append("")
+            continue
+
+        evidence_path = resolve_audit_path(raw_path, boundary_audit_path)
+        actual_paths.append(str(evidence_path))
+        if not evidence_path.exists():
+            result["missing_file_count"] += 1
+            actual_hashes.append("")
+            continue
+        actual_hash = sha256_file(evidence_path).lower()
+        actual_hashes.append(actual_hash)
+        if not actual_hash:
+            result["actual_hash_missing_count"] += 1
+        elif declared_hash and declared_hash != actual_hash:
+            result["hash_mismatch_count"] += 1
+
+        declared_size = as_int(get_any(record, ["size_bytes", "SizeBytes", "bytes", "Bytes"]))
+        if declared_size is not None:
+            try:
+                actual_size = evidence_path.stat().st_size
+            except OSError:
+                actual_size = None
+            if actual_size is None or declared_size != actual_size:
+                result["size_mismatch_count"] += 1
+
+    result["declared_hashes"] = declared_hashes
+    result["actual_hashes"] = actual_hashes
+    result["actual_paths"] = actual_paths
+    if declared_file_count and declared_file_count != len(records):
+        result["error"] = "boundary_evidence_hash_record_count_mismatch"
+    elif result["path_missing_count"]:
+        result["error"] = "boundary_evidence_hash_record_path_missing"
+    elif result["missing_file_count"]:
+        result["error"] = "boundary_evidence_hash_record_file_missing"
+    elif result["declared_hash_missing_count"]:
+        result["error"] = "boundary_evidence_sha256_missing"
+    elif result["actual_hash_missing_count"]:
+        result["error"] = "boundary_evidence_actual_sha256_missing"
+    elif result["hash_mismatch_count"]:
+        result["error"] = "boundary_evidence_sha256_mismatch"
+    elif result["size_mismatch_count"]:
+        result["error"] = "boundary_evidence_size_mismatch"
+    else:
+        result["ok"] = True
+    return result
+
+
 def runtime_run_freshness_status(
     runtime_audit: Dict[str, Any],
     runtime_audit_path: Optional[Path],
@@ -1775,6 +1890,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     external_boundary_protocol_gate = str(
         get_any(external_boundary_audit, ["boundary_protocol_gate"]) or ""
     ).strip().lower()
+    boundary_evidence_file_hash_check = boundary_evidence_file_hash_status(
+        external_boundary_audit,
+        boundary_audit_path,
+    )
+    boundary_evidence_file_hashes_match_current = boundary_evidence_file_hash_check["ok"] is True
+    boundary_evidence_file_hash_error = str(boundary_evidence_file_hash_check.get("error") or "")
     external_boundary_missing_fields = external_boundary_audit.get("missing_evidence_fields")
     if isinstance(external_boundary_missing_fields, list):
         external_boundary_missing_fields_text = ",".join(str(field) for field in external_boundary_missing_fields)
@@ -1851,6 +1972,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and external_boundary_evidence_class_supported is True
         and external_boundary_evidence_files_all_exist is True
         and external_boundary_evidence_files_all_hashed is True
+        and boundary_evidence_file_hashes_match_current
         and external_boundary_condition_fields_supported is True
         and all(value is True for value in external_boundary_condition_support_values.values())
         and external_clearance_numeric_gate == "pass"
@@ -1863,6 +1985,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and boundary_evidence_class_supported is True
         and boundary_evidence_files_all_exist is True
         and boundary_evidence_files_all_hashed is True
+        and boundary_evidence_file_hashes_match_current
         and boundary_condition_fields_supported is True
         and all(value is True for value in boundary_condition_support_values.values())
         and boundary_clearance_ok
@@ -1940,6 +2063,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"external_boundary_evidence_class_supported={external_boundary_evidence_class_supported}; "
             f"external_boundary_evidence_files_all_exist={external_boundary_evidence_files_all_exist}; "
             f"external_boundary_evidence_files_all_hashed={external_boundary_evidence_files_all_hashed}; "
+            f"boundary_evidence_file_hashes_match_current={boundary_evidence_file_hashes_match_current}; "
+            f"boundary_evidence_file_hash_error={boundary_evidence_file_hash_error or 'none'}; "
+            f"boundary_evidence_hash_record_count={boundary_evidence_file_hash_check['hash_record_count']}; "
+            f"boundary_evidence_hash_declared_file_count={boundary_evidence_file_hash_check['declared_file_count']}; "
+            f"boundary_evidence_hash_mismatch_count={boundary_evidence_file_hash_check['hash_mismatch_count']}; "
             f"external_boundary_condition_fields_supported={external_boundary_condition_fields_supported}; "
             f"external_boundary_condition_support_values={external_boundary_condition_support_values}; "
             f"boundary_evidence_class={boundary_evidence_class or 'missing'}; "
