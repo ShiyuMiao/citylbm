@@ -239,6 +239,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   paths and compares the result with the row-level `vtk_source_sha256` and runtime final-window hashes.
 - A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
   extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
+  The native manifest must point to one explicit complete FluidX3D source root. `validation_gate.py` verifies that the
+  manifest source root exists, has a build file, and that the required native source records resolve to `src/setup.cpp`,
+  `src/defines.hpp`, `src/lbm.hpp` and `src/lbm.cpp` under that same root with matching SHA256 hashes.
 - Boundary-source evidence must come from comment-stripped generated `setup.cpp` code. `audit_boundary_source.py` treats
   TYPE_E/TYPE_S assignments, profile inlet, outlet/lateral/top checks, rough-wall evidence and precursor/recycling
   evidence in comments as diagnostics only; commented pseudo-code cannot make a simplified boundary setup paper-grade.

@@ -336,6 +336,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now recomputes per-probe `vtk_source_files` hashes from the probe audit CSV. Probe extraction
   evidence must list the archived VTK source paths, and those files must hash to the same final-window SHA256 set used
   by the runtime, inlet-profile and inlet-correlation audits.
+- `validation_gate.py` now verifies that native FluidX3D baseline source hashes come from one explicit complete source
+  root. The manifest must prove a build file plus `src/setup.cpp`, `src/defines.hpp`, `src/lbm.hpp` and `src/lbm.cpp`
+  under the declared `NativeFluidX3DSourcePath`, not merely provide four matching hashes from arbitrary paths.
 
 ## Remaining scientific work
 

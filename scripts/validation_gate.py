@@ -1177,6 +1177,98 @@ def manifest_source_hash_status(
     }
 
 
+def native_manifest_source_root_status(
+    manifest: Dict[str, Any],
+    manifest_path: Optional[Path],
+) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "ok": False,
+        "reason": "",
+        "source_path": "",
+        "source_path_exists": False,
+        "has_build_file": False,
+        "required_role_path_mismatch_count": 0,
+        "missing_required_item_count": 0,
+    }
+    reasons: List[str] = []
+    if not manifest:
+        reasons.append("manifest_missing")
+        result["reason"] = ";".join(reasons)
+        return result
+
+    source_root_text = str(manifest.get("NativeFluidX3DSourcePath") or "").strip()
+    if not source_root_text:
+        reasons.append("native_source_root_missing")
+        result["reason"] = ";".join(reasons)
+        return result
+    source_root = Path(source_root_text).expanduser()
+    if not source_root.is_absolute() and manifest_path is not None:
+        source_root = manifest_path.parent / source_root
+    source_root = source_root.resolve()
+    result["source_path"] = str(source_root)
+    result["source_path_exists"] = source_root.exists() and source_root.is_dir()
+    if not result["source_path_exists"]:
+        reasons.append("native_source_root_not_found")
+
+    source_validation = manifest.get("NativeFluidX3DSourceValidation", {})
+    if not isinstance(source_validation, dict):
+        source_validation = {}
+        reasons.append("native_source_validation_missing")
+    if as_bool(source_validation.get("IsValid")) is not True:
+        reasons.append("native_source_validation_not_valid")
+
+    has_build_file = any(
+        as_bool(source_validation.get(key)) is True
+        for key in ["HasSolution", "HasMakefile", "HasCMakeLists"]
+    )
+    result["has_build_file"] = has_build_file
+    if not has_build_file:
+        reasons.append("native_source_build_file_missing")
+
+    required_validation_flags = [
+        "HasSrcDirectory",
+        "HasSetupCpp",
+        "HasDefinesHpp",
+        "HasLbmHpp",
+        "HasLbmCpp",
+    ]
+    for key in required_validation_flags:
+        if as_bool(source_validation.get(key)) is not True:
+            reasons.append(f"native_source_validation_flag_false:{key}")
+
+    missing_items = source_validation.get("MissingRequiredItems")
+    missing_count = len(missing_items) if isinstance(missing_items, list) else 0
+    result["missing_required_item_count"] = missing_count
+    if missing_count:
+        reasons.append("native_source_validation_missing_items:" + ",".join(str(item) for item in missing_items))
+
+    expected_paths = {
+        "Native FluidX3D original setup": source_root / "src" / "setup.cpp",
+        "Native FluidX3D original defines": source_root / "src" / "defines.hpp",
+        "Native FluidX3D lbm.hpp": source_root / "src" / "lbm.hpp",
+        "Native FluidX3D lbm.cpp": source_root / "src" / "lbm.cpp",
+    }
+    mismatch_count = 0
+    for role, expected_path in expected_paths.items():
+        record = get_manifest_source_record(manifest, role)
+        declared_path_text = str(record.get("Path") or "").strip()
+        if not declared_path_text:
+            mismatch_count += 1
+            reasons.append(f"native_source_role_path_missing:{role}")
+            continue
+        declared_path = Path(declared_path_text).expanduser()
+        if not declared_path.is_absolute() and manifest_path is not None:
+            declared_path = manifest_path.parent / declared_path
+        declared_path = declared_path.resolve()
+        if declared_path != expected_path.resolve():
+            mismatch_count += 1
+            reasons.append(f"native_source_role_not_under_declared_root:{role}")
+    result["required_role_path_mismatch_count"] = mismatch_count
+    result["ok"] = not reasons
+    result["reason"] = "pass" if result["ok"] else ";".join(reasons)
+    return result
+
+
 def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     run_dir = Path(args.run_dir).resolve()
     metadata_path = find_first(run_dir, ["case_metadata.json"])
@@ -2647,6 +2739,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_source_hash_statuses = [
         manifest_source_hash_status(manifest, role, manifest_path) for role in native_source_hash_roles
     ]
+    native_source_root_status = native_manifest_source_root_status(manifest, manifest_path)
     native_source_hashes_ok = all(
         as_bool(status.get("ok")) is True for status in native_source_hash_statuses
     )
@@ -2658,6 +2751,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_manifest_ok = (
         native_path_explicit is True
         and native_source_valid is True
+        and native_source_root_status["ok"]
         and native_source_hashes_ok
     )
     native_gate = "pass" if manifest_path is not None and native_manifest_ok else "fail"
@@ -2672,6 +2766,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"protocol_status={native_status or 'missing'}; native_baseline_gate={native_gate or 'missing'}; "
             f"NativeFluidX3DPathExplicitlyProvided={native_path_explicit}; "
             f"NativeFluidX3DSourceValidation.IsValid={native_source_valid}; "
+            f"native_source_root={native_source_root_status['source_path'] or 'missing'}; "
+            f"native_source_root_exists={native_source_root_status['source_path_exists']}; "
+            f"native_source_root_has_build_file={native_source_root_status['has_build_file']}; "
+            f"native_source_root_role_path_mismatch_count={native_source_root_status['required_role_path_mismatch_count']}; "
+            f"native_source_root_missing_required_item_count={native_source_root_status['missing_required_item_count']}; "
+            f"native_source_root_reasons={native_source_root_status['reason'] or 'none'}; "
             f"native_source_hashes_ok={native_source_hashes_ok}; "
             f"native_source_hash_failure_reasons={';'.join(native_source_hash_failure_reasons) or 'none'}; "
             f"manifest={manifest_path or 'missing'}; "
