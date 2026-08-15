@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import math
 import sys
@@ -201,6 +202,8 @@ TEMPLATE_FIELDS = [
     "native_citylbm_parity_mismatched_field_count",
     "native_citylbm_parity_mismatched_fields",
     "probe_mapping_table",
+    "probe_mapping_table_sha256",
+    "official_measurement_sha256",
     "probe_vtk_source_window_gate",
     "probe_vtk_source_window_reasons",
     "probe_vtk_source_time_steps",
@@ -338,6 +341,14 @@ def read_json(path: Optional[Path]) -> Dict[str, Any]:
     with path.open("r", encoding="utf-8-sig") as handle:
         data = json.load(handle)
     return data if isinstance(data, dict) else {}
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def norm_key(key: str) -> str:
@@ -1320,6 +1331,8 @@ def main() -> int:
             if isinstance(native_citylbm_parity_audit.get("mismatched_fields"), list)
             else str(native_citylbm_parity_audit.get("mismatched_fields", "")),
             "probe_mapping_table": str(probe_path),
+            "probe_mapping_table_sha256": sha256_file(probe_path),
+            "official_measurement_sha256": sha256_file(official_path),
             "probe_vtk_source_window_gate": probe_source_window_gate,
             "probe_vtk_source_window_reasons": ";".join(probe_source_reasons),
             "probe_vtk_source_time_steps": ";".join(unique_probe_source_steps),

@@ -216,7 +216,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    Component and Uref sensitivity must be archived as `component_sensitivity_audit.json`; final validation reads the
    selected component, best component, RMSE comparison and best-fit Uref scale from that audit file, not from
    self-reported fields in the metrics row. The audit must include `probe_audit_sha256`, and that hash must match the
-   current `probe_audit.csv`; otherwise a stale component/Uref sensitivity result cannot be used to interpret bias.
+   current `probe_audit.csv`; it must also include `official_sha256` matching the `--official` RS table supplied to the
+   final gate. Otherwise a stale component/Uref sensitivity result cannot be used to interpret bias.
    The gate also enforces `probe_source_window`: every valid probe row must carry `vtk_source_time_steps` and
    `vtk_source_sha256`, the source steps must match the metrics/inlet final-window `source_time_steps`, and the hash
    count must match the averaged frame count. Probe rows sampled from stale, mixed or undocumented VTK frames are
@@ -303,7 +304,7 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 - Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept, max absolute error,
   `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
 - Component/Uref sensitivity audit hashes: `component_sensitivity_audit.json` must record `probe_audit_sha256` matching
-  the current `probe_audit.csv`; archive `official_sha256` as the official RS table provenance record.
+  the current `probe_audit.csv` and `official_sha256` matching the official RS table passed to `validation_gate.py`.
 - Probe mapping diagnostics: valid/failed count, mean/max probe distance, tolerance, compared-component consistency and
   coordinate-delta coverage across all valid probes.
 - Probe source-window diagnostics: `probe_vtk_source_window_gate`, `probe_vtk_source_time_steps`,
@@ -315,7 +316,7 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 After every native FluidX3D or CityLBM-driven Case A run, execute the repository gate before using metrics in a paper:
 
 ```powershell
-python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluidx3d --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --expected-uref <Uref> --expected-wind-vector 1,0,0 --max-mean-speed-stddev-ratio 0.05 --max-point-speed-stddev-ratio 0.20 --out <run_dir>\validation_gate_report.json
+python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluidx3d --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --expected-compared-component speed_ratio --expected-uref <Uref> --expected-wind-vector 1,0,0 --max-mean-speed-stddev-ratio 0.05 --max-point-speed-stddev-ratio 0.20 --out <run_dir>\validation_gate_report.json
 ```
 
 If metrics are produced from Grasshopper `Data Probe`, build the metrics row first:

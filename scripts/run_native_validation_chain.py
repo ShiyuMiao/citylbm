@@ -702,6 +702,8 @@ def main() -> int:
             str(metrics_csv),
             "--probe-audit",
             str(probe_audit_csv),
+            "--official",
+            str(official),
             "--case",
             args.case,
             "--software",

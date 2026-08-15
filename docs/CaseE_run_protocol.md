@@ -194,8 +194,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   Run `scripts\audit_component_sensitivity.py` and archive `component_sensitivity_audit.json`; the final gate reads
   selected component, best component, component RMSE improvement and Uref best-fit scale from that audit file, not from
   self-reported fields in `validation_metrics.csv`. The audit must also record `probe_audit_sha256` matching the current
-  `probe_audit.csv`, plus `official_sha256` for the RS table; a stale sensitivity audit from another probe extraction
-  leaves the run diagnostic.
+  `probe_audit.csv`, plus `official_sha256` matching the `--official` RS table supplied to the final gate; a stale
+  sensitivity audit from another probe extraction or measurement table leaves the run diagnostic.
   The `vtk_source_time_steps` and `vtk_source_sha256` values in every valid probe row must match the same final-window
   VTK frames used by `Read VTK`, `audit_native_run.py`, `audit_inlet_profile_from_vtk.py` and
   `audit_inlet_correlation_from_vtk.py`. `validation_gate.py` fails `probe_source_window` if probe extraction mixes
@@ -228,9 +228,9 @@ python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <
 
 python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 10 --min-avg-frames 10 --out <probe_audit.csv>
 
-python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --case ac --wind-direction N --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
+python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <official_data>\RS_caseE.csv --case ac --wind-direction N --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
 
-python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS_caseE.csv> --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --component-sensitivity-audit <run_dir>\component_sensitivity_audit.json --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
+python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <official_data>\RS_caseE.csv --metadata <case_metadata.json> --read-vtk-audit <read_vtk_averaging_audit.json> --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --component-sensitivity-audit <run_dir>\component_sensitivity_audit.json --case ac --wind-direction N --u-ref 3.928296 --z-ref 15.9 --out <validation_metrics.csv> --comparison-out <probe_comparison.csv>
 ```
 
 The final gate rechecks `component_sensitivity_audit.json` numerically. A run is diagnostic if another velocity
@@ -264,7 +264,7 @@ python scripts\run_native_validation_chain.py <run_dir> --official <official_dat
 - Run the machine gate after postprocessing:
 
 ```powershell
-python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --expected-compared-component speed_ratio --expected-uref 3.928296 --expected-wind-vector 0,-1,0 --max-mean-speed-stddev-ratio 0.05 --max-point-speed-stddev-ratio 0.20 --out <run_dir>\validation_gate_report.json
+python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --metrics <validation_metrics.csv> --probe-audit <probe_audit.csv> --official <official_data>\RS_caseE.csv --expected-compared-component speed_ratio --expected-uref 3.928296 --expected-wind-vector 0,-1,0 --max-mean-speed-stddev-ratio 0.05 --max-point-speed-stddev-ratio 0.20 --out <run_dir>\validation_gate_report.json
 ```
 
   The gate must pass before Case E is described as paper-grade validation. A failed gate means the run remains
@@ -288,7 +288,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Component/Uref sensitivity audit: selected compared component, best RMSE component, selected/best RMSE, best-fit
   normalization scale, scaled-improvement ratio and `component_normalization_gate`. A failing audit means speed-ratio
   versus streamwise-ratio selection or Uref/SI conversion must be fixed before interpreting physical-model error.
-  The audit's `probe_audit_sha256` must match the current probe audit CSV used by the final gate.
+  The audit's `probe_audit_sha256` and `official_sha256` must match the current probe audit CSV and official RS table
+  used by the final gate.
 - Grid spacing, steps, averaging window and VTK frame list
 - Grid-sensitivity audit: `grid_sensitivity_audit.json`, `grid_sensitivity_gate`,
   `grid_sensitivity_run_count`, `grid_sensitivity_finest_dx_m`,

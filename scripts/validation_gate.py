@@ -36,6 +36,10 @@ def parse_args() -> argparse.Namespace:
         "--probe-audit",
         help="Optional probe audit CSV from Data Probe.",
     )
+    parser.add_argument(
+        "--official",
+        help="Official RS/measurement CSV used to build the probe metrics and component sensitivity audit.",
+    )
     parser.add_argument("--case", default="", help="Expected case label, e.g. CaseA or CaseE.")
     parser.add_argument("--software", default="", help="Expected software label, e.g. native-fluidx3d or citylbm.")
     parser.add_argument("--min-avg-frames", type=int, default=10)
@@ -821,6 +825,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     manifest_path = find_first(run_dir, ["native_fluidx3d_baseline_manifest.json"])
     metrics_path = Path(args.metrics).resolve() if args.metrics else find_metrics(run_dir)
     probe_path = Path(args.probe_audit).resolve() if args.probe_audit else None
+    official_path = Path(args.official).resolve() if args.official else None
 
     metadata = read_json(metadata_path)
     audit = read_json(audit_path)
@@ -2525,13 +2530,22 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         component_sensitivity_audit.get("selected_scaled_improvement_ratio")
     )
     current_probe_audit_sha256 = sha256_file(probe_path)
+    current_official_sha256 = sha256_file(official_path)
     component_probe_audit_sha256 = str(
         get_any(component_sensitivity_audit, ["probe_audit_sha256", "ProbeAuditSha256"]) or ""
+    ).strip().lower()
+    component_official_sha256 = str(
+        get_any(component_sensitivity_audit, ["official_sha256", "OfficialSha256"]) or ""
     ).strip().lower()
     component_probe_hash_matches = (
         bool(current_probe_audit_sha256)
         and bool(component_probe_audit_sha256)
         and component_probe_audit_sha256 == current_probe_audit_sha256.lower()
+    )
+    component_official_hash_matches = (
+        bool(current_official_sha256)
+        and bool(component_official_sha256)
+        and component_official_sha256 == current_official_sha256.lower()
     )
     component_sensitivity_audit_exists = (
         bool(component_sensitivity_audit_path and component_sensitivity_audit_path.exists())
@@ -2564,6 +2578,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and component_sensitivity_gate == "pass"
         and normalization_scale_gate == "pass"
         and component_probe_hash_matches
+        and component_official_hash_matches
         and component_choice_not_explained
         and normalization_scale_not_explained
     )
@@ -2588,6 +2603,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"component_probe_audit_sha256={component_probe_audit_sha256 or 'missing'}; "
             f"current_probe_audit_sha256={current_probe_audit_sha256 or 'missing'}; "
             f"component_probe_hash_matches={component_probe_hash_matches}; "
+            f"component_official_sha256={component_official_sha256 or 'missing'}; "
+            f"current_official_sha256={current_official_sha256 or 'missing'}; "
+            f"component_official_hash_matches={component_official_hash_matches}; "
             f"max_normalization_best_scale_deviation={args.max_normalization_best_scale_deviation}; "
             f"min_normalization_scaled_improvement_ratio={args.min_normalization_scaled_improvement_ratio}; "
             f"metrics_component_normalization_gate={get_any(metrics, ['component_normalization_gate', 'ComponentNormalizationGate']) or 'ignored'}; "
@@ -2776,6 +2794,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "native_fluidx3d_baseline_manifest": str(manifest_path) if manifest_path else "",
             "metrics": str(metrics_path) if metrics_path else "",
             "probe_audit": str(probe_path) if probe_path else "",
+            "official": str(official_path) if official_path else "",
         },
     }
 
