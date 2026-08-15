@@ -221,6 +221,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   The final gate reads official-coordinate delta coverage from the per-probe audit rows by default; copied
   `max_official_coordinate_delta_m` or `official_coordinate_delta_count` values in `validation_metrics.csv` are
   diagnostic summaries, not proof of coordinate closure.
+  It also rechecks valid per-probe IDs against the current official RS table: IDs must be non-empty, unique among valid
+  probe rows and present in the official file passed with `--official`. Duplicated, missing or unmatched point numbers
+  keep the run diagnostic even when distance and coordinate-delta summaries look acceptable.
   Use structured-grid trilinear sampling for the velocity value; the nearest-node distance remains the coverage and
   tolerance evidence.
   Native VTK probe audit rows must include VTK origin, spacing, dimensions, source time steps, source file hashes and
@@ -387,6 +390,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Mean probe distance and maximum probe distance
 - Compared component consistency gate, unique compared components and official coordinate-delta coverage count from the
   per-probe audit rows, not only from the summary metrics table
+- Valid probe-ID coverage: probe ID column, official ID column, unique valid probe count, duplicate/missing probe-ID
+  count and unmatched official-ID count
 - Per-probe `Uref`, wind vector, `normalization_valid` and `wind_direction_valid` coverage from the Data Probe audit
   CSV. For paper-grade Case E, every valid probe must carry the same finite normalization basis and declared wind vector;
   a correct summary metrics row is diagnostic if the per-probe audit is missing or mixed.

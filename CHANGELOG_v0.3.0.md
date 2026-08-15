@@ -125,6 +125,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_gate.py` now computes official-coordinate delta coverage from the per-probe audit rows by default.
   `max_official_coordinate_delta_m` and `official_coordinate_delta_count` in `validation_metrics.csv` are summaries only
   and cannot replace `probe_audit.csv` for paper-grade coordinate closure.
+- `scripts/validation_gate.py` now rechecks valid per-probe IDs against the current official RS/measurement table:
+  every valid probe row must have a non-empty unique ID, and each ID must exist in the official table before
+  coordinate/Uref/compared-component diagnostics can pass.
 - `scripts/validation_gate.py` now requires component/Uref sensitivity values to come from archived
   `component_sensitivity_audit.json`; metrics rows may point to that audit, but can no longer self-report
   component-normalization pass fields, best component, RMSE comparison or best-fit Uref scale.

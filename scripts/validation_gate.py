@@ -98,9 +98,9 @@ def parse_args() -> argparse.Namespace:
         "--allow-summary-only-probe-metrics",
         action="store_true",
         help=(
-            "Diagnostic override only: allow coordinate, normalization and compared-component "
-            "checks to rely on a summary metrics row when the per-probe Data Probe audit CSV "
-            "is missing. Paper-grade validation should not use this flag."
+            "Diagnostic override only: allow some coordinate, normalization and compared-component "
+            "summaries to come from the metrics row. Per-probe IDs, file hashes and official-table "
+            "matching are still required for paper-grade validation."
         ),
     )
     parser.add_argument(
@@ -233,6 +233,27 @@ def get_first_available(*values: Any) -> Any:
         if value not in (None, ""):
             return value
     return None
+
+
+def normalized_column_key(value: str) -> str:
+    return "".join(ch for ch in str(value).lower() if ch.isalnum())
+
+
+def find_csv_column(rows: List[Dict[str, str]], candidates: Iterable[str]) -> str:
+    if not rows:
+        return ""
+    columns = list(rows[0].keys())
+    normalized = {normalized_column_key(column): column for column in columns}
+    for candidate in candidates:
+        found = normalized.get(normalized_column_key(candidate))
+        if found:
+            return found
+    candidate_keys = [normalized_column_key(candidate) for candidate in candidates]
+    for column in columns:
+        normalized_column = normalized_column_key(column)
+        if any(candidate and candidate in normalized_column for candidate in candidate_keys):
+            return column
+    return ""
 
 
 def parse_vector(value: Any) -> Optional[Tuple[float, float, float]]:
@@ -523,6 +544,91 @@ def read_probe_counts(path: Optional[Path]) -> Tuple[Optional[int], Optional[int
         if failed_flag is True or "fail" in status or "out" in status:
             failed += 1
     return len(rows), failed, None
+
+
+def read_probe_identity_audit(
+    probe_path: Optional[Path],
+    official_path: Optional[Path],
+) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "valid_count": None,
+        "probe_id_column": "",
+        "official_id_column": "",
+        "missing_probe_id_count": 0,
+        "duplicate_probe_id_count": 0,
+        "unique_probe_id_count": None,
+        "official_id_count": None,
+        "unmatched_official_id_count": 0,
+        "error": None,
+    }
+    if not probe_path or not probe_path.exists():
+        result["error"] = "probe audit CSV not found"
+        return result
+    with probe_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        probe_rows = list(csv.DictReader(handle))
+    if not probe_rows:
+        result["valid_count"] = 0
+        result["error"] = "probe audit CSV has no rows"
+        return result
+
+    id_candidates = ["probe_id", "ProbeId", "ProbeID", "No.", "No", "number", "point_id", "PointId", "id", "ID"]
+    probe_id_column = find_csv_column(probe_rows, id_candidates)
+    result["probe_id_column"] = probe_id_column
+    if not probe_id_column:
+        result["error"] = "probe_id_column_missing"
+        return result
+
+    probe_ids: List[str] = []
+    seen = set()
+    duplicate_ids = set()
+    valid_count = 0
+    for row in probe_rows:
+        failed_flag = as_bool(get_any(row, ["failed", "Failed", "out_of_tolerance", "OutOfTolerance"]))
+        status = str(get_any(row, ["status", "Status", "validation_status", "ValidationStatus"]) or "").lower()
+        if failed_flag is True or "fail" in status or "out" in status:
+            continue
+        valid_count += 1
+        probe_id = str(row.get(probe_id_column) or "").strip()
+        if not probe_id:
+            result["missing_probe_id_count"] += 1
+            continue
+        probe_ids.append(probe_id)
+        normalized_id = normalized_column_key(probe_id)
+        if normalized_id in seen:
+            duplicate_ids.add(normalized_id)
+        seen.add(normalized_id)
+
+    result["valid_count"] = valid_count
+    result["unique_probe_id_count"] = len(seen)
+    result["duplicate_probe_id_count"] = len(duplicate_ids)
+    if not official_path or not official_path.exists():
+        result["error"] = "official measurement CSV not found"
+        return result
+    with official_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        official_rows = list(csv.DictReader(handle))
+    if not official_rows:
+        result["error"] = "official measurement CSV has no rows"
+        return result
+    official_id_column = find_csv_column(official_rows, id_candidates)
+    result["official_id_column"] = official_id_column
+    if not official_id_column:
+        result["error"] = "official_id_column_missing"
+        return result
+    official_ids = {
+        normalized_column_key(str(row.get(official_id_column) or "").strip())
+        for row in official_rows
+        if str(row.get(official_id_column) or "").strip()
+    }
+    result["official_id_count"] = len(official_ids)
+    if not official_ids:
+        result["error"] = "official_ids_empty"
+        return result
+    result["unmatched_official_id_count"] = sum(
+        1
+        for probe_id in probe_ids
+        if normalized_column_key(probe_id) not in official_ids
+    )
+    return result
 
 
 def read_probe_component_audit(path: Optional[Path]) -> Tuple[Optional[int], List[str], Optional[int], Optional[str]]:
@@ -3296,6 +3402,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         expected_wind_vector,
         args.wind_vector_tolerance,
     )
+    probe_identity = read_probe_identity_audit(probe_path, official_path)
     if probe_summary_override:
         coord_delta = metrics_coord_delta
         coord_delta_count = metrics_coord_delta_count
@@ -3316,6 +3423,23 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             probe_summary_override
             or probe_coord_norm["missing_official_coordinate_delta_count"] == 0
         )
+    )
+    probe_identity_valid_count = as_int(probe_identity["valid_count"])
+    probe_identity_ok = (
+        probe_audit_traceable
+        and probe_identity_valid_count is not None
+        and probe_identity_valid_count > 0
+        and bool(probe_identity["probe_id_column"])
+        and bool(probe_identity["official_id_column"])
+        and probe_identity["missing_probe_id_count"] == 0
+        and probe_identity["duplicate_probe_id_count"] == 0
+        and probe_identity["unique_probe_id_count"] == probe_identity_valid_count
+        and probe_identity["official_id_count"] is not None
+        and probe_identity["official_id_count"] > 0
+        and probe_identity["unmatched_official_id_count"] == 0
+        and probe_identity["error"] is None
+        and coord_valid_count == probe_identity_valid_count
+        and (valid_metric_count is None or valid_metric_count == probe_identity_valid_count)
     )
     probe_coord_norm_ok = (
         probe_summary_override
@@ -3346,6 +3470,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and wind_vector_ok
         and coord_ok
         and coord_coverage_ok
+        and probe_identity_ok
         and probe_coord_norm_ok
         else FAIL,
         (
@@ -3356,6 +3481,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"coordinate_source={coord_source}; "
             f"max_official_coordinate_delta_m={coord_delta}; required <= {args.max_official_coordinate_delta_m}; "
             f"official_coordinate_delta_count={coord_delta_count}; coordinate_valid_count={coord_valid_count}; "
+            f"probe_identity_valid_count={probe_identity_valid_count}; "
+            f"probe_identity_probe_id_column={probe_identity['probe_id_column'] or 'missing'}; "
+            f"probe_identity_official_id_column={probe_identity['official_id_column'] or 'missing'}; "
+            f"probe_identity_unique_probe_id_count={probe_identity['unique_probe_id_count']}; "
+            f"probe_identity_missing_probe_id_count={probe_identity['missing_probe_id_count']}; "
+            f"probe_identity_duplicate_probe_id_count={probe_identity['duplicate_probe_id_count']}; "
+            f"probe_identity_official_id_count={probe_identity['official_id_count']}; "
+            f"probe_identity_unmatched_official_id_count={probe_identity['unmatched_official_id_count']}; "
+            f"probe_identity_ok={probe_identity_ok}; "
+            f"probe_identity_error={probe_identity['error'] or 'none'}; "
             f"metrics_max_official_coordinate_delta_m={metrics_coord_delta if metrics_coord_delta is not None else 'ignored'}; "
             f"metrics_official_coordinate_delta_count={metrics_coord_delta_count if metrics_coord_delta_count is not None else 'ignored'}; "
             f"probe_norm_valid_count={probe_coord_norm['valid_count']}; "
