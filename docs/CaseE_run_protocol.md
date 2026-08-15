@@ -114,6 +114,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   It also recomputes SHA256 for every runtime-selected VTK file path listed in that audit. Missing files, missing paths
   or declared hashes that do not match the current disk files fail `runtime_vtk_hash_traceability`, and the downstream
   probe/inlet source-window gates are not allowed to trust those runtime hashes.
+  The final gate also recomputes the run-freshness mtime comparison from the archived paths in
+  `freshness_reference_files` and `freshness_selected_vtk_files`. A copied audit JSON with
+  `run_freshness_gate=pass` fails if the current VTK files are older than `setup.cpp`, `defines.hpp`, `buildings.stl`,
+  `domain_origin.json` or `case_metadata.json`, or if any referenced file is missing.
 - The AF inlet profile must be verified from real post-spinup VTK frames before probe accuracy is interpreted. Run
   `scripts\audit_inlet_profile_from_vtk.py` on the output VTK sequence, compare against `AF_caseE.csv`, and archive the
   resulting `inlet_profile_audit.json` and `.csv`. This audit checks that `Wind Profile=3` actually preserved both

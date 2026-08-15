@@ -330,6 +330,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now also recomputes the selected VTK file hashes listed inside `inlet_profile_audit.json` and
   `inlet_correlation_audit.json`. Inlet `U/k` preservation and turbulence-correlation evidence must therefore come
   from current archived VTK files, not from copied audit JSON with matching time-step labels.
+- `validation_gate.py` now recomputes run-freshness mtimes from archived runtime-audit file paths. The final gate no
+  longer accepts `run_freshness_gate=pass` unless the referenced setup/metadata/building/domain files exist and every
+  selected VTK frame is newer than the latest run-definition artifact on disk.
 
 ## Remaining scientific work
 

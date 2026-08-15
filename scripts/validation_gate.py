@@ -14,6 +14,7 @@ import hashlib
 import json
 import math
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
@@ -741,6 +742,7 @@ def runtime_selected_vtk_hash_status(
         "declared_hash_text": "",
         "actual_hashes": [],
         "actual_hash_text": "",
+        "actual_paths": [],
     }
     if expected_error:
         result["error"] = expected_error
@@ -784,6 +786,7 @@ def runtime_selected_vtk_hash_status(
             result["selected_file_count"] = len(selected)
             declared_hashes: List[str] = []
             actual_hashes: List[str] = []
+            actual_paths: List[str] = []
             base_dir = runtime_audit_path.parent if runtime_audit_path is not None else None
             for item in selected:
                 declared_hash = str(item["declared_hash"]).strip().lower()
@@ -792,6 +795,7 @@ def runtime_selected_vtk_hash_status(
                 if not declared_path:
                     result["path_missing_count"] += 1
                     actual_hashes.append("")
+                    actual_paths.append("")
                     continue
                 vtk_path = Path(declared_path).expanduser()
                 if not vtk_path.is_absolute() and base_dir is not None:
@@ -800,15 +804,18 @@ def runtime_selected_vtk_hash_status(
                 if not vtk_path.exists():
                     result["missing_file_count"] += 1
                     actual_hashes.append("")
+                    actual_paths.append(str(vtk_path))
                     continue
                 actual_hash = sha256_file(vtk_path).lower()
                 actual_hashes.append(actual_hash)
+                actual_paths.append(str(vtk_path))
                 if declared_hash and actual_hash and declared_hash != actual_hash:
                     result["hash_mismatch_count"] += 1
             result["declared_hashes"] = declared_hashes
             result["declared_hash_text"] = ";".join([value for value in declared_hashes if value])
             result["actual_hashes"] = actual_hashes
             result["actual_hash_text"] = ";".join([value for value in actual_hashes if value])
+            result["actual_paths"] = actual_paths
             if not selected:
                 result["error"] = "runtime_selected_vtk_files_empty_after_step_filter"
             elif not all(declared_hashes):
@@ -843,6 +850,94 @@ def runtime_selected_vtk_hash_status(
     result["declared_hashes"] = fallback_hashes
     result["declared_hash_text"] = ";".join(fallback_hashes)
     result["error"] = "runtime_selected_vtk_files_missing"
+    return result
+
+
+def resolve_audit_path(raw_path: str, audit_path: Optional[Path]) -> Path:
+    path = Path(str(raw_path).strip()).expanduser()
+    if not path.is_absolute() and audit_path is not None:
+        path = audit_path.parent / path
+    return path.resolve()
+
+
+def runtime_run_freshness_status(
+    runtime_audit: Dict[str, Any],
+    runtime_audit_path: Optional[Path],
+    runtime_vtk_hash_status: Dict[str, Any],
+) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "ok": False,
+        "error": None,
+        "reference_file_count": 0,
+        "selected_file_count": 0,
+        "missing_reference_file_count": 0,
+        "missing_selected_file_count": 0,
+        "latest_reference_mtime_utc": "",
+        "oldest_selected_vtk_mtime_utc": "",
+        "stale_selected_vtk_count": 0,
+    }
+    reference_records = get_any(
+        runtime_audit,
+        ["freshness_reference_files", "FreshnessReferenceFiles", "reference_files", "ReferenceFiles"],
+    )
+    reference_paths: List[Path] = []
+    if isinstance(reference_records, list):
+        for record in reference_records:
+            if not isinstance(record, dict):
+                continue
+            raw_path = str(get_any(record, ["path", "Path", "file", "File"]) or "").strip()
+            if raw_path:
+                reference_paths.append(resolve_audit_path(raw_path, runtime_audit_path))
+    result["reference_file_count"] = len(reference_paths)
+    reference_mtimes: List[float] = []
+    for path in reference_paths:
+        if not path.exists():
+            result["missing_reference_file_count"] += 1
+            continue
+        reference_mtimes.append(path.stat().st_mtime)
+
+    selected_paths = [
+        Path(path)
+        for path in runtime_vtk_hash_status.get("actual_paths", [])
+        if str(path).strip()
+    ]
+    result["selected_file_count"] = len(selected_paths)
+    selected_mtimes: List[float] = []
+    for path in selected_paths:
+        if not path.exists():
+            result["missing_selected_file_count"] += 1
+            continue
+        selected_mtimes.append(path.stat().st_mtime)
+
+    if reference_mtimes:
+        latest_reference = max(reference_mtimes)
+        result["latest_reference_mtime_utc"] = datetime.fromtimestamp(latest_reference, timezone.utc).isoformat().replace("+00:00", "Z")
+    else:
+        latest_reference = None
+    if selected_mtimes:
+        oldest_selected = min(selected_mtimes)
+        result["oldest_selected_vtk_mtime_utc"] = datetime.fromtimestamp(oldest_selected, timezone.utc).isoformat().replace("+00:00", "Z")
+    else:
+        oldest_selected = None
+    if latest_reference is not None and selected_mtimes:
+        result["stale_selected_vtk_count"] = sum(1 for mtime in selected_mtimes if mtime < latest_reference)
+
+    if not reference_paths:
+        result["error"] = "freshness_reference_files_missing"
+    elif not selected_paths:
+        result["error"] = "freshness_selected_vtk_files_missing"
+    elif result["missing_reference_file_count"]:
+        result["error"] = "freshness_reference_file_missing"
+    elif result["missing_selected_file_count"]:
+        result["error"] = "freshness_selected_vtk_file_missing"
+    elif latest_reference is None:
+        result["error"] = "freshness_reference_mtime_missing"
+    elif oldest_selected is None:
+        result["error"] = "freshness_selected_vtk_mtime_missing"
+    elif result["stale_selected_vtk_count"]:
+        result["error"] = "selected_vtk_older_than_latest_reference"
+    else:
+        result["ok"] = True
     return result
 
 
@@ -1146,6 +1241,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Rebuild validation_metrics.csv from the current probe_audit.csv and official RS/measurement CSV before interpreting coordinate, component, Uref or bias diagnostics.",
     )
 
+    frame_count, source_step_text, has_real_source_steps = source_frame_details(runtime_audit)
+    runtime_vtk_hash_status = runtime_selected_vtk_hash_status(runtime_audit, runtime_audit_path, source_step_text)
+    runtime_freshness_status = runtime_run_freshness_status(
+        runtime_audit,
+        runtime_audit_path,
+        runtime_vtk_hash_status,
+    )
     run_freshness_gate = str(
         get_any(runtime_audit, ["run_freshness_gate", "RunFreshnessGate"]) or ""
     ).strip().lower()
@@ -1164,6 +1266,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         run_freshness_gate == "pass"
         and bool(latest_reference_mtime)
         and bool(oldest_selected_vtk_mtime)
+        and runtime_freshness_status["ok"]
     )
     add_gate(
         gates,
@@ -1173,6 +1276,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"run_freshness_gate={run_freshness_gate or 'missing'}; "
             f"latest_reference_mtime_utc={latest_reference_mtime or 'missing'}; "
             f"oldest_selected_vtk_mtime_utc={oldest_selected_vtk_mtime or 'missing'}; "
+            f"actual_latest_reference_mtime_utc={runtime_freshness_status['latest_reference_mtime_utc'] or 'missing'}; "
+            f"actual_oldest_selected_vtk_mtime_utc={runtime_freshness_status['oldest_selected_vtk_mtime_utc'] or 'missing'}; "
+            f"freshness_reference_file_count={runtime_freshness_status['reference_file_count']}; "
+            f"freshness_selected_file_count={runtime_freshness_status['selected_file_count']}; "
+            f"missing_reference_file_count={runtime_freshness_status['missing_reference_file_count']}; "
+            f"missing_selected_file_count={runtime_freshness_status['missing_selected_file_count']}; "
+            f"stale_selected_vtk_count={runtime_freshness_status['stale_selected_vtk_count']}; "
+            f"freshness_recompute_error={runtime_freshness_status['error'] or 'none'}; "
             f"run_freshness_gate_reasons={run_freshness_reasons or 'none'}; "
             f"metrics_run_freshness_gate={get_any(metrics, ['run_freshness_gate', 'RunFreshnessGate']) or 'ignored'}; "
             f"runtime_audit={runtime_audit_path or 'missing'}"
