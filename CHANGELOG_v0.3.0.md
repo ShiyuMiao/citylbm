@@ -327,6 +327,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now recomputes SHA256 hashes for the runtime-selected VTK files listed in
   `native_run_audit.json` or a Read VTK audit. The selected files must exist in the archived run package and match the
   audit-declared hashes before probe, inlet-profile or inlet-correlation source-window evidence is trusted.
+- `validation_gate.py` now also recomputes the selected VTK file hashes listed inside `inlet_profile_audit.json` and
+  `inlet_correlation_audit.json`. Inlet `U/k` preservation and turbulence-correlation evidence must therefore come
+  from current archived VTK files, not from copied audit JSON with matching time-step labels.
 
 ## Remaining scientific work
 

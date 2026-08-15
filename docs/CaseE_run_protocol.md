@@ -128,6 +128,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   hashes. The inlet-profile audit's `af_csv_sha256` must also match `case_metadata.json` `WindProfileCsvSha256`;
   otherwise the run may have preserved a different AF table and remains diagnostic. A high
   reverse-streamwise fraction flags wind-vector or velocity component sign errors.
+  The final gate recomputes hashes for the `selected_vtk_files` listed in `inlet_profile_audit.json`; an inlet profile
+  audit without archived VTK paths, with missing files, or with mismatched file hashes is diagnostic even when the
+  reported `source_time_steps` match the runtime window.
 - The generated FluidX3D source must also be audited before interpreting the VTK result. Run
   `scripts\audit_inlet_source.py --setup <case_dir>\src\setup.cpp --metadata <case_metadata.json> --out <case_dir>\inlet_source_audit.json`
   and archive the resulting `setup_cpp_sha256`, `inlet_source_method_class`,
@@ -158,7 +161,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   when the source window, numeric correlation evidence or audit file is missing. The final gate accepts only the
   `inlet_correlation_audit.json`
   archived in the audited run package; a metrics-table `inlet_correlation_audit` path is ignored so old or external
-  correlation JSON cannot be reused silently.
+  correlation JSON cannot be reused silently. The audit's listed VTK file paths and hashes are also recomputed from
+  disk before the source-window comparison is trusted.
 - The STG length-scale gate is not passed by choosing a convenient number of lattice cells. It passes only when
   `STG Length Source`/`SyntheticTurbulentInletLengthScaleSource` contains an archived evidence tag such as
   `aij_length_scale_verified`, `official_length_scale_verified`, `precursor_length_scale`,

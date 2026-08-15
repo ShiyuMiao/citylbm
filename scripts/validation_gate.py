@@ -375,8 +375,13 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         )
 
     inlet_profile_gate = by_key.get("inlet_profile_preservation")
+    inlet_profile_hash_gate = by_key.get("inlet_profile_vtk_hash_traceability")
+    inlet_correlation_hash_gate = by_key.get("inlet_correlation_vtk_hash_traceability")
     k_gate = by_key.get("k_preservation_or_accuracy")
-    if any(gate is None or gate.get("status") != PASS for gate in [inlet_profile_gate, k_gate]):
+    if any(
+        gate is None or gate.get("status") != PASS
+        for gate in [inlet_profile_gate, inlet_profile_hash_gate, inlet_correlation_hash_gate, k_gate]
+    ):
         add_priority(
             priorities,
             4,
@@ -1922,14 +1927,37 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and inlet_profile_steps_error is None
         and inlet_profile_parsed_steps == parsed_steps
     )
-    inlet_profile_source_hashes, inlet_profile_source_hash_text = runtime_selected_vtk_hashes(
+    inlet_profile_vtk_hash_status = runtime_selected_vtk_hash_status(
         inlet_profile_audit,
+        inlet_profile_audit_path,
         inlet_profile_source_step_text,
     )
+    inlet_profile_source_hashes = inlet_profile_vtk_hash_status["actual_hashes"]
+    inlet_profile_source_hash_text = inlet_profile_vtk_hash_status["actual_hash_text"]
     inlet_profile_source_hash_matches = (
-        bool(expected_source_hashes)
+        inlet_profile_vtk_hash_status["ok"]
+        and bool(expected_source_hashes)
         and bool(inlet_profile_source_hashes)
         and inlet_profile_source_hashes == expected_source_hashes
+    )
+    add_gate(
+        gates,
+        "inlet_profile_vtk_hash_traceability",
+        PASS if inlet_profile_source_hash_matches else FAIL,
+        (
+            f"selected_file_count={inlet_profile_vtk_hash_status['selected_file_count']}; "
+            f"expected_step_count={inlet_profile_vtk_hash_status['expected_step_count']}; "
+            f"path_missing_count={inlet_profile_vtk_hash_status['path_missing_count']}; "
+            f"missing_file_count={inlet_profile_vtk_hash_status['missing_file_count']}; "
+            f"hash_mismatch_count={inlet_profile_vtk_hash_status['hash_mismatch_count']}; "
+            f"declared_hashes={inlet_profile_vtk_hash_status['declared_hash_text'] or 'missing'}; "
+            f"actual_hashes={inlet_profile_vtk_hash_status['actual_hash_text'] or 'missing'}; "
+            f"runtime_expected_hashes={expected_source_hash_text or 'missing'}; "
+            f"source_hash_matches_runtime={inlet_profile_source_hash_matches}; "
+            f"error={inlet_profile_vtk_hash_status['error'] or 'none'}; "
+            f"inlet_profile_audit={inlet_profile_audit_path or 'missing'}"
+        ),
+        "Regenerate the inlet-profile audit from the current final-window VTK files; source_time_steps or copied hashes alone are not accepted.",
     )
     metadata_profile_csv_sha256 = str(get_any(metadata, ["WindProfileCsvSha256"]) or "").strip().lower()
     inlet_profile_af_csv_sha256 = str(get_any(inlet_profile_audit, ["af_csv_sha256", "AfCsvSha256"]) or "").strip().lower()
@@ -2296,14 +2324,37 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and inlet_correlation_steps_error is None
         and inlet_correlation_steps == parsed_steps
     )
-    inlet_correlation_source_hashes, inlet_correlation_source_hash_text = runtime_selected_vtk_hashes(
+    inlet_correlation_vtk_hash_status = runtime_selected_vtk_hash_status(
         inlet_correlation_audit,
+        inlet_correlation_audit_path,
         inlet_correlation_source_step_text,
     )
+    inlet_correlation_source_hashes = inlet_correlation_vtk_hash_status["actual_hashes"]
+    inlet_correlation_source_hash_text = inlet_correlation_vtk_hash_status["actual_hash_text"]
     inlet_correlation_source_hash_matches = (
-        bool(expected_source_hashes)
+        inlet_correlation_vtk_hash_status["ok"]
+        and bool(expected_source_hashes)
         and bool(inlet_correlation_source_hashes)
         and inlet_correlation_source_hashes == expected_source_hashes
+    )
+    add_gate(
+        gates,
+        "inlet_correlation_vtk_hash_traceability",
+        PASS if inlet_correlation_source_hash_matches else FAIL,
+        (
+            f"selected_file_count={inlet_correlation_vtk_hash_status['selected_file_count']}; "
+            f"expected_step_count={inlet_correlation_vtk_hash_status['expected_step_count']}; "
+            f"path_missing_count={inlet_correlation_vtk_hash_status['path_missing_count']}; "
+            f"missing_file_count={inlet_correlation_vtk_hash_status['missing_file_count']}; "
+            f"hash_mismatch_count={inlet_correlation_vtk_hash_status['hash_mismatch_count']}; "
+            f"declared_hashes={inlet_correlation_vtk_hash_status['declared_hash_text'] or 'missing'}; "
+            f"actual_hashes={inlet_correlation_vtk_hash_status['actual_hash_text'] or 'missing'}; "
+            f"runtime_expected_hashes={expected_source_hash_text or 'missing'}; "
+            f"source_hash_matches_runtime={inlet_correlation_source_hash_matches}; "
+            f"error={inlet_correlation_vtk_hash_status['error'] or 'none'}; "
+            f"inlet_correlation_audit={inlet_correlation_audit_path or 'missing'}"
+        ),
+        "Regenerate the inlet-correlation audit from the current final-window VTK files; copied correlation JSON cannot provide turbulent-inlet evidence.",
     )
     inlet_correlation_window_ok = (
         inlet_correlation_has_source_steps
