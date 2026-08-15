@@ -157,6 +157,10 @@ TEMPLATE_FIELDS = [
     "inlet_source_velocity_field_only",
     "inlet_source_advanced_code_evidence",
     "inlet_source_comment_stripped_code_audit",
+    "inlet_source_has_distribution_function_write",
+    "inlet_source_distribution_function_write_count",
+    "inlet_source_has_inlet_distribution_reconstruction",
+    "inlet_source_inlet_distribution_reconstruction_count",
     "inlet_source_has_digital_filter_evidence",
     "inlet_source_has_sem_evidence",
     "inlet_source_has_precursor_or_recycling_evidence",
@@ -1309,6 +1313,18 @@ def main() -> int:
             ),
             "inlet_source_comment_stripped_code_audit": first_bool_text(
                 inlet_source_audit.get("inlet_source_comment_stripped_code_audit")
+            ),
+            "inlet_source_has_distribution_function_write": first_bool_text(
+                inlet_source_audit.get("has_distribution_function_write")
+            ),
+            "inlet_source_distribution_function_write_count": audit_field(
+                inlet_source_audit, "distribution_function_write_count"
+            ),
+            "inlet_source_has_inlet_distribution_reconstruction": first_bool_text(
+                inlet_source_audit.get("has_inlet_distribution_reconstruction")
+            ),
+            "inlet_source_inlet_distribution_reconstruction_count": audit_field(
+                inlet_source_audit, "inlet_distribution_reconstruction_count"
             ),
             "inlet_source_has_digital_filter_evidence": first_bool_text(
                 inlet_source_audit.get("has_digital_filter_evidence")

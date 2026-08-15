@@ -152,6 +152,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `advanced_inlet_evidence_uses_comment_stripped_code=true` or `inlet_source_comment_stripped_code_audit=true`;
   otherwise the final gate treats the audit as stale or incomplete. Words such as `digital-filter`, `SEM`,
   `precursor` or `recycling` in comments are not implementation evidence.
+  Generic distribution-function tokens are also not sufficient. `audit_inlet_source.py` records
+  `has_distribution_function_write` and `distribution_function_write_count`, but a digital-filter or SEM/DFM inlet
+  claim must additionally show `has_inlet_distribution_reconstruction=true` with a positive
+  `inlet_distribution_reconstruction_count`, meaning the distribution reconstruction is tied to inlet/`TYPE_E` code.
   For STG-lite, the audit must also show the actual correlated-source features in generated code:
   `has_spectral_mode_evidence`, `has_taylor_advection_evidence`, `has_transverse_projection_evidence` and
   `has_length_scale_evidence`, plus the run-loop fields `has_synthetic_inlet_refresh_with_current_time`,

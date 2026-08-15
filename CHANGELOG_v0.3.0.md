@@ -271,6 +271,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/audit_inlet_source.py` now removes C/C++ comments before classifying advanced inlet methods. Method names
   that appear only in comments, such as "not a full digital-filter/SEM/precursor inlet", no longer count as
   distribution-consistent source evidence.
+- `scripts/audit_inlet_source.py`, the metrics template and `validation_gate.py` now distinguish generic distribution
+  function tokens from inlet-context distribution reconstruction. Digital-filter or SEM/DFM source claims require
+  `has_inlet_distribution_reconstruction=true`; stray `lbm.f`, `feq` or `stress_ddf` code outside an inlet/`TYPE_E`
+  reconstruction context is recorded as diagnostic evidence but cannot make the inlet paper-grade.
 - `validation_gate.py`, `validation_metrics_from_probe_audit.py` and `docs/validation_metrics_template.csv` now carry the
   same STG run-loop evidence fields. A stale `inlet_source_audit.json` without those fields no longer satisfies
   `inlet_source_evidence` for STG-like inlets.

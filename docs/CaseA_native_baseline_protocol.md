@@ -155,6 +155,10 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    `paper_grade_inlet_method` when metadata claims a distribution-consistent inlet but the generated source only shows
    macroscopic velocity-field forcing. Metrics-table `inlet_source_*` fields are ignored context and cannot repair a
    missing or incomplete source audit.
+   Distribution consistency is source-context sensitive: `audit_inlet_source.py` records generic
+   `has_distribution_function_write` / `distribution_function_write_count`, but digital-filter or SEM/DFM claims require
+   `has_inlet_distribution_reconstruction=true` and a positive `inlet_distribution_reconstruction_count`. Distribution
+   tokens outside an inlet/`TYPE_E` reconstruction context are diagnostic only.
    In addition to RMS/k preservation, run `scripts/audit_inlet_correlation_from_vtk.py` on the same final-window VTK
    frames. The correlation audit records streamwise fluctuation variance, signed temporal lag-1 correlation, temporal
    lag-1 absolute correlation for diagnosis, and adjacent spatial correlation; a missing or failing audit means the

@@ -2523,6 +2523,18 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit_inlet_source_velocity_field_only = as_bool(
         get_any(inlet_source_audit, ["inlet_source_velocity_field_only"])
     )
+    audit_has_distribution_function_write = as_bool(
+        get_any(inlet_source_audit, ["has_distribution_function_write"])
+    )
+    audit_distribution_function_write_count = as_int(
+        get_any(inlet_source_audit, ["distribution_function_write_count"])
+    )
+    audit_has_inlet_distribution_reconstruction = as_bool(
+        get_any(inlet_source_audit, ["has_inlet_distribution_reconstruction"])
+    )
+    audit_inlet_distribution_reconstruction_count = as_int(
+        get_any(inlet_source_audit, ["inlet_distribution_reconstruction_count"])
+    )
     audit_inlet_source_setup_sha256 = str(
         get_any(inlet_source_audit, ["setup_cpp_sha256"]) or ""
     ).strip().lower()
@@ -2815,6 +2827,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"audit_only_source_method_class={audit_inlet_source_method_class or 'missing'}; "
             f"audit_only_source_distribution_consistent={audit_inlet_source_distribution_consistent}; "
             f"audit_only_source_velocity_field_only={audit_inlet_source_velocity_field_only}; "
+            f"audit_has_distribution_function_write={audit_has_distribution_function_write}; "
+            f"audit_distribution_function_write_count={audit_distribution_function_write_count}; "
+            f"audit_has_inlet_distribution_reconstruction={audit_has_inlet_distribution_reconstruction}; "
+            f"audit_inlet_distribution_reconstruction_count={audit_inlet_distribution_reconstruction_count}; "
             f"audit_only_setup_cpp_sha256={audit_inlet_source_setup_sha256 or 'missing'}; "
             f"audit_comment_stripped_code_audit={audit_inlet_source_comment_stripped}; "
             f"audit_synthetic_inlet_requested={audit_synthetic_inlet_requested}; "

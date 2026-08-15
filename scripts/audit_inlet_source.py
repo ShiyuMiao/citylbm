@@ -85,6 +85,49 @@ def has_regex(text: str, pattern: str) -> bool:
     return re.search(pattern, text, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL) is not None
 
 
+def distribution_reconstruction_evidence(code: str) -> Dict[str, Any]:
+    distribution_pattern = re.compile(
+        r"lbm\.f\s*\[|lbm\.f0|lbm\.feq|calculate_f_eq|device_sem_stress_ddf|stress_ddf",
+        flags=re.IGNORECASE,
+    )
+    contextual_count = 0
+    generic_count = 0
+    for match in distribution_pattern.finditer(code):
+        generic_count += 1
+        window = code[max(0, match.start() - 700) : min(len(code), match.end() + 900)]
+        has_inlet_context = contains_any(
+            window,
+            [
+                "TYPE_E",
+                "syntheticTurbulentInlet",
+                "windProfile",
+                "inlet",
+                "side_inlet",
+                "sideInlet",
+            ],
+        )
+        has_reconstruction_context = contains_any(
+            window,
+            [
+                "calculate_f_eq",
+                "feq",
+                "stress_ddf",
+                "distribution_consistent",
+                "reconstruct",
+                "reconstruction",
+                "equilibrium distribution",
+            ],
+        )
+        if has_inlet_context and has_reconstruction_context:
+            contextual_count += 1
+    return {
+        "distribution_write_count": generic_count,
+        "inlet_distribution_reconstruction_count": contextual_count,
+        "has_distribution_function_write": generic_count > 0,
+        "has_inlet_distribution_reconstruction": contextual_count > 0,
+    }
+
+
 def strip_cpp_comments(text: str) -> str:
     """Remove C/C++ comments while preserving strings and line structure."""
     output: List[str] = []
@@ -187,17 +230,9 @@ def main() -> int:
     has_stg_function = "applysyntheticturbulentinlet" in audited_source_lower
     has_stg_refresh_loop = count_regex(audited_source, r"applySyntheticTurbulentInlet\s*\(") >= 2
     has_velocity_field_write = contains_any(audited_source, ["lbm.u.x", "lbm.u.y", "lbm.u.z"])
-    has_distribution_write = contains_any(
-        audited_source,
-        [
-            "lbm.f[",
-            "lbm.f0",
-            "lbm.feq",
-            "calculate_f_eq",
-            "device_sem_stress_ddf",
-            "stress_ddf",
-        ],
-    )
+    distribution_evidence = distribution_reconstruction_evidence(audited_source)
+    has_distribution_write = distribution_evidence["has_distribution_function_write"]
+    has_inlet_distribution_reconstruction = distribution_evidence["has_inlet_distribution_reconstruction"]
     has_digital_filter = contains_any(audited_source, ["digital_filter", "digital-filter", "dfm", "filter kernel"])
     has_sem = contains_any(audited_source, ["synthetic_eddy_method", "sem_distribution", "synthetic eddy method"])
     has_precursor = contains_any(audited_source, ["precursor", "recycling_rescaling", "recycling-rescaling"])
@@ -255,9 +290,9 @@ def main() -> int:
     source_method_class = "none"
     if has_precursor:
         source_method_class = "precursor_or_recycling"
-    elif has_digital_filter and has_distribution_write:
+    elif has_digital_filter and has_inlet_distribution_reconstruction:
         source_method_class = "digital_filter_distribution_consistent"
-    elif has_sem and has_distribution_write:
+    elif has_sem and has_inlet_distribution_reconstruction:
         source_method_class = "synthetic_eddy_distribution_consistent"
     elif has_stg_function and has_velocity_field_write and (has_spectral_modes or has_taylor_advection or has_transverse_projection):
         source_method_class = "stg_lite_correlated_velocity_field_only"
@@ -312,6 +347,8 @@ def main() -> int:
     )
     if metadata_claims_distribution and not source_distribution_consistent:
         reasons.append("metadata_claims_distribution_consistency_without_source_evidence")
+    if metadata_claims_distribution and has_distribution_write and not has_inlet_distribution_reconstruction and not has_precursor:
+        reasons.append("distribution_function_write_not_tied_to_inlet_reconstruction")
 
     source_gate = "pass" if not reasons else "fail"
     paper_gate_reasons: List[str] = []
@@ -341,6 +378,9 @@ def main() -> int:
         "has_synthetic_inlet_refresh_loop": has_stg_refresh_loop,
         "has_velocity_field_write": has_velocity_field_write,
         "has_distribution_function_write": has_distribution_write,
+        "distribution_function_write_count": distribution_evidence["distribution_write_count"],
+        "has_inlet_distribution_reconstruction": has_inlet_distribution_reconstruction,
+        "inlet_distribution_reconstruction_count": distribution_evidence["inlet_distribution_reconstruction_count"],
         "inlet_source_advanced_code_evidence": advanced_code_evidence,
         "has_digital_filter_evidence": has_digital_filter,
         "has_sem_evidence": has_sem,
