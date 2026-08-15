@@ -164,6 +164,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `official_coordinate_delta_count`; the machine gate fails if valid probes mix components or if coordinate deltas are
   not available for every valid official probe. Native FluidX3D reruns outside Grasshopper must generate the same audit
   schema with `scripts\probe_vtk_points.py`, filtered to `case=ac` and `Wind_direction=N`, before building metrics.
+  The final gate reads official-coordinate delta coverage from the per-probe audit rows by default; copied
+  `max_official_coordinate_delta_m` or `official_coordinate_delta_count` values in `validation_metrics.csv` are
+  diagnostic summaries, not proof of coordinate closure.
   Use structured-grid trilinear sampling for the velocity value; the nearest-node distance remains the coverage and
   tolerance evidence.
   Native VTK probe audit rows must include VTK origin, spacing, dimensions, source time steps, source file hashes and
@@ -298,7 +301,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Run freshness: `run_freshness_gate`, `run_freshness_gate_reasons`, `latest_reference_mtime_utc` and
   `oldest_selected_vtk_mtime_utc`
 - Mean probe distance and maximum probe distance
-- Compared component consistency gate, unique compared components and official coordinate-delta coverage count
+- Compared component consistency gate, unique compared components and official coordinate-delta coverage count from the
+  per-probe audit rows, not only from the summary metrics table
 - Per-probe `Uref`, wind vector, `normalization_valid` and `wind_direction_valid` coverage from the Data Probe audit
   CSV. For paper-grade Case E, every valid probe must carry the same finite normalization basis and declared wind vector;
   a correct summary metrics row is diagnostic if the per-probe audit is missing or mixed.

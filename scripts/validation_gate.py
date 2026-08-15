@@ -563,6 +563,9 @@ def read_probe_coordinate_normalization_audit(
         "missing_uref_count": 0,
         "uref_mismatch_count": 0,
         "unique_uref_count": None,
+        "max_official_coordinate_delta_m": None,
+        "official_coordinate_delta_count": 0,
+        "missing_official_coordinate_delta_count": 0,
         "missing_wind_vector_count": 0,
         "wind_vector_mismatch_count": 0,
         "unique_wind_vector_count": None,
@@ -581,6 +584,7 @@ def read_probe_coordinate_normalization_audit(
     valid_count = 0
     urefs: List[float] = []
     wind_vectors: List[Tuple[float, float, float]] = []
+    coordinate_deltas: List[float] = []
     for row in rows:
         failed_flag = as_bool(get_any(row, ["failed", "Failed", "out_of_tolerance", "OutOfTolerance"]))
         status = str(get_any(row, ["status", "Status", "validation_status", "ValidationStatus"]) or "").lower()
@@ -608,6 +612,22 @@ def read_probe_coordinate_normalization_audit(
             if expected_uref is not None and abs(row_uref - expected_uref) > uref_tolerance:
                 result["uref_mismatch_count"] += 1
 
+        coordinate_delta = as_float(
+            get_any(
+                row,
+                [
+                    "official_coordinate_delta",
+                    "OfficialCoordinateDelta",
+                    "official_coordinate_delta_m",
+                    "OfficialCoordinateDeltaM",
+                ],
+            )
+        )
+        if coordinate_delta is None:
+            result["missing_official_coordinate_delta_count"] += 1
+        else:
+            coordinate_deltas.append(coordinate_delta)
+
         row_wind = parse_vector(get_any(row, ["wind_vector", "WindVector"]))
         if row_wind is None:
             wx = as_float(get_any(row, ["wind_x", "WindX"]))
@@ -625,6 +645,8 @@ def read_probe_coordinate_normalization_audit(
 
     result["valid_count"] = valid_count
     result["unique_uref_count"] = len({round(value, 12) for value in urefs})
+    result["max_official_coordinate_delta_m"] = max(coordinate_deltas) if coordinate_deltas else None
+    result["official_coordinate_delta_count"] = len(coordinate_deltas)
     normalized_winds = [normalize_vector(vector) for vector in wind_vectors]
     result["unique_wind_vector_count"] = len(
         {
@@ -2327,22 +2349,36 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     wind_vector_ok = expected_wind_vector is None or (
         wind_delta is not None and wind_delta <= args.wind_vector_tolerance
     )
-    coord_delta = as_float(get_any(metrics, ["max_official_coordinate_delta_m", "MaxOfficialCoordinateDeltaM"]))
-    coord_delta_count = as_int(get_any(metrics, ["official_coordinate_delta_count", "OfficialCoordinateDeltaCount"]))
+    metrics_coord_delta = as_float(get_any(metrics, ["max_official_coordinate_delta_m", "MaxOfficialCoordinateDeltaM"]))
+    metrics_coord_delta_count = as_int(get_any(metrics, ["official_coordinate_delta_count", "OfficialCoordinateDeltaCount"]))
     valid_metric_count = as_int(get_any(metrics, ["valid_n", "ValidN"]))
-    coord_ok = coord_delta is not None and coord_delta <= args.max_official_coordinate_delta_m
-    coord_coverage_ok = (
-        coord_delta_count is not None
-        and valid_metric_count is not None
-        and valid_metric_count > 0
-        and coord_delta_count == valid_metric_count
-    )
     probe_coord_norm = read_probe_coordinate_normalization_audit(
         probe_path,
         args.expected_uref,
         args.uref_tolerance,
         expected_wind_vector,
         args.wind_vector_tolerance,
+    )
+    if probe_summary_override:
+        coord_delta = metrics_coord_delta
+        coord_delta_count = metrics_coord_delta_count
+        coord_valid_count = valid_metric_count
+        coord_source = "metrics_summary_override"
+    else:
+        coord_delta = as_float(probe_coord_norm["max_official_coordinate_delta_m"])
+        coord_delta_count = as_int(probe_coord_norm["official_coordinate_delta_count"])
+        coord_valid_count = as_int(probe_coord_norm["valid_count"])
+        coord_source = "probe_audit"
+    coord_ok = coord_delta is not None and coord_delta <= args.max_official_coordinate_delta_m
+    coord_coverage_ok = (
+        coord_delta_count is not None
+        and coord_valid_count is not None
+        and coord_valid_count > 0
+        and coord_delta_count == coord_valid_count
+        and (
+            probe_summary_override
+            or probe_coord_norm["missing_official_coordinate_delta_count"] == 0
+        )
     )
     probe_coord_norm_ok = (
         probe_summary_override
@@ -2380,9 +2416,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"Uref_mps={uref}; expected_uref={args.expected_uref}; uref_tolerance={args.uref_tolerance}; "
             f"wind_vector={metric_wind_vector}; expected_wind_vector={expected_wind_vector}; "
             f"wind_vector_unit_delta={wind_delta}; wind_vector_tolerance={args.wind_vector_tolerance}; "
+            f"coordinate_source={coord_source}; "
             f"max_official_coordinate_delta_m={coord_delta}; required <= {args.max_official_coordinate_delta_m}; "
-            f"official_coordinate_delta_count={coord_delta_count}; valid_n={valid_metric_count}; "
+            f"official_coordinate_delta_count={coord_delta_count}; coordinate_valid_count={coord_valid_count}; "
+            f"metrics_max_official_coordinate_delta_m={metrics_coord_delta if metrics_coord_delta is not None else 'ignored'}; "
+            f"metrics_official_coordinate_delta_count={metrics_coord_delta_count if metrics_coord_delta_count is not None else 'ignored'}; "
             f"probe_norm_valid_count={probe_coord_norm['valid_count']}; "
+            f"probe_missing_official_coordinate_delta_count={probe_coord_norm['missing_official_coordinate_delta_count']}; "
             f"probe_missing_normalization_count={probe_coord_norm['missing_normalization_count']}; "
             f"probe_invalid_normalization_count={probe_coord_norm['invalid_normalization_count']}; "
             f"probe_missing_wind_direction_count={probe_coord_norm['missing_wind_direction_count']}; "

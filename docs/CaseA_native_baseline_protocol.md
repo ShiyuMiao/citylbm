@@ -182,7 +182,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    time steps, source file hashes and nearest-grid coordinates so coordinate-frame and projection errors can be audited
    from the same table. The validation metrics must record `compared_component_consistency_gate`,
    `compared_component_unique_values` and `official_coordinate_delta_count`; every valid probe must use one explicit
-   component and must have an official coordinate-delta check. The Data Probe audit CSV must also keep one consistent
+   component and must have an official coordinate-delta check. The machine gate recomputes coordinate-delta coverage
+   from the Data Probe audit CSV rows; summary metrics are not accepted as coordinate evidence unless the explicit
+   summary-only diagnostic override is used. The Data Probe audit CSV must also keep one consistent
    finite `Uref`, one consistent wind vector, and valid `normalization_valid`/`wind_direction_valid` flags for every
    valid probe; a correct summary metrics row alone is not sufficient. The machine gate requires
    `compared_component_consistency_gate=pass`; a single component label in a summary row is not enough if the per-probe
