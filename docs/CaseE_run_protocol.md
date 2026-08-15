@@ -113,6 +113,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   and archive the resulting `setup_cpp_sha256`, `inlet_source_method_class`,
   `inlet_source_distribution_consistent` and `inlet_source_velocity_field_only` fields. A method name or metadata flag is
   not sufficient for SCI-grade Case E validation if the generated source only refreshes macroscopic velocity fields.
+  For STG-lite, the audit must also show the actual correlated-source features in generated code:
+  `has_spectral_mode_evidence`, `has_taylor_advection_evidence`, `has_transverse_projection_evidence` and
+  `has_length_scale_evidence`. These fields separate correlated STG-lite from uncorrelated random perturbations, but a
+  correlated velocity-field-only inlet remains diagnostic until distribution-function consistency or a validated
+  precursor/DFM/SEM/recycling treatment is implemented.
 - The turbulent-inlet correlation must be verified from the same real final-window VTK frames with
   `scripts\audit_inlet_correlation_from_vtk.py`. This audit records streamwise fluctuation variance, temporal lag-1
   signed correlation, temporal lag-1 absolute correlation for diagnosis, and adjacent spatial correlation. It is

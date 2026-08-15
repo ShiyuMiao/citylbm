@@ -131,7 +131,34 @@ def main() -> int:
     has_digital_filter = contains_any(source, ["digital_filter", "digital-filter", "dfm", "filter kernel"])
     has_sem = contains_any(source, ["synthetic_eddy_method", "sem_distribution", "synthetic eddy method"])
     has_precursor = contains_any(source, ["precursor", "recycling_rescaling", "recycling-rescaling"])
-    has_length_scale = contains_any(source, ["correlation_length", "citylbm_stg_lx", "length_scale"])
+    has_spectral_modes = contains_any(
+        source,
+        [
+            "citylbm_stg_mode_count",
+            "citylbm_mode_wave",
+            "citylbm_mode_amplitude",
+        ],
+    )
+    has_taylor_advection = contains_any(source, ["advected_x", "advected_y", "advected_z", "frozen-turbulence"])
+    has_transverse_projection = contains_any(
+        source,
+        [
+            "ak*kx/kk",
+            "ak * kx / kk",
+            "projected normal to their wave vector",
+            "divergence-reduced",
+        ],
+    )
+    has_length_scale = contains_any(
+        source,
+        [
+            "correlation_length",
+            "citylbm_stg_lx",
+            "citylbm_stg_corr_cells",
+            "length_scale",
+            "correlation cells",
+        ],
+    )
     has_update_interval = "citylbm_stg_update_interval" in source_lower
     has_bounded_amplitude = contains_any(source, ["citylbm_stg_max_fraction", "max_fraction", "amplitude cap"])
 
@@ -142,6 +169,8 @@ def main() -> int:
         source_method_class = "digital_filter_distribution_consistent"
     elif has_sem and has_distribution_write:
         source_method_class = "synthetic_eddy_distribution_consistent"
+    elif has_stg_function and has_velocity_field_write and (has_spectral_modes or has_taylor_advection or has_transverse_projection):
+        source_method_class = "stg_lite_correlated_velocity_field_only"
     elif has_stg_function and has_velocity_field_write:
         source_method_class = "stg_lite_velocity_field_only"
     elif has_digital_filter or has_sem:
@@ -156,6 +185,7 @@ def main() -> int:
     }
     source_velocity_only = source_method_class in {
         "stg_lite_velocity_field_only",
+        "stg_lite_correlated_velocity_field_only",
         "mean_profile_velocity_field_only",
         "named_method_without_distribution_evidence",
     }
@@ -168,6 +198,12 @@ def main() -> int:
         reasons.append("synthetic_inlet_not_refreshed_in_run_loop")
     if synthetic_requested and has_stg_function and not has_length_scale:
         reasons.append("synthetic_inlet_missing_length_scale_source")
+    if synthetic_requested and has_stg_function and not has_spectral_modes:
+        reasons.append("synthetic_inlet_missing_spectral_modes")
+    if synthetic_requested and has_stg_function and not has_taylor_advection:
+        reasons.append("synthetic_inlet_missing_temporal_advection")
+    if synthetic_requested and has_stg_function and not has_transverse_projection:
+        reasons.append("synthetic_inlet_missing_transverse_projection")
     if synthetic_requested and has_stg_function and not has_update_interval:
         reasons.append("synthetic_inlet_missing_update_interval")
     if synthetic_requested and has_stg_function and not has_bounded_amplitude:
@@ -208,6 +244,9 @@ def main() -> int:
         "has_digital_filter_evidence": has_digital_filter,
         "has_sem_evidence": has_sem,
         "has_precursor_or_recycling_evidence": has_precursor,
+        "has_spectral_mode_evidence": has_spectral_modes,
+        "has_taylor_advection_evidence": has_taylor_advection,
+        "has_transverse_projection_evidence": has_transverse_projection,
         "has_length_scale_evidence": has_length_scale,
         "has_update_interval": has_update_interval,
         "has_bounded_amplitude": has_bounded_amplitude,

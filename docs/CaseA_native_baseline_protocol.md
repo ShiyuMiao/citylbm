@@ -127,6 +127,10 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    gate only accepts it with the explicit `--allow-velocity-only-inlet` diagnostic override after an empty-tunnel run
    proves downstream `U/k` preservation. Paper-grade promotion should use a validated DFM/SEM/precursor/recycling inlet
    or another documented distribution-consistent treatment.
+   The source audit separately records whether STG-lite actually contains correlated-source features: `citylbm_stg_corr_cells`,
+   spectral modes, Taylor frozen-turbulence advection and transverse wave-vector projection. Passing those source checks
+   shows the inlet is stronger than uncorrelated random perturbations, but it still does not make the inlet
+   distribution-consistent.
    Run `scripts/audit_inlet_source.py` on the generated `setup.cpp` before interpreting any VTK result. Archive
    `inlet_source_audit.json` with `setup_cpp_sha256`, `inlet_source_method_class`,
    `inlet_source_distribution_consistent` and `inlet_source_velocity_field_only`; `validation_gate.py` fails
