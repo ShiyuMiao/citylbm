@@ -1818,6 +1818,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and bool(inlet_profile_source_hashes)
         and inlet_profile_source_hashes == expected_source_hashes
     )
+    metadata_profile_csv_sha256 = str(get_any(metadata, ["WindProfileCsvSha256"]) or "").strip().lower()
+    inlet_profile_af_csv_sha256 = str(get_any(inlet_profile_audit, ["af_csv_sha256", "AfCsvSha256"]) or "").strip().lower()
+    inlet_profile_af_csv_hash_matches = (
+        bool(metadata_profile_csv_sha256)
+        and bool(inlet_profile_af_csv_sha256)
+        and metadata_profile_csv_sha256 == inlet_profile_af_csv_sha256
+    )
     inlet_profile_source_first_step = as_int(get_any(inlet_profile_audit, ["source_first_time_step"]))
     inlet_profile_source_last_step = as_int(get_any(inlet_profile_audit, ["source_last_time_step"]))
     inlet_profile_latest_available_step = as_int(get_any(inlet_profile_audit, ["latest_available_time_step"]))
@@ -1841,6 +1848,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         inlet_profile_has_source_steps
         and inlet_profile_source_matches
         and inlet_profile_source_hash_matches
+        and inlet_profile_af_csv_hash_matches
         and inlet_profile_frame_count is not None
         and inlet_profile_source_frame_count is not None
         and inlet_profile_frame_count == inlet_profile_source_frame_count
@@ -1961,6 +1969,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_profile_source_matches={inlet_profile_source_matches}; "
             f"inlet_profile_source_hashes={inlet_profile_source_hash_text or 'missing'}; "
             f"inlet_profile_source_hash_matches={inlet_profile_source_hash_matches}; "
+            f"metadata_profile_csv_sha256={metadata_profile_csv_sha256 or 'missing'}; "
+            f"inlet_profile_af_csv_sha256={inlet_profile_af_csv_sha256 or 'missing'}; "
+            f"inlet_profile_af_csv_hash_matches={inlet_profile_af_csv_hash_matches}; "
             f"inlet_profile_source_steps_error={inlet_profile_steps_error or 'none'}; "
             f"inlet_profile_source_first_step={inlet_profile_source_first_step}; "
             f"inlet_profile_source_last_step={inlet_profile_source_last_step}; "

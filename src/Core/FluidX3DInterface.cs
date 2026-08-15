@@ -2448,6 +2448,7 @@ namespace CityLBM.Solver
                 double tau = ComputeTau(settings, grid, scene);
                 double nuLbm = ComputeNuLbm(settings, grid, scene);
                 double reynolds = EstimateRunReynoldsNumber(scene, grid, settings);
+                string windProfileCsvSha256 = ComputeOptionalFileSha256(scene.WindProfileCsvPath);
                 int expectedFrames = settings.SaveInterval > 0
                     ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                     : 0;
@@ -2460,6 +2461,7 @@ namespace CityLBM.Solver
                     GeneratedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                     WindProfile = scene.WindProfile.ToString(),
                     WindProfileCsvPath = scene.WindProfileCsvPath ?? "",
+                    WindProfileCsvSha256 = windProfileCsvSha256,
                     ReferenceWindSpeedMps = scene.WindSpeed,
                     ReferenceHeightM = scene.ReferenceHeight,
                     ProfileScaleSpeedMps = GetProfileScaleSpeed(scene),
@@ -2980,6 +2982,7 @@ namespace CityLBM.Solver
                         MinimumRecommendedAveragingFrames = 10,
                         WindProfile = scene.WindProfile.ToString(),
                         WindProfileCsvPath = scene.WindProfileCsvPath ?? "",
+                        WindProfileCsvSha256 = ComputeOptionalFileSha256(scene.WindProfileCsvPath),
                         WindDirectionUnitVector = new
                         {
                             X = scene.WindDirection.X,
@@ -3097,6 +3100,22 @@ namespace CityLBM.Solver
             {
                 byte[] hash = sha.ComputeHash(stream);
                 return BitConverter.ToString(hash).Replace("-", "").ToUpperInvariant();
+            }
+        }
+
+        private string ComputeOptionalFileSha256(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return "";
+
+            try
+            {
+                string fullPath = Path.GetFullPath(path);
+                return File.Exists(fullPath) ? ComputeFileSha256(fullPath) : "";
+            }
+            catch
+            {
+                return "";
             }
         }
 

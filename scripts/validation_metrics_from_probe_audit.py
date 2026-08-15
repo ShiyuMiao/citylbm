@@ -58,6 +58,7 @@ TEMPLATE_FIELDS = [
     "max_speed_stddev_ratio",
     "mean_speed_statistics_source",
     "profile_csv",
+    "profile_csv_sha256",
     "custom_profile_rows",
     "custom_profile_k_rows",
     "custom_profile_k_complete",
@@ -1107,6 +1108,11 @@ def main() -> int:
     inlet_k_mae = audit_float(inlet_profile_audit, "k_MAE_m2s2")
     inlet_k_rmse = audit_float(inlet_profile_audit, "k_RMSE_m2s2")
     inlet_k_bias = audit_float(inlet_profile_audit, "k_bias_m2s2")
+    profile_csv_sha256 = metadata_field(metadata, "WindProfileCsvSha256")
+    if not profile_csv_sha256 and args.profile_csv:
+        profile_path = Path(args.profile_csv).expanduser()
+        if profile_path.exists():
+            profile_csv_sha256 = sha256_file(profile_path.resolve())
     metrics = {field: "" for field in TEMPLATE_FIELDS}
     metrics.update(
         {
@@ -1145,6 +1151,7 @@ def main() -> int:
             "max_speed_stddev_ratio": fmt(max_speed_stddev_ratio),
             "mean_speed_statistics_source": mean_speed_statistics_source,
             "profile_csv": args.profile_csv,
+            "profile_csv_sha256": profile_csv_sha256,
             "custom_profile_rows": metadata_field(metadata, "CustomProfileRows"),
             "custom_profile_k_rows": metadata_field(metadata, "CustomProfileKRows"),
             "custom_profile_k_complete": metadata_field(metadata, "CustomProfileKComplete"),

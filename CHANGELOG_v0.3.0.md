@@ -321,6 +321,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `audit_inlet_profile_from_vtk.py` and `audit_inlet_correlation_from_vtk.py` now write SHA256 hashes for the selected
   final-window VTK frames, and `validation_gate.py` requires those hashes to match the runtime-selected window. Stale
   inlet U/k or turbulence-correlation audits can no longer pass by repeating only the same source time-step numbers.
+- Generated `case_metadata.json` now records `WindProfileCsvSha256`; the inlet-profile audit records `af_csv_sha256`,
+  and `validation_gate.py` requires the two hashes to match before accepting inlet `U/k` preservation. This prevents a
+  run from proving preservation against the wrong AF table.
 
 ## Remaining scientific work
 

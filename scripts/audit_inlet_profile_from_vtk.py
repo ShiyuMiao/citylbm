@@ -578,6 +578,7 @@ def main() -> int:
         "schema": "citylbm.inlet_profile_audit.v1",
         "vtk_dir": str(vtk_path),
         "af_csv": str(af_path),
+        "af_csv_sha256": sha256_file(af_path),
         "metadata": str(Path(args.metadata).resolve()) if args.metadata else "",
         "metadata_case_name": metadata.get("Name") or metadata.get("CaseName") or "",
         "vtk_files": [str(path) for path in files],

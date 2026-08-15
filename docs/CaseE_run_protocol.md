@@ -122,7 +122,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `negative_streamwise_fraction`, and `inlet_streamwise_direction_gate`. Short, non-final or irregular inlet windows
   fail before probe accuracy is interpreted. The selected inlet-profile `source_time_steps` must also match the global
   runtime averaging audit exactly, and the selected VTK SHA256 hashes must match the runtime audit's selected VTK
-  hashes; otherwise the run has mixed VTK windows and remains diagnostic. A high
+  hashes. The inlet-profile audit's `af_csv_sha256` must also match `case_metadata.json` `WindProfileCsvSha256`;
+  otherwise the run may have preserved a different AF table and remains diagnostic. A high
   reverse-streamwise fraction flags wind-vector or velocity component sign errors.
 - The generated FluidX3D source must also be audited before interpreting the VTK result. Run
   `scripts\audit_inlet_source.py --setup <case_dir>\src\setup.cpp --metadata <case_metadata.json> --out <case_dir>\inlet_source_audit.json`
