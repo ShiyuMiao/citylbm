@@ -2528,15 +2528,6 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     metric_component_sensitivity_audit = str(
         get_any(metrics, ["component_sensitivity_audit", "ComponentSensitivityAudit"]) or ""
     ).strip()
-    metric_component_sensitivity_audit_exists = False
-    if metric_component_sensitivity_audit:
-        try:
-            metric_component_sensitivity_path = Path(metric_component_sensitivity_audit).expanduser()
-            metric_component_sensitivity_audit_exists = metric_component_sensitivity_path.exists()
-            if metric_component_sensitivity_audit_exists and not component_sensitivity_audit:
-                component_sensitivity_audit = read_json(metric_component_sensitivity_path)
-        except OSError:
-            metric_component_sensitivity_audit_exists = False
 
     component_normalization_gate = str(
         component_sensitivity_audit.get("component_normalization_gate") or ""
@@ -2588,7 +2579,6 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     component_sensitivity_audit_exists = (
         bool(component_sensitivity_audit_path and component_sensitivity_audit_path.exists())
-        or metric_component_sensitivity_audit_exists
     )
     component_choice_not_explained = (
         bool(selected_component)
@@ -2650,8 +2640,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"metrics_component_normalization_gate={get_any(metrics, ['component_normalization_gate', 'ComponentNormalizationGate']) or 'ignored'}; "
             f"metrics_component_sensitivity_gate={get_any(metrics, ['component_sensitivity_gate', 'ComponentSensitivityGate']) or 'ignored'}; "
             f"metrics_normalization_scale_gate={get_any(metrics, ['normalization_scale_gate', 'NormalizationScaleGate']) or 'ignored'}; "
-            f"audit={component_sensitivity_audit_path or metric_component_sensitivity_audit or 'missing'}; "
-            f"audit_exists={component_sensitivity_audit_exists}"
+            f"audit={component_sensitivity_audit_path or 'missing'}; "
+            f"audit_exists={component_sensitivity_audit_exists}; "
+            f"metrics_component_sensitivity_audit={metric_component_sensitivity_audit or 'ignored'}"
         ),
         "Run scripts/audit_component_sensitivity.py and fix speed_ratio/streamwise_ratio/component selection or Uref/SI conversion before interpreting systematic bias.",
     )

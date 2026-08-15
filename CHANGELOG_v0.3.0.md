@@ -128,6 +128,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_gate.py` now requires component/Uref sensitivity values to come from archived
   `component_sensitivity_audit.json`; metrics rows may point to that audit, but can no longer self-report
   component-normalization pass fields, best component, RMSE comparison or best-fit Uref scale.
+- `validation_gate.py` now requires `component_sensitivity_audit.json` to be physically archived in the audited run
+  package. A metrics-table `component_sensitivity_audit` path is reported as ignored context and can no longer point the
+  gate to an external or stale component/Uref sensitivity JSON.
 - `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now track LBM stability
   evidence: target lattice velocity, estimated Mach number, `tau`, `nu_lbm`, physical viscosity, Reynolds number,
   velocity set, LES/subgrid model and solver-log stability warnings. A generated case is not enough; the machine gate
