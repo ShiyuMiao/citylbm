@@ -9,6 +9,7 @@ can be considered for paper-grade validation.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
@@ -188,7 +189,22 @@ def json_bool(value: Any) -> bool:
     return False
 
 
-def native_baseline_gate_from_manifest(manifest: Dict[str, Any]) -> str:
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest().lower()
+
+
+def resolve_manifest_source_path(raw_path: str, manifest_path: Optional[Path]) -> Path:
+    path = Path(raw_path).expanduser()
+    if not path.is_absolute() and manifest_path is not None:
+        path = manifest_path.parent / path
+    return path.resolve()
+
+
+def native_baseline_gate_from_manifest(manifest: Dict[str, Any], manifest_path: Optional[Path]) -> str:
     if not manifest:
         return "missing_native_manifest"
     if not str(manifest.get("BaselineId") or "").strip():
@@ -223,8 +239,20 @@ def native_baseline_gate_from_manifest(manifest: Dict[str, Any]) -> str:
             return f"missing_native_source_record:{role}"
         if not json_bool(record.get("Exists")):
             return f"native_source_file_missing:{role}"
-        if not str(record.get("Sha256") or "").strip():
+        if str(record.get("HashAlgorithm") or "").strip().upper() != "SHA256":
+            return f"native_source_hash_algorithm_not_sha256:{role}"
+        declared_sha = str(record.get("Sha256") or "").strip().lower()
+        if not declared_sha:
             return f"native_source_hash_missing:{role}"
+        declared_path = str(record.get("Path") or "").strip()
+        if not declared_path:
+            return f"native_source_path_missing:{role}"
+        source_path = resolve_manifest_source_path(declared_path, manifest_path)
+        if not source_path.exists():
+            return f"native_source_path_not_found:{role}"
+        actual_sha = sha256_file(source_path)
+        if declared_sha != actual_sha:
+            return f"native_source_hash_mismatch:{role}"
 
     return "pass"
 
@@ -281,7 +309,7 @@ def main() -> int:
     native_manifest_path = find_run_file(run_dir, "native_fluidx3d_baseline_manifest.json")
     native_manifest = read_json(native_manifest_path) if native_manifest_path else {}
     native_baseline_id = str(native_manifest.get("BaselineId") or "").strip()
-    native_baseline_gate = native_baseline_gate_from_manifest(native_manifest)
+    native_baseline_gate = native_baseline_gate_from_manifest(native_manifest, native_manifest_path)
 
     manifest: Dict[str, Any] = {
         "GeneratedAtUtc": utc_now(),

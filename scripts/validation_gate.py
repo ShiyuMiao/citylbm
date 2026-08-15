@@ -801,13 +801,67 @@ def get_manifest_source_record(manifest: Dict[str, Any], role: str) -> Dict[str,
     return {}
 
 
-def manifest_source_hash_ok(manifest: Dict[str, Any], role: str) -> bool:
+def manifest_source_hash_status(
+    manifest: Dict[str, Any],
+    role: str,
+    manifest_path: Optional[Path],
+) -> Dict[str, Any]:
     record = get_manifest_source_record(manifest, role)
-    return (
-        as_bool(record.get("Exists")) is True
-        and str(record.get("HashAlgorithm") or "").strip().upper() == "SHA256"
-        and bool(str(record.get("Sha256") or "").strip())
+    declared_path = str(record.get("Path") or "").strip()
+    declared_sha = str(record.get("Sha256") or "").strip().lower()
+    hash_algorithm = str(record.get("HashAlgorithm") or "").strip().upper()
+    exists_declared = as_bool(record.get("Exists")) is True
+    if not record:
+        return {
+            "role": role,
+            "ok": False,
+            "reason": "record_missing",
+            "declared_path": "",
+            "declared_sha256": "",
+            "actual_sha256": "",
+        }
+    if not declared_path:
+        return {
+            "role": role,
+            "ok": False,
+            "reason": "path_missing",
+            "declared_path": "",
+            "declared_sha256": declared_sha,
+            "actual_sha256": "",
+        }
+    source_path = Path(declared_path).expanduser()
+    if not source_path.is_absolute() and manifest_path is not None:
+        source_path = manifest_path.parent / source_path
+    source_path = source_path.resolve()
+    actual_sha = sha256_file(source_path).lower()
+    ok = (
+        exists_declared
+        and hash_algorithm == "SHA256"
+        and bool(declared_sha)
+        and bool(actual_sha)
+        and declared_sha == actual_sha
     )
+    reasons: List[str] = []
+    if not exists_declared:
+        reasons.append("manifest_exists_false")
+    if hash_algorithm != "SHA256":
+        reasons.append("hash_algorithm_not_sha256")
+    if not declared_sha:
+        reasons.append("declared_sha256_missing")
+    if not source_path.exists():
+        reasons.append("source_path_missing")
+    elif not actual_sha:
+        reasons.append("actual_sha256_unavailable")
+    elif declared_sha and declared_sha != actual_sha:
+        reasons.append("sha256_mismatch")
+    return {
+        "role": role,
+        "ok": ok,
+        "reason": "pass" if ok else ",".join(reasons or ["unknown"]),
+        "declared_path": str(source_path),
+        "declared_sha256": declared_sha,
+        "actual_sha256": actual_sha,
+    }
 
 
 def build_report(args: argparse.Namespace) -> Dict[str, Any]:
@@ -2136,9 +2190,17 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Native FluidX3D lbm.hpp",
         "Native FluidX3D lbm.cpp",
     ]
+    native_source_hash_statuses = [
+        manifest_source_hash_status(manifest, role, manifest_path) for role in native_source_hash_roles
+    ]
     native_source_hashes_ok = all(
-        manifest_source_hash_ok(manifest, role) for role in native_source_hash_roles
+        as_bool(status.get("ok")) is True for status in native_source_hash_statuses
     )
+    native_source_hash_failure_reasons = [
+        f"{status.get('role')}:{status.get('reason')}"
+        for status in native_source_hash_statuses
+        if as_bool(status.get("ok")) is not True
+    ]
     native_manifest_ok = (
         native_path_explicit is True
         and native_source_valid is True
@@ -2157,6 +2219,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"NativeFluidX3DPathExplicitlyProvided={native_path_explicit}; "
             f"NativeFluidX3DSourceValidation.IsValid={native_source_valid}; "
             f"native_source_hashes_ok={native_source_hashes_ok}; "
+            f"native_source_hash_failure_reasons={';'.join(native_source_hash_failure_reasons) or 'none'}; "
             f"manifest={manifest_path or 'missing'}; "
             f"metrics_native_baseline_gate={get_any(metrics, ['native_baseline_gate', 'native_fluidx3d_baseline_gate']) or 'ignored'}"
         ),
