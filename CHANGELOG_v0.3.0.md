@@ -41,6 +41,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now track the synthetic
   inlet correlation length and its evidence source. A user-selected STG correlation length is treated as diagnostic-only
   until it is replaced or justified by AIJ length-scale data, a precursor/recycling field or a validated DFM/SEM model.
+- `validation_gate.py` now treats inlet length-scale evidence as metadata/protocol-audit evidence only. Metrics-table
+  `inlet_length_scale_source`, `inlet_length_scale_gate` and `synthetic_correlation_length_m` fields are reported as
+  ignored context and cannot pass the length-scale gate by themselves.
 - `Run Simulation` adds `STG Length Source`, an optional text evidence tag for the STG correlation-length source. Empty
   values preserve the diagnostic-only behavior; accepted evidence tags such as `aij_length_scale_verified`,
   `official_length_scale_verified`, `precursor_length_scale`, `digital_filter_length_scale`,

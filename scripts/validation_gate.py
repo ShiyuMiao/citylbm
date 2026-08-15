@@ -2086,19 +2086,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
 
     inlet_length_status = protocol_status(items, "inlet_turbulence_length_scale")
-    inlet_length_source = str(
-        get_any(metrics, ["inlet_length_scale_source", "SyntheticTurbulentInletLengthScaleSource"])
-        or metadata.get("SyntheticTurbulentInletLengthScaleSource")
-        or ""
-    )
-    inlet_length_gate = str(
-        get_any(metrics, ["inlet_length_scale_gate", "SyntheticTurbulentInletLengthScaleGate"])
-        or metadata.get("SyntheticTurbulentInletLengthScaleGate")
-        or ""
-    ).strip().lower()
+    metadata_inlet_length_source = str(metadata.get("SyntheticTurbulentInletLengthScaleSource") or "")
+    metadata_inlet_length_gate = str(metadata.get("SyntheticTurbulentInletLengthScaleGate") or "").strip().lower()
+    inlet_length_source = metadata_inlet_length_source
+    inlet_length_gate = metadata_inlet_length_gate
     synthetic_corr_length_m = as_float(
-        get_any(metrics, ["synthetic_correlation_length_m", "SyntheticTurbulenceCorrelationLengthM"])
-        or metadata.get("SyntheticTurbulenceCorrelationLengthM")
+        metadata.get("SyntheticTurbulenceCorrelationLengthM")
     )
     length_scale_supported = any(
         token in inlet_length_source.lower()
@@ -2116,17 +2109,20 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "validated_length_scale_model",
         ]
     )
-    length_gate_pass = inlet_length_gate == "pass" and length_scale_supported
+    length_gate_pass = inlet_length_status == "pass" and inlet_length_gate == "pass" and length_scale_supported
     add_gate(
         gates,
         "inlet_length_scale",
         PASS if length_gate_pass else FAIL,
         (
             f"protocol_status={inlet_length_status or 'missing'}; "
-            f"source={inlet_length_source or 'missing'}; "
-            f"gate={inlet_length_gate or 'missing'}; "
+            f"metadata_source={inlet_length_source or 'missing'}; "
+            f"metadata_gate={inlet_length_gate or 'missing'}; "
             f"synthetic_correlation_length_m={synthetic_corr_length_m}; "
-            f"length_scale_source_supported={length_scale_supported}"
+            f"length_scale_source_supported={length_scale_supported}; "
+            f"metrics_inlet_length_scale_source={get_any(metrics, ['inlet_length_scale_source', 'SyntheticTurbulentInletLengthScaleSource']) or 'ignored'}; "
+            f"metrics_inlet_length_scale_gate={get_any(metrics, ['inlet_length_scale_gate', 'SyntheticTurbulentInletLengthScaleGate']) or 'ignored'}; "
+            f"metrics_synthetic_correlation_length_m={get_any(metrics, ['synthetic_correlation_length_m', 'SyntheticTurbulenceCorrelationLengthM']) or 'ignored'}"
         ),
         "Use AIJ-documented turbulence length scales, a precursor/recycling field, or a validated DFM/SEM length-scale model; a user-selected STG correlation length is diagnostic only.",
     )

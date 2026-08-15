@@ -156,6 +156,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `aij_length_scale_verified`, `official_length_scale_verified`, `precursor_length_scale`,
   `digital_filter_length_scale`, `synthetic_eddy_length_scale`, `sem_length_scale`, `dfm_length_scale` or
   `validated_length_scale_model`; otherwise the run remains diagnostic.
+  The final gate reads length-scale source and pass/fail status from `case_metadata.json` plus
+  `validation_protocol_audit.json`. `validation_metrics.csv` may summarize these fields, but self-reported
+  `inlet_length_scale_source`, `inlet_length_scale_gate` or `synthetic_correlation_length_m` values cannot pass this
+  gate without the generated metadata/protocol audit.
 - Post-processing reads the final averaged velocity field, not an initial transient.
   In `Read VTK`, set `Average Last N > 0` and archive the `Averaging Audit` JSON output.
   This JSON records the actual averaged frame count, source time steps, mean speed, mean/max pointwise speed standard
