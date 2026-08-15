@@ -2026,7 +2026,6 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and metrics_native_id == manifest_native_id
     )
     native_status = protocol_status(items, "native_fluidx3d_baseline")
-    native_gate = str(get_any(metrics, ["native_baseline_gate", "native_fluidx3d_baseline_gate"]) or "").strip().lower()
     native_path_explicit = as_bool(manifest.get("NativeFluidX3DPathExplicitlyProvided"))
     native_source_validation = manifest.get("NativeFluidX3DSourceValidation", {})
     if not isinstance(native_source_validation, dict):
@@ -2046,10 +2045,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and native_source_valid is True
         and native_source_hashes_ok
     )
+    native_gate = "pass" if manifest_path is not None and native_manifest_ok else "fail"
     add_gate(
         gates,
         "native_baseline",
-        PASS if native_id_matches_manifest and native_gate == "pass" and native_manifest_ok else FAIL,
+        PASS if native_id_matches_manifest and native_status == "pass" and native_gate == "pass" else FAIL,
         (
             f"native_fluidx3d_baseline_id={metrics_native_id or 'missing'}; "
             f"manifest_baseline_id={manifest_native_id or 'missing'}; "
@@ -2058,7 +2058,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"NativeFluidX3DPathExplicitlyProvided={native_path_explicit}; "
             f"NativeFluidX3DSourceValidation.IsValid={native_source_valid}; "
             f"native_source_hashes_ok={native_source_hashes_ok}; "
-            f"manifest={manifest_path or 'missing'}"
+            f"manifest={manifest_path or 'missing'}; "
+            f"metrics_native_baseline_gate={get_any(metrics, ['native_baseline_gate', 'native_fluidx3d_baseline_gate']) or 'ignored'}"
         ),
         "Run and archive a paired native FluidX3D baseline using an explicit complete source tree with setup/defines/lbm source hashes, then compare the same setup, grid, averaging and probes.",
     )

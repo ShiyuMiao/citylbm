@@ -362,11 +362,14 @@ gate, so stale or copy-forward VTK output cannot be promoted by editing `validat
 
 For a CityLBM-driven parity run, change `--software citylbm`, pass the already completed native metrics row with
 `--paired-native-metrics <native_validation_metrics.csv>`, and keep the same metrics/probe schema. A passing paper-grade
-record must archive `validation_gate_report.json` and the metrics row must include `empty_tunnel_gate=pass`,
-`native_baseline_gate=pass`, `native_citylbm_parity_gate=pass`, `lbm_stability_gate=solver_log_no_stability_warnings`,
+record must archive `validation_gate_report.json`. The metrics row must include `empty_tunnel_gate=pass`,
+`native_citylbm_parity_gate=pass`, `lbm_stability_gate=solver_log_no_stability_warnings`,
 `solver_stability_warnings=none`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
 `inlet_profile_gate=pass`, zero failed probes, bounded probe projection distance/tolerance, bounded mean-velocity bias/RMSE, and reported `k` bias/RMSE. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
+`validation_gate.py` recomputes `native_baseline` from `native_fluidx3d_baseline_manifest.json`, required native source
+hashes, BaselineId matching and the `native_fluidx3d_baseline` protocol item; metrics `native_baseline_gate=pass` is only
+ignored context.
 The JSON report also includes `diagnostic_priority`, which must be followed in order before changing physics parameters:
 first close coordinate/component/Uref/probe issues and the component/Uref sensitivity audit, then final-window time
 averaging, then AF `U/k` preservation, then turbulent-inlet method, length scale and correlation evidence, then

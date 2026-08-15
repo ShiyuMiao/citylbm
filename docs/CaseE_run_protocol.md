@@ -206,7 +206,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   with the same VTK averaging and probe audit table.
   The manifest also records whether the FluidX3D source path was explicitly supplied and whether the original native
   source tree passed the required-file check. If `NativeFluidX3DPathExplicitlyProvided=false` or source validation fails,
-  the run cannot be used as the native baseline for paper claims.
+  the run cannot be used as the native baseline for paper claims. `validation_gate.py` recomputes `native_baseline` from
+  this manifest and the `native_fluidx3d_baseline` protocol item; a metrics `native_baseline_gate=pass` field is only
+  ignored context.
 - Convert the `Data Probe` audit table and official `RS_caseE.csv` subset into a standard metrics row:
 
 ```powershell
