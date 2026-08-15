@@ -941,6 +941,15 @@ def runtime_run_freshness_status(
     return result
 
 
+def normalized_path_list(value: Any) -> List[str]:
+    text = str(value or "").strip()
+    if not text:
+        return []
+    if ";" in text:
+        return [part.strip() for part in text.split(";") if part.strip()]
+    return [text]
+
+
 def read_probe_source_window_audit(
     path: Optional[Path],
     expected_source_steps_text: str,
@@ -958,6 +967,12 @@ def read_probe_source_window_audit(
         "source_hash_count_mismatch_count": 0,
         "source_hash_mismatch_count": 0,
         "unique_source_hash_set_count": None,
+        "missing_source_files_count": 0,
+        "source_file_count_mismatch_count": 0,
+        "source_file_missing_count": 0,
+        "source_file_hash_mismatch_count": 0,
+        "source_file_expected_hash_mismatch_count": 0,
+        "unique_source_file_set_count": None,
         "error": None,
     }
     expected_steps, expected_error = parsed_source_steps(expected_source_steps_text)
@@ -977,6 +992,8 @@ def read_probe_source_window_audit(
     valid_count = 0
     source_step_sets = set()
     source_hash_sets = set()
+    source_file_sets = set()
+    base_dir = path.parent
     for row in rows:
         failed_flag = as_bool(get_any(row, ["failed", "Failed", "out_of_tolerance", "OutOfTolerance"]))
         status = str(get_any(row, ["status", "Status", "validation_status", "ValidationStatus"]) or "").lower()
@@ -1003,9 +1020,38 @@ def read_probe_source_window_audit(
         if hashes:
             source_hash_sets.add(";".join(hashes))
 
+        source_files = normalized_path_list(get_any(row, ["vtk_source_files", "VtkSourceFiles"]))
+        if not source_files:
+            result["missing_source_files_count"] += 1
+            continue
+        if len(source_files) != len(expected_steps):
+            result["source_file_count_mismatch_count"] += 1
+        resolved_paths: List[Path] = []
+        actual_hashes: List[str] = []
+        missing_file = False
+        for raw_file in source_files:
+            source_file = Path(raw_file).expanduser()
+            if not source_file.is_absolute():
+                source_file = base_dir / source_file
+            source_file = source_file.resolve()
+            resolved_paths.append(source_file)
+            if not source_file.exists():
+                result["source_file_missing_count"] += 1
+                missing_file = True
+                continue
+            actual_hashes.append(sha256_file(source_file).lower())
+        source_file_sets.add(";".join(str(item) for item in resolved_paths))
+        if missing_file:
+            continue
+        if hashes and actual_hashes != hashes:
+            result["source_file_hash_mismatch_count"] += 1
+        if normalized_expected_hashes and actual_hashes != normalized_expected_hashes:
+            result["source_file_expected_hash_mismatch_count"] += 1
+
     result["valid_count"] = valid_count
     result["unique_source_steps_count"] = len(source_step_sets)
     result["unique_source_hash_set_count"] = len(source_hash_sets)
+    result["unique_source_file_set_count"] = len(source_file_sets)
     return result
 
 
@@ -2779,6 +2825,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and probe_source["source_hash_count_mismatch_count"] == 0
         and probe_source["source_hash_mismatch_count"] == 0
         and probe_source["unique_source_hash_set_count"] == 1
+        and probe_source["missing_source_files_count"] == 0
+        and probe_source["source_file_count_mismatch_count"] == 0
+        and probe_source["source_file_missing_count"] == 0
+        and probe_source["source_file_hash_mismatch_count"] == 0
+        and probe_source["source_file_expected_hash_mismatch_count"] == 0
+        and probe_source["unique_source_file_set_count"] == 1
         and not probe_source["error"]
     )
     add_gate(
@@ -2797,10 +2849,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"probe_source_hash_count_mismatch={probe_source['source_hash_count_mismatch_count']}; "
             f"probe_source_hash_mismatch={probe_source['source_hash_mismatch_count']}; "
             f"unique_probe_source_hash_sets={probe_source['unique_source_hash_set_count']}; "
+            f"missing_probe_source_files={probe_source['missing_source_files_count']}; "
+            f"probe_source_file_count_mismatch={probe_source['source_file_count_mismatch_count']}; "
+            f"probe_source_file_missing={probe_source['source_file_missing_count']}; "
+            f"probe_source_file_hash_mismatch={probe_source['source_file_hash_mismatch_count']}; "
+            f"probe_source_file_expected_hash_mismatch={probe_source['source_file_expected_hash_mismatch_count']}; "
+            f"unique_probe_source_file_sets={probe_source['unique_source_file_set_count']}; "
             f"probe_audit_traceable={probe_audit_traceable}; "
             f"error={probe_source['error'] or 'none'}"
         ),
-        "Use the same final-window VTK frames for time averaging, inlet/profile audits and RS probe extraction, and archive per-probe VTK source hashes.",
+        "Use the same final-window VTK frames for time averaging, inlet/profile audits and RS probe extraction, and archive per-probe VTK source paths plus hashes.",
     )
     (
         projection_valid_count,

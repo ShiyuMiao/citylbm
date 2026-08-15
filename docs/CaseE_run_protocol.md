@@ -235,6 +235,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   VTK frames used by `Read VTK`, `audit_native_run.py`, `audit_inlet_profile_from_vtk.py` and
   `audit_inlet_correlation_from_vtk.py`. `validation_gate.py` fails `probe_source_window` if probe extraction mixes
   windows, omits hashes, uses stale/copy-forward VTK evidence, or disagrees with the metrics `source_time_steps`.
+  Every valid probe row must also include `vtk_source_files`; the final gate recomputes SHA256 from those archived VTK
+  paths and compares the result with the row-level `vtk_source_sha256` and runtime final-window hashes.
 - A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
   extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
 - Boundary-source evidence must come from comment-stripped generated `setup.cpp` code. `audit_boundary_source.py` treats

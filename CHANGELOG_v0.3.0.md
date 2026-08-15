@@ -333,6 +333,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now recomputes run-freshness mtimes from archived runtime-audit file paths. The final gate no
   longer accepts `run_freshness_gate=pass` unless the referenced setup/metadata/building/domain files exist and every
   selected VTK frame is newer than the latest run-definition artifact on disk.
+- `validation_gate.py` now recomputes per-probe `vtk_source_files` hashes from the probe audit CSV. Probe extraction
+  evidence must list the archived VTK source paths, and those files must hash to the same final-window SHA256 set used
+  by the runtime, inlet-profile and inlet-correlation audits.
 
 ## Remaining scientific work
 
