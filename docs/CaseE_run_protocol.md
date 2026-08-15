@@ -176,9 +176,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `digital_filter_length_scale`, `synthetic_eddy_length_scale`, `sem_length_scale`, `dfm_length_scale` or
   `validated_length_scale_model`; otherwise the run remains diagnostic.
   The final gate reads length-scale source and pass/fail status from `case_metadata.json` plus
-  `validation_protocol_audit.json`. `validation_metrics.csv` may summarize these fields, but self-reported
+  `validation_protocol_audit.json`, then cross-checks `inlet_source_audit.json` against the current `setup.cpp`.
+  The source audit must detect length-scale code evidence and the generated metadata must carry a positive
+  `SyntheticTurbulenceCorrelationLengthM`. `validation_metrics.csv` may summarize these fields, but self-reported
   `inlet_length_scale_source`, `inlet_length_scale_gate` or `synthetic_correlation_length_m` values cannot pass this
-  gate without the generated metadata/protocol audit.
+  gate without the generated metadata/protocol audit and current source-audit closure.
 - Post-processing reads the final averaged velocity field, not an initial transient.
   In `Read VTK`, set `Average Last N > 0` and archive the `Averaging Audit` JSON output.
   This JSON records the actual averaged frame count, source time steps, mean speed, mean/max pointwise speed standard
@@ -413,6 +415,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   Correlation source-window fields must also be reported: `inlet_correlation_frame_count`,
   `inlet_correlation_source_time_steps`, `inlet_correlation_selected_last_window`,
   `inlet_correlation_source_steps_strictly_increasing` and `inlet_correlation_source_step_spacing_uniform`.
+- Inlet length-scale source audit closure: metadata/protocol pass status, positive
+  `SyntheticTurbulenceCorrelationLengthM`, current `setup.cpp` source hash and source-audit-detected length-scale code
+  evidence
 - Paper-grade inlet method gate: `paper_grade_inlet_method` must pass. A velocity-field-only STG-lite run remains
   diagnostic even if `--allow-velocity-only-inlet` is used for sensitivity analysis. The metrics row must also record
   an explicit `inlet_method_class` and `inlet_method_class_supported=true`; a method name or protocol pass flag alone

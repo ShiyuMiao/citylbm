@@ -44,6 +44,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now treats inlet length-scale evidence as metadata/protocol-audit evidence only. Metrics-table
   `inlet_length_scale_source`, `inlet_length_scale_gate` and `synthetic_correlation_length_m` fields are reported as
   ignored context and cannot pass the length-scale gate by themselves.
+- The inlet length-scale gate now also requires `inlet_source_audit.json` evidence from the current `setup.cpp`,
+  including detected length-scale source code and a positive synthetic correlation length. Metadata/protocol tags alone
+  are not enough for SCI-grade inlet claims.
 - `Run Simulation` adds `STG Length Source`, an optional text evidence tag for the STG correlation-length source. Empty
   values preserve the diagnostic-only behavior; accepted evidence tags such as `aij_length_scale_verified`,
   `official_length_scale_verified`, `precursor_length_scale`, `digital_filter_length_scale`,

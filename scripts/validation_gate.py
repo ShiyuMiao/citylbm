@@ -2510,6 +2510,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit_has_segmented_stg_run_loop = as_bool(
         get_any(inlet_source_audit, ["has_segmented_stg_run_loop"])
     )
+    audit_has_inlet_length_scale_evidence = as_bool(
+        get_any(inlet_source_audit, ["has_length_scale_evidence"])
+    )
     inlet_profile_gate = str(get_any(inlet_profile_audit, ["inlet_profile_gate"]) or "").strip().lower()
     inlet_u_profile_gate = str(get_any(inlet_profile_audit, ["inlet_u_profile_gate"]) or "").strip().lower()
     inlet_k_profile_gate = str(get_any(inlet_profile_audit, ["inlet_k_profile_gate"]) or "").strip().lower()
@@ -3057,7 +3060,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "validated_length_scale_model",
         ]
     )
-    length_gate_pass = inlet_length_status == "pass" and inlet_length_gate == "pass" and length_scale_supported
+    length_gate_pass = (
+        inlet_length_status == "pass"
+        and inlet_length_gate == "pass"
+        and length_scale_supported
+        and inlet_source_evidence_ok
+        and audit_has_inlet_length_scale_evidence is True
+        and synthetic_corr_length_m is not None
+        and synthetic_corr_length_m > 0.0
+    )
     add_gate(
         gates,
         "inlet_length_scale",
@@ -3068,11 +3079,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"metadata_gate={inlet_length_gate or 'missing'}; "
             f"synthetic_correlation_length_m={synthetic_corr_length_m}; "
             f"length_scale_source_supported={length_scale_supported}; "
+            f"inlet_source_evidence_ok={inlet_source_evidence_ok}; "
+            f"audit_has_length_scale_evidence={audit_has_inlet_length_scale_evidence}; "
+            f"inlet_source_audit={inlet_source_audit_path or 'missing'}; "
             f"metrics_inlet_length_scale_source={get_any(metrics, ['inlet_length_scale_source', 'SyntheticTurbulentInletLengthScaleSource']) or 'ignored'}; "
             f"metrics_inlet_length_scale_gate={get_any(metrics, ['inlet_length_scale_gate', 'SyntheticTurbulentInletLengthScaleGate']) or 'ignored'}; "
             f"metrics_synthetic_correlation_length_m={get_any(metrics, ['synthetic_correlation_length_m', 'SyntheticTurbulenceCorrelationLengthM']) or 'ignored'}"
         ),
-        "Use AIJ-documented turbulence length scales, a precursor/recycling field, or a validated DFM/SEM length-scale model; a user-selected STG correlation length is diagnostic only.",
+        "Use AIJ-documented turbulence length scales, a precursor/recycling field, or a validated DFM/SEM length-scale model backed by current setup.cpp source-audit evidence; a user-selected STG correlation length is diagnostic only.",
     )
 
     metrics_native_id = str(get_any(metrics, ["native_fluidx3d_baseline_id"]) or "").strip()
