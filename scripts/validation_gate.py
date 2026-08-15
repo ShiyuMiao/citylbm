@@ -1205,6 +1205,86 @@ def parsed_source_steps(text: str) -> Tuple[List[int], Optional[str]]:
     return steps, None
 
 
+def parsed_step_list_value(value: Any, missing_reason: str) -> Tuple[List[int], Optional[str]]:
+    if value is None:
+        return [], missing_reason
+    if isinstance(value, list):
+        text = ",".join(str(item) for item in value)
+    else:
+        text = str(value).strip()
+    if not text:
+        return [], missing_reason
+    return parsed_source_steps(text)
+
+
+def requested_vtk_steps_status(
+    requested_time_steps: Optional[int],
+    requested_vtk_save_interval: Optional[int],
+    requested_vtk_save_start_step: Optional[int],
+    requested_vtk_frame_count: Optional[int],
+    selected_source_steps: List[int],
+    min_avg_frames: int,
+) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "ok": False,
+        "error": None,
+        "recomputed_steps": [],
+        "recomputed_steps_csv": "",
+        "recomputed_frame_count": None,
+        "declared_frame_count_matches": False,
+        "selected_source_matches_final_requested_window": False,
+    }
+    reasons: List[str] = []
+    if requested_time_steps is None:
+        reasons.append("requested_time_steps_missing")
+    if requested_vtk_save_interval is None:
+        reasons.append("requested_vtk_save_interval_missing")
+    elif requested_vtk_save_interval <= 0:
+        reasons.append("requested_vtk_save_interval_non_positive")
+    if reasons:
+        result["error"] = ";".join(reasons)
+        return result
+
+    start_step = requested_vtk_save_start_step
+    if start_step is None:
+        start_step = requested_vtk_save_interval
+    if start_step is None:
+        reasons.append("requested_vtk_save_start_step_missing")
+    elif start_step < 0:
+        reasons.append("requested_vtk_save_start_step_negative")
+    elif requested_time_steps is not None and start_step > requested_time_steps:
+        reasons.append("requested_vtk_save_start_after_time_steps")
+    if reasons:
+        result["error"] = ";".join(reasons)
+        return result
+
+    assert requested_time_steps is not None
+    assert requested_vtk_save_interval is not None
+    assert start_step is not None
+    recomputed_steps = list(range(start_step, requested_time_steps + 1, requested_vtk_save_interval))
+    recomputed_count = len(recomputed_steps)
+    result["recomputed_steps"] = recomputed_steps
+    result["recomputed_steps_csv"] = ",".join(str(step) for step in recomputed_steps)
+    result["recomputed_frame_count"] = recomputed_count
+    result["declared_frame_count_matches"] = (
+        requested_vtk_frame_count is not None and requested_vtk_frame_count == recomputed_count
+    )
+    result["selected_source_matches_final_requested_window"] = (
+        bool(selected_source_steps)
+        and len(selected_source_steps) <= recomputed_count
+        and selected_source_steps == recomputed_steps[-len(selected_source_steps) :]
+    )
+    if recomputed_count < min_avg_frames:
+        reasons.append(f"recomputed_requested_vtk_frame_count_below_{min_avg_frames}")
+    if not result["declared_frame_count_matches"]:
+        reasons.append("requested_vtk_frame_count_mismatch")
+    if not result["selected_source_matches_final_requested_window"]:
+        reasons.append("selected_source_steps_not_final_requested_window")
+    result["error"] = ";".join(reasons) if reasons else None
+    result["ok"] = not reasons
+    return result
+
+
 def strictly_increasing(values: List[int]) -> bool:
     return all(b > a for a, b in zip(values, values[1:]))
 
@@ -1572,6 +1652,35 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     parsed_last_step = parsed_steps[-1] if parsed_steps else None
     parsed_steps_increasing = strictly_increasing(parsed_steps) if parsed_steps else False
     parsed_spacing_uniform = uniformly_spaced(parsed_steps) if parsed_steps else False
+    all_available_steps_value = get_first_available(
+        get_any(runtime_audit, ["all_available_time_steps_csv", "AllAvailableTimeStepsCsv"]),
+        get_any(runtime_audit, ["all_available_time_steps", "AllAvailableTimeSteps"]),
+    )
+    all_available_steps, all_available_steps_error = parsed_step_list_value(
+        all_available_steps_value,
+        "all_available_time_steps_missing",
+    )
+    all_available_steps_increasing = strictly_increasing(all_available_steps) if all_available_steps else False
+    all_available_steps_uniform = uniformly_spaced(all_available_steps) if all_available_steps else False
+    recomputed_available_count_matches = (
+        available_frame_count is not None
+        and bool(all_available_steps)
+        and available_frame_count == len(all_available_steps)
+    )
+    recomputed_selected_last_window = (
+        bool(parsed_steps)
+        and bool(all_available_steps)
+        and len(parsed_steps) <= len(all_available_steps)
+        and parsed_steps == all_available_steps[-len(parsed_steps) :]
+    )
+    requested_vtk_step_status = requested_vtk_steps_status(
+        requested_time_steps,
+        requested_vtk_save_interval,
+        requested_vtk_save_start_step,
+        requested_vtk_frame_count,
+        parsed_steps,
+        args.min_avg_frames,
+    )
     runtime_vtk_hash_status = runtime_selected_vtk_hash_status(runtime_audit, runtime_audit_path, source_step_text)
     expected_source_hashes = (
         runtime_vtk_hash_status["actual_hashes"] if runtime_vtk_hash_status["ok"] else []
@@ -1635,6 +1744,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and source_first_matches
         and source_last_matches
         and available_covers_source_window
+        and all_available_steps_error is None
+        and all_available_steps_increasing
+        and all_available_steps_uniform
+        and recomputed_available_count_matches
+        and recomputed_selected_last_window
         and selected_last_window is True
         and source_steps_increasing is True
         and source_spacing_uniform is True
@@ -1645,6 +1759,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and requested_vtk_frame_gate == "pass"
         and requested_vtk_frame_count is not None
         and requested_vtk_frame_count >= args.min_avg_frames
+        and requested_vtk_step_status["ok"]
         and speed_statistics_source_ok
         and mean_speed_stable
         and point_speed_stable
@@ -1664,11 +1779,21 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"parsed_step_spacing_uniform={parsed_spacing_uniform}; "
             f"available_covers_source_window={available_covers_source_window}; "
             f"parsed_source_steps_error={parsed_steps_error or 'none'}; "
+            f"all_available_time_steps={str(all_available_steps_value or '').strip() or 'missing'}; "
+            f"all_available_time_steps_error={all_available_steps_error or 'none'}; "
+            f"all_available_steps_strictly_increasing={all_available_steps_increasing}; "
+            f"all_available_steps_uniform={all_available_steps_uniform}; "
+            f"recomputed_available_count_matches={recomputed_available_count_matches}; "
+            f"recomputed_selected_last_window={recomputed_selected_last_window}; "
             f"requested_averaging_window={requested_avg_window}; "
             f"requested_time_steps={requested_time_steps}; "
             f"requested_vtk_save_interval={requested_vtk_save_interval}; "
             f"requested_vtk_save_start_step={requested_vtk_save_start_step}; "
             f"requested_vtk_frame_count={requested_vtk_frame_count}; required >= {args.min_avg_frames}; "
+            f"recomputed_requested_vtk_frame_count={requested_vtk_step_status['recomputed_frame_count']}; "
+            f"requested_vtk_declared_frame_count_matches={requested_vtk_step_status['declared_frame_count_matches']}; "
+            f"requested_vtk_selected_source_matches_final_window={requested_vtk_step_status['selected_source_matches_final_requested_window']}; "
+            f"requested_vtk_recompute_error={requested_vtk_step_status['error'] or 'none'}; "
             f"requested_vtk_frame_gate={requested_vtk_frame_gate or 'missing'}; "
             f"requested_vtk_frame_gate_reasons={requested_vtk_frame_gate_reasons or 'none'}; "
             f"expected_vtk_frame_count={expected_vtk_frame_count}; "

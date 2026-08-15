@@ -365,6 +365,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - The native-run audit must also record `requested_time_steps`, `requested_vtk_save_interval`,
   `requested_vtk_save_start_step`, `requested_vtk_frame_count` and `requested_vtk_frame_gate=pass`. A Case E run
   planned to save fewer than 10 final-window VTK frames is diagnostic before accuracy metrics are interpreted.
+  The final gate recomputes the requested VTK schedule from these fields and checks that `source_time_steps` are the
+  final window of both the requested output schedule and `all_available_time_steps`; copied or manually edited
+  `selected_last_window=true` / `requested_vtk_frame_gate=pass` flags are not enough.
 - Inlet/outlet/lateral/top boundary faces and upstream/downstream/lateral/top clearances in building-height units
 - Domain size, maximum building height, approximate frontal blockage ratio, approximate plan blockage ratio and blockage gate
 - `boundary_protocol_audit.json`, `boundary_evidence_gate`, `boundary_missing_evidence_fields`,

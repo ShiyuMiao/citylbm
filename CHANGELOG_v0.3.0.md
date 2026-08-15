@@ -168,6 +168,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now also reads the paper-grade `time_averaging` gate from the runtime audit artifact only:
   averaged frame count, source time steps, final-window selection, requested VTK frame preflight and sampled stability
   ratios cannot be self-reported from `validation_metrics.csv`.
+- `validation_gate.py` now independently recomputes the requested VTK output steps from archived
+  `requested_time_steps`, `requested_vtk_save_interval` and `requested_vtk_save_start_step`, and rechecks that
+  `source_time_steps` are the final window of both the requested output schedule and `all_available_time_steps`.
 - `validation_metrics_from_probe_audit.py`, the metrics template and `validation_gate.py` now carry
   `probe_vtk_source_window_gate`, probe source time steps and probe VTK hash-set counts. Valid probe rows must use the
   same final-window VTK frames as the averaging and inlet-profile/correlation audits, or the new `probe_source_window`
