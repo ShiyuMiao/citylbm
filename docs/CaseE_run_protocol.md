@@ -150,7 +150,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `validation_gate.py` independently checks that the correlation audit uses the same final averaged `source_time_steps`
   as the run metrics and that streamwise variance, temporal lag-1 correlation and spatial adjacent correlation exceed
   the configured thresholds. A hand-filled `inlet_correlation_gate=pass` is not sufficient when the source window,
-  numeric correlation evidence or audit file is missing.
+  numeric correlation evidence or audit file is missing. The final gate accepts only the `inlet_correlation_audit.json`
+  archived in the audited run package; a metrics-table `inlet_correlation_audit` path is ignored so old or external
+  correlation JSON cannot be reused silently.
 - The STG length-scale gate is not passed by choosing a convenient number of lattice cells. It passes only when
   `STG Length Source`/`SyntheticTurbulentInletLengthScaleSource` contains an archived evidence tag such as
   `aij_length_scale_verified`, `official_length_scale_verified`, `precursor_length_scale`,

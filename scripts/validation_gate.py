@@ -1961,18 +1961,6 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     metric_inlet_correlation_audit = str(
         get_any(metrics, ["inlet_correlation_audit", "InletCorrelationAudit"]) or ""
     ).strip()
-    metric_inlet_correlation_audit_exists = False
-    metric_inlet_correlation_audit_json: Dict[str, Any] = {}
-    if metric_inlet_correlation_audit:
-        try:
-            metric_inlet_correlation_audit_path = Path(metric_inlet_correlation_audit).expanduser()
-            metric_inlet_correlation_audit_exists = metric_inlet_correlation_audit_path.exists()
-            if metric_inlet_correlation_audit_exists and not inlet_correlation_audit:
-                metric_inlet_correlation_audit_json = read_json(metric_inlet_correlation_audit_path)
-        except OSError:
-            metric_inlet_correlation_audit_exists = False
-    if not inlet_correlation_audit and metric_inlet_correlation_audit_json:
-        inlet_correlation_audit = metric_inlet_correlation_audit_json
     inlet_correlation_gate = str(
         get_any(inlet_correlation_audit, ["inlet_correlation_gate"])
         or ""
@@ -1995,7 +1983,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_spatial_finite_fraction = as_float(
         get_any(inlet_correlation_audit, ["spatial_finite_correlation_fraction"])
     )
-    inlet_correlation_audit_exists = bool(inlet_correlation_audit_path and inlet_correlation_audit_path.exists()) or metric_inlet_correlation_audit_exists
+    inlet_correlation_audit_exists = bool(inlet_correlation_audit_path and inlet_correlation_audit_path.exists())
     inlet_correlation_source_steps = get_first_available(
         get_any(inlet_correlation_audit, ["source_time_steps_csv", "source_time_steps"]),
     )
@@ -2079,8 +2067,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_correlation_source_step_spacing_uniform={inlet_correlation_spacing_uniform}; "
             f"inlet_correlation_source_steps_error={inlet_correlation_steps_error or 'none'}; "
             f"correlation_values_source=audit_json_only; "
-            f"audit={inlet_correlation_audit_path or metric_inlet_correlation_audit or 'missing'}; "
-            f"audit_exists={inlet_correlation_audit_exists}"
+            f"audit={inlet_correlation_audit_path or 'missing'}; "
+            f"audit_exists={inlet_correlation_audit_exists}; "
+            f"metrics_inlet_correlation_audit={metric_inlet_correlation_audit or 'ignored'}"
         ),
         "Run scripts/audit_inlet_correlation_from_vtk.py on real final-window inlet VTK frames; RMS/k alone is not enough to prove correlated turbulent inflow.",
     )

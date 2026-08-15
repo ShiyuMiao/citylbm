@@ -189,6 +189,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now requires inlet-source and inlet-correlation pass evidence to come from the archived
   `inlet_source_audit.json` and `inlet_correlation_audit.json` values themselves. Metrics CSV fields can summarize
   those audits, but cannot replace the generated-source hash or final-window VTK correlation audit.
+- `validation_gate.py` now requires `inlet_correlation_audit.json` to be physically archived in the audited run package.
+  A metrics-table `inlet_correlation_audit` path is reported as ignored context and can no longer point the gate to an
+  external or stale correlation JSON.
 - `scripts/validation_metrics_from_probe_audit.py` converts Grasshopper `Data Probe` audit rows plus official RS tables
   into the standard metrics CSV, including matched probe count, coordinate deltas, selected component, normalization flags,
   regression diagnostics and systematic low-bias detection.
