@@ -131,6 +131,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now requires `component_sensitivity_audit.json` to be physically archived in the audited run
   package. A metrics-table `component_sensitivity_audit` path is reported as ignored context and can no longer point the
   gate to an external or stale component/Uref sensitivity JSON.
+- `audit_boundary_source.py` now evaluates TYPE_E/TYPE_S assignments, profile inlet, outlet/lateral/top boundaries and
+  rough-wall/precursor evidence from comment-stripped `setup.cpp` code. Boundary keywords or pseudo-code in comments are
+  retained only as diagnostics and can no longer support a boundary-source gate.
 - `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now track LBM stability
   evidence: target lattice velocity, estimated Mach number, `tau`, `nu_lbm`, physical viscosity, Reynolds number,
   velocity set, LES/subgrid model and solver-log stability warnings. A generated case is not enough; the machine gate

@@ -223,6 +223,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   windows, omits hashes, uses stale/copy-forward VTK evidence, or disagrees with the metrics `source_time_steps`.
 - A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
   extraction before any CityLBM-vs-AIJ error is attributed to the Grasshopper integration layer.
+- Boundary-source evidence must come from comment-stripped generated `setup.cpp` code. `audit_boundary_source.py` treats
+  TYPE_E/TYPE_S assignments, profile inlet, outlet/lateral/top checks, rough-wall evidence and precursor/recycling
+  evidence in comments as diagnostics only; commented pseudo-code cannot make a simplified boundary setup paper-grade.
 - For a CityLBM-driven Case E validation row, run `scripts\audit_native_citylbm_parity.py` or pass
   `--paired-native-metrics <native_validation_metrics.csv>` to the evidence chain. The resulting
   `native_citylbm_parity_audit.json` must show matched case, wind direction, `dx`, steps, VTK cadence, averaging window,

@@ -68,6 +68,11 @@ def strip_cpp_comments(text: str) -> str:
     return re.sub(r"//.*", "", without_block)
 
 
+def extract_cpp_comments(text: str) -> str:
+    comments = re.findall(r"/\*.*?\*/|//.*", text, flags=re.DOTALL)
+    return "\n".join(comments)
+
+
 def main() -> int:
     args = parse_args()
     setup_path = Path(args.setup).expanduser().resolve()
@@ -84,8 +89,9 @@ def main() -> int:
         source = setup_path.read_text(encoding="utf-8-sig", errors="replace")
         setup_hash = sha256(setup_path)
 
-    lower = source.lower()
     code = strip_cpp_comments(source)
+    comments = extract_cpp_comments(source)
+    lower = code.lower()
     boundary_summary = str(metadata.get("BoundaryConditionSummary") or "")
     boundary_types = nested(metadata, "BoundaryProtocolAudit", "BoundaryTypes")
     boundary_types_text = json.dumps(boundary_types, ensure_ascii=True) if isinstance(boundary_types, dict) else ""
@@ -96,30 +102,30 @@ def main() -> int:
     has_type_s_define = "#define type_s" in lower or "type_s 0x01" in lower
     has_type_e_symbol = "type_e" in lower
     has_type_s_symbol = "type_s" in lower
-    type_e_assignment_count = count_regex(source, r"lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_E")
-    type_s_assignment_count = count_regex(source, r"lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_S")
-    has_ground_no_slip = "if(z == 0u)" in source and "TYPE_S" in source
+    type_e_assignment_count = count_regex(code, r"lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_E")
+    type_s_assignment_count = count_regex(code, r"lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_S")
+    has_ground_no_slip = "if(z == 0u)" in code and "TYPE_S" in code
     has_building_voxel_solid = "voxelize_stl" in lower and "type_s" in lower
     has_type_e_velocity_initialization = contains_any(
-        source,
+        code,
         [
             "initialize all TYPE_E boundary velocities",
             "lbm.flags[n] != TYPE_E",
             "float3 u_e = windProfile(z)",
         ],
     )
-    has_profile_inlet = contains_any(source, ["windProfile(z)", "profile_u_lbm", "profile_z_m"])
+    has_profile_inlet = contains_any(code, ["windProfile(z)", "profile_u_lbm", "profile_z_m"])
     has_outlet_type_e = bool(
-        re.search(r"if\s*\([^)]*(Nx-1u|0u|Ny-1u)[^)]*\)\s*\{\s*lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_E;\s*return;", source)
+        re.search(r"if\s*\([^)]*(Nx-1u|0u|Ny-1u)[^)]*\)\s*\{\s*lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_E;\s*return;", code)
     )
     has_lateral_type_e = contains_any(
-        source,
+        code,
         [
             "if(y == 0u || y == Ny-1u) { lbm.flags[n] = TYPE_E; return; }",
             "if(x == 0u || x == Nx-1u) { lbm.flags[n] = TYPE_E; return; }",
         ],
     )
-    has_top_type_e = "if(z == Nz-1u) { lbm.flags[n] = TYPE_E; return; }" in source
+    has_top_type_e = "if(z == Nz-1u) { lbm.flags[n] = TYPE_E; return; }" in code
     has_non_reflecting_outlet = contains_any(
         code,
         [
@@ -147,7 +153,11 @@ def main() -> int:
         ],
     )
     has_precursor_or_recycling = contains_any(code, ["precursor", "recycling_rescaling", "recycling-rescaling"])
-    has_boundary_source_comment = contains_any(source, ["BoundaryProtocolAudit", "TYPE_E", "TYPE_S"])
+    has_boundary_source_comment = contains_any(comments, ["BoundaryProtocolAudit", "TYPE_E", "TYPE_S"])
+    comments_contain_boundary_tokens = contains_any(
+        comments,
+        ["type_e", "type_s", "non_reflecting", "rough_wall", "precursor", "recycling_rescaling"],
+    )
 
     simplified_type_e_box = (
         has_equilibrium_boundaries
@@ -257,6 +267,8 @@ def main() -> int:
         "has_rough_wall_function_evidence": has_rough_wall_function,
         "has_precursor_or_recycling_boundary_evidence": has_precursor_or_recycling,
         "advanced_boundary_evidence_uses_comment_stripped_code": True,
+        "all_boundary_implementation_evidence_uses_comment_stripped_code": True,
+        "comments_contain_boundary_tokens": comments_contain_boundary_tokens,
         "boundary_source_advanced_code_evidence": source_advanced_code_evidence,
         "has_boundary_source_comment": has_boundary_source_comment,
         "boundary_source_method_class": source_class,
