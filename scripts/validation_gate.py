@@ -79,6 +79,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-grid-bias-change-ratio", type=float, default=0.05)
     parser.add_argument("--grid-dx-tolerance", type=float, default=1.0e-9)
     parser.add_argument("--min-native-citylbm-parity-field-count", type=int, default=20)
+    parser.add_argument("--min-native-citylbm-parity-gate-field-count", type=int, default=20)
+    parser.add_argument("--min-native-citylbm-parity-hash-field-count", type=int, default=5)
     parser.add_argument("--expected-compared-component", default="", help="Require a specific Data Probe compared_component, e.g. speed_ratio or streamwise_ratio.")
     parser.add_argument("--expected-uref", type=float, default=None, help="Require the metrics/Data Probe Uref to match this value.")
     parser.add_argument("--uref-tolerance", type=float, default=1.0e-6)
@@ -3171,6 +3173,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     parity_mismatched_fields = str(
         get_any(native_citylbm_parity_audit, ["mismatched_fields"]) or ""
     )
+    parity_compared_gate_count = as_int(
+        get_any(native_citylbm_parity_audit, ["compared_gate_field_count"])
+    )
+    parity_compared_hash_count = as_int(
+        get_any(native_citylbm_parity_audit, ["compared_hash_field_count"])
+    )
     parity_ok = (
         not citylbm_result
         or (
@@ -3179,6 +3187,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             and parity_native_metrics
             and parity_matched_count is not None
             and parity_matched_count >= args.min_native_citylbm_parity_field_count
+            and parity_compared_gate_count is not None
+            and parity_compared_gate_count >= args.min_native_citylbm_parity_gate_field_count
+            and parity_compared_hash_count is not None
+            and parity_compared_hash_count >= args.min_native_citylbm_parity_hash_field_count
             and parity_mismatched_count == 0
         )
     )
@@ -3192,11 +3204,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_citylbm_parity_gate={parity_gate or 'missing'}; "
             f"native_metrics={parity_native_metrics or 'missing'}; "
             f"matched_field_count={parity_matched_count}; required >= {args.min_native_citylbm_parity_field_count}; "
+            f"compared_gate_field_count={parity_compared_gate_count}; "
+            f"required_gate_fields >= {args.min_native_citylbm_parity_gate_field_count}; "
+            f"compared_hash_field_count={parity_compared_hash_count}; "
+            f"required_hash_fields >= {args.min_native_citylbm_parity_hash_field_count}; "
             f"mismatched_field_count={parity_mismatched_count}; mismatched_fields={parity_mismatched_fields or 'none'}; "
             f"native_citylbm_parity_gate_reasons={parity_reasons or 'none'}; "
             f"metrics_native_citylbm_parity_gate={get_any(metrics, ['native_citylbm_parity_gate', 'NativeCitylbmParityGate']) or 'ignored'}"
         ),
-        "Before using native FluidX3D as the accuracy baseline for CityLBM, archive a parity audit proving the same case, wind, dx, averaging, Uref, inlet, boundary and probe settings.",
+        "Before using native FluidX3D as the accuracy baseline for CityLBM, archive a parity audit proving the same case, wind, dx, averaging, Uref, inlet, boundary, source-audit hashes and probe settings.",
     )
 
     grid_gate = str(
@@ -3838,6 +3854,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_grid_bias_change_ratio": args.max_grid_bias_change_ratio,
             "grid_dx_tolerance": args.grid_dx_tolerance,
             "min_native_citylbm_parity_field_count": args.min_native_citylbm_parity_field_count,
+            "min_native_citylbm_parity_gate_field_count": args.min_native_citylbm_parity_gate_field_count,
+            "min_native_citylbm_parity_hash_field_count": args.min_native_citylbm_parity_hash_field_count,
             "expected_compared_component": args.expected_compared_component,
             "expected_uref": args.expected_uref,
             "uref_tolerance": args.uref_tolerance,

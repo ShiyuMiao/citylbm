@@ -216,6 +216,10 @@ TEMPLATE_FIELDS = [
     "native_citylbm_parity_matched_field_count",
     "native_citylbm_parity_mismatched_field_count",
     "native_citylbm_parity_mismatched_fields",
+    "native_citylbm_parity_compared_text_field_count",
+    "native_citylbm_parity_compared_gate_field_count",
+    "native_citylbm_parity_compared_hash_field_count",
+    "native_citylbm_parity_compared_numeric_field_count",
     "probe_mapping_table",
     "probe_mapping_table_sha256",
     "official_measurement_sha256",
@@ -1375,6 +1379,10 @@ def main() -> int:
             )
             if isinstance(native_citylbm_parity_audit.get("mismatched_fields"), list)
             else str(native_citylbm_parity_audit.get("mismatched_fields", "")),
+            "native_citylbm_parity_compared_text_field_count": audit_field(native_citylbm_parity_audit, "compared_text_field_count"),
+            "native_citylbm_parity_compared_gate_field_count": audit_field(native_citylbm_parity_audit, "compared_gate_field_count"),
+            "native_citylbm_parity_compared_hash_field_count": audit_field(native_citylbm_parity_audit, "compared_hash_field_count"),
+            "native_citylbm_parity_compared_numeric_field_count": audit_field(native_citylbm_parity_audit, "compared_numeric_field_count"),
             "probe_mapping_table": str(probe_path),
             "probe_mapping_table_sha256": sha256_file(probe_path),
             "official_measurement_sha256": sha256_file(official_path),

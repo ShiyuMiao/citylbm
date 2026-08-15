@@ -362,6 +362,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   `native_citylbm_parity_mismatched_fields`. The audit must also report non-zero gate/hash comparison coverage through
   `native_citylbm_parity_compared_gate_field_count` and `native_citylbm_parity_compared_hash_field_count`. A CityLBM row
   without this audit cannot be used to claim inherited native FluidX3D accuracy.
+  The v0.3.0 machine gate requires at least 20 compared parity fields, at least 20 compared gate fields and all 5
+  evidence-hash fields for CityLBM/native parity.
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
 - `time_averaging` gate must use the final available VTK window, contain at least 10 frames, have strictly increasing
   uniformly spaced source steps, and satisfy `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20`

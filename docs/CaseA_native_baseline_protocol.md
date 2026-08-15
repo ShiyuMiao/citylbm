@@ -261,6 +261,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
   `native_citylbm_parity_native_metrics`, `native_citylbm_parity_matched_field_count`,
   `native_citylbm_parity_mismatched_field_count`, `native_citylbm_parity_mismatched_fields`,
   `native_citylbm_parity_compared_gate_field_count` and `native_citylbm_parity_compared_hash_field_count`.
+  The machine gate now requires at least 20 compared parity fields, at least 20 compared gate fields and all 5
+  evidence-hash fields before a CityLBM row can claim inherited native FluidX3D accuracy.
 - LBM stability evidence: target maximum lattice velocity, estimated maximum Mach number, `tau`, `nu_lbm`, physical
   viscosity, Reynolds number, velocity set, LES/subgrid model and solver-log stability warning status. The machine
   gate now fails this block unless the runtime metrics row records a passing stability gate such as
