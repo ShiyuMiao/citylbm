@@ -521,6 +521,11 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         if args.max_speed_stddev_ratio is not None
         else sampled_stability.get("max_speed_stddev_ratio")
     )
+    mean_speed_statistics_source = (
+        "cli"
+        if args.mean_speed_stddev_ratio is not None and args.max_speed_stddev_ratio is not None
+        else "sampled_vtk"
+    )
 
     reasons: List[str] = []
     if args.average_last_n <= 0:
@@ -543,6 +548,8 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         reasons.append("max_speed_stddev_ratio_above_0.20")
     if sampled_stability.get("vtk_stability_sampling_gate") == "failed":
         reasons.append("vtk_stability_sampling_failed")
+    if mean_speed_statistics_source != "sampled_vtk":
+        reasons.append("mean_speed_statistics_not_from_sampled_vtk")
 
     requested_frame_preflight = expected_vtk_frame_preflight(
         metadata,
@@ -588,7 +595,7 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "max_speed_stddev_mps": max_speed_stddev_mps,
         "mean_speed_stddev_ratio": mean_speed_stddev_ratio,
         "max_speed_stddev_ratio": max_speed_stddev_ratio,
-        "mean_speed_statistics_source": "cli" if args.mean_speed_stddev_ratio is not None and args.max_speed_stddev_ratio is not None else "sampled_vtk",
+        "mean_speed_statistics_source": mean_speed_statistics_source,
         "minimum_validation_average_frames": args.min_avg_frames,
         "max_mean_speed_stddev_ratio": args.max_mean_speed_stddev_ratio,
         "max_point_speed_stddev_ratio": args.max_point_speed_stddev_ratio,

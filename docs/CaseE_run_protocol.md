@@ -355,6 +355,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   uniformly spaced source steps, and satisfy `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20`
   from the Read VTK audit or native-run audit unless a stricter case-specific stationarity criterion is documented.
   Self-reported `validation_metrics.csv` fields cannot pass this gate without the runtime audit artifact.
+  Command-line speed-stability ratios in `audit_native_run.py` are diagnostic only; the native run audit passes
+  `time_averaging_gate` only when the ratios are computed from deterministic sampled VTK frames.
 - The native-run audit must also record `requested_time_steps`, `requested_vtk_save_interval`,
   `requested_vtk_save_start_step`, `requested_vtk_frame_count` and `requested_vtk_frame_gate=pass`. A Case E run
   planned to save fewer than 10 final-window VTK frames is diagnostic before accuracy metrics are interpreted.
