@@ -2071,44 +2071,22 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
 
     parity_gate = str(
-        get_first_available(
-            get_any(native_citylbm_parity_audit, ["native_citylbm_parity_gate"]),
-            get_any(metrics, ["native_citylbm_parity_gate", "NativeCitylbmParityGate"]),
-        )
-        or ""
+        get_any(native_citylbm_parity_audit, ["native_citylbm_parity_gate"]) or ""
     ).strip().lower()
     parity_reasons = str(
-        get_first_available(
-            get_any(native_citylbm_parity_audit, ["native_citylbm_parity_gate_reasons"]),
-            get_any(metrics, ["native_citylbm_parity_gate_reasons", "NativeCitylbmParityGateReasons"]),
-        )
-        or ""
+        get_any(native_citylbm_parity_audit, ["native_citylbm_parity_gate_reasons"]) or ""
     )
     parity_native_metrics = str(
-        get_first_available(
-            get_any(native_citylbm_parity_audit, ["native_metrics"]),
-            get_any(metrics, ["native_citylbm_parity_native_metrics", "NativeCitylbmParityNativeMetrics"]),
-        )
-        or ""
+        get_any(native_citylbm_parity_audit, ["native_metrics"]) or ""
     ).strip()
     parity_matched_count = as_int(
-        get_first_available(
-            get_any(native_citylbm_parity_audit, ["matched_field_count"]),
-            get_any(metrics, ["native_citylbm_parity_matched_field_count", "NativeCitylbmParityMatchedFieldCount"]),
-        )
+        get_any(native_citylbm_parity_audit, ["matched_field_count"])
     )
     parity_mismatched_count = as_int(
-        get_first_available(
-            get_any(native_citylbm_parity_audit, ["mismatched_field_count"]),
-            get_any(metrics, ["native_citylbm_parity_mismatched_field_count", "NativeCitylbmParityMismatchedFieldCount"]),
-        )
+        get_any(native_citylbm_parity_audit, ["mismatched_field_count"])
     )
     parity_mismatched_fields = str(
-        get_first_available(
-            get_any(native_citylbm_parity_audit, ["mismatched_fields"]),
-            get_any(metrics, ["native_citylbm_parity_mismatched_fields", "NativeCitylbmParityMismatchedFields"]),
-        )
-        or ""
+        get_any(native_citylbm_parity_audit, ["mismatched_fields"]) or ""
     )
     parity_ok = (
         not citylbm_result
@@ -2132,60 +2110,35 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_metrics={parity_native_metrics or 'missing'}; "
             f"matched_field_count={parity_matched_count}; required >= {args.min_native_citylbm_parity_field_count}; "
             f"mismatched_field_count={parity_mismatched_count}; mismatched_fields={parity_mismatched_fields or 'none'}; "
-            f"native_citylbm_parity_gate_reasons={parity_reasons or 'none'}"
+            f"native_citylbm_parity_gate_reasons={parity_reasons or 'none'}; "
+            f"metrics_native_citylbm_parity_gate={get_any(metrics, ['native_citylbm_parity_gate', 'NativeCitylbmParityGate']) or 'ignored'}"
         ),
         "Before using native FluidX3D as the accuracy baseline for CityLBM, archive a parity audit proving the same case, wind, dx, averaging, Uref, inlet, boundary and probe settings.",
     )
 
     grid_gate = str(
-        get_first_available(
-            get_any(grid_sensitivity_audit, ["grid_sensitivity_gate"]),
-            get_any(metrics, ["grid_sensitivity_gate", "GridSensitivityGate"]),
-        )
-        or ""
+        get_any(grid_sensitivity_audit, ["grid_sensitivity_gate"]) or ""
     ).strip().lower()
     grid_reasons = str(
-        get_first_available(
-            get_any(grid_sensitivity_audit, ["grid_sensitivity_gate_reasons"]),
-            get_any(metrics, ["grid_sensitivity_gate_reasons", "GridSensitivityGateReasons"]),
-        )
-        or ""
+        get_any(grid_sensitivity_audit, ["grid_sensitivity_gate_reasons"]) or ""
     )
     grid_run_count = as_int(
-        get_first_available(
-            get_any(grid_sensitivity_audit, ["grid_sensitivity_run_count"]),
-            get_any(metrics, ["grid_sensitivity_run_count", "GridSensitivityRunCount"]),
-        )
+        get_any(grid_sensitivity_audit, ["grid_sensitivity_run_count"])
     )
     grid_fine_dx = as_float(
-        get_first_available(
-            get_any(grid_sensitivity_audit, ["grid_sensitivity_finest_dx_m"]),
-            get_any(metrics, ["grid_sensitivity_finest_dx_m", "GridSensitivityFinestDxM"]),
-        )
+        get_any(grid_sensitivity_audit, ["grid_sensitivity_finest_dx_m"])
     )
     grid_next_coarse_dx = as_float(
-        get_first_available(
-            get_any(grid_sensitivity_audit, ["grid_sensitivity_next_coarse_dx_m"]),
-            get_any(metrics, ["grid_sensitivity_next_coarse_dx_m", "GridSensitivityNextCoarseDxM"]),
-        )
+        get_any(grid_sensitivity_audit, ["grid_sensitivity_next_coarse_dx_m"])
     )
     grid_refinement_ratio = as_float(
-        get_first_available(
-            get_any(grid_sensitivity_audit, ["grid_sensitivity_refinement_ratio"]),
-            get_any(metrics, ["grid_sensitivity_refinement_ratio", "GridSensitivityRefinementRatio"]),
-        )
+        get_any(grid_sensitivity_audit, ["grid_sensitivity_refinement_ratio"])
     )
     grid_rmse_change = as_float(
-        get_first_available(
-            get_any(grid_sensitivity_audit, ["grid_sensitivity_rmse_change_ratio"]),
-            get_any(metrics, ["grid_sensitivity_rmse_change_ratio", "GridSensitivityRmseChangeRatio"]),
-        )
+        get_any(grid_sensitivity_audit, ["grid_sensitivity_rmse_change_ratio"])
     )
     grid_bias_change = as_float(
-        get_first_available(
-            get_any(grid_sensitivity_audit, ["grid_sensitivity_bias_change_ratio"]),
-            get_any(metrics, ["grid_sensitivity_bias_change_ratio", "GridSensitivityBiasChangeRatio"]),
-        )
+        get_any(grid_sensitivity_audit, ["grid_sensitivity_bias_change_ratio"])
     )
     current_dx_for_grid = as_float(get_any(metrics, ["dx_m", "dx", "DxM", "Dx"]))
     grid_fine_matches_current = (
@@ -2222,7 +2175,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"required >= {args.min_grid_refinement_ratio}; "
             f"rmse_change_ratio={grid_rmse_change}; required <= {args.max_grid_rmse_change_ratio}; "
             f"bias_change_ratio={grid_bias_change}; required <= {args.max_grid_bias_change_ratio}; "
-            f"grid_sensitivity_gate_reasons={grid_reasons or 'none'}"
+            f"grid_sensitivity_gate_reasons={grid_reasons or 'none'}; "
+            f"metrics_grid_sensitivity_gate={get_any(metrics, ['grid_sensitivity_gate', 'GridSensitivityGate']) or 'ignored'}"
         ),
         "Archive at least two matched grid levels and show the finest-grid U_RMSE/U_bias changes are bounded before interpreting residual systematic bias.",
     )

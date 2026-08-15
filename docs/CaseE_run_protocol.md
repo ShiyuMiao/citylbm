@@ -27,6 +27,7 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Formal validation: `dx=2-3 m`, `steps>=10000`, save enough final VTK frames for time averaging. This dx is still
   not sufficient by itself: archive at least one matched coarser/finer metrics row and run
   `scripts\audit_grid_sensitivity.py` so `grid_sensitivity_audit.json` proves bounded finest-grid RMSE/bias change.
+  The final gate reads grid convergence from this audit JSON, not from self-reported metrics fields.
 - Use LES consistently and record `Cs`, viscosity, grid dimensions and GPU model.
 - Archive LBM stability evidence for the exact native/CityLBM run: target maximum lattice velocity, estimated maximum
   Mach number, `tau`, `nu_lbm`, physical viscosity, Reynolds number, velocity set, LES/subgrid model and solver-log

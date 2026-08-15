@@ -204,14 +204,16 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    `scripts/audit_grid_sensitivity.py` on the completed validation metrics rows and archive
    `grid_sensitivity_audit.json`. The finest-grid row must be the row passed to `validation_gate.py`, the refinement
    ratio must meet the configured threshold, and the finest-vs-next-coarse `U_RMSE_ratio` and `U_bias_ratio` changes
-   must be bounded. A single high-resolution Case A run is still diagnostic, even if it improves the result.
+   must be bounded. The final gate reads these values from `grid_sensitivity_audit.json`, not from self-reported
+   metrics fields. A single high-resolution Case A run is still diagnostic, even if it improves the result.
 
 9. Native/CityLBM parity gate.
    For a CityLBM-driven Case A run, archive `native_citylbm_parity_audit.json` from
    `scripts/audit_native_citylbm_parity.py`. The audit must show that the CityLBM metrics row and the native FluidX3D
    metrics row use the same case, wind direction, `dx`, steps, VTK cadence, averaging window, `Uref`, inlet/boundary
    settings, probe component and probe table. Without this paired-condition audit, CityLBM-vs-native differences cannot
-   be interpreted as software-integration error or inherited FluidX3D accuracy.
+   be interpreted as software-integration error or inherited FluidX3D accuracy. Final validation reads matched and
+   mismatched field counts from `native_citylbm_parity_audit.json`, not from the metrics row.
 
 10. Promotion gate.
    CityLBM may inherit native FluidX3D settings only after native Case A has a passing or explicitly bounded diagnostic

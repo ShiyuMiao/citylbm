@@ -139,6 +139,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `probe_vtk_source_window_gate`, probe source time steps and probe VTK hash-set counts. Valid probe rows must use the
   same final-window VTK frames as the averaging and inlet-profile/correlation audits, or the new `probe_source_window`
   gate keeps the run diagnostic.
+- `validation_gate.py` now reads grid-sensitivity and native/CityLBM parity pass evidence from
+  `grid_sensitivity_audit.json` and `native_citylbm_parity_audit.json` only. Metrics rows can summarize those audits,
+  but cannot self-report grid convergence or native/CityLBM condition matching.
 - Added `scripts/audit_inlet_profile_from_vtk.py` to read real post-spinup `u-*.vtk` frames, sample an inlet or
   empty-tunnel cross-plane, reconstruct time-mean streamwise `U(z)` and temporal-variance `k(z)`, and compare both
   against the official AF table. This replaces hand-filled empty-tunnel `U/k` evidence with an archived JSON/CSV audit.
