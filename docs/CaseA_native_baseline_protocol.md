@@ -165,8 +165,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    only a sparse subset of non-degenerate samples is not enough for a paper-grade turbulent-inlet claim.
    The inlet `U/k` preservation gate follows the same final-window evidence rule as the global time-average gate:
    `inlet_profile_source_time_steps` must be archived from real VTK frames, match `inlet_profile_frame_count`, represent
-   the last available uniformly spaced window, and carry `inlet_profile_time_averaging_gate=pass`. An `empty_tunnel_gate`
-   or small `U/k` bias value without that source-window evidence remains diagnostic.
+   the last available uniformly spaced window, match the global runtime audit `source_time_steps` exactly, and carry
+   `inlet_profile_time_averaging_gate=pass`. An `empty_tunnel_gate` or small `U/k` bias value without that same-window
+   evidence remains diagnostic.
 
 6. Time-averaging gate.
    Do not report a single instantaneous VTK frame as validation. Archive post-spinup probe time means and, when VTK is
@@ -385,7 +386,8 @@ averaging, then AF `U/k` preservation, then turbulent-inlet method, length scale
 boundary/roughness/blockage, then the native FluidX3D baseline, native/CityLBM parity and grid sensitivity, and only then interpret the
 remaining systematic bias as a physics/protocol problem.
 The inlet `U/k` audit follows the same final-window rule as the VTK/probe average: short, non-final or irregular
-source steps fail before the result can be interpreted as solver accuracy.
+source steps, or inlet-profile source steps that differ from the global averaged VTK window, fail before the result can
+be interpreted as solver accuracy.
 When a native FluidX3D run has no Grasshopper Read VTK audit, `scripts/validation_metrics_from_probe_audit.py` uses the
 inlet-profile audit as the authoritative source for `available_frame_count`, selected source time steps, last-window
 selection, source-step monotonicity, uniform-spacing fields and selected-plane speed-stability ratios in the standard

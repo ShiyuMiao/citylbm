@@ -1586,6 +1586,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_profile_source_frame_count, inlet_profile_source_step_text, inlet_profile_has_source_steps = source_frame_details(
         {"source_time_steps": inlet_profile_source_steps}
     )
+    inlet_profile_parsed_steps, inlet_profile_steps_error = parsed_source_steps(
+        inlet_profile_source_step_text
+    )
+    inlet_profile_source_matches = (
+        has_real_source_steps
+        and parsed_steps_error is None
+        and inlet_profile_steps_error is None
+        and inlet_profile_parsed_steps == parsed_steps
+    )
     inlet_profile_source_first_step = as_int(get_any(inlet_profile_audit, ["source_first_time_step"]))
     inlet_profile_source_last_step = as_int(get_any(inlet_profile_audit, ["source_last_time_step"]))
     inlet_profile_latest_available_step = as_int(get_any(inlet_profile_audit, ["latest_available_time_step"]))
@@ -1607,6 +1616,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     empty_gate = inlet_profile_gate
     inlet_profile_window_ok = (
         inlet_profile_has_source_steps
+        and inlet_profile_source_matches
         and inlet_profile_frame_count is not None
         and inlet_profile_source_frame_count is not None
         and inlet_profile_frame_count == inlet_profile_source_frame_count
@@ -1721,7 +1731,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_profile_available_frame_count={inlet_profile_available_frame_count}; "
             f"inlet_profile_source_frame_count={inlet_profile_source_frame_count}; "
             f"inlet_profile_real_source_time_steps_present={inlet_profile_has_source_steps}; "
+            f"expected_source_time_steps={source_step_text or 'missing'}; "
             f"inlet_profile_source_time_steps={inlet_profile_source_step_text or 'missing'}; "
+            f"inlet_profile_source_matches={inlet_profile_source_matches}; "
+            f"inlet_profile_source_steps_error={inlet_profile_steps_error or 'none'}; "
             f"inlet_profile_source_first_step={inlet_profile_source_first_step}; "
             f"inlet_profile_source_last_step={inlet_profile_source_last_step}; "
             f"inlet_profile_latest_available_step={inlet_profile_latest_available_step}; "

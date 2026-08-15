@@ -115,8 +115,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   It also records all available VTK steps, selected source steps, `selected_last_window`,
   `source_steps_strictly_increasing`, `source_step_spacing_uniform`, `time_averaging_gate_reasons`,
   `negative_streamwise_fraction`, and `inlet_streamwise_direction_gate`. Short, non-final or irregular inlet windows
-  fail before probe accuracy is interpreted, and a high reverse-streamwise fraction flags wind-vector or velocity
-  component sign errors.
+  fail before probe accuracy is interpreted. The selected inlet-profile `source_time_steps` must also match the global
+  runtime averaging audit exactly; otherwise the run has mixed VTK windows and remains diagnostic. A high
+  reverse-streamwise fraction flags wind-vector or velocity component sign errors.
 - The generated FluidX3D source must also be audited before interpreting the VTK result. Run
   `scripts\audit_inlet_source.py --setup <case_dir>\src\setup.cpp --metadata <case_metadata.json> --out <case_dir>\inlet_source_audit.json`
   and archive the resulting `setup_cpp_sha256`, `inlet_source_method_class`,
@@ -333,7 +334,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Empty-tunnel `U/k` preservation gate, `empty_tunnel_U_bias_ratio`, `empty_tunnel_k_bias_ratio`
 - Inlet profile preservation audit: selected plane, source VTK steps, `inlet_profile_gate`, `inlet_u_profile_gate`,
   `inlet_k_profile_gate`, `inlet_u_mae_ratio`, `inlet_u_rmse_ratio`, `inlet_k_mae_ratio`, and
-  `inlet_k_rmse_ratio`
+  `inlet_k_rmse_ratio`. The source VTK steps must be identical to the runtime averaged `source_time_steps`, not merely
+  another valid final-window subset.
 - Inlet correlation audit: `inlet_correlation_gate`, signed temporal lag-1 correlation, temporal lag-1 absolute
   correlation, adjacent spatial correlation, temporal/spatial finite correlation fractions and streamwise fluctuation
   variance

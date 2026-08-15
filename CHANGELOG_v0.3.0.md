@@ -157,6 +157,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/audit_inlet_profile_from_vtk.py` now records all available VTK steps and fails the inlet `U/k` gate when the
   selected average is not an explicit final window with strictly increasing, uniformly spaced time steps. This prevents
   short or non-final inlet samples from being interpreted as solver accuracy evidence.
+- `validation_gate.py` now requires the inlet `U/k` preservation audit to use exactly the same `source_time_steps` as the
+  global runtime averaging audit. A separate final-window inlet profile sample can no longer be combined with probe or
+  correlation evidence from a different VTK window.
 - `scripts/audit_inlet_profile_from_vtk.py`, `validation_metrics_from_probe_audit.py`, the metrics template and
   `validation_gate.py` now carry an inlet streamwise-direction gate. If more than 5% of sampled inlet velocities project
   opposite to the declared wind vector, the inlet profile gate fails before wind-sign or compared-component mistakes can
