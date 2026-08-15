@@ -112,12 +112,14 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    thresholds keep the boundary gate diagnostic/fail. The validation gate requires a generated
    `boundary_protocol_audit.json` with `boundary_protocol_gate=pass`, `boundary_equivalence_supported=true`,
     `boundary_evidence_class_supported=true`, `boundary_evidence_files_all_exist=true` and
-    `boundary_evidence_files_all_hashed=true`. It also requires `boundary_condition_fields_supported=true` plus
-    individual support booleans for inlet, outlet, lateral, top, ground-wall treatment, roughness treatment, floor
-    roughness source, blockage source, fetch/clearance source, outlet-reflection check and side/top-boundary check.
+   `boundary_evidence_files_all_hashed=true`. It also requires `boundary_condition_fields_supported=true` plus
+   individual support booleans for inlet, outlet, lateral, top, ground-wall treatment, roughness treatment, floor
+   roughness source, blockage source, fetch/clearance source, outlet-reflection check and side/top-boundary check.
    Run `scripts/audit_boundary_source.py` on the generated `setup.cpp` and archive `boundary_source_audit.json`. The
    final gate fails paper-grade `boundary_protocol` when source code still shows a simplified `TYPE_E` outlet/lateral/top
    box with `TYPE_S` no-slip ground/buildings and no non-reflecting, precursor/recycling or rough-wall evidence.
+   `TYPE_E`/`TYPE_S` may be defined in included FluidX3D headers; the audit therefore uses their generated-source
+   assignments as source evidence, but that only proves boundary implementation traceability, not wind-tunnel equivalence.
    Token-like text in metadata or metrics is diagnostic context only.
 
 5. Inlet distribution-consistency gate.

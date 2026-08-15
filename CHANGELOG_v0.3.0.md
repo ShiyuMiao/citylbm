@@ -215,6 +215,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   validation chain and final gate. The audit hashes the generated `setup.cpp`, classifies the actual boundary source
   implementation, and keeps simplified `TYPE_E` outlet/lateral/top plus no-slip-only floor/buildings from satisfying
   paper-grade boundary protocol claims.
+- `scripts/audit_boundary_source.py` now treats `TYPE_E`/`TYPE_S` symbol usage in generated `setup.cpp` as boundary-source
+  evidence even when the constants are defined in included FluidX3D headers. This prevents coherent simplified boundary
+  setups from being misreported as missing source, while still failing the paper-grade wind-tunnel-equivalence gate.
 - Added `scripts/probe_vtk_points.py` to sample native FluidX3D/CityLBM VTK frames at official RS probe points and emit
   the same Data-Probe-compatible audit CSV used by Grasshopper, including official coordinates, nearest-node distance,
   Uref, wind-vector evidence, compared component, time-averaged value and per-probe failure flags.

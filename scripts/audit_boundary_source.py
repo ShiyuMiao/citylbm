@@ -88,6 +88,8 @@ def main() -> int:
     has_equilibrium_boundaries = "equilibrium_boundaries" in lower
     has_type_e_define = "#define type_e" in lower or "type_e 0x02" in lower
     has_type_s_define = "#define type_s" in lower or "type_s 0x01" in lower
+    has_type_e_symbol = "type_e" in lower
+    has_type_s_symbol = "type_s" in lower
     type_e_assignment_count = count_regex(source, r"lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_E")
     type_s_assignment_count = count_regex(source, r"lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_S")
     has_ground_no_slip = "if(z == 0u)" in source and "TYPE_S" in source
@@ -167,8 +169,8 @@ def main() -> int:
 
     source_boundary_coherent = (
         has_equilibrium_boundaries
-        and has_type_e_define
-        and has_type_s_define
+        and has_type_e_symbol
+        and has_type_s_symbol
         and type_e_assignment_count > 0
         and has_ground_no_slip
         and has_building_voxel_solid
@@ -225,6 +227,8 @@ def main() -> int:
         "has_equilibrium_boundaries_define": has_equilibrium_boundaries,
         "has_type_e_define": has_type_e_define,
         "has_type_s_define": has_type_s_define,
+        "has_type_e_symbol": has_type_e_symbol,
+        "has_type_s_symbol": has_type_s_symbol,
         "type_e_assignment_count": type_e_assignment_count,
         "type_s_assignment_count": type_s_assignment_count,
         "has_profile_inlet": has_profile_inlet,

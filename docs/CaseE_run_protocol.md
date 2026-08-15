@@ -88,6 +88,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   and archive `setup_cpp_sha256`, `boundary_source_method_class`, `boundary_source_simplified` and
   `boundary_source_wind_tunnel_equivalent`. A simplified `TYPE_E` outlet/lateral/top setup with `TYPE_S` no-slip
   floor/buildings remains diagnostic and cannot satisfy SCI-grade Case E boundary evidence by metadata alone.
+  The audit accepts `TYPE_E`/`TYPE_S` assignments as generated-source evidence even when those constants are defined by
+  included FluidX3D headers; this avoids a false missing-source failure while keeping the simplified-boundary paper gate
+  failed.
 - `validation_protocol_audit.json` and `validation_protocol_audit.md` exist in both case root and output directory.
   Treat any `risk` or `fail` item as a blocker for paper-grade validation claims until resolved or explicitly justified.
 - VTK files are newly generated for the current run directory, not copied from older experiments. The native audit must
