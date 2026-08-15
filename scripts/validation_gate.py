@@ -1229,15 +1229,23 @@ def read_probe_source_window_audit(
     path: Optional[Path],
     expected_source_steps_text: str,
     expected_source_hashes: Optional[List[str]] = None,
+    min_source_step_span: int = 0,
 ) -> Dict[str, Any]:
     normalized_expected_hashes = [str(value).strip().lower() for value in (expected_source_hashes or []) if str(value).strip()]
     result: Dict[str, Any] = {
         "valid_count": None,
         "expected_source_steps": expected_source_steps_text,
         "expected_source_hashes": ";".join(normalized_expected_hashes),
+        "expected_source_step_span": None,
         "missing_source_steps_count": 0,
         "source_steps_mismatch_count": 0,
         "unique_source_steps_count": None,
+        "missing_source_step_span_count": 0,
+        "source_step_span_mismatch_count": 0,
+        "source_step_span_short_count": 0,
+        "missing_minimum_step_span_count": 0,
+        "minimum_step_span_mismatch_count": 0,
+        "unique_source_step_span_count": None,
         "missing_source_hash_count": 0,
         "source_hash_count_mismatch_count": 0,
         "source_hash_mismatch_count": 0,
@@ -1254,6 +1262,8 @@ def read_probe_source_window_audit(
     if expected_error:
         result["error"] = expected_error
         return result
+    expected_source_step_span = expected_steps[-1] - expected_steps[0] if len(expected_steps) >= 2 else None
+    result["expected_source_step_span"] = expected_source_step_span
     if not path or not path.exists():
         result["error"] = "probe audit CSV not found"
         return result
@@ -1266,6 +1276,7 @@ def read_probe_source_window_audit(
 
     valid_count = 0
     source_step_sets = set()
+    source_step_spans = set()
     source_hash_sets = set()
     source_file_sets = set()
     base_dir = path.parent
@@ -1283,6 +1294,29 @@ def read_probe_source_window_audit(
             if row_error or row_steps != expected_steps:
                 result["source_steps_mismatch_count"] += 1
             source_step_sets.add(",".join(str(step) for step in row_steps))
+        row_step_span = as_int(get_any(row, ["vtk_source_step_span", "VtkSourceStepSpan"]))
+        if row_step_span is None:
+            result["missing_source_step_span_count"] += 1
+        else:
+            source_step_spans.add(row_step_span)
+            if expected_source_step_span is not None and row_step_span != expected_source_step_span:
+                result["source_step_span_mismatch_count"] += 1
+            if min_source_step_span > 0 and row_step_span < min_source_step_span:
+                result["source_step_span_short_count"] += 1
+        row_min_step_span = as_int(
+            get_any(
+                row,
+                [
+                    "minimum_validation_average_step_span",
+                    "MinimumValidationAverageStepSpan",
+                    "vtk_minimum_validation_average_step_span",
+                ],
+            )
+        )
+        if row_min_step_span is None:
+            result["missing_minimum_step_span_count"] += 1
+        elif min_source_step_span > 0 and row_min_step_span != min_source_step_span:
+            result["minimum_step_span_mismatch_count"] += 1
 
         hash_text = str(get_any(row, ["vtk_source_sha256", "VtkSourceSha256"]) or "").strip()
         hashes = normalized_hash_list(hash_text)
@@ -1325,6 +1359,7 @@ def read_probe_source_window_audit(
 
     result["valid_count"] = valid_count
     result["unique_source_steps_count"] = len(source_step_sets)
+    result["unique_source_step_span_count"] = len(source_step_spans)
     result["unique_source_hash_set_count"] = len(source_hash_sets)
     result["unique_source_file_set_count"] = len(source_file_sets)
     return result
@@ -3477,7 +3512,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Export the Data Probe audit CSV with official probe IDs, x/y/z, Uref, wind vector, compared_component, nearest_distance and tolerance.",
     )
     detailed_probe_audit_ok = probe_audit_traceable or probe_summary_override
-    probe_source = read_probe_source_window_audit(probe_path, source_step_text, expected_source_hashes)
+    probe_source = read_probe_source_window_audit(
+        probe_path,
+        source_step_text,
+        expected_source_hashes,
+        args.min_avg_step_span,
+    )
     probe_source_window_ok = (
         probe_audit_traceable
         and has_real_source_steps
@@ -3487,6 +3527,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and probe_source["missing_source_steps_count"] == 0
         and probe_source["source_steps_mismatch_count"] == 0
         and probe_source["unique_source_steps_count"] == 1
+        and probe_source["missing_source_step_span_count"] == 0
+        and probe_source["source_step_span_mismatch_count"] == 0
+        and probe_source["source_step_span_short_count"] == 0
+        and probe_source["missing_minimum_step_span_count"] == 0
+        and probe_source["minimum_step_span_mismatch_count"] == 0
+        and probe_source["unique_source_step_span_count"] == 1
         and probe_source["missing_source_hash_count"] == 0
         and probe_source["source_hash_count_mismatch_count"] == 0
         and probe_source["source_hash_mismatch_count"] == 0
@@ -3511,6 +3557,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"missing_probe_source_steps={probe_source['missing_source_steps_count']}; "
             f"probe_source_steps_mismatch={probe_source['source_steps_mismatch_count']}; "
             f"unique_probe_source_steps={probe_source['unique_source_steps_count']}; "
+            f"expected_probe_source_step_span={probe_source['expected_source_step_span']}; "
+            f"required_probe_source_step_span>={args.min_avg_step_span}; "
+            f"missing_probe_source_step_span={probe_source['missing_source_step_span_count']}; "
+            f"probe_source_step_span_mismatch={probe_source['source_step_span_mismatch_count']}; "
+            f"probe_source_step_span_short={probe_source['source_step_span_short_count']}; "
+            f"missing_probe_minimum_step_span={probe_source['missing_minimum_step_span_count']}; "
+            f"probe_minimum_step_span_mismatch={probe_source['minimum_step_span_mismatch_count']}; "
+            f"unique_probe_source_step_spans={probe_source['unique_source_step_span_count']}; "
             f"missing_probe_source_hashes={probe_source['missing_source_hash_count']}; "
             f"probe_source_hash_count_mismatch={probe_source['source_hash_count_mismatch_count']}; "
             f"probe_source_hash_mismatch={probe_source['source_hash_mismatch_count']}; "
@@ -3524,7 +3578,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"probe_audit_traceable={probe_audit_traceable}; "
             f"error={probe_source['error'] or 'none'}"
         ),
-        "Use the same final-window VTK frames for time averaging, inlet/profile audits and RS probe extraction, and archive per-probe VTK source paths plus hashes.",
+        "Use the same final-window VTK frames for time averaging, inlet/profile audits and RS probe extraction, and archive per-probe VTK source paths, hashes and solver-step span.",
     )
     (
         projection_valid_count,

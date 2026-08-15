@@ -226,6 +226,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    `scripts/probe_vtk_points.py` to emit the same Data-Probe-compatible audit CSV before metrics are built. Use
    `--interpolation trilinear` for structured VTK validation and treat `nearest_distance` as a coverage/tolerance audit,
    not as the velocity sampling method.
+   The probe audit must also record `vtk_source_step_span` and `minimum_validation_average_step_span`; the final gate
+   rejects probe averages whose source VTK steps do not match the runtime averaging window or cover fewer than
+   `--min-avg-step-span` solver steps.
    The machine gate now enforces `probe_projection_distance`: every valid probe must record `nearest_distance` and
    `tolerance`, the maximum distance must be within the recorded tolerance, and both maximum distance and tolerance must
    stay within the configured `dx` ratio. Increasing tolerance to rescue a missing slice point is diagnostic only.
@@ -357,7 +360,7 @@ python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <AF_cas
 
 python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_correlation_audit.json
 
-python scripts\probe_vtk_points.py <run_dir>\output --official <RS-caseA.csv> --case CaseA --wind-direction-label <direction> --wind-direction 1,0,0 --u-ref <Uref> --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 10 --out <probe_audit.csv>
+python scripts\probe_vtk_points.py <run_dir>\output --official <RS-caseA.csv> --case CaseA --wind-direction-label <direction> --wind-direction 1,0,0 --u-ref <Uref> --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 10 --min-avg-frames 10 --min-avg-step-span 1000 --out <probe_audit.csv>
 
 python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --case CaseA --wind-direction <direction> --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
 
@@ -373,7 +376,7 @@ python scripts\audit_boundary_protocol.py <run_dir> --metadata <case_metadata.js
 For a native FluidX3D run that bypasses Grasshopper, the same evidence chain can be generated with one command:
 
 ```powershell
-python scripts\run_native_validation_chain.py <run_dir> --official <RS-caseA.csv> --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --boundary-evidence <boundary_evidence.json> --solver-log <solver.log> --case CaseA --wind-direction-label <direction> --wind-vector 1,0,0 --u-ref <Uref> --software native-fluidx3d --average-last-n 10 --min-avg-frames 10 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m>
+python scripts\run_native_validation_chain.py <run_dir> --official <RS-caseA.csv> --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --boundary-evidence <boundary_evidence.json> --solver-log <solver.log> --case CaseA --wind-direction-label <direction> --wind-vector 1,0,0 --u-ref <Uref> --software native-fluidx3d --average-last-n 10 --min-avg-frames 10 --min-avg-step-span 1000 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m>
 ```
 
 The command writes `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,
@@ -417,7 +420,8 @@ remaining systematic bias as a physics/protocol problem.
 The inlet `U/k` audit follows the same final-window rule as the VTK/probe average: short, non-final or irregular
 source steps, or inlet-profile source steps that differ from the global averaged VTK window, fail before the result can
 be interpreted as solver accuracy. The inlet-profile and inlet-correlation audits must also cover at least
-`--min-avg-step-span` solver steps, not only the minimum frame count.
+`--min-avg-step-span` solver steps, not only the minimum frame count. The probe audit must carry the same
+`vtk_source_step_span`; mismatched or missing per-probe step-span evidence fails before error statistics are interpreted.
 When a native FluidX3D run has no Grasshopper Read VTK audit, `scripts/validation_metrics_from_probe_audit.py` uses the
 inlet-profile audit as the authoritative source for `available_frame_count`, selected source time steps, last-window
 selection, source-step monotonicity, uniform-spacing fields and selected-plane speed-stability ratios in the standard

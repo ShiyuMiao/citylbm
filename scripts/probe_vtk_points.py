@@ -36,6 +36,12 @@ def parse_args() -> argparse.Namespace:
         default=10,
         help="Minimum selected VTK frames required before writing a validation probe audit. Use 1 only for smoke tests.",
     )
+    parser.add_argument(
+        "--min-avg-step-span",
+        type=int,
+        default=1000,
+        help="Minimum solver-step span covered by the selected VTK averaging window. Use 0 only for smoke tests.",
+    )
     parser.add_argument("--probe-id-column", default="", help="Official probe ID column. Auto-detected when omitted.")
     parser.add_argument("--case", default="", help="Optional official CSV case filter, e.g. ac or CaseA.")
     parser.add_argument("--wind-direction-label", default="", help="Optional official CSV wind-direction filter, e.g. N.")
@@ -386,12 +392,19 @@ def main() -> int:
             f"Selected VTK frame count {len(vtk_paths)} is below --min-avg-frames {args.min_avg_frames}. "
             "Rerun with a longer final-window average, or explicitly lower --min-avg-frames for smoke tests."
         )
+    source_steps = [step_from_name(path) for path in vtk_paths]
+    source_step_span: Optional[int] = source_steps[-1] - source_steps[0] if len(source_steps) >= 2 else None
+    if args.min_avg_step_span > 0 and (source_step_span is None or source_step_span < args.min_avg_step_span):
+        raise SystemExit(
+            f"Selected VTK solver-step span {source_step_span if source_step_span is not None else 'missing'} "
+            f"is below --min-avg-step-span {args.min_avg_step_span}. "
+            "Rerun with a longer final-window average, or explicitly lower --min-avg-step-span for smoke tests."
+        )
     frames = [read_vtk_metadata(path) for path in vtk_paths]
     first = frames[0]
     for frame in frames[1:]:
         if frame["dimensions"] != first["dimensions"] or frame["origin"] != first["origin"] or frame["spacing"] != first["spacing"]:
             raise SystemExit("Selected VTK frames must share dimensions, origin and spacing.")
-    source_steps = [step_from_name(path) for path in vtk_paths]
     source_steps_csv = ",".join(str(step) for step in source_steps)
     source_files_csv = ";".join(str(path) for path in vtk_paths)
     source_hashes_csv = ";".join(sha256(path) for path in vtk_paths)
@@ -448,6 +461,8 @@ def main() -> int:
                     "method": f"{args.interpolation}_vtk_average_last_{len(frames)}",
                     "vtk_average_frame_count": len(frames),
                     "vtk_source_time_steps": source_steps_csv,
+                    "vtk_source_step_span": source_step_span if source_step_span is not None else "",
+                    "minimum_validation_average_step_span": args.min_avg_step_span,
                     "vtk_dimensions": f"{dims[0]},{dims[1]},{dims[2]}",
                     "vtk_origin_x": origin[0],
                     "vtk_origin_y": origin[1],
@@ -524,6 +539,8 @@ def main() -> int:
                 "method": f"{args.interpolation}_vtk_average_last_{len(frames)}",
                 "vtk_average_frame_count": len(frames),
                 "vtk_source_time_steps": source_steps_csv,
+                "vtk_source_step_span": source_step_span if source_step_span is not None else "",
+                "minimum_validation_average_step_span": args.min_avg_step_span,
                 "vtk_dimensions": f"{dims[0]},{dims[1]},{dims[2]}",
                 "vtk_origin_x": origin[0],
                 "vtk_origin_y": origin[1],
@@ -570,6 +587,8 @@ def main() -> int:
         "method",
         "vtk_average_frame_count",
         "vtk_source_time_steps",
+        "vtk_source_step_span",
+        "minimum_validation_average_step_span",
         "vtk_dimensions",
         "vtk_origin_x",
         "vtk_origin_y",

@@ -242,6 +242,8 @@ TEMPLATE_FIELDS = [
     "probe_vtk_source_window_gate",
     "probe_vtk_source_window_reasons",
     "probe_vtk_source_time_steps",
+    "probe_vtk_source_step_span",
+    "probe_vtk_minimum_step_span",
     "probe_vtk_source_hash_set_count",
     "probe_id_field",
     "probe_tolerance_m",
@@ -444,6 +446,15 @@ def as_bool(value: Any) -> Optional[bool]:
     if text in {"false", "0", "no", "n", "fail"}:
         return False
     return None
+
+
+def as_int(value: Any) -> Optional[int]:
+    if value in (None, ""):
+        return None
+    try:
+        return int(str(value).strip())
+    except (TypeError, ValueError):
+        return None
 
 
 def csv_bool(value: Optional[bool]) -> str:
@@ -756,6 +767,14 @@ def source_step_count(text: str) -> int:
     return len([part for part in normalized.split(",") if part.strip()])
 
 
+def source_step_span_from_text(text: str) -> Optional[int]:
+    normalized = normalize_source_steps_text(text)
+    steps = [as_int(part) for part in normalized.split(",") if part.strip()]
+    if len(steps) < 2 or any(step is None for step in steps):
+        return None
+    return int(steps[-1]) - int(steps[0])
+
+
 def audit_gate(audit: Dict[str, Any], key: str) -> str:
     value = audit.get(key)
     return str(value).strip().lower() if value not in (None, "") else ""
@@ -846,8 +865,12 @@ def main() -> int:
     compared_components: List[str] = []
     tolerance = ""
     probe_source_steps_values: List[str] = []
+    probe_source_step_spans: List[int] = []
+    probe_minimum_step_spans: List[int] = []
     probe_source_hash_sets: List[str] = []
     probe_missing_source_steps = 0
+    probe_missing_source_step_spans = 0
+    probe_missing_minimum_step_spans = 0
     probe_missing_source_hashes = 0
     probe_hash_count_mismatches = 0
     matched_official_probe_ids = set()
@@ -905,6 +928,16 @@ def main() -> int:
             probe_source_steps_values.append(probe_source_steps)
         else:
             probe_missing_source_steps += 1
+        probe_source_step_span = as_int(get_value(row, "vtk_source_step_span"))
+        if probe_source_step_span is None:
+            probe_missing_source_step_spans += 1
+        else:
+            probe_source_step_spans.append(probe_source_step_span)
+        probe_minimum_step_span = as_int(get_value(row, "minimum_validation_average_step_span"))
+        if probe_minimum_step_span is None:
+            probe_missing_minimum_step_spans += 1
+        else:
+            probe_minimum_step_spans.append(probe_minimum_step_span)
         probe_source_hashes = [
             part.strip()
             for part in get_value(row, "vtk_source_sha256").replace(",", ";").split(";")
@@ -989,17 +1022,36 @@ def main() -> int:
     coordinate_delta_count = len(official_coordinate_deltas)
     max_coordinate_delta = max(official_coordinate_deltas) if official_coordinate_deltas else None
     unique_probe_source_steps = sorted(set(probe_source_steps_values))
+    unique_probe_source_step_spans = sorted(set(probe_source_step_spans))
+    unique_probe_minimum_step_spans = sorted(set(probe_minimum_step_spans))
     unique_probe_source_hash_sets = sorted(set(probe_source_hash_sets))
     expected_probe_source_steps = normalize_source_steps_text(source_time_steps)
+    expected_probe_source_step_span = source_step_span_from_text(expected_probe_source_steps)
     probe_source_reasons: List[str] = []
     if not expected_probe_source_steps:
         probe_source_reasons.append("missing_expected_source_time_steps")
+    if expected_probe_source_step_span is None:
+        probe_source_reasons.append("missing_expected_source_step_span")
     if probe_missing_source_steps:
         probe_source_reasons.append(f"missing_probe_source_steps:{probe_missing_source_steps}")
+    if probe_missing_source_step_spans:
+        probe_source_reasons.append(f"missing_probe_source_step_spans:{probe_missing_source_step_spans}")
+    if probe_missing_minimum_step_spans:
+        probe_source_reasons.append(f"missing_probe_minimum_step_spans:{probe_missing_minimum_step_spans}")
     if len(unique_probe_source_steps) != 1:
         probe_source_reasons.append(f"mixed_probe_source_steps:{len(unique_probe_source_steps)}")
     elif expected_probe_source_steps and unique_probe_source_steps[0] != expected_probe_source_steps:
         probe_source_reasons.append("probe_source_steps_do_not_match_metrics_source_time_steps")
+    if len(unique_probe_source_step_spans) != 1:
+        probe_source_reasons.append(f"mixed_probe_source_step_spans:{len(unique_probe_source_step_spans)}")
+    elif expected_probe_source_step_span is not None and unique_probe_source_step_spans[0] != expected_probe_source_step_span:
+        probe_source_reasons.append("probe_source_step_span_does_not_match_metrics_source_time_steps")
+    elif minimum_average_step_span is not None and unique_probe_source_step_spans[0] < minimum_average_step_span:
+        probe_source_reasons.append("probe_source_step_span_below_minimum_validation_average_step_span")
+    if len(unique_probe_minimum_step_spans) != 1:
+        probe_source_reasons.append(f"mixed_probe_minimum_step_spans:{len(unique_probe_minimum_step_spans)}")
+    elif minimum_average_step_span is not None and unique_probe_minimum_step_spans[0] != minimum_average_step_span:
+        probe_source_reasons.append("probe_minimum_step_span_does_not_match_metrics_minimum_step_span")
     if probe_missing_source_hashes:
         probe_source_reasons.append(f"missing_probe_source_hashes:{probe_missing_source_hashes}")
     if probe_hash_count_mismatches:
@@ -1466,6 +1518,8 @@ def main() -> int:
             "probe_vtk_source_window_gate": probe_source_window_gate,
             "probe_vtk_source_window_reasons": ";".join(probe_source_reasons),
             "probe_vtk_source_time_steps": ";".join(unique_probe_source_steps),
+            "probe_vtk_source_step_span": fmt(unique_probe_source_step_spans[0] if len(unique_probe_source_step_spans) == 1 else None),
+            "probe_vtk_minimum_step_span": fmt(unique_probe_minimum_step_spans[0] if len(unique_probe_minimum_step_spans) == 1 else None),
             "probe_vtk_source_hash_set_count": fmt(len(unique_probe_source_hash_sets)),
             "probe_id_field": args.probe_id_column,
             "probe_tolerance_m": tolerance,

@@ -242,9 +242,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   Case E validation.
   Use structured-grid trilinear sampling for the velocity value; the nearest-node distance remains the coverage and
   tolerance evidence.
-  Native VTK probe audit rows must include VTK origin, spacing, dimensions, source time steps, source file hashes and
-  nearest-grid coordinates. These fields are required to separate coordinate-frame/projection mistakes from true
-  velocity-field error before interpreting Case E bias.
+  Native VTK probe audit rows must include VTK origin, spacing, dimensions, source time steps, source step span, source
+  file hashes and nearest-grid coordinates. These fields are required to separate coordinate-frame/projection mistakes
+  from true velocity-field error before interpreting Case E bias.
   Run `scripts\audit_component_sensitivity.py` and archive `component_sensitivity_audit.json`; the final gate reads
   selected component, best component, component RMSE improvement and Uref best-fit scale from that audit file, not from
   self-reported fields in `validation_metrics.csv`. The audit must also record `probe_audit_sha256` matching the current
@@ -257,6 +257,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   VTK frames used by `Read VTK`, `audit_native_run.py`, `audit_inlet_profile_from_vtk.py` and
   `audit_inlet_correlation_from_vtk.py`. `validation_gate.py` fails `probe_source_window` if probe extraction mixes
   windows, omits hashes, uses stale/copy-forward VTK evidence, or disagrees with the metrics `source_time_steps`.
+  `vtk_source_step_span` and `minimum_validation_average_step_span` must also be present and meet the same
+  `--min-avg-step-span` requirement as the runtime averaging audit.
   Every valid probe row must also include `vtk_source_files`; the final gate recomputes SHA256 from those archived VTK
   paths and compares the result with the row-level `vtk_source_sha256` and runtime final-window hashes.
 - A paired native FluidX3D baseline must use the same `setup.cpp` physics choices, grid, VTK averaging window and probe
@@ -298,7 +300,7 @@ python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <offici
 
 python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_correlation_audit.json
 
-python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 10 --min-avg-frames 10 --out <probe_audit.csv>
+python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 10 --min-avg-frames 10 --min-avg-step-span 1000 --out <probe_audit.csv>
 
 python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <official_data>\RS_caseE.csv --case ac --wind-direction N --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
 
@@ -386,6 +388,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   Self-reported `validation_metrics.csv` fields cannot pass this gate without the runtime audit artifact.
   Command-line speed-stability ratios in `audit_native_run.py` are diagnostic only; the native run audit passes
   `time_averaging_gate` only when the ratios are computed from deterministic sampled VTK frames.
+- Probe source-window closure: `probe_vtk_source_time_steps`, `probe_vtk_source_step_span` and
+  `probe_vtk_minimum_step_span` must match the runtime averaged VTK window and meet the same minimum solver-step span.
+  This prevents a valid runtime average from being paired with a shorter or stale probe extraction.
 - The native-run audit must also record `requested_time_steps`, `requested_vtk_save_interval`,
   `requested_vtk_save_start_step`, `requested_vtk_frame_count` and `requested_vtk_frame_gate=pass`. A Case E run
   planned to save fewer than 10 final-window VTK frames is diagnostic before accuracy metrics are interpreted.

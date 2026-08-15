@@ -322,6 +322,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native VTK probe extraction now defaults to a 10-frame final-window average and refuses to write a validation probe
   audit when the selected VTK window is shorter than `--min-avg-frames`; one-frame extraction must be explicitly marked
   as smoke-test behavior by lowering that threshold.
+- Native VTK probe extraction now also records `vtk_source_step_span` and
+  `minimum_validation_average_step_span`, and refuses validation probe audits whose selected final-window VTK files
+  cover fewer than `--min-avg-step-span` solver steps (`1000` by default). The metrics table and final gate now require
+  the per-probe source-step span to match the runtime averaging window, preventing short-window probe averages from
+  passing as paper-grade time averaging evidence.
 - Native VTK probe extraction now defaults to structured-grid trilinear velocity sampling instead of nearest-node
   sampling, while keeping nearest-node distance as a separate coverage/tolerance audit field. This reduces avoidable
   RS probe projection error at `dx=2-3 m` without hiding out-of-domain probes.
