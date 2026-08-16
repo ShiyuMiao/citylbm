@@ -4555,6 +4555,24 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     component_rmse_improvement = as_float(
         component_sensitivity_audit.get("component_rmse_improvement_ratio")
     )
+    selected_component_bias = as_float(
+        component_sensitivity_audit.get("selected_component_bias")
+    )
+    selected_component_scaled_bias = as_float(
+        component_sensitivity_audit.get("selected_component_scaled_bias")
+    )
+    selected_component_bias_reduction = as_float(
+        component_sensitivity_audit.get("selected_component_bias_abs_reduction_ratio")
+    )
+    selected_component_mean_sim = as_float(
+        component_sensitivity_audit.get("selected_component_mean_sim")
+    )
+    selected_component_mean_exp = as_float(
+        component_sensitivity_audit.get("selected_component_mean_exp")
+    )
+    selected_component_mean_ratio = as_float(
+        component_sensitivity_audit.get("selected_component_mean_sim_to_exp_ratio")
+    )
     normalization_best_scale = as_float(
         component_sensitivity_audit.get("selected_best_fit_scale_to_exp")
     )
@@ -4642,6 +4660,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"valid_probe_missing_compared_component_count={valid_probe_missing_component_count}; "
             f"best_component_by_rmse={best_component or 'missing'}; "
             f"selected_component_rmse={selected_component_rmse}; "
+            f"selected_component_bias={selected_component_bias}; "
+            f"selected_component_scaled_bias={selected_component_scaled_bias}; "
+            f"selected_component_bias_abs_reduction_ratio={selected_component_bias_reduction}; "
+            f"selected_component_mean_sim={selected_component_mean_sim}; "
+            f"selected_component_mean_exp={selected_component_mean_exp}; "
+            f"selected_component_mean_sim_to_exp_ratio={selected_component_mean_ratio}; "
             f"best_component_rmse={best_component_rmse}; "
             f"component_rmse_improvement_ratio={component_rmse_improvement}; "
             f"component_choice_not_explained={component_choice_not_explained}; "
