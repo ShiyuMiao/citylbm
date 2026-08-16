@@ -47,6 +47,10 @@
 - `audit_inlet_source.py` now separates advanced inlet method names from implementation evidence: digital-filter claims
   require filter-kernel and spatiotemporal-state evidence, SEM claims require an eddy-population state, and
   precursor/recycling claims require recycled/precursor field evidence.
+- `audit_boundary_source.py` now separates advanced boundary method names from concrete implementation evidence:
+  non-reflecting outlets require sponge/convective/radiation state evidence, periodic boundaries require pair-mapping
+  evidence, rough-wall methods require roughness parameters plus wall-action evidence, and precursor/recycling
+  boundaries require recycled/precursor field evidence.
 - The paper-grade inlet-method gate now requires an explicit supported `inlet_method_class` plus distribution-consistent treatment; a protocol pass flag or method-name-only metadata can no longer pass the turbulent-inlet evidence gate.
 - Added `scripts/audit_grid_sensitivity.py`; `validation_gate.py` now requires `grid_sensitivity_audit.json` with at
   least two matched dx levels, bounded finest-vs-coarser RMSE/bias change, and a finest dx matching the metrics row.

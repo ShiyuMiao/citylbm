@@ -201,24 +201,134 @@ def main() -> int:
         ],
     )
     has_precursor_or_recycling_token = contains_any(code, ["precursor", "recycling_rescaling", "recycling-rescaling"])
-    has_non_reflecting_outlet = (
+    has_non_reflecting_outlet_method = (
         has_regex(
             implementation_code,
             r"\b\w*(non_reflecting|nonReflecting|convective_outlet|convectiveOutlet|absorbing_outlet|absorbingOutlet|radiation_boundary|radiationBoundary)\w*\s*\(",
         )
         or has_regex(implementation_code, r"\b(sponge_layer|spongeLayer)\w*\s*(\[|=|\{|\()")
     )
-    has_periodic_side_top = has_regex(
+    has_non_reflecting_outlet_state_evidence = contains_any(
+        implementation_code,
+        [
+            "sponge_strength",
+            "sponge_sigma",
+            "sponge_start",
+            "sponge_length",
+            "outlet_sponge",
+            "absorbing_zone",
+            "damping_zone",
+            "convective_speed",
+            "outlet_buffer",
+            "outlet_previous",
+            "pressure_outlet",
+            "rho_outlet",
+            "radiation_coefficient",
+            "characteristic_outlet",
+        ],
+    ) or has_regex(
+        implementation_code,
+        r"\b(sponge|absorbing|damping|radiation|convective)\w*\s*(\[|=|\{)",
+    )
+    has_non_reflecting_outlet = (
+        has_non_reflecting_outlet_method and has_non_reflecting_outlet_state_evidence
+    )
+    has_periodic_side_top_method = has_regex(
         implementation_code,
         r"\b(periodic_[xyz]|periodicX|periodicY|periodicZ|set_periodic|setPeriodic|periodic_boundary|periodicBoundary)\w*\s*(\[|=|\{|\()",
     )
-    has_rough_wall_function = has_regex(
+    has_periodic_pair_mapping_evidence = contains_any(
+        implementation_code,
+        [
+            "periodic_pair",
+            "periodicPair",
+            "wrap_index",
+            "wrapIndex",
+            "wrapped_neighbor",
+            "wrappedNeighbor",
+            "opposite_face",
+            "oppositeFace",
+            "periodic_neighbor",
+            "periodicNeighbor",
+        ],
+    ) or has_regex(
+        implementation_code,
+        r"%\s*N[xyz]\b|\(\s*\w+\s*\+\s*N[xyz]\s*[-+]",
+    )
+    has_periodic_side_top = has_periodic_side_top_method and has_periodic_pair_mapping_evidence
+    has_rough_wall_function_method = has_regex(
         implementation_code,
         r"\b\w*(rough_wall|roughWall|wall_function|wallFunction|log_law|logLaw)\w*\s*(\[|=|\{|\()",
     )
-    has_precursor_or_recycling = has_regex(
+    has_rough_wall_parameter_evidence = contains_any(
+        implementation_code,
+        [
+            "roughness_height",
+            "roughnessHeight",
+            "roughness_length",
+            "roughnessLength",
+            "aerodynamic_roughness",
+            "sand_grain",
+            "ks_lbm",
+            "ksLbm",
+            "wall_shear",
+            "wallShear",
+            "friction_velocity",
+            "frictionVelocity",
+            "u_star",
+            "uStar",
+        ],
+    )
+    has_rough_wall_action_evidence = contains_any(
+        implementation_code,
+        [
+            "rough_wall_drag",
+            "roughWallDrag",
+            "roughness_drag",
+            "roughnessDrag",
+            "wall_function_shear",
+            "wallFunctionShear",
+            "equivalent_rough_wall_drag",
+            "equivalentRoughWallDrag",
+            "wall_shear_force",
+            "wallShearForce",
+            "applyRoughWall",
+            "apply_rough_wall",
+        ],
+    ) or has_regex(
+        implementation_code,
+        r"\blbm\.(force|F)\.[xyz]\s*\[\s*n\s*\]\s*[+\-]?=",
+    )
+    has_rough_wall_function = (
+        has_rough_wall_function_method
+        and has_rough_wall_parameter_evidence
+        and has_rough_wall_action_evidence
+    )
+    has_precursor_or_recycling_method = has_regex(
         implementation_code,
         r"\b\w*(precursor|recycling_rescaling|recyclingRescaling|recycle_rescale|recycleRescale)\w*\s*\(",
+    )
+    has_precursor_or_recycling_field_evidence = contains_any(
+        implementation_code,
+        [
+            "precursor_velocity",
+            "precursorVelocity",
+            "precursor_field",
+            "precursorField",
+            "recycling_plane",
+            "recyclingPlane",
+            "recycle_plane",
+            "recyclePlane",
+            "recycling_buffer",
+            "recyclingBuffer",
+            "precursor_snapshot",
+            "precursorSnapshot",
+            "precursor_vtk",
+            "precursorVtk",
+        ],
+    )
+    has_precursor_or_recycling = (
+        has_precursor_or_recycling_method and has_precursor_or_recycling_field_evidence
     )
     advanced_boundary_token_only = (
         (has_non_reflecting_outlet_token and not has_non_reflecting_outlet)
@@ -247,6 +357,13 @@ def main() -> int:
         source_class = "precursor_or_recycling_boundary"
     elif has_non_reflecting_outlet and (has_periodic_side_top or has_rough_wall_function):
         source_class = "advanced_boundary_source_evidence"
+    elif (
+        has_non_reflecting_outlet_method
+        or has_periodic_side_top_method
+        or has_rough_wall_function_method
+        or has_precursor_or_recycling_method
+    ):
+        source_class = "named_boundary_method_without_field_evidence"
     elif simplified_type_e_box:
         source_class = "simplified_type_e_box"
     elif type_e_assignment_count > 0:
@@ -308,6 +425,16 @@ def main() -> int:
         reasons.append("metadata_claims_advanced_boundary_without_source_evidence")
     if advanced_boundary_token_only:
         reasons.append("advanced_boundary_tokens_without_code_evidence")
+    if has_non_reflecting_outlet_method and not has_non_reflecting_outlet_state_evidence:
+        reasons.append("non_reflecting_boundary_source_missing_state_evidence")
+    if has_periodic_side_top_method and not has_periodic_pair_mapping_evidence:
+        reasons.append("periodic_boundary_source_missing_pair_mapping_evidence")
+    if has_rough_wall_function_method and not has_rough_wall_parameter_evidence:
+        reasons.append("rough_wall_boundary_source_missing_roughness_parameter_evidence")
+    if has_rough_wall_function_method and not has_rough_wall_action_evidence:
+        reasons.append("rough_wall_boundary_source_missing_wall_action_evidence")
+    if has_precursor_or_recycling_method and not has_precursor_or_recycling_field_evidence:
+        reasons.append("precursor_recycling_boundary_source_missing_recycled_field_evidence")
 
     source_gate = "pass" if not reasons else "fail"
     paper_reasons: List[str] = []
@@ -317,6 +444,8 @@ def main() -> int:
         paper_reasons.append("boundary_source_simplified_type_e_or_solid_only")
     if no_slip_solid_only:
         paper_reasons.append("ground_and_buildings_no_slip_without_rough_wall_or_precursor")
+    if source_class == "named_boundary_method_without_field_evidence":
+        paper_reasons.append("boundary_method_named_without_concrete_state_or_field_evidence")
     paper_gate = "pass" if not paper_reasons else "fail"
 
     report: Dict[str, Any] = {
@@ -350,12 +479,21 @@ def main() -> int:
         "has_ground_no_slip": has_ground_no_slip,
         "has_building_voxel_solid": has_building_voxel_solid,
         "has_non_reflecting_outlet_evidence": has_non_reflecting_outlet,
+        "has_non_reflecting_outlet_method": has_non_reflecting_outlet_method,
+        "has_non_reflecting_outlet_state_evidence": has_non_reflecting_outlet_state_evidence,
         "has_non_reflecting_outlet_token": has_non_reflecting_outlet_token,
         "has_periodic_side_top_evidence": has_periodic_side_top,
+        "has_periodic_side_top_method": has_periodic_side_top_method,
+        "has_periodic_pair_mapping_evidence": has_periodic_pair_mapping_evidence,
         "has_periodic_side_top_token": has_periodic_side_top_token,
         "has_rough_wall_function_evidence": has_rough_wall_function,
+        "has_rough_wall_function_method": has_rough_wall_function_method,
+        "has_rough_wall_parameter_evidence": has_rough_wall_parameter_evidence,
+        "has_rough_wall_action_evidence": has_rough_wall_action_evidence,
         "has_rough_wall_function_token": has_rough_wall_function_token,
         "has_precursor_or_recycling_boundary_evidence": has_precursor_or_recycling,
+        "has_precursor_or_recycling_boundary_method": has_precursor_or_recycling_method,
+        "has_precursor_or_recycling_boundary_field_evidence": has_precursor_or_recycling_field_evidence,
         "has_precursor_or_recycling_boundary_token": has_precursor_or_recycling_token,
         "advanced_boundary_token_only": advanced_boundary_token_only,
         "advanced_boundary_evidence_uses_comment_stripped_code": True,

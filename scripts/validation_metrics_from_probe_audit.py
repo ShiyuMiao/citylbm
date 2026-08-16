@@ -145,6 +145,15 @@ TEMPLATE_FIELDS = [
     "boundary_source_wind_tunnel_equivalent",
     "boundary_source_advanced_code_evidence",
     "boundary_source_comment_stripped_code_audit",
+    "boundary_source_has_non_reflecting_outlet_method",
+    "boundary_source_has_non_reflecting_outlet_state_evidence",
+    "boundary_source_has_periodic_side_top_method",
+    "boundary_source_has_periodic_pair_mapping_evidence",
+    "boundary_source_has_rough_wall_function_method",
+    "boundary_source_has_rough_wall_parameter_evidence",
+    "boundary_source_has_rough_wall_action_evidence",
+    "boundary_source_has_precursor_or_recycling_boundary_method",
+    "boundary_source_has_precursor_or_recycling_boundary_field_evidence",
     "boundary_type_e_velocity_initialization",
     "boundary_type_e_velocity_initialization_guard",
     "boundary_type_e_velocity_initialization_coordinates",
@@ -1422,6 +1431,33 @@ def main() -> int:
             ),
             "boundary_source_comment_stripped_code_audit": first_bool_text(
                 boundary_source_audit.get("advanced_boundary_evidence_uses_comment_stripped_code")
+            ),
+            "boundary_source_has_non_reflecting_outlet_method": first_bool_text(
+                boundary_source_audit.get("has_non_reflecting_outlet_method")
+            ),
+            "boundary_source_has_non_reflecting_outlet_state_evidence": first_bool_text(
+                boundary_source_audit.get("has_non_reflecting_outlet_state_evidence")
+            ),
+            "boundary_source_has_periodic_side_top_method": first_bool_text(
+                boundary_source_audit.get("has_periodic_side_top_method")
+            ),
+            "boundary_source_has_periodic_pair_mapping_evidence": first_bool_text(
+                boundary_source_audit.get("has_periodic_pair_mapping_evidence")
+            ),
+            "boundary_source_has_rough_wall_function_method": first_bool_text(
+                boundary_source_audit.get("has_rough_wall_function_method")
+            ),
+            "boundary_source_has_rough_wall_parameter_evidence": first_bool_text(
+                boundary_source_audit.get("has_rough_wall_parameter_evidence")
+            ),
+            "boundary_source_has_rough_wall_action_evidence": first_bool_text(
+                boundary_source_audit.get("has_rough_wall_action_evidence")
+            ),
+            "boundary_source_has_precursor_or_recycling_boundary_method": first_bool_text(
+                boundary_source_audit.get("has_precursor_or_recycling_boundary_method")
+            ),
+            "boundary_source_has_precursor_or_recycling_boundary_field_evidence": first_bool_text(
+                boundary_source_audit.get("has_precursor_or_recycling_boundary_field_evidence")
             ),
             "boundary_type_e_velocity_initialization": first_bool_text(
                 boundary_source_audit.get("has_type_e_velocity_initialization")

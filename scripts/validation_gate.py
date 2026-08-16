@@ -2337,6 +2337,33 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     boundary_source_comment_stripped_code_audit = as_bool(
         get_any(boundary_source_audit, ["advanced_boundary_evidence_uses_comment_stripped_code"])
     )
+    boundary_has_non_reflecting_method = as_bool(
+        get_any(boundary_source_audit, ["has_non_reflecting_outlet_method"])
+    )
+    boundary_has_non_reflecting_state = as_bool(
+        get_any(boundary_source_audit, ["has_non_reflecting_outlet_state_evidence"])
+    )
+    boundary_has_periodic_method = as_bool(
+        get_any(boundary_source_audit, ["has_periodic_side_top_method"])
+    )
+    boundary_has_periodic_mapping = as_bool(
+        get_any(boundary_source_audit, ["has_periodic_pair_mapping_evidence"])
+    )
+    boundary_has_rough_wall_method = as_bool(
+        get_any(boundary_source_audit, ["has_rough_wall_function_method"])
+    )
+    boundary_has_rough_wall_parameter = as_bool(
+        get_any(boundary_source_audit, ["has_rough_wall_parameter_evidence"])
+    )
+    boundary_has_rough_wall_action = as_bool(
+        get_any(boundary_source_audit, ["has_rough_wall_action_evidence"])
+    )
+    boundary_has_precursor_recycling_method = as_bool(
+        get_any(boundary_source_audit, ["has_precursor_or_recycling_boundary_method"])
+    )
+    boundary_has_precursor_recycling_field = as_bool(
+        get_any(boundary_source_audit, ["has_precursor_or_recycling_boundary_field_evidence"])
+    )
     boundary_type_e_velocity_initialization = as_bool(
         get_any(boundary_source_audit, ["has_type_e_velocity_initialization"])
     )
@@ -2451,6 +2478,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
             f"source_advanced_code_evidence={boundary_source_advanced_code_evidence}; "
             f"comment_stripped_code_audit={boundary_source_comment_stripped_code_audit}; "
+            f"non_reflecting_method={boundary_has_non_reflecting_method}; "
+            f"non_reflecting_state_evidence={boundary_has_non_reflecting_state}; "
+            f"periodic_method={boundary_has_periodic_method}; "
+            f"periodic_pair_mapping_evidence={boundary_has_periodic_mapping}; "
+            f"rough_wall_method={boundary_has_rough_wall_method}; "
+            f"rough_wall_parameter_evidence={boundary_has_rough_wall_parameter}; "
+            f"rough_wall_action_evidence={boundary_has_rough_wall_action}; "
+            f"precursor_recycling_method={boundary_has_precursor_recycling_method}; "
+            f"precursor_recycling_field_evidence={boundary_has_precursor_recycling_field}; "
             f"type_e_velocity_initialization={boundary_type_e_velocity_initialization}; "
             f"type_e_velocity_initialization_guard={boundary_type_e_velocity_initialization_guard}; "
             f"type_e_velocity_initialization_coordinates={boundary_type_e_velocity_initialization_coordinates}; "
@@ -2488,6 +2524,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
             f"source_advanced_code_evidence={boundary_source_advanced_code_evidence}; "
             f"comment_stripped_code_audit={boundary_source_comment_stripped_code_audit}; "
+            f"non_reflecting_method={boundary_has_non_reflecting_method}; "
+            f"non_reflecting_state_evidence={boundary_has_non_reflecting_state}; "
+            f"periodic_method={boundary_has_periodic_method}; "
+            f"periodic_pair_mapping_evidence={boundary_has_periodic_mapping}; "
+            f"rough_wall_method={boundary_has_rough_wall_method}; "
+            f"rough_wall_parameter_evidence={boundary_has_rough_wall_parameter}; "
+            f"rough_wall_action_evidence={boundary_has_rough_wall_action}; "
+            f"precursor_recycling_method={boundary_has_precursor_recycling_method}; "
+            f"precursor_recycling_field_evidence={boundary_has_precursor_recycling_field}; "
             f"type_e_velocity_initialization={boundary_type_e_velocity_initialization}; "
             f"profile_type_e_velocity_initialization={boundary_profile_type_e_velocity_initialization}; "
             f"type_e_velocity_initialization_required={boundary_type_e_velocity_initialization_required}; "

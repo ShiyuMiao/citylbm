@@ -175,6 +175,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   advanced inlet or boundary implementations. Labels such as `"digital_filter"`, `"SEM"`, `"non_reflecting"` or
   `"rough_wall"` are reported as token-only diagnostics unless the generated `setup.cpp` also contains call/array/field
   code evidence for the claimed method.
+- `audit_boundary_source.py` now separates advanced boundary method names from concrete implementation evidence. A
+  named `non_reflecting`, `periodic`, `rough_wall`, `precursor` or `recycling` function is no longer enough: the audit
+  also looks for sponge/convective/radiation outlet state, periodic pair mapping, rough-wall parameter plus wall-action
+  code, or recycled/precursor field evidence before the boundary source can be promoted.
 - `audit_boundary_source.py`, `validation_metrics_from_probe_audit.py`, the metrics template and `validation_gate.py`
   now explicitly audit the CityLBM TYPE_E boundary-velocity initialization pass. Simplified/profile TYPE_E boundary
   cases must show the generated guard on `lbm.flags[n]`, coordinate recovery and three-component `lbm.u` writes; profile
