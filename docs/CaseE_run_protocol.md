@@ -42,9 +42,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   LES/subgrid and solver-log evidence, not as a value to hide in case generation.
 - For AF files with `k(m2/s2)`, enable `Run Simulation / Synthetic Inlet` only when testing the experimental STG-lite inlet.
   Record `STG Scale`/synthetic scale, `STG Corr Cells`/correlation cells, `STG Update`/pattern-update interval, `STG Max Frac`/amplitude cap,
-  `STG Length Source`/correlation-length evidence source, and the generated `case_metadata.json` fields
+  `STG Modes`/spectral-mode count, `STG Length Source`/correlation-length evidence source, and the generated `case_metadata.json` fields
   `SyntheticTurbulentInletRequested`, `SyntheticTurbulentInletInjected`,
   `SyntheticTurbulentInletLengthScaleSource` and `SyntheticTurbulentInletLengthScaleGate`.
+  Use at least `STG Modes=128` for strict diagnostic baselines; `384` is recommended for Case A/E sensitivity runs when
+  runtime allows. Values below 32 are smoke-test-only and fail the generated-source inlet audit.
   Leave `STG Length Source` empty unless the selected correlation length is backed by archived AIJ/official,
   precursor/recycling, DFM/SEM or validated synthetic-eddy length-scale evidence.
   The final gate reads inlet-source and inlet-correlation pass evidence from `inlet_source_audit.json` and
@@ -73,7 +75,7 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   difference such as `P-1` versus `p1` must not change which official point is compared, while duplicate normalized
   official IDs are a hard protocol error.
 - If STG-lite is enabled, generated `setup.cpp` also contains `syntheticTurbulentInlet`, `applySyntheticTurbulentInlet`,
-  `citylbm_stg_*` constants and the divergence-reduced transverse spectral-mode projection.
+  `citylbm_stg_*` constants, `citylbm_stg_mode_count`, and the divergence-reduced transverse spectral-mode projection.
 - The generated `validation_protocol_audit` must explicitly record `native_fluidx3d_baseline`, `boundary_conditions`,
   `lbm_stability_scaling`, `wind_direction_sign`, `probe_projection`, `normalization_basis` and `systematic_bias_gate`.
   Treat these items as paper-blocking until their run evidence is archived.
@@ -169,7 +171,7 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `inlet_distribution_reconstruction_count`, meaning the distribution reconstruction is tied to inlet/`TYPE_E` code.
   For STG-lite, the audit must also show the actual correlated-source features in generated code:
   `has_spectral_mode_evidence`, `has_taylor_advection_evidence`, `has_transverse_projection_evidence` and
-  `has_length_scale_evidence`, plus the run-loop fields `has_synthetic_inlet_refresh_with_current_time`,
+  `has_length_scale_evidence`, `synthetic_inlet_spectral_mode_count`, plus the run-loop fields `has_synthetic_inlet_refresh_with_current_time`,
   `has_update_interval_run_control` and `has_segmented_stg_run_loop`. These fields separate correlated STG-lite from
   uncorrelated random perturbations and prove that `SyntheticTurbulenceUpdateInterval` controls the generated
   `lbm.run(steps_to_run)` refresh loop. `validation_gate.py` treats missing run-loop fields as stale or incomplete

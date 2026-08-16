@@ -2320,6 +2320,7 @@ namespace CityLBM.Solver
             double corr = Math.Max(1.0, Math.Min(64.0, settings.SyntheticTurbulenceCorrelationCells));
             double maxFrac = Math.Max(0.05, Math.Min(0.80, settings.SyntheticTurbulenceMaxFractionOfMean));
             int updateInterval = Math.Max(1, settings.SyntheticTurbulenceUpdateInterval);
+            int modeCount = Math.Max(4, Math.Min(1024, settings.SyntheticTurbulenceModeCount));
 
             sb.AppendLine();
             sb.AppendLine("    // CityLBM STG-lite inlet: deterministic spectral synthetic fluctuations from isotropic k.");
@@ -2331,7 +2332,7 @@ namespace CityLBM.Solver
             sb.AppendLine($"    const float citylbm_stg_corr_cells = {corr.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_stg_max_fraction = {maxFrac.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const uint citylbm_stg_update_interval = {updateInterval}u;");
-            sb.AppendLine("    const int citylbm_stg_mode_count = 12;");
+            sb.AppendLine($"    const int citylbm_stg_mode_count = {modeCount};");
             sb.AppendLine("    // Target component RMS follows isotropic k: sigma=sqrt(2k/3).");
             sb.AppendLine("    // With unit-amplitude sin modes, sqrt(6/M) compensates 1/2 phase variance and 1/3 projected-component energy.");
             sb.AppendLine("    const float citylbm_stg_norm = sqrtf(6.0f / (float)citylbm_stg_mode_count);");
@@ -2534,6 +2535,7 @@ namespace CityLBM.Solver
                     SyntheticTurbulenceIntensityScale = settings.SyntheticTurbulenceIntensityScale,
                     SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
                     SyntheticTurbulenceCorrelationLengthM = settings.SyntheticTurbulenceCorrelationCells * grid.Dx,
+                    SyntheticTurbulenceModeCount = settings.SyntheticTurbulenceModeCount,
                     SyntheticTurbulentInletLengthScaleSource = GetSyntheticTurbulenceLengthScaleSource(scene, settings),
                     SyntheticTurbulentInletLengthScaleGate = GetSyntheticTurbulenceLengthScaleGate(scene, settings),
                     SyntheticTurbulenceUpdateInterval = settings.SyntheticTurbulenceUpdateInterval,
@@ -3009,6 +3011,7 @@ namespace CityLBM.Solver
                         SyntheticTurbulentInletInjected = IsSyntheticTurbulentInletActive(scene, settings),
                         SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
                         SyntheticTurbulenceCorrelationLengthM = settings.SyntheticTurbulenceCorrelationCells * grid.Dx,
+                        SyntheticTurbulenceModeCount = settings.SyntheticTurbulenceModeCount,
                         SyntheticTurbulentInletLengthScaleSource = GetSyntheticTurbulenceLengthScaleSource(scene, settings),
                         SyntheticTurbulentInletLengthScaleGate = GetSyntheticTurbulenceLengthScaleGate(scene, settings),
                         SyntheticTurbulentInletTemporalTreatment = IsSyntheticTurbulentInletActive(scene, settings)
@@ -3189,10 +3192,10 @@ namespace CityLBM.Solver
                 Key = "inlet_turbulence_k",
                 Status = syntheticActive ? "partial" : (hasK ? "risk" : "fail"),
                 Evidence = syntheticActive
-                    ? "AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet, advect spectral phases using Taylor frozen-turbulence, refresh TYPE_E inlet nodes in batch/graphics modes and record velocity-field-only treatment."
+                    ? $"AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet with {settings.SyntheticTurbulenceModeCount} spectral modes, advect spectral phases using Taylor frozen-turbulence, refresh TYPE_E inlet nodes in batch/graphics modes and record velocity-field-only treatment."
                     : (hasK ? "AF k column is present but only metadata/profile arrays are guaranteed." : "No usable k column found in CustomWindProfile."),
                 Risk = syntheticActive
-                    ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and frozen-turbulence advection, uses correlation length {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m) with source '{lengthScaleSource}', and does not reconstruct distribution functions."
+                    ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and frozen-turbulence advection, uses {settings.SyntheticTurbulenceModeCount} spectral modes and correlation length {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m) with source '{lengthScaleSource}', and does not reconstruct distribution functions."
                     : "Missing or inactive turbulent inlet can cause systematic underprediction of pedestrian-level velocity ratios.",
                 RequiredNextAction = syntheticActive
                     ? "Run empty-tunnel and building native FluidX3D baselines proving downstream U/k preservation and replace/user-justify the inlet length scale before paper claims."
@@ -3821,6 +3824,9 @@ namespace CityLBM.Solver
 
         /// <summary>Approximate spatial correlation length in lattice cells.</summary>
         public double SyntheticTurbulenceCorrelationCells { get; set; } = 4.0;
+
+        /// <summary>Number of deterministic spectral modes used by the STG-lite inlet.</summary>
+        public int SyntheticTurbulenceModeCount { get; set; } = 64;
 
         /// <summary>
         /// Traceable evidence tag/source for the synthetic turbulence correlation length.

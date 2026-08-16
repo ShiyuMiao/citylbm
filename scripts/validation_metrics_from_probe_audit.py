@@ -169,6 +169,7 @@ TEMPLATE_FIELDS = [
     "inlet_source_setup_sha256",
     "inlet_source_synthetic_requested",
     "inlet_source_has_synthetic_function",
+    "inlet_source_spectral_mode_count",
     "inlet_source_refresh_with_current_time",
     "inlet_source_update_interval_run_control",
     "inlet_source_segmented_stg_run_loop",
@@ -177,6 +178,7 @@ TEMPLATE_FIELDS = [
     "inlet_method_class",
     "inlet_method_class_supported",
     "wall_roughness_treatment",
+    "synthetic_mode_count",
     "synthetic_update_interval",
     "synthetic_max_fraction",
     "synthetic_correlation_length_m",
@@ -1455,6 +1457,9 @@ def main() -> int:
             "inlet_source_has_synthetic_function": first_bool_text(
                 inlet_source_audit.get("has_synthetic_inlet_function")
             ),
+            "inlet_source_spectral_mode_count": audit_field(
+                inlet_source_audit, "synthetic_inlet_spectral_mode_count"
+            ),
             "inlet_source_refresh_with_current_time": first_bool_text(
                 inlet_source_audit.get("has_synthetic_inlet_refresh_with_current_time")
             ),
@@ -1469,6 +1474,7 @@ def main() -> int:
             "inlet_method_class": infer_inlet_method_class(metadata),
             "inlet_method_class_supported": infer_inlet_method_class_supported(metadata),
             "wall_roughness_treatment": infer_wall_roughness_treatment(metadata),
+            "synthetic_mode_count": metadata_field(metadata, "SyntheticTurbulenceModeCount"),
             "synthetic_update_interval": infer_synthetic_update_interval(metadata),
             "synthetic_max_fraction": metadata_field(metadata, "SyntheticTurbulenceMaxFractionOfMean"),
             "synthetic_correlation_length_m": infer_synthetic_correlation_length_m(metadata),

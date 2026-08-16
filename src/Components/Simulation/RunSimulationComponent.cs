@@ -123,8 +123,11 @@ namespace CityLBM.Components.Simulation
                 "precursor_length_scale, digital_filter_length_scale, synthetic_eddy_length_scale, sem_length_scale, " +
                 "dfm_length_scale, or validated_length_scale_model.",
                 GH_ParamAccess.item, "");
+            pManager.AddIntegerParameter("STG Modes", "STGM",
+                "Number of deterministic spectral modes used by the STG-lite inlet. Case A/E strict baselines can use 128-384; low values are diagnostic only.",
+                GH_ParamAccess.item, 64);
 
-            for (int i = 2; i <= 17; i++) pManager[i].Optional = true;
+            for (int i = 2; i <= 18; i++) pManager[i].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
@@ -159,6 +162,7 @@ namespace CityLBM.Components.Simulation
             int syntheticUpdateInterval = 25;
             double syntheticMaxFraction = 0.35;
             string syntheticLengthSource = "";
+            int syntheticModeCount = 64;
 
             if (!DA.GetData(0, ref ghScene)) return;
             if (!DA.GetData(1, ref ghGrid)) return;
@@ -178,6 +182,7 @@ namespace CityLBM.Components.Simulation
             DA.GetData(15, ref syntheticUpdateInterval);
             DA.GetData(16, ref syntheticMaxFraction);
             DA.GetData(17, ref syntheticLengthSource);
+            DA.GetData(18, ref syntheticModeCount);
 
             // ── GH 加载期保护 ────────────────────────────────────────────
             // 使用宽限期策略：组件创建后 3 秒内认为 GH 可能还在加载
@@ -313,8 +318,9 @@ namespace CityLBM.Components.Simulation
                 settings.SyntheticTurbulenceUpdateInterval = Math.Max(1, Math.Min(1000, syntheticUpdateInterval));
                 settings.SyntheticTurbulenceMaxFractionOfMean = Math.Max(0.05, Math.Min(0.80, syntheticMaxFraction));
                 settings.SyntheticTurbulenceLengthScaleSource = (syntheticLengthSource ?? "").Trim();
+                settings.SyntheticTurbulenceModeCount = Math.Max(4, Math.Min(1024, syntheticModeCount));
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
-                    $"[v0.3.0] STG-lite inlet enabled for CustomTable+k. Update={settings.SyntheticTurbulenceUpdateInterval}, cap={settings.SyntheticTurbulenceMaxFractionOfMean:F2}. Experimental; not full DFM/precursor/Reynolds-stress inflow.");
+                    $"[v0.3.0] STG-lite inlet enabled for CustomTable+k. Modes={settings.SyntheticTurbulenceModeCount}, update={settings.SyntheticTurbulenceUpdateInterval}, cap={settings.SyntheticTurbulenceMaxFractionOfMean:F2}. Experimental; not full DFM/precursor/Reynolds-stress inflow.");
             }
 
             var solver = new FluidX3DInterface(fluidX3DPath);

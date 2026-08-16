@@ -30,6 +30,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `Run Simulation` no longer falls back to the legacy bundled v0.5.0 solver when no external FluidX3D path is provided; controlled validation must use an explicit external FluidX3D baseline.
 - `Run Simulation` adds an optional experimental `Synthetic Inlet` control for CustomTable profiles with `k`.
 - Generated FluidX3D `setup.cpp` can now use the AF `k` column to apply bounded STG-lite spectral inlet perturbations from `sigma=sqrt(2k/3)`.
+- `Run Simulation` now exposes `STG Modes`, and generated `setup.cpp` writes the same value to
+  `citylbm_stg_mode_count` instead of hard-coding 12 spectral modes. Strict Case A/E diagnostic baselines can use
+  128-384 modes while smoke tests may keep lower values.
 - The STG-lite inlet now uses deterministic multi-mode spectral fluctuations, avoiding the earlier sparse-eddy pattern where many inlet cells could receive near-zero perturbation.
 - STG-lite spectral modes are now projected normal to their synthetic wave vectors before summation, reducing non-physical divergent inlet fluctuations while keeping the method deterministic and auditable.
 - STG-lite temporal evolution now uses Taylor frozen-turbulence phase advection along the local mean wind instead of an arbitrary discrete phase increment, improving time correlation while remaining a diagnostic velocity-field inlet.
@@ -301,6 +304,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   perturbations. It recognizes `citylbm_stg_corr_cells`, spectral modes, Taylor frozen-turbulence advection and transverse
   wave-vector projection, while still marking the method as velocity-field-only and non-paper-grade until the inlet is
   distribution-consistent.
+- `scripts/audit_inlet_source.py` now reads `citylbm_stg_mode_count` from generated `setup.cpp` and fails the inlet
+  source gate when a synthetic inlet uses fewer than 32 spectral modes, preventing a stale low-mode diagnostic setup
+  from being mistaken for the documented strict STG-lite baseline.
 - `scripts/audit_inlet_source.py` now also checks that `SyntheticTurbulenceUpdateInterval` is wired into the generated
   solver loop: STG-lite must refresh with the current `lbm.get_t()` and the refresh must be coupled to a segmented
   `lbm.run(steps_to_run)` advance. A token-only `citylbm_stg_update_interval` constant no longer passes the source audit.

@@ -85,6 +85,16 @@ def has_regex(text: str, pattern: str) -> bool:
     return re.search(pattern, text, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL) is not None
 
 
+def first_int_regex(text: str, pattern: str) -> Optional[int]:
+    match = re.search(pattern, text, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL)
+    if not match:
+        return None
+    try:
+        return int(match.group(1))
+    except (TypeError, ValueError):
+        return None
+
+
 def strip_cpp_string_literals(text: str) -> str:
     return re.sub(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', '""', text)
 
@@ -267,6 +277,10 @@ def main() -> int:
             "citylbm_mode_amplitude",
         ],
     )
+    stg_mode_count = first_int_regex(
+        implementation_source,
+        r"citylbm_stg_mode_count\s*=\s*(\d+)",
+    )
     has_taylor_advection = contains_any(
         implementation_source,
         ["advected_x", "advected_y", "advected_z", "frozen-turbulence"],
@@ -359,6 +373,8 @@ def main() -> int:
         reasons.append("synthetic_inlet_missing_length_scale_source")
     if synthetic_requested and has_stg_function and not has_spectral_modes:
         reasons.append("synthetic_inlet_missing_spectral_modes")
+    if synthetic_requested and has_stg_function and stg_mode_count is not None and stg_mode_count < 32:
+        reasons.append("synthetic_inlet_too_few_spectral_modes")
     if synthetic_requested and has_stg_function and not has_taylor_advection:
         reasons.append("synthetic_inlet_missing_temporal_advection")
     if synthetic_requested and has_stg_function and not has_transverse_projection:
@@ -421,6 +437,8 @@ def main() -> int:
         "has_precursor_or_recycling_token": has_precursor_token,
         "advanced_inlet_method_token_only": advanced_token_only,
         "has_spectral_mode_evidence": has_spectral_modes,
+        "synthetic_inlet_spectral_mode_count": stg_mode_count,
+        "minimum_recommended_spectral_mode_count": 32,
         "has_taylor_advection_evidence": has_taylor_advection,
         "has_transverse_projection_evidence": has_transverse_projection,
         "has_length_scale_evidence": has_length_scale,

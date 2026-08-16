@@ -43,6 +43,8 @@ Generated configuration evidence:
 - Target Reynolds number: `ReH=24000.000000026626`.
 - `dx=0.006 m`, `tau=0.5003333333333333`, `UrefLbm=0.1`.
 - Turbulence method: `synthetic-eddy`, `SyntheticEddyCount=384`.
+- CityLBM STG-lite equivalent: set `Run Simulation / STG Modes=384` for the strict diagnostic baseline when runtime
+  allows; values below 32 are smoke-test-only and fail the generated-source inlet audit.
 - Averaging request: building `TimeSteps=60000`, `SpinupSteps=10000`, `SampleInterval=100`; estimated post-spinup
   probe samples `501`.
 - VTK request: `VtkSaveInterval=1000`, `VtkSaveStartStep=10000`; estimated post-spinup frames `51`.
@@ -147,9 +149,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    gate only accepts it with the explicit `--allow-velocity-only-inlet` diagnostic override after an empty-tunnel run
    proves downstream `U/k` preservation. Paper-grade promotion should use a validated DFM/SEM/precursor/recycling inlet
    or another documented distribution-consistent treatment.
-   The source audit separately records whether STG-lite actually contains correlated-source features: `citylbm_stg_corr_cells`,
-   spectral modes, Taylor frozen-turbulence advection and transverse wave-vector projection. Passing those source checks
-   shows the inlet is stronger than uncorrelated random perturbations, but it still does not make the inlet
+  The source audit separately records whether STG-lite actually contains correlated-source features: `citylbm_stg_corr_cells`,
+  spectral modes, `citylbm_stg_mode_count`, Taylor frozen-turbulence advection and transverse wave-vector projection. Passing those source checks
+  shows the inlet is stronger than uncorrelated random perturbations, but it still does not make the inlet
    distribution-consistent.
    The source audit must also show `has_synthetic_inlet_refresh_with_current_time`, `has_update_interval_run_control` and
    `has_segmented_stg_run_loop`. These fields prove that `SyntheticTurbulenceUpdateInterval` actually limits the
