@@ -482,17 +482,32 @@ def fmt(value: Any) -> str:
 def filter_official(rows: List[Dict[str, str]], case: str, wind_direction: str) -> List[Dict[str, str]]:
     if not rows:
         return rows
-    case_col = find_column(rows, ["case"])
-    wind_col = find_column(rows, ["Wind_direction", "wind_direction", "direction", "wind"])
     filtered = rows
-    if case and case_col:
-        filtered = [row for row in filtered if get_value(row, case_col).strip().lower() == case.lower()]
-    if wind_direction and wind_col:
+    case_text = str(case or "").strip().lower()
+    wind_text = str(wind_direction or "").strip().lower()
+    if case_text:
+        case_col = find_column(filtered, ["case", "Case", "condition", "Condition", "bcac"])
+        if not case_col:
+            raise SystemExit("Official CSV case filter requested, but no case/condition column was detected.")
+        filtered = [row for row in filtered if get_value(row, case_col).strip().lower() == case_text]
+        if not filtered:
+            raise SystemExit(f"Official CSV case filter selected no rows: {case}")
+    if wind_text:
+        wind_col = find_column(
+            filtered,
+            ["Wind_direction", "wind_direction", "direction", "Direction", "wind", "Wind"],
+        )
+        if not wind_col:
+            raise SystemExit(
+                "Official CSV wind-direction filter requested, but no wind-direction column was detected."
+            )
         filtered = [
             row
             for row in filtered
-            if get_value(row, wind_col).strip().lower() == wind_direction.lower()
+            if get_value(row, wind_col).strip().lower() == wind_text
         ]
+        if not filtered:
+            raise SystemExit(f"Official CSV wind-direction filter selected no rows: {wind_direction}")
     return filtered
 
 

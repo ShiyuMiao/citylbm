@@ -71,6 +71,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 - Coordinates: `+X` is streamwise wind direction, `Y=0` is the vertical center plane, `Z=0` is ground.
 - Reference speed: use the official Case A reference velocity consistently in both native FluidX3D and CityLBM
   postprocessing. Do not change `Uref` to fit the error.
+- If a metrics or gate command supplies `--case` or `--wind-direction`, the official measurement CSV must contain the
+  corresponding case/condition or wind/direction column and the filtered subset must be non-empty. A missing filter
+  column is a protocol failure, not permission to compare against the full RS table.
 
 ## Native Baseline Gates
 

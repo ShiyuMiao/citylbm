@@ -94,6 +94,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   table, and `validation_gate.py` requires those hashes to match the current `--probe-audit` and `--official` inputs.
   A copied metrics row can no longer pass coordinate/component/Uref diagnostics for a different probe extraction or RS
   table.
+- Official measurement filtering is now strict in both `validation_metrics_from_probe_audit.py` and
+  `validation_gate.py`: when `--case` or `--wind-direction` is requested, the official RS table must expose a matching
+  case/condition or wind/direction column and the filtered subset must be non-empty. This prevents Case E `bc/ac` rows
+  or other wind directions from silently entering the reported error statistics and final gate.
 - `Data Probe` now appends validation-audit outputs for `Uref`-based speed ratio, streamwise ratio, nearest VTK-sample
   distance and per-probe CSV rows without changing the existing first five outputs.
 - `Data Probe` now accepts optional official probe IDs, a probe-to-VTK tolerance and an explicit compared component.

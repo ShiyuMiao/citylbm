@@ -618,8 +618,11 @@ def read_probe_identity_audit(
     if not official_rows:
         result["error"] = "official measurement CSV has no rows"
         return result
-    official_rows = filter_official_identity_rows(official_rows, case, wind_direction)
+    official_rows, official_filter_error = filter_official_identity_rows(official_rows, case, wind_direction)
     result["official_row_count"] = len(official_rows)
+    if official_filter_error:
+        result["error"] = official_filter_error
+        return result
     if not official_rows:
         result["error"] = "official measurement CSV has no matching case/wind rows"
         return result
@@ -658,31 +661,36 @@ def filter_official_identity_rows(
     rows: List[Dict[str, str]],
     case: str,
     wind_direction: str,
-) -> List[Dict[str, str]]:
+) -> Tuple[List[Dict[str, str]], Optional[str]]:
     filtered = rows
     case_text = str(case or "").strip().lower()
     wind_text = str(wind_direction or "").strip().lower()
     if case_text:
-        case_col = find_csv_column(filtered, ["case", "Case", "condition", "Condition"])
-        if case_col:
-            case_filtered = [
-                row
-                for row in filtered
-                if str(row.get(case_col) or "").strip().lower() == case_text
-            ]
-            if case_filtered:
-                filtered = case_filtered
+        case_col = find_csv_column(filtered, ["case", "Case", "condition", "Condition", "bcac"])
+        if not case_col:
+            return [], "official_case_filter_column_missing"
+        filtered = [
+            row
+            for row in filtered
+            if str(row.get(case_col) or "").strip().lower() == case_text
+        ]
+        if not filtered:
+            return [], "official_case_filter_no_rows"
     if wind_text:
-        wind_col = find_csv_column(filtered, ["Wind_direction", "wind_direction", "direction", "wind", "Wind"])
-        if wind_col:
-            wind_filtered = [
-                row
-                for row in filtered
-                if str(row.get(wind_col) or "").strip().lower() == wind_text
-            ]
-            if wind_filtered:
-                filtered = wind_filtered
-    return filtered
+        wind_col = find_csv_column(
+            filtered,
+            ["Wind_direction", "wind_direction", "direction", "Direction", "wind", "Wind"],
+        )
+        if not wind_col:
+            return [], "official_wind_direction_filter_column_missing"
+        filtered = [
+            row
+            for row in filtered
+            if str(row.get(wind_col) or "").strip().lower() == wind_text
+        ]
+        if not filtered:
+            return [], "official_wind_direction_filter_no_rows"
+    return filtered, None
 
 
 def read_probe_component_audit(path: Optional[Path]) -> Tuple[Optional[int], List[str], Optional[int], Optional[str]]:

@@ -65,6 +65,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Generated `setup.cpp` contains `profile_z_m[]`, `profile_z_lbm[]`, `profile_u_lbm[]`, `profile_k_m2s2[]`, `profile_k_lbm[]`, `profile_origin_z_m`, `profile_first_z_m` and `profile_last_z_m`.
 - `case_metadata.json` records `CustomProfileRows`, `CustomProfileKRows`, `CustomProfileKComplete`, `KMinM2s2`,
   `KMaxM2s2`, `KMinLbm`, `KMaxLbm`, `ProfileFirstZM` and `ProfileLastZM`.
+- The official RS measurement table must be strictly filtered to `case=ac` and `direction=N` before metrics are
+  computed. `validation_metrics_from_probe_audit.py` and `validation_gate.py` must fail if the RS table lacks the
+  required case/condition or wind/direction column, or if the filtered subset is empty. Do not compare probe outputs
+  against the unfiltered 16-condition Case E table.
 - If STG-lite is enabled, generated `setup.cpp` also contains `syntheticTurbulentInlet`, `applySyntheticTurbulentInlet`,
   `citylbm_stg_*` constants and the divergence-reduced transverse spectral-mode projection.
 - The generated `validation_protocol_audit` must explicitly record `native_fluidx3d_baseline`, `boundary_conditions`,
