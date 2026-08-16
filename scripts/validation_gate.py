@@ -338,6 +338,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     metrics_hash_gate = by_key.get("metrics_input_hash_traceability")
     compared_gate = by_key.get("compared_component")
     projection_gate = by_key.get("probe_projection_distance")
+    grid_extent_gate = by_key.get("probe_grid_extent")
     probe_source_gate = by_key.get("probe_source_window")
     probe_gate = by_key.get("probe_mapping")
     sensitivity_gate = by_key.get("component_normalization_sensitivity")
@@ -346,6 +347,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         coordinate_gate,
         compared_gate,
         projection_gate,
+        grid_extent_gate,
         probe_source_gate,
         probe_gate,
         sensitivity_gate,
@@ -780,6 +782,8 @@ def read_probe_coordinate_normalization_audit(
         "missing_wind_vector_count": 0,
         "wind_vector_mismatch_count": 0,
         "unique_wind_vector_count": None,
+        "missing_vtk_grid_extent_count": 0,
+        "outside_vtk_grid_extent_count": 0,
         "error": None,
     }
     if not path or not path.exists():
@@ -797,6 +801,12 @@ def read_probe_coordinate_normalization_audit(
     wind_vectors: List[Tuple[float, float, float]] = []
     coordinate_deltas: List[float] = []
     for row in rows:
+        inside_grid = as_bool(get_any(row, ["inside_vtk_grid_extent", "InsideVtkGridExtent"]))
+        if inside_grid is None:
+            result["missing_vtk_grid_extent_count"] += 1
+        elif inside_grid is False:
+            result["outside_vtk_grid_extent_count"] += 1
+
         failed_flag = as_bool(get_any(row, ["failed", "Failed", "out_of_tolerance", "OutOfTolerance"]))
         status = str(get_any(row, ["status", "Status", "validation_status", "ValidationStatus"]) or "").lower()
         if failed_flag is True or "fail" in status or "out" in status:
@@ -3699,6 +3709,34 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Keep RS probe interpolation/projection distances traceable and bounded by dx; do not rescue missing slice points with an overly large tolerance.",
     )
 
+    metrics_grid_extent_gate = str(
+        get_any(metrics, ["probe_grid_extent_gate", "ProbeGridExtentGate"]) or ""
+    ).strip().lower()
+    metrics_outside_grid_count = as_int(
+        get_any(metrics, ["probe_outside_vtk_grid_extent_count", "ProbeOutsideVtkGridExtentCount"])
+    )
+    metrics_missing_grid_count = as_int(
+        get_any(metrics, ["probe_missing_vtk_grid_extent_count", "ProbeMissingVtkGridExtentCount"])
+    )
+    probe_grid_extent_ok = (
+        probe_audit_traceable
+        and metrics_grid_extent_gate == "pass"
+        and metrics_outside_grid_count == 0
+        and metrics_missing_grid_count == 0
+    )
+    add_gate(
+        gates,
+        "probe_grid_extent",
+        PASS if probe_grid_extent_ok else FAIL,
+        (
+            f"metrics_probe_grid_extent_gate={metrics_grid_extent_gate or 'missing'}; "
+            f"metrics_outside_vtk_grid_extent_count={metrics_outside_grid_count}; "
+            f"metrics_missing_vtk_grid_extent_count={metrics_missing_grid_count}; "
+            f"probe_audit_traceable={probe_audit_traceable}"
+        ),
+        "Require every official probe to lie inside the physical VTK grid before interpolation; fix scale, domain_origin or RS coordinate transforms before comparing errors.",
+    )
+
     normalization_valid = as_bool(get_any(metrics, ["normalization_valid", "NormalizationValid"]))
     wind_valid = as_bool(get_any(metrics, ["wind_direction_valid", "WindDirectionValid"]))
     uref = as_float(get_any(metrics, ["Uref_mps", "Uref", "U_ref"]))
@@ -3799,6 +3837,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and probe_coord_norm["missing_wind_vector_count"] == 0
         and probe_coord_norm["wind_vector_mismatch_count"] == 0
         and probe_coord_norm["unique_wind_vector_count"] == 1
+        and probe_coord_norm["missing_vtk_grid_extent_count"] == 0
+        and probe_coord_norm["outside_vtk_grid_extent_count"] == 0
     )
     add_gate(
         gates,
@@ -3855,6 +3895,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"probe_missing_wind_vector_count={probe_coord_norm['missing_wind_vector_count']}; "
             f"probe_wind_vector_mismatch_count={probe_coord_norm['wind_vector_mismatch_count']}; "
             f"probe_unique_wind_vector_count={probe_coord_norm['unique_wind_vector_count']}; "
+            f"probe_missing_vtk_grid_extent_count={probe_coord_norm['missing_vtk_grid_extent_count']}; "
+            f"probe_outside_vtk_grid_extent_count={probe_coord_norm['outside_vtk_grid_extent_count']}; "
             f"probe_audit_traceable={probe_audit_traceable}; "
             f"allow_summary_only_probe_metrics={probe_summary_override}; "
             f"{probe_coord_norm['error'] or ''}"

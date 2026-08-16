@@ -296,6 +296,35 @@ def nearest_index(
     return idx, coord, distance
 
 
+def grid_extent(
+    dims: Tuple[int, int, int],
+    origin: Tuple[float, float, float],
+    spacing: Tuple[float, float, float],
+) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
+    lower = []
+    upper = []
+    for axis in range(3):
+        endpoint = origin[axis] + spacing[axis] * (dims[axis] - 1)
+        lower.append(min(origin[axis], endpoint))
+        upper.append(max(origin[axis], endpoint))
+    return (lower[0], lower[1], lower[2]), (upper[0], upper[1], upper[2])
+
+
+def point_grid_extent_status(
+    point: Tuple[float, float, float],
+    dims: Tuple[int, int, int],
+    origin: Tuple[float, float, float],
+    spacing: Tuple[float, float, float],
+    tolerance: float = 1.0e-9,
+) -> Tuple[bool, str, Tuple[float, float, float], Tuple[float, float, float]]:
+    lower, upper = grid_extent(dims, origin, spacing)
+    outside_axes = []
+    for axis, label in enumerate(("x", "y", "z")):
+        if point[axis] < lower[axis] - tolerance or point[axis] > upper[axis] + tolerance:
+            outside_axes.append(label)
+    return not outside_axes, ",".join(outside_axes), lower, upper
+
+
 def clamp_cell(value: float, max_index: int) -> Tuple[int, int, float]:
     if max_index <= 0:
         return 0, 0, 0.0
@@ -411,6 +440,7 @@ def main() -> int:
     dims = first["dimensions"]
     origin = first["origin"]
     spacing = first["spacing"]
+    grid_min, grid_max = grid_extent(dims, origin, spacing)
     official_rows = filter_official_rows(
         read_csv(Path(args.official).resolve()),
         args.case,
@@ -470,6 +500,14 @@ def main() -> int:
                     "vtk_spacing_x": spacing[0],
                     "vtk_spacing_y": spacing[1],
                     "vtk_spacing_z": spacing[2],
+                    "vtk_grid_min_x": grid_min[0],
+                    "vtk_grid_min_y": grid_min[1],
+                    "vtk_grid_min_z": grid_min[2],
+                    "vtk_grid_max_x": grid_max[0],
+                    "vtk_grid_max_y": grid_max[1],
+                    "vtk_grid_max_z": grid_max[2],
+                    "inside_vtk_grid_extent": "false",
+                    "outside_vtk_grid_axes": "invalid_coordinate",
                     "vtk_source_files": source_files_csv,
                     "vtk_source_sha256": source_hashes_csv,
                     "compared_component": args.compared_component,
@@ -483,6 +521,12 @@ def main() -> int:
             continue
         point = tuple(float(value) for value in point_values)  # type: ignore[assignment]
         _vtk_index, vtk_coord, distance = nearest_index(
+            point,
+            dims,
+            origin,
+            spacing,
+        )
+        inside_grid, outside_axes, point_grid_min, point_grid_max = point_grid_extent_status(
             point,
             dims,
             origin,
@@ -505,9 +549,11 @@ def main() -> int:
         normalization_valid = args.u_ref > 0 and math.isfinite(args.u_ref)
         wind_valid = all(math.isfinite(component) for component in wind)
         out_of_tolerance = args.tolerance > 0 and distance > args.tolerance
-        failed = out_of_tolerance or not math.isfinite(value)
+        failed = not inside_grid or out_of_tolerance or not math.isfinite(value)
         failure_reason = ""
-        if out_of_tolerance:
+        if not inside_grid:
+            failure_reason = f"outside_vtk_grid_extent:{outside_axes}"
+        elif out_of_tolerance:
             failure_reason = "out_of_tolerance"
         elif not math.isfinite(value):
             failure_reason = "invalid_compared_value"
@@ -548,6 +594,14 @@ def main() -> int:
                 "vtk_spacing_x": spacing[0],
                 "vtk_spacing_y": spacing[1],
                 "vtk_spacing_z": spacing[2],
+                "vtk_grid_min_x": point_grid_min[0],
+                "vtk_grid_min_y": point_grid_min[1],
+                "vtk_grid_min_z": point_grid_min[2],
+                "vtk_grid_max_x": point_grid_max[0],
+                "vtk_grid_max_y": point_grid_max[1],
+                "vtk_grid_max_z": point_grid_max[2],
+                "inside_vtk_grid_extent": "true" if inside_grid else "false",
+                "outside_vtk_grid_axes": outside_axes,
                 "vtk_source_files": source_files_csv,
                 "vtk_source_sha256": source_hashes_csv,
                 "compared_component": args.compared_component,
@@ -596,6 +650,14 @@ def main() -> int:
         "vtk_spacing_x",
         "vtk_spacing_y",
         "vtk_spacing_z",
+        "vtk_grid_min_x",
+        "vtk_grid_min_y",
+        "vtk_grid_min_z",
+        "vtk_grid_max_x",
+        "vtk_grid_max_y",
+        "vtk_grid_max_z",
+        "inside_vtk_grid_extent",
+        "outside_vtk_grid_axes",
         "vtk_source_files",
         "vtk_source_sha256",
         "compared_component",

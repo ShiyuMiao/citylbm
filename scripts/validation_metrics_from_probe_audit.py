@@ -252,6 +252,10 @@ TEMPLATE_FIELDS = [
     "probe_vtk_source_hash_set_count",
     "probe_id_field",
     "probe_tolerance_m",
+    "probe_grid_extent_gate",
+    "probe_inside_vtk_grid_extent_count",
+    "probe_outside_vtk_grid_extent_count",
+    "probe_missing_vtk_grid_extent_count",
     "compared_component",
     "component_sensitivity_audit",
     "component_sensitivity_probe_audit_sha256",
@@ -905,6 +909,9 @@ def main() -> int:
     probe_missing_minimum_step_spans = 0
     probe_missing_source_hashes = 0
     probe_hash_count_mismatches = 0
+    probe_inside_grid_extent_count = 0
+    probe_outside_grid_extent_count = 0
+    probe_missing_grid_extent_count = 0
     matched_official_probe_ids = set()
 
     for row in probe_rows:
@@ -916,6 +923,13 @@ def main() -> int:
         if not official_row:
             failed += 1
             continue
+        inside_grid = as_bool(get_value(row, "inside_vtk_grid_extent"))
+        if inside_grid is True:
+            probe_inside_grid_extent_count += 1
+        elif inside_grid is False:
+            probe_outside_grid_extent_count += 1
+        else:
+            probe_missing_grid_extent_count += 1
         sim = as_float(get_value(row, args.sim_value_column))
         exp = as_float(get_value(official_row, official_value_col))
         failed_flag = as_bool(status)
@@ -1092,9 +1106,16 @@ def main() -> int:
     if len(unique_probe_source_hash_sets) != 1:
         probe_source_reasons.append(f"mixed_probe_source_hash_sets:{len(unique_probe_source_hash_sets)}")
     probe_source_window_gate = "pass" if not probe_source_reasons else "fail"
+    probe_grid_extent_gate = (
+        "pass"
+        if probe_outside_grid_extent_count == 0 and probe_missing_grid_extent_count == 0
+        else "fail"
+    )
     protocol_failures: List[str] = []
     if probe_source_window_gate != "pass":
         protocol_failures.append("fail_probe_vtk_source_window")
+    if probe_grid_extent_gate != "pass":
+        protocol_failures.append("fail_probe_vtk_grid_extent")
     if args.u_ref is None and len(unique_probe_urefs) > 1:
         protocol_failures.append("fail_mixed_probe_uref")
     if component_consistency_gate != "pass":
@@ -1570,6 +1591,10 @@ def main() -> int:
             "probe_vtk_source_hash_set_count": fmt(len(unique_probe_source_hash_sets)),
             "probe_id_field": args.probe_id_column,
             "probe_tolerance_m": tolerance,
+            "probe_grid_extent_gate": probe_grid_extent_gate,
+            "probe_inside_vtk_grid_extent_count": probe_inside_grid_extent_count,
+            "probe_outside_vtk_grid_extent_count": probe_outside_grid_extent_count,
+            "probe_missing_vtk_grid_extent_count": probe_missing_grid_extent_count,
             "compared_component": compared_component,
             "component_sensitivity_audit": str(Path(args.component_sensitivity_audit).resolve()) if args.component_sensitivity_audit else "",
             "component_sensitivity_probe_audit_sha256": audit_field(component_sensitivity_audit, "probe_audit_sha256"),

@@ -59,6 +59,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `synthetic_eddy_length_scale`, `sem_length_scale`, `dfm_length_scale` or `validated_length_scale_model` are recorded
   in `case_metadata.json`, the native manifest and the validation audit.
 - Each generated case now writes `validation_protocol_audit.json` and `.md` to flag inlet, boundary-condition, time-averaging, coordinate, normalization and grid-resolution readiness before metrics are interpreted.
+- `probe_vtk_points.py` now records the VTK physical grid extent for every sampled probe and hard-fails probes outside
+  that extent before nearest/trilinear interpolation, so incorrect STL scale, `domain_origin` or RS coordinate
+  transforms cannot be hidden by clamping samples to the VTK boundary.
 - `case_metadata.json` and the native baseline manifest now include `BoundaryProtocolAudit`, a structured record of
   inlet/outlet/lateral/top faces, domain clearances in meters and building-height units, simplified boundary types and a
   diagnostic boundary-clearance gate.
