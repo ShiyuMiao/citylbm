@@ -297,6 +297,15 @@ def resolve_evidence_files(paths: List[str], evidence_path: Optional[Path], run_
     }
 
 
+def sha256_file(path: Optional[Path]) -> str:
+    if path is None or not path.exists() or not path.is_file():
+        return ""
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    except OSError:
+        return ""
+
+
 def main() -> int:
     args = parse_args()
     run_dir = Path(args.run_dir).expanduser().resolve()
@@ -437,7 +446,9 @@ def main() -> int:
         "generated_at_utc": utc_now(),
         "run_dir": str(run_dir),
         "metadata": str(metadata_path),
+        "metadata_sha256": sha256_file(metadata_path),
         "evidence_path": str(evidence_path) if evidence_path else "",
+        "boundary_evidence_json_sha256": sha256_file(evidence_path),
         "metadata_boundary_protocol_gate": metadata_gate,
         "metadata_boundary_evidence_gate": metadata_evidence_gate,
         "metadata_boundary_evidence_source": metadata_evidence_source,
