@@ -470,6 +470,10 @@ def main() -> int:
                     "x": raw_point_values[0],
                     "y": raw_point_values[1],
                     "z": raw_point_values[2],
+                    "official_x": raw_point_values[0],
+                    "official_y": raw_point_values[1],
+                    "official_z": raw_point_values[2],
+                    "official_coordinate_delta": "",
                     "u": "",
                     "v": "",
                     "w": "",
@@ -519,7 +523,9 @@ def main() -> int:
                 }
             )
             continue
-        point = tuple(float(value) for value in point_values)  # type: ignore[assignment]
+        official_point = tuple(float(value) for value in point_values)
+        point = official_point
+        official_coordinate_delta = 0.0
         _vtk_index, vtk_coord, distance = nearest_index(
             point,
             dims,
@@ -564,6 +570,10 @@ def main() -> int:
                 "x": point[0],
                 "y": point[1],
                 "z": point[2],
+                "official_x": official_point[0],
+                "official_y": official_point[1],
+                "official_z": official_point[2],
+                "official_coordinate_delta": official_coordinate_delta,
                 "u": mean_velocity[0],
                 "v": mean_velocity[1],
                 "w": mean_velocity[2],
@@ -620,6 +630,10 @@ def main() -> int:
         "x",
         "y",
         "z",
+        "official_x",
+        "official_y",
+        "official_z",
+        "official_coordinate_delta",
         "u",
         "v",
         "w",

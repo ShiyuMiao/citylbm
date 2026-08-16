@@ -382,6 +382,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native VTK probe extraction now defaults to structured-grid trilinear velocity sampling instead of nearest-node
   sampling, while keeping nearest-node distance as a separate coverage/tolerance audit field. This reduces avoidable
   RS probe projection error at `dx=2-3 m` without hiding out-of-domain probes.
+- Native VTK probe extraction now writes the official RS coordinates and per-row `official_coordinate_delta` directly
+  into `probe_audit.csv`, so the final gate can audit coordinate closure from the sampled probe rows instead of trusting
+  summary-only metrics fields.
 - Added `scripts/audit_component_sensitivity.py` and wired it into the native validation chain, metrics builder and
   final gate. It compares `speed_ratio`, signed/absolute streamwise ratio and component ratios against official RS
   values, then flags whether a different component or a scale-like Uref/SI conversion factor can explain the bias before
