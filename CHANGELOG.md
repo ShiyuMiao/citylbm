@@ -31,6 +31,11 @@
 - Added a `probe_projection_distance` gate that reads per-probe `nearest_distance` and `tolerance` from the Data Probe audit CSV and fails runs whose projection distance/tolerance is missing, exceeds tolerance or is too large relative to `dx`.
 - Probe VTK sampling now records the physical grid extent and fails any official measurement point outside that extent before interpolation, preventing scale/domain-origin/coordinate errors from being hidden by boundary-clamped VTK samples.
 - The coordinate/normalization gate now audits per-probe `Uref`, wind-vector and normalization flags from the Data Probe CSV; a correct summary metrics row alone cannot hide mixed or missing probe-level normalization evidence.
+- Component/Uref sensitivity audits are now bound to the current case and wind-direction subset. A component audit
+  generated for another AIJ wind direction or condition can no longer pass the final gate simply because it uses the
+  same probe and official CSV hashes.
+- The normalization sensitivity gate now treats a near-unity best-fit scale, or an undefined scale-improvement value
+  from an already-zero RMSE case, as not explaining the bias by Uref/unit scaling.
 - The boundary gate now requires an explicit `boundary_protocol_audit.json` pass with `boundary_equivalence_supported=true`; AIJ-equivalence tokens in metadata/metrics are kept as diagnostic text and no longer pass the paper-grade boundary gate by themselves.
 - Boundary evidence now also requires a supported `boundary_evidence_class` and at least one existing `boundary_evidence_files` artifact; token-only AIJ-equivalence text remains diagnostic and cannot satisfy the boundary gate by itself.
 - Boundary support artifacts must now be non-empty and SHA256-hashed in `boundary_protocol_audit.json`; existence-only files cannot pass the paper-grade boundary gate.

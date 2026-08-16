@@ -162,6 +162,12 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   when joining probe rows to official RS measurements, and rejects duplicate official IDs after normalization. Metrics
   construction and final gate coverage can no longer silently disagree because of case, spacing or punctuation in AIJ
   point labels.
+- `audit_component_sensitivity.py`, `validation_metrics_from_probe_audit.py`, the metrics template and
+  `validation_gate.py` now bind component/Uref sensitivity evidence to the same case and wind-direction subset as the
+  audited run. The final gate fails component audits reused from another AIJ condition or wind direction even when the
+  probe CSV and official measurement file hashes match.
+- `validation_gate.py` now handles zero-RMSE or otherwise undefined scale-improvement component audits without treating
+  them as evidence of a Uref/unit problem when the best-fit scale is already near unity.
 - `scripts/validation_gate.py` now requires component/Uref sensitivity values to come from archived
   `component_sensitivity_audit.json`; metrics rows may point to that audit, but can no longer self-report
   component-normalization pass fields, best component, RMSE comparison or best-fit Uref scale.

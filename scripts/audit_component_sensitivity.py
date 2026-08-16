@@ -349,6 +349,12 @@ def main() -> int:
         raise SystemExit("Could not detect probe ID column. Use --probe-id-column.")
 
     official_lookup = build_lookup(official_rows, official_id_col)
+    valid_probe_ids = {
+        normalized_probe_id(get_value(row, probe_id_col))
+        for row in probe_rows
+        if not probe_row_failed(row) and normalized_probe_id(get_value(row, probe_id_col))
+    }
+    matched_valid_probe_ids = sorted(probe_id for probe_id in valid_probe_ids if probe_id in official_lookup)
     selected_component, selected_component_source, component_summary, selected_component_reasons = select_component(
         probe_rows,
         args.selected_component,
@@ -402,6 +408,12 @@ def main() -> int:
         "official_sha256": sha256_file(official_path),
         "case": args.case,
         "wind_direction": args.wind_direction,
+        "official_filtered_row_count": len(official_rows),
+        "official_id_count": len(official_lookup),
+        "probe_row_count": len(probe_rows),
+        "valid_probe_id_count": len(valid_probe_ids),
+        "matched_valid_probe_id_count": len(matched_valid_probe_ids),
+        "unmatched_valid_probe_id_count": len(valid_probe_ids) - len(matched_valid_probe_ids),
         "official_id_column": official_id_col,
         "official_value_column": official_value_col,
         "probe_id_column": probe_id_col,

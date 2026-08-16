@@ -4026,6 +4026,41 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         component_sensitivity_audit.get("selected_component_source")
         or ""
     ).strip().lower()
+    component_audit_case = str(component_sensitivity_audit.get("case") or "").strip()
+    component_audit_wind_direction = str(component_sensitivity_audit.get("wind_direction") or "").strip()
+    component_scope_case_ok = (
+        not identity_case
+        or component_audit_case.lower() == identity_case.lower()
+    )
+    component_scope_wind_ok = (
+        not identity_wind_direction
+        or component_audit_wind_direction.lower() == identity_wind_direction.lower()
+    )
+    component_official_filtered_row_count = as_int(
+        component_sensitivity_audit.get("official_filtered_row_count")
+    )
+    component_official_id_count = as_int(component_sensitivity_audit.get("official_id_count"))
+    component_probe_row_count = as_int(component_sensitivity_audit.get("probe_row_count"))
+    component_valid_probe_id_count = as_int(component_sensitivity_audit.get("valid_probe_id_count"))
+    component_matched_valid_probe_id_count = as_int(
+        component_sensitivity_audit.get("matched_valid_probe_id_count")
+    )
+    component_unmatched_valid_probe_id_count = as_int(
+        component_sensitivity_audit.get("unmatched_valid_probe_id_count")
+    )
+    component_scope_ok = (
+        component_scope_case_ok
+        and component_scope_wind_ok
+        and component_official_filtered_row_count is not None
+        and component_official_filtered_row_count > 0
+        and component_official_id_count is not None
+        and component_official_id_count > 0
+        and component_valid_probe_id_count is not None
+        and component_valid_probe_id_count > 0
+        and component_matched_valid_probe_id_count is not None
+        and component_matched_valid_probe_id_count == component_valid_probe_id_count
+        and component_unmatched_valid_probe_id_count == 0
+    )
     valid_probe_components_raw = component_sensitivity_audit.get("valid_probe_compared_components")
     valid_probe_components = (
         [str(value).strip().lower() for value in valid_probe_components_raw]
@@ -4091,10 +4126,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     normalization_scale_not_explained = (
         normalization_best_scale is not None
-        and normalization_scaled_improvement is not None
-        and not (
-            abs(normalization_best_scale - 1.0) > args.max_normalization_best_scale_deviation
-            and normalization_scaled_improvement >= args.min_normalization_scaled_improvement_ratio
+        and (
+            abs(normalization_best_scale - 1.0) <= args.max_normalization_best_scale_deviation
+            or normalization_scaled_improvement is None
+            or normalization_scaled_improvement < args.min_normalization_scaled_improvement_ratio
         )
     )
     component_normalization_pass = (
@@ -4104,6 +4139,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and normalization_scale_gate == "pass"
         and component_probe_hash_matches
         and component_official_hash_matches
+        and component_scope_ok
         and component_choice_not_explained
         and normalization_scale_not_explained
     )
@@ -4115,6 +4151,19 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"component_normalization_gate={component_normalization_gate or 'missing'}; "
             f"component_sensitivity_gate={component_sensitivity_gate or 'missing'}; "
             f"normalization_scale_gate={normalization_scale_gate or 'missing'}; "
+            f"component_audit_case={component_audit_case or 'missing'}; "
+            f"expected_case={identity_case or 'not_set'}; "
+            f"component_scope_case_ok={component_scope_case_ok}; "
+            f"component_audit_wind_direction={component_audit_wind_direction or 'missing'}; "
+            f"expected_wind_direction={identity_wind_direction or 'not_set'}; "
+            f"component_scope_wind_ok={component_scope_wind_ok}; "
+            f"component_official_filtered_row_count={component_official_filtered_row_count}; "
+            f"component_official_id_count={component_official_id_count}; "
+            f"component_probe_row_count={component_probe_row_count}; "
+            f"component_valid_probe_id_count={component_valid_probe_id_count}; "
+            f"component_matched_valid_probe_id_count={component_matched_valid_probe_id_count}; "
+            f"component_unmatched_valid_probe_id_count={component_unmatched_valid_probe_id_count}; "
+            f"component_scope_ok={component_scope_ok}; "
             f"selected_component={selected_component or 'missing'}; "
             f"selected_component_source={selected_component_source or 'missing'}; "
             f"valid_probe_compared_components={';'.join(valid_probe_components) or 'missing'}; "

@@ -274,6 +274,14 @@ TEMPLATE_FIELDS = [
     "component_sensitivity_audit",
     "component_sensitivity_probe_audit_sha256",
     "component_sensitivity_official_sha256",
+    "component_sensitivity_case",
+    "component_sensitivity_wind_direction",
+    "component_sensitivity_official_filtered_row_count",
+    "component_sensitivity_official_id_count",
+    "component_sensitivity_probe_row_count",
+    "component_sensitivity_valid_probe_id_count",
+    "component_sensitivity_matched_valid_probe_id_count",
+    "component_sensitivity_unmatched_valid_probe_id_count",
     "component_normalization_gate",
     "component_sensitivity_gate",
     "normalization_scale_gate",
@@ -1655,6 +1663,26 @@ def main() -> int:
             "component_sensitivity_audit": str(Path(args.component_sensitivity_audit).resolve()) if args.component_sensitivity_audit else "",
             "component_sensitivity_probe_audit_sha256": audit_field(component_sensitivity_audit, "probe_audit_sha256"),
             "component_sensitivity_official_sha256": audit_field(component_sensitivity_audit, "official_sha256"),
+            "component_sensitivity_case": audit_field(component_sensitivity_audit, "case"),
+            "component_sensitivity_wind_direction": audit_field(component_sensitivity_audit, "wind_direction"),
+            "component_sensitivity_official_filtered_row_count": fmt(
+                audit_int(component_sensitivity_audit, "official_filtered_row_count")
+            ),
+            "component_sensitivity_official_id_count": fmt(
+                audit_int(component_sensitivity_audit, "official_id_count")
+            ),
+            "component_sensitivity_probe_row_count": fmt(
+                audit_int(component_sensitivity_audit, "probe_row_count")
+            ),
+            "component_sensitivity_valid_probe_id_count": fmt(
+                audit_int(component_sensitivity_audit, "valid_probe_id_count")
+            ),
+            "component_sensitivity_matched_valid_probe_id_count": fmt(
+                audit_int(component_sensitivity_audit, "matched_valid_probe_id_count")
+            ),
+            "component_sensitivity_unmatched_valid_probe_id_count": fmt(
+                audit_int(component_sensitivity_audit, "unmatched_valid_probe_id_count")
+            ),
             "component_normalization_gate": audit_gate(component_sensitivity_audit, "component_normalization_gate"),
             "component_sensitivity_gate": audit_gate(component_sensitivity_audit, "component_sensitivity_gate"),
             "normalization_scale_gate": audit_gate(component_sensitivity_audit, "normalization_scale_gate"),
