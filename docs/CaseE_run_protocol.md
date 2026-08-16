@@ -179,6 +179,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   required because preserving AF `k` magnitude alone does not prove a digital-filter, SEM, precursor/recycling or
   otherwise correlated turbulent inlet. The audit must also pass temporal/spatial finite-correlation coverage fractions
   so a sparse subset of correlated non-degenerate samples cannot represent the full inlet plane.
+  The final gate reads the inlet-correlation gate, temporal lag-1 correlation, spatial adjacent correlation, streamwise
+  fluctuation variance and finite-correlation coverage only from `inlet_correlation_audit.json`. Matching fields in
+  `validation_metrics.csv` are ignored context and cannot substitute for a current final-window VTK correlation audit.
   `validation_gate.py` independently checks that the correlation audit uses the same final averaged `source_time_steps`
   and VTK SHA256 hashes as the runtime audit, and that streamwise variance, temporal lag-1 correlation and spatial
   adjacent correlation exceed the configured thresholds. A hand-filled `inlet_correlation_gate=pass` is not sufficient

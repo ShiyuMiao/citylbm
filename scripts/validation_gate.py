@@ -3050,37 +3050,25 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
 
     inlet_correlation_gate = str(
-        get_any(metrics, ["inlet_correlation_gate", "InletCorrelationGate"])
-        or get_any(inlet_correlation_audit, ["inlet_correlation_gate"])
-        or ""
+        get_any(inlet_correlation_audit, ["inlet_correlation_gate"]) or ""
     ).strip().lower()
     inlet_temporal_lag1 = as_float(
-        get_any(metrics, ["inlet_temporal_lag1_correlation", "InletTemporalLag1Correlation"])
-        or get_any(inlet_correlation_audit, ["temporal_lag1_mean_correlation"])
+        get_any(inlet_correlation_audit, ["temporal_lag1_mean_correlation"])
     )
     inlet_temporal_lag1_abs = as_float(
-        get_any(metrics, ["inlet_temporal_lag1_abs_correlation", "InletTemporalLag1AbsCorrelation"])
-        or get_any(inlet_correlation_audit, ["temporal_lag1_abs_mean_correlation"])
+        get_any(inlet_correlation_audit, ["temporal_lag1_abs_mean_correlation"])
     )
     inlet_spatial_adjacent = as_float(
-        get_any(metrics, ["inlet_spatial_adjacent_correlation", "InletSpatialAdjacentCorrelation"])
-        or get_any(inlet_correlation_audit, ["spatial_adjacent_mean_correlation"])
+        get_any(inlet_correlation_audit, ["spatial_adjacent_mean_correlation"])
     )
     inlet_streamwise_variance = as_float(
-        get_any(metrics, ["inlet_streamwise_fluctuation_variance", "InletStreamwiseFluctuationVariance"])
-        or get_any(inlet_correlation_audit, ["mean_streamwise_fluctuation_variance"])
+        get_any(inlet_correlation_audit, ["mean_streamwise_fluctuation_variance"])
     )
     inlet_temporal_finite_fraction = as_float(
-        get_first_available(
-            get_any(metrics, ["inlet_temporal_finite_correlation_fraction", "InletTemporalFiniteCorrelationFraction"]),
-            get_any(inlet_correlation_audit, ["temporal_finite_correlation_fraction"]),
-        )
+        get_any(inlet_correlation_audit, ["temporal_finite_correlation_fraction"])
     )
     inlet_spatial_finite_fraction = as_float(
-        get_first_available(
-            get_any(metrics, ["inlet_spatial_finite_correlation_fraction", "InletSpatialFiniteCorrelationFraction"]),
-            get_any(inlet_correlation_audit, ["spatial_finite_correlation_fraction"]),
-        )
+        get_any(inlet_correlation_audit, ["spatial_finite_correlation_fraction"])
     )
     metric_inlet_correlation_audit = str(
         get_any(metrics, ["inlet_correlation_audit", "InletCorrelationAudit"]) or ""

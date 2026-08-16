@@ -155,6 +155,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    generated `lbm.run(steps_to_run)` loop and that STG-lite refreshes from the current solver time rather than existing
    only as metadata or an unused constant. `validation_gate.py` rejects STG-like inlet source evidence from stale audit
    JSON files that do not contain these run-loop fields.
+   Inlet-correlation values are accepted only from the archived `inlet_correlation_audit.json` generated from the
+   current final-window VTK files. Metrics-table fields such as temporal lag-1 correlation, spatial adjacent correlation
+   or streamwise fluctuation variance are ignored context and cannot prove correlated turbulent inflow.
    Run `scripts/audit_inlet_source.py` on the generated `setup.cpp` before interpreting any VTK result. Archive
    `inlet_source_audit.json` with `setup_cpp_sha256`, `inlet_source_method_class`,
    `inlet_source_distribution_consistent` and `inlet_source_velocity_field_only`; `validation_gate.py` fails
