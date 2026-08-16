@@ -37,9 +37,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out-csv", help="Optional per-height profile comparison CSV.")
     parser.add_argument("--metadata", help="Optional case_metadata.json for traceability.")
     parser.add_argument("--pattern", default="u-*.vtk", help="VTK glob when vtk_dir is a directory.")
-    parser.add_argument("--average-last-n", type=int, default=10, help="Use last N frames.")
-    parser.add_argument("--min-frames", type=int, default=10)
-    parser.add_argument("--min-step-span", type=int, default=1000)
+    parser.add_argument("--average-last-n", type=int, default=20, help="Use last N frames.")
+    parser.add_argument("--min-frames", type=int, default=20)
+    parser.add_argument("--min-step-span", type=int, default=5000)
     parser.add_argument("--wind-direction", default="1,0,0", help="Airflow vector, e.g. 0,-1,0.")
     parser.add_argument(
         "--plane-axis",
