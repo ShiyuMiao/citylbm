@@ -21,11 +21,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `Read VTK` now reports averaged-field stability diagnostics: mean speed, mean/max pointwise speed standard deviation,
   and mean/max relative fluctuation across the averaged VTK frames.
 - `Read VTK` now emits an explicit `time_averaging_gate` and GH warning when the selected VTK window is unaveraged,
-  shorter than 10 frames, not the last available window, non-uniform, or above the stability thresholds.
+  shorter than 20 frames, does not span at least 5000 solver steps, is not the last available window, non-uniform, or above the stability thresholds.
 - `Run Simulation` and `SimulationSettings` now default to `TimeSteps=10000` and `SaveInterval=500`, producing about
   20 VTK frames for a minimum validation averaging workflow instead of short demo-only output.
 - `Run Simulation` now blocks Mode 1/2/3 when the planned `TimeSteps / SaveInterval` window would produce fewer than
-  10 VTK frames. Mode 0 can still generate smoke-test cases, but the metadata marks them as non-validation runs.
+  20 VTK frames or fewer than 5000 solver steps. Mode 0 can still generate smoke-test cases, but the metadata marks them as non-validation runs.
 - Native/CityLBM run audits now also compute the planned final VTK averaging-window solver-step span from
   `TimeSteps`, `SaveInterval`, `SaveStartStep` and `AverageLastN`; validation fails if the requested final window has
   enough frames but does not cover the minimum solver-step span.
