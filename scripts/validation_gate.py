@@ -240,6 +240,57 @@ def get_first_available(*values: Any) -> Any:
     return None
 
 
+def declared_paper_averaging_status(
+    source: Dict[str, Any],
+    min_avg_frames: int,
+    min_avg_step_span: int,
+    *,
+    require_gate: bool,
+) -> Dict[str, Any]:
+    expected_frames = as_int(get_any(source, ["ExpectedVtkFrameCount", "expected_vtk_frame_count"]))
+    recommended_frames = as_int(get_any(source, ["PaperRecommendedAveragingFrames", "paper_recommended_averaging_frames"]))
+    recommended_span = as_int(get_any(source, ["PaperRecommendedAverageStepSpan", "paper_recommended_average_step_span"]))
+    expected_span = as_int(get_any(source, ["ExpectedPaperAverageStepSpan", "expected_paper_average_step_span"]))
+    paper_gate = str(get_any(source, ["TimeAveragingPaperGate", "time_averaging_paper_gate"]) or "").strip().lower()
+
+    required_frames = max(min_avg_frames, recommended_frames or 0)
+    required_span = max(min_avg_step_span, recommended_span or 0)
+    reasons: List[str] = []
+    if expected_frames is None:
+        reasons.append("expected_vtk_frame_count_missing")
+    elif expected_frames < required_frames:
+        reasons.append(f"expected_vtk_frame_count_below_{required_frames}")
+
+    if recommended_frames is None:
+        reasons.append("paper_recommended_averaging_frames_missing")
+    if recommended_span is None:
+        reasons.append("paper_recommended_average_step_span_missing")
+
+    if expected_span is None:
+        reasons.append("expected_paper_average_step_span_missing")
+    elif expected_span < required_span:
+        reasons.append(f"expected_paper_average_step_span_below_{required_span}")
+
+    if require_gate:
+        if not paper_gate:
+            reasons.append("time_averaging_paper_gate_missing")
+        elif paper_gate != "pass_paper_recommended_frame_count_and_step_span":
+            reasons.append(f"time_averaging_paper_gate_not_pass:{paper_gate}")
+
+    return {
+        "ok": not reasons,
+        "expected_vtk_frame_count": expected_frames,
+        "paper_recommended_averaging_frames": recommended_frames,
+        "paper_recommended_average_step_span": recommended_span,
+        "expected_paper_average_step_span": expected_span,
+        "required_frames": required_frames,
+        "required_span": required_span,
+        "time_averaging_paper_gate": paper_gate,
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+    }
+
+
 def normalized_column_key(value: str) -> str:
     return "".join(ch for ch in str(value).lower() if ch.isalnum())
 
@@ -1758,6 +1809,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     manifest = read_json(manifest_path)
     metrics, metrics_path = read_metrics(metrics_path)
     items = load_protocol_items(audit)
+    shared_run_conditions = manifest.get("SharedRunConditions", {})
+    if not isinstance(shared_run_conditions, dict):
+        shared_run_conditions = {}
     software_label = str(args.software or get_any(metrics, ["software", "Software"]) or "").strip().lower()
     citylbm_result = "citylbm" in software_label and "native" not in software_label
     gates: List[Dict[str, Any]] = []
@@ -1943,6 +1997,18 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         args.min_avg_frames,
         args.min_avg_step_span,
     )
+    metadata_paper_averaging_status = declared_paper_averaging_status(
+        metadata,
+        args.min_avg_frames,
+        args.min_avg_step_span,
+        require_gate=True,
+    )
+    manifest_paper_averaging_status = declared_paper_averaging_status(
+        shared_run_conditions,
+        args.min_avg_frames,
+        args.min_avg_step_span,
+        require_gate=False,
+    )
     runtime_vtk_hash_status = runtime_selected_vtk_hash_status(runtime_audit, runtime_audit_path, source_step_text)
     expected_source_hashes = (
         runtime_vtk_hash_status["actual_hashes"] if runtime_vtk_hash_status["ok"] else []
@@ -2038,6 +2104,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and requested_vtk_frame_count is not None
         and requested_vtk_frame_count >= args.min_avg_frames
         and requested_vtk_step_status["ok"]
+        and metadata_paper_averaging_status["ok"]
+        and manifest_paper_averaging_status["ok"]
         and vtk_pattern_ok
         and speed_statistics_source_ok
         and mean_speed_stable
@@ -2080,6 +2148,19 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"requested_vtk_selected_source_matches_final_window={requested_vtk_step_status['selected_source_matches_final_requested_window']}; "
             f"requested_vtk_selected_source_matches_requested_averaging_window={requested_vtk_step_status['selected_source_matches_requested_averaging_window']}; "
             f"requested_vtk_recompute_error={requested_vtk_step_status['error'] or 'none'}; "
+            f"metadata_expected_vtk_frame_count={metadata_paper_averaging_status['expected_vtk_frame_count']}; "
+            f"metadata_paper_recommended_averaging_frames={metadata_paper_averaging_status['paper_recommended_averaging_frames']}; "
+            f"metadata_paper_recommended_average_step_span={metadata_paper_averaging_status['paper_recommended_average_step_span']}; "
+            f"metadata_expected_paper_average_step_span={metadata_paper_averaging_status['expected_paper_average_step_span']}; "
+            f"metadata_time_averaging_paper_gate={metadata_paper_averaging_status['time_averaging_paper_gate'] or 'missing'}; "
+            f"metadata_paper_averaging_ok={metadata_paper_averaging_status['ok']}; "
+            f"metadata_paper_averaging_reasons={metadata_paper_averaging_status['reasons_csv'] or 'none'}; "
+            f"manifest_expected_vtk_frame_count={manifest_paper_averaging_status['expected_vtk_frame_count']}; "
+            f"manifest_paper_recommended_averaging_frames={manifest_paper_averaging_status['paper_recommended_averaging_frames']}; "
+            f"manifest_paper_recommended_average_step_span={manifest_paper_averaging_status['paper_recommended_average_step_span']}; "
+            f"manifest_expected_paper_average_step_span={manifest_paper_averaging_status['expected_paper_average_step_span']}; "
+            f"manifest_paper_averaging_ok={manifest_paper_averaging_status['ok']}; "
+            f"manifest_paper_averaging_reasons={manifest_paper_averaging_status['reasons_csv'] or 'none'}; "
             f"requested_vtk_frame_gate={requested_vtk_frame_gate or 'missing'}; "
             f"requested_vtk_frame_gate_reasons={requested_vtk_frame_gate_reasons or 'none'}; "
             f"expected_vtk_frame_count={expected_vtk_frame_count}; "
