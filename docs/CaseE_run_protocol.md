@@ -110,6 +110,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   Advanced boundary tokens such as non-reflecting outlet, periodic side/top, rough-wall, precursor or recycling must
   come from comment-stripped generated C++ code. Archive `boundary_source_advanced_code_evidence=true` and
   `advanced_boundary_evidence_uses_comment_stripped_code=true` before treating the boundary source as AIJ-equivalent.
+  Token-only mentions in comments, metadata or C++ string literals set `advanced_boundary_token_only=true` and remain
+  diagnostic/failing.
   For the current simplified/profile `TYPE_E` boundary source, also archive the structured velocity-initialization
   evidence from `boundary_source_audit.json`: `has_type_e_velocity_initialization=true`,
   `has_type_e_velocity_initialization_guard=true`, `has_type_e_velocity_initialization_coordinates=true`,
@@ -159,7 +161,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   The inlet-source audit classifies advanced inlet methods from comment-stripped generated C++ code. Archive
   `advanced_inlet_evidence_uses_comment_stripped_code=true` or `inlet_source_comment_stripped_code_audit=true`;
   otherwise the final gate treats the audit as stale or incomplete. Words such as `digital-filter`, `SEM`,
-  `precursor` or `recycling` in comments are not implementation evidence.
+  `precursor` or `recycling` in comments or C++ string literals are not implementation evidence; token-only matches set
+  `advanced_inlet_method_token_only=true` and cannot satisfy the paper-grade inlet gate.
   Generic distribution-function tokens are also not sufficient. `audit_inlet_source.py` records
   `has_distribution_function_write` and `distribution_function_write_count`, but a digital-filter or SEM/DFM inlet
   claim must additionally show `has_inlet_distribution_reconstruction=true` with a positive

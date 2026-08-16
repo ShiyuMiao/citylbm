@@ -85,6 +85,10 @@ def has_regex(text: str, pattern: str) -> bool:
     return re.search(pattern, text, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL) is not None
 
 
+def strip_cpp_string_literals(text: str) -> str:
+    return re.sub(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', '""', text)
+
+
 def distribution_reconstruction_evidence(code: str) -> Dict[str, Any]:
     distribution_pattern = re.compile(
         r"lbm\.f\s*\[|lbm\.f0|lbm\.feq|calculate_f_eq|device_sem_stress_ddf|stress_ddf",
@@ -212,7 +216,9 @@ def main() -> int:
         setup_hash = sha256(setup_path)
 
     audited_source = strip_cpp_comments(source)
+    implementation_source = strip_cpp_string_literals(audited_source)
     audited_source_lower = audited_source.lower()
+    implementation_source_lower = implementation_source.lower()
     audited_source_hash = hashlib.sha256(audited_source.encode("utf-8")).hexdigest().upper() if audited_source else ""
     metadata_method = metadata_value(metadata, "SyntheticTurbulentInletMethod", "TurbulenceMethod")
     metadata_treatment = metadata_value(metadata, "SyntheticTurbulentInletDistributionTreatment")
@@ -225,28 +231,48 @@ def main() -> int:
     if synthetic_enabled is True:
         synthetic_requested = True
 
-    has_custom_table = "profile_z_m" in audited_source_lower and "profile_u_lbm" in audited_source_lower
-    has_k_profile = "profile_k_lbm" in audited_source_lower
-    has_stg_function = "applysyntheticturbulentinlet" in audited_source_lower
-    has_stg_refresh_loop = count_regex(audited_source, r"applySyntheticTurbulentInlet\s*\(") >= 2
-    has_velocity_field_write = contains_any(audited_source, ["lbm.u.x", "lbm.u.y", "lbm.u.z"])
-    distribution_evidence = distribution_reconstruction_evidence(audited_source)
+    has_custom_table = "profile_z_m" in implementation_source_lower and "profile_u_lbm" in implementation_source_lower
+    has_k_profile = "profile_k_lbm" in implementation_source_lower
+    has_stg_function = "applysyntheticturbulentinlet" in implementation_source_lower
+    has_stg_refresh_loop = count_regex(implementation_source, r"applySyntheticTurbulentInlet\s*\(") >= 2
+    has_velocity_field_write = contains_any(implementation_source, ["lbm.u.x", "lbm.u.y", "lbm.u.z"])
+    distribution_evidence = distribution_reconstruction_evidence(implementation_source)
     has_distribution_write = distribution_evidence["has_distribution_function_write"]
     has_inlet_distribution_reconstruction = distribution_evidence["has_inlet_distribution_reconstruction"]
-    has_digital_filter = contains_any(audited_source, ["digital_filter", "digital-filter", "dfm", "filter kernel"])
-    has_sem = contains_any(audited_source, ["synthetic_eddy_method", "sem_distribution", "synthetic eddy method"])
-    has_precursor = contains_any(audited_source, ["precursor", "recycling_rescaling", "recycling-rescaling"])
+    has_digital_filter_token = contains_any(audited_source, ["digital_filter", "digital-filter", "dfm", "filter kernel"])
+    has_sem_token = contains_any(audited_source, ["synthetic_eddy_method", "sem_distribution", "synthetic eddy method"])
+    has_precursor_token = contains_any(audited_source, ["precursor", "recycling_rescaling", "recycling-rescaling"])
+    has_digital_filter = (
+        has_regex(implementation_source, r"\b\w*(digital_filter|digitalfilter|dfm)\w*\s*\(")
+        or has_regex(implementation_source, r"\b(filter_kernel|filterKernel)\w*\s*(\[|=|\{)")
+    )
+    has_sem = (
+        has_regex(implementation_source, r"\b\w*(synthetic_eddy|syntheticEddy|sem_distribution|semDistribution)\w*\s*\(")
+        or has_regex(implementation_source, r"\b(sem_eddy|semEddy|eddy_center|eddyCenter)\w*\s*(\[|=|\{)")
+    )
+    has_precursor = has_regex(
+        implementation_source,
+        r"\b\w*(precursor|recycling_rescaling|recyclingRescaling|recycle_rescale|recycleRescale)\w*\s*\(",
+    )
+    advanced_token_only = (
+        (has_digital_filter_token and not has_digital_filter)
+        or (has_sem_token and not has_sem)
+        or (has_precursor_token and not has_precursor)
+    )
     has_spectral_modes = contains_any(
-        audited_source,
+        implementation_source,
         [
             "citylbm_stg_mode_count",
             "citylbm_mode_wave",
             "citylbm_mode_amplitude",
         ],
     )
-    has_taylor_advection = contains_any(audited_source, ["advected_x", "advected_y", "advected_z", "frozen-turbulence"])
+    has_taylor_advection = contains_any(
+        implementation_source,
+        ["advected_x", "advected_y", "advected_z", "frozen-turbulence"],
+    )
     has_transverse_projection = contains_any(
-        audited_source,
+        implementation_source,
         [
             "ak*kx/kk",
             "ak * kx / kk",
@@ -255,7 +281,7 @@ def main() -> int:
         ],
     )
     has_length_scale = contains_any(
-        audited_source,
+        implementation_source,
         [
             "correlation_length",
             "citylbm_stg_lx",
@@ -264,28 +290,31 @@ def main() -> int:
             "correlation cells",
         ],
     )
-    has_update_interval = "citylbm_stg_update_interval" in audited_source_lower
+    has_update_interval = "citylbm_stg_update_interval" in implementation_source_lower
     refresh_current_time_calls = count_regex(
-        audited_source,
+        implementation_source,
         r"applySyntheticTurbulentInlet\s*\(\s*\(?\s*uint\s*\)?\s*lbm\.get_t\s*\(\s*\)\s*\)",
     )
     has_stg_refresh_with_current_time = refresh_current_time_calls >= 1
     has_update_interval_run_control = has_regex(
-        audited_source,
+        implementation_source,
         r"steps_to_run\s*=\s*[^;\n]*citylbm_stg_update_interval",
     ) or has_regex(
-        audited_source,
+        implementation_source,
         r"steps_to_run\s*>\s*citylbm_stg_update_interval\s*\)\s*steps_to_run\s*=\s*citylbm_stg_update_interval",
     )
     has_segmented_stg_run_loop = (
         has_update_interval_run_control
-        and has_regex(audited_source, r"lbm\.run\s*\(\s*steps_to_run\s*\)")
+        and has_regex(implementation_source, r"lbm\.run\s*\(\s*steps_to_run\s*\)")
         and has_regex(
-            audited_source,
+            implementation_source,
             r"applySyntheticTurbulentInlet\s*\(\s*\(?\s*uint\s*\)?\s*lbm\.get_t\s*\(\s*\)\s*\)\s*;\s*lbm\.run\s*\(\s*steps_to_run\s*\)",
         )
     )
-    has_bounded_amplitude = contains_any(audited_source, ["citylbm_stg_max_fraction", "max_fraction", "amplitude cap"])
+    has_bounded_amplitude = contains_any(
+        implementation_source,
+        ["citylbm_stg_max_fraction", "max_fraction", "amplitude cap"],
+    )
 
     source_method_class = "none"
     if has_precursor:
@@ -318,6 +347,8 @@ def main() -> int:
 
     if synthetic_requested and not has_stg_function and not has_digital_filter and not has_sem and not has_precursor:
         reasons.append("metadata_requests_turbulent_inlet_but_source_has_no_inlet_method")
+    if advanced_token_only:
+        reasons.append("advanced_inlet_method_tokens_without_code_evidence")
     if synthetic_requested and has_stg_function and not has_k_profile:
         reasons.append("synthetic_inlet_source_missing_profile_k_lbm")
     if synthetic_requested and has_stg_function and not has_stg_refresh_loop:
@@ -383,8 +414,12 @@ def main() -> int:
         "inlet_distribution_reconstruction_count": distribution_evidence["inlet_distribution_reconstruction_count"],
         "inlet_source_advanced_code_evidence": advanced_code_evidence,
         "has_digital_filter_evidence": has_digital_filter,
+        "has_digital_filter_token": has_digital_filter_token,
         "has_sem_evidence": has_sem,
+        "has_sem_token": has_sem_token,
         "has_precursor_or_recycling_evidence": has_precursor,
+        "has_precursor_or_recycling_token": has_precursor_token,
+        "advanced_inlet_method_token_only": advanced_token_only,
         "has_spectral_mode_evidence": has_spectral_modes,
         "has_taylor_advection_evidence": has_taylor_advection,
         "has_transverse_projection_evidence": has_transverse_projection,

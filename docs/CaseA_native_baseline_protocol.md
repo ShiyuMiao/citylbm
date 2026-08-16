@@ -128,7 +128,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    assignments as source evidence, but that only proves boundary implementation traceability, not wind-tunnel equivalence.
    Advanced boundary-source claims must come from comment-stripped generated C++ code:
    `boundary_source_advanced_code_evidence=true` and
-   `advanced_boundary_evidence_uses_comment_stripped_code=true`. Comments or metadata labels alone are not accepted.
+   `advanced_boundary_evidence_uses_comment_stripped_code=true`. Comments, metadata labels and C++ string literals alone
+   are not accepted; `advanced_boundary_token_only=true` keeps the boundary source diagnostic/failing.
    For the current simplified/profile `TYPE_E` boundary source, the audit must also report
    `has_type_e_velocity_initialization=true`, `has_type_e_velocity_initialization_guard=true`,
    `has_type_e_velocity_initialization_coordinates=true` and
@@ -167,7 +168,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    Distribution consistency is source-context sensitive: `audit_inlet_source.py` records generic
    `has_distribution_function_write` / `distribution_function_write_count`, but digital-filter or SEM/DFM claims require
    `has_inlet_distribution_reconstruction=true` and a positive `inlet_distribution_reconstruction_count`. Distribution
-   tokens outside an inlet/`TYPE_E` reconstruction context are diagnostic only.
+   tokens outside an inlet/`TYPE_E` reconstruction context are diagnostic only. Method names that appear only in comments
+   or C++ string literals set `advanced_inlet_method_token_only=true` and cannot pass `paper_grade_inlet_method`.
    In addition to RMS/k preservation, run `scripts/audit_inlet_correlation_from_vtk.py` on the same final-window VTK
    frames. The correlation audit records streamwise fluctuation variance, signed temporal lag-1 correlation, temporal
    lag-1 absolute correlation for diagnosis, and adjacent spatial correlation; a missing or failing audit means the

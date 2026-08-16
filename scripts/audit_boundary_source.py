@@ -63,6 +63,14 @@ def count_regex(text: str, pattern: str) -> int:
     return len(re.findall(pattern, text, flags=re.IGNORECASE | re.MULTILINE))
 
 
+def has_regex(text: str, pattern: str) -> bool:
+    return re.search(pattern, text, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL) is not None
+
+
+def strip_cpp_string_literals(text: str) -> str:
+    return re.sub(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', '""', text)
+
+
 def find_type_e_velocity_initialization(code: str) -> Dict[str, Any]:
     guard_match = re.search(
         r"if\s*\(\s*lbm\.flags\s*\[\s*n\s*\]\s*!=\s*TYPE_E\s*\)\s*return\s*;",
@@ -126,7 +134,8 @@ def main() -> int:
 
     code = strip_cpp_comments(source)
     comments = extract_cpp_comments(source)
-    lower = code.lower()
+    implementation_code = strip_cpp_string_literals(code)
+    lower = implementation_code.lower()
     boundary_summary = str(metadata.get("BoundaryConditionSummary") or "")
     boundary_types = nested(metadata, "BoundaryProtocolAudit", "BoundaryTypes")
     boundary_types_text = json.dumps(boundary_types, ensure_ascii=True) if isinstance(boundary_types, dict) else ""
@@ -137,11 +146,11 @@ def main() -> int:
     has_type_s_define = "#define type_s" in lower or "type_s 0x01" in lower
     has_type_e_symbol = "type_e" in lower
     has_type_s_symbol = "type_s" in lower
-    type_e_assignment_count = count_regex(code, r"lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_E")
-    type_s_assignment_count = count_regex(code, r"lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_S")
-    has_ground_no_slip = "if(z == 0u)" in code and "TYPE_S" in code
+    type_e_assignment_count = count_regex(implementation_code, r"lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_E")
+    type_s_assignment_count = count_regex(implementation_code, r"lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_S")
+    has_ground_no_slip = "if(z == 0u)" in implementation_code and "TYPE_S" in implementation_code
     has_building_voxel_solid = "voxelize_stl" in lower and "type_s" in lower
-    type_e_velocity_initialization = find_type_e_velocity_initialization(code)
+    type_e_velocity_initialization = find_type_e_velocity_initialization(implementation_code)
     has_type_e_velocity_initialization = (
         type_e_velocity_initialization["guard"]
         and type_e_velocity_initialization["coordinates"]
@@ -150,19 +159,22 @@ def main() -> int:
     has_profile_type_e_velocity_initialization = (
         has_type_e_velocity_initialization and type_e_velocity_initialization["profile"]
     )
-    has_profile_inlet = contains_any(code, ["windProfile(z)", "profile_u_lbm", "profile_z_m"])
+    has_profile_inlet = contains_any(implementation_code, ["windProfile(z)", "profile_u_lbm", "profile_z_m"])
     has_outlet_type_e = bool(
-        re.search(r"if\s*\([^)]*(Nx-1u|0u|Ny-1u)[^)]*\)\s*\{\s*lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_E;\s*return;", code)
+        re.search(
+            r"if\s*\([^)]*(Nx-1u|0u|Ny-1u)[^)]*\)\s*\{\s*lbm\.flags\s*\[\s*n\s*\]\s*=\s*TYPE_E;\s*return;",
+            implementation_code,
+        )
     )
     has_lateral_type_e = contains_any(
-        code,
+        implementation_code,
         [
             "if(y == 0u || y == Ny-1u) { lbm.flags[n] = TYPE_E; return; }",
             "if(x == 0u || x == Nx-1u) { lbm.flags[n] = TYPE_E; return; }",
         ],
     )
-    has_top_type_e = "if(z == Nz-1u) { lbm.flags[n] = TYPE_E; return; }" in code
-    has_non_reflecting_outlet = contains_any(
+    has_top_type_e = "if(z == Nz-1u) { lbm.flags[n] = TYPE_E; return; }" in implementation_code
+    has_non_reflecting_outlet_token = contains_any(
         code,
         [
             "non_reflecting",
@@ -176,8 +188,8 @@ def main() -> int:
             "pressure outlet validated",
         ],
     )
-    has_periodic_side_top = contains_any(code, ["periodic boundary", "periodic_x", "periodic_y", "periodic_z"])
-    has_rough_wall_function = contains_any(
+    has_periodic_side_top_token = contains_any(code, ["periodic boundary", "periodic_x", "periodic_y", "periodic_z"])
+    has_rough_wall_function_token = contains_any(
         code,
         [
             "rough_wall",
@@ -188,7 +200,32 @@ def main() -> int:
             "aerodynamic roughness boundary",
         ],
     )
-    has_precursor_or_recycling = contains_any(code, ["precursor", "recycling_rescaling", "recycling-rescaling"])
+    has_precursor_or_recycling_token = contains_any(code, ["precursor", "recycling_rescaling", "recycling-rescaling"])
+    has_non_reflecting_outlet = (
+        has_regex(
+            implementation_code,
+            r"\b\w*(non_reflecting|nonReflecting|convective_outlet|convectiveOutlet|absorbing_outlet|absorbingOutlet|radiation_boundary|radiationBoundary)\w*\s*\(",
+        )
+        or has_regex(implementation_code, r"\b(sponge_layer|spongeLayer)\w*\s*(\[|=|\{|\()")
+    )
+    has_periodic_side_top = has_regex(
+        implementation_code,
+        r"\b(periodic_[xyz]|periodicX|periodicY|periodicZ|set_periodic|setPeriodic|periodic_boundary|periodicBoundary)\w*\s*(\[|=|\{|\()",
+    )
+    has_rough_wall_function = has_regex(
+        implementation_code,
+        r"\b\w*(rough_wall|roughWall|wall_function|wallFunction|log_law|logLaw)\w*\s*(\[|=|\{|\()",
+    )
+    has_precursor_or_recycling = has_regex(
+        implementation_code,
+        r"\b\w*(precursor|recycling_rescaling|recyclingRescaling|recycle_rescale|recycleRescale)\w*\s*\(",
+    )
+    advanced_boundary_token_only = (
+        (has_non_reflecting_outlet_token and not has_non_reflecting_outlet)
+        or (has_periodic_side_top_token and not has_periodic_side_top)
+        or (has_rough_wall_function_token and not has_rough_wall_function)
+        or (has_precursor_or_recycling_token and not has_precursor_or_recycling)
+    )
     has_boundary_source_comment = contains_any(comments, ["BoundaryProtocolAudit", "TYPE_E", "TYPE_S"])
     comments_contain_boundary_tokens = contains_any(
         comments,
@@ -269,6 +306,8 @@ def main() -> int:
             reasons.append("profile_type_e_boundary_velocity_initialization_missing")
     if metadata_claims_advanced and not source_wind_tunnel_equivalent:
         reasons.append("metadata_claims_advanced_boundary_without_source_evidence")
+    if advanced_boundary_token_only:
+        reasons.append("advanced_boundary_tokens_without_code_evidence")
 
     source_gate = "pass" if not reasons else "fail"
     paper_reasons: List[str] = []
@@ -311,9 +350,14 @@ def main() -> int:
         "has_ground_no_slip": has_ground_no_slip,
         "has_building_voxel_solid": has_building_voxel_solid,
         "has_non_reflecting_outlet_evidence": has_non_reflecting_outlet,
+        "has_non_reflecting_outlet_token": has_non_reflecting_outlet_token,
         "has_periodic_side_top_evidence": has_periodic_side_top,
+        "has_periodic_side_top_token": has_periodic_side_top_token,
         "has_rough_wall_function_evidence": has_rough_wall_function,
+        "has_rough_wall_function_token": has_rough_wall_function_token,
         "has_precursor_or_recycling_boundary_evidence": has_precursor_or_recycling,
+        "has_precursor_or_recycling_boundary_token": has_precursor_or_recycling_token,
+        "advanced_boundary_token_only": advanced_boundary_token_only,
         "advanced_boundary_evidence_uses_comment_stripped_code": True,
         "all_boundary_implementation_evidence_uses_comment_stripped_code": True,
         "comments_contain_boundary_tokens": comments_contain_boundary_tokens,
