@@ -104,6 +104,10 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "refreshed on TYPE_E inlet nodes in batch and graphics modes");
                 Require(metadata, "\"ExpectedVtkFrameCount\": 10");
                 Require(metadata, "\"TimeAveragingRunGate\": \"pass_minimum_frame_count\"");
+                Require(metadata, "\"PaperRecommendedAveragingFrames\": 20");
+                Require(metadata, "\"PaperRecommendedAverageStepSpan\": 5000");
+                Require(metadata, "\"ExpectedPaperAverageStepSpan\": 900");
+                Require(metadata, "\"TimeAveragingPaperGate\": \"diagnostic_only_extend_time_steps_or_reduce_save_interval\"");
                 Require(metadata, "Mode 1/2/3 require ExpectedVtkFrameCount");
                 Require(metadata, "\"LbmTau\"");
                 Require(metadata, "\"LbmNu\"");
@@ -121,8 +125,12 @@ namespace CityLBM.CodegenSmoke
                 Require(audit, "LbmTau=");
                 Require(audit, "VelocitySet=D3Q19");
                 Require(audit, "ExpectedVtkFrameCount=10");
+                Require(audit, "PaperRecommendedAveragingFrames=20");
+                Require(audit, "ExpectedPaperAverageStepSpan=900");
                 Require(nativeManifest, "NativeFluidX3DPathExplicitlyProvided");
                 Require(nativeManifest, "NativeFluidX3DSourceValidation");
+                Require(nativeManifest, "\"PaperRecommendedAveragingFrames\": 20");
+                Require(nativeManifest, "\"PaperRecommendedAverageStepSpan\": 5000");
                 Require(nativeManifest, "\"LbmStabilityGate\": \"requires_solver_log_and_runtime_statistics\"");
                 Require(nativeManifest, "nu_lbm = nu_SI * VelocityScaleMpsToLbm / dx");
                 Require(nativeManifest, "not_clamped_in_case_generation");

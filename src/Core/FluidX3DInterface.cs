@@ -30,6 +30,10 @@ namespace CityLBM.Solver
     /// </summary>
     public class FluidX3DInterface
     {
+        private const int MinimumRecommendedAveragingFrames = 10;
+        private const int PaperRecommendedAveragingFrames = 20;
+        private const int PaperRecommendedAverageStepSpan = 5000;
+
         #region Properties
 
         /// <summary>FluidX3D 源码根目录（包含 FluidX3D.sln 或 Makefile）</summary>
@@ -2453,7 +2457,7 @@ namespace CityLBM.Solver
                 int expectedFrames = settings.SaveInterval > 0
                     ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                     : 0;
-                const int minimumRecommendedAveragingFrames = 10;
+                int expectedPaperAverageStepSpan = ComputeExpectedFinalWindowStepSpan(settings, PaperRecommendedAveragingFrames);
                 var metadata = new
                 {
                     SchemaVersion = 2,
@@ -2492,11 +2496,17 @@ namespace CityLBM.Solver
                     SaveInterval = settings.SaveInterval,
                     ExpectedVtkFrameCount = expectedFrames,
                     TimeAveragingRequiredForValidation = true,
-                    MinimumRecommendedAveragingFrames = minimumRecommendedAveragingFrames,
-                    TimeAveragingRunGate = expectedFrames >= minimumRecommendedAveragingFrames
+                    MinimumRecommendedAveragingFrames = MinimumRecommendedAveragingFrames,
+                    PaperRecommendedAveragingFrames = PaperRecommendedAveragingFrames,
+                    PaperRecommendedAverageStepSpan = PaperRecommendedAverageStepSpan,
+                    ExpectedPaperAverageStepSpan = expectedPaperAverageStepSpan,
+                    TimeAveragingRunGate = expectedFrames >= MinimumRecommendedAveragingFrames
                         ? "pass_minimum_frame_count"
                         : "smoke_only_too_few_frames_for_validation",
-                    TimeAveragingRunGateRequiredForModes = "Mode 1/2/3 require ExpectedVtkFrameCount >= MinimumRecommendedAveragingFrames; Mode 0 may generate smoke-test cases.",
+                    TimeAveragingPaperGate = expectedFrames >= PaperRecommendedAveragingFrames && expectedPaperAverageStepSpan >= PaperRecommendedAverageStepSpan
+                        ? "pass_paper_recommended_frame_count_and_step_span"
+                        : "diagnostic_only_extend_time_steps_or_reduce_save_interval",
+                    TimeAveragingRunGateRequiredForModes = "Mode 1/2/3 require ExpectedVtkFrameCount >= MinimumRecommendedAveragingFrames for a smoke/diagnostic workflow; paper-grade validation also requires PaperRecommendedAveragingFrames and PaperRecommendedAverageStepSpan.",
                     CustomProfileRows = customProfileRowCount,
                     CustomProfileHasK = hasK,
                     CustomProfileKRows = customProfileKRowCount,
@@ -2854,6 +2864,30 @@ namespace CityLBM.Solver
                 : Math.Round(value, 6);
         }
 
+        private static int ComputeExpectedFinalWindowStepSpan(SimulationSettings settings, int averageFrameCount)
+        {
+            if (settings == null ||
+                settings.SaveInterval <= 0 ||
+                settings.TimeSteps <= 0 ||
+                averageFrameCount <= 1)
+            {
+                return 0;
+            }
+
+            var savedSteps = new List<int>();
+            for (int step = settings.SaveInterval; step <= settings.TimeSteps; step += settings.SaveInterval)
+                savedSteps.Add(step);
+
+            if (savedSteps.Count == 0 || savedSteps[savedSteps.Count - 1] != settings.TimeSteps)
+                savedSteps.Add(settings.TimeSteps);
+
+            int windowCount = Math.Min(averageFrameCount, savedSteps.Count);
+            if (windowCount <= 1)
+                return 0;
+
+            return savedSteps[savedSteps.Count - 1] - savedSteps[savedSteps.Count - windowCount];
+        }
+
         private IEnumerable<string> BuildProtocolRisks(Scene scene, SimulationSettings settings)
         {
             bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
@@ -2886,8 +2920,11 @@ namespace CityLBM.Solver
             int expectedFrames = settings.SaveInterval > 0
                 ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                 : 0;
-            if (expectedFrames < 10)
-                yield return $"Only {expectedFrames} VTK frames are expected; formal validation should average a longer statistically stationary window.";
+            int expectedPaperAverageStepSpan = ComputeExpectedFinalWindowStepSpan(settings, PaperRecommendedAveragingFrames);
+            if (expectedFrames < PaperRecommendedAveragingFrames || expectedPaperAverageStepSpan < PaperRecommendedAverageStepSpan)
+            {
+                yield return $"Only {expectedFrames} VTK frames and a final {PaperRecommendedAveragingFrames}-frame step span of {expectedPaperAverageStepSpan} are expected; formal validation should average at least {PaperRecommendedAveragingFrames} late frames spanning about {PaperRecommendedAverageStepSpan} solver steps after stationarity is checked.";
+            }
 
             yield return "Coordinate transform, wind component sign, probe projection and normalization basis must be audited for each validation run.";
         }
@@ -2981,7 +3018,10 @@ namespace CityLBM.Solver
                         ExpectedVtkFrameCount = settings.SaveInterval > 0
                             ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                             : 0,
-                        MinimumRecommendedAveragingFrames = 10,
+                        MinimumRecommendedAveragingFrames = MinimumRecommendedAveragingFrames,
+                        PaperRecommendedAveragingFrames = PaperRecommendedAveragingFrames,
+                        PaperRecommendedAverageStepSpan = PaperRecommendedAverageStepSpan,
+                        ExpectedPaperAverageStepSpan = ComputeExpectedFinalWindowStepSpan(settings, PaperRecommendedAveragingFrames),
                         WindProfile = scene.WindProfile.ToString(),
                         WindProfileCsvPath = scene.WindProfileCsvPath ?? "",
                         WindProfileCsvSha256 = ComputeOptionalFileSha256(scene.WindProfileCsvPath),
@@ -3175,6 +3215,7 @@ namespace CityLBM.Solver
             int expectedFrames = settings.SaveInterval > 0
                 ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                 : 0;
+            int expectedPaperAverageStepSpan = ComputeExpectedFinalWindowStepSpan(settings, PaperRecommendedAveragingFrames);
 
             yield return new ValidationProtocolAuditItem
             {
@@ -3270,12 +3311,12 @@ namespace CityLBM.Solver
             yield return new ValidationProtocolAuditItem
             {
                 Key = "time_averaging",
-                Status = expectedFrames >= 10 ? "partial" : "risk",
-                Evidence = $"TimeSteps={settings.TimeSteps}, SaveInterval={settings.SaveInterval}, ExpectedVtkFrameCount={expectedFrames}.",
-                Risk = expectedFrames >= 10
-                    ? "Frame count is sufficient for a minimum averaging workflow, but stationarity still must be proven from actual VTK/logs."
+                Status = expectedFrames >= PaperRecommendedAveragingFrames && expectedPaperAverageStepSpan >= PaperRecommendedAverageStepSpan ? "partial" : "risk",
+                Evidence = $"TimeSteps={settings.TimeSteps}, SaveInterval={settings.SaveInterval}, ExpectedVtkFrameCount={expectedFrames}, PaperRecommendedAveragingFrames={PaperRecommendedAveragingFrames}, PaperRecommendedAverageStepSpan={PaperRecommendedAverageStepSpan}, ExpectedPaperAverageStepSpan={expectedPaperAverageStepSpan}.",
+                Risk = expectedFrames >= PaperRecommendedAveragingFrames && expectedPaperAverageStepSpan >= PaperRecommendedAverageStepSpan
+                    ? "The planned saved-frame count and final-window step span satisfy the paper-grade preflight, but stationarity still must be proven from actual VTK/logs."
                     : "Too few VTK frames for robust time averaging; a single or short-window field can bias validation metrics.",
-                RequiredNextAction = "Use Read VTK Average Last N and archive the actual SourceTimeSteps used for metrics."
+                RequiredNextAction = $"Use Read VTK Average Last N={PaperRecommendedAveragingFrames} or higher, archive the actual SourceTimeSteps used for metrics, and verify stationarity before interpreting validation error."
             };
 
             yield return new ValidationProtocolAuditItem
