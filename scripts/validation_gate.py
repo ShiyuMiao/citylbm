@@ -2564,11 +2564,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     add_gate(
         gates,
         "boundary_source_evidence",
-        PASS if boundary_source_evidence_ok else FAIL,
+        PASS if paper_grade_boundary_source_ok else FAIL,
         (
             f"boundary_source_audit={boundary_source_audit_path or 'missing'}; "
             f"boundary_source_gate={boundary_source_gate or 'missing'}; "
             f"paper_grade_boundary_source_gate={paper_grade_boundary_source_gate or 'missing'}; "
+            f"boundary_source_evidence_ok={boundary_source_evidence_ok}; "
+            f"paper_grade_boundary_source_ok={paper_grade_boundary_source_ok}; "
             f"source_method_class={boundary_source_method_class or 'missing'}; "
             f"source_coherent={boundary_source_coherent}; "
             f"source_simplified={boundary_source_simplified}; "
@@ -2724,7 +2726,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     precursor_ok = precursor_enabled is True and precursor_empty_gate is True and precursor_paper is True
     external_roughness_ok = (
-        boundary_evidence_gate == "pass"
+        boundary_evidence_ok
+        and external_boundary_audit_evidence_complete
         and bool(external_roughness_treatment)
         and bool(floor_roughness_source)
         and roughness_source_supported
@@ -2747,6 +2750,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"precursor_method_class={precursor_method_class or 'missing'}; "
             f"roughness_source_supported={roughness_source_supported}; "
             f"boundary_evidence_gate={boundary_evidence_gate or 'missing'}; "
+            f"boundary_evidence_ok={boundary_evidence_ok}; "
+            f"external_boundary_audit_evidence_complete={external_boundary_audit_evidence_complete}; "
+            f"external_roughness_ok={external_roughness_ok}; "
             f"metrics_wall_roughness_treatment={get_any(metrics, ['wall_roughness_treatment', 'WallRoughnessTreatment']) or 'ignored'}; "
             f"metrics_floor_roughness_source={get_any(metrics, ['floor_roughness_source', 'FloorRoughnessSource']) or 'ignored'}"
         ),
