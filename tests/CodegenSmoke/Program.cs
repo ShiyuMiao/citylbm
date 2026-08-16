@@ -151,6 +151,7 @@ namespace CityLBM.CodegenSmoke
                 Require(audit, "BoundaryProtocolEvidenceGate=diagnostic_only_missing_aij_boundary_protocol_evidence");
 
                 TestFluidX3DSourceValidation();
+                TestSyntheticInletRequiresCompleteKProfile();
                 TestProbeComponentSourceGuard();
 
                 Console.WriteLine("Codegen smoke passed.");
@@ -213,6 +214,12 @@ namespace CityLBM.CodegenSmoke
                 throw new InvalidOperationException("Generated case missing: " + expected);
         }
 
+        private static void RequireNotContains(string text, string unexpected)
+        {
+            if (text.Contains(unexpected))
+                throw new InvalidOperationException("Generated case unexpectedly contains: " + unexpected);
+        }
+
         private static void TestFluidX3DSourceValidation()
         {
             string root = CreateFakeFluidX3DSourceTree("fake_fluidx3d_source_validation");
@@ -235,6 +242,74 @@ namespace CityLBM.CodegenSmoke
             var invalid = FluidX3DInterface.ValidateFluidX3DSourcePath(incompleteRoot, out string invalidMessage);
             if (invalid.IsValid || !invalidMessage.Contains("src/setup.cpp"))
                 throw new InvalidOperationException("Incomplete FluidX3D source path was not rejected.");
+        }
+
+        private static void TestSyntheticInletRequiresCompleteKProfile()
+        {
+            var scene = new Scene("stg_partial_k_guard")
+            {
+                WindProfile = WindProfileType.CustomTable,
+                WindProfileCsvPath = "AF_partial_k.csv",
+                WindDirection = new Vector3d(0, -1, 0),
+                WindSpeed = 3.928296,
+                ReferenceHeight = 15.9
+            };
+            scene.CustomWindProfile.Add(new WindProfileSample { Z = 0.5, U = 2.5, HasK = true, K = 0.25 });
+            scene.CustomWindProfile.Add(new WindProfileSample { Z = 15.9, U = 3.928296, HasK = false, K = 0.0 });
+            scene.CustomWindProfile.Add(new WindProfileSample { Z = 60.0, U = 5.8, HasK = true, K = 0.80 });
+            SetSceneBounds(scene, new BoundingBox(new Point3d(0, 0, 0), new Point3d(10, 10, 10)));
+
+            var grid = new CartesianGrid
+            {
+                Nx = 16,
+                Ny = 16,
+                Nz = 16,
+                Dx = 2.0,
+                Origin = new Point3d(-60, -120, 0),
+                DomainBounds = new BoundingBox(new Point3d(-60, -120, 0), new Point3d(70, 60, 70))
+            };
+            var settings = new SimulationSettings
+            {
+                TimeSteps = 1000,
+                SaveInterval = 100,
+                EnableSyntheticTurbulentInlet = true,
+                SyntheticTurbulenceLengthScaleSource = "aij_length_scale_verified: smoke-test archived integral length evidence"
+            };
+
+            string fakeFluidX3DRoot = CreateFakeFluidX3DSourceTree("fake_fluidx3d_source_partial_k_guard");
+            var solver = new FluidX3DInterface(fakeFluidX3DRoot);
+            string caseDir = Path.Combine(Path.GetTempPath(), "CityLBM", "stg_partial_k_guard");
+            Directory.CreateDirectory(caseDir);
+            Directory.CreateDirectory(Path.Combine(caseDir, "output"));
+            string setupPath = Path.Combine(caseDir, "setup.cpp");
+
+            InvokePrivate(
+                solver,
+                "GenerateSetupCpp",
+                scene,
+                grid,
+                settings,
+                setupPath,
+                "buildings.stl",
+                "output");
+            InvokePrivate(solver, "SaveCaseMetadata", caseDir, scene, grid, settings);
+            InvokePrivate(solver, "SaveValidationProtocolAudit", caseDir, scene, grid, settings);
+
+            string setup = File.ReadAllText(setupPath);
+            string metadata = File.ReadAllText(Path.Combine(caseDir, "case_metadata.json"));
+            string audit = File.ReadAllText(Path.Combine(caseDir, "validation_protocol_audit.json"));
+
+            Require(setup, "profile_k_lbm[profile_count]");
+            RequireNotContains(setup, "float3 syntheticTurbulentInlet(");
+            RequireNotContains(setup, "void applySyntheticTurbulentInlet(");
+            Require(metadata, "\"CustomProfileKComplete\": false");
+            Require(metadata, "\"KColumnStatus\": \"invalid_partial_k_column\"");
+            Require(metadata, "\"SyntheticTurbulentInletRequested\": true");
+            Require(metadata, "\"SyntheticTurbulentInletInjected\": false");
+            Require(metadata, "\"SyntheticTurbulentInletBlockedReason\": \"custom_profile_k_column_incomplete\"");
+            Require(metadata, "requires k to be present on every CustomTable profile row before injection");
+            Require(audit, "No synthetic turbulent inlet length scale is active.");
+            Require(audit, "AF k is available, but no turbulent fluctuation is injected into the inlet.");
         }
 
         private static string CreateFakeFluidX3DSourceTree(string name)

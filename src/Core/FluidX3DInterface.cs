@@ -2270,8 +2270,31 @@ namespace CityLBM.Solver
         {
             return settings.EnableSyntheticTurbulentInlet &&
                    scene.WindProfile == WindProfileType.CustomTable &&
-                   scene.CustomWindProfile != null &&
-                   scene.CustomWindProfile.Any(s => s.HasK);
+                   HasCompleteCustomKProfile(scene);
+        }
+
+        private bool HasCompleteCustomKProfile(Scene scene)
+        {
+            return scene.CustomWindProfile != null &&
+                   scene.CustomWindProfile.Count >= 2 &&
+                   scene.CustomWindProfile.All(s => s.HasK);
+        }
+
+        private string GetSyntheticTurbulentInletBlockedReason(Scene scene, SimulationSettings settings)
+        {
+            if (!settings.EnableSyntheticTurbulentInlet)
+                return "not_requested";
+
+            if (scene.WindProfile != WindProfileType.CustomTable)
+                return "wind_profile_is_not_custom_table";
+
+            if (scene.CustomWindProfile == null || scene.CustomWindProfile.Count < 2)
+                return "custom_profile_missing_or_too_short";
+
+            if (!HasCompleteCustomKProfile(scene))
+                return "custom_profile_k_column_incomplete";
+
+            return "not_blocked";
         }
 
         private string GetSyntheticTurbulenceLengthScaleSource(Scene scene, SimulationSettings settings)
@@ -2524,6 +2547,9 @@ namespace CityLBM.Solver
                         : (hasK ? "Level 2 metadata/diagnostic chain" : "none"),
                     SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
                     SyntheticTurbulentInletInjected = syntheticActive,
+                    SyntheticTurbulentInletBlockedReason = syntheticActive
+                        ? "not_blocked"
+                        : GetSyntheticTurbulentInletBlockedReason(scene, settings),
                     SyntheticTurbulentInletMethod = syntheticActive
                         ? "STG-lite deterministic divergence-reduced spectral modes with isotropic k and Taylor frozen-turbulence advection; not digital-filter, precursor, or Reynolds-stress inflow"
                         : "none",
@@ -2904,7 +2930,7 @@ namespace CityLBM.Solver
                 }
                 else
                 {
-                    yield return "AF k column is read and converted, but no digital-filter/synthetic-eddy turbulent inlet is injected.";
+                    yield return "AF k column is read and converted, but no digital-filter/synthetic-eddy turbulent inlet is injected. If synthetic inlet was requested, CityLBM requires k to be present on every CustomTable profile row before injection.";
                 }
             }
             else if (settings.EnableSyntheticTurbulentInlet)
@@ -3049,6 +3075,9 @@ namespace CityLBM.Solver
                         SolverStabilityWarnings = "not_available_until_solver_log_is_archived",
                         SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
                         SyntheticTurbulentInletInjected = IsSyntheticTurbulentInletActive(scene, settings),
+                        SyntheticTurbulentInletBlockedReason = IsSyntheticTurbulentInletActive(scene, settings)
+                            ? "not_blocked"
+                            : GetSyntheticTurbulentInletBlockedReason(scene, settings),
                         SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
                         SyntheticTurbulenceCorrelationLengthM = settings.SyntheticTurbulenceCorrelationCells * grid.Dx,
                         SyntheticTurbulenceModeCount = settings.SyntheticTurbulenceModeCount,
