@@ -44,6 +44,7 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   to `TYPE_E` inlet nodes so solid ground/building flags are not touched by the diagnostic inlet refresh.
 - `setup.cpp`, `case_metadata.json` and `validation_protocol_audit` now explicitly record that STG-lite refreshes macroscopic `lbm.u` only and does not reconstruct FluidX3D distribution functions.
 - `case_metadata.json` records whether the synthetic inlet was requested and actually injected, plus synthetic scale, correlation length, update interval and amplitude cap.
+- STG-lite injection now requires `k` on every CustomTable profile row. Partial `k` columns remain available for metadata diagnostics but are blocked from turbulent-inlet injection, with `SyntheticTurbulentInletBlockedReason=custom_profile_k_column_incomplete`.
 - `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now track the synthetic
   inlet correlation length and its evidence source. A user-selected STG correlation length is treated as diagnostic-only
   until it is replaced or justified by AIJ length-scale data, a precursor/recycling field or a validated DFM/SEM model.
