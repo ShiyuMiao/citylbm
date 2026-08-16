@@ -89,6 +89,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--uref-tolerance", type=float, default=1.0e-6)
     parser.add_argument("--expected-wind-vector", default="", help="Require wind_vector to match x,y,z or (x,y,z), e.g. 0,-1,0.")
     parser.add_argument("--wind-vector-tolerance", type=float, default=1.0e-6)
+    parser.add_argument("--expected-vtk-pattern", default="u-*.vtk", help="Require the runtime VTK audit to use this velocity-field glob.")
     parser.add_argument(
         "--allow-velocity-only-inlet",
         action="store_true",
@@ -1889,6 +1890,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     else:
         frame_source = "missing runtime_audit real source_time_steps"
     available_frame_count = as_int(get_any(runtime_audit, ["available_frame_count", "AvailableFrameCount"]))
+    runtime_vtk_pattern = str(get_any(runtime_audit, ["vtk_pattern", "VtkPattern"]) or "").strip()
+    expected_vtk_pattern = str(args.expected_vtk_pattern or "").strip()
+    vtk_pattern_ok = bool(runtime_vtk_pattern) and (
+        not expected_vtk_pattern or runtime_vtk_pattern == expected_vtk_pattern
+    )
     source_first_step = as_int(get_any(runtime_audit, ["source_first_time_step", "SourceFirstTimeStep"]))
     source_last_step = as_int(get_any(runtime_audit, ["source_last_time_step", "SourceLastTimeStep"]))
     declared_source_step_span = as_int(get_any(runtime_audit, ["source_step_span", "SourceStepSpan"]))
@@ -2028,6 +2034,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and requested_vtk_frame_count is not None
         and requested_vtk_frame_count >= args.min_avg_frames
         and requested_vtk_step_status["ok"]
+        and vtk_pattern_ok
         and speed_statistics_source_ok
         and mean_speed_stable
         and point_speed_stable
@@ -2073,6 +2080,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"requested_vtk_frame_gate_reasons={requested_vtk_frame_gate_reasons or 'none'}; "
             f"expected_vtk_frame_count={expected_vtk_frame_count}; "
             f"available_frame_count={available_frame_count}; source_first_step={source_first_step}; "
+            f"runtime_vtk_pattern={runtime_vtk_pattern or 'missing'}; "
+            f"expected_vtk_pattern={expected_vtk_pattern or 'not enforced'}; "
+            f"vtk_pattern_ok={vtk_pattern_ok}; "
             f"source_last_step={source_last_step}; latest_available_step={latest_available_step}; "
             f"selected_last_window={selected_last_window}; source_steps_strictly_increasing={source_steps_increasing}; "
             f"source_step_spacing_uniform={source_spacing_uniform}; "

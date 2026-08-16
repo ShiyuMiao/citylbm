@@ -43,6 +43,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--metadata", help="Optional case_metadata.json to copy stability settings from.")
     parser.add_argument("--solver-log", help="Optional solver stdout/stderr log path.")
     parser.add_argument("--out", required=True, help="Output audit JSON path.")
+    parser.add_argument("--pattern", default="u-*.vtk", help="VTK glob pattern to audit when run_dir is a directory.")
     parser.add_argument("--average-last-n", type=int, default=10)
     parser.add_argument("--min-avg-frames", type=int, default=10)
     parser.add_argument("--min-avg-step-span", type=int, default=1000)
@@ -92,11 +93,13 @@ def extract_time_step(path: Path) -> Optional[int]:
     return int(matches[-1])
 
 
-def find_vtk_files(run_dir: Path) -> List[Path]:
-    candidates = list(run_dir.glob("*.vtk"))
+def find_vtk_files(run_dir: Path, pattern: str) -> List[Path]:
+    if run_dir.is_file():
+        return [run_dir]
+    candidates = list(run_dir.glob(pattern))
     output_dir = run_dir / "output"
     if output_dir.exists():
-        candidates.extend(output_dir.glob("*.vtk"))
+        candidates.extend(output_dir.glob(pattern))
     unique = {str(path.resolve()).lower(): path for path in candidates}
     return sorted(unique.values(), key=lambda p: (extract_time_step(p) is None, extract_time_step(p) or 0, p.name))
 
@@ -500,7 +503,7 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
     run_dir = Path(args.run_dir).resolve()
     metadata_path = Path(args.metadata).resolve() if args.metadata else None
     metadata = read_json(metadata_path)
-    vtk_files = find_vtk_files(run_dir)
+    vtk_files = find_vtk_files(run_dir, args.pattern)
     steps = [extract_time_step(path) for path in vtk_files]
     known_steps = sorted(step for step in steps if step is not None)
     selected_steps = known_steps[-args.average_last_n :] if args.average_last_n > 0 else []
@@ -606,6 +609,7 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "schema_version": 1,
         "component": "Native FluidX3D run audit",
         "run_dir": str(run_dir),
+        "vtk_pattern": args.pattern,
         "average_last_n_requested": args.average_last_n,
         "averaging_enabled": args.average_last_n > 0,
         "averaged_frame_count": len(selected_steps),
