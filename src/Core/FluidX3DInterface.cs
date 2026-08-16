@@ -30,7 +30,7 @@ namespace CityLBM.Solver
     /// </summary>
     public class FluidX3DInterface
     {
-        private const int MinimumRecommendedAveragingFrames = 10;
+        private const int MinimumRecommendedAveragingFrames = 20;
         private const int PaperRecommendedAveragingFrames = 20;
         private const int PaperRecommendedAverageStepSpan = 5000;
 

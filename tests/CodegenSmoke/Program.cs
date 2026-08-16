@@ -103,7 +103,7 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "\"SyntheticTurbulentInletLengthScaleGate\": \"pass\"");
                 Require(metadata, "refreshed on TYPE_E inlet nodes in batch and graphics modes");
                 Require(metadata, "\"ExpectedVtkFrameCount\": 10");
-                Require(metadata, "\"TimeAveragingRunGate\": \"pass_minimum_frame_count\"");
+                Require(metadata, "\"TimeAveragingRunGate\": \"smoke_only_too_few_frames_for_validation\"");
                 Require(metadata, "\"PaperRecommendedAveragingFrames\": 20");
                 Require(metadata, "\"PaperRecommendedAverageStepSpan\": 5000");
                 Require(metadata, "\"ExpectedPaperAverageStepSpan\": 900");

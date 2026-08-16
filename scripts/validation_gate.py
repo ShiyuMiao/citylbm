@@ -466,15 +466,24 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     inlet_profile_hash_gate = by_key.get("inlet_profile_vtk_hash_traceability")
     inlet_correlation_hash_gate = by_key.get("inlet_correlation_vtk_hash_traceability")
     k_gate = by_key.get("k_preservation_or_accuracy")
+    custom_k_gate = by_key.get("custom_k_profile")
     if any(
         gate is None or gate.get("status") != PASS
-        for gate in [inlet_profile_gate, inlet_profile_hash_gate, inlet_correlation_hash_gate, k_gate]
+        for gate in [custom_k_gate, inlet_profile_gate, inlet_profile_hash_gate, inlet_correlation_hash_gate, k_gate]
     ):
+        inlet_profile_priority_gate = next(
+            (
+                gate
+                for gate in [custom_k_gate, inlet_profile_gate, inlet_profile_hash_gate, inlet_correlation_hash_gate, k_gate]
+                if gate is None or gate.get("status") != PASS
+            ),
+            inlet_profile_gate,
+        )
         add_priority(
             priorities,
             4,
             "inlet_profile_u_k_preservation",
-            inlet_profile_gate,
+            inlet_profile_priority_gate,
             "The AF U(z)/k(z) table must be preserved in real VTK frames before probe accuracy is meaningful.",
             "Run an empty-tunnel or inlet-plane VTK audit and fix profile conversion, k scaling or inlet application.",
         )
@@ -2924,6 +2933,122 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit_has_inlet_length_scale_evidence = as_bool(
         get_any(inlet_source_audit, ["has_length_scale_evidence"])
     )
+    wind_profile_text = str(
+        get_first_available(
+            get_any(metadata, ["WindProfile", "wind_profile"]),
+            get_any(metrics, ["wind_profile", "WindProfile"]),
+            get_any(shared_run_conditions, ["WindProfile", "wind_profile"]),
+        )
+        or ""
+    ).strip()
+    custom_profile_rows = as_int(
+        get_first_available(
+            get_any(metadata, ["CustomProfileRows", "custom_profile_rows"]),
+            get_any(metrics, ["custom_profile_rows", "CustomProfileRows"]),
+            get_any(shared_run_conditions, ["CustomProfileRows", "custom_profile_rows"]),
+        )
+    )
+    custom_profile_has_k = as_bool(
+        get_first_available(
+            get_any(metadata, ["CustomProfileHasK", "custom_profile_has_k"]),
+            get_any(metrics, ["custom_profile_has_k", "CustomProfileHasK"]),
+            get_any(shared_run_conditions, ["CustomProfileHasK", "custom_profile_has_k"]),
+        )
+    )
+    custom_profile_k_rows = as_int(
+        get_first_available(
+            get_any(metadata, ["CustomProfileKRows", "custom_profile_k_rows"]),
+            get_any(metrics, ["custom_profile_k_rows", "CustomProfileKRows"]),
+            get_any(shared_run_conditions, ["CustomProfileKRows", "custom_profile_k_rows"]),
+        )
+    )
+    custom_profile_k_complete = as_bool(
+        get_first_available(
+            get_any(metadata, ["CustomProfileKComplete", "custom_profile_k_complete"]),
+            get_any(metrics, ["custom_profile_k_complete", "CustomProfileKComplete"]),
+            get_any(shared_run_conditions, ["CustomProfileKComplete", "custom_profile_k_complete"]),
+        )
+    )
+    k_column_status = str(
+        get_first_available(
+            get_any(metadata, ["KColumnStatus", "k_column_status"]),
+            get_any(metrics, ["k_column_status", "KColumnStatus"]),
+            get_any(shared_run_conditions, ["KColumnStatus", "k_column_status"]),
+        )
+        or ""
+    ).strip().lower()
+    synthetic_inlet_requested = as_bool(
+        get_first_available(
+            get_any(metadata, ["SyntheticTurbulentInletRequested", "synthetic_turbulent_inlet_requested"]),
+            get_any(metrics, ["synthetic_turbulent_inlet_requested", "SyntheticTurbulentInletRequested"]),
+            get_any(shared_run_conditions, ["SyntheticTurbulentInletRequested", "synthetic_turbulent_inlet_requested"]),
+        )
+    )
+    synthetic_inlet_injected = as_bool(
+        get_first_available(
+            get_any(metadata, ["SyntheticTurbulentInletInjected", "synthetic_turbulent_inlet_injected"]),
+            get_any(metrics, ["synthetic_turbulent_inlet_injected", "SyntheticTurbulentInletInjected"]),
+            get_any(shared_run_conditions, ["SyntheticTurbulentInletInjected", "synthetic_turbulent_inlet_injected"]),
+        )
+    )
+    synthetic_inlet_blocked_reason = str(
+        get_first_available(
+            get_any(metadata, ["SyntheticTurbulentInletBlockedReason", "synthetic_turbulent_inlet_blocked_reason"]),
+            get_any(metrics, ["synthetic_turbulent_inlet_blocked_reason", "SyntheticTurbulentInletBlockedReason"]),
+            get_any(shared_run_conditions, ["SyntheticTurbulentInletBlockedReason", "synthetic_turbulent_inlet_blocked_reason"]),
+        )
+        or ""
+    ).strip().lower()
+    custom_profile_present = (
+        wind_profile_text.lower() == "customtable"
+        or (custom_profile_rows is not None and custom_profile_rows >= 2)
+    )
+    k_rows_match_profile_rows = (
+        custom_profile_rows is not None
+        and custom_profile_k_rows is not None
+        and custom_profile_rows > 0
+        and custom_profile_k_rows == custom_profile_rows
+    )
+    k_complete = custom_profile_k_complete is True or k_rows_match_profile_rows
+    k_has_any = custom_profile_has_k is True or (custom_profile_k_rows is not None and custom_profile_k_rows > 0)
+    custom_k_reasons: List[str] = []
+    if custom_profile_present:
+        if custom_profile_rows is None or custom_profile_rows < 2:
+            custom_k_reasons.append("custom_profile_rows_missing_or_too_short")
+        if not k_has_any:
+            custom_k_reasons.append("custom_profile_k_missing")
+        elif not k_complete:
+            custom_k_reasons.append("custom_profile_k_column_incomplete")
+        if k_column_status in {"invalid_partial_k_column", "not_available"}:
+            custom_k_reasons.append(f"k_column_status:{k_column_status}")
+        elif not k_column_status:
+            custom_k_reasons.append("k_column_status_missing")
+    if (
+        synthetic_inlet_requested is True
+        and synthetic_inlet_injected is not True
+        and synthetic_inlet_blocked_reason == "custom_profile_k_column_incomplete"
+    ):
+        custom_k_reasons.append("synthetic_inlet_blocked_by_custom_profile_k_column")
+    add_gate(
+        gates,
+        "custom_k_profile",
+        PASS if not custom_k_reasons else FAIL,
+        (
+            f"wind_profile={wind_profile_text or 'missing'}; "
+            f"custom_profile_present={custom_profile_present}; "
+            f"custom_profile_rows={custom_profile_rows}; "
+            f"custom_profile_has_k={custom_profile_has_k}; "
+            f"custom_profile_k_rows={custom_profile_k_rows}; "
+            f"custom_profile_k_complete={custom_profile_k_complete}; "
+            f"k_rows_match_profile_rows={k_rows_match_profile_rows}; "
+            f"k_column_status={k_column_status or 'missing'}; "
+            f"synthetic_inlet_requested={synthetic_inlet_requested}; "
+            f"synthetic_inlet_injected={synthetic_inlet_injected}; "
+            f"synthetic_inlet_blocked_reason={synthetic_inlet_blocked_reason or 'missing'}; "
+            f"reasons={';'.join(custom_k_reasons) if custom_k_reasons else 'none'}"
+        ),
+        "For AIJ CustomTable validation, read a complete z,U,k AF table, keep one k value per profile row, archive k conversion metadata and regenerate the case before using inlet turbulence evidence.",
+    )
     inlet_profile_gate = str(get_any(inlet_profile_audit, ["inlet_profile_gate"]) or "").strip().lower()
     inlet_u_profile_gate = str(get_any(inlet_profile_audit, ["inlet_u_profile_gate"]) or "").strip().lower()
     inlet_k_profile_gate = str(get_any(inlet_profile_audit, ["inlet_k_profile_gate"]) or "").strip().lower()
@@ -4430,6 +4555,24 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     component_rmse_improvement = as_float(
         component_sensitivity_audit.get("component_rmse_improvement_ratio")
     )
+    selected_component_bias = as_float(
+        component_sensitivity_audit.get("selected_component_bias")
+    )
+    selected_component_scaled_bias = as_float(
+        component_sensitivity_audit.get("selected_component_scaled_bias")
+    )
+    selected_component_bias_reduction = as_float(
+        component_sensitivity_audit.get("selected_component_bias_abs_reduction_ratio")
+    )
+    selected_component_mean_sim = as_float(
+        component_sensitivity_audit.get("selected_component_mean_sim")
+    )
+    selected_component_mean_exp = as_float(
+        component_sensitivity_audit.get("selected_component_mean_exp")
+    )
+    selected_component_mean_ratio = as_float(
+        component_sensitivity_audit.get("selected_component_mean_sim_to_exp_ratio")
+    )
     normalization_best_scale = as_float(
         component_sensitivity_audit.get("selected_best_fit_scale_to_exp")
     )
@@ -4517,6 +4660,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"valid_probe_missing_compared_component_count={valid_probe_missing_component_count}; "
             f"best_component_by_rmse={best_component or 'missing'}; "
             f"selected_component_rmse={selected_component_rmse}; "
+            f"selected_component_bias={selected_component_bias}; "
+            f"selected_component_scaled_bias={selected_component_scaled_bias}; "
+            f"selected_component_bias_abs_reduction_ratio={selected_component_bias_reduction}; "
+            f"selected_component_mean_sim={selected_component_mean_sim}; "
+            f"selected_component_mean_exp={selected_component_mean_exp}; "
+            f"selected_component_mean_sim_to_exp_ratio={selected_component_mean_ratio}; "
             f"best_component_rmse={best_component_rmse}; "
             f"component_rmse_improvement_ratio={component_rmse_improvement}; "
             f"component_choice_not_explained={component_choice_not_explained}; "

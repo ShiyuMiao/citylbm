@@ -246,6 +246,125 @@ def expected_final_window_span(time_steps: Optional[int], save_interval: Optiona
     return final[-1] - final[0]
 
 
+def split_scalar_list(value: Any, separators: Tuple[str, ...] = (",", ";")) -> List[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    text = str(value or "").strip()
+    if not text:
+        return []
+    for separator in separators[1:]:
+        text = text.replace(separator, separators[0])
+    return [part.strip() for part in text.split(separators[0]) if part.strip()]
+
+
+def parse_int_list(value: Any) -> List[int]:
+    output: List[int] = []
+    for item in split_scalar_list(value):
+        parsed = as_int(item)
+        if parsed is not None:
+            output.append(parsed)
+    return output
+
+
+def parse_hash_list(value: Any) -> List[str]:
+    return [item.lower() for item in split_scalar_list(value) if item]
+
+
+def audit_source_steps(audit: Dict[str, Any]) -> List[int]:
+    return parse_int_list(audit.get("source_time_steps") or audit.get("source_time_steps_csv"))
+
+
+def audit_source_hashes(audit: Dict[str, Any]) -> List[str]:
+    hashes = parse_hash_list(audit.get("source_vtk_sha256") or audit.get("source_vtk_sha256_csv"))
+    if hashes:
+        return hashes
+    records = audit.get("selected_vtk_files")
+    if isinstance(records, list):
+        return [
+            str(record.get("sha256") or "").strip().lower()
+            for record in records
+            if isinstance(record, dict) and str(record.get("sha256") or "").strip()
+        ]
+    return []
+
+
+def runtime_source_hashes(runtime_audit: Dict[str, Any], runtime_steps: List[int]) -> List[str]:
+    records = runtime_audit.get("freshness_selected_vtk_files")
+    if isinstance(records, list) and records:
+        return [
+            str(record.get("sha256") or "").strip().lower()
+            for record in records
+            if isinstance(record, dict) and str(record.get("sha256") or "").strip()
+        ]
+    records = runtime_audit.get("vtk_files")
+    if not isinstance(records, list):
+        return []
+    selected_steps = set(runtime_steps)
+    output: List[Tuple[int, str]] = []
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        step = as_int(record.get("time_step"))
+        digest = str(record.get("sha256") or "").strip().lower()
+        if step is not None and step in selected_steps and digest:
+            output.append((step, digest))
+    return [digest for _, digest in sorted(output)]
+
+
+def append_source_window_reasons(
+    reasons: List[str],
+    label: str,
+    audit: Dict[str, Any],
+    runtime_steps: List[int],
+    runtime_hashes: List[str],
+) -> Dict[str, Any]:
+    audit_steps = audit_source_steps(audit)
+    audit_hashes = audit_source_hashes(audit)
+    steps_match = bool(runtime_steps) and audit_steps == runtime_steps
+    hashes_match = bool(runtime_hashes) and bool(audit_hashes) and set(audit_hashes) == set(runtime_hashes)
+    if audit:
+        if not runtime_steps:
+            reasons.append(f"{label}_runtime_source_time_steps_missing")
+        elif not audit_steps:
+            reasons.append(f"{label}_source_time_steps_missing")
+        elif not steps_match:
+            reasons.append(f"{label}_source_time_steps_mismatch")
+        if not runtime_hashes:
+            reasons.append(f"{label}_runtime_source_vtk_hashes_missing")
+        elif not audit_hashes:
+            reasons.append(f"{label}_source_vtk_hashes_missing")
+        elif not hashes_match:
+            reasons.append(f"{label}_source_vtk_hashes_mismatch")
+    return {
+        f"{label}_source_time_steps": audit_steps,
+        f"{label}_source_time_steps_match_runtime": steps_match,
+        f"{label}_source_vtk_sha256": audit_hashes,
+        f"{label}_source_vtk_sha256_match_runtime": hashes_match,
+    }
+
+
+def append_setup_hash_reason(reasons: List[str], label: str, audit: Dict[str, Any], setup_sha: str) -> Dict[str, Any]:
+    audit_sha = str(audit.get("setup_cpp_sha256") or "").strip().lower()
+    match = bool(audit_sha) and bool(setup_sha) and audit_sha == setup_sha
+    if audit:
+        if not audit_sha:
+            reasons.append(f"{label}_setup_cpp_sha256_missing")
+        elif not setup_sha:
+            reasons.append(f"{label}_current_setup_cpp_missing")
+        elif not match:
+            reasons.append(f"{label}_setup_cpp_sha256_mismatch")
+    return {
+        f"{label}_setup_cpp_sha256": audit_sha,
+        f"{label}_setup_cpp_sha256_matches_current": match,
+    }
+
+
+def probe_unique_values(rows: List[Dict[str, str]], field: str) -> List[str]:
+    return sorted({str(row.get(field) or "").strip() for row in rows if str(row.get(field) or "").strip()})
+
+
 def main() -> int:
     args = parse_args()
     run_dir = Path(args.run_dir).expanduser().resolve()
@@ -366,6 +485,14 @@ def main() -> int:
     if time_average_gate != "pass":
         reasons.append("runtime_time_averaging_gate_not_pass")
 
+    runtime_steps = audit_source_steps(runtime_audit)
+    runtime_hashes = runtime_source_hashes(runtime_audit, runtime_steps)
+    if runtime_audit:
+        if not runtime_steps:
+            reasons.append("runtime_source_time_steps_missing")
+        if not runtime_hashes:
+            reasons.append("runtime_source_vtk_hashes_missing")
+
     expected_vector = parse_vector(args.wind_vector)
     actual_vector = shared_wind_vector(shared)
     wind_delta = vector_delta(actual_vector, expected_vector) if expected_vector else None
@@ -403,6 +530,7 @@ def main() -> int:
         reasons.append("inlet_source_not_distribution_consistent")
     if inlet_velocity_only is True:
         reasons.append("inlet_source_velocity_field_only")
+    inlet_source_hash_check = append_setup_hash_reason(reasons, "inlet_source", inlet_source_audit, setup_sha)
 
     inlet_profile_gate = str(inlet_profile_audit.get("inlet_profile_gate") or "").strip().upper()
     inlet_u_profile_gate = str(inlet_profile_audit.get("inlet_u_profile_gate") or "").strip().upper()
@@ -424,6 +552,23 @@ def main() -> int:
         reasons.append("inlet_profile_frame_count_below_minimum")
     if inlet_profile_step_span is None or inlet_profile_step_span < args.min_avg_step_span:
         reasons.append("inlet_profile_step_span_too_short")
+    inlet_profile_window_check = append_source_window_reasons(
+        reasons,
+        "inlet_profile",
+        inlet_profile_audit,
+        runtime_steps,
+        runtime_hashes,
+    )
+    inlet_profile_af_sha = str(inlet_profile_audit.get("af_csv_sha256") or "").strip().lower()
+    inlet_profile_af_hash_matches = bool(inlet_profile_af_sha) and (
+        (bool(af_sha) and inlet_profile_af_sha == af_sha)
+        or (bool(manifest_af_sha) and inlet_profile_af_sha == manifest_af_sha)
+    )
+    if inlet_profile_audit:
+        if not inlet_profile_af_sha:
+            reasons.append("inlet_profile_af_csv_sha256_missing")
+        elif not inlet_profile_af_hash_matches:
+            reasons.append("inlet_profile_af_csv_sha256_mismatch")
 
     inlet_correlation_gate = str(inlet_correlation_audit.get("inlet_correlation_gate") or "").strip().upper()
     inlet_correlation_frame_count = as_int(inlet_correlation_audit.get("frame_count"))
@@ -436,6 +581,13 @@ def main() -> int:
         reasons.append("inlet_correlation_frame_count_below_minimum")
     if inlet_correlation_step_span is None or inlet_correlation_step_span < args.min_avg_step_span:
         reasons.append("inlet_correlation_step_span_too_short")
+    inlet_correlation_window_check = append_source_window_reasons(
+        reasons,
+        "inlet_correlation",
+        inlet_correlation_audit,
+        runtime_steps,
+        runtime_hashes,
+    )
 
     boundary_source_gate = str(boundary_source_audit.get("boundary_source_gate") or "").strip().lower()
     paper_boundary_source_gate = str(boundary_source_audit.get("paper_grade_boundary_source_gate") or "").strip().lower()
@@ -451,6 +603,7 @@ def main() -> int:
         reasons.append("boundary_source_not_wind_tunnel_equivalent")
     if boundary_source_simplified is True:
         reasons.append("boundary_source_simplified")
+    boundary_source_hash_check = append_setup_hash_reason(reasons, "boundary_source", boundary_source_audit, setup_sha)
 
     boundary_protocol_gate = str(boundary_protocol_audit.get("boundary_protocol_gate") or "").strip().lower()
     boundary_evidence_gate = str(boundary_protocol_audit.get("boundary_evidence_gate") or "").strip().lower()
@@ -480,6 +633,21 @@ def main() -> int:
         reasons.append("probe_audit_has_failed_rows")
     if expected_component and compared_components != {expected_component}:
         reasons.append("probe_compared_component_mismatch")
+    probe_source_steps_values = probe_unique_values(probe_rows, "vtk_source_time_steps")
+    probe_source_hash_values = probe_unique_values(probe_rows, "vtk_source_sha256")
+    probe_source_steps = parse_int_list(probe_source_steps_values[0]) if len(probe_source_steps_values) == 1 else []
+    probe_source_hashes = parse_hash_list(probe_source_hash_values[0]) if len(probe_source_hash_values) == 1 else []
+    probe_source_steps_match = bool(runtime_steps) and probe_source_steps == runtime_steps
+    probe_source_hashes_match = bool(runtime_hashes) and bool(probe_source_hashes) and set(probe_source_hashes) == set(runtime_hashes)
+    if probe_rows:
+        if len(probe_source_steps_values) != 1:
+            reasons.append("probe_source_time_steps_inconsistent_or_missing")
+        elif not probe_source_steps_match:
+            reasons.append("probe_source_time_steps_mismatch")
+        if len(probe_source_hash_values) != 1:
+            reasons.append("probe_source_vtk_hashes_inconsistent_or_missing")
+        elif not probe_source_hashes_match:
+            reasons.append("probe_source_vtk_hashes_mismatch")
 
     component_gate = str(component_sensitivity_audit.get("component_normalization_gate") or "").strip().lower()
     component_sensitivity_gate = str(component_sensitivity_audit.get("component_sensitivity_gate") or "").strip().lower()
@@ -533,6 +701,8 @@ def main() -> int:
         "planned_frame_count_min": min(frame_candidates) if frame_candidates else None,
         "planned_final_window_step_span": planned_span,
         "runtime_source_step_span": runtime_step_span,
+        "runtime_source_time_steps": runtime_steps,
+        "runtime_source_vtk_sha256": runtime_hashes,
         "runtime_time_averaging_gate": time_gate,
         "runtime_requested_vtk_frame_gate": requested_frame_gate,
         "inlet_source_audit": str(inlet_source_audit_path) if inlet_source_audit_path else "",
@@ -546,20 +716,30 @@ def main() -> int:
         "paper_grade_inlet_source_gate": paper_inlet_source_gate,
         "inlet_source_distribution_consistent": inlet_distribution_consistent,
         "inlet_source_velocity_field_only": inlet_velocity_only,
+        **inlet_source_hash_check,
         "inlet_profile_gate": inlet_profile_gate,
         "inlet_u_profile_gate": inlet_u_profile_gate,
         "inlet_k_profile_gate": inlet_k_profile_gate,
+        "inlet_profile_af_csv_sha256": inlet_profile_af_sha,
+        "inlet_profile_af_csv_sha256_matches_expected": inlet_profile_af_hash_matches,
+        **inlet_profile_window_check,
         "inlet_correlation_gate": inlet_correlation_gate,
+        **inlet_correlation_window_check,
         "boundary_source_gate": boundary_source_gate,
         "paper_grade_boundary_source_gate": paper_boundary_source_gate,
         "boundary_source_wind_tunnel_equivalent": boundary_source_equivalent,
         "boundary_source_simplified": boundary_source_simplified,
+        **boundary_source_hash_check,
         "boundary_protocol_gate": boundary_protocol_gate,
         "boundary_evidence_gate": boundary_evidence_gate,
         "probe_audit_row_count": len(probe_rows),
         "probe_audit_failed_row_count": len(failed_probe_rows),
         "probe_audit_compared_components": sorted(compared_components),
         "expected_compared_component": expected_component,
+        "probe_source_time_steps": probe_source_steps,
+        "probe_source_time_steps_match_runtime": probe_source_steps_match,
+        "probe_source_vtk_sha256": probe_source_hashes,
+        "probe_source_vtk_sha256_match_runtime": probe_source_hashes_match,
         "component_normalization_gate": component_gate,
         "component_sensitivity_gate": component_sensitivity_gate,
         "normalization_scale_gate": normalization_scale_gate,

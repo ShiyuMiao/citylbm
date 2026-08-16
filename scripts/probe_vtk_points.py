@@ -29,17 +29,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--official", required=True, help="Official RS/probe CSV with ID and x/y/z columns.")
     parser.add_argument("--out", required=True, help="Output Data-Probe-compatible CSV.")
     parser.add_argument("--pattern", default="u-*.vtk", help="VTK glob when input is a directory.")
-    parser.add_argument("--average-last-n", type=int, default=10, help="Average last N VTK frames before probing.")
+    parser.add_argument("--average-last-n", type=int, default=20, help="Average last N VTK frames before probing.")
     parser.add_argument(
         "--min-avg-frames",
         type=int,
-        default=10,
+        default=20,
         help="Minimum selected VTK frames required before writing a validation probe audit. Use 1 only for smoke tests.",
     )
     parser.add_argument(
         "--min-avg-step-span",
         type=int,
-        default=1000,
+        default=5000,
         help="Minimum solver-step span covered by the selected VTK averaging window. Use 0 only for smoke tests.",
     )
     parser.add_argument("--probe-id-column", default="", help="Official probe ID column. Auto-detected when omitted.")

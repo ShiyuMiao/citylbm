@@ -1,47 +1,43 @@
-﻿# No Pre-Compilation Required — Install & Run
+# CityLBM v0.3.0 FluidX3D Path Policy
 
-## FluidX3D Pre-Compilation Mechanism
+This file replaces the older "no compiler needed" draft. That draft described a bundled pre-compiled `FluidX3D.exe` workflow. It is not the validation policy for CityLBM v0.3.0.
 
-CityLBM embeds a **pre-compiled FluidX3D.exe** solver inside the `.gha` file.
+## What Runs Directly
 
-### User Experience
-- Install plugin → drag components → click Run → get results
-- **No C++ compiler, CUDA Toolkit, or Visual Studio installation needed**
+After installing the Grasshopper plugin, users can directly:
 
-### How It Works
+- open the CityLBM Grasshopper components;
+- build a scene, domain and grid;
+- import building geometry;
+- use `Run Simulation / Mode 0 = Generate Case`;
+- generate `setup.cpp`, `defines.hpp`, `domain_origin.json`, `case_metadata.json` and validation audit files;
+- inspect or share the generated case package.
 
-```
-CityLBM.gha (2.5 MB)
-  ├── CityLBM plugin code
-  ├── Newtonsoft.Json (merged via ILRepack)
-  ├── NLog (merged via ILRepack)
-  ├── Icon resources (22 PNGs)
-  ├── Validation files (AIJ Case A)
-  └── FluidX3D.exe ← pre-compiled GPU solver
-```
+This workflow does not require launching FluidX3D.
 
-On first run:
-1. Plugin automatically extracts `FluidX3D.exe` to `%APPDATA%\CityLBM\`
-2. Generates `grid_config.txt` from Grasshopper grid parameters
-3. Exports building geometry as `buildings.stl`
-4. Invokes `FluidX3D.exe` in headless mode (pure GPU compute, no window)
-5. Reads VTK output files back into Grasshopper for visualization
+## What Still Requires FluidX3D
 
-### Comparison: Traditional CFD vs. CityLBM
+Any real CFD solve requires `Run Simulation / FluidX3D Path` to point to an explicit local FluidX3D source/build root.
 
-| | Traditional CFD | CityLBM |
-|---|---|---|
-| Install steps | Install VS + CUDA + compile | Copy 1 file |
-| Solver config | Manually edit C++ headers | Grasshopper parameter panel |
-| Recompilation | Every grid change | Never (runtime config) |
-| Learning curve | C++ / CMake knowledge | Grasshopper basics |
+For v0.3.0 validation, the path should contain:
 
-### Modifying the Solver (Advanced)
+- `FluidX3D.sln`, `Makefile` or `CMakeLists.txt`;
+- `src/setup.cpp`;
+- `src/defines.hpp`;
+- `src/lbm.hpp`;
+- `src/lbm.cpp`.
 
-For advanced users who need to modify FluidX3D algorithms:
-1. Edit `FluidX3D/src/setup.cpp` and `defines.hpp`
-2. Compile new `FluidX3D.exe` with Make or Visual Studio
-3. Replace `src/Resources/FluidX3D/FluidX3D.exe`
-4. Rebuild CityLBM.gha via patcher
+CityLBM records this path and source validation in the native baseline manifest. Auto-detected paths or copied executables are not sufficient evidence for paper-grade Case A or Case E validation.
 
-For 99% of use cases, the default pre-compiled solver works perfectly.
+## Why This Is Stricter
+
+The goal of v0.3.0 is not a demo-only one-click package. It is a validation-ready research branch. For AIJ validation, the run package must prove which FluidX3D source, generated `setup.cpp`, grid, time steps, VTK frames, inlet treatment, boundary treatment and post-processing metrics produced the result.
+
+Bundling an opaque executable may be convenient for demonstrations, but it is weak evidence for SCI-level validation because the solver source, compile settings and boundary/inlet implementation cannot be audited.
+
+## Practical User Guidance
+
+- Use `Mode 0` when checking Grasshopper wiring or preparing a case.
+- Use `Mode 1/2/3` only after setting an explicit `FluidX3D Path`.
+- Archive the generated case directory, solver log, VTK files, `case_metadata.json`, `domain_origin.json`, `validation_protocol_audit.json` and metrics outputs.
+- Do not describe a run as paper-grade unless `validation_gate.py` passes with native FluidX3D baseline, time averaging, inlet U/k preservation, boundary evidence, probe mapping and grid-sensitivity evidence.

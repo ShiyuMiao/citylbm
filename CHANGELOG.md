@@ -15,6 +15,7 @@
 - Disabled the legacy bundled v0.5.0 fallback for controlled validation runs; users must provide an explicit external FluidX3D path.
 - Added optional experimental `Run Simulation / Synthetic Inlet` inputs for CustomTable profiles with `k`.
 - Generated FluidX3D cases can now use `k` for bounded STG-lite spectral inlet perturbations, with request/injection status and parameters recorded in `case_metadata.json`.
+- Synthetic inlet injection now requires `k` on every CustomTable profile row; partial `k` columns are blocked from STG-lite injection and recorded with `SyntheticTurbulentInletBlockedReason=custom_profile_k_column_incomplete`.
 - Synthetic inlet runs now refresh inlet perturbations at `SyntheticTurbulenceUpdateInterval` instead of tying updates to the VTK save interval.
 - Added generated `validation_protocol_audit.json/.md` so validation runs explicitly report inlet, boundary, averaging, coordinate, normalization and grid-resolution readiness.
 - Added `scripts/validation_gate.py` to fail run packages that lack paper-grade evidence for averaging, inlet U/k preservation, native baseline linkage, probe mapping, coordinate normalization or bounded error metrics.

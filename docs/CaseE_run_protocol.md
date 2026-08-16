@@ -320,11 +320,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Convert the `Data Probe` audit table and official `RS_caseE.csv` subset into a standard metrics row:
 
 ```powershell
-python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
+python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 20 --min-frames 20 --min-step-span 5000 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
 
-python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 10 --min-frames 10 --out-json <run_dir>\inlet_correlation_audit.json
+python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 20 --min-frames 20 --min-step-span 5000 --out-json <run_dir>\inlet_correlation_audit.json
 
-python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 10 --min-avg-frames 10 --min-avg-step-span 1000 --out <probe_audit.csv>
+python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 20 --min-avg-frames 20 --min-avg-step-span 5000 --out <probe_audit.csv>
 
 python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <official_data>\RS_caseE.csv --case ac --wind-direction N --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
 

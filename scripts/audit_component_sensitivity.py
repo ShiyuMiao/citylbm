@@ -47,6 +47,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-component-improvement-ratio", type=float, default=0.20)
     parser.add_argument("--max-best-scale-deviation", type=float, default=0.20)
     parser.add_argument("--min-scale-improvement-ratio", type=float, default=0.25)
+    parser.add_argument("--min-bias-scale-improvement-ratio", type=float, default=0.25)
     return parser.parse_args()
 
 
@@ -301,26 +302,43 @@ def component_metrics(
     errors = [sim - exp for sim, exp in zip(sim_values, exp_values)]
     abs_errors = [abs(error) for error in errors]
     u_rmse = rmse(errors)
+    bias = mean(errors)
     scale = best_scale_to_exp(sim_values, exp_values)
     scaled_errors = [scale * sim - exp for sim, exp in zip(sim_values, exp_values)] if scale is not None else []
     scaled_rmse = rmse(scaled_errors)
+    scaled_bias = mean(scaled_errors)
     improvement = 1.0 - scaled_rmse / u_rmse if scaled_rmse is not None and u_rmse is not None and u_rmse > 1.0e-12 else None
+    bias_reduction = (
+        1.0 - abs(scaled_bias) / abs(bias)
+        if scaled_bias is not None and bias is not None and abs(bias) > 1.0e-12
+        else None
+    )
     slope, intercept = regression(sim_values, exp_values)
+    mean_sim_value = mean(sim_values)
+    mean_exp_value = mean(exp_values)
+    mean_sim_to_exp_ratio = (
+        mean_sim_value / mean_exp_value
+        if mean_sim_value is not None and mean_exp_value is not None and abs(mean_exp_value) > 1.0e-12
+        else None
+    )
     return {
         "component": component,
         "valid_n": len(sim_values),
         "failed_n": failed,
         "MAE": mean(abs_errors),
         "RMSE": u_rmse,
-        "bias": mean(errors),
+        "bias": bias,
         "R2": r2_score(sim_values, exp_values),
         "slope": slope,
         "intercept": intercept,
-        "mean_sim": mean(sim_values),
-        "mean_exp": mean(exp_values),
+        "mean_sim": mean_sim_value,
+        "mean_exp": mean_exp_value,
+        "mean_sim_to_exp_ratio": mean_sim_to_exp_ratio,
         "best_fit_scale_to_exp": scale,
         "scaled_RMSE": scaled_rmse,
+        "scaled_bias": scaled_bias,
         "scaled_improvement_ratio": improvement,
+        "bias_abs_reduction_ratio": bias_reduction,
     }
 
 
@@ -387,6 +405,9 @@ def main() -> int:
     )
     selected_scale = as_float(selected.get("best_fit_scale_to_exp"))
     selected_scaled_improvement = as_float(selected.get("scaled_improvement_ratio"))
+    selected_bias = as_float(selected.get("bias"))
+    selected_scaled_bias = as_float(selected.get("scaled_bias"))
+    selected_bias_reduction = as_float(selected.get("bias_abs_reduction_ratio"))
     component_gate_reasons: List[str] = list(selected_component_reasons)
     if not selected_component:
         component_gate_reasons.append("selected_component_missing")
@@ -412,7 +433,15 @@ def main() -> int:
         component_gate_reasons.append("best_component_valid_n_does_not_match_official_id_count")
     normalization_gate_reasons: List[str] = []
     if selected_scale is not None and abs(selected_scale - 1.0) > args.max_best_scale_deviation:
-        if selected_scaled_improvement is not None and selected_scaled_improvement >= args.min_scale_improvement_ratio:
+        scale_explains_rmse = (
+            selected_scaled_improvement is not None
+            and selected_scaled_improvement >= args.min_scale_improvement_ratio
+        )
+        scale_explains_bias = (
+            selected_bias_reduction is not None
+            and selected_bias_reduction >= args.min_bias_scale_improvement_ratio
+        )
+        if scale_explains_rmse or scale_explains_bias:
             normalization_gate_reasons.append(
                 f"best_fit_scale_{selected_scale:.6g}_suggests_uref_or_unit_error"
             )
@@ -448,6 +477,12 @@ def main() -> int:
         **component_summary,
         "best_component_by_rmse": best["component"],
         "selected_component_rmse": selected.get("RMSE"),
+        "selected_component_bias": selected_bias,
+        "selected_component_scaled_bias": selected_scaled_bias,
+        "selected_component_bias_abs_reduction_ratio": selected_bias_reduction,
+        "selected_component_mean_sim": selected.get("mean_sim"),
+        "selected_component_mean_exp": selected.get("mean_exp"),
+        "selected_component_mean_sim_to_exp_ratio": selected.get("mean_sim_to_exp_ratio"),
         "best_component_rmse": best.get("RMSE"),
         "component_rmse_improvement_ratio": component_improvement,
         "selected_best_fit_scale_to_exp": selected_scale,
@@ -476,9 +511,12 @@ def main() -> int:
             "intercept",
             "mean_sim",
             "mean_exp",
+            "mean_sim_to_exp_ratio",
             "best_fit_scale_to_exp",
             "scaled_RMSE",
+            "scaled_bias",
             "scaled_improvement_ratio",
+            "bias_abs_reduction_ratio",
         ]
         with out_csv.open("w", encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(handle, fieldnames=fields)
@@ -486,12 +524,14 @@ def main() -> int:
             for row in metrics:
                 writer.writerow({field: fmt(row.get(field)) for field in fields})
     print(
-        "component_normalization_gate={gate}; selected={selected}; best={best}; improvement={improvement}; scale={scale}".format(
+        "component_normalization_gate={gate}; selected={selected}; best={best}; improvement={improvement}; scale={scale}; bias={bias}; scaled_bias={scaled_bias}".format(
             gate=overall_gate,
             selected=selected_component,
             best=best["component"],
             improvement=component_improvement,
             scale=selected_scale,
+            bias=selected_bias,
+            scaled_bias=selected_scaled_bias,
         )
     )
     return 0 if overall_gate == "pass" else 2
