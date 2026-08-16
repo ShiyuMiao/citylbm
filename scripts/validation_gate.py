@@ -4070,6 +4070,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     component_unmatched_valid_probe_id_count = as_int(
         component_sensitivity_audit.get("unmatched_valid_probe_id_count")
     )
+    component_missing_official_probe_id_count = as_int(
+        component_sensitivity_audit.get("missing_official_probe_id_count")
+    )
+    component_official_probe_coverage_ratio = as_float(
+        component_sensitivity_audit.get("official_probe_coverage_ratio")
+    )
     component_scope_ok = (
         component_scope_case_ok
         and component_scope_wind_ok
@@ -4081,7 +4087,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and component_valid_probe_id_count > 0
         and component_matched_valid_probe_id_count is not None
         and component_matched_valid_probe_id_count == component_valid_probe_id_count
+        and component_matched_valid_probe_id_count == component_official_id_count
+        and component_valid_probe_id_count == component_official_id_count
         and component_unmatched_valid_probe_id_count == 0
+        and component_missing_official_probe_id_count == 0
+        and component_official_probe_coverage_ratio is not None
+        and abs(component_official_probe_coverage_ratio - 1.0) <= 1.0e-12
     )
     valid_probe_components_raw = component_sensitivity_audit.get("valid_probe_compared_components")
     valid_probe_components = (
@@ -4185,6 +4196,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"component_valid_probe_id_count={component_valid_probe_id_count}; "
             f"component_matched_valid_probe_id_count={component_matched_valid_probe_id_count}; "
             f"component_unmatched_valid_probe_id_count={component_unmatched_valid_probe_id_count}; "
+            f"component_missing_official_probe_id_count={component_missing_official_probe_id_count}; "
+            f"component_official_probe_coverage_ratio={component_official_probe_coverage_ratio}; "
             f"component_scope_ok={component_scope_ok}; "
             f"selected_component={selected_component or 'missing'}; "
             f"selected_component_source={selected_component_source or 'missing'}; "

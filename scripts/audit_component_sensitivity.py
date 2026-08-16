@@ -355,6 +355,13 @@ def main() -> int:
         if not probe_row_failed(row) and normalized_probe_id(get_value(row, probe_id_col))
     }
     matched_valid_probe_ids = sorted(probe_id for probe_id in valid_probe_ids if probe_id in official_lookup)
+    unmatched_valid_probe_ids = sorted(probe_id for probe_id in valid_probe_ids if probe_id not in official_lookup)
+    missing_official_probe_ids = sorted(probe_id for probe_id in official_lookup if probe_id not in valid_probe_ids)
+    official_probe_coverage_ratio = (
+        len(matched_valid_probe_ids) / float(len(official_lookup))
+        if official_lookup
+        else None
+    )
     selected_component, selected_component_source, component_summary, selected_component_reasons = select_component(
         probe_rows,
         args.selected_component,
@@ -389,6 +396,20 @@ def main() -> int:
         component_gate_reasons.append(
             f"alternative_component_{best['component']}_improves_rmse_by_{component_improvement:.6g}"
         )
+    if not official_lookup:
+        component_gate_reasons.append("official_probe_id_lookup_empty")
+    if len(valid_probe_ids) <= 0:
+        component_gate_reasons.append("valid_probe_id_set_empty")
+    if unmatched_valid_probe_ids:
+        component_gate_reasons.append("valid_probe_ids_not_found_in_official")
+    if missing_official_probe_ids:
+        component_gate_reasons.append("official_probe_ids_missing_from_valid_probe_audit")
+    if official_lookup and len(valid_probe_ids) != len(official_lookup):
+        component_gate_reasons.append("valid_probe_id_count_does_not_match_official_id_count")
+    if selected.get("valid_n", 0) != len(official_lookup):
+        component_gate_reasons.append("selected_component_valid_n_does_not_match_official_id_count")
+    if best.get("valid_n", 0) != len(official_lookup):
+        component_gate_reasons.append("best_component_valid_n_does_not_match_official_id_count")
     normalization_gate_reasons: List[str] = []
     if selected_scale is not None and abs(selected_scale - 1.0) > args.max_best_scale_deviation:
         if selected_scaled_improvement is not None and selected_scaled_improvement >= args.min_scale_improvement_ratio:
@@ -413,7 +434,11 @@ def main() -> int:
         "probe_row_count": len(probe_rows),
         "valid_probe_id_count": len(valid_probe_ids),
         "matched_valid_probe_id_count": len(matched_valid_probe_ids),
-        "unmatched_valid_probe_id_count": len(valid_probe_ids) - len(matched_valid_probe_ids),
+        "unmatched_valid_probe_id_count": len(unmatched_valid_probe_ids),
+        "missing_official_probe_id_count": len(missing_official_probe_ids),
+        "official_probe_coverage_ratio": official_probe_coverage_ratio,
+        "unmatched_valid_probe_ids_sample": unmatched_valid_probe_ids[:20],
+        "missing_official_probe_ids_sample": missing_official_probe_ids[:20],
         "official_id_column": official_id_col,
         "official_value_column": official_value_col,
         "probe_id_column": probe_id_col,

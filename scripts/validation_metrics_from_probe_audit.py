@@ -285,6 +285,8 @@ TEMPLATE_FIELDS = [
     "component_sensitivity_valid_probe_id_count",
     "component_sensitivity_matched_valid_probe_id_count",
     "component_sensitivity_unmatched_valid_probe_id_count",
+    "component_sensitivity_missing_official_probe_id_count",
+    "component_sensitivity_official_probe_coverage_ratio",
     "component_normalization_gate",
     "component_sensitivity_gate",
     "normalization_scale_gate",
@@ -1692,6 +1694,12 @@ def main() -> int:
             ),
             "component_sensitivity_unmatched_valid_probe_id_count": fmt(
                 audit_int(component_sensitivity_audit, "unmatched_valid_probe_id_count")
+            ),
+            "component_sensitivity_missing_official_probe_id_count": fmt(
+                audit_int(component_sensitivity_audit, "missing_official_probe_id_count")
+            ),
+            "component_sensitivity_official_probe_coverage_ratio": fmt(
+                audit_float(component_sensitivity_audit, "official_probe_coverage_ratio")
             ),
             "component_normalization_gate": audit_gate(component_sensitivity_audit, "component_normalization_gate"),
             "component_sensitivity_gate": audit_gate(component_sensitivity_audit, "component_sensitivity_gate"),
