@@ -167,8 +167,13 @@ TEMPLATE_FIELDS = [
     "inlet_source_has_inlet_distribution_reconstruction",
     "inlet_source_inlet_distribution_reconstruction_count",
     "inlet_source_has_digital_filter_evidence",
+    "inlet_source_has_digital_filter_kernel_evidence",
+    "inlet_source_has_digital_filter_state_evidence",
     "inlet_source_has_sem_evidence",
+    "inlet_source_has_sem_eddy_population_evidence",
     "inlet_source_has_precursor_or_recycling_evidence",
+    "inlet_source_has_precursor_recycling_field_evidence",
+    "inlet_source_distribution_consistency_basis",
     "inlet_source_setup_sha256",
     "inlet_source_synthetic_requested",
     "inlet_source_has_synthetic_function",
@@ -1478,11 +1483,26 @@ def main() -> int:
             "inlet_source_has_digital_filter_evidence": first_bool_text(
                 inlet_source_audit.get("has_digital_filter_evidence")
             ),
+            "inlet_source_has_digital_filter_kernel_evidence": first_bool_text(
+                inlet_source_audit.get("has_digital_filter_kernel_evidence")
+            ),
+            "inlet_source_has_digital_filter_state_evidence": first_bool_text(
+                inlet_source_audit.get("has_digital_filter_state_evidence")
+            ),
             "inlet_source_has_sem_evidence": first_bool_text(
                 inlet_source_audit.get("has_sem_evidence")
             ),
+            "inlet_source_has_sem_eddy_population_evidence": first_bool_text(
+                inlet_source_audit.get("has_sem_eddy_population_evidence")
+            ),
             "inlet_source_has_precursor_or_recycling_evidence": first_bool_text(
                 inlet_source_audit.get("has_precursor_or_recycling_evidence")
+            ),
+            "inlet_source_has_precursor_recycling_field_evidence": first_bool_text(
+                inlet_source_audit.get("has_precursor_recycling_field_evidence")
+            ),
+            "inlet_source_distribution_consistency_basis": audit_field(
+                inlet_source_audit, "distribution_consistency_basis"
             ),
             "inlet_source_setup_sha256": audit_field(inlet_source_audit, "setup_cpp_sha256"),
             "inlet_source_synthetic_requested": first_bool_text(

@@ -44,6 +44,9 @@
 - The inlet correlation gate now independently enforces the audited final-window source steps and numeric correlation thresholds, so RMS/k-preserving but uncorrelated or wrong-window inlet fluctuations cannot pass through a hand-filled `inlet_correlation_gate`.
 - Inlet `U/k` preservation now requires real archived final-window source steps from `audit_inlet_profile_from_vtk.py`; `empty_tunnel_gate=pass` or bias values alone cannot satisfy the inlet evidence gate without the source-window audit.
 - Added `scripts/audit_inlet_source.py`; validation packages must now archive `inlet_source_audit.json` with the generated `setup.cpp` hash, inlet implementation class and distribution-consistency evidence before turbulent-inlet claims are accepted.
+- `audit_inlet_source.py` now separates advanced inlet method names from implementation evidence: digital-filter claims
+  require filter-kernel and spatiotemporal-state evidence, SEM claims require an eddy-population state, and
+  precursor/recycling claims require recycled/precursor field evidence.
 - The paper-grade inlet-method gate now requires an explicit supported `inlet_method_class` plus distribution-consistent treatment; a protocol pass flag or method-name-only metadata can no longer pass the turbulent-inlet evidence gate.
 - Added `scripts/audit_grid_sensitivity.py`; `validation_gate.py` now requires `grid_sensitivity_audit.json` with at
   least two matched dx levels, bounded finest-vs-coarser RMSE/bias change, and a finest dx matching the metrics row.

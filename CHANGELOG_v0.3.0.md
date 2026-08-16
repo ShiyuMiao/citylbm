@@ -323,6 +323,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   function tokens from inlet-context distribution reconstruction. Digital-filter or SEM/DFM source claims require
   `has_inlet_distribution_reconstruction=true`; stray `lbm.f`, `feq` or `stress_ddf` code outside an inlet/`TYPE_E`
   reconstruction context is recorded as diagnostic evidence but cannot make the inlet paper-grade.
+- `scripts/audit_inlet_source.py` now requires method-specific advanced-inlet evidence before classifying an inlet as
+  distribution-consistent: digital-filter/DFM claims must expose a filter kernel and spatiotemporal filter state, SEM
+  claims must expose an eddy-population state, and precursor/recycling claims must expose recycled or precursor field
+  evidence. A method function name alone is reported as named-method-only evidence and fails paper-grade inlet source
+  promotion.
 - `validation_gate.py`, `validation_metrics_from_probe_audit.py` and `docs/validation_metrics_template.csv` now carry the
   same STG run-loop evidence fields. A stale `inlet_source_audit.json` without those fields no longer satisfies
   `inlet_source_evidence` for STG-like inlets.

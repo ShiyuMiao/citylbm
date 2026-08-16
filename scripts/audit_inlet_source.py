@@ -249,21 +249,88 @@ def main() -> int:
     distribution_evidence = distribution_reconstruction_evidence(implementation_source)
     has_distribution_write = distribution_evidence["has_distribution_function_write"]
     has_inlet_distribution_reconstruction = distribution_evidence["has_inlet_distribution_reconstruction"]
-    has_digital_filter_token = contains_any(audited_source, ["digital_filter", "digital-filter", "dfm", "filter kernel"])
-    has_sem_token = contains_any(audited_source, ["synthetic_eddy_method", "sem_distribution", "synthetic eddy method"])
-    has_precursor_token = contains_any(audited_source, ["precursor", "recycling_rescaling", "recycling-rescaling"])
+    has_digital_filter_token = contains_any(implementation_source, ["digital_filter", "digital-filter", "dfm", "filter kernel"])
+    has_sem_token = contains_any(implementation_source, ["synthetic_eddy_method", "sem_distribution", "synthetic eddy method"])
+    has_precursor_token = contains_any(implementation_source, ["precursor", "recycling_rescaling", "recycling-rescaling"])
     has_digital_filter = (
         has_regex(implementation_source, r"\b\w*(digital_filter|digitalfilter|dfm)\w*\s*\(")
         or has_regex(implementation_source, r"\b(filter_kernel|filterKernel)\w*\s*(\[|=|\{)")
+    )
+    has_digital_filter_kernel = has_regex(
+        implementation_source,
+        r"\b\w*(digital_filter_kernel|digitalFilterKernel|filter_kernel|filterKernel|dfm_kernel|dfmKernel)\w*\s*(\[|=|\{|\()",
+    )
+    has_digital_filter_state = contains_any(
+        implementation_source,
+        [
+            "filtered_random_field",
+            "filter_state",
+            "digital_filter_state",
+            "temporal_filter",
+            "spatial_filter",
+            "inlet_fluctuation_field",
+            "streamwise_filter_buffer",
+            "filter_history",
+        ],
     )
     has_sem = (
         has_regex(implementation_source, r"\b\w*(synthetic_eddy|syntheticEddy|sem_distribution|semDistribution)\w*\s*\(")
         or has_regex(implementation_source, r"\b(sem_eddy|semEddy|eddy_center|eddyCenter)\w*\s*(\[|=|\{)")
     )
+    has_sem_eddy_population = contains_any(
+        implementation_source,
+        [
+            "eddy_center",
+            "eddyCenter",
+            "eddy_radius",
+            "eddyRadius",
+            "eddy_strength",
+            "eddyStrength",
+            "eddy_lifetime",
+            "eddyLifetime",
+            "sem_eddy",
+            "semEddy",
+        ],
+    )
     has_precursor = has_regex(
         implementation_source,
         r"\b\w*(precursor|recycling_rescaling|recyclingRescaling|recycle_rescale|recycleRescale)\w*\s*\(",
     )
+    has_precursor_recycling_field = contains_any(
+        implementation_source,
+        [
+            "precursor_velocity",
+            "precursorVelocity",
+            "precursor_field",
+            "precursorField",
+            "recycling_plane",
+            "recyclingPlane",
+            "recycle_plane",
+            "recyclePlane",
+            "recycling_buffer",
+            "recyclingBuffer",
+            "rescale_profile",
+            "rescaleProfile",
+            "inflow_database",
+            "inflowDatabase",
+            "stored_inflow",
+            "storedInflow",
+            "precursor_vtk",
+            "precursorVtk",
+        ],
+    )
+    has_distribution_consistent_digital_filter = (
+        has_digital_filter
+        and has_digital_filter_kernel
+        and has_digital_filter_state
+        and has_inlet_distribution_reconstruction
+    )
+    has_distribution_consistent_sem = (
+        has_sem
+        and has_sem_eddy_population
+        and has_inlet_distribution_reconstruction
+    )
+    has_distribution_consistent_precursor = has_precursor and has_precursor_recycling_field
     advanced_token_only = (
         (has_digital_filter_token and not has_digital_filter)
         or (has_sem_token and not has_sem)
@@ -331,16 +398,18 @@ def main() -> int:
     )
 
     source_method_class = "none"
-    if has_precursor:
+    if has_distribution_consistent_precursor:
         source_method_class = "precursor_or_recycling"
-    elif has_digital_filter and has_inlet_distribution_reconstruction:
+    elif has_distribution_consistent_digital_filter:
         source_method_class = "digital_filter_distribution_consistent"
-    elif has_sem and has_inlet_distribution_reconstruction:
+    elif has_distribution_consistent_sem:
         source_method_class = "synthetic_eddy_distribution_consistent"
     elif has_stg_function and has_velocity_field_write and (has_spectral_modes or has_taylor_advection or has_transverse_projection):
         source_method_class = "stg_lite_correlated_velocity_field_only"
     elif has_stg_function and has_velocity_field_write:
         source_method_class = "stg_lite_velocity_field_only"
+    elif has_precursor:
+        source_method_class = "named_method_without_precursor_recycling_field_evidence"
     elif has_digital_filter or has_sem:
         source_method_class = "named_method_without_distribution_evidence"
     elif has_velocity_field_write:
@@ -351,18 +420,31 @@ def main() -> int:
         "digital_filter_distribution_consistent",
         "synthetic_eddy_distribution_consistent",
     }
-    advanced_code_evidence = has_digital_filter or has_sem or has_precursor
+    advanced_code_evidence = (
+        has_distribution_consistent_digital_filter
+        or has_distribution_consistent_sem
+        or has_distribution_consistent_precursor
+    )
     source_velocity_only = source_method_class in {
         "stg_lite_velocity_field_only",
         "stg_lite_correlated_velocity_field_only",
         "mean_profile_velocity_field_only",
         "named_method_without_distribution_evidence",
+        "named_method_without_precursor_recycling_field_evidence",
     }
 
     if synthetic_requested and not has_stg_function and not has_digital_filter and not has_sem and not has_precursor:
         reasons.append("metadata_requests_turbulent_inlet_but_source_has_no_inlet_method")
     if advanced_token_only:
         reasons.append("advanced_inlet_method_tokens_without_code_evidence")
+    if has_digital_filter and not has_digital_filter_kernel:
+        reasons.append("digital_filter_source_missing_filter_kernel")
+    if has_digital_filter and not has_digital_filter_state:
+        reasons.append("digital_filter_source_missing_spatiotemporal_filter_state")
+    if has_sem and not has_sem_eddy_population:
+        reasons.append("sem_source_missing_eddy_population")
+    if has_precursor and not has_precursor_recycling_field:
+        reasons.append("precursor_recycling_source_missing_recycled_field_evidence")
     if synthetic_requested and has_stg_function and not has_k_profile:
         reasons.append("synthetic_inlet_source_missing_profile_k_lbm")
     if synthetic_requested and has_stg_function and not has_stg_refresh_loop:
@@ -431,10 +513,23 @@ def main() -> int:
         "inlet_source_advanced_code_evidence": advanced_code_evidence,
         "has_digital_filter_evidence": has_digital_filter,
         "has_digital_filter_token": has_digital_filter_token,
+        "has_digital_filter_kernel_evidence": has_digital_filter_kernel,
+        "has_digital_filter_state_evidence": has_digital_filter_state,
         "has_sem_evidence": has_sem,
         "has_sem_token": has_sem_token,
+        "has_sem_eddy_population_evidence": has_sem_eddy_population,
         "has_precursor_or_recycling_evidence": has_precursor,
         "has_precursor_or_recycling_token": has_precursor_token,
+        "has_precursor_recycling_field_evidence": has_precursor_recycling_field,
+        "distribution_consistency_basis": (
+            "precursor_or_recycling_field"
+            if has_distribution_consistent_precursor
+            else "digital_filter_kernel_state_distribution_reconstruction"
+            if has_distribution_consistent_digital_filter
+            else "sem_eddy_population_distribution_reconstruction"
+            if has_distribution_consistent_sem
+            else "missing"
+        ),
         "advanced_inlet_method_token_only": advanced_token_only,
         "has_spectral_mode_evidence": has_spectral_modes,
         "synthetic_inlet_spectral_mode_count": stg_mode_count,
