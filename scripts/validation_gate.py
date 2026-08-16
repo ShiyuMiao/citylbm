@@ -2804,6 +2804,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit_has_segmented_stg_run_loop = as_bool(
         get_any(inlet_source_audit, ["has_segmented_stg_run_loop"])
     )
+    audit_has_uncorrelated_random_inlet = as_bool(
+        get_any(inlet_source_audit, ["has_uncorrelated_random_inlet"])
+    )
+    audit_inlet_correlation_model = str(
+        get_any(inlet_source_audit, ["synthetic_inlet_correlation_model"]) or ""
+    ).strip()
     audit_has_inlet_length_scale_evidence = as_bool(
         get_any(inlet_source_audit, ["has_length_scale_evidence"])
     )
@@ -3065,6 +3071,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and inlet_source_setup_hash_matches
         and audit_inlet_source_comment_stripped is True
         and audit_stg_run_loop_ok
+        and audit_has_uncorrelated_random_inlet is not True
     )
     add_gate(
         gates,
@@ -3104,6 +3111,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"audit_has_update_interval_run_control={audit_has_update_interval_run_control}; "
             f"audit_has_segmented_stg_run_loop={audit_has_segmented_stg_run_loop}; "
             f"audit_stg_run_loop_ok={audit_stg_run_loop_ok}; "
+            f"audit_has_uncorrelated_random_inlet={audit_has_uncorrelated_random_inlet}; "
+            f"audit_inlet_correlation_model={audit_inlet_correlation_model or 'missing'}; "
             f"inlet_source_gate_reasons={inlet_source_reasons or 'none'}; "
             f"metrics_inlet_source_gate={get_any(metrics, ['inlet_source_gate', 'InletSourceGate']) or 'ignored'}; "
             f"metrics_paper_grade_inlet_source_gate={get_any(metrics, ['paper_grade_inlet_source_gate', 'PaperGradeInletSourceGate']) or 'ignored'}; "
@@ -3134,6 +3143,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and audit_inlet_source_distribution_consistent is True
         and audit_inlet_source_velocity_field_only is not True
         and audit_inlet_source_comment_stripped is True
+        and audit_has_uncorrelated_random_inlet is not True
         and paper_method_class_ok
         and (
             treatment_distribution_consistent
@@ -3164,6 +3174,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"audit_has_digital_filter_state={audit_has_digital_filter_state}; "
             f"audit_has_sem_eddy_population={audit_has_sem_eddy_population}; "
             f"audit_has_precursor_recycling_field={audit_has_precursor_recycling_field}; "
+            f"audit_has_uncorrelated_random_inlet={audit_has_uncorrelated_random_inlet}; "
+            f"audit_inlet_correlation_model={audit_inlet_correlation_model or 'missing'}; "
             f"treatment={inlet_treatment or 'missing'}; "
             f"inlet_distribution_consistency={distribution_status or 'missing'}; "
             f"velocity_field_only={treatment_velocity_only}; "

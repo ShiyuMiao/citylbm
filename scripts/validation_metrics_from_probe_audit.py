@@ -191,6 +191,8 @@ TEMPLATE_FIELDS = [
     "inlet_source_refresh_with_current_time",
     "inlet_source_update_interval_run_control",
     "inlet_source_segmented_stg_run_loop",
+    "inlet_source_has_uncorrelated_random_inlet",
+    "inlet_source_correlation_model",
     "synthetic_inlet_method",
     "inlet_distribution_treatment",
     "inlet_method_class",
@@ -1568,6 +1570,12 @@ def main() -> int:
             ),
             "inlet_source_segmented_stg_run_loop": first_bool_text(
                 inlet_source_audit.get("has_segmented_stg_run_loop")
+            ),
+            "inlet_source_has_uncorrelated_random_inlet": first_bool_text(
+                inlet_source_audit.get("has_uncorrelated_random_inlet")
+            ),
+            "inlet_source_correlation_model": audit_field(
+                inlet_source_audit, "synthetic_inlet_correlation_model"
             ),
             "synthetic_inlet_method": infer_synthetic_inlet_method(metadata),
             "inlet_distribution_treatment": infer_inlet_distribution_treatment(metadata),

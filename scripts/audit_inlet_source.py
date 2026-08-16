@@ -396,6 +396,44 @@ def main() -> int:
         implementation_source,
         ["citylbm_stg_max_fraction", "max_fraction", "amplitude cap"],
     )
+    random_source_tokens = [
+        r"\brand\s*\(",
+        r"\brandom\s*\(",
+        r"\bstd\s*::\s*rand\s*\(",
+        r"\bcurand\w*\s*\(",
+        r"\bwhite_noise\b",
+        r"\bper_node_random\b",
+        r"\bnode_random\b",
+        r"\buncorrelated_random\b",
+        r"\brms_random\b",
+    ]
+    random_source_matches = [
+        pattern for pattern in random_source_tokens if has_regex(implementation_source, pattern)
+    ]
+    random_inlet_context = has_regex(
+        implementation_source,
+        r"(applySyntheticTurbulentInlet|syntheticTurbulentInlet|TYPE_E|profile_k_lbm|sigma)\b",
+    )
+    has_uncorrelated_random_inlet = (
+        bool(random_source_matches)
+        and random_inlet_context
+        and has_velocity_field_write
+        and not (has_spectral_modes and has_taylor_advection and has_transverse_projection)
+    )
+    if has_distribution_consistent_precursor:
+        synthetic_correlation_model = "precursor_or_recycling"
+    elif has_distribution_consistent_digital_filter:
+        synthetic_correlation_model = "digital_filter_distribution_consistent"
+    elif has_distribution_consistent_sem:
+        synthetic_correlation_model = "synthetic_eddy_distribution_consistent"
+    elif has_spectral_modes and has_taylor_advection and has_transverse_projection:
+        synthetic_correlation_model = "spectral_taylor_projected_velocity_field_only"
+    elif has_uncorrelated_random_inlet:
+        synthetic_correlation_model = "uncorrelated_random_rms_velocity_field_only"
+    elif has_stg_function and has_velocity_field_write:
+        synthetic_correlation_model = "velocity_field_only_without_correlation_evidence"
+    else:
+        synthetic_correlation_model = "none"
 
     source_method_class = "none"
     if has_distribution_consistent_precursor:
@@ -469,6 +507,8 @@ def main() -> int:
         reasons.append("synthetic_inlet_refresh_not_coupled_to_segmented_lbm_run")
     if synthetic_requested and has_stg_function and not has_bounded_amplitude:
         reasons.append("synthetic_inlet_missing_amplitude_cap")
+    if synthetic_requested and has_uncorrelated_random_inlet:
+        reasons.append("synthetic_inlet_uses_uncorrelated_random_rms")
 
     metadata_claims_distribution = any(
         token in " ".join([metadata_treatment, metadata_class]).lower()
@@ -543,6 +583,9 @@ def main() -> int:
         "has_update_interval_run_control": has_update_interval_run_control,
         "has_segmented_stg_run_loop": has_segmented_stg_run_loop,
         "has_bounded_amplitude": has_bounded_amplitude,
+        "has_uncorrelated_random_inlet": has_uncorrelated_random_inlet,
+        "uncorrelated_random_inlet_patterns": random_source_matches,
+        "synthetic_inlet_correlation_model": synthetic_correlation_model,
         "inlet_source_method_class": source_method_class,
         "inlet_source_distribution_consistent": source_distribution_consistent,
         "inlet_source_velocity_field_only": source_velocity_only,
