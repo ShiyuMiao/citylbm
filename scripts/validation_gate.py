@@ -66,6 +66,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-normalization-scaled-improvement-ratio", type=float, default=0.25)
     parser.add_argument("--min-inlet-temporal-finite-fraction", type=float, default=0.80)
     parser.add_argument("--min-inlet-spatial-finite-fraction", type=float, default=0.80)
+    parser.add_argument("--min-inlet-correlation-sample-count", type=int, default=100)
+    parser.add_argument("--min-inlet-correlation-adjacent-pair-count", type=int, default=100)
     parser.add_argument("--min-inlet-streamwise-variance", type=float, default=1.0e-12)
     parser.add_argument("--min-inlet-temporal-lag1-correlation", type=float, default=0.10)
     parser.add_argument("--min-inlet-spatial-adjacent-correlation", type=float, default=0.05)
@@ -3069,6 +3071,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_spatial_finite_fraction = as_float(
         get_any(inlet_correlation_audit, ["spatial_finite_correlation_fraction"])
     )
+    inlet_correlation_sample_count = as_int(
+        get_any(inlet_correlation_audit, ["sample_count"])
+    )
+    inlet_correlation_adjacent_pair_count = as_int(
+        get_any(inlet_correlation_audit, ["adjacent_pair_count"])
+    )
     metric_inlet_correlation_audit = str(
         get_any(metrics, ["inlet_correlation_audit", "InletCorrelationAudit"]) or ""
     ).strip()
@@ -3093,6 +3101,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     inlet_spatial_finite_fraction = as_float(
         get_any(inlet_correlation_audit, ["spatial_finite_correlation_fraction"])
+    )
+    inlet_correlation_sample_count = as_int(
+        get_any(inlet_correlation_audit, ["sample_count"])
+    )
+    inlet_correlation_adjacent_pair_count = as_int(
+        get_any(inlet_correlation_audit, ["adjacent_pair_count"])
     )
     inlet_correlation_audit_exists = bool(inlet_correlation_audit_path and inlet_correlation_audit_path.exists())
     inlet_correlation_source_steps = get_first_available(
@@ -3188,6 +3202,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and inlet_temporal_finite_fraction >= args.min_inlet_temporal_finite_fraction
         and inlet_spatial_finite_fraction is not None
         and inlet_spatial_finite_fraction >= args.min_inlet_spatial_finite_fraction
+        and inlet_correlation_sample_count is not None
+        and inlet_correlation_sample_count >= args.min_inlet_correlation_sample_count
+        and inlet_correlation_adjacent_pair_count is not None
+        and inlet_correlation_adjacent_pair_count >= args.min_inlet_correlation_adjacent_pair_count
     )
     inlet_correlation_values_ok = (
         inlet_streamwise_variance is not None
@@ -3220,6 +3238,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"required >= {args.min_inlet_temporal_finite_fraction}; "
             f"spatial_finite_correlation_fraction={inlet_spatial_finite_fraction}; "
             f"required >= {args.min_inlet_spatial_finite_fraction}; "
+            f"inlet_correlation_sample_count={inlet_correlation_sample_count}; "
+            f"required >= {args.min_inlet_correlation_sample_count}; "
+            f"inlet_correlation_adjacent_pair_count={inlet_correlation_adjacent_pair_count}; "
+            f"required >= {args.min_inlet_correlation_adjacent_pair_count}; "
             f"inlet_correlation_source_time_steps={inlet_correlation_source_step_text or 'missing'}; "
             f"expected_source_time_steps={source_step_text or 'missing'}; "
             f"expected_source_hashes={expected_source_hash_text or 'missing'}; "
@@ -4097,6 +4119,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "min_normalization_scaled_improvement_ratio": args.min_normalization_scaled_improvement_ratio,
             "min_inlet_temporal_finite_fraction": args.min_inlet_temporal_finite_fraction,
             "min_inlet_spatial_finite_fraction": args.min_inlet_spatial_finite_fraction,
+            "min_inlet_correlation_sample_count": args.min_inlet_correlation_sample_count,
+            "min_inlet_correlation_adjacent_pair_count": args.min_inlet_correlation_adjacent_pair_count,
             "max_frontal_blockage_ratio": args.max_frontal_blockage_ratio,
             "max_estimated_mach": args.max_estimated_mach,
             "min_lbm_tau": args.min_lbm_tau,

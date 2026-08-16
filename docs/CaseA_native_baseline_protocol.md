@@ -177,7 +177,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    The final gate independently checks this audit rather than trusting a summary flag: the correlation source time steps
    must match the global averaged `source_time_steps`, the window must be the final uniformly spaced window, and the
    default thresholds require streamwise variance `>1e-12`, temporal lag-1 correlation `>=0.10` and spatial adjacent
-   correlation `>=0.05`.
+   correlation `>=0.05`. The default audit also requires at least 100 sampled inlet-plane points and 100 adjacent
+   spatial pairs; smaller sparse samples remain diagnostic even if their finite-correlation fractions are high.
    The metrics CSV may summarize `inlet_source_*` and `inlet_correlation_*` fields, but it is not accepted as a substitute
    for the archived source-audit JSON and VTK correlation-audit JSON.
    The final gate also reads inlet `U(z)`, `k(z)`, streamwise-direction and inlet-window pass/fail fields directly from
@@ -337,7 +338,8 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
   `inlet_profile_gate`.
 - Inlet correlation-audit JSON from the same final-window VTK frames, including `inlet_correlation_gate`,
   `temporal_lag1_mean_correlation`, `temporal_lag1_abs_mean_correlation`, `spatial_adjacent_mean_correlation` and
-  `mean_streamwise_fluctuation_variance`, plus temporal/spatial finite correlation fractions.
+  `mean_streamwise_fluctuation_variance`, plus `sample_count`, `adjacent_pair_count` and temporal/spatial finite
+  correlation fractions.
   The metrics row must also carry `inlet_correlation_source_time_steps`, `inlet_correlation_frame_count`,
   `inlet_correlation_selected_last_window`, `inlet_correlation_source_steps_strictly_increasing` and
   `inlet_correlation_source_step_spacing_uniform`.

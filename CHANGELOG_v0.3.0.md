@@ -248,6 +248,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - The inlet correlation audit now gates on signed positive temporal lag-1 correlation, not only absolute lag-1
   correlation. This prevents alternating or white-noise-like RMS/k perturbations from passing as physically correlated
   turbulent inflow evidence.
+- `audit_inlet_correlation_from_vtk.py` and `validation_gate.py` now require a minimum inlet-plane sample count and
+  adjacent spatial-pair count in addition to finite temporal/spatial correlation fractions. Sparse final-window samples
+  can no longer pass the turbulent-inlet correlation gate by reporting high fractions over too few points.
 - `validation_gate.py` now requires inlet-source and inlet-correlation pass evidence to come from the archived
   `inlet_source_audit.json` and `inlet_correlation_audit.json` values themselves. Metrics CSV fields can summarize
   those audits, but cannot replace the generated-source hash or final-window VTK correlation audit.

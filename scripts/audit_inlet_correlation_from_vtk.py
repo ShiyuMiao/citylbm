@@ -66,6 +66,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--plane-tolerance", type=float, default=None)
     parser.add_argument("--velocity-scale", type=float, default=1.0)
     parser.add_argument("--sample-limit", type=int, default=20000)
+    parser.add_argument("--min-sample-count", type=int, default=100)
+    parser.add_argument("--min-adjacent-pair-count", type=int, default=100)
     parser.add_argument("--min-streamwise-variance", type=float, default=1.0e-12)
     parser.add_argument("--min-temporal-lag1-correlation", type=float, default=0.10)
     parser.add_argument("--min-spatial-adjacent-correlation", type=float, default=0.05)
@@ -222,6 +224,10 @@ def main() -> int:
         reasons.append(f"source_step_span_below_{args.min_step_span}")
     if mean_variance is None or mean_variance <= args.min_streamwise_variance:
         reasons.append("streamwise_fluctuation_variance_missing_or_too_small")
+    if len(selected) < args.min_sample_count:
+        reasons.append(f"sample_count_below_{args.min_sample_count}")
+    if len(pairs) < args.min_adjacent_pair_count:
+        reasons.append(f"adjacent_pair_count_below_{args.min_adjacent_pair_count}")
     if temporal_corr is None or temporal_corr < args.min_temporal_lag1_correlation:
         reasons.append(
             f"temporal_lag1_correlation_below_{args.min_temporal_lag1_correlation:.6g}"
@@ -266,7 +272,9 @@ def main() -> int:
         "plane_point_count": len(plane_indices),
         "sample_count": len(selected),
         "sample_limit": args.sample_limit,
+        "min_sample_count": args.min_sample_count,
         "adjacent_pair_count": len(pairs),
+        "min_adjacent_pair_count": args.min_adjacent_pair_count,
         "finite_temporal_correlation_count": len(temporal_corrs),
         "finite_spatial_correlation_count": len(spatial_corrs),
         "temporal_finite_correlation_fraction": temporal_finite_fraction,

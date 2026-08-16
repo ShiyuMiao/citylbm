@@ -181,7 +181,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   signed correlation, temporal lag-1 absolute correlation for diagnosis, and adjacent spatial correlation. It is
   required because preserving AF `k` magnitude alone does not prove a digital-filter, SEM, precursor/recycling or
   otherwise correlated turbulent inlet. The audit must also pass temporal/spatial finite-correlation coverage fractions
-  so a sparse subset of correlated non-degenerate samples cannot represent the full inlet plane.
+  and minimum sample-count / adjacent-pair-count thresholds, so a sparse subset of correlated non-degenerate samples
+  cannot represent the full inlet plane.
   The final gate reads the inlet-correlation gate, temporal lag-1 correlation, spatial adjacent correlation, streamwise
   fluctuation variance and finite-correlation coverage only from `inlet_correlation_audit.json`. Matching fields in
   `validation_metrics.csv` are ignored context and cannot substitute for a current final-window VTK correlation audit.
@@ -455,7 +456,7 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   another valid final-window subset, and must cover at least `--min-avg-step-span` solver steps.
 - Inlet correlation audit: `inlet_correlation_gate`, signed temporal lag-1 correlation, temporal lag-1 absolute
   correlation, adjacent spatial correlation, temporal/spatial finite correlation fractions and streamwise fluctuation
-  variance
+  variance, plus `sample_count` and `adjacent_pair_count`
   Correlation source-window fields must also be reported: `inlet_correlation_frame_count`,
   `inlet_correlation_source_time_steps`, `inlet_correlation_selected_last_window`,
   `inlet_correlation_source_steps_strictly_increasing`, `inlet_correlation_source_step_spacing_uniform` and
