@@ -56,6 +56,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   The averaging gate requires at least 10 final-window frames, a final-window solver-step span of at least
   `--min-avg-step-span` (`1000` by default), and sampled VTK stability statistics; command-line or hand-entered
   mean/max speed standard-deviation ratios are diagnostic only.
+  The native or Read VTK audit must also record the planned final VTK averaging window
+  (`requested_vtk_expected_final_window_time_steps`, `requested_vtk_expected_final_window_step_span` and
+  `requested_vtk_minimum_step_span`) so a run with enough frames but an insufficient final-window solver-step span is
+  rejected before probe error statistics are interpreted.
 - CityLBM v0.3.0 validation runs must use an explicit external FluidX3D source path in `Run Simulation / FX3D`.
   The legacy bundled v0.5.0 fallback is disabled for controlled validation because it is not the baseline.
   Mode 1/2/3 reject auto-detected paths for validation. The FX3D path must point to a deployable native source root

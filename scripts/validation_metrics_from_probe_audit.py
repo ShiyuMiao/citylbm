@@ -36,6 +36,9 @@ TEMPLATE_FIELDS = [
     "requested_vtk_save_interval",
     "requested_vtk_save_start_step",
     "requested_vtk_frame_count",
+    "requested_vtk_expected_final_window_time_steps",
+    "requested_vtk_expected_final_window_step_span",
+    "requested_vtk_minimum_step_span",
     "requested_vtk_frame_gate",
     "requested_vtk_frame_gate_reasons",
     "run_freshness_gate",
@@ -1134,6 +1137,13 @@ def main() -> int:
     requested_vtk_save_interval = audit_int(read_vtk_audit, "requested_vtk_save_interval")
     requested_vtk_save_start_step = audit_int(read_vtk_audit, "requested_vtk_save_start_step")
     requested_vtk_frame_count = audit_int(read_vtk_audit, "requested_vtk_frame_count")
+    requested_vtk_expected_final_window_time_steps = first_text(
+        read_vtk_audit.get("requested_vtk_expected_final_window_time_steps_csv")
+    )
+    requested_vtk_expected_final_window_step_span = audit_int(
+        read_vtk_audit, "requested_vtk_expected_final_window_step_span"
+    )
+    requested_vtk_minimum_step_span = audit_int(read_vtk_audit, "requested_vtk_minimum_step_span")
     requested_vtk_frame_gate = first_text(read_vtk_audit.get("requested_vtk_frame_gate"))
     requested_vtk_frame_gate_reasons = first_text(read_vtk_audit.get("requested_vtk_frame_gate_reasons_csv"))
     run_freshness_gate = first_text(read_vtk_audit.get("run_freshness_gate"))
@@ -1256,6 +1266,9 @@ def main() -> int:
             "requested_vtk_save_interval": fmt(requested_vtk_save_interval),
             "requested_vtk_save_start_step": fmt(requested_vtk_save_start_step),
             "requested_vtk_frame_count": fmt(requested_vtk_frame_count),
+            "requested_vtk_expected_final_window_time_steps": requested_vtk_expected_final_window_time_steps,
+            "requested_vtk_expected_final_window_step_span": fmt(requested_vtk_expected_final_window_step_span),
+            "requested_vtk_minimum_step_span": fmt(requested_vtk_minimum_step_span),
             "requested_vtk_frame_gate": requested_vtk_frame_gate,
             "requested_vtk_frame_gate_reasons": requested_vtk_frame_gate_reasons,
             "run_freshness_gate": run_freshness_gate,

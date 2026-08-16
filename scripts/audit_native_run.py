@@ -422,7 +422,9 @@ def expected_vtk_frame_preflight(
     time_steps: Optional[int],
     save_interval: Optional[int],
     save_start_step: Optional[int],
+    average_last_n: int,
     min_avg_frames: int,
+    min_avg_step_span: int,
 ) -> Dict[str, Any]:
     requested_time_steps = (
         time_steps
@@ -442,6 +444,8 @@ def expected_vtk_frame_preflight(
     metadata_expected = metadata_int(metadata, "ExpectedVtkFrameCount", "ExpectedFinalVtkFrameCount")
     reasons: List[str] = []
     expected_steps: List[int] = []
+    expected_final_window_steps: List[int] = []
+    expected_final_window_step_span: Optional[int] = None
     if requested_time_steps is None:
         reasons.append("requested_time_steps_missing")
     if requested_save_interval is None:
@@ -461,6 +465,19 @@ def expected_vtk_frame_preflight(
         reasons.append("requested_vtk_frame_count_unavailable")
     elif expected_count < min_avg_frames:
         reasons.append(f"requested_vtk_frame_count_below_{min_avg_frames}")
+    if average_last_n <= 0:
+        reasons.append("requested_averaging_window_non_positive")
+    elif average_last_n < min_avg_frames:
+        reasons.append(f"requested_averaging_window_below_{min_avg_frames}")
+    if expected_steps and average_last_n > 0:
+        expected_final_window_steps = expected_steps[-average_last_n:]
+        if len(expected_final_window_steps) >= 2:
+            expected_final_window_step_span = expected_final_window_steps[-1] - expected_final_window_steps[0]
+    if min_avg_step_span > 0:
+        if expected_final_window_step_span is None:
+            reasons.append("requested_vtk_expected_final_window_step_span_missing")
+        elif expected_final_window_step_span < min_avg_step_span:
+            reasons.append(f"requested_vtk_expected_final_window_step_span_below_{min_avg_step_span}")
     return {
         "requested_time_steps": requested_time_steps,
         "requested_vtk_save_interval": requested_save_interval,
@@ -468,6 +485,10 @@ def expected_vtk_frame_preflight(
         "requested_vtk_frame_count": expected_count,
         "requested_vtk_expected_time_steps": expected_steps,
         "requested_vtk_expected_time_steps_csv": ",".join(str(step) for step in expected_steps),
+        "requested_vtk_expected_final_window_time_steps": expected_final_window_steps,
+        "requested_vtk_expected_final_window_time_steps_csv": ",".join(str(step) for step in expected_final_window_steps),
+        "requested_vtk_expected_final_window_step_span": expected_final_window_step_span,
+        "requested_vtk_minimum_step_span": min_avg_step_span,
         "metadata_expected_vtk_frame_count": metadata_expected,
         "requested_vtk_frame_gate": "pass" if not reasons else "diagnostic_only",
         "requested_vtk_frame_gate_reasons": reasons,
@@ -573,7 +594,9 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         args.time_steps,
         args.vtk_save_interval,
         args.vtk_save_start_step,
+        args.average_last_n,
         args.min_avg_frames,
+        args.min_avg_step_span,
     )
     if requested_frame_preflight["requested_vtk_frame_gate"] != "pass":
         reasons.append("requested_vtk_frame_preflight_not_pass")
@@ -593,6 +616,10 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "requested_vtk_frame_count": requested_frame_preflight["requested_vtk_frame_count"],
         "requested_vtk_expected_time_steps": requested_frame_preflight["requested_vtk_expected_time_steps"],
         "requested_vtk_expected_time_steps_csv": requested_frame_preflight["requested_vtk_expected_time_steps_csv"],
+        "requested_vtk_expected_final_window_time_steps": requested_frame_preflight["requested_vtk_expected_final_window_time_steps"],
+        "requested_vtk_expected_final_window_time_steps_csv": requested_frame_preflight["requested_vtk_expected_final_window_time_steps_csv"],
+        "requested_vtk_expected_final_window_step_span": requested_frame_preflight["requested_vtk_expected_final_window_step_span"],
+        "requested_vtk_minimum_step_span": requested_frame_preflight["requested_vtk_minimum_step_span"],
         "metadata_expected_vtk_frame_count": requested_frame_preflight["metadata_expected_vtk_frame_count"],
         "requested_vtk_frame_gate": requested_frame_preflight["requested_vtk_frame_gate"],
         "requested_vtk_frame_gate_reasons": requested_frame_preflight["requested_vtk_frame_gate_reasons"],

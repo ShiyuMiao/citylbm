@@ -1426,8 +1426,10 @@ def requested_vtk_steps_status(
     requested_vtk_save_interval: Optional[int],
     requested_vtk_save_start_step: Optional[int],
     requested_vtk_frame_count: Optional[int],
+    requested_average_last_n: Optional[int],
     selected_source_steps: List[int],
     min_avg_frames: int,
+    min_avg_step_span: int,
 ) -> Dict[str, Any]:
     result: Dict[str, Any] = {
         "ok": False,
@@ -1435,8 +1437,12 @@ def requested_vtk_steps_status(
         "recomputed_steps": [],
         "recomputed_steps_csv": "",
         "recomputed_frame_count": None,
+        "recomputed_final_window_steps": [],
+        "recomputed_final_window_steps_csv": "",
+        "recomputed_final_window_step_span": None,
         "declared_frame_count_matches": False,
         "selected_source_matches_final_requested_window": False,
+        "selected_source_matches_requested_averaging_window": False,
     }
     reasons: List[str] = []
     if requested_time_steps is None:
@@ -1473,17 +1479,46 @@ def requested_vtk_steps_status(
     result["declared_frame_count_matches"] = (
         requested_vtk_frame_count is not None and requested_vtk_frame_count == recomputed_count
     )
+    final_window_steps: List[int] = []
+    if requested_average_last_n is not None and requested_average_last_n > 0:
+        final_window_steps = recomputed_steps[-requested_average_last_n:]
+    final_window_span = (
+        final_window_steps[-1] - final_window_steps[0]
+        if len(final_window_steps) >= 2
+        else None
+    )
+    result["recomputed_final_window_steps"] = final_window_steps
+    result["recomputed_final_window_steps_csv"] = ",".join(str(step) for step in final_window_steps)
+    result["recomputed_final_window_step_span"] = final_window_span
     result["selected_source_matches_final_requested_window"] = (
         bool(selected_source_steps)
         and len(selected_source_steps) <= recomputed_count
         and selected_source_steps == recomputed_steps[-len(selected_source_steps) :]
     )
+    result["selected_source_matches_requested_averaging_window"] = (
+        bool(selected_source_steps)
+        and bool(final_window_steps)
+        and selected_source_steps == final_window_steps
+    )
     if recomputed_count < min_avg_frames:
         reasons.append(f"recomputed_requested_vtk_frame_count_below_{min_avg_frames}")
+    if requested_average_last_n is None:
+        reasons.append("requested_averaging_window_missing")
+    elif requested_average_last_n <= 0:
+        reasons.append("requested_averaging_window_non_positive")
+    elif requested_average_last_n < min_avg_frames:
+        reasons.append(f"requested_averaging_window_below_{min_avg_frames}")
+    if min_avg_step_span > 0:
+        if final_window_span is None:
+            reasons.append("recomputed_requested_vtk_final_window_step_span_missing")
+        elif final_window_span < min_avg_step_span:
+            reasons.append(f"recomputed_requested_vtk_final_window_step_span_below_{min_avg_step_span}")
     if not result["declared_frame_count_matches"]:
         reasons.append("requested_vtk_frame_count_mismatch")
     if not result["selected_source_matches_final_requested_window"]:
         reasons.append("selected_source_steps_not_final_requested_window")
+    if not result["selected_source_matches_requested_averaging_window"]:
+        reasons.append("selected_source_steps_not_requested_averaging_window")
     result["error"] = ";".join(reasons) if reasons else None
     result["ok"] = not reasons
     return result
@@ -1883,8 +1918,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         requested_vtk_save_interval,
         requested_vtk_save_start_step,
         requested_vtk_frame_count,
+        requested_avg_window,
         parsed_steps,
         args.min_avg_frames,
+        args.min_avg_step_span,
     )
     runtime_vtk_hash_status = runtime_selected_vtk_hash_status(runtime_audit, runtime_audit_path, source_step_text)
     expected_source_hashes = (
@@ -2015,8 +2052,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"requested_vtk_save_start_step={requested_vtk_save_start_step}; "
             f"requested_vtk_frame_count={requested_vtk_frame_count}; required >= {args.min_avg_frames}; "
             f"recomputed_requested_vtk_frame_count={requested_vtk_step_status['recomputed_frame_count']}; "
+            f"recomputed_requested_vtk_final_window_steps={requested_vtk_step_status['recomputed_final_window_steps_csv'] or 'missing'}; "
+            f"recomputed_requested_vtk_final_window_step_span={requested_vtk_step_status['recomputed_final_window_step_span']}; "
+            f"requested_vtk_final_window_step_span_required >= {args.min_avg_step_span}; "
             f"requested_vtk_declared_frame_count_matches={requested_vtk_step_status['declared_frame_count_matches']}; "
             f"requested_vtk_selected_source_matches_final_window={requested_vtk_step_status['selected_source_matches_final_requested_window']}; "
+            f"requested_vtk_selected_source_matches_requested_averaging_window={requested_vtk_step_status['selected_source_matches_requested_averaging_window']}; "
             f"requested_vtk_recompute_error={requested_vtk_step_status['error'] or 'none'}; "
             f"requested_vtk_frame_gate={requested_vtk_frame_gate or 'missing'}; "
             f"requested_vtk_frame_gate_reasons={requested_vtk_frame_gate_reasons or 'none'}; "
