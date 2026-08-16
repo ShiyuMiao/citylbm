@@ -10,6 +10,7 @@ used to diagnose CityLBM accuracy.
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import math
@@ -40,11 +41,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--manifest", help="Optional explicit native_fluidx3d_baseline_manifest.json.")
     parser.add_argument("--metadata", help="case_metadata.json used for the run.")
     parser.add_argument("--runtime-audit", help="native_run_audit.json/read_vtk_audit.json for the final VTK window.")
+    parser.add_argument("--inlet-source-audit", help="inlet_source_audit.json from generated setup.cpp.")
+    parser.add_argument("--inlet-profile-audit", help="inlet_profile_audit.json from final-window VTK.")
+    parser.add_argument("--inlet-correlation-audit", help="inlet_correlation_audit.json from final-window VTK.")
+    parser.add_argument("--boundary-source-audit", help="boundary_source_audit.json from generated setup.cpp.")
+    parser.add_argument("--boundary-protocol-audit", help="boundary_protocol_audit.json with AIJ-equivalent evidence.")
+    parser.add_argument("--probe-audit", help="probe_audit.csv used for metrics.")
+    parser.add_argument("--component-sensitivity-audit", help="component_sensitivity_audit.json for component/Uref checks.")
     parser.add_argument("--af-csv", help="Official AF CSV used by the run.")
     parser.add_argument("--case", default="", help="Expected case label.")
     parser.add_argument("--software", default="", help="Expected software label.")
     parser.add_argument("--wind-vector", default="", help="Expected wind vector, e.g. 0,-1,0.")
     parser.add_argument("--u-ref", type=float, default=None, help="Expected reference wind speed in m/s.")
+    parser.add_argument("--expected-compared-component", default="", help="Expected probe comparison component.")
     parser.add_argument("--u-ref-tolerance", type=float, default=1.0e-6)
     parser.add_argument("--wind-vector-tolerance", type=float, default=1.0e-6)
     parser.add_argument("--expected-vtk-pattern", default="u-*.vtk")
@@ -65,6 +74,13 @@ def read_json(path: Optional[Path]) -> Dict[str, Any]:
     with path.open("r", encoding="utf-8-sig") as handle:
         data = json.load(handle)
     return data if isinstance(data, dict) else {}
+
+
+def read_csv_rows(path: Optional[Path]) -> List[Dict[str, str]]:
+    if not path or not path.exists():
+        return []
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        return list(csv.DictReader(handle))
 
 
 def sha256_file(path: Optional[Path]) -> str:
@@ -238,6 +254,13 @@ def main() -> int:
     manifest_path = Path(args.manifest).expanduser().resolve() if args.manifest else find_first(run_dir, ["native_fluidx3d_baseline_manifest.json"])
     metadata_path = Path(args.metadata).expanduser().resolve() if args.metadata else find_first(run_dir, ["case_metadata.json"])
     runtime_audit_path = Path(args.runtime_audit).expanduser().resolve() if args.runtime_audit else find_first(run_dir, ["native_run_audit.json", "read_vtk_audit.json"])
+    inlet_source_audit_path = Path(args.inlet_source_audit).expanduser().resolve() if args.inlet_source_audit else find_first(run_dir, ["inlet_source_audit.json"])
+    inlet_profile_audit_path = Path(args.inlet_profile_audit).expanduser().resolve() if args.inlet_profile_audit else find_first(run_dir, ["inlet_profile_audit.json"])
+    inlet_correlation_audit_path = Path(args.inlet_correlation_audit).expanduser().resolve() if args.inlet_correlation_audit else find_first(run_dir, ["inlet_correlation_audit.json"])
+    boundary_source_audit_path = Path(args.boundary_source_audit).expanduser().resolve() if args.boundary_source_audit else find_first(run_dir, ["boundary_source_audit.json"])
+    boundary_protocol_audit_path = Path(args.boundary_protocol_audit).expanduser().resolve() if args.boundary_protocol_audit else find_first(run_dir, ["boundary_protocol_audit.json"])
+    probe_audit_path = Path(args.probe_audit).expanduser().resolve() if args.probe_audit else find_first(run_dir, ["probe_audit.csv"])
+    component_sensitivity_audit_path = Path(args.component_sensitivity_audit).expanduser().resolve() if args.component_sensitivity_audit else find_first(run_dir, ["component_sensitivity_audit.json"])
     setup_path = find_first(run_dir, ["setup.cpp"])
     defines_path = find_first(run_dir, ["defines.hpp"])
     domain_origin_path = find_first(run_dir, ["domain_origin.json"])
@@ -246,6 +269,13 @@ def main() -> int:
     manifest = read_json(manifest_path)
     metadata = read_json(metadata_path)
     runtime_audit = read_json(runtime_audit_path)
+    inlet_source_audit = read_json(inlet_source_audit_path)
+    inlet_profile_audit = read_json(inlet_profile_audit_path)
+    inlet_correlation_audit = read_json(inlet_correlation_audit_path)
+    boundary_source_audit = read_json(boundary_source_audit_path)
+    boundary_protocol_audit = read_json(boundary_protocol_audit_path)
+    probe_rows = read_csv_rows(probe_audit_path)
+    component_sensitivity_audit = read_json(component_sensitivity_audit_path)
     reasons: List[str] = []
 
     if not manifest:
@@ -359,6 +389,110 @@ def main() -> int:
     if str(shared.get("WindProfile") or "").strip().lower() != "customtable":
         reasons.append("wind_profile_not_customtable")
 
+    inlet_source_gate = str(inlet_source_audit.get("inlet_source_gate") or "").strip().lower()
+    paper_inlet_source_gate = str(inlet_source_audit.get("paper_grade_inlet_source_gate") or "").strip().lower()
+    inlet_distribution_consistent = as_bool(inlet_source_audit.get("inlet_source_distribution_consistent"))
+    inlet_velocity_only = as_bool(inlet_source_audit.get("inlet_source_velocity_field_only"))
+    if not inlet_source_audit:
+        reasons.append("inlet_source_audit_missing")
+    if inlet_source_gate != "pass":
+        reasons.append("inlet_source_gate_not_pass")
+    if paper_inlet_source_gate != "pass":
+        reasons.append("paper_grade_inlet_source_gate_not_pass")
+    if inlet_distribution_consistent is not True:
+        reasons.append("inlet_source_not_distribution_consistent")
+    if inlet_velocity_only is True:
+        reasons.append("inlet_source_velocity_field_only")
+
+    inlet_profile_gate = str(inlet_profile_audit.get("inlet_profile_gate") or "").strip().upper()
+    inlet_u_profile_gate = str(inlet_profile_audit.get("inlet_u_profile_gate") or "").strip().upper()
+    inlet_k_profile_gate = str(inlet_profile_audit.get("inlet_k_profile_gate") or "").strip().upper()
+    inlet_profile_time_gate = str(inlet_profile_audit.get("time_averaging_gate") or "").strip().upper()
+    inlet_profile_frame_count = as_int(inlet_profile_audit.get("frame_count"))
+    inlet_profile_step_span = as_int(inlet_profile_audit.get("source_step_span"))
+    if not inlet_profile_audit:
+        reasons.append("inlet_profile_audit_missing")
+    if inlet_profile_gate != "PASS":
+        reasons.append("inlet_profile_gate_not_pass")
+    if inlet_u_profile_gate != "PASS":
+        reasons.append("inlet_u_profile_gate_not_pass")
+    if inlet_k_profile_gate != "PASS":
+        reasons.append("inlet_k_profile_gate_not_pass")
+    if inlet_profile_time_gate != "PASS":
+        reasons.append("inlet_profile_time_averaging_gate_not_pass")
+    if inlet_profile_frame_count is None or inlet_profile_frame_count < args.min_avg_frames:
+        reasons.append("inlet_profile_frame_count_below_minimum")
+    if inlet_profile_step_span is None or inlet_profile_step_span < args.min_avg_step_span:
+        reasons.append("inlet_profile_step_span_too_short")
+
+    inlet_correlation_gate = str(inlet_correlation_audit.get("inlet_correlation_gate") or "").strip().upper()
+    inlet_correlation_frame_count = as_int(inlet_correlation_audit.get("frame_count"))
+    inlet_correlation_step_span = as_int(inlet_correlation_audit.get("source_step_span"))
+    if not inlet_correlation_audit:
+        reasons.append("inlet_correlation_audit_missing")
+    if inlet_correlation_gate != "PASS":
+        reasons.append("inlet_correlation_gate_not_pass")
+    if inlet_correlation_frame_count is None or inlet_correlation_frame_count < args.min_avg_frames:
+        reasons.append("inlet_correlation_frame_count_below_minimum")
+    if inlet_correlation_step_span is None or inlet_correlation_step_span < args.min_avg_step_span:
+        reasons.append("inlet_correlation_step_span_too_short")
+
+    boundary_source_gate = str(boundary_source_audit.get("boundary_source_gate") or "").strip().lower()
+    paper_boundary_source_gate = str(boundary_source_audit.get("paper_grade_boundary_source_gate") or "").strip().lower()
+    boundary_source_equivalent = as_bool(boundary_source_audit.get("boundary_source_wind_tunnel_equivalent"))
+    boundary_source_simplified = as_bool(boundary_source_audit.get("boundary_source_simplified"))
+    if not boundary_source_audit:
+        reasons.append("boundary_source_audit_missing")
+    if boundary_source_gate != "pass":
+        reasons.append("boundary_source_gate_not_pass")
+    if paper_boundary_source_gate != "pass":
+        reasons.append("paper_grade_boundary_source_gate_not_pass")
+    if boundary_source_equivalent is not True:
+        reasons.append("boundary_source_not_wind_tunnel_equivalent")
+    if boundary_source_simplified is True:
+        reasons.append("boundary_source_simplified")
+
+    boundary_protocol_gate = str(boundary_protocol_audit.get("boundary_protocol_gate") or "").strip().lower()
+    boundary_evidence_gate = str(boundary_protocol_audit.get("boundary_evidence_gate") or "").strip().lower()
+    boundary_evidence_hashed = as_bool(boundary_protocol_audit.get("boundary_evidence_files_all_hashed"))
+    if not boundary_protocol_audit:
+        reasons.append("boundary_protocol_audit_missing")
+    if boundary_protocol_gate != "pass":
+        reasons.append("boundary_protocol_gate_not_pass")
+    if boundary_evidence_gate != "pass":
+        reasons.append("boundary_evidence_gate_not_pass")
+    if boundary_evidence_hashed is not True:
+        reasons.append("boundary_evidence_files_not_hashed")
+
+    expected_component = str(args.expected_compared_component or "").strip()
+    failed_probe_rows = [
+        row for row in probe_rows
+        if str(row.get("failed") or row.get("Failed") or "").strip().lower() in {"true", "1", "yes", "fail"}
+    ]
+    compared_components = {
+        str(row.get("compared_component") or row.get("ComparedComponent") or "").strip()
+        for row in probe_rows
+        if str(row.get("compared_component") or row.get("ComparedComponent") or "").strip()
+    }
+    if not probe_rows:
+        reasons.append("probe_audit_missing_or_empty")
+    if failed_probe_rows:
+        reasons.append("probe_audit_has_failed_rows")
+    if expected_component and compared_components != {expected_component}:
+        reasons.append("probe_compared_component_mismatch")
+
+    component_gate = str(component_sensitivity_audit.get("component_normalization_gate") or "").strip().lower()
+    component_sensitivity_gate = str(component_sensitivity_audit.get("component_sensitivity_gate") or "").strip().lower()
+    normalization_scale_gate = str(component_sensitivity_audit.get("normalization_scale_gate") or "").strip().lower()
+    if not component_sensitivity_audit:
+        reasons.append("component_sensitivity_audit_missing")
+    if component_gate != "pass":
+        reasons.append("component_normalization_gate_not_pass")
+    if component_sensitivity_gate != "pass":
+        reasons.append("component_sensitivity_gate_not_pass")
+    if normalization_scale_gate != "pass":
+        reasons.append("normalization_scale_gate_not_pass")
+
     protocol_identity_gate = "pass" if not any(
         reason in reasons
         for reason in [
@@ -401,6 +535,34 @@ def main() -> int:
         "runtime_source_step_span": runtime_step_span,
         "runtime_time_averaging_gate": time_gate,
         "runtime_requested_vtk_frame_gate": requested_frame_gate,
+        "inlet_source_audit": str(inlet_source_audit_path) if inlet_source_audit_path else "",
+        "inlet_profile_audit": str(inlet_profile_audit_path) if inlet_profile_audit_path else "",
+        "inlet_correlation_audit": str(inlet_correlation_audit_path) if inlet_correlation_audit_path else "",
+        "boundary_source_audit": str(boundary_source_audit_path) if boundary_source_audit_path else "",
+        "boundary_protocol_audit": str(boundary_protocol_audit_path) if boundary_protocol_audit_path else "",
+        "probe_audit": str(probe_audit_path) if probe_audit_path else "",
+        "component_sensitivity_audit": str(component_sensitivity_audit_path) if component_sensitivity_audit_path else "",
+        "inlet_source_gate": inlet_source_gate,
+        "paper_grade_inlet_source_gate": paper_inlet_source_gate,
+        "inlet_source_distribution_consistent": inlet_distribution_consistent,
+        "inlet_source_velocity_field_only": inlet_velocity_only,
+        "inlet_profile_gate": inlet_profile_gate,
+        "inlet_u_profile_gate": inlet_u_profile_gate,
+        "inlet_k_profile_gate": inlet_k_profile_gate,
+        "inlet_correlation_gate": inlet_correlation_gate,
+        "boundary_source_gate": boundary_source_gate,
+        "paper_grade_boundary_source_gate": paper_boundary_source_gate,
+        "boundary_source_wind_tunnel_equivalent": boundary_source_equivalent,
+        "boundary_source_simplified": boundary_source_simplified,
+        "boundary_protocol_gate": boundary_protocol_gate,
+        "boundary_evidence_gate": boundary_evidence_gate,
+        "probe_audit_row_count": len(probe_rows),
+        "probe_audit_failed_row_count": len(failed_probe_rows),
+        "probe_audit_compared_components": sorted(compared_components),
+        "expected_compared_component": expected_component,
+        "component_normalization_gate": component_gate,
+        "component_sensitivity_gate": component_sensitivity_gate,
+        "normalization_scale_gate": normalization_scale_gate,
         "native_preconditions_protocol_identity_gate": protocol_identity_gate,
         "native_preconditions_time_average_gate": time_average_gate,
         "native_preconditions_manifest_sha256": sha256_file(manifest_path),

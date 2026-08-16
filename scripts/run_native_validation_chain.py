@@ -401,40 +401,6 @@ def main() -> int:
         manifest["Steps"].append(run_step("audit_native_run", native_cmd))
         write_manifest(manifest_path, manifest)
 
-        native_preconditions_cmd = [
-            py,
-            str(script_dir / "audit_native_preconditions.py"),
-            str(run_dir),
-            "--metadata",
-            str(metadata),
-            "--runtime-audit",
-            str(native_audit_json),
-            "--af-csv",
-            str(af_csv),
-            "--case",
-            args.case,
-            "--software",
-            args.software,
-            "--wind-vector",
-            args.wind_vector,
-            "--u-ref",
-            str(args.u_ref),
-            "--expected-vtk-pattern",
-            args.pattern,
-            "--average-last-n",
-            str(args.average_last_n),
-            "--min-avg-frames",
-            str(args.min_avg_frames),
-            "--min-avg-step-span",
-            str(args.min_avg_step_span),
-            "--out",
-            str(native_preconditions_json),
-        ]
-        if native_manifest_path:
-            native_preconditions_cmd.extend(["--manifest", str(native_manifest_path)])
-        manifest["Steps"].append(run_step("audit_native_preconditions", native_preconditions_cmd, allow_fail=True))
-        write_manifest(manifest_path, manifest)
-
         setup_cpp = find_run_file(run_dir, "setup.cpp")
         if setup_cpp:
             inlet_source_cmd = [
@@ -653,6 +619,56 @@ def main() -> int:
             args.compared_component,
         ]
         manifest["Steps"].append(run_step("audit_component_sensitivity", component_sensitivity_cmd, allow_fail=True))
+        write_manifest(manifest_path, manifest)
+
+        native_preconditions_cmd = [
+            py,
+            str(script_dir / "audit_native_preconditions.py"),
+            str(run_dir),
+            "--metadata",
+            str(metadata),
+            "--runtime-audit",
+            str(native_audit_json),
+            "--inlet-source-audit",
+            str(inlet_source_json),
+            "--inlet-profile-audit",
+            str(inlet_audit_json),
+            "--inlet-correlation-audit",
+            str(inlet_correlation_json),
+            "--boundary-source-audit",
+            str(boundary_source_json),
+            "--boundary-protocol-audit",
+            str(boundary_audit_json),
+            "--probe-audit",
+            str(probe_audit_csv),
+            "--component-sensitivity-audit",
+            str(component_sensitivity_json),
+            "--af-csv",
+            str(af_csv),
+            "--case",
+            args.case,
+            "--software",
+            args.software,
+            "--wind-vector",
+            args.wind_vector,
+            "--u-ref",
+            str(args.u_ref),
+            "--expected-compared-component",
+            args.compared_component,
+            "--expected-vtk-pattern",
+            args.pattern,
+            "--average-last-n",
+            str(args.average_last_n),
+            "--min-avg-frames",
+            str(args.min_avg_frames),
+            "--min-avg-step-span",
+            str(args.min_avg_step_span),
+            "--out",
+            str(native_preconditions_json),
+        ]
+        if native_manifest_path:
+            native_preconditions_cmd.extend(["--manifest", str(native_manifest_path)])
+        manifest["Steps"].append(run_step("audit_native_preconditions", native_preconditions_cmd, allow_fail=True))
         write_manifest(manifest_path, manifest)
 
         metrics_cmd = [
