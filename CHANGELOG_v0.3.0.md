@@ -297,7 +297,7 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   paper-grade averaging gate.
 - `audit_native_run.py`, `validation_metrics_from_probe_audit.py`, `validation_gate.py` and
   `run_native_validation_chain.py` now record and enforce the final-window solver-step span. A run can no longer pass
-  paper-grade time averaging solely by saving many closely spaced VTK frames; the default minimum span is `1000` solver
+  paper-grade time averaging solely by saving many closely spaced VTK frames; the default minimum span is `5000` solver
   steps via `--min-avg-step-span`.
 - Inlet U/k preservation and inlet-correlation audits now use the same minimum final-window step-span rule. The
   validation gate rejects inlet-profile or inlet-correlation evidence when its archived source VTK window is too short,
@@ -371,12 +371,12 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   Uref, wind-vector evidence, compared component, time-averaged value and per-probe failure flags.
 - Native VTK probe extraction now records unparsable official probe coordinates as explicit failed rows with
   `failure_reason=invalid_probe_coordinate` instead of silently dropping those probes from `failed_n`.
-- Native VTK probe extraction now defaults to a 10-frame final-window average and refuses to write a validation probe
+- Native VTK probe extraction now defaults to a 20-frame final-window average and refuses to write a validation probe
   audit when the selected VTK window is shorter than `--min-avg-frames`; one-frame extraction must be explicitly marked
   as smoke-test behavior by lowering that threshold.
 - Native VTK probe extraction now also records `vtk_source_step_span` and
   `minimum_validation_average_step_span`, and refuses validation probe audits whose selected final-window VTK files
-  cover fewer than `--min-avg-step-span` solver steps (`1000` by default). The metrics table and final gate now require
+  cover fewer than `--min-avg-step-span` solver steps (`5000` by default). The metrics table and final gate now require
   the per-probe source-step span to match the runtime averaging window, preventing short-window probe averages from
   passing as paper-grade time averaging evidence.
 - Native VTK probe extraction now defaults to structured-grid trilinear velocity sampling instead of nearest-node
