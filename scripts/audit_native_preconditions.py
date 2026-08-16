@@ -48,9 +48,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--u-ref-tolerance", type=float, default=1.0e-6)
     parser.add_argument("--wind-vector-tolerance", type=float, default=1.0e-6)
     parser.add_argument("--expected-vtk-pattern", default="u-*.vtk")
-    parser.add_argument("--average-last-n", type=int, default=10)
-    parser.add_argument("--min-avg-frames", type=int, default=10)
-    parser.add_argument("--min-avg-step-span", type=int, default=1000)
+    parser.add_argument("--average-last-n", type=int, default=20)
+    parser.add_argument("--min-avg-frames", type=int, default=20)
+    parser.add_argument("--min-avg-step-span", type=int, default=5000)
     parser.add_argument("--out", required=True, help="Output audit JSON.")
     return parser.parse_args()
 
