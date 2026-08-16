@@ -98,6 +98,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `validation_gate.py`: when `--case` or `--wind-direction` is requested, the official RS table must expose a matching
   case/condition or wind/direction column and the filtered subset must be non-empty. This prevents Case E `bc/ac` rows
   or other wind directions from silently entering the reported error statistics and final gate.
+- `audit_component_sensitivity.py` now uses the same lowercase alphanumeric probe-ID normalization as the main metrics
+  and gate scripts, and rejects duplicate official IDs after normalization. Component/Uref sensitivity checks therefore
+  compare the same official points as the final metrics join.
 - `Data Probe` now appends validation-audit outputs for `Uref`-based speed ratio, streamwise ratio, nearest VTK-sample
   distance and per-probe CSV rows without changing the existing first five outputs.
 - `Data Probe` now accepts optional official probe IDs, a probe-to-VTK tolerance and an explicit compared component.

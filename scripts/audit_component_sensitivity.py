@@ -71,6 +71,10 @@ def norm_key(key: str) -> str:
     return "".join(ch for ch in key.lower() if ch.isalnum())
 
 
+def normalized_probe_id(value: Any) -> str:
+    return "".join(ch for ch in str(value).strip().lower() if ch.isalnum())
+
+
 def find_column(rows: Sequence[Dict[str, str]], candidates: Iterable[str]) -> str:
     if not rows:
         return ""
@@ -136,8 +140,11 @@ def filter_official(rows: Sequence[Dict[str, str]], case_name: str, wind_directi
 def build_lookup(rows: Sequence[Dict[str, str]], id_col: str) -> Dict[str, Dict[str, str]]:
     result: Dict[str, Dict[str, str]] = {}
     for row in rows:
-        key = get_value(row, id_col).strip()
+        raw_key = get_value(row, id_col).strip()
+        key = normalized_probe_id(raw_key)
         if key:
+            if key in result:
+                raise SystemExit(f"Duplicate official probe ID after normalization: {raw_key}")
             result[key] = row
     return result
 
@@ -225,7 +232,7 @@ def component_metrics(
     for row in probe_rows:
         failed_flag = as_bool(get_value(row, "failed"))
         out_of_tolerance = as_bool(get_value(row, "out_of_tolerance"))
-        probe_id = get_value(row, probe_id_col).strip()
+        probe_id = normalized_probe_id(get_value(row, probe_id_col))
         official = official_lookup.get(probe_id)
         sim = candidate_value(row, component)
         exp = as_float(get_value(official, official_value_col)) if official else None
@@ -336,6 +343,7 @@ def main() -> int:
         "official_id_column": official_id_col,
         "official_value_column": official_value_col,
         "probe_id_column": probe_id_col,
+        "probe_id_matching": "lowercase_alnum_normalized",
         "selected_component": selected_component,
         "best_component_by_rmse": best["component"],
         "selected_component_rmse": selected.get("RMSE"),

@@ -74,6 +74,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 - If a metrics or gate command supplies `--case` or `--wind-direction`, the official measurement CSV must contain the
   corresponding case/condition or wind/direction column and the filtered subset must be non-empty. A missing filter
   column is a protocol failure, not permission to compare against the full RS table.
+- Component/Uref sensitivity checks must use normalized probe IDs, matching the final metrics join. Official IDs that
+  become duplicates after lowercase alphanumeric normalization are invalid because they make the component diagnosis
+  ambiguous.
 
 ## Native Baseline Gates
 

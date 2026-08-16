@@ -69,6 +69,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   computed. `validation_metrics_from_probe_audit.py` and `validation_gate.py` must fail if the RS table lacks the
   required case/condition or wind/direction column, or if the filtered subset is empty. Do not compare probe outputs
   against the unfiltered 16-condition Case E table.
+- Component/Uref sensitivity checks must use the same normalized probe IDs as the final metrics join. A formatted ID
+  difference such as `P-1` versus `p1` must not change which official point is compared, while duplicate normalized
+  official IDs are a hard protocol error.
 - If STG-lite is enabled, generated `setup.cpp` also contains `syntheticTurbulentInlet`, `applySyntheticTurbulentInlet`,
   `citylbm_stg_*` constants and the divergence-reduced transverse spectral-mode projection.
 - The generated `validation_protocol_audit` must explicitly record `native_fluidx3d_baseline`, `boundary_conditions`,
