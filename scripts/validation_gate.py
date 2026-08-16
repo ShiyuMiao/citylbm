@@ -240,6 +240,14 @@ def get_first_available(*values: Any) -> Any:
     return None
 
 
+def as_string_list(value: Any) -> List[str]:
+    if value is None or value == "":
+        return []
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    return [part.strip() for part in str(value).split(";") if part.strip()]
+
+
 def declared_paper_averaging_status(
     source: Dict[str, Any],
     min_avg_frames: int,
@@ -510,15 +518,25 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
             "Audit AIJ-equivalent inlet/outlet/lateral/top/floor conditions, roughness treatment, fetch and blockage.",
         )
 
+    native_preconditions_full_gate = by_key.get("native_preconditions_full_evidence")
     native_gate = by_key.get("native_baseline")
-    if native_gate is None or native_gate.get("status") != PASS:
+    if any(
+        gate is None or gate.get("status") != PASS
+        for gate in [native_preconditions_full_gate, native_gate]
+    ):
+        native_priority_gate = (
+            native_preconditions_full_gate
+            if native_preconditions_full_gate is None
+            or native_preconditions_full_gate.get("status") != PASS
+            else native_gate
+        )
         add_priority(
             priorities,
             7,
             "native_fluidx3d_baseline",
-            native_gate,
+            native_priority_gate,
             "CityLBM accuracy cannot be separated from native FluidX3D/protocol error without a paired native baseline.",
-            "Run native FluidX3D with the same setup, grid, averaging and probes, then compare before changing CityLBM.",
+            "Run native FluidX3D with the same setup, grid, averaging and probes, and archive full inlet, boundary, probe and component-normalization precondition evidence before changing CityLBM.",
         )
 
     parity_gate = by_key.get("native_citylbm_parity")
@@ -3600,6 +3618,76 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_preconditions_time_gate = str(
         get_any(native_preconditions_audit, ["native_preconditions_time_average_gate"]) or ""
     ).strip().lower()
+    native_preconditions_inlet_source_gate = str(
+        get_any(native_preconditions_audit, ["inlet_source_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_paper_inlet_gate = str(
+        get_any(native_preconditions_audit, ["paper_grade_inlet_source_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_inlet_distribution_consistent = as_bool(
+        get_any(native_preconditions_audit, ["inlet_source_distribution_consistent"])
+    )
+    native_preconditions_inlet_velocity_only = as_bool(
+        get_any(native_preconditions_audit, ["inlet_source_velocity_field_only"])
+    )
+    native_preconditions_inlet_profile_gate = str(
+        get_any(native_preconditions_audit, ["inlet_profile_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_inlet_u_profile_gate = str(
+        get_any(native_preconditions_audit, ["inlet_u_profile_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_inlet_k_profile_gate = str(
+        get_any(native_preconditions_audit, ["inlet_k_profile_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_inlet_correlation_gate = str(
+        get_any(native_preconditions_audit, ["inlet_correlation_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_boundary_source_gate = str(
+        get_any(native_preconditions_audit, ["boundary_source_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_paper_boundary_gate = str(
+        get_any(native_preconditions_audit, ["paper_grade_boundary_source_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_boundary_equivalent = as_bool(
+        get_any(native_preconditions_audit, ["boundary_source_wind_tunnel_equivalent"])
+    )
+    native_preconditions_boundary_simplified = as_bool(
+        get_any(native_preconditions_audit, ["boundary_source_simplified"])
+    )
+    native_preconditions_boundary_protocol_gate = str(
+        get_any(native_preconditions_audit, ["boundary_protocol_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_boundary_evidence_gate = str(
+        get_any(native_preconditions_audit, ["boundary_evidence_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_probe_row_count = as_int(
+        get_any(native_preconditions_audit, ["probe_audit_row_count"])
+    )
+    native_preconditions_probe_failed_count = as_int(
+        get_any(native_preconditions_audit, ["probe_audit_failed_row_count"])
+    )
+    native_preconditions_probe_components = {
+        component.strip().lower()
+        for component in as_string_list(
+            get_any(native_preconditions_audit, ["probe_audit_compared_components"])
+        )
+        if component.strip()
+    }
+    native_preconditions_expected_component = str(
+        get_any(native_preconditions_audit, ["expected_compared_component"]) or ""
+    ).strip().lower()
+    required_compared_component = str(
+        args.expected_compared_component or native_preconditions_expected_component or ""
+    ).strip().lower()
+    native_preconditions_component_gate = str(
+        get_any(native_preconditions_audit, ["component_normalization_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_component_sensitivity_gate = str(
+        get_any(native_preconditions_audit, ["component_sensitivity_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_normalization_scale_gate = str(
+        get_any(native_preconditions_audit, ["normalization_scale_gate"]) or ""
+    ).strip().lower()
     native_preconditions_id = str(
         get_any(native_preconditions_audit, ["baseline_id", "BaselineId"]) or ""
     ).strip()
@@ -3617,6 +3705,63 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and bool(native_preconditions_id)
         and manifest_native_id == native_preconditions_id
     )
+    native_preconditions_full_evidence_ok = (
+        native_preconditions_audit_path is not None
+        and native_preconditions_inlet_source_gate == "pass"
+        and native_preconditions_paper_inlet_gate == "pass"
+        and native_preconditions_inlet_distribution_consistent is True
+        and native_preconditions_inlet_velocity_only is False
+        and native_preconditions_inlet_profile_gate == "pass"
+        and native_preconditions_inlet_u_profile_gate == "pass"
+        and native_preconditions_inlet_k_profile_gate == "pass"
+        and native_preconditions_inlet_correlation_gate == "pass"
+        and native_preconditions_boundary_source_gate == "pass"
+        and native_preconditions_paper_boundary_gate == "pass"
+        and native_preconditions_boundary_equivalent is True
+        and native_preconditions_boundary_simplified is False
+        and native_preconditions_boundary_protocol_gate == "pass"
+        and native_preconditions_boundary_evidence_gate == "pass"
+        and native_preconditions_probe_row_count is not None
+        and native_preconditions_probe_row_count > 0
+        and native_preconditions_probe_failed_count == 0
+        and (
+            not required_compared_component
+            or required_compared_component in native_preconditions_probe_components
+        )
+        and native_preconditions_component_gate == "pass"
+        and native_preconditions_component_sensitivity_gate == "pass"
+        and native_preconditions_normalization_scale_gate == "pass"
+    )
+    add_gate(
+        gates,
+        "native_preconditions_full_evidence",
+        PASS if native_preconditions_full_evidence_ok else FAIL,
+        (
+            f"native_preconditions_audit={native_preconditions_audit_path or 'missing'}; "
+            f"inlet_source_gate={native_preconditions_inlet_source_gate or 'missing'}; "
+            f"paper_grade_inlet_source_gate={native_preconditions_paper_inlet_gate or 'missing'}; "
+            f"inlet_source_distribution_consistent={native_preconditions_inlet_distribution_consistent}; "
+            f"inlet_source_velocity_field_only={native_preconditions_inlet_velocity_only}; "
+            f"inlet_profile_gate={native_preconditions_inlet_profile_gate or 'missing'}; "
+            f"inlet_u_profile_gate={native_preconditions_inlet_u_profile_gate or 'missing'}; "
+            f"inlet_k_profile_gate={native_preconditions_inlet_k_profile_gate or 'missing'}; "
+            f"inlet_correlation_gate={native_preconditions_inlet_correlation_gate or 'missing'}; "
+            f"boundary_source_gate={native_preconditions_boundary_source_gate or 'missing'}; "
+            f"paper_grade_boundary_source_gate={native_preconditions_paper_boundary_gate or 'missing'}; "
+            f"boundary_source_wind_tunnel_equivalent={native_preconditions_boundary_equivalent}; "
+            f"boundary_source_simplified={native_preconditions_boundary_simplified}; "
+            f"boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
+            f"boundary_evidence_gate={native_preconditions_boundary_evidence_gate or 'missing'}; "
+            f"probe_audit_row_count={native_preconditions_probe_row_count}; "
+            f"probe_audit_failed_row_count={native_preconditions_probe_failed_count}; "
+            f"probe_audit_compared_components={';'.join(sorted(native_preconditions_probe_components)) or 'missing'}; "
+            f"required_compared_component={required_compared_component or 'not_required'}; "
+            f"component_normalization_gate={native_preconditions_component_gate or 'missing'}; "
+            f"component_sensitivity_gate={native_preconditions_component_sensitivity_gate or 'missing'}; "
+            f"normalization_scale_gate={native_preconditions_normalization_scale_gate or 'missing'}"
+        ),
+        "Regenerate native_preconditions_audit.json after inlet-source, inlet-profile/correlation, boundary, probe and component-normalization audits all pass; legacy summary-only native preconditions are not enough for paper-grade validation.",
+    )
     native_preconditions_ok = (
         native_preconditions_audit_path is not None
         and native_preconditions_gate == "pass"
@@ -3624,6 +3769,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and native_preconditions_time_gate == "pass"
         and native_preconditions_id_matches
         and native_preconditions_manifest_hash_matches
+        and native_preconditions_full_evidence_ok
     )
     native_manifest_ok = (
         native_path_explicit is True
@@ -3656,6 +3802,29 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_preconditions_gate={native_preconditions_gate or 'missing'}; "
             f"native_preconditions_protocol_identity_gate={native_preconditions_protocol_gate or 'missing'}; "
             f"native_preconditions_time_average_gate={native_preconditions_time_gate or 'missing'}; "
+            f"native_preconditions_full_evidence_ok={native_preconditions_full_evidence_ok}; "
+            f"native_preconditions_inlet_source_gate={native_preconditions_inlet_source_gate or 'missing'}; "
+            f"native_preconditions_paper_grade_inlet_source_gate={native_preconditions_paper_inlet_gate or 'missing'}; "
+            f"native_preconditions_inlet_source_distribution_consistent={native_preconditions_inlet_distribution_consistent}; "
+            f"native_preconditions_inlet_source_velocity_field_only={native_preconditions_inlet_velocity_only}; "
+            f"native_preconditions_inlet_profile_gate={native_preconditions_inlet_profile_gate or 'missing'}; "
+            f"native_preconditions_inlet_u_profile_gate={native_preconditions_inlet_u_profile_gate or 'missing'}; "
+            f"native_preconditions_inlet_k_profile_gate={native_preconditions_inlet_k_profile_gate or 'missing'}; "
+            f"native_preconditions_inlet_correlation_gate={native_preconditions_inlet_correlation_gate or 'missing'}; "
+            f"native_preconditions_boundary_source_gate={native_preconditions_boundary_source_gate or 'missing'}; "
+            f"native_preconditions_paper_grade_boundary_source_gate={native_preconditions_paper_boundary_gate or 'missing'}; "
+            f"native_preconditions_boundary_source_wind_tunnel_equivalent={native_preconditions_boundary_equivalent}; "
+            f"native_preconditions_boundary_source_simplified={native_preconditions_boundary_simplified}; "
+            f"native_preconditions_boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
+            f"native_preconditions_boundary_evidence_gate={native_preconditions_boundary_evidence_gate or 'missing'}; "
+            f"native_preconditions_probe_audit_row_count={native_preconditions_probe_row_count}; "
+            f"native_preconditions_probe_audit_failed_row_count={native_preconditions_probe_failed_count}; "
+            f"native_preconditions_probe_audit_compared_components={';'.join(sorted(native_preconditions_probe_components)) or 'missing'}; "
+            f"native_preconditions_expected_compared_component={native_preconditions_expected_component or 'missing'}; "
+            f"required_compared_component={required_compared_component or 'not_required'}; "
+            f"native_preconditions_component_normalization_gate={native_preconditions_component_gate or 'missing'}; "
+            f"native_preconditions_component_sensitivity_gate={native_preconditions_component_sensitivity_gate or 'missing'}; "
+            f"native_preconditions_normalization_scale_gate={native_preconditions_normalization_scale_gate or 'missing'}; "
             f"native_preconditions_id={native_preconditions_id or 'missing'}; "
             f"native_preconditions_id_matches={native_preconditions_id_matches}; "
             f"native_preconditions_manifest_sha256={native_preconditions_manifest_sha256 or 'missing'}; "
