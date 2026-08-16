@@ -135,6 +135,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_gate.py` now requires the per-probe `Data Probe` audit CSV for coordinate, normalization and
   compared-component traceability. Summary-only metrics are allowed only through an explicit diagnostic override and
   should not be used for paper-grade validation claims.
+- `--allow-summary-only-probe-metrics` is now diagnostic-only in the machine gate. It may downgrade missing legacy
+  probe-audit traceability to a warning, but it can no longer make `coordinate_normalization`, `compared_component` or
+  `probe_mapping` pass from summary metrics.
 - `scripts/validation_gate.py` now computes official-coordinate delta coverage from the per-probe audit rows by default.
   `max_official_coordinate_delta_m` and `official_coordinate_delta_count` in `validation_metrics.csv` are summaries only
   and cannot replace `probe_audit.csv` for paper-grade coordinate closure.

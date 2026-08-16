@@ -435,7 +435,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   probe count
 - Per-probe `Uref`, wind vector, `normalization_valid` and `wind_direction_valid` coverage from the Data Probe audit
   CSV. For paper-grade Case E, every valid probe must carry the same finite normalization basis and declared wind vector;
-  a correct summary metrics row is diagnostic if the per-probe audit is missing or mixed.
+  a correct summary metrics row is diagnostic if the per-probe audit is missing or mixed. The
+  `--allow-summary-only-probe-metrics` flag is legacy diagnostic context only and cannot make coordinate normalization,
+  compared-component or probe-mapping gates pass.
 - Probe source-window parity: `probe_vtk_source_window_gate`, `probe_vtk_source_window_reasons`,
   `probe_vtk_source_time_steps` and `probe_vtk_source_hash_set_count`. These fields must show that the official-point
   probe table was sampled from the same final averaged VTK window as the inlet and time-averaging audits.

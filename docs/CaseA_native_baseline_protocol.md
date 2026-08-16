@@ -222,8 +222,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
    from the same table. The validation metrics must record `compared_component_consistency_gate`,
    `compared_component_unique_values` and `official_coordinate_delta_count`; every valid probe must use one explicit
    component and must have an official coordinate-delta check. The machine gate recomputes coordinate-delta coverage
-   from the Data Probe audit CSV rows; summary metrics are not accepted as coordinate evidence unless the explicit
-   summary-only diagnostic override is used. The metrics row must also close official-probe coverage:
+   from the Data Probe audit CSV rows; summary metrics are never accepted as paper-grade coordinate evidence. The
+   explicit summary-only diagnostic override may only mark legacy traceability as diagnostic context. The metrics row
+   must also close official-probe coverage:
    `official_measurement_count` must match `valid_n`,
    `official_probe_coverage_ratio` must be `1.0`, and `missing_official_probe_count` must be `0`.
    A subset of official probes is diagnostic only, because it can hide poor locations and understate MAE/RMSE.

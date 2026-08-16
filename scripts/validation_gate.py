@@ -101,9 +101,8 @@ def parse_args() -> argparse.Namespace:
         "--allow-summary-only-probe-metrics",
         action="store_true",
         help=(
-            "Diagnostic override only: allow some coordinate, normalization and compared-component "
-            "summaries to come from the metrics row. Per-probe IDs, file hashes and official-table "
-            "matching are still required for paper-grade validation."
+            "Diagnostic override only: downgrade missing probe-audit traceability to WARN for legacy "
+            "summaries. It cannot satisfy paper-grade coordinate, component or probe-mapping gates."
         ),
     )
     parser.add_argument(
@@ -3507,7 +3506,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         ).strip(),
         "Export the Data Probe audit CSV with official probe IDs, x/y/z, Uref, wind vector, compared_component, nearest_distance and tolerance.",
     )
-    detailed_probe_audit_ok = probe_audit_traceable or probe_summary_override
+    detailed_probe_audit_ok = probe_audit_traceable
     probe_source = read_probe_source_window_audit(
         probe_path,
         source_step_text,
@@ -3678,26 +3677,17 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         identity_case,
         identity_wind_direction,
     )
-    if probe_summary_override:
-        coord_delta = metrics_coord_delta
-        coord_delta_count = metrics_coord_delta_count
-        coord_valid_count = valid_metric_count
-        coord_source = "metrics_summary_override"
-    else:
-        coord_delta = as_float(probe_coord_norm["max_official_coordinate_delta_m"])
-        coord_delta_count = as_int(probe_coord_norm["official_coordinate_delta_count"])
-        coord_valid_count = as_int(probe_coord_norm["valid_count"])
-        coord_source = "probe_audit"
+    coord_delta = as_float(probe_coord_norm["max_official_coordinate_delta_m"])
+    coord_delta_count = as_int(probe_coord_norm["official_coordinate_delta_count"])
+    coord_valid_count = as_int(probe_coord_norm["valid_count"])
+    coord_source = "probe_audit"
     coord_ok = coord_delta is not None and coord_delta <= args.max_official_coordinate_delta_m
     coord_coverage_ok = (
         coord_delta_count is not None
         and coord_valid_count is not None
         and coord_valid_count > 0
         and coord_delta_count == coord_valid_count
-        and (
-            probe_summary_override
-            or probe_coord_norm["missing_official_coordinate_delta_count"] == 0
-        )
+        and probe_coord_norm["missing_official_coordinate_delta_count"] == 0
     )
     probe_identity_valid_count = as_int(probe_identity["valid_count"])
     probe_identity_ok = (
@@ -3733,22 +3723,19 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         )
     )
     probe_coord_norm_ok = (
-        probe_summary_override
-        or (
-            probe_audit_traceable
-            and probe_coord_norm["valid_count"] is not None
-            and probe_coord_norm["valid_count"] > 0
-            and probe_coord_norm["missing_normalization_count"] == 0
-            and probe_coord_norm["invalid_normalization_count"] == 0
-            and probe_coord_norm["missing_wind_direction_count"] == 0
-            and probe_coord_norm["invalid_wind_direction_count"] == 0
-            and probe_coord_norm["missing_uref_count"] == 0
-            and probe_coord_norm["uref_mismatch_count"] == 0
-            and probe_coord_norm["unique_uref_count"] == 1
-            and probe_coord_norm["missing_wind_vector_count"] == 0
-            and probe_coord_norm["wind_vector_mismatch_count"] == 0
-            and probe_coord_norm["unique_wind_vector_count"] == 1
-        )
+        probe_audit_traceable
+        and probe_coord_norm["valid_count"] is not None
+        and probe_coord_norm["valid_count"] > 0
+        and probe_coord_norm["missing_normalization_count"] == 0
+        and probe_coord_norm["invalid_normalization_count"] == 0
+        and probe_coord_norm["missing_wind_direction_count"] == 0
+        and probe_coord_norm["invalid_wind_direction_count"] == 0
+        and probe_coord_norm["missing_uref_count"] == 0
+        and probe_coord_norm["uref_mismatch_count"] == 0
+        and probe_coord_norm["unique_uref_count"] == 1
+        and probe_coord_norm["missing_wind_vector_count"] == 0
+        and probe_coord_norm["wind_vector_mismatch_count"] == 0
+        and probe_coord_norm["unique_wind_vector_count"] == 1
     )
     add_gate(
         gates,
@@ -3816,10 +3803,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     metric_component = str(get_any(metrics, ["compared_component", "velocity_component", "ComparedComponent"]) or "").strip().lower()
     probe_valid_component_count, probe_components, probe_missing_component_count, probe_component_error = read_probe_component_audit(probe_path)
     expected_component = args.expected_compared_component.strip().lower()
-    if probe_components:
-        unique_components = probe_components
-    else:
-        unique_components = [c for c in metric_component.split(";") if c] if ";" in metric_component else ([metric_component] if metric_component else [])
+    unique_components = probe_components
     component_consistent = (
         detailed_probe_audit_ok
         and component_gate == "pass"
