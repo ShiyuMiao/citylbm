@@ -219,6 +219,63 @@ def candidate_value(row: Dict[str, str], component: str) -> Optional[float]:
     return as_float(get_value(row, component))
 
 
+def probe_row_failed(row: Dict[str, str]) -> bool:
+    return as_bool(get_value(row, "failed")) is True or as_bool(get_value(row, "out_of_tolerance")) is True
+
+
+def probe_component_summary(probe_rows: Sequence[Dict[str, str]]) -> Dict[str, Any]:
+    components = set()
+    valid_count = 0
+    missing_count = 0
+    for row in probe_rows:
+        if probe_row_failed(row):
+            continue
+        valid_count += 1
+        component = get_value(row, "compared_component").strip().lower()
+        if component:
+            components.add(component)
+        else:
+            missing_count += 1
+    return {
+        "valid_probe_row_count": valid_count,
+        "valid_probe_compared_components": sorted(components),
+        "valid_probe_compared_component_count": len(components),
+        "valid_probe_missing_compared_component_count": missing_count,
+    }
+
+
+def select_component(
+    probe_rows: Sequence[Dict[str, str]],
+    explicit_component: str,
+) -> Tuple[str, str, Dict[str, Any], List[str]]:
+    summary = probe_component_summary(probe_rows)
+    components = summary["valid_probe_compared_components"]
+    missing_count = summary["valid_probe_missing_compared_component_count"]
+    valid_count = summary["valid_probe_row_count"]
+    reasons: List[str] = []
+
+    explicit = explicit_component.strip().lower()
+    if explicit:
+        if components and explicit not in components:
+            reasons.append("explicit_selected_component_conflicts_with_valid_probe_rows")
+        if missing_count:
+            reasons.append("valid_probe_rows_missing_compared_component")
+        return explicit, "explicit_arg", summary, reasons
+
+    if valid_count <= 0:
+        reasons.append("no_valid_probe_rows_for_component_selection")
+        return "", "valid_probe_rows", summary, reasons
+    if missing_count:
+        reasons.append("valid_probe_rows_missing_compared_component")
+    if len(components) == 1:
+        return components[0], "valid_probe_rows", summary, reasons
+    if len(components) > 1:
+        reasons.append("mixed_valid_probe_compared_components")
+    else:
+        reasons.append("no_valid_probe_compared_component")
+    return "", "valid_probe_rows", summary, reasons
+
+
 def component_metrics(
     component: str,
     probe_rows: Sequence[Dict[str, str]],
@@ -292,9 +349,10 @@ def main() -> int:
         raise SystemExit("Could not detect probe ID column. Use --probe-id-column.")
 
     official_lookup = build_lookup(official_rows, official_id_col)
-    selected_component = args.selected_component.strip().lower()
-    if not selected_component:
-        selected_component = get_value(probe_rows[0], "compared_component").strip().lower()
+    selected_component, selected_component_source, component_summary, selected_component_reasons = select_component(
+        probe_rows,
+        args.selected_component,
+    )
 
     metrics = [
         component_metrics(component, probe_rows, official_lookup, official_value_col, probe_id_col)
@@ -316,7 +374,11 @@ def main() -> int:
     )
     selected_scale = as_float(selected.get("best_fit_scale_to_exp"))
     selected_scaled_improvement = as_float(selected.get("scaled_improvement_ratio"))
-    component_gate_reasons: List[str] = []
+    component_gate_reasons: List[str] = list(selected_component_reasons)
+    if not selected_component:
+        component_gate_reasons.append("selected_component_missing")
+    if selected.get("valid_n", 0) <= 0 or selected_rmse is None:
+        component_gate_reasons.append("selected_component_has_no_valid_rmse")
     if selected_component != best["component"] and component_improvement is not None and component_improvement >= args.min_component_improvement_ratio:
         component_gate_reasons.append(
             f"alternative_component_{best['component']}_improves_rmse_by_{component_improvement:.6g}"
@@ -345,6 +407,8 @@ def main() -> int:
         "probe_id_column": probe_id_col,
         "probe_id_matching": "lowercase_alnum_normalized",
         "selected_component": selected_component,
+        "selected_component_source": selected_component_source,
+        **component_summary,
         "best_component_by_rmse": best["component"],
         "selected_component_rmse": selected.get("RMSE"),
         "best_component_rmse": best.get("RMSE"),

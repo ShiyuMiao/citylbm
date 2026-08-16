@@ -3869,6 +3869,22 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         component_sensitivity_audit.get("selected_component")
         or ""
     ).strip().lower()
+    selected_component_source = str(
+        component_sensitivity_audit.get("selected_component_source")
+        or ""
+    ).strip().lower()
+    valid_probe_components_raw = component_sensitivity_audit.get("valid_probe_compared_components")
+    valid_probe_components = (
+        [str(value).strip().lower() for value in valid_probe_components_raw]
+        if isinstance(valid_probe_components_raw, list)
+        else []
+    )
+    valid_probe_component_count = as_int(
+        component_sensitivity_audit.get("valid_probe_compared_component_count")
+    )
+    valid_probe_missing_component_count = as_int(
+        component_sensitivity_audit.get("valid_probe_missing_compared_component_count")
+    )
     best_component = str(
         component_sensitivity_audit.get("best_component_by_rmse")
         or ""
@@ -3947,6 +3963,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"component_sensitivity_gate={component_sensitivity_gate or 'missing'}; "
             f"normalization_scale_gate={normalization_scale_gate or 'missing'}; "
             f"selected_component={selected_component or 'missing'}; "
+            f"selected_component_source={selected_component_source or 'missing'}; "
+            f"valid_probe_compared_components={';'.join(valid_probe_components) or 'missing'}; "
+            f"valid_probe_compared_component_count={valid_probe_component_count}; "
+            f"valid_probe_missing_compared_component_count={valid_probe_missing_component_count}; "
             f"best_component_by_rmse={best_component or 'missing'}; "
             f"selected_component_rmse={selected_component_rmse}; "
             f"best_component_rmse={best_component_rmse}; "

@@ -384,6 +384,10 @@ python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --
 python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --metadata <case_metadata.json> --read-vtk-audit <native_run_audit.json> --inlet-source-audit <run_dir>\inlet_source_audit.json --boundary-source-audit <run_dir>\boundary_source_audit.json --inlet-profile-audit <run_dir>\inlet_profile_audit.json --inlet-correlation-audit <run_dir>\inlet_correlation_audit.json --component-sensitivity-audit <run_dir>\component_sensitivity_audit.json --case CaseA --wind-direction <direction> --u-ref <Uref> --out <validation_metrics.csv>
 ```
 
+Always pass `--selected-component` for paper-grade runs. If this argument is omitted, the audit may only infer the
+selected component from valid, non-failed probe rows; missing or mixed per-probe `compared_component` values fail the
+component/Uref sensitivity audit before residual bias is interpreted.
+
 Before the final gate, archive the AIJ boundary evidence as JSON and audit it:
 
 ```powershell

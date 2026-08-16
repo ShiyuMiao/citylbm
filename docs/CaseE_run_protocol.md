@@ -328,7 +328,9 @@ python scripts\validation_metrics_from_probe_audit.py --probe-audit <probe_audit
 The final gate rechecks `component_sensitivity_audit.json` numerically. A run is diagnostic if another velocity
 component materially lowers RMSE or if a best-fit scale far from `1.0` materially improves the selected component,
 because that pattern can indicate a component, Uref or SI/LBM conversion error before inlet or boundary physics are
-interpreted.
+interpreted. Always pass `--selected-component speed_ratio` for Case E. If the argument is omitted, the audit may only
+infer the selected component from valid, non-failed probe rows, and it fails when those rows contain missing or mixed
+`compared_component` values.
 
 Generate the boundary protocol audit before the final gate:
 

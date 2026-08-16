@@ -358,6 +358,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   final gate. It compares `speed_ratio`, signed/absolute streamwise ratio and component ratios against official RS
   values, then flags whether a different component or a scale-like Uref/SI conversion factor can explain the bias before
   inlet or boundary physics are tuned.
+- `audit_component_sensitivity.py` now derives the selected comparison component from valid, non-failed probe rows when
+  `--selected-component` is not supplied, and fails the audit for missing or mixed per-probe `compared_component`
+  evidence. A failed or stale first row in `probe_audit.csv` can no longer make the component/Uref sensitivity check
+  report the wrong selected component.
 - Probe-derived metrics now preserve the actual `Uref` used by `Data Probe` and read `WindDirectionUnitVector` from
   `case_metadata.json`, so wind/normalization evidence is not lost during validation-gate reporting.
 - Added `scripts/run_native_validation_chain.py` as a one-command post-run evidence chain for native FluidX3D/CityLBM
