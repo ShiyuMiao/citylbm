@@ -1826,6 +1826,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         if metadata_path
         and audit_path
         and inlet_profile_audit_path
+        and inlet_correlation_audit_path
         and inlet_source_audit_path
         and boundary_source_audit_path
         and boundary_audit_path
@@ -1839,6 +1840,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         (
             f"metadata={metadata_path or 'missing'}; audit={audit_path or 'missing'}; "
             f"inlet_profile_audit={inlet_profile_audit_path or 'missing'}; "
+            f"inlet_correlation_audit={inlet_correlation_audit_path or 'missing'}; "
             f"inlet_source_audit={inlet_source_audit_path or 'missing'}; "
             f"boundary_source_audit={boundary_source_audit_path or 'missing'}; "
             f"boundary_audit={boundary_audit_path or 'missing'}; "
@@ -1848,7 +1850,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_citylbm_parity_audit={native_citylbm_parity_audit_path or ('missing' if citylbm_result else ('not_required_for_' + (software_label or 'unknown')))}; "
             f"metrics={metrics_path or 'missing'}"
         ),
-        "Archive case_metadata.json, validation_protocol_audit.json, inlet_profile_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, native_preconditions_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
+        "Archive case_metadata.json, validation_protocol_audit.json, inlet_profile_audit.json, inlet_correlation_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, native_preconditions_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
     )
 
     metrics_probe_audit_sha256 = str(
