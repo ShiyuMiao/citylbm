@@ -292,6 +292,7 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     native_audit_json = out_dir / "native_run_audit.json"
+    native_preconditions_json = out_dir / "native_preconditions_audit.json"
     inlet_source_json = out_dir / "inlet_source_audit.json"
     boundary_source_json = out_dir / "boundary_source_audit.json"
     inlet_audit_json = out_dir / "inlet_profile_audit.json"
@@ -344,6 +345,7 @@ def main() -> int:
         "Artifacts": {
             "NativeFluidX3DBaselineManifest": str(native_manifest_path) if native_manifest_path else "",
             "NativeRunAudit": str(native_audit_json),
+            "NativePreconditionsAudit": str(native_preconditions_json),
             "InletSourceAuditJson": str(inlet_source_json),
             "BoundarySourceAuditJson": str(boundary_source_json),
             "InletProfileAuditJson": str(inlet_audit_json),
@@ -397,6 +399,40 @@ def main() -> int:
         add_optional(native_cmd, "--vtk-save-interval", args.save_interval)
         add_optional(native_cmd, "--vtk-save-start-step", args.vtk_save_start_step)
         manifest["Steps"].append(run_step("audit_native_run", native_cmd))
+        write_manifest(manifest_path, manifest)
+
+        native_preconditions_cmd = [
+            py,
+            str(script_dir / "audit_native_preconditions.py"),
+            str(run_dir),
+            "--metadata",
+            str(metadata),
+            "--runtime-audit",
+            str(native_audit_json),
+            "--af-csv",
+            str(af_csv),
+            "--case",
+            args.case,
+            "--software",
+            args.software,
+            "--wind-vector",
+            args.wind_vector,
+            "--u-ref",
+            str(args.u_ref),
+            "--expected-vtk-pattern",
+            args.pattern,
+            "--average-last-n",
+            str(args.average_last_n),
+            "--min-avg-frames",
+            str(args.min_avg_frames),
+            "--min-avg-step-span",
+            str(args.min_avg_step_span),
+            "--out",
+            str(native_preconditions_json),
+        ]
+        if native_manifest_path:
+            native_preconditions_cmd.extend(["--manifest", str(native_manifest_path)])
+        manifest["Steps"].append(run_step("audit_native_preconditions", native_preconditions_cmd, allow_fail=True))
         write_manifest(manifest_path, manifest)
 
         setup_cpp = find_run_file(run_dir, "setup.cpp")
@@ -642,6 +678,8 @@ def main() -> int:
             str(inlet_source_json),
             "--boundary-source-audit",
             str(boundary_source_json),
+            "--native-preconditions-audit",
+            str(native_preconditions_json),
             "--boundary-protocol-audit",
             str(boundary_audit_json),
             "--component-sensitivity-audit",

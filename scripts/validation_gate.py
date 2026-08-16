@@ -1725,6 +1725,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     boundary_audit_path = find_first(run_dir, ["boundary_protocol_audit.json"])
     component_sensitivity_audit_path = find_first(run_dir, ["component_sensitivity_audit.json"])
     grid_sensitivity_audit_path = find_first(run_dir, ["grid_sensitivity_audit.json"])
+    native_preconditions_audit_path = find_first(run_dir, ["native_preconditions_audit.json"])
     native_citylbm_parity_audit_path = find_first(run_dir, ["native_citylbm_parity_audit.json"])
     setup_cpp_path = find_first(run_dir, ["setup.cpp"])
     runtime_audit_path = find_first(
@@ -1751,6 +1752,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     external_boundary_audit = read_json(boundary_audit_path)
     component_sensitivity_audit = read_json(component_sensitivity_audit_path)
     grid_sensitivity_audit = read_json(grid_sensitivity_audit_path)
+    native_preconditions_audit = read_json(native_preconditions_audit_path)
     native_citylbm_parity_audit = read_json(native_citylbm_parity_audit_path)
     runtime_audit = read_json(runtime_audit_path)
     manifest = read_json(manifest_path)
@@ -1775,6 +1777,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and boundary_audit_path
         and runtime_audit_path
         and grid_sensitivity_audit_path
+        and native_preconditions_audit_path
         and (native_citylbm_parity_audit_path or not citylbm_result)
         and metrics_path
         and metrics
@@ -1787,10 +1790,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_audit={boundary_audit_path or 'missing'}; "
             f"runtime_audit={runtime_audit_path or 'missing'}; "
             f"grid_sensitivity_audit={grid_sensitivity_audit_path or 'missing'}; "
+            f"native_preconditions_audit={native_preconditions_audit_path or 'missing'}; "
             f"native_citylbm_parity_audit={native_citylbm_parity_audit_path or ('missing' if citylbm_result else ('not_required_for_' + (software_label or 'unknown')))}; "
             f"metrics={metrics_path or 'missing'}"
         ),
-        "Archive case_metadata.json, validation_protocol_audit.json, inlet_profile_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
+        "Archive case_metadata.json, validation_protocol_audit.json, inlet_profile_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, native_preconditions_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
     )
 
     metrics_probe_audit_sha256 = str(
@@ -3495,11 +3499,49 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         for status in native_source_hash_statuses
         if as_bool(status.get("ok")) is not True
     ]
+    native_preconditions_gate = str(
+        get_any(native_preconditions_audit, ["native_preconditions_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_reasons = str(
+        get_any(native_preconditions_audit, ["native_preconditions_gate_reasons_csv", "native_preconditions_gate_reasons"]) or ""
+    )
+    native_preconditions_protocol_gate = str(
+        get_any(native_preconditions_audit, ["native_preconditions_protocol_identity_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_time_gate = str(
+        get_any(native_preconditions_audit, ["native_preconditions_time_average_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_id = str(
+        get_any(native_preconditions_audit, ["baseline_id", "BaselineId"]) or ""
+    ).strip()
+    current_manifest_sha256 = sha256_file(manifest_path).lower()
+    native_preconditions_manifest_sha256 = str(
+        get_any(native_preconditions_audit, ["native_preconditions_manifest_sha256"]) or ""
+    ).strip().lower()
+    native_preconditions_manifest_hash_matches = (
+        bool(current_manifest_sha256)
+        and bool(native_preconditions_manifest_sha256)
+        and current_manifest_sha256 == native_preconditions_manifest_sha256
+    )
+    native_preconditions_id_matches = (
+        bool(manifest_native_id)
+        and bool(native_preconditions_id)
+        and manifest_native_id == native_preconditions_id
+    )
+    native_preconditions_ok = (
+        native_preconditions_audit_path is not None
+        and native_preconditions_gate == "pass"
+        and native_preconditions_protocol_gate == "pass"
+        and native_preconditions_time_gate == "pass"
+        and native_preconditions_id_matches
+        and native_preconditions_manifest_hash_matches
+    )
     native_manifest_ok = (
         native_path_explicit is True
         and native_source_valid is True
         and native_source_root_status["ok"]
         and native_source_hashes_ok
+        and native_preconditions_ok
     )
     native_gate = "pass" if manifest_path is not None and native_manifest_ok else "fail"
     add_gate(
@@ -3521,10 +3563,21 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_source_root_reasons={native_source_root_status['reason'] or 'none'}; "
             f"native_source_hashes_ok={native_source_hashes_ok}; "
             f"native_source_hash_failure_reasons={';'.join(native_source_hash_failure_reasons) or 'none'}; "
+            f"native_preconditions_audit={native_preconditions_audit_path or 'missing'}; "
+            f"native_preconditions_gate={native_preconditions_gate or 'missing'}; "
+            f"native_preconditions_protocol_identity_gate={native_preconditions_protocol_gate or 'missing'}; "
+            f"native_preconditions_time_average_gate={native_preconditions_time_gate or 'missing'}; "
+            f"native_preconditions_id={native_preconditions_id or 'missing'}; "
+            f"native_preconditions_id_matches={native_preconditions_id_matches}; "
+            f"native_preconditions_manifest_sha256={native_preconditions_manifest_sha256 or 'missing'}; "
+            f"current_manifest_sha256={current_manifest_sha256 or 'missing'}; "
+            f"native_preconditions_manifest_hash_matches={native_preconditions_manifest_hash_matches}; "
+            f"native_preconditions_reasons={native_preconditions_reasons or 'none'}; "
             f"manifest={manifest_path or 'missing'}; "
-            f"metrics_native_baseline_gate={get_any(metrics, ['native_baseline_gate', 'native_fluidx3d_baseline_gate']) or 'ignored'}"
+            f"metrics_native_baseline_gate={get_any(metrics, ['native_baseline_gate', 'native_fluidx3d_baseline_gate']) or 'ignored'}; "
+            f"metrics_native_preconditions_gate={get_any(metrics, ['native_preconditions_gate']) or 'ignored'}"
         ),
-        "Run and archive a paired native FluidX3D baseline using an explicit complete source tree with setup/defines/lbm source hashes, then compare the same setup, grid, averaging and probes.",
+        "Run and archive a paired native FluidX3D baseline using an explicit complete source tree with setup/defines/lbm source hashes, then keep native_preconditions_audit.json proving manifest, setup, metadata, VTK pattern, averaging window, wind vector and Uref match the current package.",
     )
 
     parity_gate = str(
@@ -4408,6 +4461,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "boundary_protocol_audit": str(boundary_audit_path) if boundary_audit_path else "",
             "component_sensitivity_audit": str(component_sensitivity_audit_path) if component_sensitivity_audit_path else "",
             "grid_sensitivity_audit": str(grid_sensitivity_audit_path) if grid_sensitivity_audit_path else "",
+            "native_preconditions_audit": str(native_preconditions_audit_path) if native_preconditions_audit_path else "",
             "native_citylbm_parity_audit": str(native_citylbm_parity_audit_path) if native_citylbm_parity_audit_path else "",
             "native_fluidx3d_baseline_manifest": str(manifest_path) if manifest_path else "",
             "metrics": str(metrics_path) if metrics_path else "",

@@ -247,6 +247,15 @@ TEMPLATE_FIELDS = [
     "empty_tunnel_k_bias_ratio",
     "native_fluidx3d_baseline_id",
     "native_baseline_gate",
+    "native_preconditions_audit",
+    "native_preconditions_gate",
+    "native_preconditions_gate_reasons",
+    "native_preconditions_protocol_identity_gate",
+    "native_preconditions_time_average_gate",
+    "native_preconditions_manifest_sha256",
+    "native_preconditions_setup_sha256",
+    "native_preconditions_metadata_sha256",
+    "native_preconditions_runtime_audit_sha256",
     "native_citylbm_parity_audit",
     "native_citylbm_parity_gate",
     "native_citylbm_parity_gate_reasons",
@@ -359,6 +368,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--boundary-protocol-audit", help="Optional boundary_protocol_audit.json from audit_boundary_protocol.py.")
     parser.add_argument("--component-sensitivity-audit", help="Optional component/Uref sensitivity JSON from audit_component_sensitivity.py.")
     parser.add_argument("--grid-sensitivity-audit", help="Optional grid_sensitivity_audit.json from audit_grid_sensitivity.py.")
+    parser.add_argument("--native-preconditions-audit", help="Optional native_preconditions_audit.json from audit_native_preconditions.py.")
     parser.add_argument("--native-citylbm-parity-audit", help="Optional native_citylbm_parity_audit.json from audit_native_citylbm_parity.py.")
     parser.add_argument("--case", default="", help="Case label to write and optionally filter official rows.")
     parser.add_argument("--wind-direction", default="", help="Wind direction label to write and optionally filter official rows.")
@@ -883,6 +893,7 @@ def main() -> int:
     boundary_protocol_audit = read_json(Path(args.boundary_protocol_audit).resolve() if args.boundary_protocol_audit else None)
     component_sensitivity_audit = read_json(Path(args.component_sensitivity_audit).resolve() if args.component_sensitivity_audit else None)
     grid_sensitivity_audit = read_json(Path(args.grid_sensitivity_audit).resolve() if args.grid_sensitivity_audit else None)
+    native_preconditions_audit = read_json(Path(args.native_preconditions_audit).resolve() if args.native_preconditions_audit else None)
     native_citylbm_parity_audit = read_json(Path(args.native_citylbm_parity_audit).resolve() if args.native_citylbm_parity_audit else None)
 
     probe_rows = read_csv(probe_path)
@@ -1637,6 +1648,31 @@ def main() -> int:
             "empty_tunnel_k_bias_ratio": args.empty_tunnel_k_bias_ratio or fmt(inlet_k_bias_ratio),
             "native_fluidx3d_baseline_id": args.native_baseline_id,
             "native_baseline_gate": args.native_baseline_gate,
+            "native_preconditions_audit": str(Path(args.native_preconditions_audit).resolve()) if args.native_preconditions_audit else "",
+            "native_preconditions_gate": audit_gate(native_preconditions_audit, "native_preconditions_gate"),
+            "native_preconditions_gate_reasons": ";".join(
+                str(reason) for reason in native_preconditions_audit.get("native_preconditions_gate_reasons", [])
+            )
+            if isinstance(native_preconditions_audit.get("native_preconditions_gate_reasons"), list)
+            else audit_field(native_preconditions_audit, "native_preconditions_gate_reasons_csv"),
+            "native_preconditions_protocol_identity_gate": audit_gate(
+                native_preconditions_audit, "native_preconditions_protocol_identity_gate"
+            ),
+            "native_preconditions_time_average_gate": audit_gate(
+                native_preconditions_audit, "native_preconditions_time_average_gate"
+            ),
+            "native_preconditions_manifest_sha256": audit_field(
+                native_preconditions_audit, "native_preconditions_manifest_sha256"
+            ),
+            "native_preconditions_setup_sha256": audit_field(
+                native_preconditions_audit, "native_preconditions_setup_sha256"
+            ),
+            "native_preconditions_metadata_sha256": audit_field(
+                native_preconditions_audit, "native_preconditions_metadata_sha256"
+            ),
+            "native_preconditions_runtime_audit_sha256": audit_field(
+                native_preconditions_audit, "native_preconditions_runtime_audit_sha256"
+            ),
             "native_citylbm_parity_audit": str(Path(args.native_citylbm_parity_audit).resolve()) if args.native_citylbm_parity_audit else "",
             "native_citylbm_parity_gate": audit_gate(native_citylbm_parity_audit, "native_citylbm_parity_gate"),
             "native_citylbm_parity_gate_reasons": ";".join(
