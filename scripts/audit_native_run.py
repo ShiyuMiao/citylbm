@@ -498,6 +498,16 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         args.vtk_stability_sample_limit,
     )
     freshness_audit = run_freshness_audit(run_dir, metadata_path, selected_vtk_files)
+    cli_speed_fields = {
+        "mean_speed_mps": args.mean_speed_mps,
+        "mean_speed_stddev_mps": args.mean_speed_stddev_mps,
+        "max_speed_stddev_mps": args.max_speed_stddev_mps,
+        "mean_speed_stddev_ratio": args.mean_speed_stddev_ratio,
+        "max_speed_stddev_ratio": args.max_speed_stddev_ratio,
+    }
+    cli_override_fields = [key for key, value in cli_speed_fields.items() if value is not None]
+    speed_statistics_cli_override = bool(cli_override_fields)
+    sampled_vtk_stability_available = sampled_stability.get("vtk_stability_sampling_gate") == "sampled"
     mean_speed_mps = (
         args.mean_speed_mps
         if args.mean_speed_mps is not None
@@ -523,11 +533,12 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         if args.max_speed_stddev_ratio is not None
         else sampled_stability.get("max_speed_stddev_ratio")
     )
-    mean_speed_statistics_source = (
-        "cli"
-        if args.mean_speed_stddev_ratio is not None and args.max_speed_stddev_ratio is not None
-        else "sampled_vtk"
-    )
+    if speed_statistics_cli_override:
+        mean_speed_statistics_source = "cli_override"
+    elif sampled_vtk_stability_available:
+        mean_speed_statistics_source = "sampled_vtk"
+    else:
+        mean_speed_statistics_source = "sampled_vtk_unavailable"
 
     reasons: List[str] = []
     if args.average_last_n <= 0:
@@ -603,6 +614,9 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "mean_speed_stddev_ratio": mean_speed_stddev_ratio,
         "max_speed_stddev_ratio": max_speed_stddev_ratio,
         "mean_speed_statistics_source": mean_speed_statistics_source,
+        "mean_speed_statistics_cli_override": speed_statistics_cli_override,
+        "mean_speed_statistics_cli_override_fields_csv": ",".join(cli_override_fields),
+        "sampled_vtk_stability_available": sampled_vtk_stability_available,
         "minimum_validation_average_frames": args.min_avg_frames,
         "minimum_validation_average_step_span": args.min_avg_step_span,
         "max_mean_speed_stddev_ratio": args.max_mean_speed_stddev_ratio,

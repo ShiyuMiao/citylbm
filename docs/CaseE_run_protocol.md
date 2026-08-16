@@ -212,9 +212,10 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   run-freshness evidence, solver-log stability warnings and LBM stability fields in the same schema used by the
   `Read VTK` audit output. `validation_gate.py` uses this runtime audit JSON as the authoritative source for
   run-freshness, solver-stability and time-averaging pass/fail decisions.
-  When full-field statistics are not supplied manually, the script deterministically samples up to 20,000 points from
-  the selected final VTK frames and computes `mean_speed_stddev_ratio` and `max_speed_stddev_ratio` from the real
-  velocity time series.
+  The script deterministically samples up to 20,000 points from the selected final VTK frames and computes
+  `mean_speed_stddev_ratio` and `max_speed_stddev_ratio` from the real velocity time series. Manually supplied
+  mean-speed, standard-deviation or stability-ratio values are recorded as `mean_speed_statistics_source=cli_override`
+  and remain diagnostic-only; they cannot satisfy the paper-grade time-averaging gate.
   The metrics table may summarize the real audited `averaged_frame_count` and `source_time_steps`, but the final
   machine gate reads these fields from the runtime audit JSON, not from `validation_metrics.csv`. The requested
   `Average Last N` value is only a request field and is not sufficient for paper-grade evidence.

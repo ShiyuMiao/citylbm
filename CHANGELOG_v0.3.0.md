@@ -398,9 +398,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now verifies that native FluidX3D baseline source hashes come from one explicit complete source
   root. The manifest must prove a build file plus `src/setup.cpp`, `src/defines.hpp`, `src/lbm.hpp` and `src/lbm.cpp`
   under the declared `NativeFluidX3DSourcePath`, not merely provide four matching hashes from arbitrary paths.
-- `audit_native_run.py` no longer lets command-line speed-stability ratios pass the native `time_averaging_gate`.
-  Paper-grade time averaging must use deterministic sampled-VTK statistics from the selected final-window frames; CLI
-  ratios remain diagnostic context only.
+- `audit_native_run.py` no longer lets command-line speed-stability values pass the native `time_averaging_gate`.
+  Paper-grade time averaging must use deterministic sampled-VTK statistics from the selected final-window frames. Any
+  CLI override of mean speed, standard deviation or stability ratio is recorded as `mean_speed_statistics_source=cli_override`
+  and remains diagnostic context only.
 
 ## Remaining scientific work
 

@@ -403,8 +403,10 @@ run diagnostic.
 
 When `--mean-speed-stddev-ratio` and `--max-speed-stddev-ratio` are omitted, `audit_native_run.py` deterministically
 samples up to 20,000 points from the selected final VTK frames and computes these stability ratios from the real
-velocity time series. Explicit CLI ratios can still be used when a stricter full-field or probe-specific averaging
-analysis has already been archived.
+velocity time series. Explicit CLI mean-speed, standard-deviation or stability-ratio values are diagnostic-only; any
+such override is recorded as `mean_speed_statistics_source=cli_override` and cannot satisfy the paper-grade
+time-averaging gate. A stricter external full-field or probe-specific stationarity analysis may be archived as
+supporting evidence, but the machine gate still requires sampled VTK statistics from the selected final-window frames.
 The validation metrics row must use the actual audit `averaged_frame_count` and `source_time_steps`, not only the
 requested `--average-last-n` value. A run with four real final VTK frames remains four-frame diagnostic evidence even if
 the requested averaging window was ten frames. A run with no archived `source_time_steps` remains diagnostic even when
