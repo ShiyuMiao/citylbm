@@ -26,6 +26,7 @@ def main() -> int:
         work = Path(tmp)
         official = work / "official.csv"
         probe = work / "probe.csv"
+        inlet_source_audit = work / "inlet_source_audit.json"
         native_audit = work / "native_preconditions_audit.json"
         metrics = work / "metrics.csv"
 
@@ -67,6 +68,30 @@ def main() -> int:
                     "vtk_source_sha256": "a;b;c",
                 }
             ],
+        )
+        inlet_source_audit.write_text(
+            json.dumps(
+                {
+                    "inlet_source_gate": "pass",
+                    "inlet_source_gate_reasons": [
+                        "inlet_source_consistent_with_declared_metadata",
+                    ],
+                    "paper_grade_inlet_source_gate": "fail",
+                    "paper_grade_inlet_source_gate_reasons": [
+                        "source_velocity_field_only",
+                    ],
+                    "inlet_source_method_class": "stg_lite_correlated_velocity_field_only",
+                    "inlet_source_distribution_consistent": False,
+                    "inlet_source_velocity_field_only": True,
+                    "has_streamwise_clipping_control": True,
+                    "streamwise_min_fraction": 0.0,
+                    "streamwise_clipping_enabled": False,
+                    "has_legacy_hardcoded_streamwise_clipping": False,
+                    "recommended_next_action": "Use source evidence plus final-window VTK inlet profile/correlation audits.",
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
         )
         native_audit.write_text(
             json.dumps(
@@ -114,6 +139,10 @@ def main() -> int:
                     ],
                     "inlet_source_has_mean_preserving_inlet_correction": True,
                     "inlet_source_has_layerwise_mean_preserving_inlet_correction": True,
+                    "inlet_source_has_streamwise_clipping_control": True,
+                    "inlet_source_streamwise_min_fraction": 0.0,
+                    "inlet_source_streamwise_clipping_enabled": False,
+                    "inlet_source_has_legacy_hardcoded_streamwise_clipping": False,
                 },
                 indent=2,
             ),
@@ -135,6 +164,8 @@ def main() -> int:
             "N",
             "--source-time-steps",
             "1000;2000;3000",
+            "--inlet-source-audit",
+            str(inlet_source_audit),
             "--native-preconditions-audit",
             str(native_audit),
         ]
@@ -179,6 +210,17 @@ def main() -> int:
         "native_precondition_top_blocking_stage_reasons": "inlet_k_profile_gate_not_pass;inlet_correlation_gate_not_pass",
         "native_inlet_source_has_mean_preserving_inlet_correction": "true",
         "native_inlet_source_has_layerwise_mean_preserving_inlet_correction": "true",
+        "native_inlet_source_has_streamwise_clipping_control": "true",
+        "native_inlet_source_streamwise_min_fraction": "0.0",
+        "native_inlet_source_streamwise_clipping_enabled": "false",
+        "native_inlet_source_has_legacy_hardcoded_streamwise_clipping": "false",
+        "inlet_source_has_streamwise_clipping_control": "true",
+        "inlet_source_streamwise_min_fraction": "0.0",
+        "inlet_source_streamwise_clipping_enabled": "false",
+        "inlet_source_has_legacy_hardcoded_streamwise_clipping": "false",
+        "synthetic_min_streamwise_fraction": "0.0",
+        "synthetic_streamwise_clipping_enabled": "false",
+        "synthetic_legacy_hardcoded_streamwise_clipping": "false",
     }
     for field, value in expected.items():
         if row.get(field) != value:

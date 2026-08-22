@@ -289,6 +289,7 @@ const int citylbm_stg_mode_count = 64;
 const float citylbm_stg_corr_cells = 8.0f;
 const uint citylbm_stg_update_interval = 5u;
 const float citylbm_stg_max_fraction = 0.5f;
+const float citylbm_stg_min_streamwise_fraction = 0.0f;
 const uint Nz = 16u;
 const float dir_x = 1.0f, dir_y = 0.0f, dir_z = 0.0f;
 float citylbm_mode_wave(int mode, int axis) { return (1.0f + mode + axis) / citylbm_stg_corr_cells; }
@@ -390,6 +391,60 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(spectral_report)
         if "source_velocity_field_only" not in spectral_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(spectral_report["paper_grade_inlet_source_gate_reasons"])
+        if spectral_report["has_streamwise_clipping_control"] is not True:
+            raise AssertionError(spectral_report)
+        if abs(float(spectral_report["streamwise_min_fraction"]) - 0.0) > 1.0e-12:
+            raise AssertionError(spectral_report)
+        if spectral_report["streamwise_clipping_enabled"] is not False:
+            raise AssertionError(spectral_report)
+        if spectral_report["has_legacy_hardcoded_streamwise_clipping"] is not False:
+            raise AssertionError(spectral_report)
+
+        legacy_clip_setup = root / "legacy_clip_setup.cpp"
+        legacy_clip_out = root / "legacy_clip_audit.json"
+        write_text(
+            legacy_clip_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+const int citylbm_stg_mode_count = 64;
+const float citylbm_stg_corr_cells = 8.0f;
+const uint citylbm_stg_update_interval = 5u;
+const float citylbm_stg_max_fraction = 0.5f;
+float3 windProfile(uint z_cell) { return float3(profile_u_lbm[0], 0.0f, 0.0f); }
+float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
+    float3 mean = windProfile(z_cell);
+    float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);
+    float min_streamwise = 0.05f * (mean_mag > 1.0e-12f ? mean_mag : 1.0f);
+    return float3(min_streamwise, 0.0f, 0.0f);
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            float3 u_in = syntheticTurbulentInlet(0u, 0u, n, t_step);
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+        }
+    }
+}
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > citylbm_stg_update_interval ? citylbm_stg_update_interval : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        legacy_clip_code, legacy_clip_report = run_audit(legacy_clip_setup, metadata, legacy_clip_out)
+        if legacy_clip_code == 0:
+            raise AssertionError("legacy streamwise clipping unexpectedly passed")
+        if legacy_clip_report["has_legacy_hardcoded_streamwise_clipping"] is not True:
+            raise AssertionError(legacy_clip_report)
+        if "synthetic_inlet_uses_legacy_hardcoded_streamwise_clipping" not in legacy_clip_report["inlet_source_gate_reasons"]:
+            raise AssertionError(legacy_clip_report["inlet_source_gate_reasons"])
 
         face_mean_setup = root / "face_mean_setup.cpp"
         face_mean_out = root / "face_mean_audit.json"

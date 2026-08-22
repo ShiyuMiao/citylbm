@@ -95,6 +95,16 @@ def first_int_regex(text: str, pattern: str) -> Optional[int]:
         return None
 
 
+def first_float_regex(text: str, pattern: str) -> Optional[float]:
+    match = re.search(pattern, text, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL)
+    if not match:
+        return None
+    try:
+        return float(str(match.group(1)).rstrip("fF"))
+    except (TypeError, ValueError):
+        return None
+
+
 def strip_cpp_string_literals(text: str) -> str:
     return re.sub(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', '""', text)
 
@@ -578,6 +588,18 @@ def main() -> int:
         implementation_source,
         ["citylbm_stg_max_fraction", "max_fraction", "amplitude cap"],
     )
+    streamwise_min_fraction = first_float_regex(
+        implementation_source,
+        r"citylbm_stg_min_streamwise_fraction\s*=\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?f?)\b",
+    )
+    has_streamwise_clipping_control = "citylbm_stg_min_streamwise_fraction" in implementation_source_lower
+    streamwise_clipping_enabled = (
+        streamwise_min_fraction is not None and streamwise_min_fraction > 0.0
+    )
+    has_legacy_hardcoded_streamwise_clipping = has_regex(
+        implementation_source,
+        r"0\.05f?\s*\*\s*\(\s*mean_mag\s*>",
+    )
     has_mean_preserving_inlet_correction = contains_any(
         implementation_source,
         [
@@ -752,6 +774,8 @@ def main() -> int:
         reasons.append("synthetic_inlet_refresh_not_coupled_to_segmented_lbm_run")
     if synthetic_requested and stg_lite_velocity_source and not (has_bounded_amplitude or has_native_synthetic_eddy_evidence):
         reasons.append("synthetic_inlet_missing_amplitude_cap")
+    if synthetic_requested and stg_lite_velocity_source and has_legacy_hardcoded_streamwise_clipping:
+        reasons.append("synthetic_inlet_uses_legacy_hardcoded_streamwise_clipping")
     if synthetic_requested and stg_lite_velocity_source and not has_mean_preserving_inlet_correction:
         reasons.append("synthetic_inlet_missing_mean_preserving_inlet_correction")
     if synthetic_requested and stg_lite_velocity_source and has_mean_preserving_inlet_correction and not has_layerwise_mean_preserving_inlet_correction:
@@ -861,6 +885,10 @@ def main() -> int:
         "has_update_interval_run_control": has_update_interval_run_control,
         "has_segmented_stg_run_loop": has_segmented_stg_run_loop,
         "has_bounded_amplitude": has_bounded_amplitude,
+        "has_streamwise_clipping_control": has_streamwise_clipping_control,
+        "streamwise_min_fraction": streamwise_min_fraction,
+        "streamwise_clipping_enabled": streamwise_clipping_enabled,
+        "has_legacy_hardcoded_streamwise_clipping": has_legacy_hardcoded_streamwise_clipping,
         "has_mean_preserving_inlet_correction": has_mean_preserving_inlet_correction,
         "has_layerwise_mean_preserving_inlet_correction": has_layerwise_mean_preserving_inlet_correction,
         "has_uncorrelated_random_inlet": has_uncorrelated_random_inlet,

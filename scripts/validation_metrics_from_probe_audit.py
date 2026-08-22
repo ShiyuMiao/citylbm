@@ -258,6 +258,10 @@ TEMPLATE_FIELDS = [
     "inlet_source_refresh_with_current_time",
     "inlet_source_update_interval_run_control",
     "inlet_source_segmented_stg_run_loop",
+    "inlet_source_has_streamwise_clipping_control",
+    "inlet_source_streamwise_min_fraction",
+    "inlet_source_streamwise_clipping_enabled",
+    "inlet_source_has_legacy_hardcoded_streamwise_clipping",
     "inlet_source_has_uncorrelated_random_inlet",
     "inlet_source_uncorrelated_random_patterns",
     "inlet_source_correlation_model",
@@ -273,6 +277,9 @@ TEMPLATE_FIELDS = [
     "synthetic_expected_final_window_refresh_count",
     "synthetic_temporal_sampling_gate",
     "synthetic_max_fraction",
+    "synthetic_min_streamwise_fraction",
+    "synthetic_streamwise_clipping_enabled",
+    "synthetic_legacy_hardcoded_streamwise_clipping",
     "synthetic_component_norm_x",
     "synthetic_component_norm_y",
     "synthetic_component_norm_z",
@@ -382,6 +389,10 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_has_k_driven_three_component_stg",
     "native_inlet_source_has_mean_preserving_inlet_correction",
     "native_inlet_source_has_layerwise_mean_preserving_inlet_correction",
+    "native_inlet_source_has_streamwise_clipping_control",
+    "native_inlet_source_streamwise_min_fraction",
+    "native_inlet_source_streamwise_clipping_enabled",
+    "native_inlet_source_has_legacy_hardcoded_streamwise_clipping",
     "native_inlet_source_uncorrelated_random_patterns",
     "native_inlet_source_recommended_next_action",
     "native_probe_compared_component_values",
@@ -2027,6 +2038,18 @@ def main() -> int:
             "inlet_source_segmented_stg_run_loop": first_bool_text(
                 inlet_source_audit.get("has_segmented_stg_run_loop")
             ),
+            "inlet_source_has_streamwise_clipping_control": first_bool_text(
+                inlet_source_audit.get("has_streamwise_clipping_control")
+            ),
+            "inlet_source_streamwise_min_fraction": audit_field(
+                inlet_source_audit, "streamwise_min_fraction"
+            ),
+            "inlet_source_streamwise_clipping_enabled": first_bool_text(
+                inlet_source_audit.get("streamwise_clipping_enabled")
+            ),
+            "inlet_source_has_legacy_hardcoded_streamwise_clipping": first_bool_text(
+                inlet_source_audit.get("has_legacy_hardcoded_streamwise_clipping")
+            ),
             "inlet_source_has_uncorrelated_random_inlet": first_bool_text(
                 inlet_source_audit.get("has_uncorrelated_random_inlet")
             ),
@@ -2050,6 +2073,17 @@ def main() -> int:
             "synthetic_expected_final_window_refresh_count": infer_synthetic_expected_final_window_refresh_count(metadata),
             "synthetic_temporal_sampling_gate": infer_synthetic_temporal_sampling_gate(metadata),
             "synthetic_max_fraction": metadata_field(metadata, "SyntheticTurbulenceMaxFractionOfMean"),
+            "synthetic_min_streamwise_fraction": first_text(
+                metadata_field(metadata, "SyntheticTurbulenceMinStreamwiseFraction"),
+                audit_field(inlet_source_audit, "streamwise_min_fraction"),
+            ),
+            "synthetic_streamwise_clipping_enabled": first_bool_text(
+                metadata.get("SyntheticTurbulenceStreamwiseClippingEnabled"),
+                inlet_source_audit.get("streamwise_clipping_enabled"),
+            ),
+            "synthetic_legacy_hardcoded_streamwise_clipping": first_bool_text(
+                inlet_source_audit.get("has_legacy_hardcoded_streamwise_clipping")
+            ),
             "synthetic_component_norm_x": nested(metadata, "SyntheticTurbulentInletComponentRmsNormalization", "X"),
             "synthetic_component_norm_y": nested(metadata, "SyntheticTurbulentInletComponentRmsNormalization", "Y"),
             "synthetic_component_norm_z": nested(metadata, "SyntheticTurbulentInletComponentRmsNormalization", "Z"),
@@ -2246,6 +2280,18 @@ def main() -> int:
             ),
             "native_inlet_source_has_layerwise_mean_preserving_inlet_correction": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_layerwise_mean_preserving_inlet_correction")
+            ),
+            "native_inlet_source_has_streamwise_clipping_control": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_streamwise_clipping_control")
+            ),
+            "native_inlet_source_streamwise_min_fraction": audit_field(
+                native_preconditions_audit, "inlet_source_streamwise_min_fraction"
+            ),
+            "native_inlet_source_streamwise_clipping_enabled": first_bool_text(
+                native_preconditions_audit.get("inlet_source_streamwise_clipping_enabled")
+            ),
+            "native_inlet_source_has_legacy_hardcoded_streamwise_clipping": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_legacy_hardcoded_streamwise_clipping")
             ),
             "native_inlet_source_uncorrelated_random_patterns": audit_field(
                 native_preconditions_audit, "inlet_source_uncorrelated_random_patterns_csv"
