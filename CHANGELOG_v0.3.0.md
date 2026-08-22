@@ -159,6 +159,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   RS/measurement CSV when the Grasshopper Data Probe audit does not already contain `official_coordinate_delta`. This
   keeps coordinate closure tied to the archived official table and avoids requiring GH users to hand-author derived
   coordinate-delta columns.
+- `scripts/audit_native_preconditions.py` and `scripts/run_native_validation_chain.py` now use the same official
+  RS/measurement CSV fallback for native-baseline probe coordinate closure, so the native precondition gate and final
+  validation gate no longer disagree about Grasshopper-exported probe audits that omit derived coordinate-delta fields.
 - `scripts/validation_gate.py` now rechecks valid per-probe IDs against the current official RS/measurement table:
   every valid probe row must have a non-empty unique ID, and each ID must exist in the official table before
   coordinate/Uref/compared-component diagnostics can pass.

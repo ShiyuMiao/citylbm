@@ -48,8 +48,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--boundary-protocol-audit", help="boundary_protocol_audit.json with AIJ-equivalent evidence.")
     parser.add_argument("--probe-audit", help="probe_audit.csv used for metrics.")
     parser.add_argument("--component-sensitivity-audit", help="component_sensitivity_audit.json for component/Uref checks.")
+    parser.add_argument("--official", help="Official RS/probe CSV used to recompute per-probe coordinate closure.")
     parser.add_argument("--af-csv", help="Official AF CSV used by the run.")
     parser.add_argument("--case", default="", help="Expected case label.")
+    parser.add_argument("--wind-direction-label", default="", help="Official wind-direction label, e.g. N.")
     parser.add_argument("--software", default="", help="Expected software label.")
     parser.add_argument("--wind-vector", default="", help="Expected wind vector, e.g. 0,-1,0.")
     parser.add_argument("--u-ref", type=float, default=None, help="Expected reference wind speed in m/s.")
@@ -377,6 +379,105 @@ def row_value(row: Dict[str, str], *fields: str) -> str:
     return ""
 
 
+def normalized_column_key(value: str) -> str:
+    return "".join(ch for ch in str(value).lower() if ch.isalnum())
+
+
+def find_csv_column(rows: List[Dict[str, str]], candidates: Iterable[str]) -> str:
+    if not rows:
+        return ""
+    columns = list(rows[0].keys())
+    normalized = {normalized_column_key(column): column for column in columns}
+    for candidate in candidates:
+        found = normalized.get(normalized_column_key(candidate))
+        if found:
+            return found
+    return ""
+
+
+def filter_official_rows(
+    rows: List[Dict[str, str]],
+    case: str,
+    wind_direction: str,
+) -> Tuple[List[Dict[str, str]], Optional[str]]:
+    filtered = rows
+    case_text = str(case or "").strip().lower()
+    wind_text = str(wind_direction or "").strip().lower()
+    if case_text:
+        case_col = find_csv_column(filtered, ["case", "Case", "condition", "Condition", "bcac"])
+        if not case_col:
+            return [], "official_case_filter_column_missing"
+        filtered = [
+            row
+            for row in filtered
+            if str(row.get(case_col) or "").strip().lower() == case_text
+        ]
+        if not filtered:
+            return [], "official_case_filter_no_rows"
+    if wind_text:
+        wind_col = find_csv_column(
+            filtered,
+            ["Wind_direction", "wind_direction", "direction", "Direction", "wind", "Wind"],
+        )
+        if not wind_col:
+            return [], "official_wind_direction_filter_column_missing"
+        filtered = [
+            row
+            for row in filtered
+            if str(row.get(wind_col) or "").strip().lower() == wind_text
+        ]
+        if not filtered:
+            return [], "official_wind_direction_filter_no_rows"
+    return filtered, None
+
+
+def build_official_coordinate_lookup(
+    official_path: Optional[Path],
+    case: str,
+    wind_direction: str,
+) -> Tuple[Dict[str, Tuple[float, float, float]], Optional[str]]:
+    rows = read_csv_rows(official_path)
+    if not official_path:
+        return {}, "official_csv_not_provided"
+    if not rows:
+        return {}, "official_csv_missing_or_empty"
+    rows, filter_error = filter_official_rows(rows, case, wind_direction)
+    if filter_error:
+        return {}, filter_error
+    id_column = find_csv_column(rows, ["probe_id", "ProbeId", "ProbeID", "No.", "No", "number", "point_id", "PointId", "id", "ID"])
+    x_column = find_csv_column(rows, ["x", "X", "x_m", "X_m", "X(m)", "x(m)"])
+    y_column = find_csv_column(rows, ["y", "Y", "y_m", "Y_m", "Y(m)", "y(m)"])
+    z_column = find_csv_column(rows, ["z", "Z", "z_m", "Z_m", "Z(m)", "z(m)"])
+    if not id_column:
+        return {}, "official_id_column_missing"
+    if not x_column or not y_column or not z_column:
+        return {}, "official_coordinate_columns_missing"
+
+    lookup: Dict[str, Tuple[float, float, float]] = {}
+    duplicate_ids = set()
+    invalid_count = 0
+    for row in rows:
+        probe_id = normalized_column_key(str(row.get(id_column) or "").strip())
+        if not probe_id:
+            continue
+        x = as_float(row.get(x_column))
+        y = as_float(row.get(y_column))
+        z = as_float(row.get(z_column))
+        if x is None or y is None or z is None:
+            invalid_count += 1
+            continue
+        if probe_id in lookup:
+            duplicate_ids.add(probe_id)
+        lookup[probe_id] = (x, y, z)
+    if duplicate_ids:
+        return {}, "official_duplicate_ids_after_normalization"
+    if invalid_count:
+        return {}, f"official_invalid_coordinate_count:{invalid_count}"
+    if not lookup:
+        return {}, "official_coordinate_lookup_empty"
+    return lookup, None
+
+
 def probe_row_failed(row: Dict[str, str]) -> bool:
     return str(row_value(row, "failed", "Failed") or "").strip().lower() in {"true", "1", "yes", "fail"}
 
@@ -396,6 +497,7 @@ def main() -> int:
     boundary_protocol_audit_path = Path(args.boundary_protocol_audit).expanduser().resolve() if args.boundary_protocol_audit else find_first(run_dir, ["boundary_protocol_audit.json"])
     probe_audit_path = Path(args.probe_audit).expanduser().resolve() if args.probe_audit else find_first(run_dir, ["probe_audit.csv"])
     component_sensitivity_audit_path = Path(args.component_sensitivity_audit).expanduser().resolve() if args.component_sensitivity_audit else find_first(run_dir, ["component_sensitivity_audit.json"])
+    official_path = Path(args.official).expanduser().resolve() if args.official else None
     setup_path = find_first(run_dir, ["setup.cpp"])
     defines_path = find_first(run_dir, ["defines.hpp"])
     domain_origin_path = find_first(run_dir, ["domain_origin.json"])
@@ -649,13 +751,33 @@ def main() -> int:
         reasons.append("probe_audit_has_failed_rows")
     if expected_component and compared_components != {expected_component}:
         reasons.append("probe_compared_component_mismatch")
-    official_coordinate_deltas = [
-        value for value in (
-            as_float(row_value(row, "official_coordinate_delta", "OfficialCoordinateDelta"))
-            for row in valid_probe_rows
-        )
-        if value is not None
-    ]
+
+    official_coordinates, official_coordinate_error = build_official_coordinate_lookup(
+        official_path,
+        args.case,
+        args.wind_direction_label,
+    )
+    probe_id_column = find_csv_column(valid_probe_rows, ["probe_id", "ProbeId", "ProbeID", "No.", "No", "number", "point_id", "PointId", "id", "ID"])
+    official_coordinate_deltas: List[float] = []
+    official_coordinate_recomputed_count = 0
+    for row in valid_probe_rows:
+        coordinate_delta = as_float(row_value(row, "official_coordinate_delta", "OfficialCoordinateDelta"))
+        if coordinate_delta is None and official_coordinates and probe_id_column:
+            probe_id = normalized_column_key(str(row.get(probe_id_column) or "").strip())
+            official_coordinate = official_coordinates.get(probe_id)
+            if official_coordinate is not None:
+                probe_x = as_float(row_value(row, "x", "X"))
+                probe_y = as_float(row_value(row, "y", "Y"))
+                probe_z = as_float(row_value(row, "z", "Z"))
+                if probe_x is not None and probe_y is not None and probe_z is not None:
+                    coordinate_delta = max(
+                        abs(probe_x - official_coordinate[0]),
+                        abs(probe_y - official_coordinate[1]),
+                        abs(probe_z - official_coordinate[2]),
+                    )
+                    official_coordinate_recomputed_count += 1
+        if coordinate_delta is not None:
+            official_coordinate_deltas.append(coordinate_delta)
     missing_official_coordinate_delta_count = len(valid_probe_rows) - len(official_coordinate_deltas)
     max_official_coordinate_delta = max(official_coordinate_deltas) if official_coordinate_deltas else None
     official_coordinate_delta_violation_count = sum(
@@ -795,6 +917,7 @@ def main() -> int:
         "boundary_protocol_audit": str(boundary_protocol_audit_path) if boundary_protocol_audit_path else "",
         "probe_audit": str(probe_audit_path) if probe_audit_path else "",
         "component_sensitivity_audit": str(component_sensitivity_audit_path) if component_sensitivity_audit_path else "",
+        "official_measurement_csv": str(official_path) if official_path else "",
         "inlet_source_gate": inlet_source_gate,
         "paper_grade_inlet_source_gate": paper_inlet_source_gate,
         "inlet_source_distribution_consistent": inlet_distribution_consistent,
@@ -821,6 +944,13 @@ def main() -> int:
         "probe_audit_compared_components": sorted(compared_components),
         "expected_compared_component": expected_component,
         "probe_official_coordinate_delta_count": len(official_coordinate_deltas),
+        "probe_official_coordinate_delta_source": (
+            "probe_audit_or_current_official_csv"
+            if official_coordinates
+            else "probe_audit_only"
+        ),
+        "probe_official_coordinate_delta_recomputed_count": official_coordinate_recomputed_count,
+        "probe_official_coordinate_delta_recompute_error": official_coordinate_error,
         "probe_missing_official_coordinate_delta_count": missing_official_coordinate_delta_count,
         "probe_max_official_coordinate_delta_m": max_official_coordinate_delta,
         "probe_official_coordinate_delta_violation_count": official_coordinate_delta_violation_count,
