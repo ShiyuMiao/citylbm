@@ -98,6 +98,11 @@ def main() -> int:
                 {
                     "native_preconditions_gate": "fail",
                     "native_preconditions_time_average_gate": "fail",
+                    "native_preconditions_time_average_evidence_gate": "fail",
+                    "native_preconditions_time_average_evidence_gate_reasons_csv": (
+                        "runtime_average_window_frame_count_4_below_minimum_40;"
+                        "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
+                    ),
                     "expected_uref_mps": 3.93,
                     "actual_uref_mps": 3.90,
                     "expected_zref_m": 15.9,
@@ -202,6 +207,11 @@ def main() -> int:
         "native_inlet_correlation_source_vtk_sha256_match_runtime": "false",
         "native_inlet_correlation_source_step_span": "2000",
         "native_inlet_correlation_minimum_step_span": "20000",
+        "native_preconditions_time_average_evidence_gate": "fail",
+        "native_preconditions_time_average_evidence_gate_reasons": (
+            "runtime_average_window_frame_count_4_below_minimum_40;"
+            "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
+        ),
         "native_preconditions_expected_uref_mps": "3.93",
         "native_preconditions_actual_uref_mps": "3.9",
         "native_preconditions_expected_zref_m": "15.9",

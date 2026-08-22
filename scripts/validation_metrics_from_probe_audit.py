@@ -348,6 +348,8 @@ TEMPLATE_FIELDS = [
     "native_preconditions_gate_reasons",
     "native_preconditions_protocol_identity_gate",
     "native_preconditions_time_average_gate",
+    "native_preconditions_time_average_evidence_gate",
+    "native_preconditions_time_average_evidence_gate_reasons",
     "native_preconditions_expected_uref_mps",
     "native_preconditions_actual_uref_mps",
     "native_preconditions_expected_zref_m",
@@ -2173,6 +2175,12 @@ def main() -> int:
             ),
             "native_preconditions_time_average_gate": audit_gate(
                 native_preconditions_audit, "native_preconditions_time_average_gate"
+            ),
+            "native_preconditions_time_average_evidence_gate": audit_gate(
+                native_preconditions_audit, "native_preconditions_time_average_evidence_gate"
+            ),
+            "native_preconditions_time_average_evidence_gate_reasons": audit_field(
+                native_preconditions_audit, "native_preconditions_time_average_evidence_gate_reasons_csv"
             ),
             "native_preconditions_expected_uref_mps": fmt(
                 audit_float(native_preconditions_audit, "expected_uref_mps")

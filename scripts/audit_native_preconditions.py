@@ -816,6 +816,95 @@ def append_source_step_span_reasons(
     }
 
 
+def build_time_average_evidence_reasons(
+    *,
+    runtime_audit_present: bool,
+    runtime_reported_time_average_gate: str,
+    time_gate: str,
+    requested_frame_gate: str,
+    stationarity_gate: str,
+    stationarity_reasons: List[str],
+    planned_frame_shortfall_reason: Optional[str],
+    runtime_average_shortfall_reason: Optional[str],
+    planned_step_shortfall_reason: Optional[str],
+    runtime_step_shortfall_reason: Optional[str],
+    runtime_avg: Optional[int],
+    required_average_last_n: int,
+    runtime_selected_last_window: Optional[bool],
+    runtime_step_span: Optional[int],
+    runtime_step_span_reported: Optional[int],
+    runtime_step_span_from_steps: Optional[int],
+    runtime_steps: List[int],
+    runtime_steps_increasing: bool,
+    runtime_steps_uniform: bool,
+    runtime_hashes: List[str],
+    runtime_hash_count: int,
+    runtime_hash_unique_count: int,
+    min_avg_frames: int,
+) -> List[str]:
+    evidence_reasons: List[str] = []
+    if not runtime_audit_present:
+        evidence_reasons.append("runtime_audit_missing")
+    if runtime_reported_time_average_gate != "pass":
+        evidence_reasons.append(
+            f"runtime_reported_time_averaging_gate_not_pass:{runtime_reported_time_average_gate}"
+        )
+    if time_gate != "pass":
+        evidence_reasons.append(f"runtime_time_averaging_gate_not_pass:{time_gate or 'missing'}")
+    if requested_frame_gate != "pass":
+        evidence_reasons.append(
+            f"runtime_requested_vtk_frame_gate_not_pass:{requested_frame_gate or 'missing'}"
+        )
+    if stationarity_gate != "pass":
+        evidence_reasons.append(
+            f"runtime_final_window_stationarity_gate_not_pass:{stationarity_gate or 'missing'}"
+        )
+    for reason in stationarity_reasons:
+        evidence_reasons.append(f"runtime_final_window_stationarity_reason:{reason}")
+    if planned_frame_shortfall_reason:
+        evidence_reasons.append(f"planned_frame_shortfall:{planned_frame_shortfall_reason}")
+    if runtime_average_shortfall_reason:
+        evidence_reasons.append(f"runtime_average_window_shortfall:{runtime_average_shortfall_reason}")
+    if planned_step_shortfall_reason:
+        evidence_reasons.append(f"planned_step_span_shortfall:{planned_step_shortfall_reason}")
+    if runtime_step_shortfall_reason:
+        evidence_reasons.append(f"runtime_step_span_shortfall:{runtime_step_shortfall_reason}")
+    if runtime_avg is None:
+        evidence_reasons.append("runtime_average_window_missing")
+    elif runtime_avg != required_average_last_n:
+        evidence_reasons.append(
+            f"runtime_average_window_{runtime_avg}_does_not_match_required_{required_average_last_n}"
+        )
+    if runtime_selected_last_window is not True:
+        evidence_reasons.append(f"runtime_selected_last_window_not_true:{runtime_selected_last_window}")
+    if runtime_step_span is None:
+        evidence_reasons.append("runtime_source_step_span_missing")
+    if (
+        runtime_step_span_reported is not None
+        and runtime_step_span_from_steps is not None
+        and runtime_step_span_reported != runtime_step_span_from_steps
+    ):
+        evidence_reasons.append("runtime_source_step_span_mismatch_time_steps")
+    if not runtime_steps:
+        evidence_reasons.append("runtime_source_time_steps_missing")
+    elif not runtime_steps_increasing:
+        evidence_reasons.append("runtime_source_steps_not_strictly_increasing")
+    if runtime_steps and not runtime_steps_uniform:
+        evidence_reasons.append("runtime_source_step_spacing_not_uniform")
+    if not runtime_hashes:
+        evidence_reasons.append("runtime_source_vtk_hashes_missing")
+    if runtime_hash_count != len(runtime_steps):
+        evidence_reasons.append("runtime_source_vtk_hash_count_mismatch_time_steps")
+    if runtime_hash_count < min_avg_frames:
+        evidence_reasons.append(
+            count_below_minimum_reason("runtime_source_vtk_hash_count", runtime_hash_count, min_avg_frames)
+            or "runtime_source_vtk_hash_count_below_minimum"
+        )
+    if runtime_hash_unique_count != runtime_hash_count:
+        evidence_reasons.append("runtime_source_vtk_hashes_not_unique")
+    return evidence_reasons
+
+
 def append_setup_hash_reason(reasons: List[str], label: str, audit: Dict[str, Any], setup_sha: str) -> Dict[str, Any]:
     audit_sha = str(audit.get("setup_cpp_sha256") or "").strip().lower()
     match = bool(audit_sha) and bool(setup_sha) and audit_sha == setup_sha
@@ -1240,8 +1329,8 @@ def main() -> int:
     requested_frame_gate = str(runtime_audit.get("requested_vtk_frame_gate") or "").strip().lower()
     stationarity_gate = str(runtime_audit.get("final_window_stationarity_gate") or "").strip().lower()
     stationarity_reasons = split_scalar_list(runtime_audit.get("final_window_stationarity_gate_reasons"))
-    time_average_gate = "pass" if time_gate == "pass" and requested_frame_gate == "pass" else "fail"
-    if time_average_gate != "pass":
+    runtime_reported_time_average_gate = "pass" if time_gate == "pass" and requested_frame_gate == "pass" else "fail"
+    if runtime_reported_time_average_gate != "pass":
         reasons.append("runtime_time_averaging_gate_not_pass")
     if runtime_audit and stationarity_gate != "pass":
         reasons.append("runtime_final_window_stationarity_gate_not_pass")
@@ -1253,6 +1342,35 @@ def main() -> int:
             reasons.append("runtime_source_time_steps_missing")
         if not runtime_hashes:
             reasons.append("runtime_source_vtk_hashes_missing")
+
+    time_average_evidence_reasons = build_time_average_evidence_reasons(
+        runtime_audit_present=bool(runtime_audit),
+        runtime_reported_time_average_gate=runtime_reported_time_average_gate,
+        time_gate=time_gate,
+        requested_frame_gate=requested_frame_gate,
+        stationarity_gate=stationarity_gate,
+        stationarity_reasons=stationarity_reasons,
+        planned_frame_shortfall_reason=planned_frame_shortfall_reason,
+        runtime_average_shortfall_reason=runtime_average_shortfall_reason,
+        planned_step_shortfall_reason=planned_step_shortfall_reason,
+        runtime_step_shortfall_reason=runtime_step_shortfall_reason,
+        runtime_avg=runtime_avg,
+        required_average_last_n=args.average_last_n,
+        runtime_selected_last_window=runtime_selected_last_window,
+        runtime_step_span=runtime_step_span,
+        runtime_step_span_reported=runtime_step_span_reported,
+        runtime_step_span_from_steps=runtime_step_span_from_steps,
+        runtime_steps=runtime_steps,
+        runtime_steps_increasing=runtime_steps_increasing,
+        runtime_steps_uniform=runtime_steps_uniform,
+        runtime_hashes=runtime_hashes,
+        runtime_hash_count=runtime_hash_count,
+        runtime_hash_unique_count=runtime_hash_unique_count,
+        min_avg_frames=args.min_avg_frames,
+    )
+    time_average_gate = "pass" if not time_average_evidence_reasons else "fail"
+    if time_average_gate != "pass":
+        reasons.append("native_time_average_evidence_gate_not_pass")
 
     expected_vector = parse_vector(args.wind_vector)
     actual_vector = shared_wind_vector(shared)
@@ -1968,6 +2086,7 @@ def main() -> int:
         "runtime_source_vtk_sha256": runtime_hashes,
         "runtime_source_vtk_sha256_count": runtime_hash_count,
         "runtime_source_vtk_sha256_unique_count": runtime_hash_unique_count,
+        "runtime_reported_time_averaging_gate": runtime_reported_time_average_gate,
         "runtime_time_averaging_gate": time_gate,
         "runtime_final_window_stationarity_gate": stationarity_gate,
         "runtime_final_window_stationarity_gate_reasons": stationarity_reasons,
@@ -1975,6 +2094,9 @@ def main() -> int:
         "runtime_final_window_mean_speed_drift_ratio": runtime_audit.get("final_window_mean_speed_drift_ratio", ""),
         "runtime_max_final_window_mean_speed_drift_ratio": runtime_audit.get("max_final_window_mean_speed_drift_ratio", ""),
         "runtime_requested_vtk_frame_gate": requested_frame_gate,
+        "native_preconditions_time_average_evidence_gate": time_average_gate,
+        "native_preconditions_time_average_evidence_gate_reasons": time_average_evidence_reasons,
+        "native_preconditions_time_average_evidence_gate_reasons_csv": ";".join(time_average_evidence_reasons),
         "inlet_source_audit": str(inlet_source_audit_path) if inlet_source_audit_path else "",
         "inlet_profile_audit": str(inlet_profile_audit_path) if inlet_profile_audit_path else "",
         "inlet_correlation_audit": str(inlet_correlation_audit_path) if inlet_correlation_audit_path else "",

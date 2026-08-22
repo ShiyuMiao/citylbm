@@ -35,6 +35,72 @@ def main() -> int:
     if module.count_reason("probe_uref_mismatch_count", 80) != "probe_uref_mismatch_count_80":
         raise AssertionError("count reason did not preserve the failing row count")
 
+    passing_time_reasons = module.build_time_average_evidence_reasons(
+        runtime_audit_present=True,
+        runtime_reported_time_average_gate="pass",
+        time_gate="pass",
+        requested_frame_gate="pass",
+        stationarity_gate="pass",
+        stationarity_reasons=[],
+        planned_frame_shortfall_reason=None,
+        runtime_average_shortfall_reason=None,
+        planned_step_shortfall_reason=None,
+        runtime_step_shortfall_reason=None,
+        runtime_avg=40,
+        required_average_last_n=40,
+        runtime_selected_last_window=True,
+        runtime_step_span=39000,
+        runtime_step_span_reported=39000,
+        runtime_step_span_from_steps=39000,
+        runtime_steps=list(range(1000, 41000, 1000)),
+        runtime_steps_increasing=True,
+        runtime_steps_uniform=True,
+        runtime_hashes=[f"{idx:064x}" for idx in range(40)],
+        runtime_hash_count=40,
+        runtime_hash_unique_count=40,
+        min_avg_frames=40,
+    )
+    if passing_time_reasons:
+        raise AssertionError(passing_time_reasons)
+
+    short_time_reasons = module.build_time_average_evidence_reasons(
+        runtime_audit_present=True,
+        runtime_reported_time_average_gate="fail",
+        time_gate="pass",
+        requested_frame_gate="fail",
+        stationarity_gate="diagnostic_only",
+        stationarity_reasons=["final_window_mean_speed_drift_ratio_above_threshold"],
+        planned_frame_shortfall_reason="planned_vtk_frame_count_4_below_minimum_40",
+        runtime_average_shortfall_reason="runtime_average_window_frame_count_4_below_minimum_40",
+        planned_step_shortfall_reason="planned_average_step_span_3000_below_minimum_20000",
+        runtime_step_shortfall_reason="runtime_average_step_span_3000_below_minimum_20000",
+        runtime_avg=4,
+        required_average_last_n=40,
+        runtime_selected_last_window=False,
+        runtime_step_span=3000,
+        runtime_step_span_reported=3000,
+        runtime_step_span_from_steps=3000,
+        runtime_steps=[1000, 2000, 3000, 4000],
+        runtime_steps_increasing=True,
+        runtime_steps_uniform=True,
+        runtime_hashes=[f"{idx:064x}" for idx in range(4)],
+        runtime_hash_count=4,
+        runtime_hash_unique_count=4,
+        min_avg_frames=40,
+    )
+    for expected_reason in [
+        "runtime_reported_time_averaging_gate_not_pass:fail",
+        "runtime_requested_vtk_frame_gate_not_pass:fail",
+        "runtime_final_window_stationarity_gate_not_pass:diagnostic_only",
+        "runtime_average_window_shortfall:runtime_average_window_frame_count_4_below_minimum_40",
+        "runtime_step_span_shortfall:runtime_average_step_span_3000_below_minimum_20000",
+        "runtime_average_window_4_does_not_match_required_40",
+        "runtime_selected_last_window_not_true:False",
+        "runtime_source_vtk_hash_count_4_below_minimum_40",
+    ]:
+        if expected_reason not in short_time_reasons:
+            raise AssertionError((expected_reason, short_time_reasons))
+
     reasons = [
         "runtime_average_step_span_too_short",
         "runtime_average_window_frame_count_4_below_minimum_40",
