@@ -189,7 +189,7 @@ def main() -> int:
     )
     has_top_type_e = "if(z == Nz-1u) { lbm.flags[n] = TYPE_E; return; }" in implementation_code
     has_non_reflecting_outlet_token = contains_any(
-        code,
+        implementation_code,
         [
             "non_reflecting",
             "non-reflecting",
@@ -202,9 +202,12 @@ def main() -> int:
             "pressure outlet validated",
         ],
     )
-    has_periodic_side_top_token = contains_any(code, ["periodic boundary", "periodic_x", "periodic_y", "periodic_z"])
+    has_periodic_side_top_token = contains_any(
+        implementation_code,
+        ["periodic boundary", "periodic_x", "periodic_y", "periodic_z"],
+    )
     has_rough_wall_function_token = contains_any(
-        code,
+        implementation_code,
         [
             "rough_wall",
             "rough-wall",
@@ -214,7 +217,10 @@ def main() -> int:
             "aerodynamic roughness boundary",
         ],
     )
-    has_precursor_or_recycling_token = contains_any(code, ["precursor", "recycling_rescaling", "recycling-rescaling"])
+    has_precursor_or_recycling_token = contains_any(
+        implementation_code,
+        ["precursor", "recycling_rescaling", "recycling-rescaling"],
+    )
     has_non_reflecting_outlet_method = (
         has_regex(
             implementation_code,

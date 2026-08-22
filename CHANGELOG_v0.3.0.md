@@ -282,6 +282,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   advanced inlet or boundary implementations. Labels such as `"digital_filter"`, `"SEM"`, `"non_reflecting"` or
   `"rough_wall"` are reported as token-only diagnostics unless the generated `setup.cpp` also contains call/array/field
   code evidence for the claimed method.
+- `audit_boundary_source.py` now also applies string-literal stripping to advanced boundary token diagnostics themselves,
+  so UI labels, log strings or explanatory constants cannot trigger `advanced_boundary_token_only` without real outlet,
+  side/top, rough-wall or precursor/recycling implementation code.
 - `audit_inlet_source.py` now checks CustomTable code for `profile_origin_z_m` and origin-aware physical-height
   sampling. A generated inlet that falls back to a hard-coded zero vertical datum is rejected by the source audit.
 - `audit_boundary_source.py` now separates advanced boundary method names from concrete implementation evidence. A

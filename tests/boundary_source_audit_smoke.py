@@ -23,6 +23,7 @@ def main() -> int:
         setup.write_text(
             """
 void main_setup() {
+    const char* ui_label = "non_reflecting outlet periodic boundary rough_wall precursor recycling_rescaling";
     parallel_for(lbm.get_N(), [&](ulong n) {
         uint x=0u, y=0u, z=0u;
         lbm.coordinates(n, x, y, z);
@@ -111,6 +112,11 @@ void main_setup() {
         require(data.get("has_paper_grade_side_top_source") is False, data)
         require(data.get("has_paper_grade_rough_wall_source") is False, data)
         require(data.get("has_paper_grade_development_source") is False, data)
+        require(data.get("has_non_reflecting_outlet_token") is False, data)
+        require(data.get("has_periodic_side_top_token") is False, data)
+        require(data.get("has_rough_wall_function_token") is False, data)
+        require(data.get("has_precursor_or_recycling_boundary_token") is False, data)
+        require(data.get("advanced_boundary_token_only") is False, data)
         require(
             "non_reflecting_or_validated_outlet_state"
             in data.get("missing_paper_grade_source_evidence", []),
