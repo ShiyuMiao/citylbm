@@ -527,7 +527,14 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     vtk_hash_gate = by_key.get("runtime_vtk_hash_traceability")
     time_gate = by_key.get("time_averaging")
     metrics_time_gate = by_key.get("metrics_time_averaging_consistency")
-    time_gates = [freshness_gate, vtk_hash_gate, time_gate, metrics_time_gate]
+    native_time_traceability_gate = by_key.get("native_time_averaging_traceability")
+    time_gates = [
+        freshness_gate,
+        vtk_hash_gate,
+        time_gate,
+        metrics_time_gate,
+        native_time_traceability_gate,
+    ]
     if any(gate is None or gate.get("status") != PASS for gate in time_gates):
         time_priority_gate = next(
             (
@@ -2308,6 +2315,104 @@ def native_boundary_traceability_status(
         "ok": not reasons,
         "reasons": reasons,
         "reasons_csv": ";".join(reasons),
+    }
+
+
+def native_time_averaging_traceability_status(
+    native_preconditions_audit: Dict[str, Any],
+    min_avg_frames: int,
+    min_avg_step_span: int,
+) -> Dict[str, Any]:
+    reasons: List[str] = []
+    if not native_preconditions_audit:
+        reasons.append("native_preconditions_audit_missing")
+
+    time_gate = str(
+        get_any(native_preconditions_audit, ["native_preconditions_time_average_gate"]) or ""
+    ).strip().lower()
+    if time_gate != "pass":
+        reasons.append(f"native_preconditions_time_average_gate_not_pass:{time_gate or 'missing'}")
+
+    planned_frame_count = as_int(
+        get_any(native_preconditions_audit, ["planned_frame_count_min"])
+    )
+    runtime_average_last_n = as_int(
+        get_any(native_preconditions_audit, ["runtime_average_last_n"])
+    )
+    runtime_steps_value = get_any(native_preconditions_audit, ["runtime_source_time_steps"])
+    runtime_steps, runtime_steps_error = parsed_step_list_value(
+        runtime_steps_value,
+        "runtime_source_time_steps_missing",
+    )
+    runtime_frame_count = len(runtime_steps) if runtime_steps else None
+    runtime_span = as_int(
+        get_any(native_preconditions_audit, ["runtime_source_step_span"])
+    )
+    runtime_span_from_steps = as_int(
+        get_any(native_preconditions_audit, ["runtime_source_step_span_from_time_steps"])
+    )
+    if runtime_span is None and runtime_span_from_steps is not None:
+        runtime_span = runtime_span_from_steps
+    planned_span = as_int(
+        get_any(native_preconditions_audit, ["planned_final_window_step_span"])
+    )
+
+    if planned_frame_count is None:
+        reasons.append("planned_frame_count_min_missing")
+    elif planned_frame_count < min_avg_frames:
+        reasons.append(f"planned_frame_count_min_below_{min_avg_frames}")
+    if runtime_average_last_n is None:
+        reasons.append("runtime_average_last_n_missing")
+    elif runtime_average_last_n < min_avg_frames:
+        reasons.append(f"runtime_average_last_n_below_{min_avg_frames}")
+    if runtime_steps_error:
+        reasons.append(f"runtime_source_time_steps_error:{runtime_steps_error}")
+    if runtime_frame_count is None:
+        reasons.append("runtime_source_frame_count_missing")
+    elif runtime_frame_count < min_avg_frames:
+        reasons.append(f"runtime_source_frame_count_below_{min_avg_frames}")
+    if runtime_span is None:
+        reasons.append("runtime_source_step_span_missing")
+    elif runtime_span < min_avg_step_span:
+        reasons.append(f"runtime_source_step_span_below_{min_avg_step_span}")
+    if runtime_span_from_steps is None:
+        reasons.append("runtime_source_step_span_from_time_steps_missing")
+    elif runtime_span_from_steps < min_avg_step_span:
+        reasons.append(f"runtime_source_step_span_from_time_steps_below_{min_avg_step_span}")
+    if planned_span is None:
+        reasons.append("planned_final_window_step_span_missing")
+    elif planned_span < min_avg_step_span:
+        reasons.append(f"planned_final_window_step_span_below_{min_avg_step_span}")
+
+    for key in [
+        "runtime_source_step_span_matches_time_steps",
+        "runtime_source_steps_strictly_increasing",
+        "runtime_source_step_spacing_uniform",
+    ]:
+        value = as_bool(get_any(native_preconditions_audit, [key]))
+        if value is not True:
+            reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+
+    for key in [
+        "planned_frame_count_shortfall_reason",
+        "runtime_average_window_shortfall_reason",
+        "planned_average_step_span_shortfall_reason",
+        "runtime_average_step_span_shortfall_reason",
+    ]:
+        values = as_string_list(get_any(native_preconditions_audit, [key]))
+        if values:
+            reasons.append(f"{key}_present:{','.join(values)}")
+
+    return {
+        "ok": not reasons,
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+        "planned_frame_count_min": planned_frame_count,
+        "runtime_average_last_n": runtime_average_last_n,
+        "runtime_source_frame_count": runtime_frame_count,
+        "runtime_source_step_span": runtime_span,
+        "runtime_source_step_span_from_time_steps": runtime_span_from_steps,
+        "planned_final_window_step_span": planned_span,
     }
 
 
@@ -4823,11 +4928,39 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         ),
         "Regenerate boundary_source_audit.json and boundary_protocol_audit.json from the current native setup, with AIJ-equivalent outlet/side/top/floor/roughness/fetch evidence, current metadata hash and hashed support files.",
     )
+    native_time_traceability = native_time_averaging_traceability_status(
+        native_preconditions_audit,
+        args.min_avg_frames,
+        args.min_avg_step_span,
+    )
+    add_gate(
+        gates,
+        "native_time_averaging_traceability",
+        PASS if native_time_traceability["ok"] else FAIL,
+        (
+            f"native_preconditions_audit={native_preconditions_audit_path or 'missing'}; "
+            f"reasons={native_time_traceability['reasons_csv'] or 'none'}; "
+            f"native_preconditions_time_average_gate={native_preconditions_time_gate or 'missing'}; "
+            f"planned_frame_count_min={native_time_traceability['planned_frame_count_min']}; "
+            f"runtime_average_last_n={native_time_traceability['runtime_average_last_n']}; "
+            f"runtime_source_frame_count={native_time_traceability['runtime_source_frame_count']}; "
+            f"runtime_source_step_span={native_time_traceability['runtime_source_step_span']}; "
+            f"runtime_source_step_span_from_time_steps={native_time_traceability['runtime_source_step_span_from_time_steps']}; "
+            f"runtime_source_step_span_matches_time_steps={get_any(native_preconditions_audit, ['runtime_source_step_span_matches_time_steps'])}; "
+            f"runtime_source_steps_strictly_increasing={get_any(native_preconditions_audit, ['runtime_source_steps_strictly_increasing'])}; "
+            f"runtime_source_step_spacing_uniform={get_any(native_preconditions_audit, ['runtime_source_step_spacing_uniform'])}; "
+            f"planned_final_window_step_span={native_time_traceability['planned_final_window_step_span']}; "
+            f"required_min_avg_frames={args.min_avg_frames}; "
+            f"required_min_avg_step_span={args.min_avg_step_span}"
+        ),
+        "Regenerate native runtime and precondition audits from a sufficiently long final VTK averaging window; four-frame or stale diagnostic windows cannot support paper-grade baseline evidence.",
+    )
     native_preconditions_full_evidence_ok = (
         native_preconditions_audit_path is not None
         and native_inlet_traceability["ok"]
         and native_probe_traceability["ok"]
         and native_boundary_traceability["ok"]
+        and native_time_traceability["ok"]
         and native_preconditions_inlet_source_gate == "pass"
         and native_preconditions_paper_inlet_gate == "pass"
         and native_preconditions_inlet_distribution_consistent is True
@@ -4873,6 +5006,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_probe_traceability_reasons={native_probe_traceability['reasons_csv'] or 'none'}; "
             f"native_boundary_traceability_ok={native_boundary_traceability['ok']}; "
             f"native_boundary_traceability_reasons={native_boundary_traceability['reasons_csv'] or 'none'}; "
+            f"native_time_traceability_ok={native_time_traceability['ok']}; "
+            f"native_time_traceability_reasons={native_time_traceability['reasons_csv'] or 'none'}; "
             f"boundary_source_gate={native_preconditions_boundary_source_gate or 'missing'}; "
             f"paper_grade_boundary_source_gate={native_preconditions_paper_boundary_gate or 'missing'}; "
             f"boundary_source_wind_tunnel_equivalent={native_preconditions_boundary_equivalent}; "
@@ -4929,6 +5064,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_preconditions_gate={native_preconditions_gate or 'missing'}; "
             f"native_preconditions_protocol_identity_gate={native_preconditions_protocol_gate or 'missing'}; "
             f"native_preconditions_time_average_gate={native_preconditions_time_gate or 'missing'}; "
+            f"native_time_traceability_ok={native_time_traceability['ok']}; "
+            f"native_time_traceability_reasons={native_time_traceability['reasons_csv'] or 'none'}; "
             f"native_top_blocking_priority_key={native_top_blocking_priority_key or 'missing'}; "
             f"native_top_blocking_priority_diagnosis={native_top_blocking_priority_diagnosis or 'missing'}; "
             f"native_top_blocking_priority_next_action={native_top_blocking_priority_next_action or 'missing'}; "
@@ -5870,6 +6007,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "run_freshness": "fresh VTK inputs",
         "runtime_vtk_hash_traceability": "runtime VTK hash traceability",
         "time_averaging": "time averaging and stationarity",
+        "native_time_averaging_traceability": "native FluidX3D final-window time averaging traceability",
         "custom_k_profile": "CustomTable U/k profile",
         "inlet_profile_preservation": "inlet U/k preservation",
         "inlet_profile_vtk_hash_traceability": "inlet profile VTK hash traceability",
