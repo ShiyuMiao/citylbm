@@ -143,6 +143,100 @@ def adjacent_pairs(selected: Sequence[int], dims: Tuple[int, int, int], normal_a
     return pairs
 
 
+def selected_vtk_records(files: Sequence[Path]) -> List[Dict[str, Any]]:
+    records: List[Dict[str, Any]] = []
+    for path in files:
+        record: Dict[str, Any] = {
+            "path": str(path),
+            "time_step": step_from_name(path),
+        }
+        try:
+            record["sha256"] = sha256_file(path)
+        except Exception as exc:  # pragma: no cover - defensive audit trace
+            record["sha256"] = ""
+            record["sha256_error"] = str(exc)
+        records.append(record)
+    return records
+
+
+def write_failure_report(
+    args: argparse.Namespace,
+    vtk_path: Path,
+    out_json: Path,
+    metadata: Dict[str, Any],
+    wind: Tuple[float, float, float],
+    reasons: Sequence[str],
+    error: str,
+    all_files: Optional[Sequence[Path]] = None,
+    files: Optional[Sequence[Path]] = None,
+) -> int:
+    available = list(all_files or [])
+    selected = list(files or [])
+    available_steps = [step_from_name(path) for path in available]
+    source_steps = [step_from_name(path) for path in selected]
+    selected_records = selected_vtk_records(selected)
+    source_step_span = source_steps[-1] - source_steps[0] if len(source_steps) >= 2 else None
+    selected_last_window = is_last_window(source_steps, available_steps)
+    report: Dict[str, Any] = {
+        "schema": "citylbm.inlet_correlation_audit.v1",
+        "generated_at_utc": utc_now(),
+        "vtk_dir": str(vtk_path),
+        "metadata": str(Path(args.metadata).resolve()) if args.metadata else "",
+        "citylbm_version": metadata.get("CityLBMVersion", metadata.get("Version", "")),
+        "wind_direction": list(wind),
+        "plane_axis": "",
+        "plane_mode": "",
+        "plane_value": None,
+        "plane_tolerance": None,
+        "available_frame_count": len(available),
+        "frame_count": len(selected),
+        "source_time_steps": source_steps,
+        "source_time_steps_csv": ",".join(str(step) for step in source_steps),
+        "source_step_span": source_step_span,
+        "minimum_validation_average_step_span": args.min_step_span,
+        "selected_vtk_files": selected_records,
+        "source_vtk_sha256": [str(record.get("sha256", "")) for record in selected_records],
+        "source_vtk_sha256_csv": ";".join(str(record.get("sha256", "")) for record in selected_records),
+        "selected_last_window": selected_last_window,
+        "source_steps_strictly_increasing": is_strictly_increasing(source_steps),
+        "source_step_spacing_uniform": has_uniform_spacing(source_steps),
+        "plane_point_count": 0,
+        "sample_count": 0,
+        "sample_limit": args.sample_limit,
+        "min_sample_count": args.min_sample_count,
+        "adjacent_pair_count": 0,
+        "min_adjacent_pair_count": args.min_adjacent_pair_count,
+        "finite_temporal_correlation_count": 0,
+        "finite_spatial_correlation_count": 0,
+        "temporal_finite_correlation_fraction": None,
+        "spatial_finite_correlation_fraction": None,
+        "mean_streamwise_fluctuation_variance": None,
+        "temporal_lag1_mean_correlation": None,
+        "temporal_lag1_abs_mean_correlation": None,
+        "spatial_adjacent_mean_correlation": None,
+        "min_streamwise_variance": args.min_streamwise_variance,
+        "min_temporal_lag1_correlation": args.min_temporal_lag1_correlation,
+        "min_spatial_adjacent_correlation": args.min_spatial_adjacent_correlation,
+        "min_temporal_finite_fraction": args.min_temporal_finite_fraction,
+        "min_spatial_finite_fraction": args.min_spatial_finite_fraction,
+        "audit_error": error,
+        "inlet_correlation_gate": FAIL,
+        "inlet_correlation_gate_reasons": list(reasons) or ["inlet_correlation_audit_failed"],
+        "paper_grade_note": (
+            "A failed correlation audit is archived as evidence that the run is not paper-grade for turbulent-inlet "
+            "claims. Re-run after producing enough post-spinup VTK frames and verifying the inlet plane selection."
+        ),
+    }
+    out_json.parent.mkdir(parents=True, exist_ok=True)
+    out_json.write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+    print(
+        "inlet_correlation_gate=fail; temporal_lag1=None; temporal_lag1_abs=None; spatial=None; reasons={reasons}".format(
+            reasons=";".join(report["inlet_correlation_gate_reasons"]),
+        )
+    )
+    return 2
+
+
 def main() -> int:
     args = parse_args()
     vtk_path = Path(args.vtk_dir).resolve()
@@ -150,30 +244,111 @@ def main() -> int:
     metadata = read_json(Path(args.metadata).resolve() if args.metadata else None)
     wind = parse_vector(args.wind_direction)
 
-    all_files = discover_vtk_files(vtk_path, args.pattern)
+    try:
+        all_files = discover_vtk_files(vtk_path, args.pattern)
+    except SystemExit as exc:
+        return write_failure_report(
+            args,
+            vtk_path,
+            out_json,
+            metadata,
+            wind,
+            ["vtk_files_missing"],
+            str(exc),
+        )
     files = select_average_window(all_files, args.average_last_n)
+    if not files:
+        return write_failure_report(
+            args,
+            vtk_path,
+            out_json,
+            metadata,
+            wind,
+            ["selected_vtk_window_empty"],
+            "No VTK frames were selected for inlet correlation auditing.",
+            all_files,
+            files,
+        )
     available_steps = [step_from_name(path) for path in all_files]
     source_steps = [step_from_name(path) for path in files]
-    selected_vtk_files = [
-        {"path": str(path), "time_step": step_from_name(path), "sha256": sha256_file(path)}
-        for path in files
-    ]
+    selected_vtk_files = selected_vtk_records(files)
     source_vtk_hashes = [record["sha256"] for record in selected_vtk_files]
     selected_last_window = is_last_window(source_steps, available_steps)
     source_steps_increasing = is_strictly_increasing(source_steps)
     source_spacing_uniform = has_uniform_spacing(source_steps)
     source_step_span = source_steps[-1] - source_steps[0] if len(source_steps) >= 2 else None
 
-    frames = [read_vtk_metadata(path) for path in files]
+    try:
+        frames = [read_vtk_metadata(path) for path in files]
+    except Exception as exc:
+        return write_failure_report(
+            args,
+            vtk_path,
+            out_json,
+            metadata,
+            wind,
+            ["vtk_metadata_read_failed"],
+            str(exc),
+            all_files,
+            files,
+        )
+    if not frames:
+        return write_failure_report(
+            args,
+            vtk_path,
+            out_json,
+            metadata,
+            wind,
+            ["vtk_metadata_frames_empty"],
+            "No VTK metadata frames were available after reading selected files.",
+            all_files,
+            files,
+        )
     first = frames[0]
     for frame in frames[1:]:
         if frame["dimensions"] != first["dimensions"] or frame["origin"] != first["origin"] or frame["spacing"] != first["spacing"]:
-            raise SystemExit("All VTK frames must have identical grid dimensions, origin and spacing.")
+            return write_failure_report(
+                args,
+                vtk_path,
+                out_json,
+                metadata,
+                wind,
+                ["vtk_grid_mismatch"],
+                "All VTK frames must have identical grid dimensions, origin and spacing.",
+                all_files,
+                files,
+            )
 
     axis = choose_axis(args, wind)
-    plane_indices, plane_value, tolerance, plane_mode = select_plane_indices(first, axis, wind, args)
+    try:
+        plane_indices, plane_value, tolerance, plane_mode = select_plane_indices(first, axis, wind, args)
+    except Exception as exc:
+        return write_failure_report(
+            args,
+            vtk_path,
+            out_json,
+            metadata,
+            wind,
+            ["inlet_plane_selection_failed"],
+            str(exc),
+            all_files,
+            files,
+        )
     selected = select_deterministic_subset(plane_indices, args.sample_limit)
-    frame_vectors = [read_selected_vectors(frame, selected, args.velocity_scale) for frame in frames]
+    try:
+        frame_vectors = [read_selected_vectors(frame, selected, args.velocity_scale) for frame in frames]
+    except Exception as exc:
+        return write_failure_report(
+            args,
+            vtk_path,
+            out_json,
+            metadata,
+            wind,
+            ["vtk_vector_read_failed"],
+            str(exc),
+            all_files,
+            files,
+        )
 
     streamwise_series: Dict[int, List[float]] = {}
     variances: List[float] = []

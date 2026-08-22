@@ -275,6 +275,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `audit_inlet_correlation_from_vtk.py` and `validation_gate.py` now require a minimum inlet-plane sample count and
   adjacent spatial-pair count in addition to finite temporal/spatial correlation fractions. Sparse final-window samples
   can no longer pass the turbulent-inlet correlation gate by reporting high fractions over too few points.
+- `audit_inlet_correlation_from_vtk.py` now writes a structured failing audit JSON when VTK discovery, metadata reading,
+  inlet-plane selection or vector extraction fails, so missing or unreadable inlet-correlation evidence remains archived
+  as an explicit protocol failure instead of disappearing as a missing file.
 - `validation_gate.py` now requires inlet-source and inlet-correlation pass evidence to come from the archived
   `inlet_source_audit.json` and `inlet_correlation_audit.json` values themselves. Metrics CSV fields can summarize
   those audits, but cannot replace the generated-source hash or final-window VTK correlation audit.
