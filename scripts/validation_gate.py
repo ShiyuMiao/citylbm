@@ -2187,6 +2187,7 @@ def native_inlet_precondition_traceability_status(
         "inlet_k_profile_gate",
         "inlet_profile_time_averaging_gate",
         "inlet_correlation_gate",
+        "inlet_k_variance_gate",
     ]:
         value = str(get_any(native_preconditions_audit, [key]) or "").strip().lower()
         if value != "pass":
@@ -4843,6 +4844,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_streamwise_variance = as_float(
         get_any(inlet_correlation_audit, ["mean_streamwise_fluctuation_variance"])
     )
+    inlet_k_variance_gate = str(
+        get_any(inlet_correlation_audit, ["inlet_k_variance_gate"]) or ""
+    ).strip().lower()
+    inlet_streamwise_variance_target = as_float(
+        get_any(inlet_correlation_audit, ["inlet_streamwise_variance_target_from_k"])
+    )
+    inlet_streamwise_variance_to_k_ratio = as_float(
+        get_any(inlet_correlation_audit, ["inlet_streamwise_variance_to_k_ratio"])
+    )
     inlet_temporal_finite_fraction = as_float(
         get_any(inlet_correlation_audit, ["temporal_finite_correlation_fraction"])
     )
@@ -4996,6 +5006,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and inlet_temporal_integral_lag_count >= args.min_inlet_temporal_integral_lag_count
         and inlet_spatial_integral_lag_count is not None
         and inlet_spatial_integral_lag_count >= args.min_inlet_spatial_integral_lag_count
+        and inlet_k_variance_gate == "pass"
     )
     add_gate(
         gates,
@@ -5022,6 +5033,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"spatial_integral_length_m={inlet_spatial_integral_length_m}; "
             f"mean_streamwise_fluctuation_variance={inlet_streamwise_variance}; "
             f"required > {args.min_inlet_streamwise_variance}; "
+            f"inlet_k_variance_gate={inlet_k_variance_gate or 'missing'}; "
+            f"inlet_streamwise_variance_target_from_k={inlet_streamwise_variance_target}; "
+            f"inlet_streamwise_variance_to_k_ratio={inlet_streamwise_variance_to_k_ratio}; "
             f"temporal_finite_correlation_fraction={inlet_temporal_finite_fraction}; "
             f"required >= {args.min_inlet_temporal_finite_fraction}; "
             f"spatial_finite_correlation_fraction={inlet_spatial_finite_fraction}; "
@@ -5254,6 +5268,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_preconditions_inlet_correlation_gate = str(
         get_any(native_preconditions_audit, ["inlet_correlation_gate"]) or ""
     ).strip().lower()
+    native_preconditions_inlet_k_variance_gate = str(
+        get_any(native_preconditions_audit, ["inlet_k_variance_gate"]) or ""
+    ).strip().lower()
     native_preconditions_boundary_source_gate = str(
         get_any(native_preconditions_audit, ["boundary_source_gate"]) or ""
     ).strip().lower()
@@ -5367,6 +5384,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_profile_source_vtk_sha256_match_runtime={get_any(native_preconditions_audit, ['inlet_profile_source_vtk_sha256_match_runtime'])}; "
             f"inlet_profile_source_step_span={get_any(native_preconditions_audit, ['inlet_profile_source_step_span'])}; "
             f"inlet_correlation_gate={native_preconditions_inlet_correlation_gate or 'missing'}; "
+            f"inlet_k_variance_gate={native_preconditions_inlet_k_variance_gate or 'missing'}; "
+            f"inlet_streamwise_variance_target_from_k={get_any(native_preconditions_audit, ['inlet_streamwise_variance_target_from_k'])}; "
+            f"inlet_streamwise_variance_to_k_ratio={get_any(native_preconditions_audit, ['inlet_streamwise_variance_to_k_ratio'])}; "
             f"inlet_correlation_source_time_steps_match_runtime={get_any(native_preconditions_audit, ['inlet_correlation_source_time_steps_match_runtime'])}; "
             f"inlet_correlation_source_vtk_sha256_match_runtime={get_any(native_preconditions_audit, ['inlet_correlation_source_vtk_sha256_match_runtime'])}; "
             f"inlet_correlation_source_step_span={get_any(native_preconditions_audit, ['inlet_correlation_source_step_span'])}; "
@@ -5490,6 +5510,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and native_preconditions_inlet_u_profile_gate == "pass"
         and native_preconditions_inlet_k_profile_gate == "pass"
         and native_preconditions_inlet_correlation_gate == "pass"
+        and native_preconditions_inlet_k_variance_gate == "pass"
         and native_preconditions_boundary_source_gate == "pass"
         and native_preconditions_paper_boundary_gate == "pass"
         and native_preconditions_boundary_equivalent is True
@@ -5529,6 +5550,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_u_profile_gate={native_preconditions_inlet_u_profile_gate or 'missing'}; "
             f"inlet_k_profile_gate={native_preconditions_inlet_k_profile_gate or 'missing'}; "
             f"inlet_correlation_gate={native_preconditions_inlet_correlation_gate or 'missing'}; "
+            f"inlet_k_variance_gate={native_preconditions_inlet_k_variance_gate or 'missing'}; "
             f"native_inlet_traceability_ok={native_inlet_traceability['ok']}; "
             f"native_inlet_traceability_reasons={native_inlet_traceability['reasons_csv'] or 'none'}; "
             f"native_probe_traceability_ok={native_probe_traceability['ok']}; "

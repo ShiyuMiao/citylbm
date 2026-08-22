@@ -1386,11 +1386,16 @@ def main() -> int:
             reasons.append("inlet_profile_af_csv_sha256_mismatch")
 
     inlet_correlation_gate = str(inlet_correlation_audit.get("inlet_correlation_gate") or "").strip().upper()
+    inlet_k_variance_gate = str(inlet_correlation_audit.get("inlet_k_variance_gate") or "").strip().upper()
+    inlet_k_variance_ratio = as_float(inlet_correlation_audit.get("inlet_streamwise_variance_to_k_ratio"))
+    inlet_k_variance_target = as_float(inlet_correlation_audit.get("inlet_streamwise_variance_target_from_k"))
     inlet_correlation_frame_count = as_int(inlet_correlation_audit.get("frame_count"))
     if not inlet_correlation_audit:
         reasons.append("inlet_correlation_audit_missing")
     if inlet_correlation_gate != "PASS":
         reasons.append("inlet_correlation_gate_not_pass")
+    if inlet_k_variance_gate != "PASS":
+        reasons.append("inlet_k_variance_gate_not_pass")
     if inlet_correlation_frame_count is None or inlet_correlation_frame_count < args.min_avg_frames:
         reasons.append("inlet_correlation_frame_count_below_minimum")
     inlet_correlation_span_check = append_source_step_span_reasons(
@@ -1948,6 +1953,9 @@ def main() -> int:
         **inlet_profile_span_check,
         **inlet_profile_window_check,
         "inlet_correlation_gate": inlet_correlation_gate,
+        "inlet_k_variance_gate": inlet_k_variance_gate,
+        "inlet_streamwise_variance_target_from_k": inlet_k_variance_target,
+        "inlet_streamwise_variance_to_k_ratio": inlet_k_variance_ratio,
         **inlet_correlation_span_check,
         **inlet_correlation_window_check,
         "boundary_source_gate": boundary_source_gate,

@@ -28,6 +28,9 @@ def passing_native_audit():
         "inlet_k_profile_gate": "pass",
         "inlet_profile_time_averaging_gate": "pass",
         "inlet_correlation_gate": "pass",
+        "inlet_k_variance_gate": "pass",
+        "inlet_streamwise_variance_target_from_k": 0.42,
+        "inlet_streamwise_variance_to_k_ratio": 1.0,
         "inlet_profile_af_csv_sha256_matches_expected": True,
         "inlet_profile_source_time_steps_match_runtime": True,
         "inlet_profile_source_vtk_sha256_match_runtime": True,
@@ -105,6 +108,17 @@ def main() -> int:
         raise AssertionError(missing_failed)
     if "af_uref_at_zref_mps_missing" not in missing_failed["reasons"]:
         raise AssertionError(missing_failed["reasons"])
+
+    missing_k_variance = copy.deepcopy(passing_native_audit())
+    missing_k_variance.pop("inlet_k_variance_gate")
+    missing_k_failed = module.native_inlet_precondition_traceability_status(
+        missing_k_variance,
+        min_avg_step_span=20000,
+    )
+    if missing_k_failed["ok"]:
+        raise AssertionError(missing_k_failed)
+    if "inlet_k_variance_gate_not_pass:missing" not in missing_k_failed["reasons"]:
+        raise AssertionError(missing_k_failed["reasons"])
 
     gates = [
         pass_gate(module, key)

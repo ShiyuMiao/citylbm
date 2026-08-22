@@ -22,9 +22,11 @@ from audit_inlet_profile_from_vtk import (
     coordinate,
     discover_vtk_files,
     has_uniform_spacing,
+    interpolate,
     is_last_window,
     is_strictly_increasing,
     parse_vector,
+    read_af_csv,
     read_json,
     read_selected_vectors,
     read_vtk_metadata,
@@ -77,6 +79,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-spatial-integral-lag-count", type=int, default=2)
     parser.add_argument("--min-temporal-finite-fraction", type=float, default=0.80)
     parser.add_argument("--min-spatial-finite-fraction", type=float, default=0.80)
+    parser.add_argument("--af-csv", help="Optional AF CSV containing z,U,k for k-variance traceability.")
+    parser.add_argument(
+        "--require-k-variance-check",
+        action="store_true",
+        help="Fail when --af-csv is absent instead of leaving the k-variance check untested.",
+    )
+    parser.add_argument("--min-k-variance-ratio", type=float, default=0.50)
+    parser.add_argument("--max-k-variance-ratio", type=float, default=1.50)
     return parser.parse_args()
 
 
@@ -161,6 +171,50 @@ def positive_integral_lag_count(correlations: Sequence[Optional[float]]) -> int:
             break
         count += 1
     return count
+
+
+def streamwise_variance_target_from_af_k(
+    samples: Sequence[Dict[str, float]],
+    selected: Sequence[int],
+    dims: Tuple[int, int, int],
+    origin: Tuple[float, float, float],
+    spacing: Tuple[float, float, float],
+) -> Tuple[Optional[float], int]:
+    targets: List[float] = []
+    for idx in selected:
+        z = coordinate(idx, dims, origin, spacing)[2]
+        k = interpolate(samples, "k", z)
+        if k is None or k < 0.0:
+            continue
+        # Isotropic fallback: k = 0.5 * (u'^2 + v'^2 + w'^2), so each
+        # component variance target is 2k/3.
+        targets.append(2.0 * k / 3.0)
+    return mean(targets), len(targets)
+
+
+def k_variance_gate(
+    actual_variance: Optional[float],
+    target_variance: Optional[float],
+    min_ratio: float,
+    max_ratio: float,
+    require_check: bool,
+    af_csv_supplied: bool,
+) -> Tuple[str, List[str], Optional[float]]:
+    if not af_csv_supplied:
+        if require_check:
+            return FAIL, ["af_csv_missing_for_k_variance_check"], None
+        return "not_checked", ["af_csv_not_supplied"], None
+    if target_variance is None or target_variance <= 0.0:
+        return FAIL, ["k_variance_target_missing_or_nonpositive"], None
+    if actual_variance is None or actual_variance <= 0.0:
+        return FAIL, ["streamwise_fluctuation_variance_missing_or_nonpositive"], None
+    ratio = actual_variance / target_variance
+    gate_reasons: List[str] = []
+    if ratio < min_ratio:
+        gate_reasons.append(f"k_variance_ratio_below_{min_ratio:.6g}")
+    if ratio > max_ratio:
+        gate_reasons.append(f"k_variance_ratio_above_{max_ratio:.6g}")
+    return PASS if not gate_reasons else FAIL, gate_reasons or ["k_variance_evidence_present"], ratio
 
 
 def temporal_lag_correlations(
@@ -271,6 +325,19 @@ def write_failure_report(
         "temporal_finite_correlation_fraction": None,
         "spatial_finite_correlation_fraction": None,
         "mean_streamwise_fluctuation_variance": None,
+        "af_csv": str(Path(args.af_csv).resolve()) if args.af_csv else "",
+        "af_csv_sha256": "",
+        "inlet_k_variance_gate": FAIL if args.require_k_variance_check else "not_checked",
+        "inlet_k_variance_gate_reasons": (
+            ["af_csv_missing_for_k_variance_check"]
+            if args.require_k_variance_check
+            else ["k_variance_not_evaluated_after_audit_failure"]
+        ),
+        "inlet_streamwise_variance_target_from_k": None,
+        "inlet_streamwise_variance_to_k_ratio": None,
+        "inlet_k_variance_target_sample_count": 0,
+        "min_k_variance_ratio": args.min_k_variance_ratio,
+        "max_k_variance_ratio": args.max_k_variance_ratio,
         "temporal_lag1_mean_correlation": None,
         "temporal_lag1_abs_mean_correlation": None,
         "temporal_lag_correlations": [],
@@ -489,6 +556,39 @@ def main() -> int:
     temporal_finite_fraction = len(temporal_corrs) / float(len(selected)) if selected else None
     spatial_finite_fraction = len(spatial_corrs) / float(len(pairs)) if pairs else None
 
+    af_csv_sha = ""
+    af_csv_samples: List[Dict[str, float]] = []
+    k_variance_target: Optional[float] = None
+    k_variance_target_count = 0
+    k_variance_gate_reasons: List[str] = []
+    af_csv_supplied = bool(args.af_csv)
+    if args.af_csv:
+        af_path = Path(args.af_csv).resolve()
+        try:
+            af_csv_sha = sha256_file(af_path)
+            af_csv_samples = read_af_csv(af_path)
+            k_variance_target, k_variance_target_count = streamwise_variance_target_from_af_k(
+                af_csv_samples,
+                selected,
+                first["dimensions"],
+                first["origin"],
+                first["spacing"],
+            )
+        except Exception as exc:
+            k_variance_gate_reasons.append(f"af_csv_k_variance_read_failed:{exc}")
+
+    k_gate, k_reasons, k_variance_ratio = k_variance_gate(
+        mean_variance,
+        k_variance_target,
+        args.min_k_variance_ratio,
+        args.max_k_variance_ratio,
+        args.require_k_variance_check,
+        af_csv_supplied,
+    )
+    if k_variance_gate_reasons:
+        k_gate = FAIL
+        k_reasons = k_variance_gate_reasons
+
     reasons: List[str] = []
     if args.average_last_n <= 0:
         reasons.append("averaging_window_not_explicit")
@@ -534,6 +634,8 @@ def main() -> int:
         reasons.append(
             f"spatial_integral_lag_count_below_{args.min_spatial_integral_lag_count}"
         )
+    if k_gate == FAIL:
+        reasons.extend(k_reasons)
 
     gate = PASS if not reasons else FAIL
     report: Dict[str, Any] = {
@@ -570,6 +672,15 @@ def main() -> int:
         "temporal_finite_correlation_fraction": temporal_finite_fraction,
         "spatial_finite_correlation_fraction": spatial_finite_fraction,
         "mean_streamwise_fluctuation_variance": mean_variance,
+        "af_csv": str(Path(args.af_csv).resolve()) if args.af_csv else "",
+        "af_csv_sha256": af_csv_sha,
+        "inlet_k_variance_gate": k_gate,
+        "inlet_k_variance_gate_reasons": k_reasons,
+        "inlet_streamwise_variance_target_from_k": k_variance_target,
+        "inlet_streamwise_variance_to_k_ratio": k_variance_ratio,
+        "inlet_k_variance_target_sample_count": k_variance_target_count,
+        "min_k_variance_ratio": args.min_k_variance_ratio,
+        "max_k_variance_ratio": args.max_k_variance_ratio,
         "temporal_lag1_mean_correlation": temporal_corr,
         "temporal_lag1_abs_mean_correlation": temporal_abs_corr,
         "temporal_lag_correlations": temporal_lag_values,
