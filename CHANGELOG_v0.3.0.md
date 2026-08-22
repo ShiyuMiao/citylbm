@@ -285,6 +285,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   blocks Mode 1/2/3 validation runs below 40 saved VTK frames or a 20000-step final averaging span, and `Read VTK`
   records `source_step_span`, `source_step_span_shortfall` and `minimum_validation_average_step_span` in `AvgAudit`.
   Four-frame late-window outputs are therefore preserved as smoke/diagnostic evidence rather than paper-grade averages.
+- The STG-lite inlet refresh now applies a two-pass inlet-face mean correction before writing TYPE_E velocities, so finite
+  spectral-mode and amplitude-capped fluctuations preserve the CustomTable mean `U(z)` profile instead of injecting a
+  bulk velocity drift. `audit_inlet_source.py`, native preconditions and the metrics CSV expose
+  `has_mean_preserving_inlet_correction`; STG-lite remains velocity-field-only and diagnostic until distribution-function
+  reconstruction or native inlet-preservation evidence closes.
 - Native preconditions now recompute strict monotonicity and uniform spacing for runtime, inlet-profile,
   inlet-correlation and probe source time steps. Non-final, reordered, duplicated or uneven VTK windows remain
   diagnostic even if an audit JSON reports `time_averaging_gate=pass`.

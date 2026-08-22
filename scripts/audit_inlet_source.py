@@ -574,6 +574,14 @@ def main() -> int:
         implementation_source,
         ["citylbm_stg_max_fraction", "max_fraction", "amplitude cap"],
     )
+    has_mean_preserving_inlet_correction = contains_any(
+        implementation_source,
+        [
+            "citylbm_stg_mean_correction",
+            "citylbm_stg_corrected_inlet_count",
+            "mean-preserving on the inlet",
+        ],
+    )
     random_source_tokens = [
         r"\brand\s*\(",
         r"\brandom\s*\(",
@@ -718,6 +726,8 @@ def main() -> int:
         reasons.append("synthetic_inlet_refresh_not_coupled_to_segmented_lbm_run")
     if synthetic_requested and stg_lite_velocity_source and not (has_bounded_amplitude or has_native_synthetic_eddy_evidence):
         reasons.append("synthetic_inlet_missing_amplitude_cap")
+    if synthetic_requested and stg_lite_velocity_source and not has_mean_preserving_inlet_correction:
+        reasons.append("synthetic_inlet_missing_mean_preserving_inlet_correction")
     if synthetic_requested and has_uncorrelated_random_inlet:
         reasons.append("synthetic_inlet_uses_uncorrelated_random_rms")
 
@@ -819,6 +829,7 @@ def main() -> int:
         "has_update_interval_run_control": has_update_interval_run_control,
         "has_segmented_stg_run_loop": has_segmented_stg_run_loop,
         "has_bounded_amplitude": has_bounded_amplitude,
+        "has_mean_preserving_inlet_correction": has_mean_preserving_inlet_correction,
         "has_uncorrelated_random_inlet": has_uncorrelated_random_inlet,
         "uncorrelated_random_inlet_patterns": random_source_matches,
         "synthetic_inlet_correlation_model": synthetic_correlation_model,

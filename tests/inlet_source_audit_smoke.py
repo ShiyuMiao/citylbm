@@ -198,9 +198,30 @@ float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
     return float3(mean.x + sigma * fluct_x, mean.y + sigma * fluct_y, mean.z + sigma * fluct_z);
 }
 void applySyntheticTurbulentInlet(uint t_step) {
+    float3 citylbm_stg_mean_correction = float3(0.0f, 0.0f, 0.0f);
+    ulong citylbm_stg_corrected_inlet_count = 0ull;
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            float3 mean = windProfile(n);
+            float3 u_in = syntheticTurbulentInlet(0u, 0u, n, t_step);
+            citylbm_stg_mean_correction.x += u_in.x - mean.x;
+            citylbm_stg_mean_correction.y += u_in.y - mean.y;
+            citylbm_stg_mean_correction.z += u_in.z - mean.z;
+            citylbm_stg_corrected_inlet_count++;
+        }
+    }
+    if(citylbm_stg_corrected_inlet_count > 0ull) {
+        float inv_count = 1.0f / (float)citylbm_stg_corrected_inlet_count;
+        citylbm_stg_mean_correction.x *= inv_count;
+        citylbm_stg_mean_correction.y *= inv_count;
+        citylbm_stg_mean_correction.z *= inv_count;
+    }
     for(uint n=0u; n<10u; n++) {
         if(flags[n]==TYPE_E) {
             float3 u_in = syntheticTurbulentInlet(0u, 0u, n, t_step);
+            u_in.x -= citylbm_stg_mean_correction.x;
+            u_in.y -= citylbm_stg_mean_correction.y;
+            u_in.z -= citylbm_stg_mean_correction.z;
             lbm.u.x[n] = u_in.x;
             lbm.u.y[n] = u_in.y;
             lbm.u.z[n] = u_in.z;
@@ -229,6 +250,8 @@ for(uint remaining=100u; remaining>0u; ) {
         if not spectral_report["has_three_component_fluctuation_evidence"]:
             raise AssertionError(spectral_report)
         if not spectral_report["has_k_driven_three_component_stg"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_mean_preserving_inlet_correction"]:
             raise AssertionError(spectral_report)
         if "source_velocity_field_only" not in spectral_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(spectral_report["paper_grade_inlet_source_gate_reasons"])

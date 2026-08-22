@@ -2386,6 +2386,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    // Per-mode fluctuation vectors are projected normal to their wave vector to reduce non-physical divergence.");
             sb.AppendLine("    // This is a diagnostic approximation, not a full digital-filter/SEM/precursor inlet with Reynolds-stress tensors.");
             sb.AppendLine("    // It updates macroscopic inlet velocity fields only; distribution functions are not reconstructed here.");
+            sb.AppendLine("    // Each refresh subtracts the inlet-face mean perturbation so finite-mode/capped fluctuations preserve the AF mean profile.");
             sb.AppendLine($"    const float citylbm_stg_scale = {scale.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_stg_corr_cells = {corr.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_stg_max_fraction = {maxFrac.ToString("F6", CultureInfo.InvariantCulture)}f;");
@@ -2524,14 +2525,48 @@ namespace CityLBM.Solver
 
             sb.AppendLine("    auto applySyntheticTurbulentInlet = [&](uint t_step) {");
             sb.AppendLine("        // Velocity-field-only refresh for diagnostic turbulent-inlet runs.");
+            sb.AppendLine("        // Two-pass face correction keeps the finite-mode STG-lite perturbation mean-preserving on the inlet.");
             sb.AppendLine("        // Refresh only TYPE_E inlet nodes so solid ground/building flags are not overwritten.");
             sb.AppendLine("        lbm.flags.read_from_device();");
             sb.AppendLine("        lbm.u.read_from_device();");
+            sb.AppendLine("        float3 citylbm_stg_mean_correction = float3(0.0f, 0.0f, 0.0f);");
+            sb.AppendLine("        ulong citylbm_stg_corrected_inlet_count = 0ull;");
+            sb.AppendLine("        for(ulong n=0ull; n<lbm.get_N(); n++) {");
+            sb.AppendLine("            uint x=0u, y=0u, z=0u;");
+            sb.AppendLine("            lbm.coordinates(n, x, y, z);");
+            sb.AppendLine($"            if(lbm.flags[n] == TYPE_E && {inletCondition}) {{");
+            sb.AppendLine("                float3 mean = windProfile(z);");
+            sb.AppendLine("                float3 u_in = syntheticTurbulentInlet(x, y, z, t_step);");
+            sb.AppendLine("                citylbm_stg_mean_correction.x += u_in.x - mean.x;");
+            sb.AppendLine("                citylbm_stg_mean_correction.y += u_in.y - mean.y;");
+            sb.AppendLine("                citylbm_stg_mean_correction.z += u_in.z - mean.z;");
+            sb.AppendLine("                citylbm_stg_corrected_inlet_count++;");
+            sb.AppendLine("            }");
+            sb.AppendLine("        }");
+            sb.AppendLine("        if(citylbm_stg_corrected_inlet_count > 0ull) {");
+            sb.AppendLine("            float inv_count = 1.0f / (float)citylbm_stg_corrected_inlet_count;");
+            sb.AppendLine("            citylbm_stg_mean_correction.x *= inv_count;");
+            sb.AppendLine("            citylbm_stg_mean_correction.y *= inv_count;");
+            sb.AppendLine("            citylbm_stg_mean_correction.z *= inv_count;");
+            sb.AppendLine("        }");
             sb.AppendLine("        parallel_for(lbm.get_N(), [&](ulong n) {");
             sb.AppendLine("            uint x=0u, y=0u, z=0u;");
             sb.AppendLine("            lbm.coordinates(n, x, y, z);");
             sb.AppendLine($"            if(lbm.flags[n] == TYPE_E && {inletCondition}) {{");
             sb.AppendLine("                float3 u_in = syntheticTurbulentInlet(x, y, z, t_step);");
+            sb.AppendLine("                u_in.x -= citylbm_stg_mean_correction.x;");
+            sb.AppendLine("                u_in.y -= citylbm_stg_mean_correction.y;");
+            sb.AppendLine("                u_in.z -= citylbm_stg_mean_correction.z;");
+            sb.AppendLine("                float3 mean = windProfile(z);");
+            sb.AppendLine("                float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);");
+            sb.AppendLine("                float streamwise = u_in.x*dir_x + u_in.y*dir_y + u_in.z*dir_z;");
+            sb.AppendLine("                float min_streamwise = 0.05f * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
+            sb.AppendLine("                if(streamwise < min_streamwise) {");
+            sb.AppendLine("                    float correction = min_streamwise - streamwise;");
+            sb.AppendLine("                    u_in.x += correction * dir_x;");
+            sb.AppendLine("                    u_in.y += correction * dir_y;");
+            sb.AppendLine("                    u_in.z += correction * dir_z;");
+            sb.AppendLine("                }");
             sb.AppendLine("                lbm.u.x[n] = u_in.x;");
             sb.AppendLine("                lbm.u.y[n] = u_in.y;");
             sb.AppendLine("                lbm.u.z[n] = u_in.z;");
@@ -2718,6 +2753,10 @@ namespace CityLBM.Solver
                         : null,
                     SyntheticTurbulentInletDistributionTreatment = syntheticActive
                         ? "velocity_field_only_no_distribution_function_reconstruction; refreshed on TYPE_E inlet nodes in batch and graphics modes"
+                        : "none",
+                    SyntheticTurbulentInletMeanPreservingCorrection = syntheticActive,
+                    SyntheticTurbulentInletMeanPreservingTreatment = syntheticActive
+                        ? "each refresh subtracts the TYPE_E inlet-face mean perturbation so finite-mode and capped STG-lite fluctuations preserve the CustomTable mean U(z) profile"
                         : "none",
                     InletDistributionFunctionReconstruction = inletDistributionFunctionReconstruction,
                     SyntheticTurbulentInletPaperGradeStatus = syntheticActive
