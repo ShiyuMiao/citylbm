@@ -1094,7 +1094,7 @@ def read_probe_coordinate_normalization_audit(
     )
     result["official_coordinate_error"] = official_coordinate_error
     result["official_coordinate_source"] = (
-        "probe_audit_or_current_official_csv"
+        "current_official_csv_recomputed"
         if official_coordinates
         else "probe_audit_only"
     )
@@ -1138,7 +1138,7 @@ def read_probe_coordinate_normalization_audit(
             if expected_uref is not None and abs(row_uref - expected_uref) > uref_tolerance:
                 result["uref_mismatch_count"] += 1
 
-        coordinate_delta = as_float(
+        probe_reported_coordinate_delta = as_float(
             get_any(
                 row,
                 [
@@ -1149,7 +1149,8 @@ def read_probe_coordinate_normalization_audit(
                 ],
             )
         )
-        if coordinate_delta is None and official_coordinates and probe_id_column:
+        coordinate_delta = None
+        if official_coordinates and probe_id_column:
             probe_id = normalized_column_key(str(row.get(probe_id_column) or "").strip())
             official_coordinate = official_coordinates.get(probe_id)
             if official_coordinate is not None:
@@ -1163,6 +1164,8 @@ def read_probe_coordinate_normalization_audit(
                         abs(probe_z - official_coordinate[2]),
                     )
                     result["official_coordinate_recomputed_count"] += 1
+        if coordinate_delta is None:
+            coordinate_delta = probe_reported_coordinate_delta
         if coordinate_delta is None:
             result["missing_official_coordinate_delta_count"] += 1
         else:
@@ -4952,7 +4955,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     coord_delta = as_float(probe_coord_norm["max_official_coordinate_delta_m"])
     coord_delta_count = as_int(probe_coord_norm["official_coordinate_delta_count"])
     coord_valid_count = as_int(probe_coord_norm["valid_count"])
-    coord_source = "probe_audit"
+    coord_source = str(probe_coord_norm["official_coordinate_source"] or "missing")
     coord_ok = coord_delta is not None and coord_delta <= args.max_official_coordinate_delta_m
     coord_coverage_ok = (
         coord_delta_count is not None
@@ -5010,6 +5013,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and probe_coord_norm["unique_wind_vector_count"] == 1
         and probe_coord_norm["missing_vtk_grid_extent_count"] == 0
         and probe_coord_norm["outside_vtk_grid_extent_count"] == 0
+        and probe_coord_norm["official_coordinate_error"] is None
+        and probe_coord_norm["official_coordinate_recomputed_count"] == probe_coord_norm["valid_count"]
     )
     add_gate(
         gates,
