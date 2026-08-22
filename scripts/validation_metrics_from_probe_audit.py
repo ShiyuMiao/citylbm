@@ -530,10 +530,15 @@ TEMPLATE_FIELDS = [
     "U_mean_sim",
     "U_mean_exp",
     "U_mean_ratio_sim_to_exp",
+    "U_mean_relative_bias_ratio",
     "U_best_fit_scale_to_exp",
+    "U_best_fit_scale_deviation_ratio",
     "U_scaled_MAE_ratio",
     "U_scaled_RMSE_ratio",
     "U_scaled_improvement_ratio",
+    "U_scaled_bias_ratio",
+    "U_abs_bias_ratio",
+    "U_scale_like_error_flag",
     "bias_diagnosis",
     "k_MAE_m2s2",
     "k_RMSE_m2s2",
@@ -1292,15 +1297,25 @@ def main() -> int:
     mean_sim = mean(sim_values)
     mean_exp = mean(exp_values)
     mean_ratio = mean_sim / mean_exp if mean_sim is not None and mean_exp is not None and abs(mean_exp) > 1.0e-15 else None
+    mean_relative_bias = mean_ratio - 1.0 if mean_ratio is not None else None
     best_scale = best_scale_to_exp(sim_values, exp_values)
+    best_scale_deviation = best_scale - 1.0 if best_scale is not None else None
     scaled_errors = [best_scale * s - e for s, e in zip(sim_values, exp_values)] if best_scale is not None else []
     scaled_abs_errors = [abs(error) for error in scaled_errors]
     scaled_mae = mean(scaled_abs_errors)
     scaled_rmse = rmse(scaled_errors)
+    scaled_bias = mean(scaled_errors)
     scaled_improvement = (
         1.0 - scaled_rmse / u_rmse
         if scaled_rmse is not None and u_rmse is not None and u_rmse > 1.0e-12
         else None
+    )
+    abs_bias = abs(u_bias) if u_bias is not None else None
+    scale_like_error = (
+        scaled_improvement is not None
+        and scaled_improvement >= 0.25
+        and best_scale_deviation is not None
+        and abs(best_scale_deviation) > 0.20
     )
     bias_diagnosis = diagnose_bias(u_bias, u_rmse, scaled_rmse, best_scale, slope, args.systematic_bias_threshold)
     systematic_flag = ""
@@ -2467,10 +2482,15 @@ def main() -> int:
             "U_mean_sim": fmt(mean_sim),
             "U_mean_exp": fmt(mean_exp),
             "U_mean_ratio_sim_to_exp": fmt(mean_ratio),
+            "U_mean_relative_bias_ratio": fmt(mean_relative_bias),
             "U_best_fit_scale_to_exp": fmt(best_scale),
+            "U_best_fit_scale_deviation_ratio": fmt(best_scale_deviation),
             "U_scaled_MAE_ratio": fmt(scaled_mae),
             "U_scaled_RMSE_ratio": fmt(scaled_rmse),
             "U_scaled_improvement_ratio": fmt(scaled_improvement),
+            "U_scaled_bias_ratio": fmt(scaled_bias),
+            "U_abs_bias_ratio": fmt(abs_bias),
+            "U_scale_like_error_flag": csv_bool(scale_like_error),
             "bias_diagnosis": bias_diagnosis,
             "k_MAE_m2s2": args.k_mae or fmt(inlet_k_mae),
             "k_RMSE_m2s2": args.k_rmse or fmt(inlet_k_rmse),
