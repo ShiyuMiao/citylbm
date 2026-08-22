@@ -2371,6 +2371,8 @@ def native_boundary_traceability_status(
     native_preconditions_audit: Dict[str, Any],
     expected_case: str = "",
     expected_wind_direction: str = "",
+    min_avg_frames: int = 40,
+    min_avg_step_span: int = 20000,
 ) -> Dict[str, Any]:
     reasons: List[str] = []
     if not native_preconditions_audit:
@@ -2414,6 +2416,85 @@ def native_boundary_traceability_status(
         reasons.append(
             f"boundary_source_simplified_not_false:{simplified if simplified is not None else 'missing'}"
         )
+
+    boundary_runtime_steps, boundary_runtime_steps_error = parsed_step_list_value(
+        get_any(native_preconditions_audit, ["boundary_runtime_source_time_steps", "boundary_runtime_source_time_steps_csv"]),
+        "boundary_runtime_source_time_steps_missing",
+    )
+    boundary_runtime_hashes = normalized_hash_list(
+        get_any(native_preconditions_audit, ["boundary_runtime_source_vtk_sha256", "boundary_runtime_source_vtk_sha256_csv"])
+    )
+    boundary_runtime_hash_count = as_int(
+        get_any(native_preconditions_audit, ["boundary_runtime_source_vtk_sha256_count"])
+    )
+    if boundary_runtime_hash_count is None:
+        boundary_runtime_hash_count = len(boundary_runtime_hashes) if boundary_runtime_hashes else None
+    boundary_runtime_hash_unique_count = as_int(
+        get_any(native_preconditions_audit, ["boundary_runtime_source_vtk_sha256_unique_count"])
+    )
+    if boundary_runtime_hash_unique_count is None:
+        boundary_runtime_hash_unique_count = len(set(boundary_runtime_hashes)) if boundary_runtime_hashes else None
+    boundary_runtime_frame_count = as_int(get_any(native_preconditions_audit, ["boundary_runtime_frame_count"]))
+    boundary_runtime_span = as_int(get_any(native_preconditions_audit, ["boundary_runtime_source_step_span"]))
+    boundary_runtime_reported_span = as_int(
+        get_any(native_preconditions_audit, ["boundary_runtime_reported_source_step_span"])
+    )
+    boundary_runtime_selected_last_window = as_bool(
+        get_any(native_preconditions_audit, ["boundary_runtime_selected_last_window"])
+    )
+    boundary_runtime_steps_increasing = as_bool(
+        get_any(native_preconditions_audit, ["boundary_runtime_source_steps_strictly_increasing"])
+    )
+    boundary_runtime_steps_uniform = as_bool(
+        get_any(native_preconditions_audit, ["boundary_runtime_source_step_spacing_uniform"])
+    )
+    span_from_steps = None
+    if boundary_runtime_steps and len(boundary_runtime_steps) >= 2:
+        span_from_steps = boundary_runtime_steps[-1] - boundary_runtime_steps[0]
+    if boundary_runtime_steps_error:
+        reasons.append(f"boundary_runtime_source_time_steps_error:{boundary_runtime_steps_error}")
+    if not boundary_runtime_steps:
+        reasons.append("boundary_runtime_source_time_steps_missing")
+    if boundary_runtime_frame_count is None:
+        reasons.append("boundary_runtime_frame_count_missing")
+    elif boundary_runtime_frame_count < min_avg_frames:
+        reasons.append(f"boundary_runtime_frame_count_below_{min_avg_frames}")
+    if boundary_runtime_span is None:
+        reasons.append("boundary_runtime_source_step_span_missing")
+    elif boundary_runtime_span < min_avg_step_span:
+        reasons.append(f"boundary_runtime_source_step_span_below_{min_avg_step_span}")
+    if span_from_steps is None:
+        reasons.append("boundary_runtime_source_time_steps_span_missing")
+    else:
+        if boundary_runtime_span is not None and boundary_runtime_span != span_from_steps:
+            reasons.append("boundary_runtime_source_step_span_mismatch_time_steps")
+        if boundary_runtime_reported_span is not None and boundary_runtime_reported_span != span_from_steps:
+            reasons.append("boundary_runtime_reported_source_step_span_mismatch_time_steps")
+    if boundary_runtime_selected_last_window is not True:
+        reasons.append(
+            f"boundary_runtime_selected_last_window_not_true:{boundary_runtime_selected_last_window if boundary_runtime_selected_last_window is not None else 'missing'}"
+        )
+    if boundary_runtime_steps_increasing is not True:
+        reasons.append(
+            f"boundary_runtime_source_steps_strictly_increasing_not_true:{boundary_runtime_steps_increasing if boundary_runtime_steps_increasing is not None else 'missing'}"
+        )
+    if boundary_runtime_steps_uniform is not True:
+        reasons.append(
+            f"boundary_runtime_source_step_spacing_uniform_not_true:{boundary_runtime_steps_uniform if boundary_runtime_steps_uniform is not None else 'missing'}"
+        )
+    if boundary_runtime_hash_count is None:
+        reasons.append("boundary_runtime_source_vtk_sha256_count_missing")
+    else:
+        if boundary_runtime_hash_count < min_avg_frames:
+            reasons.append(f"boundary_runtime_source_vtk_sha256_count_below_{min_avg_frames}")
+        if boundary_runtime_steps and boundary_runtime_hash_count != len(boundary_runtime_steps):
+            reasons.append("boundary_runtime_source_vtk_sha256_count_mismatch_time_steps")
+    if boundary_runtime_hash_unique_count is None:
+        reasons.append("boundary_runtime_source_vtk_sha256_unique_count_missing")
+    elif boundary_runtime_hash_count is not None and boundary_runtime_hash_unique_count != boundary_runtime_hash_count:
+        reasons.append("boundary_runtime_source_vtk_sha256_not_unique")
+    if boundary_runtime_frame_count is not None and boundary_runtime_steps and boundary_runtime_frame_count != len(boundary_runtime_steps):
+        reasons.append("boundary_runtime_frame_count_mismatch_time_steps")
 
     for key in [
         "boundary_source_missing_paper_grade_source_evidence",
@@ -5475,6 +5556,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         native_preconditions_audit,
         expected_case=native_boundary_expected_case,
         expected_wind_direction=native_boundary_expected_wind_direction,
+        min_avg_frames=args.min_avg_frames,
+        min_avg_step_span=args.min_avg_step_span,
     )
     add_gate(
         gates,
@@ -5499,7 +5582,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_runtime_outlet_gate={native_preconditions_boundary_runtime_outlet_gate or 'missing'}; "
             f"boundary_runtime_max_u_mae_ratio={get_any(native_preconditions_audit, ['boundary_runtime_max_u_mae_ratio'])}; "
             f"boundary_runtime_max_side_top_normal_velocity_ratio={get_any(native_preconditions_audit, ['boundary_runtime_max_side_top_normal_velocity_ratio'])}; "
+            f"boundary_runtime_frame_count={get_any(native_preconditions_audit, ['boundary_runtime_frame_count'])}; "
             f"boundary_runtime_source_step_span={get_any(native_preconditions_audit, ['boundary_runtime_source_step_span'])}; "
+            f"boundary_runtime_selected_last_window={get_any(native_preconditions_audit, ['boundary_runtime_selected_last_window'])}; "
+            f"boundary_runtime_source_vtk_sha256_count={get_any(native_preconditions_audit, ['boundary_runtime_source_vtk_sha256_count'])}; "
+            f"boundary_runtime_source_vtk_sha256_unique_count={get_any(native_preconditions_audit, ['boundary_runtime_source_vtk_sha256_unique_count'])}; "
             f"boundary_run_identity_gate={get_any(native_preconditions_audit, ['boundary_run_identity_gate']) or 'missing'}; "
             f"boundary_evidence_metadata_sha256_matches_current={get_any(native_preconditions_audit, ['boundary_evidence_metadata_sha256_matches_current'])}; "
             f"boundary_evidence_files_all_hashed={get_any(native_preconditions_audit, ['boundary_evidence_files_all_hashed'])}; "

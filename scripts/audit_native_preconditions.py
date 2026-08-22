@@ -1565,6 +1565,18 @@ def main() -> int:
     boundary_runtime_traceability_reasons = split_scalar_list(
         boundary_runtime_audit.get("boundary_runtime_traceability_gate_reasons")
     )
+    boundary_runtime_steps = audit_source_steps(boundary_runtime_audit)
+    boundary_runtime_hashes = audit_source_hashes(boundary_runtime_audit)
+    boundary_runtime_source_step_span = source_step_span_from_steps(boundary_runtime_steps)
+    boundary_runtime_reported_source_step_span = as_int(boundary_runtime_audit.get("source_step_span"))
+    if boundary_runtime_source_step_span is None:
+        boundary_runtime_source_step_span = boundary_runtime_reported_source_step_span
+    boundary_runtime_frame_count = as_int(boundary_runtime_audit.get("frame_count"))
+    boundary_runtime_selected_last_window = as_bool(boundary_runtime_audit.get("selected_last_window"))
+    boundary_runtime_steps_increasing = source_steps_strictly_increasing(boundary_runtime_steps)
+    boundary_runtime_steps_uniform = source_steps_uniformly_spaced(boundary_runtime_steps)
+    boundary_runtime_hash_count = len(boundary_runtime_hashes)
+    boundary_runtime_hash_unique_count = len(set(boundary_runtime_hashes))
     if not boundary_runtime_audit:
         reasons.append("boundary_runtime_audit_missing")
     else:
@@ -1582,6 +1594,24 @@ def main() -> int:
             reasons.append("boundary_runtime_side_top_normal_leakage_gate_not_pass")
         if boundary_runtime_outlet_gate != "pass":
             reasons.append("boundary_runtime_outlet_gate_not_pass")
+        if boundary_runtime_frame_count is None or boundary_runtime_frame_count < args.min_avg_frames:
+            reasons.append("boundary_runtime_frame_count_below_minimum")
+        if boundary_runtime_source_step_span is None or boundary_runtime_source_step_span < args.min_avg_step_span:
+            reasons.append("boundary_runtime_source_step_span_below_minimum")
+        if boundary_runtime_selected_last_window is not True:
+            reasons.append("boundary_runtime_selected_last_window_not_true")
+        if not boundary_runtime_steps:
+            reasons.append("boundary_runtime_source_time_steps_missing")
+        if not boundary_runtime_steps_increasing:
+            reasons.append("boundary_runtime_source_steps_not_strictly_increasing")
+        if not boundary_runtime_steps_uniform:
+            reasons.append("boundary_runtime_source_step_spacing_not_uniform")
+        if boundary_runtime_hash_count != len(boundary_runtime_steps):
+            reasons.append("boundary_runtime_source_vtk_sha256_count_mismatch_time_steps")
+        if boundary_runtime_hash_count < args.min_avg_frames:
+            reasons.append("boundary_runtime_source_vtk_sha256_count_below_minimum")
+        if boundary_runtime_hash_unique_count != boundary_runtime_hash_count:
+            reasons.append("boundary_runtime_source_vtk_sha256_not_unique")
         for reason in boundary_runtime_reasons:
             if reason != "boundary_runtime_faces_preserve_af_profile":
                 reasons.append(f"boundary_runtime_{reason}")
@@ -2056,8 +2086,18 @@ def main() -> int:
         "boundary_runtime_max_side_top_normal_velocity_ratio": boundary_runtime_audit.get("max_side_top_normal_velocity_ratio", ""),
         "boundary_runtime_max_side_top_normal_abs_mps": boundary_runtime_audit.get("max_side_top_normal_abs_mps", ""),
         "boundary_runtime_max_negative_streamwise_fraction": boundary_runtime_audit.get("max_boundary_negative_streamwise_fraction", ""),
-        "boundary_runtime_source_step_span": boundary_runtime_audit.get("source_step_span", ""),
-        "boundary_runtime_frame_count": boundary_runtime_audit.get("frame_count", ""),
+        "boundary_runtime_source_time_steps": boundary_runtime_steps,
+        "boundary_runtime_source_time_steps_csv": ";".join(str(step) for step in boundary_runtime_steps),
+        "boundary_runtime_source_step_span": boundary_runtime_source_step_span,
+        "boundary_runtime_reported_source_step_span": boundary_runtime_reported_source_step_span,
+        "boundary_runtime_source_steps_strictly_increasing": boundary_runtime_steps_increasing,
+        "boundary_runtime_source_step_spacing_uniform": boundary_runtime_steps_uniform,
+        "boundary_runtime_selected_last_window": boundary_runtime_selected_last_window,
+        "boundary_runtime_source_vtk_sha256": boundary_runtime_hashes,
+        "boundary_runtime_source_vtk_sha256_csv": ";".join(boundary_runtime_hashes),
+        "boundary_runtime_source_vtk_sha256_count": boundary_runtime_hash_count,
+        "boundary_runtime_source_vtk_sha256_unique_count": boundary_runtime_hash_unique_count,
+        "boundary_runtime_frame_count": boundary_runtime_frame_count,
         "probe_audit_row_count": len(probe_rows),
         "probe_audit_valid_row_count": len(valid_probe_rows),
         "probe_audit_failed_row_count": len(failed_probe_rows),

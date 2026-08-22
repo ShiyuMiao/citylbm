@@ -22,6 +22,8 @@ def load_gate_module():
 
 
 def passing_native_audit():
+    steps = [1000 * index for index in range(1, 41)]
+    hashes = [f"{index:064x}" for index in range(1, 41)]
     return {
         "boundary_source_gate": "pass",
         "paper_grade_boundary_source_gate": "pass",
@@ -54,6 +56,18 @@ def passing_native_audit():
         "boundary_required_support_fields_missing_or_false": "",
         "boundary_evidence_aij_case": "CaseE",
         "boundary_evidence_wind_direction": "N",
+        "boundary_runtime_source_time_steps": steps,
+        "boundary_runtime_source_time_steps_csv": ";".join(str(step) for step in steps),
+        "boundary_runtime_source_step_span": 39000,
+        "boundary_runtime_reported_source_step_span": 39000,
+        "boundary_runtime_source_steps_strictly_increasing": True,
+        "boundary_runtime_source_step_spacing_uniform": True,
+        "boundary_runtime_selected_last_window": True,
+        "boundary_runtime_source_vtk_sha256": hashes,
+        "boundary_runtime_source_vtk_sha256_csv": ";".join(hashes),
+        "boundary_runtime_source_vtk_sha256_count": 40,
+        "boundary_runtime_source_vtk_sha256_unique_count": 40,
+        "boundary_runtime_frame_count": 40,
     }
 
 
@@ -120,6 +134,37 @@ def main() -> int:
         raise AssertionError(missing_failed)
     if "boundary_runtime_side_top_normal_leakage_gate_not_pass:missing" not in missing_failed["reasons"]:
         raise AssertionError(missing_failed["reasons"])
+
+    short_window = copy.deepcopy(passing_native_audit())
+    short_window["boundary_runtime_source_time_steps"] = [1000, 2000, 3000, 4000]
+    short_window["boundary_runtime_source_time_steps_csv"] = "1000;2000;3000;4000"
+    short_window["boundary_runtime_source_step_span"] = 3000
+    short_window["boundary_runtime_reported_source_step_span"] = 3000
+    short_window["boundary_runtime_source_vtk_sha256"] = [f"{index:064x}" for index in range(1, 5)]
+    short_window["boundary_runtime_source_vtk_sha256_csv"] = ";".join(
+        short_window["boundary_runtime_source_vtk_sha256"]
+    )
+    short_window["boundary_runtime_source_vtk_sha256_count"] = 4
+    short_window["boundary_runtime_source_vtk_sha256_unique_count"] = 4
+    short_window["boundary_runtime_frame_count"] = 4
+    short_window["boundary_runtime_selected_last_window"] = False
+    short_failed = module.native_boundary_traceability_status(
+        short_window,
+        expected_case="CaseE",
+        expected_wind_direction="N",
+        min_avg_frames=40,
+        min_avg_step_span=20000,
+    )
+    if short_failed["ok"]:
+        raise AssertionError(short_failed)
+    for expected in [
+        "boundary_runtime_frame_count_below_40",
+        "boundary_runtime_source_step_span_below_20000",
+        "boundary_runtime_selected_last_window_not_true:False",
+        "boundary_runtime_source_vtk_sha256_count_below_40",
+    ]:
+        if expected not in short_failed["reasons"]:
+            raise AssertionError(short_failed["reasons"])
 
     gates = [
         pass_gate(module, key)
