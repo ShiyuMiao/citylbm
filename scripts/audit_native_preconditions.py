@@ -48,6 +48,26 @@ REQUIRED_BOUNDARY_SUPPORT_FIELDS = [
     "side_top_boundary_check_supported",
 ]
 
+REQUIRED_PROTOCOL_ITEM_KEYS = [
+    "inlet_mean_profile",
+    "inlet_turbulence_k",
+    "inlet_turbulence_length_scale",
+    "inlet_reynolds_stress_tensor",
+    "inlet_temporal_sampling",
+    "inlet_distribution_consistency",
+    "native_fluidx3d_baseline",
+    "boundary_conditions",
+    "wall_roughness_model",
+    "lbm_stability_scaling",
+    "time_averaging",
+    "wind_direction_sign",
+    "coordinate_transform",
+    "probe_projection",
+    "normalization_basis",
+    "systematic_bias_gate",
+    "grid_resolution",
+]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Audit native FluidX3D strict-baseline preconditions.")
@@ -89,6 +109,17 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
     reason_set = set(reasons)
 
     groups = [
+        (
+            0,
+            "validation_protocol_content",
+            [
+                "validation_protocol",
+                "protocol_item",
+                "protocol_audit",
+            ],
+            "The validation protocol audit must be complete before native baseline preconditions can support paper-grade evidence.",
+            "Regenerate validation_protocol_audit.json from the current case and verify every required protocol item has an explicit non-fail status.",
+        ),
         (
             1,
             "turbulent_inlet_method_and_u_k_preservation",
@@ -211,6 +242,52 @@ def read_json(path: Optional[Path]) -> Dict[str, Any]:
     with path.open("r", encoding="utf-8-sig") as handle:
         data = json.load(handle)
     return data if isinstance(data, dict) else {}
+
+
+def load_protocol_items(audit: Dict[str, Any]) -> List[Dict[str, Any]]:
+    for key in ["Items", "items", "ProtocolItems", "protocol_items"]:
+        value = audit.get(key)
+        if isinstance(value, list):
+            return [item for item in value if isinstance(item, dict)]
+    return []
+
+
+def audit_protocol_content(
+    audit: Dict[str, Any],
+    required_keys: Iterable[str] = REQUIRED_PROTOCOL_ITEM_KEYS,
+) -> Dict[str, Any]:
+    items = load_protocol_items(audit)
+    statuses = {
+        str(item.get("Key") or item.get("key") or "").strip(): str(
+            item.get("Status") or item.get("status") or ""
+        ).strip().lower()
+        for item in items
+        if str(item.get("Key") or item.get("key") or "").strip()
+    }
+    required = list(required_keys)
+    missing = [key for key in required if key not in statuses]
+    missing_status = [key for key in required if key in statuses and not statuses[key]]
+    failed = [key for key, status in statuses.items() if status == "fail"]
+    reasons: List[str] = []
+    if not audit or not items:
+        reasons.append("validation_protocol_audit_missing_or_empty")
+    reasons.extend(f"validation_protocol_item_missing:{key}" for key in missing)
+    reasons.extend(f"validation_protocol_item_status_missing:{key}" for key in missing_status)
+    reasons.extend(f"validation_protocol_item_fail:{key}" for key in failed)
+    return {
+        "gate": "pass" if not reasons else "fail",
+        "item_count": len(items),
+        "required_item_count": len(required),
+        "audit_gate": str(audit.get("Gate") or audit.get("gate") or ""),
+        "missing_keys": missing,
+        "missing_status_keys": missing_status,
+        "failed_keys": failed,
+        "risk_keys": [key for key, status in statuses.items() if status == "risk"],
+        "partial_keys": [key for key, status in statuses.items() if status == "partial"],
+        "statuses": statuses,
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+    }
 
 
 def read_csv_rows(path: Optional[Path]) -> List[Dict[str, str]]:
@@ -742,6 +819,8 @@ def main() -> int:
     inlet_correlation_audit = read_json(inlet_correlation_audit_path)
     boundary_source_audit = read_json(boundary_source_audit_path)
     boundary_protocol_audit = read_json(boundary_protocol_audit_path)
+    validation_protocol_audit = read_json(protocol_audit_path)
+    protocol_content_audit = audit_protocol_content(validation_protocol_audit)
     probe_rows = read_csv_rows(probe_audit_path)
     component_sensitivity_audit = read_json(component_sensitivity_audit_path)
     reasons: List[str] = []
@@ -782,6 +861,8 @@ def main() -> int:
             reasons.append(f"current_run_file_missing:{role}")
         elif not declared_sha or declared_sha != actual_sha:
             reasons.append(f"current_run_file_hash_mismatch:{role}")
+    if protocol_content_audit["gate"] != "pass":
+        reasons.extend(str(reason) for reason in protocol_content_audit["reasons"])
 
     shared = manifest.get("SharedRunConditions", {})
     if not isinstance(shared, dict):
@@ -1586,6 +1667,25 @@ def main() -> int:
         "native_preconditions_defines_sha256": defines_sha,
         "native_preconditions_metadata_sha256": metadata_sha,
         "native_preconditions_runtime_audit_sha256": runtime_audit_sha,
+        "native_preconditions_protocol_audit_sha256": protocol_audit_sha,
+        "validation_protocol_content_gate": protocol_content_audit["gate"],
+        "validation_protocol_content_gate_reasons": protocol_content_audit["reasons"],
+        "validation_protocol_content_gate_reasons_csv": protocol_content_audit["reasons_csv"],
+        "validation_protocol_content_item_count": protocol_content_audit["item_count"],
+        "validation_protocol_content_required_item_count": protocol_content_audit["required_item_count"],
+        "validation_protocol_content_audit_gate": protocol_content_audit["audit_gate"],
+        "validation_protocol_content_missing_keys": protocol_content_audit["missing_keys"],
+        "validation_protocol_content_missing_keys_csv": ";".join(protocol_content_audit["missing_keys"]),
+        "validation_protocol_content_missing_status_keys": protocol_content_audit["missing_status_keys"],
+        "validation_protocol_content_missing_status_keys_csv": ";".join(
+            protocol_content_audit["missing_status_keys"]
+        ),
+        "validation_protocol_content_failed_keys": protocol_content_audit["failed_keys"],
+        "validation_protocol_content_failed_keys_csv": ";".join(protocol_content_audit["failed_keys"]),
+        "validation_protocol_content_risk_keys": protocol_content_audit["risk_keys"],
+        "validation_protocol_content_risk_keys_csv": ";".join(protocol_content_audit["risk_keys"]),
+        "validation_protocol_content_partial_keys": protocol_content_audit["partial_keys"],
+        "validation_protocol_content_partial_keys_csv": ";".join(protocol_content_audit["partial_keys"]),
         "native_preconditions_af_csv_sha256": af_sha,
         "role_audits": role_audits,
         "native_preconditions_gate": "pass" if not reasons else "fail",
@@ -1601,6 +1701,7 @@ def main() -> int:
         "native_top_blocking_priority_diagnosis": native_top_priority.get("diagnosis", ""),
         "native_top_blocking_priority_next_action": native_top_priority.get("next_action", ""),
         "native_diagnostic_priority_order": [
+            "validation_protocol_content",
             "turbulent_inlet_method_and_u_k_preservation",
             "boundary_roughness_blockage",
             "time_averaging_stationarity",

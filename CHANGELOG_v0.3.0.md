@@ -48,6 +48,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now has a dedicated `validation_protocol_content` gate. Empty
   `validation_protocol_audit.json` files, missing required protocol items, missing statuses or explicit failed protocol
   items block paper-grade evidence before inlet, boundary, time-averaging or bias metrics are interpreted.
+- `audit_native_preconditions.py` now applies the same validation-protocol content gate to native FluidX3D baselines,
+  preserving missing/failed protocol items in `native_preconditions_gate_reasons` and making incomplete protocol audits
+  the first native diagnostic priority.
 - `audit_native_preconditions.py` now records numeric time-window shortfall reasons, such as
   `runtime_average_window_frame_count_4_below_minimum_40` or
   `runtime_average_step_span_3000_below_minimum_20000`, so short four-frame baselines remain traceable in downstream
