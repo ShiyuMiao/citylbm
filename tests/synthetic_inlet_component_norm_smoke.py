@@ -24,6 +24,12 @@ def main() -> int:
         "fluct_z *= citylbm_stg_norm_z",
         "SyntheticTurbulentInletComponentRmsNormalization",
         "sqrt(2/sum(projected_unit_mode_component^2))",
+        "citylbm_stg_layer_mean_correction_x",
+        "citylbm_stg_layer_mean_correction_y",
+        "citylbm_stg_layer_mean_correction_z",
+        "citylbm_stg_layer_corrected_inlet_count",
+        "SyntheticTurbulentInletMeanPreservingScope",
+        "per_z_cell_inlet_layer",
     ]
     missing = [token for token in required_tokens if token not in source]
     if missing:

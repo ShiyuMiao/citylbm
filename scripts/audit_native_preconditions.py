@@ -1260,6 +1260,9 @@ def main() -> int:
     inlet_has_mean_preserving_correction = as_bool(
         inlet_source_audit.get("has_mean_preserving_inlet_correction")
     )
+    inlet_has_layerwise_mean_preserving_correction = as_bool(
+        inlet_source_audit.get("has_layerwise_mean_preserving_inlet_correction")
+    )
     inlet_stg_evidence_required = (
         "stg" in inlet_source_method_class.lower()
         or "stg" in inlet_correlation_model.lower()
@@ -1285,6 +1288,8 @@ def main() -> int:
         reasons.append("inlet_source_missing_k_driven_three_component_stg_evidence")
     if inlet_stg_evidence_required and inlet_has_mean_preserving_correction is not True:
         reasons.append("inlet_source_missing_mean_preserving_inlet_correction")
+    if inlet_stg_evidence_required and inlet_has_layerwise_mean_preserving_correction is not True:
+        reasons.append("inlet_source_missing_layerwise_mean_preserving_inlet_correction")
     if (
         inlet_has_uncorrelated_random is True
         or inlet_correlation_model == "uncorrelated_random_rms_velocity_field_only"
@@ -1869,6 +1874,7 @@ def main() -> int:
         "inlet_source_has_three_component_fluctuation_evidence": inlet_has_three_component_fluctuation_evidence,
         "inlet_source_has_k_driven_three_component_stg": inlet_has_k_driven_three_component_stg,
         "inlet_source_has_mean_preserving_inlet_correction": inlet_has_mean_preserving_correction,
+        "inlet_source_has_layerwise_mean_preserving_inlet_correction": inlet_has_layerwise_mean_preserving_correction,
         "inlet_source_gate_reasons": inlet_source_reasons,
         "inlet_source_gate_reasons_csv": ";".join(inlet_source_reasons),
         "paper_grade_inlet_source_gate_reasons": paper_inlet_source_reasons,

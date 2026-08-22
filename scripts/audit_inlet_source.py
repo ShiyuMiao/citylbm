@@ -583,8 +583,25 @@ def main() -> int:
         [
             "citylbm_stg_mean_correction",
             "citylbm_stg_corrected_inlet_count",
+            "citylbm_stg_layer_mean_correction",
+            "citylbm_stg_layer_corrected_inlet_count",
             "mean-preserving on the inlet",
+            "mean-preserving at every inlet z_cell",
         ],
+    )
+    has_layerwise_mean_preserving_inlet_correction = (
+        contains_any(
+            implementation_source,
+            [
+                "citylbm_stg_layer_mean_correction_x",
+                "citylbm_stg_layer_mean_correction_y",
+                "citylbm_stg_layer_mean_correction_z",
+                "citylbm_stg_layer_corrected_inlet_count",
+                "per_z_cell_inlet_layer",
+                "every z_cell layer",
+            ],
+        )
+        and has_regex(implementation_source, r"for\s*\(\s*uint\s+z_layer\s*=\s*0u\s*;\s*z_layer\s*<\s*Nz")
     )
     random_source_tokens = [
         r"\brand\s*\(",
@@ -737,6 +754,8 @@ def main() -> int:
         reasons.append("synthetic_inlet_missing_amplitude_cap")
     if synthetic_requested and stg_lite_velocity_source and not has_mean_preserving_inlet_correction:
         reasons.append("synthetic_inlet_missing_mean_preserving_inlet_correction")
+    if synthetic_requested and stg_lite_velocity_source and has_mean_preserving_inlet_correction and not has_layerwise_mean_preserving_inlet_correction:
+        reasons.append("synthetic_inlet_missing_layerwise_mean_preserving_inlet_correction")
     if synthetic_requested and has_uncorrelated_random_inlet:
         reasons.append("synthetic_inlet_uses_uncorrelated_random_rms")
 
@@ -843,6 +862,7 @@ def main() -> int:
         "has_segmented_stg_run_loop": has_segmented_stg_run_loop,
         "has_bounded_amplitude": has_bounded_amplitude,
         "has_mean_preserving_inlet_correction": has_mean_preserving_inlet_correction,
+        "has_layerwise_mean_preserving_inlet_correction": has_layerwise_mean_preserving_inlet_correction,
         "has_uncorrelated_random_inlet": has_uncorrelated_random_inlet,
         "uncorrelated_random_inlet_patterns": random_source_matches,
         "synthetic_inlet_correlation_model": synthetic_correlation_model,

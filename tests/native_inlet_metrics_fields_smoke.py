@@ -110,6 +110,7 @@ def main() -> int:
                         "inlet_correlation_gate_not_pass",
                     ],
                     "inlet_source_has_mean_preserving_inlet_correction": True,
+                    "inlet_source_has_layerwise_mean_preserving_inlet_correction": True,
                 },
                 indent=2,
             ),
@@ -171,6 +172,7 @@ def main() -> int:
         "native_precondition_top_blocking_stage_reason_count": "2",
         "native_precondition_top_blocking_stage_reasons": "inlet_k_profile_gate_not_pass;inlet_correlation_gate_not_pass",
         "native_inlet_source_has_mean_preserving_inlet_correction": "true",
+        "native_inlet_source_has_layerwise_mean_preserving_inlet_correction": "true",
     }
     for field, value in expected.items():
         if row.get(field) != value:

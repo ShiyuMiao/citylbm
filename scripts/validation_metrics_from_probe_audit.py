@@ -244,6 +244,7 @@ TEMPLATE_FIELDS = [
     "inlet_source_has_three_component_fluctuation_evidence",
     "inlet_source_has_k_driven_three_component_stg",
     "inlet_source_has_mean_preserving_inlet_correction",
+    "inlet_source_has_layerwise_mean_preserving_inlet_correction",
     "inlet_source_spectral_mode_count",
     "inlet_source_refresh_with_current_time",
     "inlet_source_update_interval_run_control",
@@ -354,6 +355,7 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_has_three_component_fluctuation_evidence",
     "native_inlet_source_has_k_driven_three_component_stg",
     "native_inlet_source_has_mean_preserving_inlet_correction",
+    "native_inlet_source_has_layerwise_mean_preserving_inlet_correction",
     "native_inlet_source_uncorrelated_random_patterns",
     "native_inlet_source_recommended_next_action",
     "native_probe_compared_component_values",
@@ -1948,6 +1950,9 @@ def main() -> int:
             "inlet_source_has_mean_preserving_inlet_correction": first_bool_text(
                 inlet_source_audit.get("has_mean_preserving_inlet_correction")
             ),
+            "inlet_source_has_layerwise_mean_preserving_inlet_correction": first_bool_text(
+                inlet_source_audit.get("has_layerwise_mean_preserving_inlet_correction")
+            ),
             "inlet_source_spectral_mode_count": audit_field(
                 inlet_source_audit, "synthetic_inlet_spectral_mode_count"
             ),
@@ -2133,6 +2138,9 @@ def main() -> int:
             ),
             "native_inlet_source_has_mean_preserving_inlet_correction": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_mean_preserving_inlet_correction")
+            ),
+            "native_inlet_source_has_layerwise_mean_preserving_inlet_correction": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_layerwise_mean_preserving_inlet_correction")
             ),
             "native_inlet_source_uncorrelated_random_patterns": audit_field(
                 native_preconditions_audit, "inlet_source_uncorrelated_random_patterns_csv"
