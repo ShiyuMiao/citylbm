@@ -208,6 +208,9 @@ TEMPLATE_FIELDS = [
     "inlet_source_setup_sha256",
     "inlet_source_synthetic_requested",
     "inlet_source_has_synthetic_function",
+    "inlet_source_has_three_component_velocity_write",
+    "inlet_source_has_three_component_fluctuation_evidence",
+    "inlet_source_has_k_driven_three_component_stg",
     "inlet_source_spectral_mode_count",
     "inlet_source_refresh_with_current_time",
     "inlet_source_update_interval_run_control",
@@ -1731,6 +1734,15 @@ def main() -> int:
             ),
             "inlet_source_has_synthetic_function": first_bool_text(
                 inlet_source_audit.get("has_synthetic_inlet_function")
+            ),
+            "inlet_source_has_three_component_velocity_write": first_bool_text(
+                inlet_source_audit.get("has_three_component_velocity_write")
+            ),
+            "inlet_source_has_three_component_fluctuation_evidence": first_bool_text(
+                inlet_source_audit.get("has_three_component_fluctuation_evidence")
+            ),
+            "inlet_source_has_k_driven_three_component_stg": first_bool_text(
+                inlet_source_audit.get("has_k_driven_three_component_stg")
             ),
             "inlet_source_spectral_mode_count": audit_field(
                 inlet_source_audit, "synthetic_inlet_spectral_mode_count"

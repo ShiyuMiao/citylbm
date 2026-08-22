@@ -588,6 +588,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   amplitude-cap checks only to velocity-field-only STG-lite sources. Distribution-consistent SEM/DFM/precursor evidence
   is no longer failed by CityLBM STG-lite diagnostics, while uncorrelated RMS/k random inlet forcing is explicitly tested
   to remain non-paper-grade.
+- `scripts/audit_inlet_source.py`, the metrics writer and the validation metrics template now expose whether a synthetic
+  inlet has three-component velocity writes, three-component fluctuation evidence and `k`-driven three-component STG
+  evidence. A velocity-field STG source that cannot prove all three components are perturbed from `k` fails the inlet
+  source audit instead of being treated as a reliable turbulent inlet.
 - `audit_native_run.py` no longer lets command-line speed-stability values pass the native `time_averaging_gate`.
   Paper-grade time averaging must use deterministic sampled-VTK statistics from the selected final-window frames. Any
   CLI override of mean speed, standard deviation or stability ratio is recorded as `mean_speed_statistics_source=cli_override`

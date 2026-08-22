@@ -320,6 +320,10 @@ def main() -> int:
         or (has_native_apply_inlet_function and has_native_synthetic_eddy_refresh)
     )
     has_velocity_field_write = contains_any(implementation_source, ["lbm.u.x", "lbm.u.y", "lbm.u.z"])
+    has_three_component_velocity_write = all(
+        contains_any(implementation_source, [token])
+        for token in ["lbm.u.x", "lbm.u.y", "lbm.u.z"]
+    )
     distribution_evidence = distribution_reconstruction_evidence(implementation_source)
     has_distribution_write = distribution_evidence["has_distribution_function_write"]
     has_inlet_distribution_reconstruction = distribution_evidence["has_inlet_distribution_reconstruction"]
@@ -449,6 +453,33 @@ def main() -> int:
             "projected normal to their wave vector",
             "divergence-reduced",
         ],
+    )
+    has_citylbm_three_component_fluctuation = (
+        all(
+            has_regex(implementation_source, pattern)
+            for pattern in [
+                r"\bfluct_x\s*\+=",
+                r"\bfluct_y\s*\+=",
+                r"\bfluct_z\s*\+=",
+            ]
+        )
+        and all(
+            has_regex(implementation_source, pattern)
+            for pattern in [
+                r"mean\.x\s*\+\s*sigma\s*\*\s*fluct_x",
+                r"mean\.y\s*\+\s*sigma\s*\*\s*fluct_y",
+                r"mean\.z\s*\+\s*sigma\s*\*\s*fluct_z",
+            ]
+        )
+    )
+    has_three_component_fluctuation_evidence = (
+        has_citylbm_three_component_fluctuation
+        or has_native_synthetic_eddy_evidence
+    )
+    has_k_driven_three_component_stg = (
+        has_k_profile
+        and contains_any(implementation_source, ["sigma = sqrtf", "sqrtf(0.6666667f * k_lbm)", "sqrt(2.0f * profile_k_lbm"])
+        and has_three_component_fluctuation_evidence
     )
     has_length_scale = contains_any(
         implementation_source,
@@ -675,6 +706,10 @@ def main() -> int:
         reasons.append("synthetic_inlet_missing_temporal_advection")
     if synthetic_requested and stg_lite_velocity_source and not (has_transverse_projection or has_native_synthetic_eddy_evidence):
         reasons.append("synthetic_inlet_missing_transverse_projection")
+    if synthetic_requested and stg_lite_velocity_source and not has_three_component_fluctuation_evidence:
+        reasons.append("synthetic_inlet_missing_three_component_fluctuation_evidence")
+    if synthetic_requested and stg_lite_velocity_source and not has_k_driven_three_component_stg:
+        reasons.append("synthetic_inlet_missing_k_driven_three_component_stg_evidence")
     if synthetic_requested and stg_lite_velocity_source and not has_update_interval:
         reasons.append("synthetic_inlet_missing_update_interval")
     if synthetic_requested and stg_lite_velocity_source and has_update_interval and not has_update_interval_run_control:
@@ -735,6 +770,9 @@ def main() -> int:
         "has_native_synthetic_eddy_shape": has_native_synthetic_eddy_shape,
         "has_native_synthetic_eddy_refresh": has_native_synthetic_eddy_refresh,
         "has_velocity_field_write": has_velocity_field_write,
+        "has_three_component_velocity_write": has_three_component_velocity_write,
+        "has_three_component_fluctuation_evidence": has_three_component_fluctuation_evidence,
+        "has_k_driven_three_component_stg": has_k_driven_three_component_stg,
         "has_distribution_function_write": has_distribution_write,
         "distribution_function_write_count": distribution_evidence["distribution_write_count"],
         "has_inlet_distribution_reconstruction": has_inlet_distribution_reconstruction,

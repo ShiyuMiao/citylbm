@@ -100,6 +100,10 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(random_report["inlet_source_gate_reasons"])
         if "source_missing_reynolds_stress_tensor_evidence" not in random_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(random_report["paper_grade_inlet_source_gate_reasons"])
+        if random_report["has_three_component_fluctuation_evidence"]:
+            raise AssertionError(random_report)
+        if random_report["has_k_driven_three_component_stg"]:
+            raise AssertionError(random_report)
 
         stl_random_setup = root / "stl_random_setup.cpp"
         stl_random_out = root / "stl_random_audit.json"
@@ -141,6 +145,89 @@ for(uint remaining=100u; remaining>0u; ) {
         random_patterns = ";".join(stl_random_report["uncorrelated_random_inlet_patterns"])
         if "mt19937" not in random_patterns or "normal_distribution" not in random_patterns:
             raise AssertionError(random_patterns)
+
+        spectral_setup = root / "spectral_setup.cpp"
+        spectral_out = root / "spectral_audit.json"
+        write_text(
+            spectral_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+const int citylbm_stg_mode_count = 64;
+const float citylbm_stg_corr_cells = 8.0f;
+const uint citylbm_stg_update_interval = 5u;
+const float citylbm_stg_max_fraction = 0.5f;
+const float dir_x = 1.0f, dir_y = 0.0f, dir_z = 0.0f;
+float citylbm_mode_wave(int mode, int axis) { return (1.0f + mode + axis) / citylbm_stg_corr_cells; }
+float citylbm_mode_amplitude(int mode, int axis) { return 0.1f + mode + axis; }
+float3 windProfile(uint z_cell) {
+    const float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f;
+    return float3(profile_u_lbm[0] + z_m * 0.0f, 0.0f, 0.0f);
+}
+float interpolate_profile_k(float z_m) { return profile_k_lbm[0]; }
+float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
+    float3 mean = windProfile(z_cell);
+    float k_lbm = interpolate_profile_k(profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f);
+    float sigma = sqrtf(0.6666667f * k_lbm);
+    float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);
+    float advected_x = (float)x - dir_x * mean_mag * (float)t_step;
+    float advected_y = (float)y - dir_y * mean_mag * (float)t_step;
+    float advected_z = (float)z_cell - dir_z * mean_mag * (float)t_step;
+    float fluct_x = 0.0f, fluct_y = 0.0f, fluct_z = 0.0f;
+    for(int m=0; m<citylbm_stg_mode_count; m++) {
+        float kx = citylbm_mode_wave(m, 0);
+        float ky = citylbm_mode_wave(m, 1);
+        float kz = citylbm_mode_wave(m, 2);
+        float ax = citylbm_mode_amplitude(m, 0);
+        float ay = citylbm_mode_amplitude(m, 1);
+        float az = citylbm_mode_amplitude(m, 2);
+        float kk = kx*kx + ky*ky + kz*kz;
+        float ak = ax*kx + ay*ky + az*kz;
+        if(kk > 1.0e-12f) { ax -= ak*kx/kk; ay -= ak*ky/kk; az -= ak*kz/kk; }
+        float wave = sinf(kx * advected_x + ky * advected_y + kz * advected_z);
+        fluct_x += ax * wave;
+        fluct_y += ay * wave;
+        fluct_z += az * wave;
+    }
+    return float3(mean.x + sigma * fluct_x, mean.y + sigma * fluct_y, mean.z + sigma * fluct_z);
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            float3 u_in = syntheticTurbulentInlet(0u, 0u, n, t_step);
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+        }
+    }
+}
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > citylbm_stg_update_interval ? citylbm_stg_update_interval : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        spectral_code, spectral_report = run_audit(spectral_setup, metadata, spectral_out)
+        if spectral_code == 0:
+            raise AssertionError("velocity-field-only spectral STG unexpectedly passed paper gate")
+        if spectral_report["inlet_source_gate"] != "pass":
+            raise AssertionError(spectral_report)
+        if spectral_report["paper_grade_inlet_source_gate"] != "fail":
+            raise AssertionError(spectral_report)
+        if spectral_report["synthetic_inlet_correlation_model"] != "spectral_taylor_projected_velocity_field_only":
+            raise AssertionError(spectral_report["synthetic_inlet_correlation_model"])
+        if not spectral_report["has_three_component_velocity_write"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_three_component_fluctuation_evidence"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_k_driven_three_component_stg"]:
+            raise AssertionError(spectral_report)
+        if "source_velocity_field_only" not in spectral_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(spectral_report["paper_grade_inlet_source_gate_reasons"])
 
         sem_setup = root / "sem_setup.cpp"
         sem_out = root / "sem_audit.json"
