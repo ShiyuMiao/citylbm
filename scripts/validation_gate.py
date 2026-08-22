@@ -116,10 +116,10 @@ def parse_args() -> argparse.Namespace:
         "--allow-velocity-only-inlet",
         action="store_true",
         help=(
-            "Allow CityLBM STG-lite velocity-field-only inlet to pass the inlet gate "
-            "when empty-tunnel U/k preservation passes. Without this explicit "
-            "diagnostic override, paper-grade validation requires a distribution-"
-            "consistent, precursor, digital-filter or recycling inlet."
+            "Diagnostic override only: allow CityLBM STG-lite velocity-field-only "
+            "inlet to pass the general inlet-turbulence diagnostic gate when "
+            "empty-tunnel U/k preservation passes. This flag cannot satisfy the "
+            "paper-grade turbulent-inlet-method gate."
         ),
     )
     parser.add_argument(
@@ -738,6 +738,35 @@ def audit_protocol_content(
         "reasons": reasons,
         "reasons_csv": ";".join(reasons),
     }
+
+
+def paper_grade_inlet_method_pass(
+    *,
+    empty_tunnel_pass: bool,
+    inlet_source_evidence_ok: bool,
+    audit_paper_grade_inlet_source_gate: str,
+    audit_inlet_source_distribution_consistent: Optional[bool],
+    audit_inlet_source_velocity_field_only: Optional[bool],
+    audit_inlet_source_comment_stripped: Optional[bool],
+    audit_has_uncorrelated_random_inlet: Optional[bool],
+    paper_method_class_ok: bool,
+    treatment_distribution_consistent: bool,
+    distribution_status: str,
+    treatment_velocity_only: bool,
+) -> bool:
+    return (
+        empty_tunnel_pass
+        and inlet_source_evidence_ok
+        and audit_paper_grade_inlet_source_gate == "pass"
+        and audit_inlet_source_distribution_consistent is True
+        and audit_inlet_source_velocity_field_only is not True
+        and audit_inlet_source_comment_stripped is True
+        and audit_has_uncorrelated_random_inlet is not True
+        and paper_method_class_ok
+        and treatment_distribution_consistent
+        and distribution_status == "pass"
+        and not treatment_velocity_only
+    )
 
 
 def read_probe_counts(path: Optional[Path]) -> Tuple[Optional[int], Optional[int], Optional[str]]:
@@ -3808,20 +3837,18 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Use a distribution-consistent DFM/SEM/precursor/recycling inlet and pass empty-tunnel U/k preservation; velocity-only STG-lite is diagnostic unless explicitly allowed.",
     )
 
-    paper_grade_inlet_pass = (
-        empty_tunnel_pass
-        and inlet_source_evidence_ok
-        and audit_paper_grade_inlet_source_gate == "pass"
-        and audit_inlet_source_distribution_consistent is True
-        and audit_inlet_source_velocity_field_only is not True
-        and audit_inlet_source_comment_stripped is True
-        and audit_has_uncorrelated_random_inlet is not True
-        and paper_method_class_ok
-        and (
-            treatment_distribution_consistent
-            and distribution_status == "pass"
-        )
-        and not treatment_velocity_only
+    paper_grade_inlet_pass = paper_grade_inlet_method_pass(
+        empty_tunnel_pass=empty_tunnel_pass,
+        inlet_source_evidence_ok=inlet_source_evidence_ok,
+        audit_paper_grade_inlet_source_gate=audit_paper_grade_inlet_source_gate,
+        audit_inlet_source_distribution_consistent=audit_inlet_source_distribution_consistent,
+        audit_inlet_source_velocity_field_only=audit_inlet_source_velocity_field_only,
+        audit_inlet_source_comment_stripped=audit_inlet_source_comment_stripped,
+        audit_has_uncorrelated_random_inlet=audit_has_uncorrelated_random_inlet,
+        paper_method_class_ok=paper_method_class_ok,
+        treatment_distribution_consistent=treatment_distribution_consistent,
+        distribution_status=distribution_status,
+        treatment_velocity_only=treatment_velocity_only,
     )
     add_gate(
         gates,

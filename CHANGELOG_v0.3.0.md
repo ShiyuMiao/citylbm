@@ -593,6 +593,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   reconstruction. The current CityLBM STG-lite path remains explicitly marked as `velocity_field_only` with an isotropic
   k assumption until a measured/precursor Reynolds-stress tensor and distribution-consistent inlet are implemented or
   proven by native empty-tunnel U/k/correlation preservation tests.
+- `validation_gate.py` now has a direct smoke-tested paper-grade inlet-method predicate: `--allow-velocity-only-inlet`
+  can relax only the general diagnostic inlet gate and cannot promote STG-lite or uncorrelated RMS/k forcing to
+  paper-grade turbulent-inlet evidence.
 
 ## Remaining scientific work
 
