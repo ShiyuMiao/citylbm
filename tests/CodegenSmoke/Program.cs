@@ -70,7 +70,13 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "const float profile_origin_z_m = -4.00000000f;");
                 Require(setup, "float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * 2.00000000f;");
                 Require(setup, "citylbm_stg_mode_count");
-                Require(setup, "sqrtf(6.0f / (float)citylbm_stg_mode_count)");
+                Require(setup, "citylbm_stg_norm_x");
+                Require(setup, "citylbm_stg_norm_y");
+                Require(setup, "citylbm_stg_norm_z");
+                Require(setup, "fluct_x *= citylbm_stg_norm_x");
+                Require(setup, "fluct_y *= citylbm_stg_norm_y");
+                Require(setup, "fluct_z *= citylbm_stg_norm_z");
+                RequireNotContains(setup, "sqrtf(6.0f / (float)citylbm_stg_mode_count)");
                 Require(setup, "citylbm_mode_amplitude");
                 Require(setup, "ak*kx");
                 Require(setup, "Taylor frozen-turbulence advection");
