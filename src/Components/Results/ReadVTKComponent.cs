@@ -27,7 +27,8 @@ namespace CityLBM.Components.Results
         private string  _cachedKey;          // vtkPath + step + timeStep 的组合键
         private double  _cachedSpacing;      // 上次检测到的网格间距
         private string  _cachedInfo;         // 上次的 Info 输出
-        private const int MinimumValidationAverageFrames = 10;
+        private const int MinimumValidationAverageFrames = 40;
+        private const int MinimumValidationAverageStepSpan = 20000;
         private const double MaxValidationMeanSpeedStdDevRatio = 0.05;
         private const double MaxValidationPointSpeedStdDevRatio = 0.20;
         
@@ -80,7 +81,7 @@ namespace CityLBM.Components.Results
                 "时间平均窗口。\n" +
                 " 0 = 不平均（保持 Time Step 筛选结果），\n" +
                 " N > 0 = 对最后 N 个 VTK 帧逐点平均后输出。\n" +
-                "论文验证建议使用足够长的后期平均窗口，而不是单个瞬时帧。",
+                "论文验证建议至少使用最后 40 个 VTK 帧，且平均窗口跨度不少于 20000 个 solver steps。",
                 GH_ParamAccess.item, 0);
 
             // VTK Path 和 Scene 均可选
@@ -558,6 +559,10 @@ namespace CityLBM.Components.Results
                     .ToList();
 
             int averagedFrameCount = hasAveragedField ? averaged.AveragedFrameCount : 0;
+            int? sourceStepSpan = SourceStepSpan(sourceSteps);
+            int? sourceStepSpanShortfall = sourceStepSpan.HasValue
+                ? Math.Max(0, MinimumValidationAverageStepSpan - sourceStepSpan.Value)
+                : (int?)null;
             bool selectedLastWindow = averageLastN > 0 && IsLastWindow(sourceSteps, availableSteps);
             bool sourceStepsStrictlyIncreasing = IsStrictlyIncreasing(sourceSteps);
             bool sourceStepSpacingUniform = HasUniformStepSpacing(sourceSteps);
@@ -577,6 +582,9 @@ namespace CityLBM.Components.Results
                 { "source_time_steps_csv", string.Join(",", sourceSteps) },
                 { "source_first_time_step", sourceSteps.Count > 0 ? (int?)sourceSteps.First() : null },
                 { "source_last_time_step", sourceSteps.Count > 0 ? (int?)sourceSteps.Last() : null },
+                { "source_step_span", sourceStepSpan },
+                { "source_step_span_shortfall", sourceStepSpanShortfall },
+                { "minimum_validation_average_step_span", MinimumValidationAverageStepSpan },
                 { "latest_available_time_step", availableSteps.Count > 0 ? (int?)availableSteps.Last() : null },
                 { "selected_last_window", selectedLastWindow },
                 { "source_steps_strictly_increasing", sourceStepsStrictlyIncreasing },
@@ -621,11 +629,16 @@ namespace CityLBM.Components.Results
             bool selectedLastWindow = averageLastN > 0 && IsLastWindow(sourceSteps, availableSteps);
             bool sourceStepsStrictlyIncreasing = IsStrictlyIncreasing(sourceSteps);
             bool sourceStepSpacingUniform = HasUniformStepSpacing(sourceSteps);
+            int? sourceStepSpan = SourceStepSpan(sourceSteps);
             var reasons = new List<string>();
             if (averageLastN <= 0)
                 reasons.Add("averaging_disabled");
             if (averagedFrameCount < MinimumValidationAverageFrames)
                 reasons.Add($"averaged_frame_count_below_{MinimumValidationAverageFrames}");
+            if (!sourceStepSpan.HasValue)
+                reasons.Add("source_step_span_missing");
+            else if (sourceStepSpan.Value < MinimumValidationAverageStepSpan)
+                reasons.Add($"source_step_span_below_{MinimumValidationAverageStepSpan}");
             if (!selectedLastWindow)
                 reasons.Add("not_last_available_window");
             if (!sourceStepsStrictlyIncreasing)
@@ -650,11 +663,18 @@ namespace CityLBM.Components.Results
         {
             if (averageLastN <= 0)
                 return "instantaneous_or_unaveraged";
-            if (averagedFrameCount >= 10)
+            if (averagedFrameCount >= MinimumValidationAverageFrames)
                 return "candidate_time_average";
             if (averagedFrameCount > 0)
                 return "short_time_average_diagnostic";
             return "no_averaged_frames";
+        }
+
+        private int? SourceStepSpan(IList<int> sourceSteps)
+        {
+            if (sourceSteps == null || sourceSteps.Count < 2)
+                return null;
+            return sourceSteps.Max() - sourceSteps.Min();
         }
 
         private List<int> ExtractDistinctTimeSteps(IEnumerable<string> vtkFiles)

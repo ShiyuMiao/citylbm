@@ -281,6 +281,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native preconditions now apply the same source-step-span closure to `inlet_profile_audit.json` and
   `inlet_correlation_audit.json`. Inlet `U/k` preservation and turbulence-correlation evidence must therefore prove
   their own averaging-window span from archived source time steps, not only from a copied summary field.
+- Grasshopper runtime and result-reading thresholds are now aligned with the final validation gate: `Run Simulation`
+  blocks Mode 1/2/3 validation runs below 40 saved VTK frames or a 20000-step final averaging span, and `Read VTK`
+  records `source_step_span`, `source_step_span_shortfall` and `minimum_validation_average_step_span` in `AvgAudit`.
+  Four-frame late-window outputs are therefore preserved as smoke/diagnostic evidence rather than paper-grade averages.
 - Native preconditions now recompute strict monotonicity and uniform spacing for runtime, inlet-profile,
   inlet-correlation and probe source time steps. Non-final, reordered, duplicated or uneven VTK windows remain
   diagnostic even if an audit JSON reports `time_averaging_gate=pass`.

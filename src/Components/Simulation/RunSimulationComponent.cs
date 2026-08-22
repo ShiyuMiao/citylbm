@@ -46,8 +46,8 @@ namespace CityLBM.Components.Simulation
         private DateTime _componentCreatedAt = DateTime.Now;  // 组件创建时间
         private static readonly TimeSpan GH_LOAD_GRACE_PERIOD = TimeSpan.FromSeconds(3);  // GH 加载宽限期
 
-        private const int MinimumValidationAveragingFrames = 20;
-        private const int MinimumValidationAveragingStepSpan = 5000;
+        private const int MinimumValidationAveragingFrames = 40;
+        private const int MinimumValidationAveragingStepSpan = 20000;
         private const int MinimumValidationStgRefreshes = 200;
 
         public RunSimulationComponent()
