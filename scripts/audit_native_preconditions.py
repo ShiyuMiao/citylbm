@@ -1234,9 +1234,15 @@ def main() -> int:
 
     time_gate = str(runtime_audit.get("time_averaging_gate") or "").strip().lower()
     requested_frame_gate = str(runtime_audit.get("requested_vtk_frame_gate") or "").strip().lower()
+    stationarity_gate = str(runtime_audit.get("final_window_stationarity_gate") or "").strip().lower()
+    stationarity_reasons = split_scalar_list(runtime_audit.get("final_window_stationarity_gate_reasons"))
     time_average_gate = "pass" if time_gate == "pass" and requested_frame_gate == "pass" else "fail"
     if time_average_gate != "pass":
         reasons.append("runtime_time_averaging_gate_not_pass")
+    if runtime_audit and stationarity_gate != "pass":
+        reasons.append("runtime_final_window_stationarity_gate_not_pass")
+        for reason in stationarity_reasons:
+            reasons.append(f"runtime_final_window_stationarity_{reason}")
 
     if runtime_audit:
         if not runtime_steps:
@@ -1906,6 +1912,11 @@ def main() -> int:
         "runtime_source_vtk_sha256_count": runtime_hash_count,
         "runtime_source_vtk_sha256_unique_count": runtime_hash_unique_count,
         "runtime_time_averaging_gate": time_gate,
+        "runtime_final_window_stationarity_gate": stationarity_gate,
+        "runtime_final_window_stationarity_gate_reasons": stationarity_reasons,
+        "runtime_final_window_stationarity_gate_reasons_csv": ";".join(stationarity_reasons),
+        "runtime_final_window_mean_speed_drift_ratio": runtime_audit.get("final_window_mean_speed_drift_ratio", ""),
+        "runtime_max_final_window_mean_speed_drift_ratio": runtime_audit.get("max_final_window_mean_speed_drift_ratio", ""),
         "runtime_requested_vtk_frame_gate": requested_frame_gate,
         "inlet_source_audit": str(inlet_source_audit_path) if inlet_source_audit_path else "",
         "inlet_profile_audit": str(inlet_profile_audit_path) if inlet_profile_audit_path else "",

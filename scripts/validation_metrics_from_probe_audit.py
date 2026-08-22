@@ -67,6 +67,9 @@ TEMPLATE_FIELDS = [
     "max_speed_stddev_mps",
     "mean_speed_stddev_ratio",
     "max_speed_stddev_ratio",
+    "final_window_stationarity_gate",
+    "final_window_mean_speed_drift_ratio",
+    "max_final_window_mean_speed_drift_ratio",
     "mean_speed_statistics_source",
     "profile_csv",
     "profile_csv_sha256",
@@ -343,6 +346,9 @@ TEMPLATE_FIELDS = [
     "native_preconditions_runtime_selected_last_window",
     "native_preconditions_runtime_source_vtk_sha256_count",
     "native_preconditions_runtime_source_vtk_sha256_unique_count",
+    "native_preconditions_runtime_final_window_stationarity_gate",
+    "native_preconditions_runtime_final_window_mean_speed_drift_ratio",
+    "native_preconditions_runtime_max_final_window_mean_speed_drift_ratio",
     "native_component_sensitivity_hash_traceability_gate",
     "native_component_sensitivity_hash_traceability_gate_reasons",
     "native_component_sensitivity_probe_audit_sha256_matches_current",
@@ -1553,6 +1559,18 @@ def main() -> int:
         audit_float(read_vtk_audit, "max_speed_stddev_ratio"),
         audit_float(inlet_profile_audit, "max_speed_stddev_ratio"),
     )
+    final_window_stationarity_gate = first_text(
+        read_vtk_audit.get("final_window_stationarity_gate"),
+        inlet_profile_audit.get("final_window_stationarity_gate"),
+    )
+    final_window_mean_speed_drift_ratio = first_float(
+        audit_float(read_vtk_audit, "final_window_mean_speed_drift_ratio"),
+        audit_float(inlet_profile_audit, "final_window_mean_speed_drift_ratio"),
+    )
+    max_final_window_mean_speed_drift_ratio = first_float(
+        audit_float(read_vtk_audit, "max_final_window_mean_speed_drift_ratio"),
+        audit_float(inlet_profile_audit, "max_final_window_mean_speed_drift_ratio"),
+    )
     speed_statistics_cli_override = any(
         value is not None
         for value in [
@@ -1640,6 +1658,9 @@ def main() -> int:
             "max_speed_stddev_mps": fmt(max_speed_stddev),
             "mean_speed_stddev_ratio": fmt(mean_speed_stddev_ratio),
             "max_speed_stddev_ratio": fmt(max_speed_stddev_ratio),
+            "final_window_stationarity_gate": final_window_stationarity_gate,
+            "final_window_mean_speed_drift_ratio": fmt(final_window_mean_speed_drift_ratio),
+            "max_final_window_mean_speed_drift_ratio": fmt(max_final_window_mean_speed_drift_ratio),
             "mean_speed_statistics_source": mean_speed_statistics_source,
             "profile_csv": args.profile_csv,
             "profile_csv_sha256": profile_csv_sha256,
@@ -2131,6 +2152,15 @@ def main() -> int:
             ),
             "native_preconditions_runtime_source_vtk_sha256_unique_count": fmt(
                 audit_int(native_preconditions_audit, "runtime_source_vtk_sha256_unique_count")
+            ),
+            "native_preconditions_runtime_final_window_stationarity_gate": audit_gate(
+                native_preconditions_audit, "runtime_final_window_stationarity_gate"
+            ),
+            "native_preconditions_runtime_final_window_mean_speed_drift_ratio": audit_field(
+                native_preconditions_audit, "runtime_final_window_mean_speed_drift_ratio"
+            ),
+            "native_preconditions_runtime_max_final_window_mean_speed_drift_ratio": audit_field(
+                native_preconditions_audit, "runtime_max_final_window_mean_speed_drift_ratio"
             ),
             "native_component_sensitivity_hash_traceability_gate": audit_gate(
                 native_preconditions_audit, "component_sensitivity_hash_traceability_gate"

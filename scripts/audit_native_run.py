@@ -52,6 +52,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--vtk-save-start-step", type=int, default=None, help="First planned VTK save step. Defaults to save interval when omitted.")
     parser.add_argument("--max-mean-speed-stddev-ratio", type=float, default=0.05)
     parser.add_argument("--max-point-speed-stddev-ratio", type=float, default=0.20)
+    parser.add_argument("--max-final-window-mean-speed-drift-ratio", type=float, default=0.03)
     parser.add_argument("--mean-speed-mps", type=float, default=None)
     parser.add_argument("--mean-speed-stddev-mps", type=float, default=None)
     parser.add_argument("--max-speed-stddev-mps", type=float, default=None)
@@ -322,19 +323,24 @@ def compute_sampled_vtk_stability(
         frame_vectors = [read_vectors_at_indices(meta, indices) for meta in metas]
         point_stddevs: List[float] = []
         point_means: List[float] = []
+        frame_speed_sums = [0.0 for _ in frame_vectors]
         for point_index in range(len(indices)):
-            speeds = [
-                math.sqrt(
+            speeds: List[float] = []
+            for frame_index, frame in enumerate(frame_vectors):
+                speed = math.sqrt(
                     frame[point_index][0] * frame[point_index][0]
                     + frame[point_index][1] * frame[point_index][1]
                     + frame[point_index][2] * frame[point_index][2]
                 )
-                for frame in frame_vectors
-            ]
+                speeds.append(speed)
+                frame_speed_sums[frame_index] += speed
             mean_speed = sum(speeds) / len(speeds)
             variance = sum((speed - mean_speed) ** 2 for speed in speeds) / len(speeds)
             point_means.append(mean_speed)
             point_stddevs.append(math.sqrt(variance))
+        frame_mean_speeds = [
+            value / len(indices) for value in frame_speed_sums
+        ] if indices else []
         mean_speed_mps = sum(point_means) / len(point_means) if point_means else None
         mean_speed_stddev_mps = sum(point_stddevs) / len(point_stddevs) if point_stddevs else None
         max_speed_stddev_mps = max(point_stddevs) if point_stddevs else None
@@ -348,6 +354,28 @@ def compute_sampled_vtk_stability(
             if mean_speed_mps and mean_speed_mps > 1.0e-12 and max_speed_stddev_mps is not None
             else None
         )
+        half = len(frame_mean_speeds) // 2
+        first_half_mean = (
+            sum(frame_mean_speeds[:half]) / half
+            if half > 0 and len(frame_mean_speeds) >= 4
+            else None
+        )
+        second_values = frame_mean_speeds[half:]
+        second_half_mean = (
+            sum(second_values) / len(second_values)
+            if first_half_mean is not None and second_values
+            else None
+        )
+        mean_speed_drift_mps = (
+            second_half_mean - first_half_mean
+            if first_half_mean is not None and second_half_mean is not None
+            else None
+        )
+        mean_speed_drift_ratio = (
+            abs(mean_speed_drift_mps) / mean_speed_mps
+            if mean_speed_mps and mean_speed_mps > 1.0e-12 and mean_speed_drift_mps is not None
+            else None
+        )
         return {
             "vtk_stability_sampling_enabled": True,
             "vtk_stability_sampling_gate": "sampled",
@@ -355,6 +383,11 @@ def compute_sampled_vtk_stability(
             "vtk_stability_sample_count": len(indices),
             "vtk_stability_field_kind": first["field_kind"],
             "vtk_stability_dtype": first["dtype"],
+            "frame_mean_speed_mps": frame_mean_speeds,
+            "final_window_first_half_mean_speed_mps": first_half_mean,
+            "final_window_second_half_mean_speed_mps": second_half_mean,
+            "final_window_mean_speed_drift_mps": mean_speed_drift_mps,
+            "final_window_mean_speed_drift_ratio": mean_speed_drift_ratio,
             "mean_speed_mps": mean_speed_mps,
             "mean_speed_stddev_mps": mean_speed_stddev_mps,
             "max_speed_stddev_mps": max_speed_stddev_mps,
@@ -577,6 +610,7 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         if args.max_speed_stddev_ratio is not None
         else sampled_stability.get("max_speed_stddev_ratio")
     )
+    final_window_mean_speed_drift_ratio = sampled_stability.get("final_window_mean_speed_drift_ratio")
     if speed_statistics_cli_override:
         mean_speed_statistics_source = "cli_override"
     elif sampled_vtk_stability_available:
@@ -607,6 +641,12 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         reasons.append("missing_max_speed_stddev_ratio")
     elif float(max_speed_stddev_ratio) > args.max_point_speed_stddev_ratio:
         reasons.append("max_speed_stddev_ratio_above_0.20")
+    stationarity_reasons: List[str] = []
+    if not finite(final_window_mean_speed_drift_ratio):
+        stationarity_reasons.append("missing_final_window_mean_speed_drift_ratio")
+    elif float(final_window_mean_speed_drift_ratio) > args.max_final_window_mean_speed_drift_ratio:
+        stationarity_reasons.append("final_window_mean_speed_drift_ratio_above_threshold")
+    reasons.extend(stationarity_reasons)
     if sampled_stability.get("vtk_stability_sampling_gate") == "failed":
         reasons.append("vtk_stability_sampling_failed")
     if mean_speed_statistics_source != "sampled_vtk":
@@ -673,6 +713,14 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "mean_speed_statistics_cli_override": speed_statistics_cli_override,
         "mean_speed_statistics_cli_override_fields_csv": ",".join(cli_override_fields),
         "sampled_vtk_stability_available": sampled_vtk_stability_available,
+        "final_window_stationarity_gate": "pass" if not stationarity_reasons else "diagnostic_only",
+        "final_window_stationarity_gate_reasons": stationarity_reasons,
+        "final_window_stationarity_gate_reasons_csv": ";".join(stationarity_reasons),
+        "final_window_first_half_mean_speed_mps": sampled_stability.get("final_window_first_half_mean_speed_mps"),
+        "final_window_second_half_mean_speed_mps": sampled_stability.get("final_window_second_half_mean_speed_mps"),
+        "final_window_mean_speed_drift_mps": sampled_stability.get("final_window_mean_speed_drift_mps"),
+        "final_window_mean_speed_drift_ratio": final_window_mean_speed_drift_ratio,
+        "max_final_window_mean_speed_drift_ratio": args.max_final_window_mean_speed_drift_ratio,
         "minimum_validation_average_frames": args.min_avg_frames,
         "minimum_validation_average_step_span": args.min_avg_step_span,
         "max_mean_speed_stddev_ratio": args.max_mean_speed_stddev_ratio,

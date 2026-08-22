@@ -38,6 +38,9 @@ def passing_native_audit():
         "runtime_source_step_span_matches_time_steps": True,
         "runtime_source_steps_strictly_increasing": True,
         "runtime_source_step_spacing_uniform": True,
+        "runtime_final_window_stationarity_gate": "pass",
+        "runtime_final_window_mean_speed_drift_ratio": 0.01,
+        "runtime_max_final_window_mean_speed_drift_ratio": 0.03,
         "planned_final_window_step_span": 39000,
         "planned_frame_count_shortfall_reason": "",
         "runtime_average_window_shortfall_reason": "",
@@ -99,6 +102,33 @@ def main() -> int:
     ):
         if expected not in reasons:
             raise AssertionError((expected, reasons))
+
+    drifting = copy.deepcopy(passing_native_audit())
+    drifting.update(
+        {
+            "native_preconditions_time_average_gate": "fail",
+            "runtime_final_window_stationarity_gate": "diagnostic_only",
+            "runtime_final_window_mean_speed_drift_ratio": 0.08,
+            "runtime_final_window_stationarity_gate_reasons": [
+                "final_window_mean_speed_drift_ratio_above_threshold"
+            ],
+        }
+    )
+    drifting_failed = module.native_time_averaging_traceability_status(
+        drifting,
+        min_avg_frames=40,
+        min_avg_step_span=20000,
+    )
+    if drifting_failed["ok"]:
+        raise AssertionError(drifting_failed)
+    drifting_reasons = drifting_failed["reasons_csv"]
+    for expected in (
+        "native_preconditions_time_average_gate_not_pass:fail",
+        "runtime_final_window_stationarity_gate_not_pass:diagnostic_only",
+        "runtime_final_window_stationarity_gate_reasons_present:final_window_mean_speed_drift_ratio_above_threshold",
+    ):
+        if expected not in drifting_reasons:
+            raise AssertionError((expected, drifting_reasons))
 
     stale = copy.deepcopy(passing_native_audit())
     stale.update(

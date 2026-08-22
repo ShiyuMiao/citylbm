@@ -2507,6 +2507,9 @@ def native_time_averaging_traceability_status(
     planned_span = as_int(
         get_any(native_preconditions_audit, ["planned_final_window_step_span"])
     )
+    runtime_stationarity_gate = str(
+        get_any(native_preconditions_audit, ["runtime_final_window_stationarity_gate"]) or ""
+    ).strip().lower()
 
     if planned_frame_count is None:
         reasons.append("planned_frame_count_min_missing")
@@ -2570,10 +2573,13 @@ def native_time_averaging_traceability_status(
         "runtime_average_window_shortfall_reason",
         "planned_average_step_span_shortfall_reason",
         "runtime_average_step_span_shortfall_reason",
+        "runtime_final_window_stationarity_gate_reasons",
     ]:
         values = as_string_list(get_any(native_preconditions_audit, [key]))
         if values:
             reasons.append(f"{key}_present:{','.join(values)}")
+    if runtime_stationarity_gate != "pass":
+        reasons.append(f"runtime_final_window_stationarity_gate_not_pass:{runtime_stationarity_gate or 'missing'}")
 
     return {
         "ok": not reasons,
@@ -2587,6 +2593,10 @@ def native_time_averaging_traceability_status(
         "runtime_source_vtk_sha256_unique_count": runtime_hash_unique_count,
         "runtime_source_step_span": runtime_span,
         "runtime_source_step_span_from_time_steps": runtime_span_from_steps,
+        "runtime_final_window_stationarity_gate": runtime_stationarity_gate,
+        "runtime_final_window_mean_speed_drift_ratio": as_float(
+            get_any(native_preconditions_audit, ["runtime_final_window_mean_speed_drift_ratio"])
+        ),
         "planned_final_window_step_span": planned_span,
     }
 
@@ -5520,6 +5530,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"runtime_source_vtk_sha256_count={native_time_traceability['runtime_source_vtk_sha256_count']}; "
             f"runtime_source_vtk_sha256_unique_count={native_time_traceability['runtime_source_vtk_sha256_unique_count']}; "
             f"planned_final_window_step_span={native_time_traceability['planned_final_window_step_span']}; "
+            f"runtime_final_window_stationarity_gate={native_time_traceability['runtime_final_window_stationarity_gate'] or 'missing'}; "
+            f"runtime_final_window_mean_speed_drift_ratio={native_time_traceability['runtime_final_window_mean_speed_drift_ratio']}; "
+            f"runtime_max_final_window_mean_speed_drift_ratio={get_any(native_preconditions_audit, ['runtime_max_final_window_mean_speed_drift_ratio'])}; "
             f"required_min_avg_frames={args.min_avg_frames}; "
             f"required_min_avg_step_span={args.min_avg_step_span}"
         ),
