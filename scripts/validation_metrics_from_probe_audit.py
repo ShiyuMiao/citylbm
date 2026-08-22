@@ -403,6 +403,10 @@ TEMPLATE_FIELDS = [
     "native_inlet_correlation_source_step_span",
     "native_inlet_correlation_minimum_step_span",
     "native_inlet_source_stg_evidence_required",
+    "native_inlet_source_distribution_route",
+    "native_inlet_source_distribution_route_gate",
+    "native_inlet_source_has_equilibrium_boundaries_define",
+    "native_inlet_source_has_type_e_equilibrium_boundary_route",
     "native_inlet_source_has_three_component_velocity_write",
     "native_inlet_source_has_three_component_fluctuation_evidence",
     "native_inlet_source_has_k_driven_three_component_stg",
@@ -2340,6 +2344,18 @@ def main() -> int:
             ),
             "native_inlet_source_stg_evidence_required": first_bool_text(
                 native_preconditions_audit.get("inlet_source_stg_evidence_required")
+            ),
+            "native_inlet_source_distribution_route": audit_field(
+                native_preconditions_audit, "inlet_source_distribution_route"
+            ),
+            "native_inlet_source_distribution_route_gate": audit_gate(
+                native_preconditions_audit, "inlet_source_distribution_route_gate"
+            ),
+            "native_inlet_source_has_equilibrium_boundaries_define": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_equilibrium_boundaries_define")
+            ),
+            "native_inlet_source_has_type_e_equilibrium_boundary_route": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_type_e_equilibrium_boundary_route")
             ),
             "native_inlet_source_has_three_component_velocity_write": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_three_component_velocity_write")

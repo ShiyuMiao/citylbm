@@ -1034,6 +1034,12 @@ def build_inlet_equivalence_evidence_reasons(
     source_uncorrelated_random = as_bool(inlet_source_audit.get("has_uncorrelated_random_inlet"))
     source_method_class = str(inlet_source_audit.get("inlet_source_method_class") or "").strip()
     source_correlation_model = str(inlet_source_audit.get("synthetic_inlet_correlation_model") or "").strip()
+    source_distribution_route = str(inlet_source_audit.get("inlet_distribution_route") or "").strip()
+    source_distribution_route_gate = str(inlet_source_audit.get("inlet_distribution_route_gate") or "").strip().lower()
+    source_has_equilibrium_define = as_bool(inlet_source_audit.get("has_equilibrium_boundaries_define"))
+    source_has_type_e_equilibrium_route = as_bool(
+        inlet_source_audit.get("has_type_e_equilibrium_boundary_route")
+    )
     source_has_length_scale = as_bool(inlet_source_audit.get("has_inlet_length_scale_evidence"))
     source_length_gate = str(inlet_source_audit.get("metadata_length_scale_gate") or "").strip().lower()
     source_has_reynolds_tensor = as_bool(inlet_source_audit.get("has_reynolds_stress_tensor_evidence"))
@@ -1067,6 +1073,16 @@ def build_inlet_equivalence_evidence_reasons(
         evidence_reasons.append(f"inlet_source_has_uncorrelated_random_inlet_not_false:{source_uncorrelated_random}")
     if source_correlation_model in {"uncorrelated_random_rms_velocity_field_only", "velocity_field_only_without_correlation_evidence"}:
         evidence_reasons.append(f"inlet_synthetic_correlation_model_not_paper_grade:{source_correlation_model}")
+    if source_distribution_route_gate != "pass":
+        evidence_reasons.append(
+            f"inlet_distribution_route_gate_not_pass:{source_distribution_route_gate or 'missing'}"
+        )
+    if source_distribution_route == "velocity_field_only_without_equilibrium_boundary_define":
+        evidence_reasons.append("inlet_distribution_route_missing_equilibrium_boundaries_define")
+    if source_has_equilibrium_define is False and source_distribution_route != "direct_setup_distribution_write":
+        evidence_reasons.append("inlet_source_has_equilibrium_boundaries_define_not_true:False")
+    if source_has_type_e_equilibrium_route is False and source_distribution_route != "direct_setup_distribution_write":
+        evidence_reasons.append("inlet_source_has_type_e_equilibrium_boundary_route_not_true:False")
     if source_method_class in {
         "stg_lite_velocity_field_only",
         "stg_lite_correlated_velocity_field_only",
@@ -1898,6 +1914,14 @@ def main() -> int:
     inlet_velocity_only = as_bool(inlet_source_audit.get("inlet_source_velocity_field_only"))
     inlet_source_method_class = str(inlet_source_audit.get("inlet_source_method_class") or "").strip()
     inlet_correlation_model = str(inlet_source_audit.get("synthetic_inlet_correlation_model") or "").strip()
+    inlet_distribution_route = str(inlet_source_audit.get("inlet_distribution_route") or "").strip()
+    inlet_distribution_route_gate = str(inlet_source_audit.get("inlet_distribution_route_gate") or "").strip().lower()
+    inlet_has_equilibrium_boundaries_define = as_bool(
+        inlet_source_audit.get("has_equilibrium_boundaries_define")
+    )
+    inlet_has_type_e_equilibrium_boundary_route = as_bool(
+        inlet_source_audit.get("has_type_e_equilibrium_boundary_route")
+    )
     inlet_has_uncorrelated_random = as_bool(inlet_source_audit.get("has_uncorrelated_random_inlet"))
     inlet_uncorrelated_random_patterns = split_scalar_list(
         inlet_source_audit.get("uncorrelated_random_inlet_patterns")
@@ -1943,6 +1967,14 @@ def main() -> int:
         reasons.append("inlet_source_not_distribution_consistent")
     if inlet_velocity_only is True:
         reasons.append("inlet_source_velocity_field_only")
+    if inlet_distribution_route_gate != "pass":
+        reasons.append("inlet_distribution_route_gate_not_pass")
+    if inlet_distribution_route == "velocity_field_only_without_equilibrium_boundary_define":
+        reasons.append("inlet_distribution_route_missing_equilibrium_boundaries_define")
+    if inlet_has_equilibrium_boundaries_define is False and inlet_distribution_route != "direct_setup_distribution_write":
+        reasons.append("inlet_source_missing_equilibrium_boundaries_define")
+    if inlet_has_type_e_equilibrium_boundary_route is False and inlet_distribution_route != "direct_setup_distribution_write":
+        reasons.append("inlet_source_missing_type_e_equilibrium_boundary_route")
     if inlet_stg_evidence_required and inlet_has_three_component_velocity_write is not True:
         reasons.append("inlet_source_missing_three_component_velocity_write_evidence")
     if inlet_stg_evidence_required and inlet_has_three_component_fluctuation_evidence is not True:
@@ -2749,6 +2781,10 @@ def main() -> int:
         "inlet_source_velocity_field_only": inlet_velocity_only,
         "inlet_source_method_class": inlet_source_method_class,
         "inlet_synthetic_correlation_model": inlet_correlation_model,
+        "inlet_source_distribution_route": inlet_distribution_route,
+        "inlet_source_distribution_route_gate": inlet_distribution_route_gate,
+        "inlet_source_has_equilibrium_boundaries_define": inlet_has_equilibrium_boundaries_define,
+        "inlet_source_has_type_e_equilibrium_boundary_route": inlet_has_type_e_equilibrium_boundary_route,
         "inlet_source_has_uncorrelated_random_inlet": inlet_has_uncorrelated_random,
         "inlet_source_uncorrelated_random_patterns": inlet_uncorrelated_random_patterns,
         "inlet_source_uncorrelated_random_patterns_csv": ";".join(inlet_uncorrelated_random_patterns),
