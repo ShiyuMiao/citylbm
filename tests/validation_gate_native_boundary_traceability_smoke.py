@@ -60,11 +60,13 @@ def passing_native_audit():
         "boundary_runtime_source_time_steps_csv": ";".join(str(step) for step in steps),
         "boundary_runtime_source_step_span": 39000,
         "boundary_runtime_reported_source_step_span": 39000,
+        "boundary_runtime_source_time_steps_match_runtime": True,
         "boundary_runtime_source_steps_strictly_increasing": True,
         "boundary_runtime_source_step_spacing_uniform": True,
         "boundary_runtime_selected_last_window": True,
         "boundary_runtime_source_vtk_sha256": hashes,
         "boundary_runtime_source_vtk_sha256_csv": ";".join(hashes),
+        "boundary_runtime_source_vtk_sha256_match_runtime": True,
         "boundary_runtime_source_vtk_sha256_count": 40,
         "boundary_runtime_source_vtk_sha256_unique_count": 40,
         "boundary_runtime_frame_count": 40,
@@ -148,6 +150,8 @@ def main() -> int:
     short_window["boundary_runtime_source_vtk_sha256_unique_count"] = 4
     short_window["boundary_runtime_frame_count"] = 4
     short_window["boundary_runtime_selected_last_window"] = False
+    short_window["boundary_runtime_source_time_steps_match_runtime"] = False
+    short_window["boundary_runtime_source_vtk_sha256_match_runtime"] = False
     short_failed = module.native_boundary_traceability_status(
         short_window,
         expected_case="CaseE",
@@ -161,6 +165,8 @@ def main() -> int:
         "boundary_runtime_frame_count_below_40",
         "boundary_runtime_source_step_span_below_20000",
         "boundary_runtime_selected_last_window_not_true:False",
+        "boundary_runtime_source_time_steps_match_runtime_not_true:False",
+        "boundary_runtime_source_vtk_sha256_match_runtime_not_true:False",
         "boundary_runtime_source_vtk_sha256_count_below_40",
     ]:
         if expected not in short_failed["reasons"]:

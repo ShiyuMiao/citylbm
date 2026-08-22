@@ -115,6 +115,10 @@ def main() -> int:
                         "boundary_source_simplified_not_false:True;"
                         "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail"
                     ),
+                    "boundary_runtime_source_time_steps_match_runtime": False,
+                    "boundary_runtime_source_steps_strictly_increasing": True,
+                    "boundary_runtime_source_step_spacing_uniform": True,
+                    "boundary_runtime_source_vtk_sha256_match_runtime": False,
                     "native_inlet_equivalence_gate": "fail",
                     "native_inlet_equivalence_gate_reasons_csv": (
                         "inlet_source_velocity_field_only_not_false:True;"
@@ -247,6 +251,10 @@ def main() -> int:
             "boundary_source_simplified_not_false:True;"
             "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail"
         ),
+        "native_boundary_runtime_source_time_steps_match_runtime": "false",
+        "native_boundary_runtime_source_steps_strictly_increasing": "true",
+        "native_boundary_runtime_source_step_spacing_uniform": "true",
+        "native_boundary_runtime_source_vtk_sha256_match_runtime": "false",
         "native_inlet_equivalence_gate": "fail",
         "native_inlet_equivalence_gate_reasons": (
             "inlet_source_velocity_field_only_not_false:True;"

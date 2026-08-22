@@ -96,6 +96,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native validation now includes `boundary_runtime_audit.json`, a final-window VTK boundary-face check for inlet,
   outlet, lateral and top streamwise velocity preservation against the AF profile. This is runtime evidence for
   boundary contamination, not a substitute for wind-tunnel-equivalent outlet/side/top/floor/roughness source evidence.
+- Native boundary runtime traceability now also checks that the boundary-runtime audit uses the same final-window
+  `source_time_steps` and VTK SHA256 set as the main runtime audit, preventing stale boundary-preservation evidence
+  from supporting Case A/E bias interpretation.
 - `validation_gate.py` now adds `native_time_averaging_traceability`, requiring native FluidX3D planned and runtime
   final-window frame counts, solver-step span, increasing/uniform source steps and empty shortfall reasons before a
   native baseline or systematic-bias interpretation can pass.

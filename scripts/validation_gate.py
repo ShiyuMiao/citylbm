@@ -2453,6 +2453,12 @@ def native_boundary_traceability_status(
     boundary_runtime_steps_uniform = as_bool(
         get_any(native_preconditions_audit, ["boundary_runtime_source_step_spacing_uniform"])
     )
+    boundary_runtime_steps_match_runtime = as_bool(
+        get_any(native_preconditions_audit, ["boundary_runtime_source_time_steps_match_runtime"])
+    )
+    boundary_runtime_hashes_match_runtime = as_bool(
+        get_any(native_preconditions_audit, ["boundary_runtime_source_vtk_sha256_match_runtime"])
+    )
     span_from_steps = None
     if boundary_runtime_steps and len(boundary_runtime_steps) >= 2:
         span_from_steps = boundary_runtime_steps[-1] - boundary_runtime_steps[0]
@@ -2486,6 +2492,14 @@ def native_boundary_traceability_status(
     if boundary_runtime_steps_uniform is not True:
         reasons.append(
             f"boundary_runtime_source_step_spacing_uniform_not_true:{boundary_runtime_steps_uniform if boundary_runtime_steps_uniform is not None else 'missing'}"
+        )
+    if boundary_runtime_steps_match_runtime is not True:
+        reasons.append(
+            f"boundary_runtime_source_time_steps_match_runtime_not_true:{boundary_runtime_steps_match_runtime if boundary_runtime_steps_match_runtime is not None else 'missing'}"
+        )
+    if boundary_runtime_hashes_match_runtime is not True:
+        reasons.append(
+            f"boundary_runtime_source_vtk_sha256_match_runtime_not_true:{boundary_runtime_hashes_match_runtime if boundary_runtime_hashes_match_runtime is not None else 'missing'}"
         )
     if boundary_runtime_hash_count is None:
         reasons.append("boundary_runtime_source_vtk_sha256_count_missing")

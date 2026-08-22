@@ -473,6 +473,10 @@ TEMPLATE_FIELDS = [
     "native_boundary_runtime_max_side_top_normal_velocity_ratio",
     "native_boundary_runtime_max_side_top_normal_abs_mps",
     "native_boundary_runtime_source_step_span",
+    "native_boundary_runtime_source_time_steps_match_runtime",
+    "native_boundary_runtime_source_steps_strictly_increasing",
+    "native_boundary_runtime_source_step_spacing_uniform",
+    "native_boundary_runtime_source_vtk_sha256_match_runtime",
     "native_top_blocking_priority_rank",
     "native_top_blocking_priority_key",
     "native_top_blocking_priority_reason_count",
@@ -2538,6 +2542,18 @@ def main() -> int:
             ),
             "native_boundary_runtime_source_step_span": audit_field(
                 native_preconditions_audit, "boundary_runtime_source_step_span"
+            ),
+            "native_boundary_runtime_source_time_steps_match_runtime": first_bool_text(
+                native_preconditions_audit.get("boundary_runtime_source_time_steps_match_runtime")
+            ),
+            "native_boundary_runtime_source_steps_strictly_increasing": first_bool_text(
+                native_preconditions_audit.get("boundary_runtime_source_steps_strictly_increasing")
+            ),
+            "native_boundary_runtime_source_step_spacing_uniform": first_bool_text(
+                native_preconditions_audit.get("boundary_runtime_source_step_spacing_uniform")
+            ),
+            "native_boundary_runtime_source_vtk_sha256_match_runtime": first_bool_text(
+                native_preconditions_audit.get("boundary_runtime_source_vtk_sha256_match_runtime")
             ),
             "native_top_blocking_priority_rank": audit_field(
                 native_preconditions_audit, "native_top_blocking_priority_rank"

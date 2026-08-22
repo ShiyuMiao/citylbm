@@ -2229,6 +2229,12 @@ def main() -> int:
     boundary_runtime_steps_uniform = source_steps_uniformly_spaced(boundary_runtime_steps)
     boundary_runtime_hash_count = len(boundary_runtime_hashes)
     boundary_runtime_hash_unique_count = len(set(boundary_runtime_hashes))
+    boundary_runtime_steps_match_runtime = bool(runtime_steps) and boundary_runtime_steps == runtime_steps
+    boundary_runtime_hashes_match_runtime = (
+        bool(runtime_hashes)
+        and bool(boundary_runtime_hashes)
+        and set(boundary_runtime_hashes) == set(runtime_hashes)
+    )
     if not boundary_runtime_audit:
         reasons.append("boundary_runtime_audit_missing")
     else:
@@ -2254,10 +2260,14 @@ def main() -> int:
             reasons.append("boundary_runtime_selected_last_window_not_true")
         if not boundary_runtime_steps:
             reasons.append("boundary_runtime_source_time_steps_missing")
+        if not boundary_runtime_steps_match_runtime:
+            reasons.append("boundary_runtime_source_time_steps_mismatch_runtime")
         if not boundary_runtime_steps_increasing:
             reasons.append("boundary_runtime_source_steps_not_strictly_increasing")
         if not boundary_runtime_steps_uniform:
             reasons.append("boundary_runtime_source_step_spacing_not_uniform")
+        if not boundary_runtime_hashes_match_runtime:
+            reasons.append("boundary_runtime_source_vtk_sha256_mismatch_runtime")
         if boundary_runtime_hash_count != len(boundary_runtime_steps):
             reasons.append("boundary_runtime_source_vtk_sha256_count_mismatch_time_steps")
         if boundary_runtime_hash_count < args.min_avg_frames:
@@ -2903,11 +2913,13 @@ def main() -> int:
         "boundary_runtime_source_time_steps_csv": ";".join(str(step) for step in boundary_runtime_steps),
         "boundary_runtime_source_step_span": boundary_runtime_source_step_span,
         "boundary_runtime_reported_source_step_span": boundary_runtime_reported_source_step_span,
+        "boundary_runtime_source_time_steps_match_runtime": boundary_runtime_steps_match_runtime,
         "boundary_runtime_source_steps_strictly_increasing": boundary_runtime_steps_increasing,
         "boundary_runtime_source_step_spacing_uniform": boundary_runtime_steps_uniform,
         "boundary_runtime_selected_last_window": boundary_runtime_selected_last_window,
         "boundary_runtime_source_vtk_sha256": boundary_runtime_hashes,
         "boundary_runtime_source_vtk_sha256_csv": ";".join(boundary_runtime_hashes),
+        "boundary_runtime_source_vtk_sha256_match_runtime": boundary_runtime_hashes_match_runtime,
         "boundary_runtime_source_vtk_sha256_count": boundary_runtime_hash_count,
         "boundary_runtime_source_vtk_sha256_unique_count": boundary_runtime_hash_unique_count,
         "boundary_runtime_frame_count": boundary_runtime_frame_count,
