@@ -31,6 +31,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   enough frames but does not cover the minimum solver-step span.
 - `case_metadata.json` records protocol-risk fields: simplified boundary-condition summary, expected VTK frame count, required averaging, and validation-readiness status.
 - `Run Simulation` no longer falls back to the legacy bundled v0.5.0 solver when no external FluidX3D path is provided; controlled validation must use an explicit external FluidX3D baseline.
+- Mode 3 now follows the same explicit FluidX3D source-path rule as Mode 1/2. The legacy bundled solver code path is
+  retained for source compatibility but is no longer selected by v0.3.0 validation runs when `FluidX3D Path` is empty.
 - `Run Simulation` adds an optional experimental `Synthetic Inlet` control for CustomTable profiles with `k`.
 - Generated FluidX3D `setup.cpp` can now use the AF `k` column to apply bounded STG-lite spectral inlet perturbations from `sigma=sqrt(2k/3)`.
 - `Run Simulation` now exposes `STG Modes`, and generated `setup.cpp` writes the same value to

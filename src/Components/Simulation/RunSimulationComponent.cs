@@ -370,10 +370,7 @@ namespace CityLBM.Components.Simulation
                     RunMode2_DeployOnly(DA, solver, scene, grid, settings);
                     break;
                 case 3:
-                    if (string.IsNullOrWhiteSpace(fluidX3DPath) && solver.IsBundlerAvailable)
-                        RunMode3_BundledSolver(DA, solver, scene, grid, settings);
-                    else
-                        RunMode3_AsyncBackground(DA, solver, scene, grid, settings);
+                    RunMode3_AsyncBackground(DA, solver, scene, grid, settings);
                     break;
             }
         }
@@ -616,6 +613,11 @@ namespace CityLBM.Components.Simulation
         private void RunMode3_AsyncBackground(IGH_DataAccess DA,
             FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
         {
+            if (!RequireExplicitFluidX3DSourcePath(DA, solver, "Mode 3"))
+            {
+                return;
+            }
+
             AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "使用 FluidX3D 路径: " + solver.FluidX3DPath);
 
             // 双重保险：正常不应该到这里（已在 SolveInstance 顶部提前 return）
@@ -670,8 +672,8 @@ namespace CityLBM.Components.Simulation
         }
 
         // ────────────────────────────────────────────────────────────────
-        // v0.5.0: Bundled Solver 异步后台运行
-        // 使用嵌入式 FluidX3D（无需外部源码路径）
+        // Legacy bundled solver path retained only for source compatibility.
+        // v0.3.0 validation runs do not call this path; Mode 3 requires an explicit FluidX3D source tree.
         // ────────────────────────────────────────────────────────────────
         private void RunMode3_BundledSolver(IGH_DataAccess DA,
             FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
