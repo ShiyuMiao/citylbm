@@ -11,10 +11,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import time
-import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -32,6 +32,7 @@ REQUIRED_CASE_FILES = [
     ("FluidX3D defines", Path("src") / "defines.hpp"),
     ("Case metadata", Path("case_metadata.json")),
     ("Domain origin", Path("domain_origin.json")),
+    ("Validation protocol audit", Path("validation_protocol_audit.json")),
 ]
 
 OPTIONAL_CASE_FILES = [
@@ -39,7 +40,6 @@ OPTIONAL_CASE_FILES = [
     ("Boundary evidence", Path("boundary_conditions.json")),
     ("Roughness layout", Path("roughness_layout.csv")),
     ("Equivalent precursor evidence", Path("equivalent_precursor_evidence.json")),
-    ("Validation protocol audit", Path("validation_protocol_audit.json")),
 ]
 
 
@@ -64,6 +64,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--time-steps", type=int, default=None, help="Planned solver steps recorded in SharedRunConditions.")
     parser.add_argument("--vtk-save-interval", type=int, default=None, help="Planned VTK save interval.")
     parser.add_argument("--expected-vtk-frame-count", type=int, default=None, help="Planned VTK frame count.")
+    parser.add_argument("--average-last-n", type=int, default=40, help="Required final VTK averaging-window frame count.")
+    parser.add_argument("--min-vtk-frames", type=int, default=40, help="Minimum planned VTK frames for strict validation.")
+    parser.add_argument("--min-vtk-step-span", type=int, default=20000, help="Minimum planned final-window solver-step span.")
     parser.add_argument("--output-dir", default="", help="Directory to inspect for u-*.vtk after run.")
     parser.add_argument("--vtk-pattern", default="u-*.vtk", help="VTK glob pattern.")
     return parser.parse_args()
@@ -307,6 +310,65 @@ def collect_vtk_files(output_dir: Path, pattern: str) -> List[Dict[str, Any]]:
     return [path_record("VTK velocity field", path) for path in unique.values() if path.is_file()]
 
 
+def planned_frame_count(time_steps: Optional[int], save_interval: Optional[int]) -> Optional[int]:
+    if time_steps is None or save_interval is None or time_steps <= 0 or save_interval <= 0:
+        return None
+    return time_steps // save_interval
+
+
+def planned_final_window_span(
+    time_steps: Optional[int],
+    save_interval: Optional[int],
+    average_last_n: int,
+) -> Optional[int]:
+    frame_count = planned_frame_count(time_steps, save_interval)
+    if frame_count is None or frame_count <= 0:
+        return None
+    selected = min(frame_count, max(average_last_n, 1))
+    if selected <= 1:
+        return 0
+    return (selected - 1) * save_interval
+
+
+def audit_planned_vtk_schedule(
+    time_steps: Optional[int],
+    save_interval: Optional[int],
+    expected_frame_count: Optional[int],
+    average_last_n: int,
+    min_frames: int,
+    min_step_span: int,
+) -> Dict[str, Any]:
+    computed_frame_count = planned_frame_count(time_steps, save_interval)
+    final_window_span = planned_final_window_span(time_steps, save_interval, average_last_n)
+    reasons: List[str] = []
+    if time_steps is None or time_steps <= 0:
+        reasons.append("time_steps_missing_or_invalid")
+    if save_interval is None or save_interval <= 0:
+        reasons.append("vtk_save_interval_missing_or_invalid")
+    if computed_frame_count is None:
+        reasons.append("planned_vtk_frame_count_unavailable")
+    elif computed_frame_count < min_frames:
+        reasons.append(f"planned_vtk_frame_count_{computed_frame_count}_below_minimum_{min_frames}")
+    if expected_frame_count is None:
+        reasons.append("expected_vtk_frame_count_missing")
+    elif computed_frame_count is not None and expected_frame_count != computed_frame_count:
+        reasons.append(f"expected_vtk_frame_count_{expected_frame_count}_does_not_match_computed_{computed_frame_count}")
+    if final_window_span is None:
+        reasons.append("planned_final_window_step_span_unavailable")
+    elif final_window_span < min_step_span:
+        reasons.append(f"planned_final_window_step_span_{final_window_span}_below_minimum_{min_step_span}")
+    return {
+        "Gate": "pass" if not reasons else "diagnostic_only",
+        "Reasons": reasons,
+        "ReasonsCsv": ";".join(reasons),
+        "ComputedFrameCount": computed_frame_count,
+        "AverageLastN": average_last_n,
+        "MinimumFrameCount": min_frames,
+        "FinalWindowStepSpan": final_window_span,
+        "MinimumStepSpan": min_step_span,
+    }
+
+
 def runner_gate(reasons: Iterable[str]) -> Dict[str, Any]:
     reason_list = [reason for reason in reasons if reason]
     return {
@@ -407,6 +469,17 @@ def main() -> int:
     if args.run and not vtk_records:
         reasons.append("run_requested_but_no_vtk_output_found")
 
+    vtk_schedule = audit_planned_vtk_schedule(
+        args.time_steps,
+        args.vtk_save_interval,
+        args.expected_vtk_frame_count,
+        args.average_last_n,
+        args.min_vtk_frames,
+        args.min_vtk_step_span,
+    )
+    if vtk_schedule["Gate"] != "pass":
+        reasons.extend(str(reason) for reason in vtk_schedule["Reasons"])
+
     source_validation = validate_source_root(source_root)
     required_files = collect_required_files(source_root, case_dir)
     baseline_id = args.baseline_id.strip() or f"native-fluidx3d-{case_label or 'case'}-{wind_label or 'wind'}-{utc_now()}"
@@ -433,8 +506,14 @@ def main() -> int:
             "TimeSteps": args.time_steps,
             "SaveInterval": args.vtk_save_interval,
             "ExpectedVtkFrameCount": args.expected_vtk_frame_count,
+            "ComputedVtkFrameCount": vtk_schedule["ComputedFrameCount"],
+            "AverageLastN": args.average_last_n,
+            "ExpectedFinalWindowStepSpan": vtk_schedule["FinalWindowStepSpan"],
+            "MinimumValidationAverageFrames": args.min_vtk_frames,
+            "MinimumValidationAverageStepSpan": args.min_vtk_step_span,
             "VtkPattern": args.vtk_pattern,
         },
+        "PlannedVtkScheduleGate": vtk_schedule,
         "OutputDir": str(output_dir),
         "VtkPattern": args.vtk_pattern,
         "VtkFiles": vtk_records,

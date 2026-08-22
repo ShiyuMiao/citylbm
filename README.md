@@ -35,11 +35,12 @@ Use `Mode 0 = Generate Case` to check Grasshopper wiring without compiling or ru
 On the experiment workstation, use the native runner before launching a strict FluidX3D baseline:
 
 ```powershell
-python scripts\run_native_fluidx3d_case.py --case-dir <case_dir> --fluidx3d-source <FluidX3D_source_root> --out <case_dir>\native_fluidx3d_baseline_manifest.json --baseline-id <baseline_id> --expected-aij-case CaseA --expected-wind-direction N --install
+python scripts\run_native_fluidx3d_case.py --case-dir <case_dir> --fluidx3d-source <FluidX3D_source_root> --out <case_dir>\native_fluidx3d_baseline_manifest.json --baseline-id <baseline_id> --expected-aij-case CaseA --expected-wind-direction N --time-steps 40000 --vtk-save-interval 1000 --expected-vtk-frame-count 40 --install
 ```
 
 Add `--build` and `--run` only when the workstation is ready for the actual native solver run. The script does not run
-CFD by default.
+CFD by default. The preflight manifest remains diagnostic-only when the planned VTK schedule is shorter than 40 frames
+or spans fewer than 20000 solver steps in the final averaging window.
 
 ## AIJ Case E essentials
 

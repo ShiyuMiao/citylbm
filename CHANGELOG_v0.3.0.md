@@ -190,6 +190,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   explicitly supplied FluidX3D source root, can install a CityLBM-generated `setup.cpp`/`defines.hpp` into that source
   tree with backups, optionally builds/runs the executable, and writes the hash-traceable native baseline manifest. The
   default mode is dry-run preflight and does not start CFD.
+- `scripts/run_native_fluidx3d_case.py` now also fails fast to diagnostic-only when the generated case lacks
+  `validation_protocol_audit.json`, when expected case/wind identity is missing or mismatched, or when the planned VTK
+  schedule cannot provide the default 40-frame / 20000-step final averaging window.
 - The native baseline manifest now includes existence flags and SHA256 hashes for the generated source, geometry and
   metadata files so paired native/CityLBM runs can prove they used identical inputs.
 - The native baseline manifest now includes a stable `BaselineId`, derived from the scene name and required source hashes,

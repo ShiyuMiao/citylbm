@@ -75,11 +75,11 @@ def main() -> int:
                 "--expected-wind-direction",
                 "N",
                 "--time-steps",
-                "1000",
+                "40000",
                 "--vtk-save-interval",
-                "100",
+                "1000",
                 "--expected-vtk-frame-count",
-                "10",
+                "40",
             ]
         )
         dry = load_json(dry_manifest)
@@ -121,6 +121,12 @@ def main() -> int:
                 str(install_manifest),
                 "--baseline-id",
                 "smoke-casea-native-install",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
                 "--install",
             ]
         )
@@ -135,6 +141,73 @@ def main() -> int:
             raise AssertionError("install did not replace setup.cpp")
         if not (install_manifest.parent / "native_source_backups").exists():
             raise AssertionError("backup directory was not created")
+
+        short_manifest = temp / "short" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(case_dir),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(short_manifest),
+                "--baseline-id",
+                "smoke-casea-native-short",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "5000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "5",
+            ],
+            expected_returncode=2,
+        )
+        short = load_json(short_manifest)
+        if short["RunnerGate"]["Gate"] != "diagnostic_only":
+            raise AssertionError(short["RunnerGate"])
+        if "planned_vtk_frame_count_5_below_minimum_40" not in short["RunnerGate"]["Reasons"]:
+            raise AssertionError(short["RunnerGate"])
+        if "planned_final_window_step_span_4000_below_minimum_20000" not in short["RunnerGate"]["Reasons"]:
+            raise AssertionError(short["RunnerGate"])
+
+        missing_protocol_case = temp / "missing_protocol_case"
+        create_case(missing_protocol_case)
+        (missing_protocol_case / "validation_protocol_audit.json").unlink()
+        missing_protocol_manifest = temp / "missing_protocol" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(missing_protocol_case),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(missing_protocol_manifest),
+                "--baseline-id",
+                "smoke-casea-native-missing-protocol",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+            ],
+            expected_returncode=2,
+        )
+        missing_protocol = load_json(missing_protocol_manifest)
+        if "case_required_file_missing:Validation protocol audit" not in missing_protocol["RunnerGate"]["Reasons"]:
+            raise AssertionError(missing_protocol["RunnerGate"])
 
     print("native_fluidx3d_runner_smoke passed")
     return 0
