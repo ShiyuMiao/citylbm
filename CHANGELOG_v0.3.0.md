@@ -485,6 +485,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now verifies that native FluidX3D baseline source hashes come from one explicit complete source
   root. The manifest must prove a build file plus `src/setup.cpp`, `src/defines.hpp`, `src/lbm.hpp` and `src/lbm.cpp`
   under the declared `NativeFluidX3DSourcePath`, not merely provide four matching hashes from arbitrary paths.
+- `scripts/audit_inlet_source.py` now recognizes the native strict-baseline synthetic-eddy implementation
+  (`synthetic_eddy_count`, `updateSyntheticEddyPlane`, `turbulentWind`, `applyInlet(current)` and segmented
+  `lbm.run(...)`) as correlated velocity-field inlet evidence instead of misclassifying dormant helper code as missing
+  DFM/SEM proof. It still fails the paper-grade inlet gate because this path is velocity-field-only and does not
+  reconstruct inlet distribution functions.
 - `audit_native_run.py` no longer lets command-line speed-stability values pass the native `time_averaging_gate`.
   Paper-grade time averaging must use deterministic sampled-VTK statistics from the selected final-window frames. Any
   CLI override of mean speed, standard deviation or stability ratio is recorded as `mean_speed_statistics_source=cli_override`

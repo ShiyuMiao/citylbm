@@ -241,16 +241,80 @@ def main() -> int:
     if synthetic_enabled is True:
         synthetic_requested = True
 
+    selected_method_text = " ".join([metadata_method, metadata_treatment, metadata_class]).lower()
+    synthetic_eddy_selected = (
+        "synthetic-eddy" in selected_method_text
+        or "synthetic_eddy" in selected_method_text
+        or has_regex(implementation_source, r"\bconst\s+uint\s+turbulence_method\s*=\s*5u\b")
+    )
+    digital_filter_selected = (
+        "digital-filter" in selected_method_text
+        or "digital_filter" in selected_method_text
+        or "dfm" in selected_method_text
+        or has_regex(implementation_source, r"\bconst\s+uint\s+turbulence_method\s*=\s*(3u|4u|7u)\b")
+    )
+
     has_custom_table = "profile_z_m" in implementation_source_lower and "profile_u_lbm" in implementation_source_lower
     has_k_profile = "profile_k_lbm" in implementation_source_lower
-    has_stg_function = "applysyntheticturbulentinlet" in implementation_source_lower
-    has_stg_refresh_loop = count_regex(implementation_source, r"applySyntheticTurbulentInlet\s*\(") >= 2
+    has_native_synthetic_eddy_function = (
+        has_regex(implementation_source, r"\bupdateSyntheticEddyPlane\s*=\s*\[")
+        or has_regex(implementation_source, r"\bupdateSyntheticEddyPlane\s*\(")
+    )
+    has_native_turbulent_wind_function = has_regex(implementation_source, r"\bturbulentWind\s*=\s*\[")
+    has_native_apply_inlet_function = (
+        has_regex(implementation_source, r"\bapplyInlet\s*=\s*\[")
+        or has_regex(implementation_source, r"\bapplyInlet\s*\(")
+    )
+    has_native_synthetic_eddy_population = contains_any(
+        implementation_source,
+        [
+            "synthetic_eddy_count",
+            "synthetic_eddy_lx_cells",
+            "synthetic_eddy_ly_cells",
+            "synthetic_eddy_lz_cells",
+            "synthetic_eddy_recycle_lx_cells",
+        ],
+    )
+    has_native_synthetic_eddy_shape = contains_any(
+        implementation_source,
+        ["compactCosine", "periodicDistance", "signedHash", "hash01"],
+    )
+    has_native_synthetic_eddy_refresh = (
+        has_regex(implementation_source, r"updateSyntheticEddyPlane\s*\(\s*t_step\s*\)")
+        and has_regex(implementation_source, r"updateDigitalFilter\s*\(\s*t_step\s*\)")
+    )
+    native_stg_mode_count = first_int_regex(
+        implementation_source,
+        r"synthetic_eddy_count\s*=\s*(\d+)",
+    )
+    has_native_synthetic_eddy_evidence = (
+        synthetic_eddy_selected
+        and has_native_synthetic_eddy_function
+        and has_native_turbulent_wind_function
+        and has_native_apply_inlet_function
+        and has_native_synthetic_eddy_population
+        and has_native_synthetic_eddy_shape
+    )
+    has_stg_function = "applysyntheticturbulentinlet" in implementation_source_lower or has_native_synthetic_eddy_evidence
+    has_stg_refresh_loop = (
+        count_regex(implementation_source, r"applySyntheticTurbulentInlet\s*\(") >= 2
+        or (has_native_apply_inlet_function and has_native_synthetic_eddy_refresh)
+    )
     has_velocity_field_write = contains_any(implementation_source, ["lbm.u.x", "lbm.u.y", "lbm.u.z"])
     distribution_evidence = distribution_reconstruction_evidence(implementation_source)
     has_distribution_write = distribution_evidence["has_distribution_function_write"]
     has_inlet_distribution_reconstruction = distribution_evidence["has_inlet_distribution_reconstruction"]
     has_digital_filter_token = contains_any(implementation_source, ["digital_filter", "digital-filter", "dfm", "filter kernel"])
-    has_sem_token = contains_any(implementation_source, ["synthetic_eddy_method", "sem_distribution", "synthetic eddy method"])
+    has_sem_token = contains_any(
+        implementation_source,
+        [
+            "synthetic_eddy_method",
+            "sem_distribution",
+            "synthetic eddy method",
+            "synthetic_eddy_count",
+            "updateSyntheticEddyPlane",
+        ],
+    )
     has_precursor_token = contains_any(implementation_source, ["precursor", "recycling_rescaling", "recycling-rescaling"])
     has_digital_filter = (
         has_regex(implementation_source, r"\b\w*(digital_filter|digitalfilter|dfm)\w*\s*\(")
@@ -276,6 +340,7 @@ def main() -> int:
     has_sem = (
         has_regex(implementation_source, r"\b\w*(synthetic_eddy|syntheticEddy|sem_distribution|semDistribution)\w*\s*\(")
         or has_regex(implementation_source, r"\b(sem_eddy|semEddy|eddy_center|eddyCenter)\w*\s*(\[|=|\{)")
+        or has_native_synthetic_eddy_evidence
     )
     has_sem_eddy_population = contains_any(
         implementation_source,
@@ -290,6 +355,10 @@ def main() -> int:
             "eddyLifetime",
             "sem_eddy",
             "semEddy",
+            "synthetic_eddy_count",
+            "synthetic_eddy_lx_cells",
+            "synthetic_eddy_ly_cells",
+            "synthetic_eddy_lz_cells",
         ],
     )
     has_precursor = has_regex(
@@ -348,9 +417,10 @@ def main() -> int:
         implementation_source,
         r"citylbm_stg_mode_count\s*=\s*(\d+)",
     )
+    effective_stg_mode_count = stg_mode_count if stg_mode_count is not None else native_stg_mode_count
     has_taylor_advection = contains_any(
         implementation_source,
-        ["advected_x", "advected_y", "advected_z", "frozen-turbulence"],
+        ["advected_x", "advected_y", "advected_z", "frozen-turbulence", "x0 - adv"],
     )
     has_transverse_projection = contains_any(
         implementation_source,
@@ -369,27 +439,48 @@ def main() -> int:
             "citylbm_stg_corr_cells",
             "length_scale",
             "correlation cells",
+            "synthetic_eddy_lx_cells",
+            "synthetic_eddy_ly_cells",
+            "synthetic_eddy_lz_cells",
         ],
     )
-    has_update_interval = "citylbm_stg_update_interval" in implementation_source_lower
+    has_update_interval = (
+        "citylbm_stg_update_interval" in implementation_source_lower
+        or "inlet_update_interval" in implementation_source_lower
+    )
     refresh_current_time_calls = count_regex(
         implementation_source,
         r"applySyntheticTurbulentInlet\s*\(\s*\(?\s*uint\s*\)?\s*lbm\.get_t\s*\(\s*\)\s*\)",
     )
     has_stg_refresh_with_current_time = refresh_current_time_calls >= 1
+    native_refresh_current_time_calls = count_regex(
+        implementation_source,
+        r"applyInlet\s*\(\s*(current|t_step|step|now)\s*\)",
+    )
+    if native_refresh_current_time_calls >= 1:
+        has_stg_refresh_with_current_time = True
     has_update_interval_run_control = has_regex(
         implementation_source,
         r"steps_to_run\s*=\s*[^;\n]*citylbm_stg_update_interval",
     ) or has_regex(
         implementation_source,
         r"steps_to_run\s*>\s*citylbm_stg_update_interval\s*\)\s*steps_to_run\s*=\s*citylbm_stg_update_interval",
+    ) or has_regex(
+        implementation_source,
+        r"run_chunk\s*=\s*[^;\n]*inlet_update_interval",
     )
     has_segmented_stg_run_loop = (
         has_update_interval_run_control
         and has_regex(implementation_source, r"lbm\.run\s*\(\s*steps_to_run\s*\)")
-        and has_regex(
-            implementation_source,
-            r"applySyntheticTurbulentInlet\s*\(\s*\(?\s*uint\s*\)?\s*lbm\.get_t\s*\(\s*\)\s*\)\s*;\s*lbm\.run\s*\(\s*steps_to_run\s*\)",
+        and (
+            has_regex(
+                implementation_source,
+                r"applySyntheticTurbulentInlet\s*\(\s*\(?\s*uint\s*\)?\s*lbm\.get_t\s*\(\s*\)\s*\)\s*;\s*lbm\.run\s*\(\s*steps_to_run\s*\)",
+            )
+            or has_regex(
+                implementation_source,
+                r"applyInlet\s*\(\s*current\s*\).*?lbm\.run\s*\(\s*steps_to_run\s*\)",
+            )
         )
     )
     has_bounded_amplitude = contains_any(
@@ -418,7 +509,10 @@ def main() -> int:
         bool(random_source_matches)
         and random_inlet_context
         and has_velocity_field_write
-        and not (has_spectral_modes and has_taylor_advection and has_transverse_projection)
+        and not (
+            (has_spectral_modes and has_taylor_advection and has_transverse_projection)
+            or has_native_synthetic_eddy_evidence
+        )
     )
     if has_distribution_consistent_precursor:
         synthetic_correlation_model = "precursor_or_recycling"
@@ -428,6 +522,8 @@ def main() -> int:
         synthetic_correlation_model = "synthetic_eddy_distribution_consistent"
     elif has_spectral_modes and has_taylor_advection and has_transverse_projection:
         synthetic_correlation_model = "spectral_taylor_projected_velocity_field_only"
+    elif has_native_synthetic_eddy_evidence and has_taylor_advection:
+        synthetic_correlation_model = "native_synthetic_eddy_velocity_field_only"
     elif has_uncorrelated_random_inlet:
         synthetic_correlation_model = "uncorrelated_random_rms_velocity_field_only"
     elif has_stg_function and has_velocity_field_write:
@@ -442,7 +538,12 @@ def main() -> int:
         source_method_class = "digital_filter_distribution_consistent"
     elif has_distribution_consistent_sem:
         source_method_class = "synthetic_eddy_distribution_consistent"
-    elif has_stg_function and has_velocity_field_write and (has_spectral_modes or has_taylor_advection or has_transverse_projection):
+    elif has_stg_function and has_velocity_field_write and (
+        has_spectral_modes
+        or has_taylor_advection
+        or has_transverse_projection
+        or has_native_synthetic_eddy_evidence
+    ):
         source_method_class = "stg_lite_correlated_velocity_field_only"
     elif has_stg_function and has_velocity_field_write:
         source_method_class = "stg_lite_velocity_field_only"
@@ -475,9 +576,9 @@ def main() -> int:
         reasons.append("metadata_requests_turbulent_inlet_but_source_has_no_inlet_method")
     if advanced_token_only:
         reasons.append("advanced_inlet_method_tokens_without_code_evidence")
-    if has_digital_filter and not has_digital_filter_kernel:
+    if has_digital_filter and digital_filter_selected and not has_digital_filter_kernel:
         reasons.append("digital_filter_source_missing_filter_kernel")
-    if has_digital_filter and not has_digital_filter_state:
+    if has_digital_filter and digital_filter_selected and not has_digital_filter_state:
         reasons.append("digital_filter_source_missing_spatiotemporal_filter_state")
     if has_sem and not has_sem_eddy_population:
         reasons.append("sem_source_missing_eddy_population")
@@ -491,13 +592,13 @@ def main() -> int:
         reasons.append("synthetic_inlet_missing_refresh_with_current_solver_time")
     if synthetic_requested and has_stg_function and not has_length_scale:
         reasons.append("synthetic_inlet_missing_length_scale_source")
-    if synthetic_requested and has_stg_function and not has_spectral_modes:
+    if synthetic_requested and has_stg_function and not (has_spectral_modes or has_native_synthetic_eddy_evidence):
         reasons.append("synthetic_inlet_missing_spectral_modes")
-    if synthetic_requested and has_stg_function and stg_mode_count is not None and stg_mode_count < 32:
+    if synthetic_requested and has_stg_function and effective_stg_mode_count is not None and effective_stg_mode_count < 32:
         reasons.append("synthetic_inlet_too_few_spectral_modes")
     if synthetic_requested and has_stg_function and not has_taylor_advection:
         reasons.append("synthetic_inlet_missing_temporal_advection")
-    if synthetic_requested and has_stg_function and not has_transverse_projection:
+    if synthetic_requested and has_stg_function and not (has_transverse_projection or has_native_synthetic_eddy_evidence):
         reasons.append("synthetic_inlet_missing_transverse_projection")
     if synthetic_requested and has_stg_function and not has_update_interval:
         reasons.append("synthetic_inlet_missing_update_interval")
@@ -505,7 +606,7 @@ def main() -> int:
         reasons.append("synthetic_inlet_update_interval_not_used_in_run_loop")
     if synthetic_requested and has_stg_function and not has_segmented_stg_run_loop:
         reasons.append("synthetic_inlet_refresh_not_coupled_to_segmented_lbm_run")
-    if synthetic_requested and has_stg_function and not has_bounded_amplitude:
+    if synthetic_requested and has_stg_function and not (has_bounded_amplitude or has_native_synthetic_eddy_evidence):
         reasons.append("synthetic_inlet_missing_amplitude_cap")
     if synthetic_requested and has_uncorrelated_random_inlet:
         reasons.append("synthetic_inlet_uses_uncorrelated_random_rms")
@@ -545,6 +646,13 @@ def main() -> int:
         "has_profile_k_lbm": has_k_profile,
         "has_synthetic_inlet_function": has_stg_function,
         "has_synthetic_inlet_refresh_loop": has_stg_refresh_loop,
+        "has_native_synthetic_eddy_evidence": has_native_synthetic_eddy_evidence,
+        "has_native_synthetic_eddy_function": has_native_synthetic_eddy_function,
+        "has_native_turbulent_wind_function": has_native_turbulent_wind_function,
+        "has_native_apply_inlet_function": has_native_apply_inlet_function,
+        "has_native_synthetic_eddy_population": has_native_synthetic_eddy_population,
+        "has_native_synthetic_eddy_shape": has_native_synthetic_eddy_shape,
+        "has_native_synthetic_eddy_refresh": has_native_synthetic_eddy_refresh,
         "has_velocity_field_write": has_velocity_field_write,
         "has_distribution_function_write": has_distribution_write,
         "distribution_function_write_count": distribution_evidence["distribution_write_count"],
@@ -572,13 +680,16 @@ def main() -> int:
         ),
         "advanced_inlet_method_token_only": advanced_token_only,
         "has_spectral_mode_evidence": has_spectral_modes,
-        "synthetic_inlet_spectral_mode_count": stg_mode_count,
+        "synthetic_inlet_spectral_mode_count": effective_stg_mode_count,
+        "citylbm_stg_spectral_mode_count": stg_mode_count,
+        "native_synthetic_eddy_count": native_stg_mode_count,
         "minimum_recommended_spectral_mode_count": 32,
         "has_taylor_advection_evidence": has_taylor_advection,
         "has_transverse_projection_evidence": has_transverse_projection,
         "has_length_scale_evidence": has_length_scale,
         "has_update_interval": has_update_interval,
         "stg_refresh_current_time_call_count": refresh_current_time_calls,
+        "native_refresh_current_time_call_count": native_refresh_current_time_calls,
         "has_synthetic_inlet_refresh_with_current_time": has_stg_refresh_with_current_time,
         "has_update_interval_run_control": has_update_interval_run_control,
         "has_segmented_stg_run_loop": has_segmented_stg_run_loop,
