@@ -45,6 +45,12 @@ def main() -> int:
     item = next(
         priority for priority in priorities if priority["key"] == "systematic_bias_interpretation"
     )
+    blockers = module.extract_systematic_prerequisite_blocker_list(evidence)
+    if blockers != [
+        "time averaging and stationarity=FAIL",
+        "native FluidX3D baseline=FAIL",
+    ]:
+        raise AssertionError(blockers)
     if "time averaging and stationarity=FAIL" not in item["reason"]:
         raise AssertionError(item)
     if "native FluidX3D baseline=FAIL" not in item["reason"]:

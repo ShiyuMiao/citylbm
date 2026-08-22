@@ -425,6 +425,13 @@ def extract_systematic_prerequisite_blockers(evidence: str) -> str:
     return blockers.strip()
 
 
+def extract_systematic_prerequisite_blocker_list(evidence: str) -> List[str]:
+    blockers = extract_systematic_prerequisite_blockers(evidence)
+    if not blockers:
+        return []
+    return [part.strip() for part in blockers.split(";") if part.strip()]
+
+
 def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, Any]) -> List[Dict[str, Any]]:
     by_key = gate_by_key(gates)
     priorities: List[Dict[str, Any]] = []
@@ -5491,6 +5498,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         else ("overprediction" if inferred_systematic_bias and u_bias is not None and u_bias > 0 else "")
     )
     systematic_bias_present = systematic_flag in systematic_tokens or inferred_systematic_bias
+    u_bias_percentage_points = u_bias * 100.0 if u_bias is not None else None
+    max_u_bias_percentage_points = args.max_u_bias_ratio * 100.0
     add_gate(
         gates,
         "systematic_bias",
@@ -5499,7 +5508,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"systematic_bias_flag={systematic_flag or 'missing/false'}; "
             f"inferred_from_U_bias={inferred_systematic_bias}; "
             f"inferred_direction={inferred_systematic_direction or 'none'}; "
-            f"U_bias_ratio={u_bias}; threshold={args.max_u_bias_ratio}; "
+            f"U_bias_ratio={u_bias}; U_bias_percentage_points={u_bias_percentage_points}; "
+            f"threshold={args.max_u_bias_ratio}; threshold_percentage_points={max_u_bias_percentage_points}; "
             f"best_scale={best_scale}; scaled_RMSE={scaled_rmse}; "
             f"scaled_improvement={scaled_improvement}; diagnosis={bias_diagnosis or 'missing'}"
         ),
@@ -5566,6 +5576,26 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         interpretation_evidence,
         "Close all prerequisite evidence gates before using systematic bias, R2 or regression metrics as paper-grade solver-accuracy evidence.",
     )
+    systematic_bias_diagnostic = {
+        "present": systematic_bias_present,
+        "flag": systematic_flag,
+        "inferred_from_U_bias": inferred_systematic_bias,
+        "direction": inferred_systematic_direction,
+        "U_bias_ratio": u_bias,
+        "U_bias_percentage_points": u_bias_percentage_points,
+        "threshold_ratio": args.max_u_bias_ratio,
+        "threshold_percentage_points": max_u_bias_percentage_points,
+        "best_fit_scale_to_exp": best_scale,
+        "scaled_RMSE_ratio": scaled_rmse,
+        "scaled_improvement_ratio": scaled_improvement,
+        "bias_diagnosis": bias_diagnosis,
+        "prerequisite_blockers": failed_prerequisites if systematic_bias_present else [],
+        "prerequisite_blocker_count": len(failed_prerequisites) if systematic_bias_present else 0,
+        "prerequisite_evidence_closed": systematic_bias_present and not failed_prerequisites,
+        "solver_accuracy_interpretation_allowed": systematic_bias_present and not failed_prerequisites,
+        "interpretation_gate": interpretation_status,
+        "interpretation_evidence": interpretation_evidence,
+    }
 
     failing = [gate for gate in gates if gate["status"] == FAIL]
     warnings = [gate for gate in gates if gate["status"] == WARN]
@@ -5580,6 +5610,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "paper_grade": verdict == PASS,
         "gates": gates,
         "diagnostic_priority": diagnostic_priority,
+        "systematic_bias_diagnostic": systematic_bias_diagnostic,
         "thresholds": {
             "min_avg_frames": args.min_avg_frames,
             "max_mean_speed_stddev_ratio": args.max_mean_speed_stddev_ratio,

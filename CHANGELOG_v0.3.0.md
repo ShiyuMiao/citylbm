@@ -605,6 +605,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   still open.
 - The final `diagnostic_priority` now expands failed systematic-bias prerequisites and the native FluidX3D top blocker,
   so a large residual bias points to the exact open evidence gates before any solver-accuracy interpretation.
+- `validation_gate.py` now writes a structured `systematic_bias_diagnostic` block to the JSON report, including bias
+  percentage points, threshold percentage points, best-fit scale, scaled-RMSE improvement and the exact open prerequisite
+  blockers. This keeps large Case A/Case E underprediction from being interpreted through R2 alone.
 - `audit_native_preconditions.py` now preserves concrete probe mapping and normalization blocker details, including the
   compared component values, missing/unmatched/duplicate probe IDs, official-coordinate coverage, coordinate-delta
   violation counts, Uref mismatch counts and VTK projection tolerance failures. The metrics CSV carries these native
