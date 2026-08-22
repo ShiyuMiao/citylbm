@@ -1008,6 +1008,9 @@ def main() -> int:
     paper_boundary_source_gate = str(boundary_source_audit.get("paper_grade_boundary_source_gate") or "").strip().lower()
     boundary_source_equivalent = as_bool(boundary_source_audit.get("boundary_source_wind_tunnel_equivalent"))
     boundary_source_simplified = as_bool(boundary_source_audit.get("boundary_source_simplified"))
+    boundary_source_missing_paper_evidence = split_scalar_list(
+        boundary_source_audit.get("missing_paper_grade_source_evidence")
+    )
     if not boundary_source_audit:
         reasons.append("boundary_source_audit_missing")
     if boundary_source_gate != "pass":
@@ -1018,6 +1021,8 @@ def main() -> int:
         reasons.append("boundary_source_not_wind_tunnel_equivalent")
     if boundary_source_simplified is True:
         reasons.append("boundary_source_simplified")
+    for field in boundary_source_missing_paper_evidence:
+        reasons.append(f"boundary_source_missing_paper_grade_evidence_{field}")
     boundary_source_hash_check = append_setup_hash_reason(reasons, "boundary_source", boundary_source_audit, setup_sha)
 
     boundary_protocol_gate = str(boundary_protocol_audit.get("boundary_protocol_gate") or "").strip().lower()
@@ -1456,6 +1461,8 @@ def main() -> int:
         "paper_grade_boundary_source_gate": paper_boundary_source_gate,
         "boundary_source_wind_tunnel_equivalent": boundary_source_equivalent,
         "boundary_source_simplified": boundary_source_simplified,
+        "boundary_source_missing_paper_grade_source_evidence": boundary_source_missing_paper_evidence,
+        "boundary_source_missing_paper_grade_source_evidence_csv": ";".join(boundary_source_missing_paper_evidence),
         **boundary_source_hash_check,
         "boundary_protocol_gate": boundary_protocol_gate,
         "boundary_evidence_gate": boundary_evidence_gate,

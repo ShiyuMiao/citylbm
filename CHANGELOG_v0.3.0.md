@@ -118,6 +118,12 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   boundary-equivalence support, supported evidence class, supported boundary-condition fields, blockage/clearance gates
   and all inlet/outlet/lateral/top/roughness/reflection support booleans before a native FluidX3D Case A/E run can be
   used as the strict baseline for CityLBM error diagnosis.
+- `audit_boundary_source.py`, `case_metadata.json`, the native baseline manifest, metrics template and
+  `validation_gate.py` now require concrete boundary-source evidence for a paper-grade AIJ boundary claim: a
+  non-reflecting or validated outlet state, side/top pair mapping or wind-tunnel-equivalent treatment, rough-wall or
+  wall-function action, precursor/recycling development-field evidence and official blockage/fetch/clearance evidence.
+  The current TYPE_E/TYPE_S box boundary is therefore explicitly classified as diagnostic-only instead of being allowed
+  to support SCI-grade accuracy claims.
 - `audit_native_preconditions.py` and the metrics CSV now report the top blocking diagnostic priority and next action,
   so a failing Case A/E package points first to inlet U/k turbulence evidence, then boundary evidence, time averaging,
   coordinate/component/Uref closure and residual systematic bias.

@@ -166,7 +166,20 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "avoid zero-speed boundary damping");
                 Require(metadata, "diagnostic_only_missing_aij_boundary_protocol_evidence");
                 Require(metadata, "not matched to official AIJ wind-tunnel boundary/fetch/roughness evidence");
+                Require(metadata, "\"BoundaryConditionMethodClass\": \"citylbm_type_e_box_simplified\"");
+                Require(metadata, "\"BoundaryConditionPaperGradeStatus\": \"diagnostic_only_until_boundary_source_and_aij_protocol_evidence_pass\"");
+                Require(metadata, "\"PaperGradeBoundaryPrerequisiteGate\": \"fail\"");
+                Require(metadata, "non_reflecting_or_validated_outlet_state");
+                Require(metadata, "side_top_boundary_pair_mapping_or_wind_tunnel_equivalence");
+                Require(metadata, "rough_wall_or_wall_function_action");
+                Require(metadata, "precursor_or_recycling_development_field");
+                Require(metadata, "official_blockage_fetch_clearance_evidence");
+                Require(metadata, "\"BoundaryNonReflectingOutletImplemented\": false");
+                Require(metadata, "\"BoundaryRoughWallFunctionImplemented\": false");
                 Require(audit, "BoundaryProtocolEvidenceGate=diagnostic_only_missing_aij_boundary_protocol_evidence");
+                Require(nativeManifest, "\"BoundaryConditionMethodClass\": \"citylbm_type_e_box_simplified\"");
+                Require(nativeManifest, "\"PaperGradeBoundaryPrerequisiteGate\": \"fail\"");
+                Require(nativeManifest, "official_blockage_fetch_clearance_evidence");
 
                 TestFluidX3DSourceValidation();
                 TestSyntheticInletRequiresCompleteKProfile();

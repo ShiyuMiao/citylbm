@@ -344,6 +344,19 @@ def main() -> int:
     has_precursor_or_recycling = (
         has_precursor_or_recycling_method and has_precursor_or_recycling_field_evidence
     )
+    has_paper_grade_outlet_source = has_non_reflecting_outlet
+    has_paper_grade_side_top_source = has_periodic_side_top
+    has_paper_grade_rough_wall_source = has_rough_wall_function
+    has_paper_grade_development_source = has_precursor_or_recycling
+    paper_grade_required_source_evidence = {
+        "non_reflecting_or_validated_outlet_state": has_paper_grade_outlet_source,
+        "side_top_boundary_pair_mapping": has_paper_grade_side_top_source,
+        "rough_wall_or_wall_function_action": has_paper_grade_rough_wall_source,
+        "precursor_or_recycling_development_field": has_paper_grade_development_source,
+    }
+    missing_paper_grade_source_evidence = [
+        key for key, supported in paper_grade_required_source_evidence.items() if supported is not True
+    ]
     advanced_boundary_token_only = (
         (has_non_reflecting_outlet_token and not has_non_reflecting_outlet)
         or (has_periodic_side_top_token and not has_periodic_side_top)
@@ -366,8 +379,10 @@ def main() -> int:
     )
     no_slip_solid_only = has_ground_no_slip and has_building_voxel_solid and not has_rough_wall_function
 
-    if has_precursor_or_recycling:
-        source_class = "precursor_or_recycling_boundary"
+    if not missing_paper_grade_source_evidence:
+        source_class = "wind_tunnel_equivalent_boundary_source"
+    elif has_precursor_or_recycling:
+        source_class = "precursor_or_recycling_boundary_partial"
     elif has_non_reflecting_outlet and (has_periodic_side_top or has_rough_wall_function):
         source_class = "advanced_boundary_source_evidence"
     elif (
@@ -394,17 +409,12 @@ def main() -> int:
         and has_ground_no_slip
         and has_building_voxel_solid
     )
-    source_wind_tunnel_equivalent = source_class in {
-        "precursor_or_recycling_boundary",
-        "advanced_boundary_source_evidence",
-    }
+    source_wind_tunnel_equivalent = source_class == "wind_tunnel_equivalent_boundary_source"
     source_advanced_code_evidence = (
-        (source_class == "precursor_or_recycling_boundary" and has_precursor_or_recycling)
-        or (
-            source_class == "advanced_boundary_source_evidence"
-            and has_non_reflecting_outlet
-            and (has_periodic_side_top or has_rough_wall_function)
-        )
+        has_paper_grade_outlet_source
+        and has_paper_grade_side_top_source
+        and has_paper_grade_rough_wall_source
+        and has_paper_grade_development_source
     )
     source_simplified = source_class in {
         "simplified_type_e_box",
@@ -459,6 +469,8 @@ def main() -> int:
         paper_reasons.append("ground_and_buildings_no_slip_without_rough_wall_or_precursor")
     if source_class == "named_boundary_method_without_field_evidence":
         paper_reasons.append("boundary_method_named_without_concrete_state_or_field_evidence")
+    for missing_key in missing_paper_grade_source_evidence:
+        paper_reasons.append(f"missing_{missing_key}")
     paper_gate = "pass" if not paper_reasons else "fail"
 
     report: Dict[str, Any] = {
@@ -508,6 +520,12 @@ def main() -> int:
         "has_precursor_or_recycling_boundary_method": has_precursor_or_recycling_method,
         "has_precursor_or_recycling_boundary_field_evidence": has_precursor_or_recycling_field_evidence,
         "has_precursor_or_recycling_boundary_token": has_precursor_or_recycling_token,
+        "has_paper_grade_outlet_source": has_paper_grade_outlet_source,
+        "has_paper_grade_side_top_source": has_paper_grade_side_top_source,
+        "has_paper_grade_rough_wall_source": has_paper_grade_rough_wall_source,
+        "has_paper_grade_development_source": has_paper_grade_development_source,
+        "paper_grade_required_source_evidence": paper_grade_required_source_evidence,
+        "missing_paper_grade_source_evidence": missing_paper_grade_source_evidence,
         "advanced_boundary_token_only": advanced_boundary_token_only,
         "advanced_boundary_evidence_uses_comment_stripped_code": True,
         "all_boundary_implementation_evidence_uses_comment_stripped_code": True,

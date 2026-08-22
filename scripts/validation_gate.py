@@ -2627,6 +2627,25 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     boundary_has_precursor_recycling_field = as_bool(
         get_any(boundary_source_audit, ["has_precursor_or_recycling_boundary_field_evidence"])
     )
+    boundary_has_paper_grade_outlet_source = as_bool(
+        get_any(boundary_source_audit, ["has_paper_grade_outlet_source"])
+    )
+    boundary_has_paper_grade_side_top_source = as_bool(
+        get_any(boundary_source_audit, ["has_paper_grade_side_top_source"])
+    )
+    boundary_has_paper_grade_rough_wall_source = as_bool(
+        get_any(boundary_source_audit, ["has_paper_grade_rough_wall_source"])
+    )
+    boundary_has_paper_grade_development_source = as_bool(
+        get_any(boundary_source_audit, ["has_paper_grade_development_source"])
+    )
+    boundary_source_missing_paper_grade_evidence = str(
+        get_first_available(
+            get_any(boundary_source_audit, ["missing_paper_grade_source_evidence"]),
+            get_any(metrics, ["boundary_source_missing_paper_grade_source_evidence"]),
+        )
+        or ""
+    )
     boundary_type_e_velocity_initialization = as_bool(
         get_any(boundary_source_audit, ["has_type_e_velocity_initialization"])
     )
@@ -2726,6 +2745,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and boundary_source_simplified is not True
         and boundary_source_advanced_code_evidence is True
         and boundary_source_comment_stripped_code_audit is True
+        and boundary_has_paper_grade_outlet_source is True
+        and boundary_has_paper_grade_side_top_source is True
+        and boundary_has_paper_grade_rough_wall_source is True
+        and boundary_has_paper_grade_development_source is True
+        and not boundary_source_missing_paper_grade_evidence
     )
     add_gate(
         gates,
@@ -2752,6 +2776,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"rough_wall_action_evidence={boundary_has_rough_wall_action}; "
             f"precursor_recycling_method={boundary_has_precursor_recycling_method}; "
             f"precursor_recycling_field_evidence={boundary_has_precursor_recycling_field}; "
+            f"paper_grade_outlet_source={boundary_has_paper_grade_outlet_source}; "
+            f"paper_grade_side_top_source={boundary_has_paper_grade_side_top_source}; "
+            f"paper_grade_rough_wall_source={boundary_has_paper_grade_rough_wall_source}; "
+            f"paper_grade_development_source={boundary_has_paper_grade_development_source}; "
+            f"missing_paper_grade_source_evidence={boundary_source_missing_paper_grade_evidence or 'none'}; "
             f"type_e_velocity_initialization={boundary_type_e_velocity_initialization}; "
             f"type_e_velocity_initialization_guard={boundary_type_e_velocity_initialization_guard}; "
             f"type_e_velocity_initialization_coordinates={boundary_type_e_velocity_initialization_coordinates}; "

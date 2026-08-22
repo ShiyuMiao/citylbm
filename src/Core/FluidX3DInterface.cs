@@ -2522,6 +2522,11 @@ namespace CityLBM.Solver
                     : (hasK ? "metadata_only_isotropic_k_assumption_not_injected" : "none");
                 bool inletReynoldsStressTensorAvailable = false;
                 bool inletDistributionFunctionReconstruction = false;
+                bool boundaryNonReflectingOutletImplemented = false;
+                bool boundarySideTopWindTunnelEquivalentImplemented = false;
+                bool boundaryRoughWallFunctionImplemented = false;
+                bool boundaryPrecursorOrRecyclingImplemented = false;
+                bool boundaryBlockageFetchEvidenceArchived = false;
                 string[] missingPaperGradeInletEvidence = syntheticActive
                     ? new[]
                     {
@@ -2536,6 +2541,14 @@ namespace CityLBM.Solver
                         "inlet_distribution_function_reconstruction",
                         "empty_tunnel_U_k_correlation_preservation_gate"
                     };
+                string[] missingPaperGradeBoundaryEvidence = new[]
+                {
+                    "non_reflecting_or_validated_outlet_state",
+                    "side_top_boundary_pair_mapping_or_wind_tunnel_equivalence",
+                    "rough_wall_or_wall_function_action",
+                    "precursor_or_recycling_development_field",
+                    "official_blockage_fetch_clearance_evidence"
+                };
                 var metadata = new
                 {
                     SchemaVersion = 2,
@@ -2653,6 +2666,15 @@ namespace CityLBM.Solver
                             : "height-varying mean velocity from CustomTable; no correlated fluctuations")
                         : "deterministic mean velocity boundary",
                     BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
+                    BoundaryConditionMethodClass = "citylbm_type_e_box_simplified",
+                    BoundaryConditionPaperGradeStatus = "diagnostic_only_until_boundary_source_and_aij_protocol_evidence_pass",
+                    PaperGradeBoundaryPrerequisiteGate = "fail",
+                    PaperGradeBoundaryMissingEvidence = missingPaperGradeBoundaryEvidence,
+                    BoundaryNonReflectingOutletImplemented = boundaryNonReflectingOutletImplemented,
+                    BoundarySideTopWindTunnelEquivalentImplemented = boundarySideTopWindTunnelEquivalentImplemented,
+                    BoundaryRoughWallFunctionImplemented = boundaryRoughWallFunctionImplemented,
+                    BoundaryPrecursorOrRecyclingImplemented = boundaryPrecursorOrRecyclingImplemented,
+                    BoundaryBlockageFetchEvidenceArchived = boundaryBlockageFetchEvidenceArchived,
                     BoundaryProtocolAudit = boundaryAudit,
                     BoundaryProtocolEvidenceSource = boundaryAudit.ProtocolEvidenceSource,
                     BoundaryProtocolEvidenceGate = boundaryAudit.ProtocolEvidenceGate,
@@ -3093,6 +3115,14 @@ namespace CityLBM.Solver
                 var boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
                 var sourceValidation = ValidateFluidX3DSourcePath(out string sourceValidationMessage);
                 string baselineId = BuildNativeBaselineId(scene, requiredSourceFiles);
+                string[] missingPaperGradeBoundaryEvidence = new[]
+                {
+                    "non_reflecting_or_validated_outlet_state",
+                    "side_top_boundary_pair_mapping_or_wind_tunnel_equivalence",
+                    "rough_wall_or_wall_function_action",
+                    "precursor_or_recycling_development_field",
+                    "official_blockage_fetch_clearance_evidence"
+                };
 
                 var manifest = new
                 {
@@ -3167,6 +3197,15 @@ namespace CityLBM.Solver
                             : "not_active",
                         WallRoughnessTreatment = "ground/buildings TYPE_S no-slip; no FluidX3D rough-wall or wall-function boundary in v0.3.0",
                         BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
+                        BoundaryConditionMethodClass = "citylbm_type_e_box_simplified",
+                        BoundaryConditionPaperGradeStatus = "diagnostic_only_until_boundary_source_and_aij_protocol_evidence_pass",
+                        PaperGradeBoundaryPrerequisiteGate = "fail",
+                        PaperGradeBoundaryMissingEvidence = missingPaperGradeBoundaryEvidence,
+                        BoundaryNonReflectingOutletImplemented = false,
+                        BoundarySideTopWindTunnelEquivalentImplemented = false,
+                        BoundaryRoughWallFunctionImplemented = false,
+                        BoundaryPrecursorOrRecyclingImplemented = false,
+                        BoundaryBlockageFetchEvidenceArchived = false,
                         BoundaryProtocolAudit = boundaryAudit,
                         BoundaryProtocolEvidenceSource = boundaryAudit.ProtocolEvidenceSource,
                         BoundaryProtocolEvidenceGate = boundaryAudit.ProtocolEvidenceGate

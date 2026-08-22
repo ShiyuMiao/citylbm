@@ -107,6 +107,73 @@ void main_setup() {
         require(data.get("metadata_claims_advanced_boundary") is False, data)
         require(data.get("has_type_e_velocity_initialization") is True, data)
         require(data.get("has_profile_type_e_velocity_initialization") is True, data)
+        require(data.get("has_paper_grade_outlet_source") is False, data)
+        require(data.get("has_paper_grade_side_top_source") is False, data)
+        require(data.get("has_paper_grade_rough_wall_source") is False, data)
+        require(data.get("has_paper_grade_development_source") is False, data)
+        require(
+            "non_reflecting_or_validated_outlet_state"
+            in data.get("missing_paper_grade_source_evidence", []),
+            data,
+        )
+
+        advanced_setup = tmp_dir / "advanced_setup.cpp"
+        advanced_report = tmp_dir / "advanced_boundary_source_audit.json"
+        advanced_setup.write_text(
+            """
+void non_reflecting_outlet(float sponge_strength, float convective_speed) {}
+void periodic_boundary(uint periodic_pair, uint wrap_index) {}
+void rough_wall_function(float roughness_height, float friction_velocity) {}
+void apply_rough_wall(float rough_wall_drag) {}
+void precursor_boundary(float3 precursor_velocity, uint recycling_plane) {}
+void main_setup() {
+    parallel_for(lbm.get_N(), [&](ulong n) {
+        uint x=0u, y=0u, z=0u;
+        lbm.coordinates(n, x, y, z);
+        if(z == 0u) { lbm.flags[n] = TYPE_S; return; }
+        if(y == Ny-1u) {
+            lbm.flags[n] = TYPE_E;
+            non_reflecting_outlet(sponge_strength, convective_speed);
+            return;
+        }
+        if(x == 0u || x == Nx-1u || z == Nz-1u) {
+            lbm.flags[n] = TYPE_E;
+            periodic_boundary(periodic_pair, wrap_index);
+            return;
+        }
+    });
+    lbm.voxelize_stl(get_exe_path()+"../buildings.stl", TYPE_S);
+    rough_wall_function(roughness_height, friction_velocity);
+    apply_rough_wall(rough_wall_drag);
+    precursor_boundary(precursor_velocity, recycling_plane);
+}
+""",
+            encoding="utf-8",
+        )
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(audit_script),
+                "--setup",
+                str(advanced_setup),
+                "--metadata",
+                str(metadata),
+                "--out",
+                str(advanced_report),
+            ],
+            cwd=str(repo),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if completed.returncode != 0:
+            raise AssertionError(completed.stdout + "\n" + completed.stderr)
+        advanced = json.loads(advanced_report.read_text(encoding="utf-8"))
+        require(advanced.get("paper_grade_boundary_source_gate") == "pass", advanced)
+        require(advanced.get("boundary_source_method_class") == "wind_tunnel_equivalent_boundary_source", advanced)
+        require(advanced.get("boundary_source_wind_tunnel_equivalent") is True, advanced)
+        require(advanced.get("boundary_source_advanced_code_evidence") is True, advanced)
+        require(advanced.get("missing_paper_grade_source_evidence") == [], advanced)
 
     print("boundary_source_audit_smoke passed")
     return 0

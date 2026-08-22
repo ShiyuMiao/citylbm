@@ -157,6 +157,11 @@ TEMPLATE_FIELDS = [
     "boundary_source_has_rough_wall_action_evidence",
     "boundary_source_has_precursor_or_recycling_boundary_method",
     "boundary_source_has_precursor_or_recycling_boundary_field_evidence",
+    "boundary_source_has_paper_grade_outlet_source",
+    "boundary_source_has_paper_grade_side_top_source",
+    "boundary_source_has_paper_grade_rough_wall_source",
+    "boundary_source_has_paper_grade_development_source",
+    "boundary_source_missing_paper_grade_source_evidence",
     "boundary_type_e_velocity_initialization",
     "boundary_type_e_velocity_initialization_guard",
     "boundary_type_e_velocity_initialization_coordinates",
@@ -1547,6 +1552,23 @@ def main() -> int:
             "boundary_source_has_precursor_or_recycling_boundary_field_evidence": first_bool_text(
                 boundary_source_audit.get("has_precursor_or_recycling_boundary_field_evidence")
             ),
+            "boundary_source_has_paper_grade_outlet_source": first_bool_text(
+                boundary_source_audit.get("has_paper_grade_outlet_source")
+            ),
+            "boundary_source_has_paper_grade_side_top_source": first_bool_text(
+                boundary_source_audit.get("has_paper_grade_side_top_source")
+            ),
+            "boundary_source_has_paper_grade_rough_wall_source": first_bool_text(
+                boundary_source_audit.get("has_paper_grade_rough_wall_source")
+            ),
+            "boundary_source_has_paper_grade_development_source": first_bool_text(
+                boundary_source_audit.get("has_paper_grade_development_source")
+            ),
+            "boundary_source_missing_paper_grade_source_evidence": ";".join(
+                str(reason) for reason in boundary_source_audit.get("missing_paper_grade_source_evidence", [])
+            )
+            if isinstance(boundary_source_audit.get("missing_paper_grade_source_evidence"), list)
+            else audit_field(boundary_source_audit, "missing_paper_grade_source_evidence"),
             "boundary_type_e_velocity_initialization": first_bool_text(
                 boundary_source_audit.get("has_type_e_velocity_initialization")
             ),
