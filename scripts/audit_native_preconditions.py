@@ -85,6 +85,122 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]:
+    reason_set = set(reasons)
+
+    groups = [
+        (
+            1,
+            "turbulent_inlet_method_and_u_k_preservation",
+            [
+                "inlet",
+                "custom_profile",
+                "profile_k",
+                "profile_u",
+                "af_csv",
+                "paper_grade_inlet_source",
+                "distribution_consistent",
+                "velocity_field_only",
+                "correlation",
+            ],
+            "The native baseline must first prove the AIJ AF U(z)/k(z) inlet and correlated turbulence source; RMS/k velocity perturbations alone remain diagnostic.",
+            "Fix the native setup/inlet audits before interpreting probe error or comparing against CityLBM.",
+        ),
+        (
+            2,
+            "boundary_roughness_blockage",
+            [
+                "boundary",
+                "roughness",
+                "blockage",
+                "clearance",
+                "fetch",
+                "outlet_reflection",
+                "side_top",
+                "ground_wall",
+            ],
+            "Boundary-condition evidence must show AIJ-equivalent inlet, outlet, lateral/top, floor and roughness treatment.",
+            "Archive structured boundary evidence and non-empty hashed support files before promoting the baseline.",
+        ),
+        (
+            3,
+            "time_averaging_stationarity",
+            [
+                "runtime",
+                "time",
+                "step_span",
+                "step_spacing",
+                "average",
+                "vtk_hash",
+                "fresh",
+                "source_step",
+            ],
+            "The final VTK window must be fresh, hash-traceable and long enough for a stable mean-flow comparison.",
+            "Rerun or re-audit with the required final-window frame count and solver-step span.",
+        ),
+        (
+            4,
+            "coordinate_component_normalization",
+            [
+                "probe",
+                "component",
+                "normalization",
+                "wind_vector",
+                "uref",
+                "official",
+                "coordinate",
+                "compared",
+            ],
+            "Probe IDs, coordinates, wind sign, compared component and Uref must match the official RS table.",
+            "Fix the probe audit and component/Uref sensitivity audit before interpreting residual bias.",
+        ),
+        (
+            5,
+            "systematic_bias_after_prerequisites",
+            [
+                "systematic",
+                "bias",
+                "r2",
+                "slope",
+                "intercept",
+                "underprediction",
+                "overprediction",
+            ],
+            "Systematic bias is interpretable only after the previous protocol gates are closed.",
+            "Treat remaining bias as a physics/protocol issue and compare paired native FluidX3D and CityLBM runs.",
+        ),
+    ]
+    priorities: List[Dict[str, Any]] = []
+    matched: set[str] = set()
+    for rank, key, tokens, diagnosis, action in groups:
+        matching_reasons = sorted(reason for reason in reason_set if any(token in reason for token in tokens))
+        matched.update(matching_reasons)
+        if matching_reasons:
+            priorities.append(
+                {
+                    "rank": rank,
+                    "key": key,
+                    "reason_count": len(matching_reasons),
+                    "reasons": matching_reasons,
+                    "diagnosis": diagnosis,
+                    "next_action": action,
+                }
+            )
+    unmatched = sorted(reason_set - matched)
+    if unmatched:
+        priorities.append(
+            {
+                "rank": 6,
+                "key": "other_precondition_evidence",
+                "reason_count": len(unmatched),
+                "reasons": unmatched,
+                "diagnosis": "Additional traceability or packaging preconditions remain open.",
+                "next_action": "Close these residual audit reasons after the five primary CFD-validation risks are handled.",
+            }
+        )
+    return priorities
+
+
 def read_json(path: Optional[Path]) -> Dict[str, Any]:
     if not path or not path.exists():
         return {}
@@ -1260,6 +1376,14 @@ def main() -> int:
         "native_preconditions_gate": "pass" if not reasons else "fail",
         "native_preconditions_gate_reasons": reasons,
         "native_preconditions_gate_reasons_csv": ";".join(reasons),
+        "native_diagnostic_priority_order": [
+            "turbulent_inlet_method_and_u_k_preservation",
+            "boundary_roughness_blockage",
+            "time_averaging_stationarity",
+            "coordinate_component_normalization",
+            "systematic_bias_after_prerequisites",
+        ],
+        "native_diagnostic_priority": build_native_diagnostic_priority(reasons),
     }
 
     out_path = Path(args.out).expanduser().resolve()

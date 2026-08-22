@@ -105,6 +105,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - The validation audit now also records native FluidX3D baseline requirement, LBM stability scaling, wind-direction sign,
   probe-projection risk and systematic-bias gate so the known `-34 pp` underprediction pattern is treated as a protocol
   blocker rather than a tuning target.
+- `validation_gate.py` and `audit_native_preconditions.py` now report diagnostic priority in the CFD-validation order:
+  turbulent inlet U/k/correlation first, boundary/roughness/blockage second, final-window time averaging third,
+  coordinate/component/Uref/probe mapping fourth, and residual systematic bias only after those prerequisites.
 - `docs/validation_metrics_template.csv` now includes run-evidence fields for source time steps, CustomTable `k`
   completeness/ranges, compared velocity component, averaged-field stability, boundary summary, synthetic inlet method,
   inlet distribution treatment, wall roughness treatment, native baseline id, probe mapping distances and protocol gate.

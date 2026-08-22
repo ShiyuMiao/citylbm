@@ -394,6 +394,83 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     by_key = gate_by_key(gates)
     priorities: List[Dict[str, Any]] = []
 
+    source_gate = by_key.get("inlet_source_evidence")
+    inlet_gate = by_key.get("inlet_turbulence")
+    paper_inlet_gate = by_key.get("paper_grade_inlet_method")
+    length_gate = by_key.get("inlet_length_scale")
+    correlation_gate = by_key.get("inlet_correlation")
+    inlet_profile_gate = by_key.get("inlet_profile_preservation")
+    inlet_profile_hash_gate = by_key.get("inlet_profile_vtk_hash_traceability")
+    inlet_correlation_hash_gate = by_key.get("inlet_correlation_vtk_hash_traceability")
+    k_gate = by_key.get("k_preservation_or_accuracy")
+    custom_k_gate = by_key.get("custom_k_profile")
+    inlet_gates = [
+        source_gate,
+        inlet_gate,
+        paper_inlet_gate,
+        length_gate,
+        correlation_gate,
+        custom_k_gate,
+        inlet_profile_gate,
+        inlet_profile_hash_gate,
+        inlet_correlation_hash_gate,
+        k_gate,
+    ]
+    if any(gate is None or gate.get("status") != PASS for gate in inlet_gates):
+        inlet_priority_gate = next(
+            (
+                gate for gate in inlet_gates
+                if gate is None or gate.get("status") != PASS
+            ),
+            paper_inlet_gate,
+        )
+        add_priority(
+            priorities,
+            1,
+            "turbulent_inlet_method_and_u_k_preservation",
+            inlet_priority_gate,
+            "The first reliability gate is the AIJ inflow: AF U(z)/k(z) must be preserved, and turbulence cannot be RMS/k random velocity perturbations only.",
+            "Verify inlet-source code, U/k profile preservation and inlet correlation on the same final VTK window; replace velocity-field-only STG-lite with distribution-consistent DFM/SEM/precursor/recycling evidence before paper claims.",
+        )
+
+    boundary_source_gate = by_key.get("boundary_source_evidence")
+    boundary_gate = by_key.get("boundary_protocol")
+    roughness_gate = by_key.get("roughness_or_precursor")
+    if any(gate is None or gate.get("status") != PASS for gate in [boundary_source_gate, boundary_gate, roughness_gate]):
+        boundary_priority_gate = next(
+            (gate for gate in [boundary_source_gate, boundary_gate, roughness_gate] if gate is None or gate.get("status") != PASS),
+            boundary_gate,
+        )
+        add_priority(
+            priorities,
+            2,
+            "boundary_roughness_blockage",
+            boundary_priority_gate,
+            "Simplified inlet/outlet/lateral/top/floor conditions, missing rough-wall treatment or excessive blockage can dominate AIJ validation error.",
+            "Audit AIJ-equivalent boundary conditions, roughness treatment, fetch/development length, lateral/top clearance and blockage before tuning solver parameters.",
+        )
+
+    freshness_gate = by_key.get("run_freshness")
+    vtk_hash_gate = by_key.get("runtime_vtk_hash_traceability")
+    time_gate = by_key.get("time_averaging")
+    time_gates = [freshness_gate, vtk_hash_gate, time_gate]
+    if any(gate is None or gate.get("status") != PASS for gate in time_gates):
+        time_priority_gate = next(
+            (
+                gate for gate in time_gates
+                if gate is None or gate.get("status") != PASS
+            ),
+            time_gate,
+        )
+        add_priority(
+            priorities,
+            3,
+            "time_averaging_stationarity",
+            time_priority_gate,
+            "A short or stale final VTK window, such as only a few late frames, cannot support stable mean-flow validation.",
+            "Regenerate VTK from the current setup and postprocess a sufficiently long final-window average with archived hashes and stationarity statistics.",
+        )
+
     coordinate_gate = by_key.get("coordinate_normalization")
     metrics_hash_gate = by_key.get("metrics_input_hash_traceability")
     compared_gate = by_key.get("compared_component")
@@ -422,109 +499,11 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         )
         add_priority(
             priorities,
-            1,
+            4,
             "coordinate_component_normalization",
             coordinate_priority_gate,
             "Probe coordinates, wind sign, compared component and Uref must be closed before interpreting bias.",
             "Fix RS probe projection, wind vector, compared_component and Uref/SI velocity conversion first; rerun component/Uref sensitivity before interpreting bias.",
-        )
-
-    freshness_gate = by_key.get("run_freshness")
-    if freshness_gate is None or freshness_gate.get("status") != PASS:
-        add_priority(
-            priorities,
-            2,
-            "run_freshness",
-            freshness_gate,
-            "Old VTK frames can make a new Case A/E setup appear to have valid metrics while actually postprocessing stale output.",
-            "Regenerate VTK after the current setup.cpp/defines/buildings/metadata inputs and rerun the native audit before interpreting accuracy.",
-        )
-
-    vtk_hash_gate = by_key.get("runtime_vtk_hash_traceability")
-    if vtk_hash_gate is None or vtk_hash_gate.get("status") != PASS:
-        add_priority(
-            priorities,
-            2,
-            "runtime_vtk_hash_traceability",
-            vtk_hash_gate,
-            "A runtime audit JSON can otherwise claim a final VTK window that is missing or no longer matches the archived files.",
-            "Recompute the runtime audit from the current selected VTK files and keep those exact VTK files with the run package.",
-        )
-
-    time_gate = by_key.get("time_averaging")
-    if time_gate is None or time_gate.get("status") != PASS:
-        add_priority(
-            priorities,
-            3,
-            "time_averaging_stationarity",
-            time_gate,
-            "A short or unstable final VTK window can create apparent systematic velocity bias.",
-            "Rerun or postprocess with at least the required final-window frames and stable mean/max speed stddev ratios.",
-        )
-
-    inlet_profile_gate = by_key.get("inlet_profile_preservation")
-    inlet_profile_hash_gate = by_key.get("inlet_profile_vtk_hash_traceability")
-    inlet_correlation_hash_gate = by_key.get("inlet_correlation_vtk_hash_traceability")
-    k_gate = by_key.get("k_preservation_or_accuracy")
-    custom_k_gate = by_key.get("custom_k_profile")
-    if any(
-        gate is None or gate.get("status") != PASS
-        for gate in [custom_k_gate, inlet_profile_gate, inlet_profile_hash_gate, inlet_correlation_hash_gate, k_gate]
-    ):
-        inlet_profile_priority_gate = next(
-            (
-                gate
-                for gate in [custom_k_gate, inlet_profile_gate, inlet_profile_hash_gate, inlet_correlation_hash_gate, k_gate]
-                if gate is None or gate.get("status") != PASS
-            ),
-            inlet_profile_gate,
-        )
-        add_priority(
-            priorities,
-            4,
-            "inlet_profile_u_k_preservation",
-            inlet_profile_priority_gate,
-            "The AF U(z)/k(z) table must be preserved in real VTK frames before probe accuracy is meaningful.",
-            "Run an empty-tunnel or inlet-plane VTK audit and fix profile conversion, k scaling or inlet application.",
-        )
-
-    source_gate = by_key.get("inlet_source_evidence")
-    inlet_gate = by_key.get("inlet_turbulence")
-    paper_inlet_gate = by_key.get("paper_grade_inlet_method")
-    length_gate = by_key.get("inlet_length_scale")
-    correlation_gate = by_key.get("inlet_correlation")
-    if any(gate is None or gate.get("status") != PASS for gate in [source_gate, inlet_gate, paper_inlet_gate, length_gate, correlation_gate]):
-        inlet_priority_gate = next(
-            (
-                gate for gate in [source_gate, inlet_gate, paper_inlet_gate, length_gate, correlation_gate]
-                if gate is None or gate.get("status") != PASS
-            ),
-            inlet_gate,
-        )
-        add_priority(
-            priorities,
-            5,
-            "turbulent_inlet_method",
-            inlet_priority_gate,
-            "Velocity-field-only, length-scale-free or correlation-unverified STG-lite cannot establish paper-grade AIJ turbulent inflow.",
-            "Use a distribution-consistent DFM/SEM/precursor/recycling inlet or archive validated turbulence length-scale and inlet correlation evidence.",
-        )
-
-    boundary_source_gate = by_key.get("boundary_source_evidence")
-    boundary_gate = by_key.get("boundary_protocol")
-    roughness_gate = by_key.get("roughness_or_precursor")
-    if any(gate is None or gate.get("status") != PASS for gate in [boundary_source_gate, boundary_gate, roughness_gate]):
-        boundary_priority_gate = next(
-            (gate for gate in [boundary_source_gate, boundary_gate, roughness_gate] if gate is None or gate.get("status") != PASS),
-            boundary_gate,
-        )
-        add_priority(
-            priorities,
-            6,
-            "boundary_roughness_blockage",
-            boundary_priority_gate,
-            "Simplified TYPE_E boundaries, missing rough-wall treatment or excessive blockage can drive systematic underprediction.",
-            "Audit AIJ-equivalent inlet/outlet/lateral/top/floor conditions, roughness treatment, fetch and blockage.",
         )
 
     native_preconditions_full_gate = by_key.get("native_preconditions_full_evidence")
@@ -541,7 +520,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         )
         add_priority(
             priorities,
-            7,
+            5,
             "native_fluidx3d_baseline",
             native_priority_gate,
             "CityLBM accuracy cannot be separated from native FluidX3D/protocol error without a paired native baseline.",
@@ -552,7 +531,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     if parity_gate is None or parity_gate.get("status") != PASS:
         add_priority(
             priorities,
-            8,
+            6,
             "native_citylbm_parity",
             parity_gate,
             "CityLBM accuracy cannot be compared with native FluidX3D unless the paired runs use the same protocol.",
@@ -563,7 +542,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     if grid_gate is None or grid_gate.get("status") != PASS:
         add_priority(
             priorities,
-            9,
+            7,
             "grid_sensitivity",
             grid_gate,
             "A single high-resolution run cannot prove that residual bias is independent of dx.",
@@ -578,25 +557,25 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     if systematic_interpretation_gate is not None and systematic_interpretation_gate.get("status") != PASS:
         add_priority(
             priorities,
-            10,
+            8,
             "systematic_bias_interpretation",
             systematic_interpretation_gate,
             "Large bias is present while prerequisite evidence gates remain open, so the result cannot support a solver-accuracy claim.",
-            "Close coordinate/component/Uref, freshness, time averaging, U/k inlet, boundary, native baseline, parity and grid-sensitivity gates before interpreting residual bias.",
+            "Close inlet turbulence, boundary, averaging, coordinate/component/Uref, native baseline, parity and grid-sensitivity gates before interpreting residual bias.",
         )
     if systematic_gate is not None and systematic_gate.get("status") != PASS:
         add_priority(
             priorities,
-            11,
+            9,
             "systematic_bias_root_cause",
             systematic_gate,
             f"Metrics report systematic bias: {systematic_flag or 'flagged'}; {bias_diagnosis or 'no diagnosis string'}.",
-            "After ranks 1-7 pass, treat remaining bias as a physics/protocol issue and test inlet, boundary, roughness and grid sensitivity.",
+            "After ranks 1-7 pass, treat remaining bias as a physics/protocol issue rather than a CityLBM precision claim.",
         )
     elif mean_gate is not None and mean_gate.get("status") != PASS:
         add_priority(
             priorities,
-            12,
+            10,
             "mean_velocity_accuracy",
             mean_gate,
             "Mean-flow metrics still fail after prerequisite evidence gates.",
