@@ -10,10 +10,14 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   provide it, and duplicate `z` heights are rejected before case generation. This prevents missing turbulence rows from
   being silently converted to `profile_k_lbm=0` and corrupting the inlet-energy profile.
 - The generated FluidX3D case uses the full `U(z)` table for inlet interpolation.
+- CustomTable inlet interpolation is now domain-origin aware: generated `setup.cpp` samples `U(z)` and `k(z)` at
+  `profile_origin_z_m + (z_cell + 0.5) * dx`, and metadata records the same `ProfileOriginZM`. Shifted CFD domains can
+  no longer silently apply the AF profile at the wrong physical height.
 - `Uref` is retained as metadata for normalization instead of replacing the inflow table.
 - The `k` column is preserved, converted to LBM units and stored in metadata.
-- `case_metadata.json` now records CustomTable row count, `k` row count, all-row `k` consistency, SI/LBM `k` ranges and
-  the first/last profile heights, so AIJ run packages can audit the inlet profile without reopening the CSV.
+- `case_metadata.json` now records CustomTable row count, `k` row count, all-row `k` consistency, SI/LBM `k` ranges,
+  profile origin and the first/last profile heights, so AIJ run packages can audit the inlet profile without reopening
+  the CSV.
 - `domain_origin.json` now includes schema and version fields.
 - `case_metadata.json` records wind profile, velocity scaling, k status, grid and run settings.
 - `Read VTK` reports whether metadata-driven velocity scaling was applied.
@@ -218,6 +222,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   advanced inlet or boundary implementations. Labels such as `"digital_filter"`, `"SEM"`, `"non_reflecting"` or
   `"rough_wall"` are reported as token-only diagnostics unless the generated `setup.cpp` also contains call/array/field
   code evidence for the claimed method.
+- `audit_inlet_source.py` now checks CustomTable code for `profile_origin_z_m` and origin-aware physical-height
+  sampling. A generated inlet that falls back to a hard-coded zero vertical datum is rejected by the source audit.
 - `audit_boundary_source.py` now separates advanced boundary method names from concrete implementation evidence. A
   named `non_reflecting`, `periodic`, `rough_wall`, `precursor` or `recycling` function is no longer enough: the audit
   also looks for sponge/convective/radiation outlet state, periodic pair mapping, rough-wall parameter plus wall-action

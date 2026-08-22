@@ -256,6 +256,14 @@ def main() -> int:
 
     has_custom_table = "profile_z_m" in implementation_source_lower and "profile_u_lbm" in implementation_source_lower
     has_k_profile = "profile_k_lbm" in implementation_source_lower
+    has_profile_origin_z_m = "profile_origin_z_m" in implementation_source_lower
+    has_origin_aware_profile_height = (
+        has_profile_origin_z_m
+        and has_regex(
+            implementation_source,
+            r"z_m\s*=\s*profile_origin_z_m\s*\+\s*\(\s*\(?\s*float\s*\)?\s*z_cell\s*\+\s*0\.5f\s*\)\s*\*",
+        )
+    )
     has_native_synthetic_eddy_function = (
         has_regex(implementation_source, r"\bupdateSyntheticEddyPlane\s*=\s*\[")
         or has_regex(implementation_source, r"\bupdateSyntheticEddyPlane\s*\(")
@@ -574,6 +582,10 @@ def main() -> int:
 
     if synthetic_requested and not has_stg_function and not has_digital_filter and not has_sem and not has_precursor:
         reasons.append("metadata_requests_turbulent_inlet_but_source_has_no_inlet_method")
+    if has_custom_table and not has_profile_origin_z_m:
+        reasons.append("custom_table_source_missing_profile_origin_z_m")
+    if has_custom_table and not has_origin_aware_profile_height:
+        reasons.append("custom_table_source_not_origin_aware_for_profile_height")
     if advanced_token_only:
         reasons.append("advanced_inlet_method_tokens_without_code_evidence")
     if has_digital_filter and digital_filter_selected and not has_digital_filter_kernel:
@@ -644,6 +656,8 @@ def main() -> int:
         "synthetic_inlet_requested": synthetic_requested,
         "has_custom_table_profile": has_custom_table,
         "has_profile_k_lbm": has_k_profile,
+        "has_profile_origin_z_m": has_profile_origin_z_m,
+        "has_origin_aware_profile_height": has_origin_aware_profile_height,
         "has_synthetic_inlet_function": has_stg_function,
         "has_synthetic_inlet_refresh_loop": has_stg_refresh_loop,
         "has_native_synthetic_eddy_evidence": has_native_synthetic_eddy_evidence,

@@ -1892,7 +1892,7 @@ namespace CityLBM.Solver
             }
             else if (scene.WindProfile == WindProfileType.CustomTable)
             {
-                AppendCustomTableProfileCode(sb, scene, grid.Dx, uScale, windDir);
+                AppendCustomTableProfileCode(sb, scene, grid.Dx, grid.Origin.Z, uScale, windDir);
             }
             sb.AppendLine();
 
@@ -2241,15 +2241,15 @@ namespace CityLBM.Solver
             return GetProfileScaleSpeed(scene) * grid.Dx * Math.Max(1, grid.Nx) / settings.Viscosity;
         }
 
-        private void AppendCustomTableProfileCode(StringBuilder sb, Scene scene, double dx, double uScale, Vector3d windDir)
+        private void AppendCustomTableProfileCode(StringBuilder sb, Scene scene, double dx, double originZ, double uScale, Vector3d windDir)
         {
             var samples = scene.CustomWindProfile ?? new List<WindProfileSample>();
             if (samples.Count < 2)
                 throw new InvalidOperationException("CustomTable profile requires at least two z,U rows.");
 
-            sb.AppendLine("    // CustomTable wind profile from CityLBM CSV. z is SI meters; U is converted to LBM units.");
+            sb.AppendLine("    // CustomTable wind profile from CityLBM CSV. z is SI meters in the Rhino/world vertical datum; U is converted to LBM units.");
             sb.AppendLine($"    const int profile_count = {samples.Count};");
-            sb.AppendLine("    const float profile_origin_z_m = 0.0f;");
+            sb.AppendLine($"    const float profile_origin_z_m = {originZ.ToString("F8", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float profile_first_z_m = {samples.First().Z.ToString("F8", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float profile_last_z_m = {samples.Last().Z.ToString("F8", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine("    const float profile_z_m[profile_count] = {" + JoinFloatArray(samples.Select(s => s.Z)) + "};");
@@ -2288,7 +2288,7 @@ namespace CityLBM.Solver
             sb.AppendLine("        return profile_k_lbm[profile_count-1];");
             sb.AppendLine("    };");
             sb.AppendLine("    auto windProfile = [&](uint z_cell) -> float3 {");
-            sb.AppendLine($"        float z_m = ((float)z_cell + 0.5f) * {dx.ToString("F8", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"        float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * {dx.ToString("F8", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine("        float u_mag = interpolate_profile_u(z_m);");
             sb.AppendLine("        return float3(dir_x * u_mag, dir_y * u_mag, dir_z * u_mag);");
             sb.AppendLine("    };");
@@ -2406,7 +2406,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    };");
             sb.AppendLine("    auto syntheticTurbulentInlet = [&](uint x, uint y, uint z_cell, uint t_step) -> float3 {");
             sb.AppendLine("        float3 mean = windProfile(z_cell);");
-            sb.AppendLine($"        float z_m = ((float)z_cell + 0.5f) * {dx.ToString("F8", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"        float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * {dx.ToString("F8", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine("        float k_lbm = interpolate_profile_k(z_m);");
             sb.AppendLine("        if(k_lbm < 0.0f) k_lbm = 0.0f;");
             sb.AppendLine("        float sigma = sqrtf(0.6666667f * k_lbm) * citylbm_stg_scale;");
@@ -2624,7 +2624,7 @@ namespace CityLBM.Solver
                     BoundaryProtocolEvidenceGate = boundaryAudit.ProtocolEvidenceGate,
                     ValidationReadiness = "diagnostic_ready_not_paper_grade_until_native_baseline_grid_sensitivity_long_averaging_and_turbulent_inlet_are_verified",
                     KnownProtocolRisks = BuildProtocolRisks(scene, settings).ToList(),
-                    ProfileOriginZM = 0.0,
+                    ProfileOriginZM = grid.Origin.Z,
                     ProfileFirstZM = scene.CustomWindProfile == null || scene.CustomWindProfile.Count == 0 ? 0.0 : scene.CustomWindProfile.Min(s => s.Z),
                     ProfileLastZM = scene.CustomWindProfile == null || scene.CustomWindProfile.Count == 0 ? 0.0 : scene.CustomWindProfile.Max(s => s.Z),
                     CustomProfile = scene.CustomWindProfile == null ? null : scene.CustomWindProfile.Select(s => new
@@ -3390,9 +3390,9 @@ namespace CityLBM.Solver
             {
                 Key = "coordinate_transform",
                 Status = "partial",
-                Evidence = $"domain_origin.json will be written with origin=({grid.Origin.X:F3},{grid.Origin.Y:F3},{grid.Origin.Z:F3}), dx={grid.Dx:F3}, grid={grid.Nx}x{grid.Ny}x{grid.Nz}.",
-                Risk = "Generated metadata supports coordinate recovery, but RS probe projection and wind component sign must be checked against official points.",
-                RequiredNextAction = "Archive domain_origin.json and a probe-mapping table with nearest/interpolated point distances."
+                Evidence = $"domain_origin.json will be written with origin=({grid.Origin.X:F3},{grid.Origin.Y:F3},{grid.Origin.Z:F3}), dx={grid.Dx:F3}, grid={grid.Nx}x{grid.Ny}x{grid.Nz}; CustomTable ProfileOriginZM={grid.Origin.Z:F3} and setup.cpp samples U(z)/k(z) at ProfileOriginZM+(z_cell+0.5)*dx.",
+                Risk = "Generated metadata supports coordinate recovery and origin-aware inlet-height sampling, but RS probe projection and wind component sign must be checked against official points.",
+                RequiredNextAction = "Archive domain_origin.json, case_metadata.json and a probe-mapping table with nearest/interpolated point distances."
             };
 
             yield return new ValidationProtocolAuditItem

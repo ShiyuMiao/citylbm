@@ -21,6 +21,7 @@ CityLBM connects Rhino/Grasshopper geometry workflows with FluidX3D-based LBM ca
 ### What's New in v0.3.0
 - Standardized plugin and assembly metadata to `0.3.0`.
 - Uses the full CustomTable `U(z)` inlet profile; `Uref` is kept only as metadata/normalization context.
+- Samples CustomTable `U(z)`/`k(z)` using the CFD domain origin and records `ProfileOriginZM` for coordinate audits.
 - Reads, converts and records `k(m2/s2)` in SI and LBM units.
 - Optional STG-lite diagnostic inlet from isotropic `k`; it is blocked unless every CustomTable row has a valid `k`.
 - Records `SyntheticTurbulentInletRequested`, `SyntheticTurbulentInletInjected` and `SyntheticTurbulentInletBlockedReason`.

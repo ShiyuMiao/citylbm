@@ -70,7 +70,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 
 - Generated `setup.cpp` contains `profile_z_m[]`, `profile_z_lbm[]`, `profile_u_lbm[]`, `profile_k_m2s2[]`, `profile_k_lbm[]`, `profile_origin_z_m`, `profile_first_z_m` and `profile_last_z_m`.
 - `case_metadata.json` records `CustomProfileRows`, `CustomProfileKRows`, `CustomProfileKComplete`, `KMinM2s2`,
-  `KMaxM2s2`, `KMinLbm`, `KMaxLbm`, `ProfileFirstZM` and `ProfileLastZM`.
+  `KMaxM2s2`, `KMinLbm`, `KMaxLbm`, `ProfileOriginZM`, `ProfileFirstZM` and `ProfileLastZM`.
+- `profile_origin_z_m` in `setup.cpp` must equal `DomainOriginZ` from `domain_origin.json`; generated CustomTable
+  interpolation samples `U(z)` and `k(z)` at `profile_origin_z_m + (z_cell + 0.5) * dx`, not at a hard-coded zero datum.
 - The official RS measurement table must be strictly filtered to `case=ac` and `direction=N` before metrics are
   computed. `validation_metrics_from_probe_audit.py` and `validation_gate.py` must fail if the RS table lacks the
   required case/condition or wind/direction column, or if the filtered subset is empty. Do not compare probe outputs

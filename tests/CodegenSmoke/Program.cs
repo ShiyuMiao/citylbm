@@ -20,8 +20,8 @@ namespace CityLBM.CodegenSmoke
                 Ny = 16,
                 Nz = 16,
                 Dx = 2.0,
-                Origin = new Point3d(-60, -120, 0),
-                DomainBounds = new BoundingBox(new Point3d(-60, -120, 0), new Point3d(70, 60, 70))
+                Origin = new Point3d(-60, -120, -4),
+                DomainBounds = new BoundingBox(new Point3d(-60, -120, -4), new Point3d(70, 60, 70))
             };
                 var settings = new SimulationSettings
                 {
@@ -67,6 +67,8 @@ namespace CityLBM.CodegenSmoke
                 string nativeManifest = File.ReadAllText(Path.Combine(caseDir, "native_fluidx3d_baseline_manifest.json"));
 
                 Require(setup, "profile_k_lbm[profile_count]");
+                Require(setup, "const float profile_origin_z_m = -4.00000000f;");
+                Require(setup, "float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * 2.00000000f;");
                 Require(setup, "citylbm_stg_mode_count");
                 Require(setup, "sqrtf(6.0f / (float)citylbm_stg_mode_count)");
                 Require(setup, "citylbm_mode_amplitude");
@@ -118,6 +120,7 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "\"LesModel\"");
                 Require(metadata, "\"LbmStabilityGate\": \"requires_solver_log_and_runtime_statistics\"");
                 Require(metadata, "\"SolverStabilityWarnings\": \"not_available_until_solver_log_is_archived\"");
+                Require(metadata, "\"ProfileOriginZM\": -4.0");
                 Require(audit, "inlet_distribution_consistency");
                 Require(audit, "inlet_turbulence_length_scale");
                 Require(audit, "source='aij_length_scale_verified: smoke-test archived integral length evidence', gate=pass");
@@ -127,6 +130,7 @@ namespace CityLBM.CodegenSmoke
                 Require(audit, "ExpectedVtkFrameCount=10");
                 Require(audit, "PaperRecommendedAveragingFrames=40");
                 Require(audit, "ExpectedPaperAverageStepSpan=900");
+                Require(audit, "ProfileOriginZM=-4.000");
                 Require(nativeManifest, "NativeFluidX3DPathExplicitlyProvided");
                 Require(nativeManifest, "NativeFluidX3DSourceValidation");
                 Require(nativeManifest, "\"PaperRecommendedAveragingFrames\": 40");

@@ -82,6 +82,12 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 
 ## Native Baseline Gates
 
+0. Domain-origin-aware inlet-height gate.
+   For any CustomTable or AF-driven inlet, generated `setup.cpp`, `case_metadata.json` and `domain_origin.json` must
+   agree on the vertical datum. `profile_origin_z_m`/`ProfileOriginZM` must equal `DomainOriginZ`, and `U(z)`/`k(z)`
+   interpolation must use `profile_origin_z_m + (z_cell + 0.5) * dx`. A hard-coded zero profile origin is diagnostic
+   only unless the archived domain origin is also exactly zero.
+
 1. Empty-tunnel gate.
    The empty-tunnel run must preserve both mean velocity and turbulent kinetic energy before any building run is
    promoted. Record `U_MAE`, `U_RMSE`, `U_bias`, `k_MAE`, `k_RMSE`, `k_bias`, the post-spinup sample count and the
