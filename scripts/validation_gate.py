@@ -163,6 +163,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-native-citylbm-parity-field-count", type=int, default=20)
     parser.add_argument("--min-native-citylbm-parity-gate-field-count", type=int, default=20)
     parser.add_argument("--min-native-citylbm-parity-hash-field-count", type=int, default=5)
+    parser.add_argument("--max-native-citylbm-rmse-delta", type=float, default=0.03)
+    parser.add_argument("--max-native-citylbm-abs-bias-delta", type=float, default=0.03)
+    parser.add_argument("--max-native-citylbm-r2-drop", type=float, default=0.05)
+    parser.add_argument("--max-native-citylbm-slope-delta", type=float, default=0.10)
+    parser.add_argument("--max-native-citylbm-intercept-delta", type=float, default=0.05)
     parser.add_argument("--expected-compared-component", default="", help="Require a specific Data Probe compared_component, e.g. speed_ratio or streamwise_ratio.")
     parser.add_argument("--expected-uref", type=float, default=None, help="Require the metrics/Data Probe Uref to match this value.")
     parser.add_argument("--uref-tolerance", type=float, default=1.0e-6)
@@ -700,11 +705,22 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
             "Archive native_citylbm_parity_audit.json proving matched case, wind, dx, averaging, Uref, inlet, boundary and probe settings.",
         )
 
+    accuracy_delta_gate = by_key.get("native_citylbm_accuracy_delta")
+    if accuracy_delta_gate is None or accuracy_delta_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            7,
+            "native_citylbm_accuracy_delta",
+            accuracy_delta_gate,
+            "After protocol parity, CityLBM must not add RMSE, bias, R2 or regression error beyond the paired native FluidX3D run.",
+            "Archive native_citylbm_accuracy_delta_audit.json; if CityLBM adds error, inspect parameter transfer, setup.cpp generation, VTK scaling and probe postprocessing before attributing residual bias to FluidX3D physics.",
+        )
+
     grid_gate = by_key.get("grid_sensitivity")
     if grid_gate is None or grid_gate.get("status") != PASS:
         add_priority(
             priorities,
-            7,
+            8,
             "grid_sensitivity",
             grid_gate,
             "A single high-resolution run cannot prove that residual bias is independent of dx.",
@@ -744,7 +760,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         )
         add_priority(
             priorities,
-            8,
+            9,
             "systematic_bias_interpretation",
             systematic_interpretation_gate,
             (
@@ -757,11 +773,11 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     if systematic_gate is not None and systematic_gate.get("status") != PASS:
         add_priority(
             priorities,
-            9,
+            10,
             "systematic_bias_root_cause",
             systematic_gate,
             f"Metrics report systematic bias: {systematic_flag or 'flagged'}; {bias_diagnosis or 'no diagnosis string'}.",
-            "After ranks 1-7 pass, treat remaining bias as a physics/protocol issue rather than a CityLBM precision claim.",
+            "After ranks 1-8 pass, treat remaining bias as a physics/protocol issue rather than a CityLBM precision claim.",
         )
     elif mean_gate is not None and mean_gate.get("status") != PASS:
         add_priority(
@@ -2545,6 +2561,92 @@ def native_citylbm_parity_critical_status(
     }
 
 
+def native_citylbm_accuracy_delta_status(
+    native_citylbm_accuracy_delta_audit: Dict[str, Any],
+    args: argparse.Namespace,
+) -> Dict[str, Any]:
+    reasons: List[str] = []
+    if not native_citylbm_accuracy_delta_audit:
+        reasons.append("native_citylbm_accuracy_delta_audit_missing")
+
+    declared_gate = str(
+        get_any(native_citylbm_accuracy_delta_audit, ["native_citylbm_accuracy_delta_gate"]) or ""
+    ).strip().lower()
+    if declared_gate != "pass":
+        reasons.append(f"native_citylbm_accuracy_delta_gate_not_pass:{declared_gate or 'missing'}")
+
+    additional_error = as_bool(
+        get_any(native_citylbm_accuracy_delta_audit, ["citylbm_additional_error_flag"])
+    )
+    if additional_error is not False:
+        reasons.append(
+            "citylbm_additional_error_flag_not_false:"
+            + ("missing" if additional_error is None else str(additional_error))
+        )
+
+    native_accuracy_gate = str(
+        get_any(native_citylbm_accuracy_delta_audit, ["native_accuracy_gate"]) or ""
+    ).strip().lower()
+    if native_accuracy_gate not in {"pass", "fail"}:
+        reasons.append(f"native_accuracy_gate_missing_or_invalid:{native_accuracy_gate or 'missing'}")
+
+    interpretation = str(
+        get_any(native_citylbm_accuracy_delta_audit, ["accuracy_interpretation"]) or ""
+    ).strip()
+    if not interpretation:
+        reasons.append("accuracy_interpretation_missing")
+
+    deltas = {
+        "U_RMSE_delta_city_minus_native": as_float(
+            get_any(native_citylbm_accuracy_delta_audit, ["U_RMSE_delta_city_minus_native"])
+        ),
+        "U_abs_bias_delta_city_minus_native": as_float(
+            get_any(native_citylbm_accuracy_delta_audit, ["U_abs_bias_delta_city_minus_native"])
+        ),
+        "U_R2_drop_native_minus_city": as_float(
+            get_any(native_citylbm_accuracy_delta_audit, ["U_R2_drop_native_minus_city"])
+        ),
+        "U_slope_abs_delta": as_float(
+            get_any(native_citylbm_accuracy_delta_audit, ["U_slope_abs_delta"])
+        ),
+        "U_intercept_abs_delta": as_float(
+            get_any(native_citylbm_accuracy_delta_audit, ["U_intercept_abs_delta"])
+        ),
+    }
+    thresholds = {
+        "U_RMSE_delta_city_minus_native": args.max_native_citylbm_rmse_delta,
+        "U_abs_bias_delta_city_minus_native": args.max_native_citylbm_abs_bias_delta,
+        "U_R2_drop_native_minus_city": args.max_native_citylbm_r2_drop,
+        "U_slope_abs_delta": args.max_native_citylbm_slope_delta,
+        "U_intercept_abs_delta": args.max_native_citylbm_intercept_delta,
+    }
+    reason_names = {
+        "U_RMSE_delta_city_minus_native": "citylbm_rmse_regression_delta_above_threshold",
+        "U_abs_bias_delta_city_minus_native": "citylbm_abs_bias_regression_delta_above_threshold",
+        "U_R2_drop_native_minus_city": "citylbm_r2_drop_above_threshold",
+        "U_slope_abs_delta": "citylbm_slope_delta_above_threshold",
+        "U_intercept_abs_delta": "citylbm_intercept_delta_above_threshold",
+    }
+    for field, value in deltas.items():
+        if value is None:
+            reasons.append(f"{field}_missing")
+            continue
+        if value > thresholds[field]:
+            reasons.append(f"{reason_names[field]}:{value}>{thresholds[field]}")
+
+    return {
+        "ok": not reasons,
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+        "declared_gate": declared_gate,
+        "native_accuracy_gate": native_accuracy_gate,
+        "interpretation": interpretation,
+        "citylbm_additional_error_flag": additional_error,
+        "deltas": deltas,
+        "thresholds": thresholds,
+    }
+
+
 def get_manifest_source_record(manifest: Dict[str, Any], role: str) -> Dict[str, Any]:
     records = manifest.get("RequiredSourceFiles")
     if not isinstance(records, list):
@@ -2726,6 +2828,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     grid_sensitivity_audit_path = find_first(run_dir, ["grid_sensitivity_audit.json"])
     native_preconditions_audit_path = find_first(run_dir, ["native_preconditions_audit.json"])
     native_citylbm_parity_audit_path = find_first(run_dir, ["native_citylbm_parity_audit.json"])
+    native_citylbm_accuracy_delta_audit_path = find_first(run_dir, ["native_citylbm_accuracy_delta_audit.json"])
     setup_cpp_path = find_first(run_dir, ["setup.cpp"])
     runtime_audit_path = find_first(
         run_dir,
@@ -2753,6 +2856,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     grid_sensitivity_audit = read_json(grid_sensitivity_audit_path)
     native_preconditions_audit = read_json(native_preconditions_audit_path)
     native_citylbm_parity_audit = read_json(native_citylbm_parity_audit_path)
+    native_citylbm_accuracy_delta_audit = read_json(native_citylbm_accuracy_delta_audit_path)
     runtime_audit = read_json(runtime_audit_path)
     manifest = read_json(manifest_path)
     metrics, metrics_path = read_metrics(metrics_path)
@@ -2783,6 +2887,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and grid_sensitivity_audit_path
         and native_preconditions_audit_path
         and (native_citylbm_parity_audit_path or not citylbm_result)
+        and (native_citylbm_accuracy_delta_audit_path or not citylbm_result)
         and metrics_path
         and metrics
         else FAIL,
@@ -2797,9 +2902,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"grid_sensitivity_audit={grid_sensitivity_audit_path or 'missing'}; "
             f"native_preconditions_audit={native_preconditions_audit_path or 'missing'}; "
             f"native_citylbm_parity_audit={native_citylbm_parity_audit_path or ('missing' if citylbm_result else ('not_required_for_' + (software_label or 'unknown')))}; "
+            f"native_citylbm_accuracy_delta_audit={native_citylbm_accuracy_delta_audit_path or ('missing' if citylbm_result else ('not_required_for_' + (software_label or 'unknown')))}; "
             f"metrics={metrics_path or 'missing'}"
         ),
-        "Archive case_metadata.json, validation_protocol_audit.json, inlet_profile_audit.json, inlet_correlation_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, native_preconditions_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
+        "Archive case_metadata.json, validation_protocol_audit.json, inlet_profile_audit.json, inlet_correlation_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, native_preconditions_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json and native_citylbm_accuracy_delta_audit.json.",
     )
     add_gate(
         gates,
@@ -5303,6 +5409,45 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Before using native FluidX3D as the accuracy baseline for CityLBM, archive a parity audit proving the same case, wind, dx, averaging, Uref, inlet, boundary, source-audit hashes and probe settings.",
     )
 
+    accuracy_delta_status = native_citylbm_accuracy_delta_status(
+        native_citylbm_accuracy_delta_audit,
+        args,
+    )
+    accuracy_delta_ok = (
+        not citylbm_result
+        or (
+            native_citylbm_accuracy_delta_audit_path is not None
+            and accuracy_delta_status["ok"]
+        )
+    )
+    accuracy_deltas = accuracy_delta_status["deltas"]
+    add_gate(
+        gates,
+        "native_citylbm_accuracy_delta",
+        PASS if accuracy_delta_ok else FAIL,
+        (
+            f"software={software_label or 'missing'}; citylbm_result={citylbm_result}; "
+            f"native_citylbm_accuracy_delta_audit={native_citylbm_accuracy_delta_audit_path or 'missing'}; "
+            f"native_citylbm_accuracy_delta_gate={accuracy_delta_status['declared_gate'] or 'missing'}; "
+            f"native_accuracy_gate={accuracy_delta_status['native_accuracy_gate'] or 'missing'}; "
+            f"accuracy_interpretation={accuracy_delta_status['interpretation'] or 'missing'}; "
+            f"citylbm_additional_error_flag={accuracy_delta_status['citylbm_additional_error_flag']}; "
+            f"U_RMSE_delta_city_minus_native={accuracy_deltas['U_RMSE_delta_city_minus_native']}; "
+            f"threshold <= {args.max_native_citylbm_rmse_delta}; "
+            f"U_abs_bias_delta_city_minus_native={accuracy_deltas['U_abs_bias_delta_city_minus_native']}; "
+            f"threshold <= {args.max_native_citylbm_abs_bias_delta}; "
+            f"U_R2_drop_native_minus_city={accuracy_deltas['U_R2_drop_native_minus_city']}; "
+            f"threshold <= {args.max_native_citylbm_r2_drop}; "
+            f"U_slope_abs_delta={accuracy_deltas['U_slope_abs_delta']}; "
+            f"threshold <= {args.max_native_citylbm_slope_delta}; "
+            f"U_intercept_abs_delta={accuracy_deltas['U_intercept_abs_delta']}; "
+            f"threshold <= {args.max_native_citylbm_intercept_delta}; "
+            f"native_citylbm_accuracy_delta_reasons={accuracy_delta_status['reasons_csv'] or 'none'}; "
+            f"metrics_native_citylbm_accuracy_delta_gate={get_any(metrics, ['native_citylbm_accuracy_delta_gate']) or 'ignored'}"
+        ),
+        "Archive native_citylbm_accuracy_delta_audit.json comparing paired CityLBM and native FluidX3D metrics. If CityLBM adds error, inspect parameter transfer, setup.cpp generation, VTK scaling and probe postprocessing; if CityLBM matches a poor native baseline, improve native inlet, boundary, averaging and grid protocol first.",
+    )
+
     grid_gate = str(
         get_any(grid_sensitivity_audit, ["grid_sensitivity_gate"]) or ""
     ).strip().lower()
@@ -6164,6 +6309,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "native_probe_component_traceability": "native FluidX3D probe/component/Uref traceability",
         "native_baseline": "native FluidX3D baseline",
         "native_citylbm_parity": "native-CityLBM parity",
+        "native_citylbm_accuracy_delta": "native-CityLBM paired accuracy delta",
         "grid_sensitivity": "grid sensitivity",
         "probe_audit_traceability": "probe audit traceability",
         "probe_source_window": "probe source window",
@@ -6278,6 +6424,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "min_native_citylbm_parity_field_count": args.min_native_citylbm_parity_field_count,
             "min_native_citylbm_parity_gate_field_count": args.min_native_citylbm_parity_gate_field_count,
             "min_native_citylbm_parity_hash_field_count": args.min_native_citylbm_parity_hash_field_count,
+            "max_native_citylbm_rmse_delta": args.max_native_citylbm_rmse_delta,
+            "max_native_citylbm_abs_bias_delta": args.max_native_citylbm_abs_bias_delta,
+            "max_native_citylbm_r2_drop": args.max_native_citylbm_r2_drop,
+            "max_native_citylbm_slope_delta": args.max_native_citylbm_slope_delta,
+            "max_native_citylbm_intercept_delta": args.max_native_citylbm_intercept_delta,
             "expected_compared_component": args.expected_compared_component,
             "expected_uref": args.expected_uref,
             "uref_tolerance": args.uref_tolerance,
@@ -6297,6 +6448,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "grid_sensitivity_audit": str(grid_sensitivity_audit_path) if grid_sensitivity_audit_path else "",
             "native_preconditions_audit": str(native_preconditions_audit_path) if native_preconditions_audit_path else "",
             "native_citylbm_parity_audit": str(native_citylbm_parity_audit_path) if native_citylbm_parity_audit_path else "",
+            "native_citylbm_accuracy_delta_audit": str(native_citylbm_accuracy_delta_audit_path) if native_citylbm_accuracy_delta_audit_path else "",
             "native_fluidx3d_baseline_manifest": str(manifest_path) if manifest_path else "",
             "metrics": str(metrics_path) if metrics_path else "",
             "probe_audit": str(probe_path) if probe_path else "",

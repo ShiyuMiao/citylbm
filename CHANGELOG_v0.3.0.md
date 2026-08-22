@@ -389,6 +389,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   just aggregate match counts. Case/wind, dx, VTK cadence, averaging, Uref, inlet/boundary/probe gates and AF/official/
   source-audit hashes must all be present and matched before CityLBM accuracy can be interpreted against native
   FluidX3D.
+- Added `scripts/audit_native_citylbm_accuracy_delta.py` and a `native_citylbm_accuracy_delta` validation gate to
+  quantify whether CityLBM adds RMSE, bias, R2, regression-slope or intercept error beyond a paired native FluidX3D
+  run. If CityLBM matches a poor native baseline, the result remains a native protocol/physics limitation; if CityLBM
+  is worse than the paired native run, the gate points back to parameter transfer, `setup.cpp`, VTK scaling and probe
+  postprocessing.
 - Added `scripts/audit_inlet_profile_from_vtk.py` to read real post-spinup `u-*.vtk` frames, sample an inlet or
   empty-tunnel cross-plane, reconstruct time-mean streamwise `U(z)` and temporal-variance `k(z)`, and compare both
   against the official AF table. This replaces hand-filled empty-tunnel `U/k` evidence with an archived JSON/CSV audit.

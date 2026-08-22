@@ -389,6 +389,18 @@ TEMPLATE_FIELDS = [
     "native_citylbm_parity_matched_critical_field_count",
     "native_citylbm_parity_missing_critical_field_count",
     "native_citylbm_parity_missing_critical_fields",
+    "native_citylbm_accuracy_delta_audit",
+    "native_citylbm_accuracy_delta_gate",
+    "native_citylbm_accuracy_delta_gate_reasons",
+    "native_citylbm_accuracy_interpretation",
+    "native_citylbm_additional_error_flag",
+    "native_accuracy_gate",
+    "native_accuracy_gate_reasons",
+    "native_citylbm_U_RMSE_delta",
+    "native_citylbm_U_abs_bias_delta",
+    "native_citylbm_U_R2_drop",
+    "native_citylbm_U_slope_abs_delta",
+    "native_citylbm_U_intercept_abs_delta",
     "probe_mapping_table",
     "probe_mapping_table_sha256",
     "official_measurement_sha256",
@@ -509,6 +521,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--grid-sensitivity-audit", help="Optional grid_sensitivity_audit.json from audit_grid_sensitivity.py.")
     parser.add_argument("--native-preconditions-audit", help="Optional native_preconditions_audit.json from audit_native_preconditions.py.")
     parser.add_argument("--native-citylbm-parity-audit", help="Optional native_citylbm_parity_audit.json from audit_native_citylbm_parity.py.")
+    parser.add_argument("--native-citylbm-accuracy-delta-audit", help="Optional native_citylbm_accuracy_delta_audit.json from audit_native_citylbm_accuracy_delta.py.")
     parser.add_argument("--case", default="", help="Case label to write and optionally filter official rows.")
     parser.add_argument("--wind-direction", default="", help="Wind direction label to write and optionally filter official rows.")
     parser.add_argument("--software", default="citylbm")
@@ -1056,6 +1069,7 @@ def main() -> int:
     grid_sensitivity_audit = read_json(Path(args.grid_sensitivity_audit).resolve() if args.grid_sensitivity_audit else None)
     native_preconditions_audit = read_json(Path(args.native_preconditions_audit).resolve() if args.native_preconditions_audit else None)
     native_citylbm_parity_audit = read_json(Path(args.native_citylbm_parity_audit).resolve() if args.native_citylbm_parity_audit else None)
+    native_citylbm_accuracy_delta_audit = read_json(Path(args.native_citylbm_accuracy_delta_audit).resolve() if args.native_citylbm_accuracy_delta_audit else None)
 
     probe_rows = read_csv(probe_path)
     official_rows = filter_official(read_csv(official_path), args.case, args.wind_direction)
@@ -2151,6 +2165,40 @@ def main() -> int:
             )
             if isinstance(native_citylbm_parity_audit.get("missing_critical_fields"), list)
             else str(native_citylbm_parity_audit.get("missing_critical_fields", "")),
+            "native_citylbm_accuracy_delta_audit": str(Path(args.native_citylbm_accuracy_delta_audit).resolve()) if args.native_citylbm_accuracy_delta_audit else "",
+            "native_citylbm_accuracy_delta_gate": audit_gate(
+                native_citylbm_accuracy_delta_audit, "native_citylbm_accuracy_delta_gate"
+            ),
+            "native_citylbm_accuracy_delta_gate_reasons": audit_list_field(
+                native_citylbm_accuracy_delta_audit, "native_citylbm_accuracy_delta_gate_reasons"
+            ),
+            "native_citylbm_accuracy_interpretation": audit_field(
+                native_citylbm_accuracy_delta_audit, "accuracy_interpretation"
+            ),
+            "native_citylbm_additional_error_flag": first_bool_text(
+                native_citylbm_accuracy_delta_audit.get("citylbm_additional_error_flag")
+            ),
+            "native_accuracy_gate": audit_gate(
+                native_citylbm_accuracy_delta_audit, "native_accuracy_gate"
+            ),
+            "native_accuracy_gate_reasons": audit_list_field(
+                native_citylbm_accuracy_delta_audit, "native_accuracy_gate_reasons"
+            ),
+            "native_citylbm_U_RMSE_delta": fmt(
+                audit_float(native_citylbm_accuracy_delta_audit, "U_RMSE_delta_city_minus_native")
+            ),
+            "native_citylbm_U_abs_bias_delta": fmt(
+                audit_float(native_citylbm_accuracy_delta_audit, "U_abs_bias_delta_city_minus_native")
+            ),
+            "native_citylbm_U_R2_drop": fmt(
+                audit_float(native_citylbm_accuracy_delta_audit, "U_R2_drop_native_minus_city")
+            ),
+            "native_citylbm_U_slope_abs_delta": fmt(
+                audit_float(native_citylbm_accuracy_delta_audit, "U_slope_abs_delta")
+            ),
+            "native_citylbm_U_intercept_abs_delta": fmt(
+                audit_float(native_citylbm_accuracy_delta_audit, "U_intercept_abs_delta")
+            ),
             "probe_mapping_table": str(probe_path),
             "probe_mapping_table_sha256": sha256_file(probe_path),
             "official_measurement_sha256": sha256_file(official_path),
