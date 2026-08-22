@@ -241,10 +241,11 @@ namespace CityLBM.Components.Results
             if (Directory.Exists(vtkPath))
             {
                 string[] files = Directory.GetFiles(vtkPath, "*.vtk");
-                Array.Sort(files); // 按名称排序，使时间步有序
-                vtkFiles.AddRange(files);
+                vtkFiles.AddRange(SortVtkFilesByTimeStep(files));
                 logger.FileOperation("扫描目录", vtkPath, null);
-                logger.Statistics("发现VTK文件", files.Length);
+                logger.Statistics("发现VTK文件", vtkFiles.Count);
+                if (vtkFiles.Count > 0)
+                    logger.Info($"VTK排序: {Path.GetFileName(vtkFiles.First())} -> {Path.GetFileName(vtkFiles.Last())}");
             }
             else if (File.Exists(vtkPath))
             {
@@ -659,7 +660,13 @@ namespace CityLBM.Components.Results
         private List<int> ExtractDistinctTimeSteps(IEnumerable<string> vtkFiles)
         {
             return (vtkFiles ?? Enumerable.Empty<string>())
-                .Select(ExtractTimeStepFromFilename)
+                .Select(file =>
+                {
+                    bool ok = TryExtractTimeStepFromFilename(file, out int timeStep);
+                    return new { ok, timeStep };
+                })
+                .Where(item => item.ok)
+                .Select(item => item.timeStep)
                 .Distinct()
                 .OrderBy(t => t)
                 .ToList();
@@ -770,11 +777,46 @@ namespace CityLBM.Components.Results
 
         private List<string> SelectLastNVtkFiles(List<string> vtkFiles, int count)
         {
-            return vtkFiles
-                .Select(file => new { File = file, TimeStep = ExtractTimeStepFromFilename(file) })
+            var taggedFiles = (vtkFiles ?? new List<string>())
+                .Select(file =>
+                {
+                    bool hasTimeStep = TryExtractTimeStepFromFilename(file, out int timeStep);
+                    return new { File = file, HasTimeStep = hasTimeStep, TimeStep = timeStep };
+                })
+                .ToList();
+
+            var timeResolvedFiles = taggedFiles
+                .Where(item => item.HasTimeStep)
                 .OrderBy(item => item.TimeStep)
                 .ThenBy(item => item.File)
-                .Skip(Math.Max(0, vtkFiles.Count - count))
+                .ToList();
+
+            if (timeResolvedFiles.Count > 0)
+            {
+                return timeResolvedFiles
+                    .Skip(Math.Max(0, timeResolvedFiles.Count - count))
+                    .Select(item => item.File)
+                    .ToList();
+            }
+
+            return taggedFiles
+                .OrderBy(item => item.File)
+                .Skip(Math.Max(0, taggedFiles.Count - count))
+                .Select(item => item.File)
+                .ToList();
+        }
+
+        private List<string> SortVtkFilesByTimeStep(IEnumerable<string> vtkFiles)
+        {
+            return (vtkFiles ?? Enumerable.Empty<string>())
+                .Select(file =>
+                {
+                    bool hasTimeStep = TryExtractTimeStepFromFilename(file, out int timeStep);
+                    return new { File = file, HasTimeStep = hasTimeStep, TimeStep = timeStep };
+                })
+                .OrderBy(item => !item.HasTimeStep)
+                .ThenBy(item => item.TimeStep)
+                .ThenBy(item => item.File)
                 .Select(item => item.File)
                 .ToList();
         }
@@ -1793,13 +1835,19 @@ namespace CityLBM.Components.Results
 
         private int ExtractTimeStepFromFilename(string filename)
         {
+            return TryExtractTimeStepFromFilename(filename, out int timeStep) ? timeStep : 0;
+        }
+
+        private bool TryExtractTimeStepFromFilename(string filename, out int timeStep)
+        {
             string name = Path.GetFileNameWithoutExtension(filename);
             // 支持 "u-000000500" 或 "result_500" 两种分隔符
             char[] separators = { '_', '-' };
             string[] parts = name.Split(separators);
-            if (parts.Length > 1 && int.TryParse(parts[parts.Length - 1], out int ts))
-                return ts;
-            return 0;
+            if (parts.Length > 1 && int.TryParse(parts[parts.Length - 1], out timeStep))
+                return true;
+            timeStep = 0;
+            return false;
         }
 
         private class CaseMetadataInfo

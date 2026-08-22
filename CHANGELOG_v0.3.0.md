@@ -18,6 +18,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `case_metadata.json` records wind profile, velocity scaling, k status, grid and run settings.
 - `Read VTK` reports whether metadata-driven velocity scaling was applied.
 - `Read VTK` adds `Average Last N` so validation workflows can output an explicit multi-frame time-averaged velocity field instead of a single instantaneous VTK frame.
+- `Read VTK` now sorts VTK files by parsed numeric time step instead of lexicographic filename order, preventing
+  `u-10000.vtk` style outputs from being selected before shorter time-step names during latest-frame and averaging workflows.
 - `Read VTK` now reports averaged-field stability diagnostics: mean speed, mean/max pointwise speed standard deviation,
   and mean/max relative fluctuation across the averaged VTK frames.
 - `Read VTK` now emits an explicit `time_averaging_gate` and GH warning when the selected VTK window is unaveraged,
