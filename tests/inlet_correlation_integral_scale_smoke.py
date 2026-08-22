@@ -74,6 +74,18 @@ def main() -> int:
     if target is None or abs(target - 0.6) > 1.0e-12:
         raise AssertionError(target)
 
+    tke_target, tke_count = module.tke_target_from_af_k(
+        samples,
+        [0, 1, 2],
+        (1, 1, 3),
+        (0.0, 0.0, 0.0),
+        (1.0, 1.0, 1.0),
+    )
+    if tke_count != 3:
+        raise AssertionError(tke_count)
+    if tke_target is None or abs(tke_target - 0.9) > 1.0e-12:
+        raise AssertionError(tke_target)
+
     gate, reasons, ratio = module.k_variance_gate(
         actual_variance=0.66,
         target_variance=target,
@@ -94,6 +106,28 @@ def main() -> int:
         af_csv_supplied=True,
     )
     if gate != module.FAIL or "k_variance_ratio_below_0.5" not in reasons or ratio is None:
+        raise AssertionError((gate, reasons, ratio))
+
+    gate, reasons, ratio = module.tke_gate(
+        actual_tke=0.99,
+        target_k=tke_target,
+        min_ratio=0.5,
+        max_ratio=1.5,
+        require_check=True,
+        af_csv_supplied=True,
+    )
+    if gate != module.PASS or abs(ratio - 1.1) > 1.0e-12:
+        raise AssertionError((gate, reasons, ratio))
+
+    gate, reasons, ratio = module.tke_gate(
+        actual_tke=0.2,
+        target_k=tke_target,
+        min_ratio=0.5,
+        max_ratio=1.5,
+        require_check=True,
+        af_csv_supplied=True,
+    )
+    if gate != module.FAIL or "tke_to_k_ratio_below_0.5" not in reasons or ratio is None:
         raise AssertionError((gate, reasons, ratio))
 
     print("inlet_correlation_integral_scale_smoke passed")

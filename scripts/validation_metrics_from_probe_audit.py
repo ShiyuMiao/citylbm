@@ -302,6 +302,10 @@ TEMPLATE_FIELDS = [
     "inlet_k_variance_gate",
     "inlet_streamwise_variance_target_from_k",
     "inlet_streamwise_variance_to_k_ratio",
+    "inlet_tke_gate",
+    "inlet_tke_target_from_af_k",
+    "inlet_tke_to_k_ratio",
+    "inlet_mean_turbulent_kinetic_energy_from_components",
     "inlet_temporal_finite_correlation_fraction",
     "inlet_spatial_finite_correlation_fraction",
     "inlet_correlation_frame_count",
@@ -379,6 +383,10 @@ TEMPLATE_FIELDS = [
     "native_inlet_k_variance_gate",
     "native_inlet_streamwise_variance_target_from_k",
     "native_inlet_streamwise_variance_to_k_ratio",
+    "native_inlet_tke_gate",
+    "native_inlet_tke_target_from_af_k",
+    "native_inlet_tke_to_k_ratio",
+    "native_inlet_mean_turbulent_kinetic_energy_from_components",
     "native_inlet_correlation_source_time_steps_match_runtime",
     "native_inlet_correlation_source_vtk_sha256_match_runtime",
     "native_inlet_correlation_source_step_span",
@@ -2106,6 +2114,12 @@ def main() -> int:
             "inlet_k_variance_gate": audit_gate(inlet_correlation_audit, "inlet_k_variance_gate"),
             "inlet_streamwise_variance_target_from_k": fmt(audit_float(inlet_correlation_audit, "inlet_streamwise_variance_target_from_k")),
             "inlet_streamwise_variance_to_k_ratio": fmt(audit_float(inlet_correlation_audit, "inlet_streamwise_variance_to_k_ratio")),
+            "inlet_tke_gate": audit_gate(inlet_correlation_audit, "inlet_tke_gate"),
+            "inlet_tke_target_from_af_k": fmt(audit_float(inlet_correlation_audit, "inlet_tke_target_from_af_k")),
+            "inlet_tke_to_k_ratio": fmt(audit_float(inlet_correlation_audit, "inlet_tke_to_k_ratio")),
+            "inlet_mean_turbulent_kinetic_energy_from_components": fmt(
+                audit_float(inlet_correlation_audit, "mean_turbulent_kinetic_energy_from_components")
+            ),
             "inlet_temporal_finite_correlation_fraction": fmt(audit_float(inlet_correlation_audit, "temporal_finite_correlation_fraction")),
             "inlet_spatial_finite_correlation_fraction": fmt(audit_float(inlet_correlation_audit, "spatial_finite_correlation_fraction")),
             "inlet_correlation_frame_count": fmt(audit_int(inlet_correlation_audit, "frame_count")),
@@ -2250,6 +2264,16 @@ def main() -> int:
             ),
             "native_inlet_streamwise_variance_to_k_ratio": fmt(
                 audit_float(native_preconditions_audit, "inlet_streamwise_variance_to_k_ratio")
+            ),
+            "native_inlet_tke_gate": audit_gate(native_preconditions_audit, "inlet_tke_gate"),
+            "native_inlet_tke_target_from_af_k": fmt(
+                audit_float(native_preconditions_audit, "inlet_tke_target_from_af_k")
+            ),
+            "native_inlet_tke_to_k_ratio": fmt(
+                audit_float(native_preconditions_audit, "inlet_tke_to_k_ratio")
+            ),
+            "native_inlet_mean_turbulent_kinetic_energy_from_components": fmt(
+                audit_float(native_preconditions_audit, "inlet_mean_turbulent_kinetic_energy_from_components")
             ),
             "native_inlet_correlation_source_time_steps_match_runtime": first_bool_text(
                 native_preconditions_audit.get("inlet_correlation_source_time_steps_match_runtime")
