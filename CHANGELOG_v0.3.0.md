@@ -113,6 +113,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `audit_native_preconditions.py` and the metrics CSV now report the top blocking diagnostic priority and next action,
   so a failing Case A/E package points first to inlet U/k turbulence evidence, then boundary evidence, time averaging,
   coordinate/component/Uref closure and residual systematic bias.
+- `validation_gate.py` now propagates the native-preconditions top blocker into the final `diagnostic_priority`, so the
+  final gate report preserves the same first-action diagnosis instead of only reporting a generic native-baseline
+  failure.
 - `audit_boundary_protocol.py`, the metrics template and `validation_gate.py` now require independent support booleans
   for inlet, outlet, lateral, top, ground-wall treatment, roughness treatment, floor roughness source, blockage source,
   fetch/clearance source, outlet-reflection check and side/top-boundary check. A text-filled evidence JSON with values

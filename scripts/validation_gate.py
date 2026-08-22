@@ -518,13 +518,35 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
             or native_preconditions_full_gate.get("status") != PASS
             else native_gate
         )
+        native_top_key = str(get_any(metrics, ["native_top_blocking_priority_key"]) or "").strip()
+        native_top_diagnosis = str(
+            get_any(metrics, ["native_top_blocking_priority_diagnosis"]) or ""
+        ).strip()
+        native_top_action = str(
+            get_any(metrics, ["native_top_blocking_priority_next_action"]) or ""
+        ).strip()
+        native_top_reason_text = str(
+            get_any(metrics, ["native_top_blocking_priority_reasons"]) or ""
+        ).strip()
+        native_reason = (
+            f"Native FluidX3D preconditions report top blocker '{native_top_key}': "
+            f"{native_top_diagnosis or 'no diagnosis text'}"
+            + (f" Reasons: {native_top_reason_text}." if native_top_reason_text else "")
+            if native_top_key
+            else "CityLBM accuracy cannot be separated from native FluidX3D/protocol error without a paired native baseline."
+        )
+        native_action = (
+            native_top_action
+            if native_top_action
+            else "Run native FluidX3D with the same setup, grid, averaging and probes, and archive full inlet, boundary, probe and component-normalization precondition evidence before changing CityLBM."
+        )
         add_priority(
             priorities,
             5,
             "native_fluidx3d_baseline",
             native_priority_gate,
-            "CityLBM accuracy cannot be separated from native FluidX3D/protocol error without a paired native baseline.",
-            "Run native FluidX3D with the same setup, grid, averaging and probes, and archive full inlet, boundary, probe and component-normalization precondition evidence before changing CityLBM.",
+            native_reason,
+            native_action,
         )
 
     parity_gate = by_key.get("native_citylbm_parity")
@@ -3869,6 +3891,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_preconditions_time_gate = str(
         get_any(native_preconditions_audit, ["native_preconditions_time_average_gate"]) or ""
     ).strip().lower()
+    native_top_blocking_priority_key = str(
+        get_any(native_preconditions_audit, ["native_top_blocking_priority_key"]) or ""
+    ).strip()
+    native_top_blocking_priority_diagnosis = str(
+        get_any(native_preconditions_audit, ["native_top_blocking_priority_diagnosis"]) or ""
+    ).strip()
+    native_top_blocking_priority_next_action = str(
+        get_any(native_preconditions_audit, ["native_top_blocking_priority_next_action"]) or ""
+    ).strip()
     native_preconditions_inlet_source_gate = str(
         get_any(native_preconditions_audit, ["inlet_source_gate"]) or ""
     ).strip().lower()
@@ -4053,6 +4084,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_preconditions_gate={native_preconditions_gate or 'missing'}; "
             f"native_preconditions_protocol_identity_gate={native_preconditions_protocol_gate or 'missing'}; "
             f"native_preconditions_time_average_gate={native_preconditions_time_gate or 'missing'}; "
+            f"native_top_blocking_priority_key={native_top_blocking_priority_key or 'missing'}; "
+            f"native_top_blocking_priority_diagnosis={native_top_blocking_priority_diagnosis or 'missing'}; "
+            f"native_top_blocking_priority_next_action={native_top_blocking_priority_next_action or 'missing'}; "
             f"native_preconditions_full_evidence_ok={native_preconditions_full_evidence_ok}; "
             f"native_preconditions_inlet_source_gate={native_preconditions_inlet_source_gate or 'missing'}; "
             f"native_preconditions_paper_grade_inlet_source_gate={native_preconditions_paper_inlet_gate or 'missing'}; "
