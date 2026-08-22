@@ -369,6 +369,14 @@ TEMPLATE_FIELDS = [
     "native_top_blocking_priority_reasons",
     "native_top_blocking_priority_diagnosis",
     "native_top_blocking_priority_next_action",
+    "native_precondition_closure_gate",
+    "native_precondition_closed_stage_count",
+    "native_precondition_failed_stage_count",
+    "native_precondition_failed_stage_keys",
+    "native_precondition_top_blocking_stage_key",
+    "native_precondition_top_blocking_stage_rank",
+    "native_precondition_top_blocking_stage_reason_count",
+    "native_precondition_top_blocking_stage_reasons",
     "native_preconditions_manifest_sha256",
     "native_preconditions_setup_sha256",
     "native_preconditions_metadata_sha256",
@@ -2124,6 +2132,30 @@ def main() -> int:
             ),
             "native_top_blocking_priority_next_action": audit_field(
                 native_preconditions_audit, "native_top_blocking_priority_next_action"
+            ),
+            "native_precondition_closure_gate": audit_gate(
+                native_preconditions_audit, "native_precondition_closure_gate"
+            ),
+            "native_precondition_closed_stage_count": audit_field(
+                native_preconditions_audit, "native_precondition_closed_stage_count"
+            ),
+            "native_precondition_failed_stage_count": audit_field(
+                native_preconditions_audit, "native_precondition_failed_stage_count"
+            ),
+            "native_precondition_failed_stage_keys": audit_list_field(
+                native_preconditions_audit, "native_precondition_failed_stage_keys"
+            ),
+            "native_precondition_top_blocking_stage_key": audit_field(
+                native_preconditions_audit, "native_precondition_top_blocking_stage_key"
+            ),
+            "native_precondition_top_blocking_stage_rank": audit_field(
+                native_preconditions_audit, "native_precondition_top_blocking_stage_rank"
+            ),
+            "native_precondition_top_blocking_stage_reason_count": audit_field(
+                native_preconditions_audit, "native_precondition_top_blocking_stage_reason_count"
+            ),
+            "native_precondition_top_blocking_stage_reasons": audit_list_field(
+                native_preconditions_audit, "native_precondition_top_blocking_stage_reasons"
             ),
             "native_preconditions_manifest_sha256": audit_field(
                 native_preconditions_audit, "native_preconditions_manifest_sha256"

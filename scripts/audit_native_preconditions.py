@@ -236,6 +236,137 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
     return priorities
 
 
+def build_native_precondition_closure(reasons: List[str]) -> Dict[str, Any]:
+    reason_set = set(reasons)
+    stage_specs = [
+        (
+            0,
+            "validation_protocol_content",
+            [
+                "validation_protocol",
+                "protocol_item",
+                "protocol_audit",
+            ],
+            "Complete validation protocol audit.",
+        ),
+        (
+            1,
+            "turbulent_inlet_method_and_u_k_preservation",
+            [
+                "inlet",
+                "custom_profile",
+                "profile_k",
+                "profile_u",
+                "af_csv",
+                "paper_grade_inlet_source",
+                "distribution_consistent",
+                "velocity_field_only",
+                "uncorrelated",
+                "random",
+                "rms",
+                "method_class",
+                "correlation",
+            ],
+            "Prove AF U(z)/k(z), correlated turbulent inlet and distribution-consistent inlet treatment.",
+        ),
+        (
+            2,
+            "boundary_roughness_blockage",
+            [
+                "boundary",
+                "roughness",
+                "blockage",
+                "clearance",
+                "fetch",
+                "outlet_reflection",
+                "side_top",
+                "ground_wall",
+            ],
+            "Prove AIJ-equivalent boundary, floor roughness, fetch, clearance and blockage treatment.",
+        ),
+        (
+            3,
+            "time_averaging_stationarity",
+            [
+                "runtime",
+                "time",
+                "step_span",
+                "step_spacing",
+                "average",
+                "vtk_hash",
+                "fresh",
+                "source_step",
+            ],
+            "Prove fresh final-window VTK hashes, frame count, uniform spacing and solver-step span.",
+        ),
+        (
+            4,
+            "coordinate_component_normalization",
+            [
+                "probe",
+                "component",
+                "normalization",
+                "wind_vector",
+                "uref",
+                "official",
+                "coordinate",
+                "compared",
+            ],
+            "Prove RS probe IDs/coordinates, wind sign, compared component and Uref normalization.",
+        ),
+        (
+            5,
+            "grid_resolution_and_systematic_bias",
+            [
+                "grid",
+                "resolution",
+                "dx",
+                "systematic",
+                "bias",
+                "r2",
+                "slope",
+                "intercept",
+                "underprediction",
+                "overprediction",
+            ],
+            "Only interpret grid sensitivity and systematic bias after protocol stages 0-4 are closed.",
+        ),
+    ]
+    stages: List[Dict[str, Any]] = []
+    for rank, key, tokens, required_evidence in stage_specs:
+        stage_reasons = sorted(
+            reason for reason in reason_set if any(token in reason for token in tokens)
+        )
+        stages.append(
+            {
+                "rank": rank,
+                "key": key,
+                "status": "pass" if not stage_reasons else "fail",
+                "reason_count": len(stage_reasons),
+                "reasons": stage_reasons,
+                "required_evidence": required_evidence,
+            }
+        )
+    failed_stages = [stage for stage in stages if stage["status"] != "pass"]
+    top_stage = failed_stages[0] if failed_stages else {}
+    return {
+        "gate": "pass" if not failed_stages else "fail",
+        "stage_count": len(stages),
+        "closed_stage_count": len(stages) - len(failed_stages),
+        "failed_stage_count": len(failed_stages),
+        "failed_stage_keys": [stage["key"] for stage in failed_stages],
+        "failed_stage_keys_csv": ";".join(stage["key"] for stage in failed_stages),
+        "top_blocking_stage_key": top_stage.get("key", ""),
+        "top_blocking_stage_rank": top_stage.get("rank"),
+        "top_blocking_stage_reason_count": top_stage.get("reason_count"),
+        "top_blocking_stage_reasons": top_stage.get("reasons", []),
+        "top_blocking_stage_reasons_csv": ";".join(
+            str(reason) for reason in top_stage.get("reasons", [])
+        ),
+        "stages": stages,
+    }
+
+
 def read_json(path: Optional[Path]) -> Dict[str, Any]:
     if not path or not path.exists():
         return {}
@@ -1534,6 +1665,7 @@ def main() -> int:
 
     native_diagnostic_priority = build_native_diagnostic_priority(reasons)
     native_top_priority = native_diagnostic_priority[0] if native_diagnostic_priority else {}
+    native_precondition_closure = build_native_precondition_closure(reasons)
 
     result = {
         "generated_at_utc": utc_now(),
@@ -1752,6 +1884,17 @@ def main() -> int:
         "native_preconditions_gate": "pass" if not reasons else "fail",
         "native_preconditions_gate_reasons": reasons,
         "native_preconditions_gate_reasons_csv": ";".join(reasons),
+        "native_precondition_closure_gate": native_precondition_closure["gate"],
+        "native_precondition_closed_stage_count": native_precondition_closure["closed_stage_count"],
+        "native_precondition_failed_stage_count": native_precondition_closure["failed_stage_count"],
+        "native_precondition_failed_stage_keys": native_precondition_closure["failed_stage_keys"],
+        "native_precondition_failed_stage_keys_csv": native_precondition_closure["failed_stage_keys_csv"],
+        "native_precondition_top_blocking_stage_key": native_precondition_closure["top_blocking_stage_key"],
+        "native_precondition_top_blocking_stage_rank": native_precondition_closure["top_blocking_stage_rank"],
+        "native_precondition_top_blocking_stage_reason_count": native_precondition_closure["top_blocking_stage_reason_count"],
+        "native_precondition_top_blocking_stage_reasons": native_precondition_closure["top_blocking_stage_reasons"],
+        "native_precondition_top_blocking_stage_reasons_csv": native_precondition_closure["top_blocking_stage_reasons_csv"],
+        "native_precondition_closure": native_precondition_closure["stages"],
         "native_top_blocking_priority_rank": native_top_priority.get("rank"),
         "native_top_blocking_priority_key": native_top_priority.get("key", ""),
         "native_top_blocking_priority_reason_count": native_top_priority.get("reason_count"),

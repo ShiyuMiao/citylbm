@@ -77,6 +77,31 @@ def main() -> int:
     if "inlet_source_missing_k_driven_three_component_stg_evidence" not in top["reasons"]:
         raise AssertionError(top)
 
+    closure = module.build_native_precondition_closure(reasons)
+    expected_closure_keys = [
+        "turbulent_inlet_method_and_u_k_preservation",
+        "boundary_roughness_blockage",
+        "time_averaging_stationarity",
+        "coordinate_component_normalization",
+        "grid_resolution_and_systematic_bias",
+    ]
+    if closure["gate"] != "fail":
+        raise AssertionError(closure)
+    if closure["failed_stage_keys"] != expected_closure_keys:
+        raise AssertionError(closure["failed_stage_keys"])
+    if closure["top_blocking_stage_key"] != "turbulent_inlet_method_and_u_k_preservation":
+        raise AssertionError(closure)
+    if closure["top_blocking_stage_reason_count"] <= 0:
+        raise AssertionError(closure)
+
+    empty_closure = module.build_native_precondition_closure([])
+    if empty_closure["gate"] != "pass":
+        raise AssertionError(empty_closure)
+    if empty_closure["failed_stage_count"] != 0:
+        raise AssertionError(empty_closure)
+    if empty_closure["closed_stage_count"] != empty_closure["stage_count"]:
+        raise AssertionError(empty_closure)
+
     time_priority = next(item for item in priorities if item["key"] == "time_averaging_stationarity")
     if "runtime_average_window_frame_count_4_below_minimum_40" not in time_priority["reasons"]:
         raise AssertionError(time_priority)

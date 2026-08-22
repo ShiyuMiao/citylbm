@@ -89,6 +89,20 @@ def main() -> int:
                     "inlet_correlation_source_vtk_sha256_match_runtime": False,
                     "inlet_correlation_source_step_span": 2000,
                     "inlet_correlation_minimum_step_span": 20000,
+                    "native_precondition_closure_gate": "fail",
+                    "native_precondition_closed_stage_count": 2,
+                    "native_precondition_failed_stage_count": 4,
+                    "native_precondition_failed_stage_keys": [
+                        "turbulent_inlet_method_and_u_k_preservation",
+                        "time_averaging_stationarity",
+                    ],
+                    "native_precondition_top_blocking_stage_key": "turbulent_inlet_method_and_u_k_preservation",
+                    "native_precondition_top_blocking_stage_rank": 1,
+                    "native_precondition_top_blocking_stage_reason_count": 2,
+                    "native_precondition_top_blocking_stage_reasons": [
+                        "inlet_k_profile_gate_not_pass",
+                        "inlet_correlation_gate_not_pass",
+                    ],
                 },
                 indent=2,
             ),
@@ -135,6 +149,14 @@ def main() -> int:
         "native_inlet_correlation_source_vtk_sha256_match_runtime": "false",
         "native_inlet_correlation_source_step_span": "2000",
         "native_inlet_correlation_minimum_step_span": "20000",
+        "native_precondition_closure_gate": "fail",
+        "native_precondition_closed_stage_count": "2",
+        "native_precondition_failed_stage_count": "4",
+        "native_precondition_failed_stage_keys": "turbulent_inlet_method_and_u_k_preservation;time_averaging_stationarity",
+        "native_precondition_top_blocking_stage_key": "turbulent_inlet_method_and_u_k_preservation",
+        "native_precondition_top_blocking_stage_rank": "1",
+        "native_precondition_top_blocking_stage_reason_count": "2",
+        "native_precondition_top_blocking_stage_reasons": "inlet_k_profile_gate_not_pass;inlet_correlation_gate_not_pass",
     }
     for field, value in expected.items():
         if row.get(field) != value:

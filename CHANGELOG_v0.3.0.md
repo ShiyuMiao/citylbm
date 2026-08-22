@@ -164,6 +164,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `audit_native_preconditions.py` and the metrics CSV now report the top blocking diagnostic priority and next action,
   so a failing Case A/E package points first to inlet U/k turbulence evidence, then boundary evidence, time averaging,
   coordinate/component/Uref closure and residual systematic bias.
+- `audit_native_preconditions.py`, `validation_gate.py` and the metrics CSV now also emit a structured
+  `native_precondition_closure` stage matrix. Native FluidX3D baselines must close validation protocol content, turbulent
+  inlet U/k/correlation, boundary/roughness/blockage, final-window averaging, coordinate/component/Uref normalization and
+  residual grid/bias interpretation in order before any CityLBM accuracy claim can pass.
 - The metrics CSV now also carries native-baseline inlet-profile and inlet-correlation gates from
   `native_preconditions_audit.json`, including AF CSV hash match, U/k profile preservation, source-window/runtime hash
   matching and minimum step-span fields. A native FluidX3D row can therefore show exactly whether the AF `U/k` inlet and

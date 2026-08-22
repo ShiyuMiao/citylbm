@@ -4984,6 +4984,22 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_top_blocking_priority_next_action = str(
         get_any(native_preconditions_audit, ["native_top_blocking_priority_next_action"]) or ""
     ).strip()
+    native_precondition_closure_gate = str(
+        get_any(native_preconditions_audit, ["native_precondition_closure_gate"]) or ""
+    ).strip().lower()
+    native_precondition_failed_stage_count = as_int(
+        get_any(native_preconditions_audit, ["native_precondition_failed_stage_count"])
+    )
+    native_precondition_failed_stage_keys = str(
+        get_any(
+            native_preconditions_audit,
+            ["native_precondition_failed_stage_keys_csv", "native_precondition_failed_stage_keys"],
+        )
+        or ""
+    ).strip()
+    native_precondition_top_blocking_stage_key = str(
+        get_any(native_preconditions_audit, ["native_precondition_top_blocking_stage_key"]) or ""
+    ).strip()
     native_preconditions_inlet_source_gate = str(
         get_any(native_preconditions_audit, ["inlet_source_gate"]) or ""
     ).strip().lower()
@@ -5220,6 +5236,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and native_preconditions_component_gate == "pass"
         and native_preconditions_component_sensitivity_gate == "pass"
         and native_preconditions_normalization_scale_gate == "pass"
+        and native_precondition_closure_gate == "pass"
+        and native_precondition_failed_stage_count == 0
     )
     add_gate(
         gates,
@@ -5255,7 +5273,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"required_compared_component={required_compared_component or 'not_required'}; "
             f"component_normalization_gate={native_preconditions_component_gate or 'missing'}; "
             f"component_sensitivity_gate={native_preconditions_component_sensitivity_gate or 'missing'}; "
-            f"normalization_scale_gate={native_preconditions_normalization_scale_gate or 'missing'}"
+            f"normalization_scale_gate={native_preconditions_normalization_scale_gate or 'missing'}; "
+            f"native_precondition_closure_gate={native_precondition_closure_gate or 'missing'}; "
+            f"native_precondition_failed_stage_count={native_precondition_failed_stage_count}; "
+            f"native_precondition_failed_stage_keys={native_precondition_failed_stage_keys or 'none'}; "
+            f"native_precondition_top_blocking_stage_key={native_precondition_top_blocking_stage_key or 'missing'}"
         ),
         "Regenerate native_preconditions_audit.json after inlet-source, inlet-profile/correlation, boundary, probe and component-normalization audits all pass; legacy summary-only native preconditions are not enough for paper-grade validation.",
     )
@@ -5304,6 +5326,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_top_blocking_priority_key={native_top_blocking_priority_key or 'missing'}; "
             f"native_top_blocking_priority_diagnosis={native_top_blocking_priority_diagnosis or 'missing'}; "
             f"native_top_blocking_priority_next_action={native_top_blocking_priority_next_action or 'missing'}; "
+            f"native_precondition_closure_gate={native_precondition_closure_gate or 'missing'}; "
+            f"native_precondition_failed_stage_count={native_precondition_failed_stage_count}; "
+            f"native_precondition_failed_stage_keys={native_precondition_failed_stage_keys or 'none'}; "
+            f"native_precondition_top_blocking_stage_key={native_precondition_top_blocking_stage_key or 'missing'}; "
             f"native_preconditions_full_evidence_ok={native_preconditions_full_evidence_ok}; "
             f"native_preconditions_inlet_source_gate={native_preconditions_inlet_source_gate or 'missing'}; "
             f"native_preconditions_paper_grade_inlet_source_gate={native_preconditions_paper_inlet_gate or 'missing'}; "
