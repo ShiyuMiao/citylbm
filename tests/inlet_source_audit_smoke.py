@@ -150,6 +150,132 @@ for(uint remaining=100u; remaining>0u; ) {
         if "distribution-consistent inlet" not in stl_random_report["recommended_next_action"]:
             raise AssertionError(stl_random_report["recommended_next_action"])
 
+        dfm_metadata = root / "dfm_case_metadata.json"
+        write_text(
+            dfm_metadata,
+            json.dumps(
+                {
+                    "SyntheticTurbulentInletMethod": "digital-filter",
+                    "SyntheticTurbulentInletDistributionTreatment": "digital_filter_distribution_consistent",
+                    "PaperGradeInletMethodClass": "digital_filter_distribution_consistent",
+                    "SyntheticEddy": {"Enabled": True},
+                },
+                indent=2,
+            ),
+        )
+
+        comment_only_dfm_setup = root / "comment_only_dfm_setup.cpp"
+        comment_only_dfm_out = root / "comment_only_dfm_audit.json"
+        write_text(
+            comment_only_dfm_setup,
+            """
+// This comment claims a digital_filter / DFM / SEM inlet, but the code below
+// is only a mean-profile velocity assignment.
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+void applyMeanInletOnly() {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0];
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+""",
+        )
+        comment_dfm_code, comment_dfm_report = run_audit(
+            comment_only_dfm_setup,
+            dfm_metadata,
+            comment_only_dfm_out,
+        )
+        if comment_dfm_code == 0:
+            raise AssertionError("comment-only DFM/SEM claims unexpectedly passed")
+        if comment_dfm_report["has_digital_filter_token"]:
+            raise AssertionError(comment_dfm_report)
+        if comment_dfm_report["has_sem_token"]:
+            raise AssertionError(comment_dfm_report)
+        if comment_dfm_report["inlet_source_comment_stripped_code_audit"] is not True:
+            raise AssertionError(comment_dfm_report)
+        if "metadata_requests_turbulent_inlet_but_source_has_no_inlet_method" not in comment_dfm_report["inlet_source_gate_reasons"]:
+            raise AssertionError(comment_dfm_report["inlet_source_gate_reasons"])
+        if "source_not_distribution_consistent" not in comment_dfm_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(comment_dfm_report["paper_grade_inlet_source_gate_reasons"])
+
+        token_only_dfm_setup = root / "token_only_dfm_setup.cpp"
+        token_only_dfm_out = root / "token_only_dfm_audit.json"
+        write_text(
+            token_only_dfm_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+const int citylbm_digital_filter_mode = 1;
+void applyMeanInletOnly() {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0];
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+""",
+        )
+        token_dfm_code, token_dfm_report = run_audit(
+            token_only_dfm_setup,
+            dfm_metadata,
+            token_only_dfm_out,
+        )
+        if token_dfm_code == 0:
+            raise AssertionError("token-only digital-filter source unexpectedly passed")
+        if token_dfm_report["advanced_inlet_method_token_only"] is not True:
+            raise AssertionError(token_dfm_report)
+        if "advanced_inlet_method_tokens_without_code_evidence" not in token_dfm_report["inlet_source_gate_reasons"]:
+            raise AssertionError(token_dfm_report["inlet_source_gate_reasons"])
+        if "source_not_distribution_consistent" not in token_dfm_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(token_dfm_report["paper_grade_inlet_source_gate_reasons"])
+
+        named_dfm_setup = root / "named_dfm_setup.cpp"
+        named_dfm_out = root / "named_dfm_audit.json"
+        write_text(
+            named_dfm_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+void digital_filter_inlet(uint t_step) {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0];
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+""",
+        )
+        named_dfm_code, named_dfm_report = run_audit(
+            named_dfm_setup,
+            dfm_metadata,
+            named_dfm_out,
+        )
+        if named_dfm_code == 0:
+            raise AssertionError("named DFM without kernel/state/distribution unexpectedly passed")
+        if named_dfm_report["inlet_source_method_class"] != "named_method_without_distribution_evidence":
+            raise AssertionError(named_dfm_report["inlet_source_method_class"])
+        for expected_reason in [
+            "digital_filter_source_missing_filter_kernel",
+            "digital_filter_source_missing_spatiotemporal_filter_state",
+            "advanced_inlet_method_missing_distribution_evidence",
+        ]:
+            if expected_reason not in named_dfm_report["inlet_source_gate_reasons"]:
+                raise AssertionError(named_dfm_report["inlet_source_gate_reasons"])
+
         spectral_setup = root / "spectral_setup.cpp"
         spectral_out = root / "spectral_audit.json"
         write_text(
