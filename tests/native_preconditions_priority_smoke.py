@@ -101,6 +101,141 @@ def main() -> int:
         if expected_reason not in short_time_reasons:
             raise AssertionError((expected_reason, short_time_reasons))
 
+    passing_inlet_source = {
+        "inlet_source_gate": "pass",
+        "paper_grade_inlet_source_gate": "pass",
+        "inlet_source_distribution_consistent": True,
+        "inlet_source_velocity_field_only": False,
+        "inlet_source_comment_stripped_code_audit": True,
+        "has_uncorrelated_random_inlet": False,
+        "inlet_source_method_class": "synthetic_eddy_distribution_consistent",
+        "synthetic_inlet_correlation_model": "synthetic_eddy_distribution_consistent",
+        "has_inlet_length_scale_evidence": True,
+        "metadata_length_scale_gate": "pass",
+        "has_reynolds_stress_tensor_evidence": True,
+        "reynolds_stress_treatment": "full_tensor_or_precursor_evidence",
+        "has_three_component_velocity_write": True,
+        "has_three_component_fluctuation_evidence": True,
+        "has_k_driven_three_component_stg": True,
+        "has_mean_preserving_inlet_correction": True,
+        "has_layerwise_mean_preserving_inlet_correction": True,
+        "has_streamwise_clipping_control": True,
+        "streamwise_clipping_enabled": False,
+        "has_legacy_hardcoded_streamwise_clipping": False,
+        "inlet_source_gate_reasons": ["inlet_source_consistent_with_declared_metadata"],
+        "paper_grade_inlet_source_gate_reasons": ["source_distribution_consistent"],
+    }
+    passing_inlet_profile = {
+        "inlet_profile_gate": "PASS",
+        "inlet_u_profile_gate": "PASS",
+        "inlet_k_profile_gate": "PASS",
+        "time_averaging_gate": "PASS",
+        "frame_count": 40,
+        "source_time_steps": list(range(1000, 41000, 1000)),
+    }
+    passing_inlet_correlation = {
+        "inlet_correlation_gate": "PASS",
+        "inlet_k_variance_gate": "PASS",
+        "inlet_tke_gate": "PASS",
+        "frame_count": 40,
+        "source_time_steps": list(range(1000, 41000, 1000)),
+        "inlet_correlation_gate_reasons": ["inlet_correlation_evidence_present"],
+        "inlet_k_variance_gate_reasons": ["k_variance_matches_af_profile"],
+        "inlet_tke_gate_reasons": ["tke_matches_af_profile"],
+    }
+    passing_window_profile = {
+        "inlet_profile_source_time_steps_match_runtime": True,
+        "inlet_profile_source_vtk_sha256_match_runtime": True,
+    }
+    passing_window_correlation = {
+        "inlet_correlation_source_time_steps_match_runtime": True,
+        "inlet_correlation_source_vtk_sha256_match_runtime": True,
+    }
+    passing_inlet_reasons = module.build_inlet_equivalence_evidence_reasons(
+        inlet_source_audit=passing_inlet_source,
+        inlet_source_hash_check={"inlet_source_setup_cpp_sha256_matches_current": True},
+        inlet_profile_audit=passing_inlet_profile,
+        inlet_profile_af_hash_matches=True,
+        inlet_profile_window_check=passing_window_profile,
+        inlet_correlation_audit=passing_inlet_correlation,
+        inlet_correlation_window_check=passing_window_correlation,
+        min_avg_frames=40,
+        min_avg_step_span=20000,
+    )
+    if passing_inlet_reasons:
+        raise AssertionError(passing_inlet_reasons)
+
+    failing_inlet_source = dict(passing_inlet_source)
+    failing_inlet_source.update(
+        {
+            "paper_grade_inlet_source_gate": "fail",
+            "inlet_source_distribution_consistent": False,
+            "inlet_source_velocity_field_only": True,
+            "inlet_source_method_class": "stg_lite_correlated_velocity_field_only",
+            "synthetic_inlet_correlation_model": "spectral_taylor_projected_velocity_field_only",
+            "has_inlet_length_scale_evidence": False,
+            "metadata_length_scale_gate": "diagnostic_only_missing_official_or_precursor_length_scale",
+            "has_reynolds_stress_tensor_evidence": False,
+            "reynolds_stress_treatment": "documented_isotropic_k_only",
+            "streamwise_clipping_enabled": True,
+            "paper_grade_inlet_source_gate_reasons": [
+                "source_not_distribution_consistent",
+                "source_velocity_field_only",
+            ],
+        }
+    )
+    failing_inlet_profile = dict(passing_inlet_profile)
+    failing_inlet_profile.update({"frame_count": 4, "source_time_steps": [1000, 2000, 3000, 4000]})
+    failing_inlet_correlation = dict(passing_inlet_correlation)
+    failing_inlet_correlation.update(
+        {
+            "inlet_tke_gate": "FAIL",
+            "frame_count": 4,
+            "source_time_steps": [1000, 2000, 3000, 4000],
+            "inlet_tke_gate_reasons": ["tke_ratio_outside_tolerance"],
+        }
+    )
+    failing_inlet_reasons = module.build_inlet_equivalence_evidence_reasons(
+        inlet_source_audit=failing_inlet_source,
+        inlet_source_hash_check={"inlet_source_setup_cpp_sha256_matches_current": False},
+        inlet_profile_audit=failing_inlet_profile,
+        inlet_profile_af_hash_matches=False,
+        inlet_profile_window_check={
+            "inlet_profile_source_time_steps_match_runtime": True,
+            "inlet_profile_source_vtk_sha256_match_runtime": False,
+        },
+        inlet_correlation_audit=failing_inlet_correlation,
+        inlet_correlation_window_check={
+            "inlet_correlation_source_time_steps_match_runtime": True,
+            "inlet_correlation_source_vtk_sha256_match_runtime": False,
+        },
+        min_avg_frames=40,
+        min_avg_step_span=20000,
+    )
+    for expected_reason in [
+        "paper_grade_inlet_source_gate_not_pass:fail",
+        "inlet_source_distribution_consistent_not_true:False",
+        "inlet_source_velocity_field_only_not_false:True",
+        "inlet_source_method_class_not_paper_grade:stg_lite_correlated_velocity_field_only",
+        "inlet_source_has_inlet_length_scale_evidence_not_true:False",
+        "inlet_source_metadata_length_scale_gate_not_pass:diagnostic_only_missing_official_or_precursor_length_scale",
+        "inlet_source_has_reynolds_stress_tensor_evidence_not_true:False",
+        "inlet_source_reynolds_stress_treatment_not_full_tensor:documented_isotropic_k_only",
+        "inlet_source_streamwise_clipping_enabled_not_false:True",
+        "inlet_source_setup_cpp_sha256_matches_current_not_true:False",
+        "inlet_profile_af_csv_sha256_matches_expected_not_true",
+        "inlet_profile_frame_count_4_below_minimum_40",
+        "inlet_profile_source_step_span_3000_below_minimum_20000",
+        "inlet_profile_source_vtk_sha256_match_runtime_not_true:False",
+        "inlet_tke_gate_not_pass:fail",
+        "inlet_correlation_frame_count_4_below_minimum_40",
+        "inlet_correlation_source_step_span_3000_below_minimum_20000",
+        "inlet_correlation_source_vtk_sha256_match_runtime_not_true:False",
+        "inlet_tke_reason:tke_ratio_outside_tolerance",
+    ]:
+        if expected_reason not in failing_inlet_reasons:
+            raise AssertionError((expected_reason, failing_inlet_reasons))
+
     passing_boundary_source = {
         "boundary_source_gate": "pass",
         "paper_grade_boundary_source_gate": "pass",

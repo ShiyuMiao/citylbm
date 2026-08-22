@@ -108,6 +108,11 @@ def main() -> int:
                         "boundary_source_simplified_not_false:True;"
                         "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail"
                     ),
+                    "native_inlet_equivalence_gate": "fail",
+                    "native_inlet_equivalence_gate_reasons_csv": (
+                        "inlet_source_velocity_field_only_not_false:True;"
+                        "inlet_tke_gate_not_pass:fail"
+                    ),
                     "expected_uref_mps": 3.93,
                     "actual_uref_mps": 3.90,
                     "expected_zref_m": 15.9,
@@ -221,6 +226,11 @@ def main() -> int:
         "native_boundary_equivalence_gate_reasons": (
             "boundary_source_simplified_not_false:True;"
             "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail"
+        ),
+        "native_inlet_equivalence_gate": "fail",
+        "native_inlet_equivalence_gate_reasons": (
+            "inlet_source_velocity_field_only_not_false:True;"
+            "inlet_tke_gate_not_pass:fail"
         ),
         "native_preconditions_expected_uref_mps": "3.93",
         "native_preconditions_actual_uref_mps": "3.9",

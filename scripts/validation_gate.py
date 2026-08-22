@@ -2188,6 +2188,7 @@ def native_inlet_precondition_traceability_status(
         "inlet_profile_time_averaging_gate",
         "inlet_correlation_gate",
         "inlet_k_variance_gate",
+        "inlet_tke_gate",
     ]:
         value = str(get_any(native_preconditions_audit, [key]) or "").strip().lower()
         if value != "pass":

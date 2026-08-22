@@ -29,6 +29,7 @@ def passing_native_audit():
         "inlet_profile_time_averaging_gate": "pass",
         "inlet_correlation_gate": "pass",
         "inlet_k_variance_gate": "pass",
+        "inlet_tke_gate": "pass",
         "inlet_streamwise_variance_target_from_k": 0.42,
         "inlet_streamwise_variance_to_k_ratio": 1.0,
         "inlet_profile_af_csv_sha256_matches_expected": True,
@@ -122,6 +123,17 @@ def main() -> int:
         raise AssertionError(missing_k_failed)
     if "inlet_k_variance_gate_not_pass:missing" not in missing_k_failed["reasons"]:
         raise AssertionError(missing_k_failed["reasons"])
+
+    missing_tke = copy.deepcopy(passing_native_audit())
+    missing_tke.pop("inlet_tke_gate")
+    missing_tke_failed = module.native_inlet_precondition_traceability_status(
+        missing_tke,
+        min_avg_step_span=20000,
+    )
+    if missing_tke_failed["ok"]:
+        raise AssertionError(missing_tke_failed)
+    if "inlet_tke_gate_not_pass:missing" not in missing_tke_failed["reasons"]:
+        raise AssertionError(missing_tke_failed["reasons"])
 
     clipping_bad = copy.deepcopy(passing_native_audit())
     clipping_bad["inlet_source_streamwise_clipping_enabled"] = True

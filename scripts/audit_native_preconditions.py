@@ -905,6 +905,185 @@ def build_time_average_evidence_reasons(
     return evidence_reasons
 
 
+def build_inlet_equivalence_evidence_reasons(
+    *,
+    inlet_source_audit: Dict[str, Any],
+    inlet_source_hash_check: Dict[str, Any],
+    inlet_profile_audit: Dict[str, Any],
+    inlet_profile_af_hash_matches: bool,
+    inlet_profile_window_check: Dict[str, Any],
+    inlet_correlation_audit: Dict[str, Any],
+    inlet_correlation_window_check: Dict[str, Any],
+    min_avg_frames: int,
+    min_avg_step_span: int,
+) -> List[str]:
+    evidence_reasons: List[str] = []
+
+    source_gate = str(inlet_source_audit.get("inlet_source_gate") or "").strip().lower()
+    paper_source_gate = str(inlet_source_audit.get("paper_grade_inlet_source_gate") or "").strip().lower()
+    source_distribution_consistent = as_bool(inlet_source_audit.get("inlet_source_distribution_consistent"))
+    source_velocity_only = as_bool(inlet_source_audit.get("inlet_source_velocity_field_only"))
+    source_comment_stripped = as_bool(inlet_source_audit.get("inlet_source_comment_stripped_code_audit"))
+    source_uncorrelated_random = as_bool(inlet_source_audit.get("has_uncorrelated_random_inlet"))
+    source_method_class = str(inlet_source_audit.get("inlet_source_method_class") or "").strip()
+    source_correlation_model = str(inlet_source_audit.get("synthetic_inlet_correlation_model") or "").strip()
+    source_has_length_scale = as_bool(inlet_source_audit.get("has_inlet_length_scale_evidence"))
+    source_length_gate = str(inlet_source_audit.get("metadata_length_scale_gate") or "").strip().lower()
+    source_has_reynolds_tensor = as_bool(inlet_source_audit.get("has_reynolds_stress_tensor_evidence"))
+    source_reynolds_treatment = str(inlet_source_audit.get("reynolds_stress_treatment") or "").strip()
+    source_has_three_component_write = as_bool(inlet_source_audit.get("has_three_component_velocity_write"))
+    source_has_three_component_fluctuation = as_bool(
+        inlet_source_audit.get("has_three_component_fluctuation_evidence")
+    )
+    source_has_k_driven_stg = as_bool(inlet_source_audit.get("has_k_driven_three_component_stg"))
+    source_has_mean_correction = as_bool(inlet_source_audit.get("has_mean_preserving_inlet_correction"))
+    source_has_layer_correction = as_bool(inlet_source_audit.get("has_layerwise_mean_preserving_inlet_correction"))
+    source_has_streamwise_clipping_control = as_bool(inlet_source_audit.get("has_streamwise_clipping_control"))
+    source_streamwise_clipping_enabled = as_bool(inlet_source_audit.get("streamwise_clipping_enabled"))
+    source_has_legacy_clipping = as_bool(inlet_source_audit.get("has_legacy_hardcoded_streamwise_clipping"))
+    source_hash_matches = as_bool(inlet_source_hash_check.get("inlet_source_setup_cpp_sha256_matches_current"))
+    source_reasons = split_scalar_list(inlet_source_audit.get("inlet_source_gate_reasons"))
+    paper_source_reasons = split_scalar_list(inlet_source_audit.get("paper_grade_inlet_source_gate_reasons"))
+    if not inlet_source_audit:
+        evidence_reasons.append("inlet_source_audit_missing")
+    if source_gate != "pass":
+        evidence_reasons.append(f"inlet_source_gate_not_pass:{source_gate or 'missing'}")
+    if paper_source_gate != "pass":
+        evidence_reasons.append(f"paper_grade_inlet_source_gate_not_pass:{paper_source_gate or 'missing'}")
+    if source_distribution_consistent is not True:
+        evidence_reasons.append(f"inlet_source_distribution_consistent_not_true:{source_distribution_consistent}")
+    if source_velocity_only is not False:
+        evidence_reasons.append(f"inlet_source_velocity_field_only_not_false:{source_velocity_only}")
+    if source_comment_stripped is not True:
+        evidence_reasons.append(f"inlet_source_comment_stripped_code_audit_not_true:{source_comment_stripped}")
+    if source_uncorrelated_random is not False:
+        evidence_reasons.append(f"inlet_source_has_uncorrelated_random_inlet_not_false:{source_uncorrelated_random}")
+    if source_correlation_model in {"uncorrelated_random_rms_velocity_field_only", "velocity_field_only_without_correlation_evidence"}:
+        evidence_reasons.append(f"inlet_synthetic_correlation_model_not_paper_grade:{source_correlation_model}")
+    if source_method_class in {
+        "stg_lite_velocity_field_only",
+        "stg_lite_correlated_velocity_field_only",
+        "mean_profile_velocity_field_only",
+        "named_method_without_distribution_evidence",
+        "named_method_without_precursor_recycling_field_evidence",
+        "precursor_or_recycling_velocity_field_only",
+    }:
+        evidence_reasons.append(f"inlet_source_method_class_not_paper_grade:{source_method_class}")
+    if source_has_length_scale is not True:
+        evidence_reasons.append(f"inlet_source_has_inlet_length_scale_evidence_not_true:{source_has_length_scale}")
+    if source_length_gate != "pass":
+        evidence_reasons.append(f"inlet_source_metadata_length_scale_gate_not_pass:{source_length_gate or 'missing'}")
+    if source_has_reynolds_tensor is not True:
+        evidence_reasons.append(f"inlet_source_has_reynolds_stress_tensor_evidence_not_true:{source_has_reynolds_tensor}")
+    if source_reynolds_treatment != "full_tensor_or_precursor_evidence":
+        evidence_reasons.append(f"inlet_source_reynolds_stress_treatment_not_full_tensor:{source_reynolds_treatment or 'missing'}")
+    for key, value in [
+        ("inlet_source_has_three_component_velocity_write", source_has_three_component_write),
+        ("inlet_source_has_three_component_fluctuation_evidence", source_has_three_component_fluctuation),
+        ("inlet_source_has_k_driven_three_component_stg", source_has_k_driven_stg),
+        ("inlet_source_has_mean_preserving_inlet_correction", source_has_mean_correction),
+        ("inlet_source_has_layerwise_mean_preserving_inlet_correction", source_has_layer_correction),
+        ("inlet_source_has_streamwise_clipping_control", source_has_streamwise_clipping_control),
+    ]:
+        if value is not True:
+            evidence_reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+    if source_streamwise_clipping_enabled is not False:
+        evidence_reasons.append(f"inlet_source_streamwise_clipping_enabled_not_false:{source_streamwise_clipping_enabled}")
+    if source_has_legacy_clipping is not False:
+        evidence_reasons.append(f"inlet_source_has_legacy_hardcoded_streamwise_clipping_not_false:{source_has_legacy_clipping}")
+    if source_hash_matches is not True:
+        evidence_reasons.append(f"inlet_source_setup_cpp_sha256_matches_current_not_true:{source_hash_matches}")
+    for reason in source_reasons:
+        if reason != "inlet_source_consistent_with_declared_metadata":
+            evidence_reasons.append(f"inlet_source_reason:{reason}")
+    for reason in paper_source_reasons:
+        if reason != "source_distribution_consistent":
+            evidence_reasons.append(f"paper_grade_inlet_source_reason:{reason}")
+
+    profile_gate = str(inlet_profile_audit.get("inlet_profile_gate") or "").strip().upper()
+    u_profile_gate = str(inlet_profile_audit.get("inlet_u_profile_gate") or "").strip().upper()
+    k_profile_gate = str(inlet_profile_audit.get("inlet_k_profile_gate") or "").strip().upper()
+    profile_time_gate = str(inlet_profile_audit.get("time_averaging_gate") or "").strip().upper()
+    profile_frame_count = as_int(inlet_profile_audit.get("frame_count"))
+    profile_step_span = source_step_span_from_steps(audit_source_steps(inlet_profile_audit))
+    if profile_step_span is None:
+        profile_step_span = as_int(inlet_profile_audit.get("source_step_span"))
+    if not inlet_profile_audit:
+        evidence_reasons.append("inlet_profile_audit_missing")
+    for key, value in [
+        ("inlet_profile_gate", profile_gate),
+        ("inlet_u_profile_gate", u_profile_gate),
+        ("inlet_k_profile_gate", k_profile_gate),
+        ("inlet_profile_time_averaging_gate", profile_time_gate),
+    ]:
+        if value != "PASS":
+            evidence_reasons.append(f"{key}_not_pass:{value.lower() or 'missing'}")
+    if not inlet_profile_af_hash_matches:
+        evidence_reasons.append("inlet_profile_af_csv_sha256_matches_expected_not_true")
+    if profile_frame_count is None or profile_frame_count < min_avg_frames:
+        evidence_reasons.append(
+            count_below_minimum_reason("inlet_profile_frame_count", profile_frame_count, min_avg_frames)
+            or "inlet_profile_frame_count_below_minimum"
+        )
+    if profile_step_span is None or profile_step_span < min_avg_step_span:
+        evidence_reasons.append(
+            count_below_minimum_reason("inlet_profile_source_step_span", profile_step_span, min_avg_step_span)
+            or "inlet_profile_source_step_span_below_minimum"
+        )
+    for key in [
+        "inlet_profile_source_time_steps_match_runtime",
+        "inlet_profile_source_vtk_sha256_match_runtime",
+    ]:
+        value = as_bool(inlet_profile_window_check.get(key))
+        if value is not True:
+            evidence_reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+
+    correlation_gate = str(inlet_correlation_audit.get("inlet_correlation_gate") or "").strip().upper()
+    k_variance_gate = str(inlet_correlation_audit.get("inlet_k_variance_gate") or "").strip().upper()
+    tke_gate = str(inlet_correlation_audit.get("inlet_tke_gate") or "").strip().upper()
+    correlation_frame_count = as_int(inlet_correlation_audit.get("frame_count"))
+    correlation_step_span = source_step_span_from_steps(audit_source_steps(inlet_correlation_audit))
+    if correlation_step_span is None:
+        correlation_step_span = as_int(inlet_correlation_audit.get("source_step_span"))
+    if not inlet_correlation_audit:
+        evidence_reasons.append("inlet_correlation_audit_missing")
+    for key, value in [
+        ("inlet_correlation_gate", correlation_gate),
+        ("inlet_k_variance_gate", k_variance_gate),
+        ("inlet_tke_gate", tke_gate),
+    ]:
+        if value != "PASS":
+            evidence_reasons.append(f"{key}_not_pass:{value.lower() or 'missing'}")
+    if correlation_frame_count is None or correlation_frame_count < min_avg_frames:
+        evidence_reasons.append(
+            count_below_minimum_reason("inlet_correlation_frame_count", correlation_frame_count, min_avg_frames)
+            or "inlet_correlation_frame_count_below_minimum"
+        )
+    if correlation_step_span is None or correlation_step_span < min_avg_step_span:
+        evidence_reasons.append(
+            count_below_minimum_reason("inlet_correlation_source_step_span", correlation_step_span, min_avg_step_span)
+            or "inlet_correlation_source_step_span_below_minimum"
+        )
+    for key in [
+        "inlet_correlation_source_time_steps_match_runtime",
+        "inlet_correlation_source_vtk_sha256_match_runtime",
+    ]:
+        value = as_bool(inlet_correlation_window_check.get(key))
+        if value is not True:
+            evidence_reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+    for reason in split_scalar_list(inlet_correlation_audit.get("inlet_correlation_gate_reasons")):
+        if reason != "inlet_correlation_evidence_present":
+            evidence_reasons.append(f"inlet_correlation_reason:{reason}")
+    for reason in split_scalar_list(inlet_correlation_audit.get("inlet_k_variance_gate_reasons")):
+        if reason != "k_variance_matches_af_profile":
+            evidence_reasons.append(f"inlet_k_variance_reason:{reason}")
+    for reason in split_scalar_list(inlet_correlation_audit.get("inlet_tke_gate_reasons")):
+        if reason != "tke_matches_af_profile":
+            evidence_reasons.append(f"inlet_tke_reason:{reason}")
+
+    return evidence_reasons
+
+
 def build_boundary_equivalence_evidence_reasons(
     *,
     boundary_source_audit: Dict[str, Any],
@@ -1758,6 +1937,21 @@ def main() -> int:
         runtime_hashes,
     )
 
+    native_inlet_equivalence_reasons = build_inlet_equivalence_evidence_reasons(
+        inlet_source_audit=inlet_source_audit,
+        inlet_source_hash_check=inlet_source_hash_check,
+        inlet_profile_audit=inlet_profile_audit,
+        inlet_profile_af_hash_matches=inlet_profile_af_hash_matches,
+        inlet_profile_window_check=inlet_profile_window_check,
+        inlet_correlation_audit=inlet_correlation_audit,
+        inlet_correlation_window_check=inlet_correlation_window_check,
+        min_avg_frames=args.min_avg_frames,
+        min_avg_step_span=args.min_avg_step_span,
+    )
+    native_inlet_equivalence_gate = "pass" if not native_inlet_equivalence_reasons else "fail"
+    if native_inlet_equivalence_gate != "pass":
+        reasons.append("native_inlet_equivalence_gate_not_pass")
+
     boundary_source_gate = str(boundary_source_audit.get("boundary_source_gate") or "").strip().lower()
     paper_boundary_source_gate = str(boundary_source_audit.get("paper_grade_boundary_source_gate") or "").strip().lower()
     boundary_source_equivalent = as_bool(boundary_source_audit.get("boundary_source_wind_tunnel_equivalent"))
@@ -2326,6 +2520,9 @@ def main() -> int:
         "component_sensitivity_hash_traceability_gate": component_hash_traceability["gate"],
         "component_sensitivity_hash_traceability_gate_reasons": component_hash_traceability["reasons"],
         "component_sensitivity_hash_traceability_gate_reasons_csv": component_hash_traceability["reasons_csv"],
+        "native_inlet_equivalence_gate": native_inlet_equivalence_gate,
+        "native_inlet_equivalence_gate_reasons": native_inlet_equivalence_reasons,
+        "native_inlet_equivalence_gate_reasons_csv": ";".join(native_inlet_equivalence_reasons),
         "inlet_source_gate": inlet_source_gate,
         "paper_grade_inlet_source_gate": paper_inlet_source_gate,
         "inlet_source_distribution_consistent": inlet_distribution_consistent,

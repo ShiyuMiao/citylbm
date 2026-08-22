@@ -370,6 +370,8 @@ TEMPLATE_FIELDS = [
     "native_component_sensitivity_official_sha256",
     "native_preconditions_probe_audit_sha256",
     "native_preconditions_official_measurement_sha256",
+    "native_inlet_equivalence_gate",
+    "native_inlet_equivalence_gate_reasons",
     "native_inlet_profile_audit",
     "native_inlet_profile_gate",
     "native_inlet_u_profile_gate",
@@ -2243,6 +2245,12 @@ def main() -> int:
             ),
             "native_preconditions_official_measurement_sha256": audit_field(
                 native_preconditions_audit, "official_measurement_sha256"
+            ),
+            "native_inlet_equivalence_gate": audit_gate(
+                native_preconditions_audit, "native_inlet_equivalence_gate"
+            ),
+            "native_inlet_equivalence_gate_reasons": audit_field(
+                native_preconditions_audit, "native_inlet_equivalence_gate_reasons_csv"
             ),
             "native_inlet_profile_audit": audit_field(native_preconditions_audit, "inlet_profile_audit"),
             "native_inlet_profile_gate": audit_gate(native_preconditions_audit, "inlet_profile_gate"),
