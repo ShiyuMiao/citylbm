@@ -364,8 +364,8 @@ def append_setup_hash_reason(reasons: List[str], label: str, audit: Dict[str, An
     }
 
 
-def probe_unique_values(rows: List[Dict[str, str]], field: str) -> List[str]:
-    return sorted({str(row.get(field) or "").strip() for row in rows if str(row.get(field) or "").strip()})
+def probe_unique_values(rows: List[Dict[str, str]], *fields: str) -> List[str]:
+    return sorted({row_value(row, *fields) for row in rows if row_value(row, *fields)})
 
 
 def row_value(row: Dict[str, str], *fields: str) -> str:
@@ -479,7 +479,14 @@ def build_official_coordinate_lookup(
 
 
 def probe_row_failed(row: Dict[str, str]) -> bool:
-    return str(row_value(row, "failed", "Failed") or "").strip().lower() in {"true", "1", "yes", "fail"}
+    failed = as_bool(row_value(row, "failed", "Failed"))
+    out_of_tolerance = as_bool(row_value(row, "out_of_tolerance", "OutOfTolerance"))
+    status = row_value(row, "validation_status", "ValidationStatus", "status", "Status").lower()
+    return (
+        failed is True
+        or out_of_tolerance is True
+        or any(token in status for token in ["fail", "invalid", "out_of_tolerance", "out-of-tolerance"])
+    )
 
 
 def main() -> int:
@@ -872,8 +879,20 @@ def main() -> int:
             reasons.append("probe_tolerance_missing_or_disabled")
         if probe_out_of_tolerance_count:
             reasons.append("probe_out_of_tolerance")
-    probe_source_steps_values = probe_unique_values(probe_rows, "vtk_source_time_steps")
-    probe_source_hash_values = probe_unique_values(probe_rows, "vtk_source_sha256")
+    probe_source_steps_values = probe_unique_values(
+        probe_rows,
+        "vtk_source_time_steps",
+        "VtkSourceTimeSteps",
+        "source_time_steps",
+        "SourceTimeSteps",
+    )
+    probe_source_hash_values = probe_unique_values(
+        probe_rows,
+        "vtk_source_sha256",
+        "VtkSourceSha256",
+        "source_vtk_sha256",
+        "SourceVtkSha256",
+    )
     probe_source_steps = parse_int_list(probe_source_steps_values[0]) if len(probe_source_steps_values) == 1 else []
     probe_source_hashes = parse_hash_list(probe_source_hash_values[0]) if len(probe_source_hash_values) == 1 else []
     probe_source_steps_match = bool(runtime_steps) and probe_source_steps == runtime_steps

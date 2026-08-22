@@ -165,6 +165,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/audit_native_preconditions.py` now also requires one-to-one official probe coverage for the selected
   case/wind subset: missing probe IDs, duplicate probe IDs, extra probe IDs or omitted official measurement points keep
   the native baseline diagnostic instead of allowing a partial matched subset to support accuracy claims.
+- `scripts/audit_native_preconditions.py` now treats `OutOfTolerance=true` and failing/invalid validation-status fields
+  as failed probe rows, and accepts common PascalCase VTK source-window column names. Native baselines therefore cannot
+  pass by exporting a probe audit with nonstandard status or source-hash headers.
 - `scripts/validation_gate.py` now rechecks valid per-probe IDs against the current official RS/measurement table:
   every valid probe row must have a non-empty unique ID, and each ID must exist in the official table before
   coordinate/Uref/compared-component diagnostics can pass.
