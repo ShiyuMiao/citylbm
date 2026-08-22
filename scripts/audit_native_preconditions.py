@@ -1039,6 +1039,10 @@ def main() -> int:
     inlet_source_method_class = str(inlet_source_audit.get("inlet_source_method_class") or "").strip()
     inlet_correlation_model = str(inlet_source_audit.get("synthetic_inlet_correlation_model") or "").strip()
     inlet_has_uncorrelated_random = as_bool(inlet_source_audit.get("has_uncorrelated_random_inlet"))
+    inlet_uncorrelated_random_patterns = split_scalar_list(
+        inlet_source_audit.get("uncorrelated_random_inlet_patterns")
+    )
+    inlet_recommended_next_action = str(inlet_source_audit.get("recommended_next_action") or "").strip()
     inlet_has_three_component_velocity_write = as_bool(
         inlet_source_audit.get("has_three_component_velocity_write")
     )
@@ -1592,6 +1596,9 @@ def main() -> int:
         "inlet_source_method_class": inlet_source_method_class,
         "inlet_synthetic_correlation_model": inlet_correlation_model,
         "inlet_source_has_uncorrelated_random_inlet": inlet_has_uncorrelated_random,
+        "inlet_source_uncorrelated_random_patterns": inlet_uncorrelated_random_patterns,
+        "inlet_source_uncorrelated_random_patterns_csv": ";".join(inlet_uncorrelated_random_patterns),
+        "inlet_source_recommended_next_action": inlet_recommended_next_action,
         "inlet_source_stg_evidence_required": inlet_stg_evidence_required,
         "inlet_source_has_three_component_velocity_write": inlet_has_three_component_velocity_write,
         "inlet_source_has_three_component_fluctuation_evidence": inlet_has_three_component_fluctuation_evidence,

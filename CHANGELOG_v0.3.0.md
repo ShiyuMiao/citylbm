@@ -58,6 +58,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `runtime_average_window_frame_count_4_below_minimum_40` or
   `runtime_average_step_span_3000_below_minimum_20000`, so short four-frame baselines remain traceable in downstream
   metrics and diagnostic priorities.
+- Native precondition audits and validation metrics now carry the matched uncorrelated-random inlet patterns and the
+  recommended next action from `inlet_source_audit.json`, so RMS/k random velocity-field perturbations remain visible as
+  a validation blocker in final Case A/E evidence rows.
 - `case_metadata.json` records protocol-risk fields: simplified boundary-condition summary, expected VTK frame count, required averaging, and validation-readiness status.
 - `Run Simulation` no longer falls back to the legacy bundled v0.5.0 solver when no external FluidX3D path is provided; controlled validation must use an explicit external FluidX3D baseline.
 - Mode 3 now follows the same explicit FluidX3D source-path rule as Mode 1/2. The legacy bundled solver code path is

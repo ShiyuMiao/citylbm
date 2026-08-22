@@ -221,7 +221,9 @@ TEMPLATE_FIELDS = [
     "inlet_source_update_interval_run_control",
     "inlet_source_segmented_stg_run_loop",
     "inlet_source_has_uncorrelated_random_inlet",
+    "inlet_source_uncorrelated_random_patterns",
     "inlet_source_correlation_model",
+    "inlet_source_recommended_next_action",
     "synthetic_inlet_method",
     "inlet_distribution_treatment",
     "inlet_method_class",
@@ -295,6 +297,8 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_has_three_component_velocity_write",
     "native_inlet_source_has_three_component_fluctuation_evidence",
     "native_inlet_source_has_k_driven_three_component_stg",
+    "native_inlet_source_uncorrelated_random_patterns",
+    "native_inlet_source_recommended_next_action",
     "native_probe_compared_component_values",
     "native_probe_expected_compared_component",
     "native_probe_compared_component_mismatch_reason",
@@ -932,6 +936,15 @@ def audit_source_steps(audit: Dict[str, Any]) -> str:
 
 def audit_field(audit: Dict[str, Any], key: str) -> str:
     value = audit.get(key)
+    if value not in (None, ""):
+        return str(value)
+    return ""
+
+
+def audit_list_field(audit: Dict[str, Any], key: str) -> str:
+    value = audit.get(key)
+    if isinstance(value, list):
+        return ";".join(str(item) for item in value if str(item).strip())
     if value not in (None, ""):
         return str(value)
     return ""
@@ -1788,8 +1801,14 @@ def main() -> int:
             "inlet_source_has_uncorrelated_random_inlet": first_bool_text(
                 inlet_source_audit.get("has_uncorrelated_random_inlet")
             ),
+            "inlet_source_uncorrelated_random_patterns": audit_list_field(
+                inlet_source_audit, "uncorrelated_random_inlet_patterns"
+            ),
             "inlet_source_correlation_model": audit_field(
                 inlet_source_audit, "synthetic_inlet_correlation_model"
+            ),
+            "inlet_source_recommended_next_action": audit_field(
+                inlet_source_audit, "recommended_next_action"
             ),
             "synthetic_inlet_method": infer_synthetic_inlet_method(metadata),
             "inlet_distribution_treatment": infer_inlet_distribution_treatment(metadata),
@@ -1883,6 +1902,12 @@ def main() -> int:
             ),
             "native_inlet_source_has_k_driven_three_component_stg": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_k_driven_three_component_stg")
+            ),
+            "native_inlet_source_uncorrelated_random_patterns": audit_field(
+                native_preconditions_audit, "inlet_source_uncorrelated_random_patterns_csv"
+            ),
+            "native_inlet_source_recommended_next_action": audit_field(
+                native_preconditions_audit, "inlet_source_recommended_next_action"
             ),
             "native_probe_compared_component_values": audit_field(
                 native_preconditions_audit, "probe_audit_compared_components_csv"

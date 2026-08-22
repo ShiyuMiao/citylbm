@@ -98,6 +98,8 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(random_report["synthetic_inlet_correlation_model"])
         if "synthetic_inlet_uses_uncorrelated_random_rms" not in random_report["inlet_source_gate_reasons"]:
             raise AssertionError(random_report["inlet_source_gate_reasons"])
+        if "Do not describe" not in random_report["recommended_next_action"]:
+            raise AssertionError(random_report["recommended_next_action"])
         if "source_missing_reynolds_stress_tensor_evidence" not in random_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(random_report["paper_grade_inlet_source_gate_reasons"])
         if random_report["has_three_component_fluctuation_evidence"]:
@@ -145,6 +147,8 @@ for(uint remaining=100u; remaining>0u; ) {
         random_patterns = ";".join(stl_random_report["uncorrelated_random_inlet_patterns"])
         if "mt19937" not in random_patterns or "normal_distribution" not in random_patterns:
             raise AssertionError(random_patterns)
+        if "distribution-consistent inlet" not in stl_random_report["recommended_next_action"]:
+            raise AssertionError(stl_random_report["recommended_next_action"])
 
         spectral_setup = root / "spectral_setup.cpp"
         spectral_out = root / "spectral_audit.json"
