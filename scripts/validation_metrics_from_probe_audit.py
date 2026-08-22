@@ -257,6 +257,12 @@ TEMPLATE_FIELDS = [
     "native_preconditions_gate_reasons",
     "native_preconditions_protocol_identity_gate",
     "native_preconditions_time_average_gate",
+    "native_top_blocking_priority_rank",
+    "native_top_blocking_priority_key",
+    "native_top_blocking_priority_reason_count",
+    "native_top_blocking_priority_reasons",
+    "native_top_blocking_priority_diagnosis",
+    "native_top_blocking_priority_next_action",
     "native_preconditions_manifest_sha256",
     "native_preconditions_setup_sha256",
     "native_preconditions_metadata_sha256",
@@ -1688,6 +1694,24 @@ def main() -> int:
             ),
             "native_preconditions_time_average_gate": audit_gate(
                 native_preconditions_audit, "native_preconditions_time_average_gate"
+            ),
+            "native_top_blocking_priority_rank": audit_field(
+                native_preconditions_audit, "native_top_blocking_priority_rank"
+            ),
+            "native_top_blocking_priority_key": audit_field(
+                native_preconditions_audit, "native_top_blocking_priority_key"
+            ),
+            "native_top_blocking_priority_reason_count": audit_field(
+                native_preconditions_audit, "native_top_blocking_priority_reason_count"
+            ),
+            "native_top_blocking_priority_reasons": audit_field(
+                native_preconditions_audit, "native_top_blocking_priority_reasons_csv"
+            ),
+            "native_top_blocking_priority_diagnosis": audit_field(
+                native_preconditions_audit, "native_top_blocking_priority_diagnosis"
+            ),
+            "native_top_blocking_priority_next_action": audit_field(
+                native_preconditions_audit, "native_top_blocking_priority_next_action"
             ),
             "native_preconditions_manifest_sha256": audit_field(
                 native_preconditions_audit, "native_preconditions_manifest_sha256"

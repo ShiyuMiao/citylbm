@@ -1236,6 +1236,9 @@ def main() -> int:
         ]
     ) else "fail"
 
+    native_diagnostic_priority = build_native_diagnostic_priority(reasons)
+    native_top_priority = native_diagnostic_priority[0] if native_diagnostic_priority else {}
+
     result = {
         "generated_at_utc": utc_now(),
         "run_dir": str(run_dir),
@@ -1376,6 +1379,15 @@ def main() -> int:
         "native_preconditions_gate": "pass" if not reasons else "fail",
         "native_preconditions_gate_reasons": reasons,
         "native_preconditions_gate_reasons_csv": ";".join(reasons),
+        "native_top_blocking_priority_rank": native_top_priority.get("rank"),
+        "native_top_blocking_priority_key": native_top_priority.get("key", ""),
+        "native_top_blocking_priority_reason_count": native_top_priority.get("reason_count"),
+        "native_top_blocking_priority_reasons": native_top_priority.get("reasons", []),
+        "native_top_blocking_priority_reasons_csv": ";".join(
+            str(reason) for reason in native_top_priority.get("reasons", [])
+        ),
+        "native_top_blocking_priority_diagnosis": native_top_priority.get("diagnosis", ""),
+        "native_top_blocking_priority_next_action": native_top_priority.get("next_action", ""),
         "native_diagnostic_priority_order": [
             "turbulent_inlet_method_and_u_k_preservation",
             "boundary_roughness_blockage",
@@ -1383,7 +1395,7 @@ def main() -> int:
             "coordinate_component_normalization",
             "systematic_bias_after_prerequisites",
         ],
-        "native_diagnostic_priority": build_native_diagnostic_priority(reasons),
+        "native_diagnostic_priority": native_diagnostic_priority,
     }
 
     out_path = Path(args.out).expanduser().resolve()
