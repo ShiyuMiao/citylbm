@@ -103,6 +103,11 @@ def main() -> int:
                         "runtime_average_window_frame_count_4_below_minimum_40;"
                         "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
                     ),
+                    "native_boundary_equivalence_gate": "fail",
+                    "native_boundary_equivalence_gate_reasons_csv": (
+                        "boundary_source_simplified_not_false:True;"
+                        "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail"
+                    ),
                     "expected_uref_mps": 3.93,
                     "actual_uref_mps": 3.90,
                     "expected_zref_m": 15.9,
@@ -211,6 +216,11 @@ def main() -> int:
         "native_preconditions_time_average_evidence_gate_reasons": (
             "runtime_average_window_frame_count_4_below_minimum_40;"
             "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
+        ),
+        "native_boundary_equivalence_gate": "fail",
+        "native_boundary_equivalence_gate_reasons": (
+            "boundary_source_simplified_not_false:True;"
+            "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail"
         ),
         "native_preconditions_expected_uref_mps": "3.93",
         "native_preconditions_actual_uref_mps": "3.9",

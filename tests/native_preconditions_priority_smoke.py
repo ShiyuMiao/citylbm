@@ -101,6 +101,115 @@ def main() -> int:
         if expected_reason not in short_time_reasons:
             raise AssertionError((expected_reason, short_time_reasons))
 
+    passing_boundary_source = {
+        "boundary_source_gate": "pass",
+        "paper_grade_boundary_source_gate": "pass",
+        "boundary_source_wind_tunnel_equivalent": True,
+        "boundary_source_simplified": False,
+        "missing_paper_grade_source_evidence": [],
+    }
+    passing_boundary_protocol = {
+        "boundary_protocol_gate": "pass",
+        "boundary_evidence_gate": "pass",
+        "boundary_run_identity_gate": "pass",
+        "evidence_metadata_sha256_matches_current": True,
+        "boundary_evidence_files_all_hashed": True,
+        "boundary_equivalence_supported": True,
+        "boundary_evidence_class_supported": True,
+        "boundary_condition_fields_supported": True,
+        "clearance_numeric_gate": "pass",
+        "blockage_gate": "pass",
+        "boundary_protocol_gate_reasons": ["boundary_protocol_pass"],
+        "boundary_condition_support_reasons": ["all_boundary_condition_fields_supported"],
+        "clearance_numeric_gate_reasons": ["clearance_numeric_evidence_complete"],
+        "boundary_run_identity_gate_reasons": ["boundary_evidence_bound_to_current_run"],
+    }
+    for field in module.REQUIRED_BOUNDARY_SUPPORT_FIELDS:
+        passing_boundary_protocol[field] = True
+    passing_boundary_runtime = {
+        "boundary_runtime_gate": "pass",
+        "boundary_runtime_traceability_gate": "pass",
+        "boundary_runtime_profile_preservation_gate": "pass",
+        "boundary_runtime_inlet_gate": "pass",
+        "boundary_runtime_side_top_gate": "pass",
+        "boundary_runtime_side_top_normal_leakage_gate": "pass",
+        "boundary_runtime_outlet_gate": "pass",
+        "boundary_runtime_gate_reasons": ["boundary_runtime_faces_preserve_af_profile"],
+        "boundary_runtime_traceability_gate_reasons": ["boundary_runtime_window_traceable"],
+        "frame_count": 40,
+        "selected_last_window": True,
+        "source_time_steps": list(range(1000, 41000, 1000)),
+        "source_vtk_sha256": [f"{idx:064x}" for idx in range(40)],
+    }
+    passing_boundary_reasons = module.build_boundary_equivalence_evidence_reasons(
+        boundary_source_audit=passing_boundary_source,
+        boundary_source_hash_check={"boundary_source_setup_cpp_sha256_matches_current": True},
+        boundary_protocol_audit=passing_boundary_protocol,
+        boundary_runtime_audit=passing_boundary_runtime,
+        min_avg_frames=40,
+        min_avg_step_span=20000,
+    )
+    if passing_boundary_reasons:
+        raise AssertionError(passing_boundary_reasons)
+
+    failing_boundary_source = dict(passing_boundary_source)
+    failing_boundary_source.update(
+        {
+            "paper_grade_boundary_source_gate": "fail",
+            "boundary_source_wind_tunnel_equivalent": False,
+            "boundary_source_simplified": True,
+            "missing_paper_grade_source_evidence": ["floor_roughness_source"],
+        }
+    )
+    failing_boundary_protocol = dict(passing_boundary_protocol)
+    failing_boundary_protocol.update(
+        {
+            "boundary_protocol_gate": "fail",
+            "boundary_evidence_gate": "fail",
+            "evidence_metadata_sha256_matches_current": False,
+            "roughness_treatment_supported": False,
+            "clearance_numeric_gate": "fail",
+            "blockage_gate": "fail",
+            "missing_evidence_fields": ["roughness_length_m"],
+        }
+    )
+    failing_boundary_runtime = dict(passing_boundary_runtime)
+    failing_boundary_runtime.update(
+        {
+            "boundary_runtime_side_top_normal_leakage_gate": "fail",
+            "frame_count": 4,
+            "selected_last_window": False,
+            "source_time_steps": [1000, 2000, 3000, 4000],
+            "source_vtk_sha256": ["a", "b", "c", "d"],
+        }
+    )
+    failing_boundary_reasons = module.build_boundary_equivalence_evidence_reasons(
+        boundary_source_audit=failing_boundary_source,
+        boundary_source_hash_check={"boundary_source_setup_cpp_sha256_matches_current": False},
+        boundary_protocol_audit=failing_boundary_protocol,
+        boundary_runtime_audit=failing_boundary_runtime,
+        min_avg_frames=40,
+        min_avg_step_span=20000,
+    )
+    for expected_reason in [
+        "paper_grade_boundary_source_gate_not_pass:fail",
+        "boundary_source_wind_tunnel_equivalent_not_true:False",
+        "boundary_source_simplified_not_false:True",
+        "boundary_source_missing_paper_grade_evidence:floor_roughness_source",
+        "boundary_source_setup_cpp_sha256_matches_current_not_true:False",
+        "boundary_protocol_gate_not_pass:fail",
+        "boundary_evidence_metadata_sha256_matches_current_not_true:False",
+        "boundary_required_support_field_not_true:roughness_treatment_supported",
+        "boundary_clearance_numeric_gate_not_pass:fail",
+        "boundary_blockage_gate_not_pass:fail",
+        "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail",
+        "boundary_runtime_frame_count_4_below_minimum_40",
+        "boundary_runtime_source_step_span_3000_below_minimum_20000",
+        "boundary_runtime_selected_last_window_not_true:False",
+    ]:
+        if expected_reason not in failing_boundary_reasons:
+            raise AssertionError((expected_reason, failing_boundary_reasons))
+
     reasons = [
         "runtime_average_step_span_too_short",
         "runtime_average_window_frame_count_4_below_minimum_40",

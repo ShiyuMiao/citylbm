@@ -422,6 +422,8 @@ TEMPLATE_FIELDS = [
     "native_probe_out_of_tolerance_count",
     "native_probe_projection_issue_reason",
     "native_probe_component_uref_issue_reason",
+    "native_boundary_equivalence_gate",
+    "native_boundary_equivalence_gate_reasons",
     "native_boundary_protocol_gate",
     "native_boundary_evidence_gate",
     "native_boundary_run_identity_gate",
@@ -2375,6 +2377,12 @@ def main() -> int:
             ),
             "native_probe_component_uref_issue_reason": audit_field(
                 native_preconditions_audit, "probe_component_uref_issue_reason"
+            ),
+            "native_boundary_equivalence_gate": audit_gate(
+                native_preconditions_audit, "native_boundary_equivalence_gate"
+            ),
+            "native_boundary_equivalence_gate_reasons": audit_field(
+                native_preconditions_audit, "native_boundary_equivalence_gate_reasons_csv"
             ),
             "native_boundary_protocol_gate": audit_gate(native_preconditions_audit, "boundary_protocol_gate"),
             "native_boundary_evidence_gate": audit_gate(native_preconditions_audit, "boundary_evidence_gate"),

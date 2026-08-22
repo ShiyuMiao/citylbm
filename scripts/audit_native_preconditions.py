@@ -905,6 +905,201 @@ def build_time_average_evidence_reasons(
     return evidence_reasons
 
 
+def build_boundary_equivalence_evidence_reasons(
+    *,
+    boundary_source_audit: Dict[str, Any],
+    boundary_source_hash_check: Dict[str, Any],
+    boundary_protocol_audit: Dict[str, Any],
+    boundary_runtime_audit: Dict[str, Any],
+    min_avg_frames: int,
+    min_avg_step_span: int,
+) -> List[str]:
+    evidence_reasons: List[str] = []
+
+    source_gate = str(boundary_source_audit.get("boundary_source_gate") or "").strip().lower()
+    paper_source_gate = str(boundary_source_audit.get("paper_grade_boundary_source_gate") or "").strip().lower()
+    source_equivalent = as_bool(boundary_source_audit.get("boundary_source_wind_tunnel_equivalent"))
+    source_simplified = as_bool(boundary_source_audit.get("boundary_source_simplified"))
+    source_missing_paper_evidence = split_scalar_list(
+        boundary_source_audit.get("missing_paper_grade_source_evidence")
+    )
+    source_hash_matches = as_bool(boundary_source_hash_check.get("boundary_source_setup_cpp_sha256_matches_current"))
+    if not boundary_source_audit:
+        evidence_reasons.append("boundary_source_audit_missing")
+    if source_gate != "pass":
+        evidence_reasons.append(f"boundary_source_gate_not_pass:{source_gate or 'missing'}")
+    if paper_source_gate != "pass":
+        evidence_reasons.append(f"paper_grade_boundary_source_gate_not_pass:{paper_source_gate or 'missing'}")
+    if source_equivalent is not True:
+        evidence_reasons.append(f"boundary_source_wind_tunnel_equivalent_not_true:{source_equivalent}")
+    if source_simplified is not False:
+        evidence_reasons.append(f"boundary_source_simplified_not_false:{source_simplified}")
+    for field in source_missing_paper_evidence:
+        evidence_reasons.append(f"boundary_source_missing_paper_grade_evidence:{field}")
+    if source_hash_matches is not True:
+        evidence_reasons.append(f"boundary_source_setup_cpp_sha256_matches_current_not_true:{source_hash_matches}")
+
+    protocol_gate = str(boundary_protocol_audit.get("boundary_protocol_gate") or "").strip().lower()
+    evidence_gate = str(boundary_protocol_audit.get("boundary_evidence_gate") or "").strip().lower()
+    run_identity_gate = str(boundary_protocol_audit.get("boundary_run_identity_gate") or "").strip().lower()
+    metadata_hash_matches = as_bool(boundary_protocol_audit.get("evidence_metadata_sha256_matches_current"))
+    evidence_hashed = as_bool(boundary_protocol_audit.get("boundary_evidence_files_all_hashed"))
+    equivalence_supported = as_bool(boundary_protocol_audit.get("boundary_equivalence_supported"))
+    evidence_class_supported = as_bool(boundary_protocol_audit.get("boundary_evidence_class_supported"))
+    condition_fields_supported = as_bool(boundary_protocol_audit.get("boundary_condition_fields_supported"))
+    clearance_gate = str(boundary_protocol_audit.get("clearance_numeric_gate") or "").strip().lower()
+    blockage_gate = str(boundary_protocol_audit.get("blockage_gate") or "").strip().lower()
+    missing_evidence_fields = split_scalar_list(boundary_protocol_audit.get("missing_evidence_fields"))
+    unsupported_condition_fields = split_scalar_list(boundary_protocol_audit.get("unsupported_boundary_condition_fields"))
+    condition_support_reasons = split_scalar_list(boundary_protocol_audit.get("boundary_condition_support_reasons"))
+    if not unsupported_condition_fields:
+        prefix = "unsupported_boundary_condition_fields:"
+        for support_reason in condition_support_reasons:
+            if support_reason.startswith(prefix):
+                unsupported_condition_fields = split_scalar_list(support_reason[len(prefix) :])
+                break
+    clearance_reasons = split_scalar_list(boundary_protocol_audit.get("clearance_numeric_gate_reasons"))
+    protocol_reasons = split_scalar_list(boundary_protocol_audit.get("boundary_protocol_gate_reasons"))
+    run_identity_reasons = split_scalar_list(boundary_protocol_audit.get("boundary_run_identity_gate_reasons"))
+    missing_files = split_scalar_list(boundary_protocol_audit.get("boundary_evidence_files_missing"))
+    empty_files = split_scalar_list(boundary_protocol_audit.get("boundary_evidence_files_empty"))
+    unreadable_files = split_scalar_list(boundary_protocol_audit.get("boundary_evidence_files_unreadable"))
+    missing_or_false_support_fields = [
+        field for field in REQUIRED_BOUNDARY_SUPPORT_FIELDS if as_bool(boundary_protocol_audit.get(field)) is not True
+    ]
+    if not boundary_protocol_audit:
+        evidence_reasons.append("boundary_protocol_audit_missing")
+    if protocol_gate != "pass":
+        evidence_reasons.append(f"boundary_protocol_gate_not_pass:{protocol_gate or 'missing'}")
+    if evidence_gate != "pass":
+        evidence_reasons.append(f"boundary_evidence_gate_not_pass:{evidence_gate or 'missing'}")
+    if run_identity_gate != "pass":
+        evidence_reasons.append(f"boundary_run_identity_gate_not_pass:{run_identity_gate or 'missing'}")
+    if metadata_hash_matches is not True:
+        evidence_reasons.append(f"boundary_evidence_metadata_sha256_matches_current_not_true:{metadata_hash_matches}")
+    if evidence_hashed is not True:
+        evidence_reasons.append(f"boundary_evidence_files_all_hashed_not_true:{evidence_hashed}")
+    if equivalence_supported is not True:
+        evidence_reasons.append(f"boundary_equivalence_supported_not_true:{equivalence_supported}")
+    if evidence_class_supported is not True:
+        evidence_reasons.append(f"boundary_evidence_class_supported_not_true:{evidence_class_supported}")
+    if condition_fields_supported is not True:
+        evidence_reasons.append(f"boundary_condition_fields_supported_not_true:{condition_fields_supported}")
+    if clearance_gate != "pass":
+        evidence_reasons.append(f"boundary_clearance_numeric_gate_not_pass:{clearance_gate or 'missing'}")
+    if blockage_gate != "pass":
+        evidence_reasons.append(f"boundary_blockage_gate_not_pass:{blockage_gate or 'missing'}")
+    for field in missing_evidence_fields:
+        evidence_reasons.append(f"boundary_missing_evidence_field:{field}")
+    for field in unsupported_condition_fields:
+        evidence_reasons.append(f"boundary_unsupported_condition_field:{field}")
+    for field in missing_or_false_support_fields:
+        evidence_reasons.append(f"boundary_required_support_field_not_true:{field}")
+    for reason in protocol_reasons:
+        if reason != "boundary_protocol_pass":
+            evidence_reasons.append(f"boundary_protocol_reason:{reason}")
+    for reason in condition_support_reasons:
+        if reason != "all_boundary_condition_fields_supported":
+            evidence_reasons.append(f"boundary_condition_support_reason:{reason}")
+    for reason in clearance_reasons:
+        if reason != "clearance_numeric_evidence_complete":
+            evidence_reasons.append(f"boundary_clearance_reason:{reason}")
+    for reason in run_identity_reasons:
+        if reason != "boundary_evidence_bound_to_current_run":
+            evidence_reasons.append(f"boundary_run_identity_reason:{reason}")
+    for path in missing_files:
+        evidence_reasons.append(f"boundary_evidence_file_missing:{Path(path).name or 'unnamed'}")
+    for path in empty_files:
+        evidence_reasons.append(f"boundary_evidence_file_empty:{Path(path).name or 'unnamed'}")
+    for path in unreadable_files:
+        evidence_reasons.append(f"boundary_evidence_file_unreadable:{Path(path).name or 'unnamed'}")
+
+    runtime_gate = str(boundary_runtime_audit.get("boundary_runtime_gate") or "").strip().lower()
+    runtime_traceability_gate = str(
+        boundary_runtime_audit.get("boundary_runtime_traceability_gate") or ""
+    ).strip().lower()
+    runtime_profile_gate = str(
+        boundary_runtime_audit.get("boundary_runtime_profile_preservation_gate") or ""
+    ).strip().lower()
+    runtime_inlet_gate = str(boundary_runtime_audit.get("boundary_runtime_inlet_gate") or "").strip().lower()
+    runtime_side_top_gate = str(boundary_runtime_audit.get("boundary_runtime_side_top_gate") or "").strip().lower()
+    runtime_side_top_normal_gate = str(
+        boundary_runtime_audit.get("boundary_runtime_side_top_normal_leakage_gate") or ""
+    ).strip().lower()
+    runtime_outlet_gate = str(boundary_runtime_audit.get("boundary_runtime_outlet_gate") or "").strip().lower()
+    runtime_reasons = split_scalar_list(boundary_runtime_audit.get("boundary_runtime_gate_reasons"))
+    runtime_traceability_reasons = split_scalar_list(
+        boundary_runtime_audit.get("boundary_runtime_traceability_gate_reasons")
+    )
+    runtime_steps = audit_source_steps(boundary_runtime_audit)
+    runtime_hashes = audit_source_hashes(boundary_runtime_audit)
+    runtime_step_span = source_step_span_from_steps(runtime_steps)
+    runtime_reported_step_span = as_int(boundary_runtime_audit.get("source_step_span"))
+    if runtime_step_span is None:
+        runtime_step_span = runtime_reported_step_span
+    runtime_frame_count = as_int(boundary_runtime_audit.get("frame_count"))
+    runtime_selected_last_window = as_bool(boundary_runtime_audit.get("selected_last_window"))
+    runtime_steps_increasing = source_steps_strictly_increasing(runtime_steps)
+    runtime_steps_uniform = source_steps_uniformly_spaced(runtime_steps)
+    runtime_hash_count = len(runtime_hashes)
+    runtime_hash_unique_count = len(set(runtime_hashes))
+    if not boundary_runtime_audit:
+        evidence_reasons.append("boundary_runtime_audit_missing")
+    if runtime_gate != "pass":
+        evidence_reasons.append(f"boundary_runtime_gate_not_pass:{runtime_gate or 'missing'}")
+    if runtime_traceability_gate != "pass":
+        evidence_reasons.append(f"boundary_runtime_traceability_gate_not_pass:{runtime_traceability_gate or 'missing'}")
+    if runtime_profile_gate != "pass":
+        evidence_reasons.append(f"boundary_runtime_profile_preservation_gate_not_pass:{runtime_profile_gate or 'missing'}")
+    if runtime_inlet_gate != "pass":
+        evidence_reasons.append(f"boundary_runtime_inlet_gate_not_pass:{runtime_inlet_gate or 'missing'}")
+    if runtime_side_top_gate != "pass":
+        evidence_reasons.append(f"boundary_runtime_side_top_gate_not_pass:{runtime_side_top_gate or 'missing'}")
+    if runtime_side_top_normal_gate != "pass":
+        evidence_reasons.append(
+            f"boundary_runtime_side_top_normal_leakage_gate_not_pass:{runtime_side_top_normal_gate or 'missing'}"
+        )
+    if runtime_outlet_gate != "pass":
+        evidence_reasons.append(f"boundary_runtime_outlet_gate_not_pass:{runtime_outlet_gate or 'missing'}")
+    if runtime_frame_count is None or runtime_frame_count < min_avg_frames:
+        evidence_reasons.append(
+            count_below_minimum_reason("boundary_runtime_frame_count", runtime_frame_count, min_avg_frames)
+            or "boundary_runtime_frame_count_below_minimum"
+        )
+    if runtime_step_span is None or runtime_step_span < min_avg_step_span:
+        evidence_reasons.append(
+            count_below_minimum_reason("boundary_runtime_source_step_span", runtime_step_span, min_avg_step_span)
+            or "boundary_runtime_source_step_span_below_minimum"
+        )
+    if runtime_selected_last_window is not True:
+        evidence_reasons.append(f"boundary_runtime_selected_last_window_not_true:{runtime_selected_last_window}")
+    if not runtime_steps:
+        evidence_reasons.append("boundary_runtime_source_time_steps_missing")
+    elif not runtime_steps_increasing:
+        evidence_reasons.append("boundary_runtime_source_steps_not_strictly_increasing")
+    if runtime_steps and not runtime_steps_uniform:
+        evidence_reasons.append("boundary_runtime_source_step_spacing_not_uniform")
+    if not runtime_hashes:
+        evidence_reasons.append("boundary_runtime_source_vtk_hashes_missing")
+    if runtime_hash_count != len(runtime_steps):
+        evidence_reasons.append("boundary_runtime_source_vtk_hash_count_mismatch_time_steps")
+    if runtime_hash_count < min_avg_frames:
+        evidence_reasons.append(
+            count_below_minimum_reason("boundary_runtime_source_vtk_hash_count", runtime_hash_count, min_avg_frames)
+            or "boundary_runtime_source_vtk_hash_count_below_minimum"
+        )
+    if runtime_hash_unique_count != runtime_hash_count:
+        evidence_reasons.append("boundary_runtime_source_vtk_hashes_not_unique")
+    for reason in runtime_reasons:
+        if reason != "boundary_runtime_faces_preserve_af_profile":
+            evidence_reasons.append(f"boundary_runtime_reason:{reason}")
+    for reason in runtime_traceability_reasons:
+        if reason != "boundary_runtime_window_traceable":
+            evidence_reasons.append(f"boundary_runtime_traceability_reason:{reason}")
+
+    return evidence_reasons
+
+
 def append_setup_hash_reason(reasons: List[str], label: str, audit: Dict[str, Any], setup_sha: str) -> Dict[str, Any]:
     audit_sha = str(audit.get("setup_cpp_sha256") or "").strip().lower()
     match = bool(audit_sha) and bool(setup_sha) and audit_sha == setup_sha
@@ -1743,6 +1938,18 @@ def main() -> int:
             if reason != "boundary_runtime_window_traceable":
                 reasons.append(f"boundary_runtime_traceability_{reason}")
 
+    native_boundary_equivalence_reasons = build_boundary_equivalence_evidence_reasons(
+        boundary_source_audit=boundary_source_audit,
+        boundary_source_hash_check=boundary_source_hash_check,
+        boundary_protocol_audit=boundary_protocol_audit,
+        boundary_runtime_audit=boundary_runtime_audit,
+        min_avg_frames=args.min_avg_frames,
+        min_avg_step_span=args.min_avg_step_span,
+    )
+    native_boundary_equivalence_gate = "pass" if not native_boundary_equivalence_reasons else "fail"
+    if native_boundary_equivalence_gate != "pass":
+        reasons.append("native_boundary_equivalence_gate_not_pass")
+
     expected_component = str(args.expected_compared_component or "").strip()
     failed_probe_rows = [row for row in probe_rows if probe_row_failed(row)]
     valid_probe_rows = [row for row in probe_rows if not probe_row_failed(row)]
@@ -2168,6 +2375,9 @@ def main() -> int:
         "boundary_source_missing_paper_grade_source_evidence": boundary_source_missing_paper_evidence,
         "boundary_source_missing_paper_grade_source_evidence_csv": ";".join(boundary_source_missing_paper_evidence),
         **boundary_source_hash_check,
+        "native_boundary_equivalence_gate": native_boundary_equivalence_gate,
+        "native_boundary_equivalence_gate_reasons": native_boundary_equivalence_reasons,
+        "native_boundary_equivalence_gate_reasons_csv": ";".join(native_boundary_equivalence_reasons),
         "boundary_protocol_gate": boundary_protocol_gate,
         "boundary_evidence_gate": boundary_evidence_gate,
         "boundary_run_identity_gate": boundary_run_identity_gate,
