@@ -2378,6 +2378,7 @@ namespace CityLBM.Solver
             double maxFrac = Math.Max(0.05, Math.Min(0.80, settings.SyntheticTurbulenceMaxFractionOfMean));
             int updateInterval = Math.Max(1, settings.SyntheticTurbulenceUpdateInterval);
             int modeCount = Math.Max(4, Math.Min(1024, settings.SyntheticTurbulenceModeCount));
+            double[] componentNorms = ComputeSyntheticTurbulenceComponentNorms(modeCount, corr);
 
             sb.AppendLine();
             sb.AppendLine("    // CityLBM STG-lite inlet: deterministic spectral synthetic fluctuations from isotropic k.");
@@ -2391,8 +2392,10 @@ namespace CityLBM.Solver
             sb.AppendLine($"    const uint citylbm_stg_update_interval = {updateInterval}u;");
             sb.AppendLine($"    const int citylbm_stg_mode_count = {modeCount};");
             sb.AppendLine("    // Target component RMS follows isotropic k: sigma=sqrt(2k/3).");
-            sb.AppendLine("    // With unit-amplitude sin modes, sqrt(6/M) compensates 1/2 phase variance and 1/3 projected-component energy.");
-            sb.AppendLine("    const float citylbm_stg_norm = sqrtf(6.0f / (float)citylbm_stg_mode_count);");
+            sb.AppendLine("    // Per-component constants are precomputed from the deterministic projected modes so finite mode counts preserve the target RMS more closely than a single sqrt(6/M) approximation.");
+            sb.AppendLine($"    const float citylbm_stg_norm_x = {componentNorms[0].ToString("F8", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const float citylbm_stg_norm_y = {componentNorms[1].ToString("F8", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const float citylbm_stg_norm_z = {componentNorms[2].ToString("F8", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine("    auto citylbm_mode_phase = [&](int mode, int component) -> float {");
             sb.AppendLine("        return 0.17320508f * (float)((mode + 1) * (component * 13 + 7));");
             sb.AppendLine("    };");
@@ -2436,9 +2439,9 @@ namespace CityLBM.Solver
             sb.AppendLine("            fluct_y += ay * wave;");
             sb.AppendLine("            fluct_z += az * wave;");
             sb.AppendLine("        }");
-            sb.AppendLine("        fluct_x *= citylbm_stg_norm;");
-            sb.AppendLine("        fluct_y *= citylbm_stg_norm;");
-            sb.AppendLine("        fluct_z *= citylbm_stg_norm;");
+            sb.AppendLine("        fluct_x *= citylbm_stg_norm_x;");
+            sb.AppendLine("        fluct_y *= citylbm_stg_norm_y;");
+            sb.AppendLine("        fluct_z *= citylbm_stg_norm_z;");
             sb.AppendLine("        float3 u = float3(mean.x + sigma * fluct_x, mean.y + sigma * fluct_y, mean.z + sigma * fluct_z);");
             sb.AppendLine("        float streamwise = u.x*dir_x + u.y*dir_y + u.z*dir_z;");
             sb.AppendLine("        float min_streamwise = 0.05f * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
@@ -2450,6 +2453,69 @@ namespace CityLBM.Solver
             sb.AppendLine("        }");
             sb.AppendLine("        return u;");
             sb.AppendLine("    };");
+        }
+
+        private static double[] ComputeSyntheticTurbulenceComponentNorms(int modeCount, double corr)
+        {
+            int count = Math.Max(4, Math.Min(1024, modeCount));
+            double safeCorr = Math.Max(1.0, Math.Min(64.0, corr));
+            double sumX = 0.0;
+            double sumY = 0.0;
+            double sumZ = 0.0;
+
+            for (int mode = 0; mode < count; mode++)
+            {
+                double kx = SyntheticModeWave(mode, 0, safeCorr);
+                double ky = SyntheticModeWave(mode, 1, safeCorr);
+                double kz = SyntheticModeWave(mode, 2, safeCorr);
+                double ax = SyntheticModeAmplitude(mode, 0);
+                double ay = SyntheticModeAmplitude(mode, 1);
+                double az = SyntheticModeAmplitude(mode, 2);
+                double kk = kx * kx + ky * ky + kz * kz;
+                double ak = ax * kx + ay * ky + az * kz;
+                if (kk > 1.0e-12)
+                {
+                    ax -= ak * kx / kk;
+                    ay -= ak * ky / kk;
+                    az -= ak * kz / kk;
+                }
+
+                double aa = Math.Sqrt(ax * ax + ay * ay + az * az);
+                if (aa > 1.0e-6)
+                {
+                    ax /= aa;
+                    ay /= aa;
+                    az /= aa;
+                }
+
+                sumX += ax * ax;
+                sumY += ay * ay;
+                sumZ += az * az;
+            }
+
+            double fallback = Math.Sqrt(6.0 / count);
+            return new[]
+            {
+                sumX > 1.0e-12 ? Math.Sqrt(2.0 / sumX) : fallback,
+                sumY > 1.0e-12 ? Math.Sqrt(2.0 / sumY) : fallback,
+                sumZ > 1.0e-12 ? Math.Sqrt(2.0 / sumZ) : fallback
+            };
+        }
+
+        private static double SyntheticModeWave(int mode, int axis, double corr)
+        {
+            int h = ((mode + 3) * (axis * 19 + 11)) % 7 + 1;
+            double direction = ((mode + axis) % 2) == 0 ? 1.0 : -1.0;
+            return direction * h / corr;
+        }
+
+        private static double SyntheticModeAmplitude(int mode, int axis)
+        {
+            double raw = Math.Sin(0.75487767 * ((mode + 1) * (axis * 17 + 5)));
+            if (Math.Abs(raw) < 0.05)
+                return raw < 0.0 ? -0.05 : 0.05;
+
+            return raw;
         }
 
         private void AppendSyntheticTurbulentInletApplyCode(StringBuilder sb, Vector3d windDir)
@@ -2512,6 +2578,9 @@ namespace CityLBM.Solver
                     : 0;
                 int expectedPaperAverageStepSpan = ComputeExpectedFinalWindowStepSpan(settings, PaperRecommendedAveragingFrames);
                 int expectedPaperAverageStgRefreshes = ComputeExpectedFinalWindowStgRefreshCount(settings, PaperRecommendedAveragingFrames);
+                double[] syntheticComponentNorms = ComputeSyntheticTurbulenceComponentNorms(
+                    settings.SyntheticTurbulenceModeCount,
+                    settings.SyntheticTurbulenceCorrelationCells);
                 string syntheticTemporalSamplingGate = syntheticActive
                     ? (expectedPaperAverageStgRefreshes >= PaperRecommendedStgRefreshes
                         ? "pass"
@@ -2628,8 +2697,17 @@ namespace CityLBM.Solver
                         ? "per-mode fluctuation amplitudes projected normal to synthetic wave vectors"
                         : "none",
                     SyntheticTurbulentInletEnergyNormalization = syntheticActive
-                        ? "component RMS target sigma=sqrt(2k/3); spectral normalization sqrt(6/mode_count) accounts for sinusoidal variance and projected-component energy"
+                        ? "component RMS target sigma=sqrt(2k/3); per-component deterministic spectral normalization accounts for finite-mode projected-component energy"
                         : "none",
+                    SyntheticTurbulentInletComponentRmsNormalization = syntheticActive
+                        ? new
+                        {
+                            X = syntheticComponentNorms[0],
+                            Y = syntheticComponentNorms[1],
+                            Z = syntheticComponentNorms[2],
+                            Basis = "sqrt(2/sum(projected_unit_mode_component^2)); sinusoidal variance is 1/2"
+                        }
+                        : null,
                     SyntheticTurbulentInletDistributionTreatment = syntheticActive
                         ? "velocity_field_only_no_distribution_function_reconstruction; refreshed on TYPE_E inlet nodes in batch and graphics modes"
                         : "none",
@@ -3378,7 +3456,7 @@ namespace CityLBM.Solver
                 Key = "inlet_turbulence_k",
                 Status = syntheticActive ? "partial" : (hasK ? "risk" : "fail"),
                 Evidence = syntheticActive
-                    ? $"AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet with {settings.SyntheticTurbulenceModeCount} spectral modes, advect spectral phases using Taylor frozen-turbulence, refresh TYPE_E inlet nodes in batch/graphics modes and record velocity-field-only treatment."
+                    ? $"AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet with {settings.SyntheticTurbulenceModeCount} spectral modes, per-component RMS normalization from k, Taylor frozen-turbulence advection, TYPE_E inlet refreshes in batch/graphics modes and velocity-field-only treatment."
                     : (hasK ? "AF k column is present but only metadata/profile arrays are guaranteed." : "No usable k column found in CustomWindProfile."),
                 Risk = syntheticActive
                     ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and frozen-turbulence advection, uses {settings.SyntheticTurbulenceModeCount} spectral modes and correlation length {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m) with source '{lengthScaleSource}', and does not reconstruct distribution functions."

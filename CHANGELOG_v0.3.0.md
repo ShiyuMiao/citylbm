@@ -73,6 +73,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - The STG-lite inlet now uses deterministic multi-mode spectral fluctuations, avoiding the earlier sparse-eddy pattern where many inlet cells could receive near-zero perturbation.
 - STG-lite spectral modes are now projected normal to their synthetic wave vectors before summation, reducing non-physical divergent inlet fluctuations while keeping the method deterministic and auditable.
 - STG-lite temporal evolution now uses Taylor frozen-turbulence phase advection along the local mean wind instead of an arbitrary discrete phase increment, improving time correlation while remaining a diagnostic velocity-field inlet.
+- STG-lite now precomputes separate x/y/z component RMS normalization constants for its deterministic projected modes
+  and records them in `case_metadata.json`, reducing finite-mode `k -> sigma` drift compared with the earlier single
+  `sqrt(6/mode_count)` approximation.
 - Synthetic inlet runs now limit each solver advance to `SyntheticTurbulenceUpdateInterval`, so inlet perturbations refresh independently from the VTK save interval.
 - `Run Simulation`, `case_metadata.json` and `validation_protocol_audit` now track the expected number of STG-lite inlet
   refreshes inside the final averaging window. Mode 1/2/3 validation runs are blocked when STG-lite is active but the
