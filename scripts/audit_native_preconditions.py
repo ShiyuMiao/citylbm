@@ -249,6 +249,13 @@ def expected_final_window_span(time_steps: Optional[int], save_interval: Optiona
     return final[-1] - final[0]
 
 
+def source_step_span_from_steps(steps: List[int]) -> Optional[int]:
+    if len(steps) < 2:
+        return None
+    ordered = sorted(steps)
+    return ordered[-1] - ordered[0]
+
+
 def split_scalar_list(value: Any, separators: Tuple[str, ...] = (",", ";")) -> List[str]:
     if value is None:
         return []
@@ -601,13 +608,24 @@ def main() -> int:
     if runtime_avg is None or runtime_avg < args.min_avg_frames or runtime_avg != args.average_last_n:
         reasons.append("runtime_average_window_mismatch_or_too_short")
 
-    runtime_step_span = as_int(runtime_audit.get("source_step_span"))
+    runtime_steps = audit_source_steps(runtime_audit)
+    runtime_hashes = runtime_source_hashes(runtime_audit, runtime_steps)
+    runtime_step_span_reported = as_int(runtime_audit.get("source_step_span"))
+    runtime_step_span_from_steps = source_step_span_from_steps(runtime_steps)
+    runtime_step_span = runtime_step_span_from_steps if runtime_step_span_from_steps is not None else runtime_step_span_reported
     planned_span = expected_final_window_span(
         shared_steps or metadata_steps,
         shared_save_interval or metadata_save_interval,
         as_int(runtime_audit.get("requested_vtk_save_start_step")),
         args.average_last_n,
     )
+    if runtime_audit:
+        if runtime_step_span_reported is None:
+            reasons.append("runtime_source_step_span_missing")
+        if runtime_step_span_from_steps is None:
+            reasons.append("runtime_source_time_steps_span_missing")
+        elif runtime_step_span_reported is not None and runtime_step_span_reported != runtime_step_span_from_steps:
+            reasons.append("runtime_source_step_span_mismatch_time_steps")
     if runtime_step_span is None or runtime_step_span < args.min_avg_step_span:
         reasons.append("runtime_average_step_span_too_short")
     if planned_span is None or planned_span < args.min_avg_step_span:
@@ -619,8 +637,6 @@ def main() -> int:
     if time_average_gate != "pass":
         reasons.append("runtime_time_averaging_gate_not_pass")
 
-    runtime_steps = audit_source_steps(runtime_audit)
-    runtime_hashes = runtime_source_hashes(runtime_audit, runtime_steps)
     if runtime_audit:
         if not runtime_steps:
             reasons.append("runtime_source_time_steps_missing")
@@ -1000,6 +1016,13 @@ def main() -> int:
         "planned_frame_count_min": min(frame_candidates) if frame_candidates else None,
         "planned_final_window_step_span": planned_span,
         "runtime_source_step_span": runtime_step_span,
+        "runtime_reported_source_step_span": runtime_step_span_reported,
+        "runtime_source_step_span_from_time_steps": runtime_step_span_from_steps,
+        "runtime_source_step_span_matches_time_steps": (
+            runtime_step_span_reported is not None
+            and runtime_step_span_from_steps is not None
+            and runtime_step_span_reported == runtime_step_span_from_steps
+        ),
         "runtime_source_time_steps": runtime_steps,
         "runtime_source_vtk_sha256": runtime_hashes,
         "runtime_time_averaging_gate": time_gate,
