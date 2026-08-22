@@ -466,7 +466,8 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     freshness_gate = by_key.get("run_freshness")
     vtk_hash_gate = by_key.get("runtime_vtk_hash_traceability")
     time_gate = by_key.get("time_averaging")
-    time_gates = [freshness_gate, vtk_hash_gate, time_gate]
+    metrics_time_gate = by_key.get("metrics_time_averaging_consistency")
+    time_gates = [freshness_gate, vtk_hash_gate, time_gate, metrics_time_gate]
     if any(gate is None or gate.get("status") != PASS for gate in time_gates):
         time_priority_gate = next(
             (
@@ -1763,6 +1764,119 @@ def uniformly_spaced(values: List[int]) -> bool:
     return spacing > 0 and all((b - a) == spacing for a, b in zip(values, values[1:]))
 
 
+def metrics_time_averaging_consistency_status(
+    metrics: Dict[str, Any],
+    runtime_audit: Dict[str, Any],
+    min_avg_frames: int,
+    min_avg_step_span: int,
+) -> Dict[str, Any]:
+    runtime_frame_count, runtime_source_text, runtime_has_steps = source_frame_details(runtime_audit)
+    runtime_steps, runtime_steps_error = parsed_source_steps(runtime_source_text)
+    runtime_span = as_int(get_any(runtime_audit, ["source_step_span", "SourceStepSpan"]))
+    if runtime_span is None and len(runtime_steps) >= 2:
+        runtime_span = runtime_steps[-1] - runtime_steps[0]
+    runtime_available_count = as_int(get_any(runtime_audit, ["available_frame_count", "AvailableFrameCount"]))
+    runtime_min_step_span = as_int(
+        get_any(runtime_audit, ["minimum_validation_average_step_span", "MinimumValidationAverageStepSpan"])
+    )
+    runtime_time_gate = str(
+        get_any(runtime_audit, ["time_averaging_gate", "TimeAveragingGate"]) or ""
+    ).strip().lower()
+
+    metrics_frame_count, metrics_source_text, metrics_has_steps = source_frame_details(metrics)
+    metrics_steps, metrics_steps_error = parsed_source_steps(metrics_source_text)
+    metrics_averaged_count = as_int(get_any(metrics, ["averaged_frame_count", "AveragedFrameCount"]))
+    metrics_available_count = as_int(get_any(metrics, ["available_frame_count", "AvailableFrameCount"]))
+    metrics_span = as_int(get_any(metrics, ["source_step_span", "SourceStepSpan"]))
+    metrics_min_step_span = as_int(
+        get_any(metrics, ["minimum_validation_average_step_span", "MinimumValidationAverageStepSpan"])
+    )
+    metrics_time_gate = str(
+        get_any(metrics, ["time_averaging_gate", "TimeAveragingGate"]) or ""
+    ).strip().lower()
+
+    reasons: List[str] = []
+    if not runtime_has_steps:
+        reasons.append("runtime_source_time_steps_missing")
+    if runtime_steps_error:
+        reasons.append(f"runtime_source_time_steps_error:{runtime_steps_error}")
+    if runtime_time_gate != "pass":
+        reasons.append(f"runtime_time_averaging_gate_not_pass:{runtime_time_gate or 'missing'}")
+    if runtime_frame_count is None:
+        reasons.append("runtime_frame_count_missing")
+    elif runtime_frame_count < min_avg_frames:
+        reasons.append(f"runtime_frame_count_below_{min_avg_frames}")
+    if runtime_span is None:
+        reasons.append("runtime_source_step_span_missing")
+    elif runtime_span < min_avg_step_span:
+        reasons.append(f"runtime_source_step_span_below_{min_avg_step_span}")
+
+    if not metrics_has_steps:
+        reasons.append("metrics_source_time_steps_missing")
+    if metrics_steps_error:
+        reasons.append(f"metrics_source_time_steps_error:{metrics_steps_error}")
+    if metrics_time_gate != "pass":
+        reasons.append(f"metrics_time_averaging_gate_not_pass:{metrics_time_gate or 'missing'}")
+    if metrics_averaged_count is None:
+        reasons.append("metrics_averaged_frame_count_missing")
+    elif metrics_averaged_count < min_avg_frames:
+        reasons.append(f"metrics_averaged_frame_count_below_{min_avg_frames}")
+    if metrics_span is None:
+        reasons.append("metrics_source_step_span_missing")
+    elif metrics_span < min_avg_step_span:
+        reasons.append(f"metrics_source_step_span_below_{min_avg_step_span}")
+    if metrics_min_step_span is None:
+        reasons.append("metrics_minimum_validation_average_step_span_missing")
+    elif metrics_min_step_span != min_avg_step_span:
+        reasons.append("metrics_minimum_validation_average_step_span_mismatch")
+    if runtime_min_step_span is not None and metrics_min_step_span is not None and runtime_min_step_span != metrics_min_step_span:
+        reasons.append("metrics_runtime_minimum_step_span_mismatch")
+
+    if runtime_steps and metrics_steps and runtime_steps != metrics_steps:
+        reasons.append("metrics_source_time_steps_do_not_match_runtime_audit")
+    if (
+        runtime_frame_count is not None
+        and metrics_frame_count is not None
+        and metrics_frame_count != runtime_frame_count
+    ):
+        reasons.append("metrics_source_step_count_does_not_match_runtime_audit")
+    if (
+        runtime_frame_count is not None
+        and metrics_averaged_count is not None
+        and metrics_averaged_count != runtime_frame_count
+    ):
+        reasons.append("metrics_averaged_frame_count_does_not_match_runtime_audit")
+    if (
+        runtime_available_count is not None
+        and metrics_available_count is not None
+        and metrics_available_count != runtime_available_count
+    ):
+        reasons.append("metrics_available_frame_count_does_not_match_runtime_audit")
+    if runtime_available_count is not None and metrics_available_count is None:
+        reasons.append("metrics_available_frame_count_missing")
+    if runtime_span is not None and metrics_span is not None and metrics_span != runtime_span:
+        reasons.append("metrics_source_step_span_does_not_match_runtime_audit")
+
+    return {
+        "ok": not reasons,
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+        "runtime_frame_count": runtime_frame_count,
+        "runtime_available_frame_count": runtime_available_count,
+        "runtime_source_time_steps": runtime_source_text,
+        "runtime_source_step_span": runtime_span,
+        "runtime_minimum_step_span": runtime_min_step_span,
+        "runtime_time_averaging_gate": runtime_time_gate,
+        "metrics_frame_count": metrics_frame_count,
+        "metrics_averaged_frame_count": metrics_averaged_count,
+        "metrics_available_frame_count": metrics_available_count,
+        "metrics_source_time_steps": metrics_source_text,
+        "metrics_source_step_span": metrics_span,
+        "metrics_minimum_step_span": metrics_min_step_span,
+        "metrics_time_averaging_gate": metrics_time_gate,
+    }
+
+
 def get_manifest_source_record(manifest: Dict[str, Any], role: str) -> Dict[str, Any]:
     records = manifest.get("RequiredSourceFiles")
     if not isinstance(records, list):
@@ -2350,6 +2464,36 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"runtime_audit={runtime_audit_path or 'missing'}"
         ),
         "Rerun or postprocess with a longer statistically stable final-window average whose source steps are the last available, increasing and uniformly spaced.",
+    )
+    metrics_time_status = metrics_time_averaging_consistency_status(
+        metrics,
+        runtime_audit,
+        args.min_avg_frames,
+        args.min_avg_step_span,
+    )
+    add_gate(
+        gates,
+        "metrics_time_averaging_consistency",
+        PASS if metrics_time_status["ok"] else FAIL,
+        (
+            f"runtime_time_averaging_gate={metrics_time_status['runtime_time_averaging_gate'] or 'missing'}; "
+            f"metrics_time_averaging_gate={metrics_time_status['metrics_time_averaging_gate'] or 'missing'}; "
+            f"runtime_source_time_steps={metrics_time_status['runtime_source_time_steps'] or 'missing'}; "
+            f"metrics_source_time_steps={metrics_time_status['metrics_source_time_steps'] or 'missing'}; "
+            f"runtime_frame_count={metrics_time_status['runtime_frame_count']}; "
+            f"metrics_source_step_count={metrics_time_status['metrics_frame_count']}; "
+            f"metrics_averaged_frame_count={metrics_time_status['metrics_averaged_frame_count']}; "
+            f"required_frames>={args.min_avg_frames}; "
+            f"runtime_available_frame_count={metrics_time_status['runtime_available_frame_count']}; "
+            f"metrics_available_frame_count={metrics_time_status['metrics_available_frame_count']}; "
+            f"runtime_source_step_span={metrics_time_status['runtime_source_step_span']}; "
+            f"metrics_source_step_span={metrics_time_status['metrics_source_step_span']}; "
+            f"required_step_span>={args.min_avg_step_span}; "
+            f"runtime_minimum_step_span={metrics_time_status['runtime_minimum_step_span']}; "
+            f"metrics_minimum_step_span={metrics_time_status['metrics_minimum_step_span']}; "
+            f"reasons={metrics_time_status['reasons_csv'] or 'none'}"
+        ),
+        "Rebuild validation_metrics.csv from the same final-window VTK files recorded in read_vtk_audit/native_run_audit; stale or short-window metrics cannot support validation.",
     )
 
     target_velocity_lbm = as_float(

@@ -42,6 +42,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native/CityLBM run audits now also compute the planned final VTK averaging-window solver-step span from
   `TimeSteps`, `SaveInterval`, `SaveStartStep` and `AverageLastN`; validation fails if the requested final window has
   enough frames but does not cover the minimum solver-step span.
+- `validation_gate.py` now requires `validation_metrics.csv` to come from the same final-window VTK steps recorded in
+  the runtime/read-VTK audit; stale metrics or four-frame diagnostic averages are blocked before any paper-grade
+  accuracy claim.
 - `audit_native_preconditions.py` now records numeric time-window shortfall reasons, such as
   `runtime_average_window_frame_count_4_below_minimum_40` or
   `runtime_average_step_span_3000_below_minimum_20000`, so short four-frame baselines remain traceable in downstream
