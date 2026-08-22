@@ -2746,6 +2746,13 @@ namespace CityLBM.Solver
                     BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
                     BoundaryConditionMethodClass = "citylbm_type_e_box_simplified",
                     BoundaryConditionPaperGradeStatus = "diagnostic_only_until_boundary_source_and_aij_protocol_evidence_pass",
+                    BoundaryTypeEVelocityInitializationApplied = true,
+                    BoundaryTypeEVelocityInitializationTreatment = scene.WindProfile == WindProfileType.Uniform
+                        ? "all_TYPE_E_boundaries_initialized_from_uniform_mean_velocity_before_device_upload"
+                        : "all_TYPE_E_boundaries_initialized_from_height_varying_mean_profile_before_device_upload",
+                    BoundaryTypeEVelocityInitializationProfileAware = scene.WindProfile != WindProfileType.Uniform,
+                    BoundaryTypeEVelocityInitializationDeviceUploadOrder = "lbm.flags_and_lbm.u_written_to_device_after_initialization_before_stl_voxelization",
+                    BoundaryVelocityInitializationPaperGradeStatus = "diagnostic_damping_mitigation_not_wind_tunnel_equivalent_boundary",
                     PaperGradeBoundaryPrerequisiteGate = "fail",
                     PaperGradeBoundaryMissingEvidence = missingPaperGradeBoundaryEvidence,
                     BoundaryNonReflectingOutletImplemented = boundaryNonReflectingOutletImplemented,
@@ -3277,6 +3284,13 @@ namespace CityLBM.Solver
                         BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
                         BoundaryConditionMethodClass = "citylbm_type_e_box_simplified",
                         BoundaryConditionPaperGradeStatus = "diagnostic_only_until_boundary_source_and_aij_protocol_evidence_pass",
+                        BoundaryTypeEVelocityInitializationApplied = true,
+                        BoundaryTypeEVelocityInitializationTreatment = scene.WindProfile == WindProfileType.Uniform
+                            ? "all_TYPE_E_boundaries_initialized_from_uniform_mean_velocity_before_device_upload"
+                            : "all_TYPE_E_boundaries_initialized_from_height_varying_mean_profile_before_device_upload",
+                        BoundaryTypeEVelocityInitializationProfileAware = scene.WindProfile != WindProfileType.Uniform,
+                        BoundaryTypeEVelocityInitializationDeviceUploadOrder = "lbm.flags_and_lbm.u_written_to_device_after_initialization_before_stl_voxelization",
+                        BoundaryVelocityInitializationPaperGradeStatus = "diagnostic_damping_mitigation_not_wind_tunnel_equivalent_boundary",
                         PaperGradeBoundaryPrerequisiteGate = "fail",
                         PaperGradeBoundaryMissingEvidence = missingPaperGradeBoundaryEvidence,
                         BoundaryNonReflectingOutletImplemented = false,

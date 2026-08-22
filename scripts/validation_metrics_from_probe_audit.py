@@ -181,6 +181,11 @@ TEMPLATE_FIELDS = [
     "boundary_type_e_velocity_initialization_velocity_write",
     "boundary_profile_type_e_velocity_initialization",
     "boundary_uniform_type_e_velocity_initialization",
+    "boundary_velocity_initialization_metadata_applied",
+    "boundary_velocity_initialization_metadata_treatment",
+    "boundary_velocity_initialization_metadata_profile_aware",
+    "boundary_velocity_initialization_metadata_device_upload_order",
+    "boundary_velocity_initialization_metadata_paper_grade_status",
     "boundary_source_setup_sha256",
     "inlet_source_audit",
     "inlet_source_gate",
@@ -1691,6 +1696,21 @@ def main() -> int:
             ),
             "boundary_uniform_type_e_velocity_initialization": first_bool_text(
                 boundary_source_audit.get("has_uniform_type_e_velocity_initialization")
+            ),
+            "boundary_velocity_initialization_metadata_applied": metadata_field(
+                metadata, "BoundaryTypeEVelocityInitializationApplied"
+            ),
+            "boundary_velocity_initialization_metadata_treatment": metadata_field(
+                metadata, "BoundaryTypeEVelocityInitializationTreatment"
+            ),
+            "boundary_velocity_initialization_metadata_profile_aware": metadata_field(
+                metadata, "BoundaryTypeEVelocityInitializationProfileAware"
+            ),
+            "boundary_velocity_initialization_metadata_device_upload_order": metadata_field(
+                metadata, "BoundaryTypeEVelocityInitializationDeviceUploadOrder"
+            ),
+            "boundary_velocity_initialization_metadata_paper_grade_status": metadata_field(
+                metadata, "BoundaryVelocityInitializationPaperGradeStatus"
             ),
             "boundary_source_setup_sha256": audit_field(boundary_source_audit, "setup_cpp_sha256"),
             "inlet_source_audit": str(Path(args.inlet_source_audit).resolve()) if args.inlet_source_audit else "",

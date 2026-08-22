@@ -305,6 +305,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   cases must show the generated guard on `lbm.flags[n]`, coordinate recovery and three-component `lbm.u` writes; profile
   inlet cases must also show that outlet/lateral/top TYPE_E nodes are initialized from `windProfile(z)`. This prevents a
   run package from passing source traceability while retaining the older zero-speed outlet/lateral/top damping risk.
+- `case_metadata.json`, the native baseline manifest and validation metrics now also preserve the TYPE_E boundary-velocity
+  initialization treatment, profile-awareness, device-upload ordering and diagnostic-only paper-grade status. This makes
+  the damping mitigation visible in archived Case A/E packages without treating it as wind-tunnel-equivalent boundary
+  physics.
 - `audit_boundary_source.py` now treats coherent `TYPE_E`/`TYPE_S` assignments in generated `setup.cpp` as source
   evidence even when `EQUILIBRIUM_BOUNDARIES` is defined in `defines.hpp`, and it no longer interprets negative metadata
   statements such as `no rough-wall function` as advanced-boundary claims. The correct current classification is
