@@ -2705,6 +2705,32 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     boundary_evidence_file_hashes_match_current = boundary_evidence_file_hash_check["ok"] is True
     boundary_evidence_file_hash_error = str(boundary_evidence_file_hash_check.get("error") or "")
+    boundary_run_identity_gate = str(
+        get_any(external_boundary_audit, ["boundary_run_identity_gate"])
+        or get_any(metrics, ["boundary_run_identity_gate", "BoundaryRunIdentityGate"])
+        or ""
+    ).strip().lower()
+    boundary_run_identity_reasons = str(
+        get_any(external_boundary_audit, ["boundary_run_identity_gate_reasons"])
+        or get_any(metrics, ["boundary_run_identity_gate_reasons", "BoundaryRunIdentityGateReasons"])
+        or ""
+    )
+    boundary_evidence_metadata_hash_matches = as_bool(
+        get_first_available(
+            get_any(external_boundary_audit, ["evidence_metadata_sha256_matches_current"]),
+            get_any(metrics, ["boundary_evidence_metadata_sha256_matches_current", "BoundaryEvidenceMetadataSha256MatchesCurrent"]),
+        )
+    )
+    boundary_evidence_aij_case = str(
+        get_any(external_boundary_audit, ["evidence_aij_case"])
+        or get_any(metrics, ["boundary_evidence_aij_case", "BoundaryEvidenceAijCase"])
+        or ""
+    )
+    boundary_evidence_wind_direction = str(
+        get_any(external_boundary_audit, ["evidence_wind_direction"])
+        or get_any(metrics, ["boundary_evidence_wind_direction", "BoundaryEvidenceWindDirection"])
+        or ""
+    )
     external_boundary_missing_fields = external_boundary_audit.get("missing_evidence_fields")
     if isinstance(external_boundary_missing_fields, list):
         external_boundary_missing_fields_text = ",".join(str(field) for field in external_boundary_missing_fields)
@@ -2858,6 +2884,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and external_boundary_evidence_files_all_exist is True
         and external_boundary_evidence_files_all_hashed is True
         and boundary_evidence_file_hashes_match_current
+        and boundary_run_identity_gate == "pass"
+        and boundary_evidence_metadata_hash_matches is True
         and external_boundary_condition_fields_supported is True
         and all(value is True for value in external_boundary_condition_support_values.values())
         and external_clearance_numeric_gate == "pass"
@@ -2871,6 +2899,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and boundary_evidence_files_all_exist is True
         and boundary_evidence_files_all_hashed is True
         and boundary_evidence_file_hashes_match_current
+        and boundary_run_identity_gate == "pass"
+        and boundary_evidence_metadata_hash_matches is True
         and boundary_condition_fields_supported is True
         and all(value is True for value in boundary_condition_support_values.values())
         and boundary_clearance_ok
@@ -2996,6 +3026,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_evidence_hash_record_count={boundary_evidence_file_hash_check['hash_record_count']}; "
             f"boundary_evidence_hash_declared_file_count={boundary_evidence_file_hash_check['declared_file_count']}; "
             f"boundary_evidence_hash_mismatch_count={boundary_evidence_file_hash_check['hash_mismatch_count']}; "
+            f"boundary_run_identity_gate={boundary_run_identity_gate or 'missing'}; "
+            f"boundary_run_identity_reasons={boundary_run_identity_reasons or 'none'}; "
+            f"boundary_evidence_metadata_hash_matches_current={boundary_evidence_metadata_hash_matches}; "
+            f"boundary_evidence_aij_case={boundary_evidence_aij_case or 'missing'}; "
+            f"boundary_evidence_wind_direction={boundary_evidence_wind_direction or 'missing'}; "
             f"external_boundary_condition_fields_supported={external_boundary_condition_fields_supported}; "
             f"external_boundary_condition_support_values={external_boundary_condition_support_values}; "
             f"boundary_evidence_class={boundary_evidence_class or 'missing'}; "

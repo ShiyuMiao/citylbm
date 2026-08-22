@@ -1027,6 +1027,11 @@ def main() -> int:
 
     boundary_protocol_gate = str(boundary_protocol_audit.get("boundary_protocol_gate") or "").strip().lower()
     boundary_evidence_gate = str(boundary_protocol_audit.get("boundary_evidence_gate") or "").strip().lower()
+    boundary_run_identity_gate = str(boundary_protocol_audit.get("boundary_run_identity_gate") or "").strip().lower()
+    boundary_run_identity_reasons = split_scalar_list(boundary_protocol_audit.get("boundary_run_identity_gate_reasons"))
+    boundary_evidence_metadata_hash_matches = as_bool(
+        boundary_protocol_audit.get("evidence_metadata_sha256_matches_current")
+    )
     boundary_evidence_hashed = as_bool(boundary_protocol_audit.get("boundary_evidence_files_all_hashed"))
     boundary_equivalence_supported = as_bool(boundary_protocol_audit.get("boundary_equivalence_supported"))
     boundary_evidence_class_supported = as_bool(boundary_protocol_audit.get("boundary_evidence_class_supported"))
@@ -1066,6 +1071,10 @@ def main() -> int:
         reasons.append("boundary_protocol_gate_not_pass")
     if boundary_evidence_gate != "pass":
         reasons.append("boundary_evidence_gate_not_pass")
+    if boundary_run_identity_gate != "pass":
+        reasons.append("boundary_run_identity_gate_not_pass")
+    if boundary_evidence_metadata_hash_matches is not True:
+        reasons.append("boundary_evidence_metadata_sha256_not_bound_to_current_run")
     if boundary_evidence_hashed is not True:
         reasons.append("boundary_evidence_files_not_hashed")
     if boundary_protocol_audit:
@@ -1100,6 +1109,9 @@ def main() -> int:
             reasons.append(f"boundary_evidence_file_empty_{Path(path).name or 'unnamed'}")
         for path in boundary_evidence_files_unreadable:
             reasons.append(f"boundary_evidence_file_unreadable_{Path(path).name or 'unnamed'}")
+        for identity_reason in boundary_run_identity_reasons:
+            if identity_reason != "boundary_evidence_bound_to_current_run":
+                reasons.append(f"boundary_identity_{identity_reason}")
 
     expected_component = str(args.expected_compared_component or "").strip()
     failed_probe_rows = [row for row in probe_rows if probe_row_failed(row)]
@@ -1466,6 +1478,12 @@ def main() -> int:
         **boundary_source_hash_check,
         "boundary_protocol_gate": boundary_protocol_gate,
         "boundary_evidence_gate": boundary_evidence_gate,
+        "boundary_run_identity_gate": boundary_run_identity_gate,
+        "boundary_run_identity_gate_reasons": boundary_run_identity_reasons,
+        "boundary_run_identity_gate_reasons_csv": ";".join(boundary_run_identity_reasons),
+        "boundary_evidence_metadata_sha256_matches_current": boundary_evidence_metadata_hash_matches,
+        "boundary_evidence_aij_case": str(boundary_protocol_audit.get("evidence_aij_case") or ""),
+        "boundary_evidence_wind_direction": str(boundary_protocol_audit.get("evidence_wind_direction") or ""),
         "boundary_evidence_files_all_hashed": boundary_evidence_hashed,
         "boundary_equivalence_supported": boundary_equivalence_supported,
         "boundary_evidence_class_supported": boundary_evidence_class_supported,

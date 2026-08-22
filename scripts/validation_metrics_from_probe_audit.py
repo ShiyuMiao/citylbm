@@ -114,6 +114,14 @@ TEMPLATE_FIELDS = [
     "boundary_protocol_audit",
     "boundary_protocol_metadata_sha256",
     "boundary_evidence_json_sha256",
+    "boundary_run_identity_gate",
+    "boundary_run_identity_gate_reasons",
+    "boundary_expected_aij_case",
+    "boundary_expected_wind_direction",
+    "boundary_evidence_aij_case",
+    "boundary_evidence_wind_direction",
+    "boundary_evidence_case_metadata_sha256",
+    "boundary_evidence_metadata_sha256_matches_current",
     "boundary_missing_evidence_fields",
     "boundary_equivalence_basis",
     "boundary_equivalence_supported",
@@ -290,6 +298,11 @@ TEMPLATE_FIELDS = [
     "native_probe_component_uref_issue_reason",
     "native_boundary_protocol_gate",
     "native_boundary_evidence_gate",
+    "native_boundary_run_identity_gate",
+    "native_boundary_run_identity_gate_reasons",
+    "native_boundary_evidence_metadata_sha256_matches_current",
+    "native_boundary_evidence_aij_case",
+    "native_boundary_evidence_wind_direction",
     "native_boundary_protocol_gate_reasons",
     "native_boundary_missing_evidence_fields",
     "native_boundary_unsupported_condition_fields",
@@ -1487,6 +1500,20 @@ def main() -> int:
             "boundary_protocol_audit": str(Path(args.boundary_protocol_audit).resolve()) if args.boundary_protocol_audit else "",
             "boundary_protocol_metadata_sha256": str(boundary_protocol_audit.get("metadata_sha256", "")),
             "boundary_evidence_json_sha256": str(boundary_protocol_audit.get("boundary_evidence_json_sha256", "")),
+            "boundary_run_identity_gate": str(boundary_protocol_audit.get("boundary_run_identity_gate", "")),
+            "boundary_run_identity_gate_reasons": ";".join(
+                str(reason) for reason in boundary_protocol_audit.get("boundary_run_identity_gate_reasons", [])
+            )
+            if isinstance(boundary_protocol_audit.get("boundary_run_identity_gate_reasons"), list)
+            else str(boundary_protocol_audit.get("boundary_run_identity_gate_reasons", "")),
+            "boundary_expected_aij_case": str(boundary_protocol_audit.get("expected_aij_case", "")),
+            "boundary_expected_wind_direction": str(boundary_protocol_audit.get("expected_wind_direction", "")),
+            "boundary_evidence_aij_case": str(boundary_protocol_audit.get("evidence_aij_case", "")),
+            "boundary_evidence_wind_direction": str(boundary_protocol_audit.get("evidence_wind_direction", "")),
+            "boundary_evidence_case_metadata_sha256": str(boundary_protocol_audit.get("evidence_case_metadata_sha256", "")),
+            "boundary_evidence_metadata_sha256_matches_current": csv_bool(
+                boundary_protocol_audit.get("evidence_metadata_sha256_matches_current")
+            ),
             "boundary_missing_evidence_fields": boundary_missing_fields_text,
             "boundary_equivalence_basis": str(boundary_protocol_audit.get("boundary_equivalence_basis", "")),
             "boundary_equivalence_supported": csv_bool(boundary_protocol_audit.get("boundary_equivalence_supported")),
@@ -1827,6 +1854,19 @@ def main() -> int:
             ),
             "native_boundary_protocol_gate": audit_gate(native_preconditions_audit, "boundary_protocol_gate"),
             "native_boundary_evidence_gate": audit_gate(native_preconditions_audit, "boundary_evidence_gate"),
+            "native_boundary_run_identity_gate": audit_gate(native_preconditions_audit, "boundary_run_identity_gate"),
+            "native_boundary_run_identity_gate_reasons": audit_field(
+                native_preconditions_audit, "boundary_run_identity_gate_reasons_csv"
+            ),
+            "native_boundary_evidence_metadata_sha256_matches_current": first_bool_text(
+                native_preconditions_audit.get("boundary_evidence_metadata_sha256_matches_current")
+            ),
+            "native_boundary_evidence_aij_case": audit_field(
+                native_preconditions_audit, "boundary_evidence_aij_case"
+            ),
+            "native_boundary_evidence_wind_direction": audit_field(
+                native_preconditions_audit, "boundary_evidence_wind_direction"
+            ),
             "native_boundary_protocol_gate_reasons": audit_field(
                 native_preconditions_audit, "boundary_protocol_gate_reasons_csv"
             ),

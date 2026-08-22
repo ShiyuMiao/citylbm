@@ -124,6 +124,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-downstream-clearance-h", type=float, default=10.0)
     parser.add_argument("--min-lateral-clearance-h", type=float, default=5.0)
     parser.add_argument("--min-top-clearance-h", type=float, default=5.0)
+    parser.add_argument("--expected-aij-case", default="", help="Optional expected AIJ case label for the evidence JSON.")
+    parser.add_argument("--expected-wind-direction", default="", help="Optional expected wind-direction label for the evidence JSON.")
     return parser.parse_args()
 
 
@@ -238,6 +240,10 @@ def condition_support_map(evidence: Dict[str, Any]) -> Dict[str, bool]:
     return {field: condition_supported(evidence.get(field)) for field in CONDITION_SUPPORT_FIELDS}
 
 
+def identity_token(value: Any) -> str:
+    return "".join(char.lower() for char in str(value or "").strip() if char.isalnum())
+
+
 def as_list(value: Any) -> List[str]:
     if value is None:
         return []
@@ -322,6 +328,7 @@ def main() -> int:
 
     metadata = read_json(metadata_path)
     evidence = read_json(evidence_path)
+    metadata_sha = sha256_file(metadata_path)
     boundary_audit = metadata.get("BoundaryProtocolAudit") if isinstance(metadata.get("BoundaryProtocolAudit"), dict) else {}
     blockage_audit = nested(boundary_audit, "BlockageDiagnostics") or {}
     frontal_blockage = as_float(nested(blockage_audit, "ApproxFrontalBlockageRatio"))
@@ -337,6 +344,26 @@ def main() -> int:
 
     combined = combined_evidence(evidence, boundary_audit)
     missing = missing_fields(combined, REQUIRED_EVIDENCE_FIELDS)
+    evidence_aij_case = first_non_empty(combined.get("aij_case"), evidence.get("case"))
+    evidence_wind_direction = first_non_empty(combined.get("wind_direction"), evidence.get("wind_direction_label"))
+    evidence_metadata_sha = first_non_empty(
+        evidence.get("case_metadata_sha256"),
+        evidence.get("metadata_sha256"),
+        evidence.get("BoundaryProtocolMetadataSha256"),
+    ).lower()
+    metadata_sha_matches_current = bool(evidence_metadata_sha) and evidence_metadata_sha == metadata_sha.lower()
+    expected_case = str(args.expected_aij_case or "").strip()
+    expected_wind_direction = str(args.expected_wind_direction or "").strip()
+    identity_reasons: List[str] = []
+    if not evidence_metadata_sha:
+        identity_reasons.append("case_metadata_sha256_missing")
+    elif not metadata_sha_matches_current:
+        identity_reasons.append("case_metadata_sha256_mismatch")
+    if expected_case and identity_token(evidence_aij_case) != identity_token(expected_case):
+        identity_reasons.append("aij_case_mismatch")
+    if expected_wind_direction and identity_token(evidence_wind_direction) != identity_token(expected_wind_direction):
+        identity_reasons.append("wind_direction_mismatch")
+    run_identity_gate_pass = not identity_reasons
     explicit_gate = first_non_empty(
         evidence.get("boundary_evidence_gate"),
         evidence.get("BoundaryProtocolEvidenceGate"),
@@ -401,6 +428,7 @@ def main() -> int:
         and boundary_condition_fields_supported
         and evidence_file_status["all_hashed"]
         and clearance_numeric_gate_pass
+        and run_identity_gate_pass
     )
     blockage_gate_pass = frontal_blockage is not None and frontal_blockage <= args.max_frontal_blockage_ratio
     clearance_gate_pass = metadata_gate == "diagnostic_clearance_ok_verify_against_aij"
@@ -426,6 +454,7 @@ def main() -> int:
         reasons.append(f"boundary_evidence_class_{boundary_evidence_class or 'missing'}_unsupported")
     if unsupported_conditions:
         reasons.append("unsupported_boundary_condition_fields:" + ",".join(unsupported_conditions))
+    reasons.extend(identity_reasons)
     if not evidence_file_status["all_exist"]:
         if not evidence_files:
             reasons.append("boundary_evidence_files_missing")
@@ -446,9 +475,17 @@ def main() -> int:
         "generated_at_utc": utc_now(),
         "run_dir": str(run_dir),
         "metadata": str(metadata_path),
-        "metadata_sha256": sha256_file(metadata_path),
+        "metadata_sha256": metadata_sha,
         "evidence_path": str(evidence_path) if evidence_path else "",
         "boundary_evidence_json_sha256": sha256_file(evidence_path),
+        "boundary_run_identity_gate": "pass" if run_identity_gate_pass else "fail",
+        "boundary_run_identity_gate_reasons": identity_reasons or ["boundary_evidence_bound_to_current_run"],
+        "expected_aij_case": expected_case,
+        "expected_wind_direction": expected_wind_direction,
+        "evidence_aij_case": evidence_aij_case,
+        "evidence_wind_direction": evidence_wind_direction,
+        "evidence_case_metadata_sha256": evidence_metadata_sha,
+        "evidence_metadata_sha256_matches_current": metadata_sha_matches_current,
         "metadata_boundary_protocol_gate": metadata_gate,
         "metadata_boundary_evidence_gate": metadata_evidence_gate,
         "metadata_boundary_evidence_source": metadata_evidence_source,
