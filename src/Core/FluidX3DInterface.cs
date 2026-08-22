@@ -2380,6 +2380,7 @@ namespace CityLBM.Solver
             double scale = Math.Max(0.0, Math.Min(2.0, settings.SyntheticTurbulenceIntensityScale));
             double corr = Math.Max(1.0, Math.Min(64.0, settings.SyntheticTurbulenceCorrelationCells));
             double maxFrac = Math.Max(0.05, Math.Min(0.80, settings.SyntheticTurbulenceMaxFractionOfMean));
+            double minStreamwiseFrac = Math.Max(0.0, Math.Min(0.50, settings.SyntheticTurbulenceMinStreamwiseFraction));
             int updateInterval = Math.Max(1, settings.SyntheticTurbulenceUpdateInterval);
             int modeCount = Math.Max(4, Math.Min(1024, settings.SyntheticTurbulenceModeCount));
             double[] componentNorms = ComputeSyntheticTurbulenceComponentNorms(modeCount, corr);
@@ -2394,6 +2395,7 @@ namespace CityLBM.Solver
             sb.AppendLine($"    const float citylbm_stg_scale = {scale.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_stg_corr_cells = {corr.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_stg_max_fraction = {maxFrac.ToString("F6", CultureInfo.InvariantCulture)}f;");
+            sb.AppendLine($"    const float citylbm_stg_min_streamwise_fraction = {minStreamwiseFrac.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const uint citylbm_stg_update_interval = {updateInterval}u;");
             sb.AppendLine($"    const int citylbm_stg_mode_count = {modeCount};");
             sb.AppendLine("    // Target component RMS follows isotropic k: sigma=sqrt(2k/3).");
@@ -2448,13 +2450,16 @@ namespace CityLBM.Solver
             sb.AppendLine("        fluct_y *= citylbm_stg_norm_y;");
             sb.AppendLine("        fluct_z *= citylbm_stg_norm_z;");
             sb.AppendLine("        float3 u = float3(mean.x + sigma * fluct_x, mean.y + sigma * fluct_y, mean.z + sigma * fluct_z);");
-            sb.AppendLine("        float streamwise = u.x*dir_x + u.y*dir_y + u.z*dir_z;");
-            sb.AppendLine("        float min_streamwise = 0.05f * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
-            sb.AppendLine("        if(streamwise < min_streamwise) {");
-            sb.AppendLine("            float correction = min_streamwise - streamwise;");
-            sb.AppendLine("            u.x += correction * dir_x;");
-            sb.AppendLine("            u.y += correction * dir_y;");
-            sb.AppendLine("            u.z += correction * dir_z;");
+            sb.AppendLine("        // Default is no streamwise clipping so k-derived fluctuations are not silently truncated.");
+            sb.AppendLine("        if(citylbm_stg_min_streamwise_fraction > 0.0f) {");
+            sb.AppendLine("            float streamwise = u.x*dir_x + u.y*dir_y + u.z*dir_z;");
+            sb.AppendLine("            float min_streamwise = citylbm_stg_min_streamwise_fraction * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
+            sb.AppendLine("            if(streamwise < min_streamwise) {");
+            sb.AppendLine("                float correction = min_streamwise - streamwise;");
+            sb.AppendLine("                u.x += correction * dir_x;");
+            sb.AppendLine("                u.y += correction * dir_y;");
+            sb.AppendLine("                u.z += correction * dir_z;");
+            sb.AppendLine("            }");
             sb.AppendLine("        }");
             sb.AppendLine("        return u;");
             sb.AppendLine("    };");
@@ -2567,13 +2572,15 @@ namespace CityLBM.Solver
             sb.AppendLine("                u_in.z -= citylbm_stg_layer_mean_correction_z[z];");
             sb.AppendLine("                float3 mean = windProfile(z);");
             sb.AppendLine("                float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);");
-            sb.AppendLine("                float streamwise = u_in.x*dir_x + u_in.y*dir_y + u_in.z*dir_z;");
-            sb.AppendLine("                float min_streamwise = 0.05f * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
-            sb.AppendLine("                if(streamwise < min_streamwise) {");
-            sb.AppendLine("                    float correction = min_streamwise - streamwise;");
-            sb.AppendLine("                    u_in.x += correction * dir_x;");
-            sb.AppendLine("                    u_in.y += correction * dir_y;");
-            sb.AppendLine("                    u_in.z += correction * dir_z;");
+            sb.AppendLine("                if(citylbm_stg_min_streamwise_fraction > 0.0f) {");
+            sb.AppendLine("                    float streamwise = u_in.x*dir_x + u_in.y*dir_y + u_in.z*dir_z;");
+            sb.AppendLine("                    float min_streamwise = citylbm_stg_min_streamwise_fraction * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
+            sb.AppendLine("                    if(streamwise < min_streamwise) {");
+            sb.AppendLine("                        float correction = min_streamwise - streamwise;");
+            sb.AppendLine("                        u_in.x += correction * dir_x;");
+            sb.AppendLine("                        u_in.y += correction * dir_y;");
+            sb.AppendLine("                        u_in.z += correction * dir_z;");
+            sb.AppendLine("                    }");
             sb.AppendLine("                }");
             sb.AppendLine("                lbm.u.x[n] = u_in.x;");
             sb.AppendLine("                lbm.u.y[n] = u_in.y;");
@@ -2786,6 +2793,10 @@ namespace CityLBM.Solver
                     SyntheticTurbulenceExpectedFinalWindowRefreshCount = expectedPaperAverageStgRefreshes,
                     SyntheticTurbulentInletTemporalSamplingGate = syntheticTemporalSamplingGate,
                     SyntheticTurbulenceMaxFractionOfMean = settings.SyntheticTurbulenceMaxFractionOfMean,
+                    SyntheticTurbulenceMinStreamwiseFraction = settings.SyntheticTurbulenceMinStreamwiseFraction,
+                    SyntheticTurbulenceStreamwiseClippingTreatment = settings.SyntheticTurbulenceMinStreamwiseFraction > 0.0
+                        ? "diagnostic_streamwise_lower_bound_enabled"
+                        : "disabled_no_streamwise_clipping_of_k_perturbations",
                     InletReynoldsStressTensorAvailable = inletReynoldsStressTensorAvailable,
                     InletReynoldsStressTreatment = inletReynoldsStressTreatment,
                     ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor is available from AF table" : "",
@@ -3340,6 +3351,10 @@ namespace CityLBM.Solver
                         SyntheticTurbulenceModeCount = settings.SyntheticTurbulenceModeCount,
                         SyntheticTurbulentInletLengthScaleSource = GetSyntheticTurbulenceLengthScaleSource(scene, settings),
                         SyntheticTurbulentInletLengthScaleGate = GetSyntheticTurbulenceLengthScaleGate(scene, settings),
+                        SyntheticTurbulenceMinStreamwiseFraction = settings.SyntheticTurbulenceMinStreamwiseFraction,
+                        SyntheticTurbulenceStreamwiseClippingTreatment = settings.SyntheticTurbulenceMinStreamwiseFraction > 0.0
+                            ? "diagnostic_streamwise_lower_bound_enabled"
+                            : "disabled_no_streamwise_clipping_of_k_perturbations",
                         SyntheticTurbulentInletTemporalTreatment = IsSyntheticTurbulentInletActive(scene, settings)
                             ? "Taylor frozen-turbulence phase advection by local mean LBM velocity along the wind vector"
                             : "none",
@@ -3539,7 +3554,7 @@ namespace CityLBM.Solver
                     ? $"AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet with {settings.SyntheticTurbulenceModeCount} spectral modes, per-component RMS normalization from k, Taylor frozen-turbulence advection, TYPE_E inlet refreshes in batch/graphics modes and velocity-field-only treatment."
                     : (hasK ? "AF k column is present but only metadata/profile arrays are guaranteed." : "No usable k column found in CustomWindProfile."),
                 Risk = syntheticActive
-                    ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and frozen-turbulence advection, uses {settings.SyntheticTurbulenceModeCount} spectral modes and correlation length {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m) with source '{lengthScaleSource}', and does not reconstruct distribution functions."
+                    ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and frozen-turbulence advection, uses {settings.SyntheticTurbulenceModeCount} spectral modes and correlation length {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m) with source '{lengthScaleSource}', streamwise clipping fraction {settings.SyntheticTurbulenceMinStreamwiseFraction:F3}, and does not reconstruct distribution functions."
                     : "Missing or inactive turbulent inlet can cause systematic underprediction of pedestrian-level velocity ratios.",
                 RequiredNextAction = syntheticActive
                     ? "Run empty-tunnel and building native FluidX3D baselines proving downstream U/k preservation and replace/user-justify the inlet length scale before paper claims."
@@ -4211,6 +4226,12 @@ namespace CityLBM.Solver
 
         /// <summary>Upper bound of perturbation sigma relative to local mean speed.</summary>
         public double SyntheticTurbulenceMaxFractionOfMean { get; set; } = 0.35;
+
+        /// <summary>
+        /// Optional diagnostic lower bound for streamwise velocity as a fraction of local mean speed.
+        /// Default 0 disables clipping so k-derived perturbations are not silently truncated.
+        /// </summary>
+        public double SyntheticTurbulenceMinStreamwiseFraction { get; set; } = 0.0;
 
         public void SetInletVelocity(Vector3d direction, double speed)
         {

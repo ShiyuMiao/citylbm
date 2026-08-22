@@ -91,6 +91,10 @@ namespace CityLBM.CodegenSmoke
                 Require(defines, "#define TAU 5.00000388E-001f");
                 Require(setup, "citylbm_stg_update_interval = 7u");
                 Require(setup, "citylbm_stg_max_fraction = 0.420000f");
+                Require(setup, "citylbm_stg_min_streamwise_fraction = 0.000000f");
+                Require(setup, "Default is no streamwise clipping");
+                Require(setup, "if(citylbm_stg_min_streamwise_fraction > 0.0f)");
+                RequireNotContains(setup, "0.05f * (mean_mag");
                 Require(setup, "syntheticTurbulentInlet");
                 Require(setup, "applySyntheticTurbulentInlet");
                 Require(setup, "GRAPHICS mode uses the same STG refresh loop as batch mode");
@@ -109,6 +113,8 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "\"SyntheticTurbulenceExpectedFinalWindowRefreshCount\": 128");
                 Require(metadata, "\"SyntheticTurbulentInletTemporalSamplingGate\": \"diagnostic_only_insufficient_stg_refreshes_in_average_window\"");
                 Require(metadata, "\"SyntheticTurbulenceMaxFractionOfMean\": 0.42");
+                Require(metadata, "\"SyntheticTurbulenceMinStreamwiseFraction\": 0.0");
+                Require(metadata, "\"SyntheticTurbulenceStreamwiseClippingTreatment\": \"disabled_no_streamwise_clipping_of_k_perturbations\"");
                 Require(metadata, "\"SyntheticTurbulenceCorrelationLengthM\": 8.0");
                 Require(metadata, "aij_length_scale_verified: smoke-test archived integral length evidence");
                 Require(metadata, "\"SyntheticTurbulentInletLengthScaleGate\": \"pass\"");
@@ -144,6 +150,7 @@ namespace CityLBM.CodegenSmoke
                 Require(audit, "expected to sample 128 inlet refreshes");
                 Require(audit, "recommended minimum=200");
                 Require(audit, "source='aij_length_scale_verified: smoke-test archived integral length evidence', gate=pass");
+                Require(audit, "streamwise clipping fraction 0.000");
                 Require(audit, "STG-lite");
                 Require(audit, "LbmTau=");
                 Require(audit, "VelocitySet=D3Q19");
@@ -158,6 +165,8 @@ namespace CityLBM.CodegenSmoke
                 Require(nativeManifest, "\"LbmStabilityGate\": \"requires_solver_log_and_runtime_statistics\"");
                 Require(nativeManifest, "nu_lbm = nu_SI * VelocityScaleMpsToLbm / dx");
                 Require(nativeManifest, "not_clamped_in_case_generation");
+                Require(nativeManifest, "\"SyntheticTurbulenceMinStreamwiseFraction\": 0.0");
+                Require(nativeManifest, "disabled_no_streamwise_clipping_of_k_perturbations");
                 Require(nativeManifest, "\"BaselineId\": \"citylbm-v0.3.0-stg_codegen_smoke-");
                 Require(nativeManifest, "Native FluidX3D original setup");
                 Require(nativeManifest, "Native FluidX3D lbm.hpp");
