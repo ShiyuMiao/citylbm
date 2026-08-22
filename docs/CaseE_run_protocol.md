@@ -186,6 +186,10 @@ new output directory.
   `has_distribution_function_write` and `distribution_function_write_count`, but a digital-filter or SEM/DFM inlet
   claim must additionally show `has_inlet_distribution_reconstruction=true` with a positive
   `inlet_distribution_reconstruction_count`, meaning the distribution reconstruction is tied to inlet/`TYPE_E` code.
+  For native FluidX3D baselines, also archive `inlet_distribution_route`, `inlet_distribution_route_gate`,
+  `has_equilibrium_boundaries_define` and `has_type_e_equilibrium_boundary_route`. If the route is
+  `velocity_field_only_without_equilibrium_boundary_define` or the route gate is not `pass`, the run remains diagnostic
+  even when the AF profile, probe IDs and time window are otherwise traceable.
   For STG-lite, the audit must also show the actual correlated-source features in generated code:
   `has_spectral_mode_evidence`, `has_taylor_advection_evidence`, `has_transverse_projection_evidence` and
   `has_length_scale_evidence`, `synthetic_inlet_spectral_mode_count`, plus the run-loop fields `has_synthetic_inlet_refresh_with_current_time`,

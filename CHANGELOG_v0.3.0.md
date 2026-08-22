@@ -666,6 +666,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   amplitude-cap checks only to velocity-field-only STG-lite sources. Distribution-consistent SEM/DFM/precursor evidence
   is no longer failed by CityLBM STG-lite diagnostics, while uncorrelated RMS/k random inlet forcing is explicitly tested
   to remain non-paper-grade.
+- `audit_native_preconditions.py`, the metrics writer and the validation metrics template now carry
+  `inlet_distribution_route`, `inlet_distribution_route_gate`, `has_equilibrium_boundaries_define` and
+  `has_type_e_equilibrium_boundary_route` into the native baseline gate. A native setup that writes only macroscopic
+  velocity fields without `EQUILIBRIUM_BOUNDARIES`/`TYPE_E` equilibrium-boundary evidence is now reported as a first-order
+  inlet-source blocker instead of being hidden behind a generic method label.
 - `scripts/audit_inlet_source.py`, the metrics writer and the validation metrics template now expose whether a synthetic
   inlet has three-component velocity writes, three-component fluctuation evidence and `k`-driven three-component STG
   evidence. A velocity-field STG source that cannot prove all three components are perturbed from `k` fails the inlet
