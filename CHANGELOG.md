@@ -68,6 +68,7 @@
 - Added a 2026-08-14 native Case A strict preflight record: fresh empty-tunnel and building configurations were generated from official AF/RS inputs, but FluidX3D was not launched because boundary-equivalence and roughness/precursor source gates remain open.
 - Native FluidX3D metadata fields such as `TurbulenceMethod`, `InletUpdateInterval`, `SyntheticEddy`, `RecyclingRescaling` and `RoughnessLayout` are now mapped into the standard validation metrics row, so synthetic-eddy and digital-filter candidates remain diagnostic unless distribution-consistent inlet evidence, validated length-scale evidence and final-window correlation audits are archived.
 - Native baseline metrics now also preserve the actual inlet distribution route and `EQUILIBRIUM_BOUNDARIES`/`TYPE_E` equilibrium-boundary evidence, so velocity-field-only inlet writes cannot be promoted as paper-grade FluidX3D inlet treatment.
+- Native probe/component traceability now requires component/Uref sensitivity audits to use the same runtime final-window time steps and VTK SHA256 set.
 - Added a separate `roughness_or_precursor` validation gate so AIJ Case A/E runs cannot pass paper-grade boundary checks through domain-clearance/blockage evidence alone when wind-tunnel roughness geometry, validated rough-wall treatment or precursor/recycling equivalence is missing.
 
 ### Known limits

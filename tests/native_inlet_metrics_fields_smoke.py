@@ -125,6 +125,10 @@ def main() -> int:
                         "probe_uref_mismatch_count_80;"
                         "normalization_scale_gate_not_pass:fail"
                     ),
+                    "component_source_time_steps_match_runtime": False,
+                    "component_source_steps_strictly_increasing": True,
+                    "component_source_step_spacing_uniform": True,
+                    "component_source_vtk_sha256_match_runtime": False,
                     "expected_uref_mps": 3.93,
                     "actual_uref_mps": 3.90,
                     "expected_zref_m": 15.9,
@@ -253,6 +257,10 @@ def main() -> int:
             "probe_uref_mismatch_count_80;"
             "normalization_scale_gate_not_pass:fail"
         ),
+        "native_probe_component_source_time_steps_match_runtime": "false",
+        "native_probe_component_source_steps_strictly_increasing": "true",
+        "native_probe_component_source_step_spacing_uniform": "true",
+        "native_probe_component_source_vtk_sha256_match_runtime": "false",
         "native_preconditions_expected_uref_mps": "3.93",
         "native_preconditions_actual_uref_mps": "3.9",
         "native_preconditions_expected_zref_m": "15.9",

@@ -2536,6 +2536,16 @@ def main() -> int:
     component_sensitivity_gate = str(component_sensitivity_audit.get("component_sensitivity_gate") or "").strip().lower()
     normalization_scale_gate = str(component_sensitivity_audit.get("normalization_scale_gate") or "").strip().lower()
     component_source_window_gate = str(component_sensitivity_audit.get("component_source_window_gate") or "").strip().lower()
+    component_source_steps = parse_int_list(component_sensitivity_audit.get("component_source_time_steps"))
+    component_source_hashes = parse_hash_list(component_sensitivity_audit.get("component_source_sha256"))
+    component_source_steps_match_runtime = bool(runtime_steps) and component_source_steps == runtime_steps
+    component_source_hashes_match_runtime = (
+        bool(runtime_hashes)
+        and bool(component_source_hashes)
+        and set(component_source_hashes) == set(runtime_hashes)
+    )
+    component_source_steps_increasing = source_steps_strictly_increasing(component_source_steps)
+    component_source_steps_uniform = source_steps_uniformly_spaced(component_source_steps)
     if not component_sensitivity_audit:
         reasons.append("component_sensitivity_audit_missing")
     reasons.extend(component_hash_traceability["reasons"])
@@ -2547,6 +2557,10 @@ def main() -> int:
         reasons.append("normalization_scale_gate_not_pass")
     if component_source_window_gate != "pass":
         reasons.append("component_source_window_gate_not_pass")
+    if not component_source_steps_match_runtime:
+        reasons.append("component_source_time_steps_mismatch_runtime")
+    if not component_source_hashes_match_runtime:
+        reasons.append("component_source_vtk_hashes_mismatch_runtime")
 
     native_probe_component_equivalence_reasons: List[str] = []
     if not probe_rows:
@@ -2599,6 +2613,10 @@ def main() -> int:
         ("probe_source_step_spacing_uniform", probe_source_steps_uniform),
         ("probe_source_step_span_match_runtime", probe_source_step_span_match),
         ("probe_source_vtk_sha256_match_runtime", probe_source_hashes_match),
+        ("component_source_time_steps_match_runtime", component_source_steps_match_runtime),
+        ("component_source_steps_strictly_increasing", component_source_steps_increasing),
+        ("component_source_step_spacing_uniform", component_source_steps_uniform),
+        ("component_source_vtk_sha256_match_runtime", component_source_hashes_match_runtime),
         (
             "component_sensitivity_probe_audit_sha256_matches_current",
             component_hash_traceability["probe_audit_sha256_matches_current"],
@@ -2954,9 +2972,13 @@ def main() -> int:
         if isinstance(component_sensitivity_audit.get("component_source_window_gate_reasons"), list)
         else str(component_sensitivity_audit.get("component_source_window_gate_reasons", "")),
         "component_source_time_steps": str(component_sensitivity_audit.get("component_source_time_steps") or ""),
+        "component_source_time_steps_match_runtime": component_source_steps_match_runtime,
+        "component_source_steps_strictly_increasing": component_source_steps_increasing,
+        "component_source_step_spacing_uniform": component_source_steps_uniform,
         "component_source_step_span": component_sensitivity_audit.get("component_source_step_span"),
         "component_minimum_source_step_span": component_sensitivity_audit.get("component_minimum_source_step_span"),
         "component_source_sha256": str(component_sensitivity_audit.get("component_source_sha256") or ""),
+        "component_source_vtk_sha256_match_runtime": component_source_hashes_match_runtime,
         "native_preconditions_protocol_identity_gate": protocol_identity_gate,
         "native_preconditions_time_average_gate": time_average_gate,
         "native_preconditions_manifest_sha256": sha256_file(manifest_path),

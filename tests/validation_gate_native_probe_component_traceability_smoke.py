@@ -50,6 +50,10 @@ def passing_native_audit():
         "probe_source_step_spacing_uniform": True,
         "probe_source_step_span_match_runtime": True,
         "probe_source_vtk_sha256_match_runtime": True,
+        "component_source_time_steps_match_runtime": True,
+        "component_source_steps_strictly_increasing": True,
+        "component_source_step_spacing_uniform": True,
+        "component_source_vtk_sha256_match_runtime": True,
         "probe_source_step_span": 20000,
         "probe_minimum_validation_average_step_span": 20000,
         "component_normalization_gate": "pass",
@@ -93,6 +97,8 @@ def main() -> int:
     bad["probe_source_vtk_sha256_match_runtime"] = False
     bad["component_source_window_gate"] = "fail"
     bad["component_source_step_span"] = 3000
+    bad["component_source_time_steps_match_runtime"] = False
+    bad["component_source_vtk_sha256_match_runtime"] = False
     bad["component_sensitivity_probe_audit_sha256_matches_current"] = False
     bad["component_sensitivity_hash_traceability_gate"] = "fail"
     failed = module.native_probe_component_traceability_status(
@@ -106,6 +112,8 @@ def main() -> int:
         "probe_out_of_tolerance_count_not_zero:2",
         "probe_source_vtk_sha256_match_runtime_not_true:False",
         "component_source_step_span_below_20000",
+        "component_source_time_steps_match_runtime_not_true:False",
+        "component_source_vtk_sha256_match_runtime_not_true:False",
         "component_source_window_gate_not_pass:fail",
         "component_sensitivity_probe_audit_sha256_matches_current_not_true:False",
         "component_sensitivity_hash_traceability_gate_not_pass:fail",

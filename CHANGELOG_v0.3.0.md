@@ -671,6 +671,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `has_type_e_equilibrium_boundary_route` into the native baseline gate. A native setup that writes only macroscopic
   velocity fields without `EQUILIBRIUM_BOUNDARIES`/`TYPE_E` equilibrium-boundary evidence is now reported as a first-order
   inlet-source blocker instead of being hidden behind a generic method label.
+- Native probe/component equivalence now also checks that the component/Uref sensitivity audit uses the same final-window
+  `source_time_steps` and VTK SHA256 set as the runtime audit. A component-sensitivity report from a stale or different
+  VTK window can no longer explain away systematic bias in Case A/E validation.
 - `scripts/audit_inlet_source.py`, the metrics writer and the validation metrics template now expose whether a synthetic
   inlet has three-component velocity writes, three-component fluctuation evidence and `k`-driven three-component STG
   evidence. A velocity-field STG source that cannot prove all three components are perturbed from `k` fails the inlet

@@ -437,6 +437,10 @@ TEMPLATE_FIELDS = [
     "native_probe_out_of_tolerance_count",
     "native_probe_projection_issue_reason",
     "native_probe_component_uref_issue_reason",
+    "native_probe_component_source_time_steps_match_runtime",
+    "native_probe_component_source_steps_strictly_increasing",
+    "native_probe_component_source_step_spacing_uniform",
+    "native_probe_component_source_vtk_sha256_match_runtime",
     "native_boundary_equivalence_gate",
     "native_boundary_equivalence_gate_reasons",
     "native_boundary_protocol_gate",
@@ -2440,6 +2444,18 @@ def main() -> int:
             ),
             "native_probe_component_uref_issue_reason": audit_field(
                 native_preconditions_audit, "probe_component_uref_issue_reason"
+            ),
+            "native_probe_component_source_time_steps_match_runtime": first_bool_text(
+                native_preconditions_audit.get("component_source_time_steps_match_runtime")
+            ),
+            "native_probe_component_source_steps_strictly_increasing": first_bool_text(
+                native_preconditions_audit.get("component_source_steps_strictly_increasing")
+            ),
+            "native_probe_component_source_step_spacing_uniform": first_bool_text(
+                native_preconditions_audit.get("component_source_step_spacing_uniform")
+            ),
+            "native_probe_component_source_vtk_sha256_match_runtime": first_bool_text(
+                native_preconditions_audit.get("component_source_vtk_sha256_match_runtime")
             ),
             "native_boundary_equivalence_gate": audit_gate(
                 native_preconditions_audit, "native_boundary_equivalence_gate"
