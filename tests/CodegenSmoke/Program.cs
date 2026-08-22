@@ -157,6 +157,7 @@ namespace CityLBM.CodegenSmoke
                 TestFluidX3DSourceValidation();
                 TestSyntheticInletRequiresCompleteKProfile();
                 TestProbeComponentSourceGuard();
+                TestRunSimulationValidationDefaults();
 
                 Console.WriteLine("Codegen smoke passed.");
                 Console.WriteLine(caseDir);
@@ -353,6 +354,28 @@ namespace CityLBM.CodegenSmoke
 
             if (!hasExecutableGuard)
                 throw new InvalidOperationException("ProbeComponent.cs is missing executable Points/Velocity count validation.");
+        }
+
+        private static void TestRunSimulationValidationDefaults()
+        {
+            string repoRoot = FindRepositoryRoot();
+            string componentPath = Path.Combine(repoRoot, "src", "Components", "Simulation", "RunSimulationComponent.cs");
+            string source = File.ReadAllText(componentPath);
+
+            Require(source, "validation preflight default is 40000");
+            Require(source, "validation preflight default is 1000");
+            Require(source, "GH_ParamAccess.item, 40000");
+            Require(source, "GH_ParamAccess.item, 1000");
+            Require(source, "int timeSteps = 40000;");
+            Require(source, "int saveInterval = 1000;");
+            Require(source, "CustomTable k column is complete, but Synthetic Inlet is off");
+            Require(source, "k will be recorded and converted only; it will not create inlet turbulence in FluidX3D");
+            Require(source, "STG-lite uses velocity-field inlet perturbations only");
+            Require(source, "HasCompleteCustomProfileK");
+            RequireNotContains(source, "Validation default is 10000");
+            RequireNotContains(source, "Validation default is 500");
+            RequireNotContains(source, "int timeSteps = 10000;");
+            RequireNotContains(source, "int saveInterval = 500;");
         }
 
         private static string FindRepositoryRoot()

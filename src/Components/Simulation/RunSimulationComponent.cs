@@ -82,8 +82,8 @@ namespace CityLBM.Components.Simulation
             // 物理参数
             pManager.AddNumberParameter("Wind Speed", "WS", "入口风速 (m/s)，0 = 使用 Scene 默认", GH_ParamAccess.item, 0.0);
             pManager.AddNumberParameter("Viscosity", "nu", "运动粘度 (m²/s)", GH_ParamAccess.item, 1.5e-5);
-            pManager.AddIntegerParameter("Time Steps", "T", "Total solver steps. Validation default is 10000; use lower values only for smoke tests.", GH_ParamAccess.item, 10000);
-            pManager.AddIntegerParameter("Save Interval", "SI", "VTK output interval in steps. Validation default is 500 to provide enough frames for time averaging.", GH_ParamAccess.item, 500);
+            pManager.AddIntegerParameter("Time Steps", "T", "Total solver steps. v0.3.0 validation preflight default is 40000; use lower values only for smoke tests.", GH_ParamAccess.item, 40000);
+            pManager.AddIntegerParameter("Save Interval", "SI", "VTK output interval in steps. v0.3.0 validation preflight default is 1000, producing about 40 frames for final-window averaging.", GH_ParamAccess.item, 1000);
 
             // ── v0.2.0: Smagorinsky LES 亚格子模型参数 ──
             pManager.AddBooleanParameter("Enable LES", "LES",
@@ -151,8 +151,8 @@ namespace CityLBM.Components.Simulation
             int mode = 3;
             double windSpeedOverride = 0.0;
             double viscosity = 1.5e-5;
-            int timeSteps = 10000;
-            int saveInterval = 500;
+            int timeSteps = 40000;
+            int saveInterval = 1000;
             bool run = false;
             bool cancel = false;
             // ── v0.2.0: Smagorinsky LES 参数 ──
@@ -350,6 +350,7 @@ namespace CityLBM.Components.Simulation
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
                     $"[v0.3.0] STG-lite inlet enabled for CustomTable+k. Modes={settings.SyntheticTurbulenceModeCount}, update={settings.SyntheticTurbulenceUpdateInterval}, cap={settings.SyntheticTurbulenceMaxFractionOfMean:F2}. Experimental; not full DFM/precursor/Reynolds-stress inflow.");
             }
+            EmitInletEvidenceWarnings(scene, settings);
 
             var solver = new FluidX3DInterface(fluidX3DPath);
             mode = Math.Max(0, Math.Min(3, mode));
@@ -401,6 +402,47 @@ namespace CityLBM.Components.Simulation
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, result.ErrorMessage);
             }
+        }
+
+        private void EmitInletEvidenceWarnings(Core.Scene scene, SimulationSettings settings)
+        {
+            if (scene == null || scene.WindProfile != WindProfileType.CustomTable)
+                return;
+
+            bool hasRows = scene.CustomWindProfile != null && scene.CustomWindProfile.Count > 0;
+            bool completeK = HasCompleteCustomProfileK(scene);
+            if (hasRows && completeK && !settings.EnableSyntheticTurbulentInlet)
+            {
+                AddRuntimeMessage(
+                    GH_RuntimeMessageLevel.Warning,
+                    "[v0.3.0] CustomTable k column is complete, but Synthetic Inlet is off. k will be recorded and converted only; it will not create inlet turbulence in FluidX3D.");
+            }
+            else if (settings.EnableSyntheticTurbulentInlet && !completeK)
+            {
+                AddRuntimeMessage(
+                    GH_RuntimeMessageLevel.Warning,
+                    "[v0.3.0] Synthetic Inlet was requested but will be blocked unless every CustomTable row has k(m2/s2). Check case_metadata.json for SyntheticTurbulentInletBlockedReason.");
+            }
+            else if (settings.EnableSyntheticTurbulentInlet && completeK)
+            {
+                AddRuntimeMessage(
+                    GH_RuntimeMessageLevel.Warning,
+                    "[v0.3.0] STG-lite uses velocity-field inlet perturbations only. Treat results as diagnostic until inlet U/k preservation, native parity and distribution-consistent turbulence evidence are archived.");
+            }
+        }
+
+        private static bool HasCompleteCustomProfileK(Core.Scene scene)
+        {
+            if (scene == null || scene.CustomWindProfile == null || scene.CustomWindProfile.Count == 0)
+                return false;
+
+            foreach (var sample in scene.CustomWindProfile)
+            {
+                if (sample == null || !sample.HasK)
+                    return false;
+            }
+
+            return true;
         }
 
         // ────────────────────────────────────────────────────────────────

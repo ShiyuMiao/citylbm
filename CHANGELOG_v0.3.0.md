@@ -53,6 +53,7 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `setup.cpp`, `case_metadata.json` and `validation_protocol_audit` now explicitly record that STG-lite refreshes macroscopic `lbm.u` only and does not reconstruct FluidX3D distribution functions.
 - `case_metadata.json` records whether the synthetic inlet was requested and actually injected, plus synthetic scale, correlation length, update interval and amplitude cap.
 - STG-lite injection now requires `k` on every CustomTable profile row. Partial `k` columns remain available for metadata diagnostics but are blocked from turbulent-inlet injection, with `SyntheticTurbulentInletBlockedReason=custom_profile_k_column_incomplete`.
+- `Run Simulation` now emits explicit Grasshopper warnings when a complete CustomTable `k` column is present but `Synthetic Inlet` is off, or when STG-lite is enabled but remains a velocity-field-only diagnostic inlet. This prevents validation runs from mistaking metadata-only `k` handling for true turbulent inflow.
 - `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now track the synthetic
   inlet correlation length and its evidence source. A user-selected STG correlation length is treated as diagnostic-only
   until it is replaced or justified by AIJ length-scale data, a precursor/recycling field or a validated DFM/SEM model.
@@ -517,7 +518,7 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   verified with `native_citylbm_parity_audit.json` rather than by manual label matching.
 - Case E should then be run with dx=2-3 m, long time averaging, at least one matched grid-sensitivity companion run, and
   the official AF/RS files.
-- The new default `10000/500` run is still a minimum validation workflow, not final stationarity proof; paper runs must
+- The new default `40000/1000` run is a validation preflight workflow, not final stationarity proof; paper runs must
   archive actual averaged source frames, stability diagnostics and solver logs.
 - The STG-lite inlet is not a full digital-filter, precursor/recycling, or Reynolds-stress method; it lacks Reynolds-stress tensors, turbulent length scales and validated precursor inflow.
 - The STG-lite inlet is velocity-field-only in v0.3.0. It remains diagnostic until empty-tunnel tests prove downstream
