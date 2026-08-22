@@ -455,6 +455,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     inlet_profile_gate = by_key.get("inlet_profile_preservation")
     inlet_profile_hash_gate = by_key.get("inlet_profile_vtk_hash_traceability")
     inlet_correlation_hash_gate = by_key.get("inlet_correlation_vtk_hash_traceability")
+    native_inlet_traceability_gate = by_key.get("native_inlet_precondition_traceability")
     k_gate = by_key.get("k_preservation_or_accuracy")
     custom_k_gate = by_key.get("custom_k_profile")
     inlet_gates = [
@@ -467,6 +468,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         inlet_profile_gate,
         inlet_profile_hash_gate,
         inlet_correlation_hash_gate,
+        native_inlet_traceability_gate,
         k_gate,
     ]
     if any(gate is None or gate.get("status") != PASS for gate in inlet_gates):
@@ -564,14 +566,14 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     native_gate = by_key.get("native_baseline")
     if any(
         gate is None or gate.get("status") != PASS
-        for gate in [native_preconditions_full_gate, native_gate]
+        for gate in [native_inlet_traceability_gate, native_preconditions_full_gate, native_gate]
     ):
-        native_priority_gate = (
-            native_preconditions_full_gate
-            if native_preconditions_full_gate is None
-            or native_preconditions_full_gate.get("status") != PASS
-            else native_gate
-        )
+        if native_inlet_traceability_gate is None or native_inlet_traceability_gate.get("status") != PASS:
+            native_priority_gate = native_inlet_traceability_gate
+        elif native_preconditions_full_gate is None or native_preconditions_full_gate.get("status") != PASS:
+            native_priority_gate = native_preconditions_full_gate
+        else:
+            native_priority_gate = native_gate
         native_top_key = str(get_any(metrics, ["native_top_blocking_priority_key"]) or "").strip()
         native_top_diagnosis = str(
             get_any(metrics, ["native_top_blocking_priority_diagnosis"]) or ""
@@ -2061,6 +2063,62 @@ def metrics_time_averaging_consistency_status(
         "metrics_selected_last_window": metrics_selected_last_window,
         "metrics_source_steps_strictly_increasing": metrics_steps_increasing,
         "metrics_source_step_spacing_uniform": metrics_spacing_uniform,
+    }
+
+
+def native_inlet_precondition_traceability_status(
+    native_preconditions_audit: Dict[str, Any],
+    min_avg_step_span: int,
+) -> Dict[str, Any]:
+    reasons: List[str] = []
+    if not native_preconditions_audit:
+        reasons.append("native_preconditions_audit_missing")
+
+    for key in [
+        "inlet_profile_gate",
+        "inlet_u_profile_gate",
+        "inlet_k_profile_gate",
+        "inlet_profile_time_averaging_gate",
+        "inlet_correlation_gate",
+    ]:
+        value = str(get_any(native_preconditions_audit, [key]) or "").strip().lower()
+        if value != "pass":
+            reasons.append(f"{key}_not_pass:{value or 'missing'}")
+
+    for key in [
+        "inlet_profile_af_csv_sha256_matches_expected",
+        "inlet_profile_source_time_steps_match_runtime",
+        "inlet_profile_source_vtk_sha256_match_runtime",
+        "inlet_profile_source_steps_strictly_increasing",
+        "inlet_profile_source_step_spacing_uniform",
+        "inlet_correlation_source_time_steps_match_runtime",
+        "inlet_correlation_source_vtk_sha256_match_runtime",
+        "inlet_correlation_source_steps_strictly_increasing",
+        "inlet_correlation_source_step_spacing_uniform",
+    ]:
+        value = as_bool(get_any(native_preconditions_audit, [key]))
+        if value is not True:
+            reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+
+    for label, span_key, minimum_key in [
+        ("inlet_profile", "inlet_profile_source_step_span", "inlet_profile_minimum_step_span"),
+        ("inlet_correlation", "inlet_correlation_source_step_span", "inlet_correlation_minimum_step_span"),
+    ]:
+        span = as_int(get_any(native_preconditions_audit, [span_key]))
+        minimum = as_int(get_any(native_preconditions_audit, [minimum_key]))
+        if span is None:
+            reasons.append(f"{label}_source_step_span_missing")
+        elif span < min_avg_step_span:
+            reasons.append(f"{label}_source_step_span_below_{min_avg_step_span}")
+        if minimum is None:
+            reasons.append(f"{label}_minimum_step_span_missing")
+        elif minimum < min_avg_step_span:
+            reasons.append(f"{label}_minimum_step_span_below_{min_avg_step_span}")
+
+    return {
+        "ok": not reasons,
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
     }
 
 
@@ -4484,8 +4542,36 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and bool(native_preconditions_id)
         and manifest_native_id == native_preconditions_id
     )
+    native_inlet_traceability = native_inlet_precondition_traceability_status(
+        native_preconditions_audit,
+        args.min_avg_step_span,
+    )
+    add_gate(
+        gates,
+        "native_inlet_precondition_traceability",
+        PASS if native_inlet_traceability["ok"] else FAIL,
+        (
+            f"native_preconditions_audit={native_preconditions_audit_path or 'missing'}; "
+            f"reasons={native_inlet_traceability['reasons_csv'] or 'none'}; "
+            f"inlet_profile_gate={native_preconditions_inlet_profile_gate or 'missing'}; "
+            f"inlet_u_profile_gate={native_preconditions_inlet_u_profile_gate or 'missing'}; "
+            f"inlet_k_profile_gate={native_preconditions_inlet_k_profile_gate or 'missing'}; "
+            f"inlet_profile_time_averaging_gate={get_any(native_preconditions_audit, ['inlet_profile_time_averaging_gate']) or 'missing'}; "
+            f"inlet_profile_af_csv_sha256_matches_expected={get_any(native_preconditions_audit, ['inlet_profile_af_csv_sha256_matches_expected'])}; "
+            f"inlet_profile_source_time_steps_match_runtime={get_any(native_preconditions_audit, ['inlet_profile_source_time_steps_match_runtime'])}; "
+            f"inlet_profile_source_vtk_sha256_match_runtime={get_any(native_preconditions_audit, ['inlet_profile_source_vtk_sha256_match_runtime'])}; "
+            f"inlet_profile_source_step_span={get_any(native_preconditions_audit, ['inlet_profile_source_step_span'])}; "
+            f"inlet_correlation_gate={native_preconditions_inlet_correlation_gate or 'missing'}; "
+            f"inlet_correlation_source_time_steps_match_runtime={get_any(native_preconditions_audit, ['inlet_correlation_source_time_steps_match_runtime'])}; "
+            f"inlet_correlation_source_vtk_sha256_match_runtime={get_any(native_preconditions_audit, ['inlet_correlation_source_vtk_sha256_match_runtime'])}; "
+            f"inlet_correlation_source_step_span={get_any(native_preconditions_audit, ['inlet_correlation_source_step_span'])}; "
+            f"required_min_avg_step_span={args.min_avg_step_span}"
+        ),
+        "Regenerate native inlet profile and inlet correlation audits from the same runtime-selected final VTK window, with matching AF CSV hash, VTK hashes, increasing/uniform source steps and sufficient solver-step span.",
+    )
     native_preconditions_full_evidence_ok = (
         native_preconditions_audit_path is not None
+        and native_inlet_traceability["ok"]
         and native_preconditions_inlet_source_gate == "pass"
         and native_preconditions_paper_inlet_gate == "pass"
         and native_preconditions_inlet_distribution_consistent is True
@@ -4525,6 +4611,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_u_profile_gate={native_preconditions_inlet_u_profile_gate or 'missing'}; "
             f"inlet_k_profile_gate={native_preconditions_inlet_k_profile_gate or 'missing'}; "
             f"inlet_correlation_gate={native_preconditions_inlet_correlation_gate or 'missing'}; "
+            f"native_inlet_traceability_ok={native_inlet_traceability['ok']}; "
+            f"native_inlet_traceability_reasons={native_inlet_traceability['reasons_csv'] or 'none'}; "
             f"boundary_source_gate={native_preconditions_boundary_source_gate or 'missing'}; "
             f"paper_grade_boundary_source_gate={native_preconditions_paper_boundary_gate or 'missing'}; "
             f"boundary_source_wind_tunnel_equivalent={native_preconditions_boundary_equivalent}; "
@@ -5531,6 +5619,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "paper_grade_inlet_method": "paper-grade turbulent inlet method",
         "inlet_correlation": "inlet correlation evidence",
         "inlet_length_scale": "inlet length-scale evidence",
+        "native_inlet_precondition_traceability": "native FluidX3D inlet U/k and correlation traceability",
         "boundary_source_evidence": "boundary source evidence",
         "boundary_protocol": "boundary protocol",
         "roughness_or_precursor": "roughness or precursor evidence",
