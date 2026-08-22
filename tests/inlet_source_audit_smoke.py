@@ -290,6 +290,42 @@ void recycling_rescaling_inlet(uint t_step) {
         if "precursor_recycling_method_missing_recycled_field_evidence" not in named_recycling_report["inlet_source_gate_reasons"]:
             raise AssertionError(named_recycling_report["inlet_source_gate_reasons"])
 
+        precursor_velocity_setup = root / "precursor_velocity_setup.cpp"
+        precursor_velocity_out = root / "precursor_velocity_audit.json"
+        write_text(
+            precursor_velocity_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+float3 recycling_buffer[16];
+void recycling_rescaling_inlet(uint t_step) {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            float3 u_in = recycling_buffer[n];
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+        }
+    }
+}
+""",
+        )
+        precursor_velocity_code, precursor_velocity_report = run_audit(
+            precursor_velocity_setup,
+            metadata,
+            precursor_velocity_out,
+        )
+        if precursor_velocity_code == 0:
+            raise AssertionError("precursor/recycling velocity-only inlet unexpectedly passed")
+        if precursor_velocity_report["inlet_source_method_class"] != "precursor_or_recycling_velocity_field_only":
+            raise AssertionError(precursor_velocity_report["inlet_source_method_class"])
+        if "precursor_recycling_source_missing_inlet_distribution_reconstruction" not in precursor_velocity_report["inlet_source_gate_reasons"]:
+            raise AssertionError(precursor_velocity_report["inlet_source_gate_reasons"])
+        if "source_velocity_field_only" not in precursor_velocity_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(precursor_velocity_report["paper_grade_inlet_source_gate_reasons"])
+
         sem_setup = root / "sem_setup.cpp"
         sem_out = root / "sem_audit.json"
         write_text(

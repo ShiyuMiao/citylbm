@@ -422,7 +422,11 @@ def main() -> int:
         and has_sem_eddy_population
         and has_inlet_distribution_reconstruction
     )
-    has_distribution_consistent_precursor = has_precursor and has_precursor_recycling_field
+    has_distribution_consistent_precursor = (
+        has_precursor
+        and has_precursor_recycling_field
+        and has_inlet_distribution_reconstruction
+    )
     advanced_token_only = (
         (has_digital_filter_token and not has_digital_filter)
         or (has_sem_token and not has_sem)
@@ -653,6 +657,8 @@ def main() -> int:
         source_method_class = "stg_lite_correlated_velocity_field_only"
     elif has_stg_function and has_velocity_field_write:
         source_method_class = "stg_lite_velocity_field_only"
+    elif has_precursor and has_precursor_recycling_field:
+        source_method_class = "precursor_or_recycling_velocity_field_only"
     elif has_precursor:
         source_method_class = "named_method_without_precursor_recycling_field_evidence"
     elif has_digital_filter or has_sem:
@@ -676,6 +682,7 @@ def main() -> int:
         "mean_profile_velocity_field_only",
         "named_method_without_distribution_evidence",
         "named_method_without_precursor_recycling_field_evidence",
+        "precursor_or_recycling_velocity_field_only",
     }
     stg_lite_velocity_source = source_method_class in {
         "stg_lite_velocity_field_only",
@@ -698,6 +705,8 @@ def main() -> int:
         reasons.append("sem_source_missing_eddy_population")
     if has_precursor and not has_precursor_recycling_field:
         reasons.append("precursor_recycling_source_missing_recycled_field_evidence")
+    if has_precursor and has_precursor_recycling_field and not has_inlet_distribution_reconstruction:
+        reasons.append("precursor_recycling_source_missing_inlet_distribution_reconstruction")
     if synthetic_requested and has_stg_function and not has_k_profile:
         reasons.append("synthetic_inlet_source_missing_profile_k_lbm")
     if synthetic_requested and stg_lite_velocity_source and not has_stg_refresh_loop:
