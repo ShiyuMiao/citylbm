@@ -355,6 +355,33 @@ def append_source_window_reasons(
     }
 
 
+def append_source_step_span_reasons(
+    reasons: List[str],
+    label: str,
+    audit: Dict[str, Any],
+    min_step_span: int,
+) -> Dict[str, Any]:
+    reported = as_int(audit.get("source_step_span"))
+    computed = source_step_span_from_steps(audit_source_steps(audit))
+    effective = computed if computed is not None else reported
+    matches_steps = reported is not None and computed is not None and reported == computed
+    if audit:
+        if reported is None:
+            reasons.append(f"{label}_source_step_span_missing")
+        if computed is None:
+            reasons.append(f"{label}_source_time_steps_span_missing")
+        elif reported is not None and reported != computed:
+            reasons.append(f"{label}_source_step_span_mismatch_time_steps")
+    if effective is None or effective < min_step_span:
+        reasons.append(f"{label}_step_span_too_short")
+    return {
+        f"{label}_reported_source_step_span": reported,
+        f"{label}_source_step_span_from_time_steps": computed,
+        f"{label}_source_step_span": effective,
+        f"{label}_source_step_span_matches_time_steps": matches_steps,
+    }
+
+
 def append_setup_hash_reason(reasons: List[str], label: str, audit: Dict[str, Any], setup_sha: str) -> Dict[str, Any]:
     audit_sha = str(audit.get("setup_cpp_sha256") or "").strip().lower()
     match = bool(audit_sha) and bool(setup_sha) and audit_sha == setup_sha
@@ -687,7 +714,6 @@ def main() -> int:
     inlet_k_profile_gate = str(inlet_profile_audit.get("inlet_k_profile_gate") or "").strip().upper()
     inlet_profile_time_gate = str(inlet_profile_audit.get("time_averaging_gate") or "").strip().upper()
     inlet_profile_frame_count = as_int(inlet_profile_audit.get("frame_count"))
-    inlet_profile_step_span = as_int(inlet_profile_audit.get("source_step_span"))
     if not inlet_profile_audit:
         reasons.append("inlet_profile_audit_missing")
     if inlet_profile_gate != "PASS":
@@ -700,8 +726,12 @@ def main() -> int:
         reasons.append("inlet_profile_time_averaging_gate_not_pass")
     if inlet_profile_frame_count is None or inlet_profile_frame_count < args.min_avg_frames:
         reasons.append("inlet_profile_frame_count_below_minimum")
-    if inlet_profile_step_span is None or inlet_profile_step_span < args.min_avg_step_span:
-        reasons.append("inlet_profile_step_span_too_short")
+    inlet_profile_span_check = append_source_step_span_reasons(
+        reasons,
+        "inlet_profile",
+        inlet_profile_audit,
+        args.min_avg_step_span,
+    )
     inlet_profile_window_check = append_source_window_reasons(
         reasons,
         "inlet_profile",
@@ -722,15 +752,18 @@ def main() -> int:
 
     inlet_correlation_gate = str(inlet_correlation_audit.get("inlet_correlation_gate") or "").strip().upper()
     inlet_correlation_frame_count = as_int(inlet_correlation_audit.get("frame_count"))
-    inlet_correlation_step_span = as_int(inlet_correlation_audit.get("source_step_span"))
     if not inlet_correlation_audit:
         reasons.append("inlet_correlation_audit_missing")
     if inlet_correlation_gate != "PASS":
         reasons.append("inlet_correlation_gate_not_pass")
     if inlet_correlation_frame_count is None or inlet_correlation_frame_count < args.min_avg_frames:
         reasons.append("inlet_correlation_frame_count_below_minimum")
-    if inlet_correlation_step_span is None or inlet_correlation_step_span < args.min_avg_step_span:
-        reasons.append("inlet_correlation_step_span_too_short")
+    inlet_correlation_span_check = append_source_step_span_reasons(
+        reasons,
+        "inlet_correlation",
+        inlet_correlation_audit,
+        args.min_avg_step_span,
+    )
     inlet_correlation_window_check = append_source_window_reasons(
         reasons,
         "inlet_correlation",
@@ -1045,8 +1078,10 @@ def main() -> int:
         "inlet_k_profile_gate": inlet_k_profile_gate,
         "inlet_profile_af_csv_sha256": inlet_profile_af_sha,
         "inlet_profile_af_csv_sha256_matches_expected": inlet_profile_af_hash_matches,
+        **inlet_profile_span_check,
         **inlet_profile_window_check,
         "inlet_correlation_gate": inlet_correlation_gate,
+        **inlet_correlation_span_check,
         **inlet_correlation_window_check,
         "boundary_source_gate": boundary_source_gate,
         "paper_grade_boundary_source_gate": paper_boundary_source_gate,

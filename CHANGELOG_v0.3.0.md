@@ -174,6 +174,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native preconditions now recompute the runtime VTK source-window step span from the archived `source_time_steps` and
   require it to match the reported runtime `source_step_span`. A hand-entered or stale span value can no longer hide a
   short final averaging window.
+- Native preconditions now apply the same source-step-span closure to `inlet_profile_audit.json` and
+  `inlet_correlation_audit.json`. Inlet `U/k` preservation and turbulence-correlation evidence must therefore prove
+  their own averaging-window span from archived source time steps, not only from a copied summary field.
 - `scripts/validation_gate.py` now rechecks valid per-probe IDs against the current official RS/measurement table:
   every valid probe row must have a non-empty unique ID, and each ID must exist in the official table before
   coordinate/Uref/compared-component diagnostics can pass.
