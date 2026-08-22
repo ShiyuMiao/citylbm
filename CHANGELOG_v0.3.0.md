@@ -533,6 +533,8 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   interpreted as native FluidX3D or CityLBM solver accuracy while coordinate/component/Uref, fresh VTK, time averaging,
   inlet U/k, turbulent-inlet evidence, boundary evidence, native baseline, CityLBM parity or grid-sensitivity gates are
   still open.
+- The final `diagnostic_priority` now expands failed systematic-bias prerequisites and the native FluidX3D top blocker,
+  so a large residual bias points to the exact open evidence gates before any solver-accuracy interpretation.
 
 ## Remaining scientific work
 

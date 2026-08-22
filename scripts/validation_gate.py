@@ -390,6 +390,19 @@ def add_priority(
     )
 
 
+def extract_systematic_prerequisite_blockers(evidence: str) -> str:
+    text = str(evidence or "")
+    marker = "prerequisite gates are not closed: "
+    if marker not in text:
+        return ""
+    blockers = text.split(marker, 1)[1]
+    for suffix in [". Treat ", "."]:
+        if suffix in blockers:
+            blockers = blockers.split(suffix, 1)[0]
+            break
+    return blockers.strip()
+
+
 def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, Any]) -> List[Dict[str, Any]]:
     by_key = gate_by_key(gates)
     priorities: List[Dict[str, Any]] = []
@@ -577,13 +590,42 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     systematic_flag = str(get_any(metrics, ["systematic_bias_flag"]) or "").strip().lower()
     bias_diagnosis = str(get_any(metrics, ["bias_diagnosis"]) or "").strip()
     if systematic_interpretation_gate is not None and systematic_interpretation_gate.get("status") != PASS:
+        failed_prereq_text = extract_systematic_prerequisite_blockers(
+            str(systematic_interpretation_gate.get("evidence") or "")
+        )
+        native_top_key = str(get_any(metrics, ["native_top_blocking_priority_key"]) or "").strip()
+        native_top_diagnosis = str(
+            get_any(metrics, ["native_top_blocking_priority_diagnosis"]) or ""
+        ).strip()
+        native_top_action = str(
+            get_any(metrics, ["native_top_blocking_priority_next_action"]) or ""
+        ).strip()
+        blocker_detail = (
+            f" Open prerequisites: {failed_prereq_text}."
+            if failed_prereq_text
+            else ""
+        )
+        native_detail = (
+            f" Native top blocker '{native_top_key}': {native_top_diagnosis or 'no diagnosis text'}."
+            if native_top_key
+            else ""
+        )
+        systematic_action = (
+            f"{native_top_action} Then close all listed prerequisite gates before interpreting residual bias."
+            if native_top_action
+            else "Close inlet turbulence, boundary, averaging, coordinate/component/Uref, native baseline, parity and grid-sensitivity gates before interpreting residual bias."
+        )
         add_priority(
             priorities,
             8,
             "systematic_bias_interpretation",
             systematic_interpretation_gate,
-            "Large bias is present while prerequisite evidence gates remain open, so the result cannot support a solver-accuracy claim.",
-            "Close inlet turbulence, boundary, averaging, coordinate/component/Uref, native baseline, parity and grid-sensitivity gates before interpreting residual bias.",
+            (
+                "Large bias is present while prerequisite evidence gates remain open, so the result cannot support a solver-accuracy claim."
+                + blocker_detail
+                + native_detail
+            ),
+            systematic_action,
         )
     if systematic_gate is not None and systematic_gate.get("status") != PASS:
         add_priority(
