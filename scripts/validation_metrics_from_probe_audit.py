@@ -464,6 +464,13 @@ TEMPLATE_FIELDS = [
     "native_top_blocking_priority_reasons",
     "native_top_blocking_priority_diagnosis",
     "native_top_blocking_priority_next_action",
+    "native_rerun_prescription_gate",
+    "native_rerun_prescription_top_key",
+    "native_rerun_prescription_experiment",
+    "native_rerun_prescription_required_controls",
+    "native_rerun_prescription_minimum_final_window",
+    "native_rerun_prescription_accuracy_interpretation_allowed",
+    "native_rerun_prescription_summary",
     "native_precondition_closure_gate",
     "native_precondition_closed_stage_count",
     "native_precondition_failed_stage_count",
@@ -2497,6 +2504,27 @@ def main() -> int:
             ),
             "native_top_blocking_priority_next_action": audit_field(
                 native_preconditions_audit, "native_top_blocking_priority_next_action"
+            ),
+            "native_rerun_prescription_gate": audit_gate(
+                native_preconditions_audit, "native_rerun_prescription_gate"
+            ),
+            "native_rerun_prescription_top_key": audit_field(
+                native_preconditions_audit, "native_rerun_prescription_top_key"
+            ),
+            "native_rerun_prescription_experiment": audit_field(
+                native_preconditions_audit, "native_rerun_prescription_experiment"
+            ),
+            "native_rerun_prescription_required_controls": audit_list_field(
+                native_preconditions_audit, "native_rerun_prescription_required_controls"
+            ),
+            "native_rerun_prescription_minimum_final_window": audit_field(
+                native_preconditions_audit, "native_rerun_prescription_minimum_final_window"
+            ),
+            "native_rerun_prescription_accuracy_interpretation_allowed": first_bool_text(
+                native_preconditions_audit.get("native_rerun_prescription_accuracy_interpretation_allowed")
+            ),
+            "native_rerun_prescription_summary": audit_field(
+                native_preconditions_audit, "native_rerun_prescription_summary"
             ),
             "native_precondition_closure_gate": audit_gate(
                 native_preconditions_audit, "native_precondition_closure_gate"

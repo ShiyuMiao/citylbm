@@ -373,6 +373,113 @@ def build_native_precondition_closure(reasons: List[str]) -> Dict[str, Any]:
     }
 
 
+def build_native_rerun_prescription(
+    priorities: List[Dict[str, Any]],
+    closure: Dict[str, Any],
+    min_avg_frames: int,
+    min_avg_step_span: int,
+    average_last_n: int,
+) -> Dict[str, Any]:
+    top = priorities[0] if priorities else {}
+    top_key = str(top.get("key") or "").strip()
+    top_diagnosis = str(top.get("diagnosis") or "").strip()
+    top_action = str(top.get("next_action") or "").strip()
+    accuracy_allowed = not priorities and str(closure.get("gate") or "").lower() == "pass"
+
+    prescriptions = {
+        "validation_protocol_content": (
+            "regenerate_protocol_audit_before_cfd",
+            [
+                "rerun_validation_protocol_audit_from_current_case",
+                "record_non_fail_status_for_all_required_protocol_items",
+                "hash_current_setup_metadata_domain_and_geometry",
+            ],
+        ),
+        "turbulent_inlet_method_and_u_k_preservation": (
+            "native_empty_tunnel_inlet_preservation_first",
+            [
+                "use_customtable_af_u_and_k_profile",
+                "provide_distribution_consistent_dfm_sem_or_precursor_inlet_or_archive_explicit_velocity_only_diagnostic_label",
+                "prove_final_window_inlet_u_profile_gate_pass",
+                "prove_final_window_inlet_k_profile_gate_pass",
+                "prove_inlet_correlation_and_tke_gates_pass",
+                "archive_inlet_source_profile_correlation_audits_with_matching_setup_and_vtk_hashes",
+            ],
+        ),
+        "boundary_roughness_blockage": (
+            "native_boundary_equivalence_before_probe_accuracy",
+            [
+                "document_aij_equivalent_inlet_outlet_side_top_and_floor_treatments",
+                "archive_non_empty_hashed_boundary_support_files",
+                "prove_roughness_fetch_clearance_blockage_outlet_reflection_and_side_top_checks",
+                "run_boundary_runtime_audit_on_the_same_final_vtk_window",
+            ],
+        ),
+        "time_averaging_stationarity": (
+            "rerun_long_final_window_average",
+            [
+                f"save_at_least_{min_avg_frames}_final_window_vtk_frames",
+                f"span_at_least_{min_avg_step_span}_solver_steps_in_final_window",
+                f"set_average_last_n_to_{average_last_n}",
+                "use_strictly_increasing_uniform_time_steps",
+                "hash_every_selected_final_window_vtk_frame",
+                "prove_final_window_stationarity_gate_pass",
+            ],
+        ),
+        "coordinate_component_normalization": (
+            "repair_probe_mapping_component_and_uref_audits",
+            [
+                "match_all_official_probe_ids_and_coordinates",
+                "keep_probe_projection_distance_within_tolerance",
+                "compare_the_declared_streamwise_or_speed_component_consistently",
+                "verify_wind_vector_sign_and_uref_against_af_profile",
+                "rerun_component_sensitivity_on_the_same_vtk_window",
+            ],
+        ),
+        "systematic_bias_after_prerequisites": (
+            "paired_native_citylbm_physics_diagnosis",
+            [
+                "compare_paired_native_fluidx3d_and_citylbm_runs_with_identical_inputs",
+                "run_grid_sensitivity_with_matched_coarser_or_finer_dx",
+                "treat_remaining_bias_as_physics_or_protocol_after_all_preconditions_pass",
+            ],
+        ),
+        "other_precondition_evidence": (
+            "close_residual_traceability_gaps",
+            [
+                "inspect_unmatched_native_precondition_reasons",
+                "archive_missing_hashes_manifests_or_audit_files",
+            ],
+        ),
+    }
+    experiment, controls = prescriptions.get(
+        top_key,
+        (
+            "accuracy_interpretation_ready" if accuracy_allowed else "inspect_native_precondition_audit",
+            [] if accuracy_allowed else ["close_native_precondition_reasons_before_accuracy_interpretation"],
+        ),
+    )
+    summary = (
+        "All native precondition stages are closed; accuracy metrics can be interpreted against the configured gates."
+        if accuracy_allowed
+        else f"Do not interpret probe accuracy yet. Next experiment: {experiment}. {top_diagnosis or top_action}"
+    )
+    return {
+        "gate": "pass" if accuracy_allowed else "fail",
+        "top_key": top_key,
+        "experiment": experiment,
+        "required_controls": controls,
+        "required_controls_csv": ";".join(controls),
+        "minimum_final_window": (
+            f"average_last_n={average_last_n};"
+            f"min_avg_frames={min_avg_frames};"
+            f"min_avg_step_span={min_avg_step_span}"
+        ),
+        "accuracy_interpretation_allowed": accuracy_allowed,
+        "summary": summary,
+    }
+
+
 def read_json(path: Optional[Path]) -> Dict[str, Any]:
     if not path or not path.exists():
         return {}
@@ -2528,6 +2635,13 @@ def main() -> int:
     native_diagnostic_priority = build_native_diagnostic_priority(reasons)
     native_top_priority = native_diagnostic_priority[0] if native_diagnostic_priority else {}
     native_precondition_closure = build_native_precondition_closure(reasons)
+    native_rerun_prescription = build_native_rerun_prescription(
+        native_diagnostic_priority,
+        native_precondition_closure,
+        args.min_avg_frames,
+        args.min_avg_step_span,
+        args.average_last_n,
+    )
 
     result = {
         "generated_at_utc": utc_now(),
@@ -2858,6 +2972,16 @@ def main() -> int:
         ),
         "native_top_blocking_priority_diagnosis": native_top_priority.get("diagnosis", ""),
         "native_top_blocking_priority_next_action": native_top_priority.get("next_action", ""),
+        "native_rerun_prescription_gate": native_rerun_prescription["gate"],
+        "native_rerun_prescription_top_key": native_rerun_prescription["top_key"],
+        "native_rerun_prescription_experiment": native_rerun_prescription["experiment"],
+        "native_rerun_prescription_required_controls": native_rerun_prescription["required_controls"],
+        "native_rerun_prescription_required_controls_csv": native_rerun_prescription["required_controls_csv"],
+        "native_rerun_prescription_minimum_final_window": native_rerun_prescription["minimum_final_window"],
+        "native_rerun_prescription_accuracy_interpretation_allowed": native_rerun_prescription[
+            "accuracy_interpretation_allowed"
+        ],
+        "native_rerun_prescription_summary": native_rerun_prescription["summary"],
         "native_diagnostic_priority_order": [
             "validation_protocol_content",
             "turbulent_inlet_method_and_u_k_preservation",

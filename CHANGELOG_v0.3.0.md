@@ -78,6 +78,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native precondition audits and validation metrics now carry the matched uncorrelated-random inlet patterns and the
   recommended next action from `inlet_source_audit.json`, so RMS/k random velocity-field perturbations remain visible as
   a validation blocker in final Case A/E evidence rows.
+- Native precondition audits now emit a machine-readable rerun prescription (`native_rerun_prescription_*`) that maps the
+  top blocker to the next strict native FluidX3D experiment: inlet U/k preservation, boundary-equivalence evidence,
+  longer final-window averaging, probe/component/Uref repair or paired native-vs-CityLBM physics diagnosis.
 - `validation_gate.py` now adds `native_inlet_precondition_traceability`, requiring native FluidX3D U/k profile,
   correlation, AF CSV hash, VTK hash and final-window step-span evidence before a native baseline or systematic-bias
   interpretation can pass. Legacy summary-only native audits remain diagnostic.

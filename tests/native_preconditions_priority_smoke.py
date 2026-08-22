@@ -404,6 +404,34 @@ def main() -> int:
     if closure["top_blocking_stage_reason_count"] <= 0:
         raise AssertionError(closure)
 
+    prescription = module.build_native_rerun_prescription(
+        priorities,
+        closure,
+        min_avg_frames=40,
+        min_avg_step_span=20000,
+        average_last_n=40,
+    )
+    if prescription["gate"] != "fail":
+        raise AssertionError(prescription)
+    if prescription["top_key"] != "turbulent_inlet_method_and_u_k_preservation":
+        raise AssertionError(prescription)
+    if prescription["experiment"] != "native_empty_tunnel_inlet_preservation_first":
+        raise AssertionError(prescription)
+    for control in [
+        "use_customtable_af_u_and_k_profile",
+        "prove_final_window_inlet_u_profile_gate_pass",
+        "prove_final_window_inlet_k_profile_gate_pass",
+        "prove_inlet_correlation_and_tke_gates_pass",
+    ]:
+        if control not in prescription["required_controls"]:
+            raise AssertionError(prescription)
+    if "average_last_n=40" not in prescription["minimum_final_window"]:
+        raise AssertionError(prescription)
+    if prescription["accuracy_interpretation_allowed"] is not False:
+        raise AssertionError(prescription)
+    if "Do not interpret probe accuracy yet" not in prescription["summary"]:
+        raise AssertionError(prescription)
+
     empty_closure = module.build_native_precondition_closure([])
     if empty_closure["gate"] != "pass":
         raise AssertionError(empty_closure)
@@ -411,6 +439,14 @@ def main() -> int:
         raise AssertionError(empty_closure)
     if empty_closure["closed_stage_count"] != empty_closure["stage_count"]:
         raise AssertionError(empty_closure)
+
+    empty_prescription = module.build_native_rerun_prescription([], empty_closure, 40, 20000, 40)
+    if empty_prescription["gate"] != "pass":
+        raise AssertionError(empty_prescription)
+    if empty_prescription["experiment"] != "accuracy_interpretation_ready":
+        raise AssertionError(empty_prescription)
+    if empty_prescription["accuracy_interpretation_allowed"] is not True:
+        raise AssertionError(empty_prescription)
 
     time_priority = next(item for item in priorities if item["key"] == "time_averaging_stationarity")
     if "runtime_average_window_frame_count_4_below_minimum_40" not in time_priority["reasons"]:

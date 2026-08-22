@@ -63,6 +63,8 @@
 - Added `scripts/audit_native_citylbm_parity.py`; CityLBM validation rows now need paired native FluidX3D metrics with
   matched case, wind direction, dx, averaging, Uref, inlet/boundary and probe settings before inherited native accuracy
   can be claimed.
+- Native precondition audits now write `native_rerun_prescription_*` fields into metrics, so a failing native baseline
+  records the next strict rerun target instead of leaving large bias as an unexplained error.
 - Added a 2026-08-14 native Case A strict preflight record: fresh empty-tunnel and building configurations were generated from official AF/RS inputs, but FluidX3D was not launched because boundary-equivalence and roughness/precursor source gates remain open.
 - Native FluidX3D metadata fields such as `TurbulenceMethod`, `InletUpdateInterval`, `SyntheticEddy`, `RecyclingRescaling` and `RoughnessLayout` are now mapped into the standard validation metrics row, so synthetic-eddy and digital-filter candidates remain diagnostic unless distribution-consistent inlet evidence, validated length-scale evidence and final-window correlation audits are archived.
 - Added a separate `roughness_or_precursor` validation gate so AIJ Case A/E runs cannot pass paper-grade boundary checks through domain-clearance/blockage evidence alone when wind-tunnel roughness geometry, validated rough-wall treatment or precursor/recycling equivalence is missing.
