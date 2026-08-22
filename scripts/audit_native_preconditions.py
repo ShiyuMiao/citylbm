@@ -368,6 +368,15 @@ def probe_unique_values(rows: List[Dict[str, str]], *fields: str) -> List[str]:
     return sorted({row_value(row, *fields) for row in rows if row_value(row, *fields)})
 
 
+def probe_unique_int_values(rows: List[Dict[str, str]], *fields: str) -> List[int]:
+    values = []
+    for row in rows:
+        value = as_int(row_value(row, *fields))
+        if value is not None:
+            values.append(value)
+    return sorted(set(values))
+
+
 def row_value(row: Dict[str, str], *fields: str) -> str:
     lowered = {key.lower(): value for key, value in row.items()}
     for field in fields:
@@ -893,10 +902,31 @@ def main() -> int:
         "source_vtk_sha256",
         "SourceVtkSha256",
     )
+    probe_source_step_span_values = probe_unique_int_values(
+        probe_rows,
+        "vtk_source_step_span",
+        "VtkSourceStepSpan",
+        "source_step_span",
+        "SourceStepSpan",
+    )
+    probe_minimum_step_span_values = probe_unique_int_values(
+        probe_rows,
+        "minimum_validation_average_step_span",
+        "MinimumValidationAverageStepSpan",
+        "vtk_minimum_validation_average_step_span",
+        "VtkMinimumValidationAverageStepSpan",
+    )
     probe_source_steps = parse_int_list(probe_source_steps_values[0]) if len(probe_source_steps_values) == 1 else []
     probe_source_hashes = parse_hash_list(probe_source_hash_values[0]) if len(probe_source_hash_values) == 1 else []
+    probe_source_step_span = probe_source_step_span_values[0] if len(probe_source_step_span_values) == 1 else None
+    probe_minimum_step_span = probe_minimum_step_span_values[0] if len(probe_minimum_step_span_values) == 1 else None
     probe_source_steps_match = bool(runtime_steps) and probe_source_steps == runtime_steps
     probe_source_hashes_match = bool(runtime_hashes) and bool(probe_source_hashes) and set(probe_source_hashes) == set(runtime_hashes)
+    probe_source_step_span_match = (
+        runtime_step_span is not None
+        and probe_source_step_span is not None
+        and probe_source_step_span == runtime_step_span
+    )
     if probe_rows:
         if len(probe_source_steps_values) != 1:
             reasons.append("probe_source_time_steps_inconsistent_or_missing")
@@ -906,6 +936,17 @@ def main() -> int:
             reasons.append("probe_source_vtk_hashes_inconsistent_or_missing")
         elif not probe_source_hashes_match:
             reasons.append("probe_source_vtk_hashes_mismatch")
+        if len(probe_source_step_span_values) != 1:
+            reasons.append("probe_source_step_span_inconsistent_or_missing")
+        else:
+            if probe_source_step_span < args.min_avg_step_span:
+                reasons.append("probe_source_step_span_too_short")
+            if not probe_source_step_span_match:
+                reasons.append("probe_source_step_span_mismatch")
+        if len(probe_minimum_step_span_values) != 1:
+            reasons.append("probe_minimum_step_span_inconsistent_or_missing")
+        elif probe_minimum_step_span != args.min_avg_step_span:
+            reasons.append("probe_minimum_step_span_mismatch")
 
     component_gate = str(component_sensitivity_audit.get("component_normalization_gate") or "").strip().lower()
     component_sensitivity_gate = str(component_sensitivity_audit.get("component_sensitivity_gate") or "").strip().lower()
@@ -1028,6 +1069,9 @@ def main() -> int:
         "probe_out_of_tolerance_count": probe_out_of_tolerance_count,
         "probe_source_time_steps": probe_source_steps,
         "probe_source_time_steps_match_runtime": probe_source_steps_match,
+        "probe_source_step_span": probe_source_step_span,
+        "probe_source_step_span_match_runtime": probe_source_step_span_match,
+        "probe_minimum_validation_average_step_span": probe_minimum_step_span,
         "probe_source_vtk_sha256": probe_source_hashes,
         "probe_source_vtk_sha256_match_runtime": probe_source_hashes_match,
         "component_normalization_gate": component_gate,

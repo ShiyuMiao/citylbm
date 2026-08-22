@@ -168,6 +168,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/audit_native_preconditions.py` now treats `OutOfTolerance=true` and failing/invalid validation-status fields
   as failed probe rows, and accepts common PascalCase VTK source-window column names. Native baselines therefore cannot
   pass by exporting a probe audit with nonstandard status or source-hash headers.
+- `scripts/audit_native_preconditions.py` now requires the per-probe audit table to carry a unique VTK source-window
+  step span and minimum validation step-span field. The probe table must match the runtime-selected VTK window and meet
+  the minimum averaging span before a native FluidX3D baseline can be promoted beyond diagnostic evidence.
 - `scripts/validation_gate.py` now rechecks valid per-probe IDs against the current official RS/measurement table:
   every valid probe row must have a non-empty unique ID, and each ID must exist in the official table before
   coordinate/Uref/compared-component diagnostics can pass.
