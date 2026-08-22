@@ -453,6 +453,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   Paper-grade time averaging must use deterministic sampled-VTK statistics from the selected final-window frames. Any
   CLI override of mean speed, standard deviation or stability ratio is recorded as `mean_speed_statistics_source=cli_override`
   and remains diagnostic context only.
+- `validation_gate.py` now adds a `systematic_bias_interpretation` gate. Large underprediction/overprediction cannot be
+  interpreted as native FluidX3D or CityLBM solver accuracy while coordinate/component/Uref, fresh VTK, time averaging,
+  inlet U/k, turbulent-inlet evidence, boundary evidence, native baseline, CityLBM parity or grid-sensitivity gates are
+  still open.
 
 ## Remaining scientific work
 

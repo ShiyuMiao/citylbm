@@ -571,13 +571,23 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         )
 
     systematic_gate = by_key.get("systematic_bias")
+    systematic_interpretation_gate = by_key.get("systematic_bias_interpretation")
     mean_gate = by_key.get("mean_velocity_accuracy")
     systematic_flag = str(get_any(metrics, ["systematic_bias_flag"]) or "").strip().lower()
     bias_diagnosis = str(get_any(metrics, ["bias_diagnosis"]) or "").strip()
-    if systematic_gate is not None and systematic_gate.get("status") != PASS:
+    if systematic_interpretation_gate is not None and systematic_interpretation_gate.get("status") != PASS:
         add_priority(
             priorities,
             10,
+            "systematic_bias_interpretation",
+            systematic_interpretation_gate,
+            "Large bias is present while prerequisite evidence gates remain open, so the result cannot support a solver-accuracy claim.",
+            "Close coordinate/component/Uref, freshness, time averaging, U/k inlet, boundary, native baseline, parity and grid-sensitivity gates before interpreting residual bias.",
+        )
+    if systematic_gate is not None and systematic_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            11,
             "systematic_bias_root_cause",
             systematic_gate,
             f"Metrics report systematic bias: {systematic_flag or 'flagged'}; {bias_diagnosis or 'no diagnosis string'}.",
@@ -586,7 +596,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     elif mean_gate is not None and mean_gate.get("status") != PASS:
         add_priority(
             priorities,
-            11,
+            12,
             "mean_velocity_accuracy",
             mean_gate,
             "Mean-flow metrics still fail after prerequisite evidence gates.",
@@ -4798,6 +4808,66 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"scaled_improvement={scaled_improvement}; diagnosis={bias_diagnosis or 'missing'}"
         ),
         "Investigate Uref/component/probe mapping first, then inlet, boundary, roughness and time averaging before tuning if systematic bias is present.",
+    )
+
+    prerequisite_labels = {
+        "metrics_input_hash_traceability": "metrics hash traceability",
+        "run_freshness": "fresh VTK inputs",
+        "runtime_vtk_hash_traceability": "runtime VTK hash traceability",
+        "time_averaging": "time averaging and stationarity",
+        "custom_k_profile": "CustomTable U/k profile",
+        "inlet_profile_preservation": "inlet U/k preservation",
+        "inlet_profile_vtk_hash_traceability": "inlet profile VTK hash traceability",
+        "k_preservation_or_accuracy": "k preservation or accuracy",
+        "inlet_source_evidence": "inlet source evidence",
+        "inlet_turbulence": "inlet turbulence evidence",
+        "paper_grade_inlet_method": "paper-grade turbulent inlet method",
+        "inlet_correlation": "inlet correlation evidence",
+        "inlet_length_scale": "inlet length-scale evidence",
+        "boundary_source_evidence": "boundary source evidence",
+        "boundary_protocol": "boundary protocol",
+        "roughness_or_precursor": "roughness or precursor evidence",
+        "native_preconditions_full_evidence": "native FluidX3D preconditions",
+        "native_baseline": "native FluidX3D baseline",
+        "native_citylbm_parity": "native-CityLBM parity",
+        "grid_sensitivity": "grid sensitivity",
+        "probe_audit_traceability": "probe audit traceability",
+        "probe_source_window": "probe source window",
+        "probe_projection_distance": "probe projection distance",
+        "probe_grid_extent": "probe grid extent",
+        "coordinate_normalization": "coordinate normalization",
+        "compared_component": "compared velocity component",
+        "component_normalization_sensitivity": "component/Uref sensitivity",
+        "probe_mapping": "probe mapping",
+    }
+    by_key = gate_by_key(gates)
+    failed_prerequisites = [
+        f"{label}={str(by_key.get(key, {}).get('status') or 'MISSING')}"
+        for key, label in prerequisite_labels.items()
+        if by_key.get(key, {}).get("status") != PASS
+    ]
+    if not systematic_bias_present:
+        interpretation_status = PASS
+        interpretation_evidence = "no systematic bias detected by flag or U_bias threshold"
+    elif failed_prerequisites:
+        interpretation_status = FAIL
+        interpretation_evidence = (
+            "systematic bias is present, but prerequisite gates are not closed: "
+            + "; ".join(failed_prerequisites)
+            + ". Treat the current result as protocol/physics debugging evidence, not solver-accuracy validation."
+        )
+    else:
+        interpretation_status = PASS
+        interpretation_evidence = (
+            "systematic bias is present, and prerequisite gates are closed; residual bias may be interpreted as "
+            "a remaining physics/protocol issue rather than a coordinate, stale-output, inlet-transfer or postprocess artifact."
+        )
+    add_gate(
+        gates,
+        "systematic_bias_interpretation",
+        interpretation_status,
+        interpretation_evidence,
+        "Close all prerequisite evidence gates before using systematic bias, R2 or regression metrics as paper-grade solver-accuracy evidence.",
     )
 
     failing = [gate for gate in gates if gate["status"] == FAIL]
