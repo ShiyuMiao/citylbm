@@ -330,6 +330,9 @@ TEMPLATE_FIELDS = [
     "native_preconditions_af_uref_at_zref_mps",
     "native_preconditions_uref_af_profile_delta_mps",
     "native_preconditions_metadata_uref_af_profile_delta_mps",
+    "native_preconditions_runtime_selected_last_window",
+    "native_preconditions_runtime_source_vtk_sha256_count",
+    "native_preconditions_runtime_source_vtk_sha256_unique_count",
     "native_inlet_profile_audit",
     "native_inlet_profile_gate",
     "native_inlet_u_profile_gate",
@@ -2055,6 +2058,15 @@ def main() -> int:
             ),
             "native_preconditions_metadata_uref_af_profile_delta_mps": fmt(
                 audit_float(native_preconditions_audit, "metadata_uref_af_profile_delta_mps")
+            ),
+            "native_preconditions_runtime_selected_last_window": first_bool_text(
+                native_preconditions_audit.get("runtime_selected_last_window")
+            ),
+            "native_preconditions_runtime_source_vtk_sha256_count": fmt(
+                audit_int(native_preconditions_audit, "runtime_source_vtk_sha256_count")
+            ),
+            "native_preconditions_runtime_source_vtk_sha256_unique_count": fmt(
+                audit_int(native_preconditions_audit, "runtime_source_vtk_sha256_unique_count")
             ),
             "native_inlet_profile_audit": audit_field(native_preconditions_audit, "inlet_profile_audit"),
             "native_inlet_profile_gate": audit_gate(native_preconditions_audit, "inlet_profile_gate"),

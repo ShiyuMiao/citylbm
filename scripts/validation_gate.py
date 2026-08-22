@@ -2456,6 +2456,34 @@ def native_time_averaging_traceability_status(
         "runtime_source_time_steps_missing",
     )
     runtime_frame_count = len(runtime_steps) if runtime_steps else None
+    runtime_hashes = normalized_hash_list(
+        get_any(
+            native_preconditions_audit,
+            ["runtime_source_vtk_sha256", "runtime_source_vtk_sha256_csv"],
+        )
+    )
+    runtime_hash_count = as_int(
+        get_any(
+            native_preconditions_audit,
+            ["runtime_source_vtk_sha256_count", "runtime_source_vtk_hash_count"],
+        )
+    )
+    if runtime_hash_count is None:
+        runtime_hash_count = len(runtime_hashes) if runtime_hashes else None
+    runtime_hash_unique_count = as_int(
+        get_any(
+            native_preconditions_audit,
+            [
+                "runtime_source_vtk_sha256_unique_count",
+                "runtime_source_vtk_hash_unique_count",
+            ],
+        )
+    )
+    if runtime_hash_unique_count is None:
+        runtime_hash_unique_count = len(set(runtime_hashes)) if runtime_hashes else None
+    runtime_selected_last_window = as_bool(
+        get_any(native_preconditions_audit, ["runtime_selected_last_window"])
+    )
     runtime_span = as_int(
         get_any(native_preconditions_audit, ["runtime_source_step_span"])
     )
@@ -2482,6 +2510,27 @@ def native_time_averaging_traceability_status(
         reasons.append("runtime_source_frame_count_missing")
     elif runtime_frame_count < min_avg_frames:
         reasons.append(f"runtime_source_frame_count_below_{min_avg_frames}")
+    if runtime_selected_last_window is not True:
+        reasons.append(
+            f"runtime_selected_last_window_not_true:{runtime_selected_last_window if runtime_selected_last_window is not None else 'missing'}"
+        )
+    if not runtime_hashes:
+        reasons.append("runtime_source_vtk_sha256_missing")
+    if runtime_hash_count is None:
+        reasons.append("runtime_source_vtk_sha256_count_missing")
+    else:
+        if runtime_hash_count < min_avg_frames:
+            reasons.append(f"runtime_source_vtk_sha256_count_below_{min_avg_frames}")
+        if runtime_frame_count is not None and runtime_hash_count != runtime_frame_count:
+            reasons.append("runtime_source_vtk_sha256_count_mismatch_frame_count")
+        if runtime_hashes and runtime_hash_count != len(runtime_hashes):
+            reasons.append("runtime_source_vtk_sha256_count_mismatch_hash_list")
+    if runtime_hash_unique_count is None:
+        reasons.append("runtime_source_vtk_sha256_unique_count_missing")
+    elif runtime_hash_count is not None and runtime_hash_unique_count != runtime_hash_count:
+        reasons.append("runtime_source_vtk_sha256_unique_count_mismatch_hash_count")
+    if runtime_hashes and any(len(value) != 64 for value in runtime_hashes):
+        reasons.append("runtime_source_vtk_sha256_not_sha256_length")
     if runtime_span is None:
         reasons.append("runtime_source_step_span_missing")
     elif runtime_span < min_avg_step_span:
@@ -2521,6 +2570,9 @@ def native_time_averaging_traceability_status(
         "planned_frame_count_min": planned_frame_count,
         "runtime_average_last_n": runtime_average_last_n,
         "runtime_source_frame_count": runtime_frame_count,
+        "runtime_selected_last_window": runtime_selected_last_window,
+        "runtime_source_vtk_sha256_count": runtime_hash_count,
+        "runtime_source_vtk_sha256_unique_count": runtime_hash_unique_count,
         "runtime_source_step_span": runtime_span,
         "runtime_source_step_span_from_time_steps": runtime_span_from_steps,
         "planned_final_window_step_span": planned_span,
@@ -5402,6 +5454,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"runtime_source_step_span_matches_time_steps={get_any(native_preconditions_audit, ['runtime_source_step_span_matches_time_steps'])}; "
             f"runtime_source_steps_strictly_increasing={get_any(native_preconditions_audit, ['runtime_source_steps_strictly_increasing'])}; "
             f"runtime_source_step_spacing_uniform={get_any(native_preconditions_audit, ['runtime_source_step_spacing_uniform'])}; "
+            f"runtime_selected_last_window={native_time_traceability['runtime_selected_last_window']}; "
+            f"runtime_source_vtk_sha256_count={native_time_traceability['runtime_source_vtk_sha256_count']}; "
+            f"runtime_source_vtk_sha256_unique_count={native_time_traceability['runtime_source_vtk_sha256_unique_count']}; "
             f"planned_final_window_step_span={native_time_traceability['planned_final_window_step_span']}; "
             f"required_min_avg_frames={args.min_avg_frames}; "
             f"required_min_avg_step_span={args.min_avg_step_span}"

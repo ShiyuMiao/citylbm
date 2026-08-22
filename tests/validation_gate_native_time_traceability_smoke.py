@@ -23,11 +23,16 @@ def load_gate_module():
 
 def passing_native_audit():
     steps = list(range(1000, 41000, 1000))
+    hashes = [f"{index:064x}" for index in range(1, len(steps) + 1)]
     return {
         "native_preconditions_time_average_gate": "pass",
         "planned_frame_count_min": 40,
         "runtime_average_last_n": 40,
         "runtime_source_time_steps": steps,
+        "runtime_selected_last_window": True,
+        "runtime_source_vtk_sha256": hashes,
+        "runtime_source_vtk_sha256_count": 40,
+        "runtime_source_vtk_sha256_unique_count": 40,
         "runtime_source_step_span": 39000,
         "runtime_source_step_span_from_time_steps": 39000,
         "runtime_source_step_span_matches_time_steps": True,
@@ -65,6 +70,9 @@ def main() -> int:
         {
             "runtime_average_last_n": 4,
             "runtime_source_time_steps": [37000, 38000, 39000, 40000],
+            "runtime_source_vtk_sha256": [f"{index:064x}" for index in range(1, 5)],
+            "runtime_source_vtk_sha256_count": 4,
+            "runtime_source_vtk_sha256_unique_count": 4,
             "runtime_source_step_span": 3000,
             "runtime_source_step_span_from_time_steps": 3000,
             "runtime_average_window_shortfall_reason": (
@@ -91,6 +99,32 @@ def main() -> int:
     ):
         if expected not in reasons:
             raise AssertionError((expected, reasons))
+
+    stale = copy.deepcopy(passing_native_audit())
+    stale.update(
+        {
+            "runtime_selected_last_window": False,
+            "runtime_source_vtk_sha256": [f"{index:064x}" for index in range(1, 39)],
+            "runtime_source_vtk_sha256_count": 38,
+            "runtime_source_vtk_sha256_unique_count": 37,
+        }
+    )
+    stale_failed = module.native_time_averaging_traceability_status(
+        stale,
+        min_avg_frames=40,
+        min_avg_step_span=20000,
+    )
+    if stale_failed["ok"]:
+        raise AssertionError(stale_failed)
+    stale_reasons = stale_failed["reasons_csv"]
+    for expected in (
+        "runtime_selected_last_window_not_true:False",
+        "runtime_source_vtk_sha256_count_below_40",
+        "runtime_source_vtk_sha256_count_mismatch_frame_count",
+        "runtime_source_vtk_sha256_unique_count_mismatch_hash_count",
+    ):
+        if expected not in stale_reasons:
+            raise AssertionError((expected, stale_reasons))
 
     gates = [
         pass_gate(module, key)

@@ -1128,6 +1128,9 @@ def main() -> int:
 
     runtime_steps = audit_source_steps(runtime_audit)
     runtime_hashes = runtime_source_hashes(runtime_audit, runtime_steps)
+    runtime_selected_last_window = as_bool(runtime_audit.get("selected_last_window"))
+    runtime_hash_count = len(runtime_hashes)
+    runtime_hash_unique_count = len(set(runtime_hashes))
     runtime_step_span_reported = as_int(runtime_audit.get("source_step_span"))
     runtime_step_span_from_steps = source_step_span_from_steps(runtime_steps)
     runtime_step_span = runtime_step_span_from_steps if runtime_step_span_from_steps is not None else runtime_step_span_reported
@@ -1156,6 +1159,16 @@ def main() -> int:
             reasons.append("runtime_source_steps_increasing_flag_mismatch")
         if runtime_reported_steps_uniform is not None and runtime_reported_steps_uniform != runtime_steps_uniform:
             reasons.append("runtime_source_step_spacing_flag_mismatch")
+        if runtime_selected_last_window is not True:
+            reasons.append("runtime_selected_last_window_not_true")
+        if runtime_hash_count != len(runtime_steps):
+            reasons.append("runtime_source_vtk_hash_count_mismatch_time_steps")
+        if runtime_hash_count < args.min_avg_frames:
+            reasons.append("runtime_source_vtk_hash_count_below_min_avg_frames")
+        if runtime_hash_unique_count != runtime_hash_count:
+            reasons.append("runtime_source_vtk_hashes_not_unique")
+        if any(len(value) != 64 for value in runtime_hashes):
+            reasons.append("runtime_source_vtk_hash_not_sha256")
     runtime_step_shortfall_reason = count_below_minimum_reason(
         "runtime_average_step_span",
         runtime_step_span,
@@ -1825,8 +1838,11 @@ def main() -> int:
         "runtime_source_step_spacing_uniform": runtime_steps_uniform,
         "runtime_reported_source_steps_strictly_increasing": runtime_reported_steps_increasing,
         "runtime_reported_source_step_spacing_uniform": runtime_reported_steps_uniform,
+        "runtime_selected_last_window": runtime_selected_last_window,
         "runtime_source_time_steps": runtime_steps,
         "runtime_source_vtk_sha256": runtime_hashes,
+        "runtime_source_vtk_sha256_count": runtime_hash_count,
+        "runtime_source_vtk_sha256_unique_count": runtime_hash_unique_count,
         "runtime_time_averaging_gate": time_gate,
         "runtime_requested_vtk_frame_gate": requested_frame_gate,
         "inlet_source_audit": str(inlet_source_audit_path) if inlet_source_audit_path else "",
