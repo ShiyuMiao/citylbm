@@ -37,6 +37,7 @@ namespace CityLBM.Components.Simulation
         private readonly List<string> _asyncLog = new List<string>();  // 实时日志
         private readonly object _logLock = new object();
         private string _lastSceneName = null;          // 上次运行/缓存的场景名，用于检测场景变化
+        private int _lastMode = -1;                   // 上次请求的运行模式
 
         // ── 定时刷新（GH 组件不能直接跨线程刷新，需 ExpireSolution）─────
         private System.Timers.Timer _refreshTimer;
@@ -215,6 +216,16 @@ namespace CityLBM.Components.Simulation
                 DA.SetData(5, GetCurrentLog());
                 return;
             }
+            if (cancel)
+            {
+                DA.SetData(0, "");
+                DA.SetData(1, "");
+                DA.SetData(2, false);
+                DA.SetData(3, "当前无后台任务可取消。");
+                DA.SetData(4, _asyncProgress);
+                DA.SetData(5, GetCurrentLog());
+                return;
+            }
 
             // ── 如果后台任务正在执行，无论 run 是否为 true，优先输出实时进度 ──
             // 这避免了 run=true 时反复进入 Mode3 启动逻辑的问题
@@ -238,11 +249,12 @@ namespace CityLBM.Components.Simulation
             Core.Scene currentScene = ghScene?.Value;
             string currentSceneName = currentScene?.Name ?? "";
             if (_asyncResult != null && _lastSceneName != null
-                && _lastSceneName != currentSceneName)
+                && (_lastSceneName != currentSceneName || _lastMode != mode))
             {
                 // 场景已变化，旧结果不再有效
                 _asyncResult = null;
                 _asyncProgress = 0;
+                lock (_logLock) { _asyncLog.Clear(); }
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
                     $"场景已变更（{_lastSceneName} → {currentSceneName}），旧模拟结果已清除。请重新运行。");
             }
@@ -286,10 +298,25 @@ namespace CityLBM.Components.Simulation
 
             Core.Scene scene = ghScene.Value;
             CartesianGrid grid = ghGrid.Value;
+            if (double.IsNaN(windSpeedOverride) || double.IsInfinity(windSpeedOverride) || windSpeedOverride < 0.0)
+            {
+                string message = $"Wind Speed 输入无效: {windSpeedOverride}. 请使用非负有限数值或 0（使用场景默认值）。";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return;
+            }
+            if (double.IsNaN(viscosity) || double.IsInfinity(viscosity) || viscosity <= 0.0)
+            {
+                string message = $"Viscosity 输入无效: {viscosity}. 请使用大于 0 的有限数值。";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return;
+            }
             if (windSpeedOverride > 0.0) scene.WindSpeed = windSpeedOverride;
 
             // 记录当前场景名（用于检测场景变化，自动清除旧缓存）
             _lastSceneName = scene.Name;
+            _lastMode = mode;
 
             var settings = new SimulationSettings
             {
@@ -342,7 +369,10 @@ namespace CityLBM.Components.Simulation
                     RunMode2_DeployOnly(DA, solver, scene, grid, settings);
                     break;
                 case 3:
-                    RunMode3_AsyncBackground(DA, solver, scene, grid, settings);
+                    if (string.IsNullOrWhiteSpace(fluidX3DPath) && solver.IsBundlerAvailable)
+                        RunMode3_BundledSolver(DA, solver, scene, grid, settings);
+                    else
+                        RunMode3_AsyncBackground(DA, solver, scene, grid, settings);
                     break;
             }
         }
@@ -360,6 +390,7 @@ namespace CityLBM.Components.Simulation
             DA.SetData(2, result.Success);
             DA.SetData(3, result.Success ? result.Instructions : $"生成失败：{result.ErrorMessage}");
             DA.SetData(4, result.Success ? 100 : 0);
+            DA.SetData(5, result.Success ? result.Instructions : result.ErrorMessage);
 
             if (result.Success)
             {
@@ -427,6 +458,12 @@ namespace CityLBM.Components.Simulation
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
                 OutputValidationFailure(DA, message);
                 return false;
+            }
+
+            if (settings.SaveInterval > settings.TimeSteps)
+            {
+                string message = $"Save Interval ({settings.SaveInterval}) 大于 Time Steps ({settings.TimeSteps})，将仅产生 1 帧输出，难以完成有效平均。";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, message);
             }
 
             int expectedFrames = ExpectedVtkFrameCount(settings);
@@ -551,11 +588,6 @@ namespace CityLBM.Components.Simulation
         private void RunMode3_AsyncBackground(IGH_DataAccess DA,
             FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
         {
-            if (!RequireExplicitFluidX3DSourcePath(DA, solver, "Mode 3"))
-            {
-                return;
-            }
-            
             AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "使用 FluidX3D 路径: " + solver.FluidX3DPath);
 
             // 双重保险：正常不应该到这里（已在 SolveInstance 顶部提前 return）
@@ -594,11 +626,7 @@ namespace CityLBM.Components.Simulation
                 },
                 completionCallback: result =>
                 {
-                    _asyncResult = result;
-                    _asyncRunning = false;
-                    StopRefreshTimer();
-                    // 触发最后一次刷新以输出最终结果
-                    TriggerGHRefresh();
+                    FinalizeAsyncRun(result);
                 }
             );
 
@@ -620,6 +648,14 @@ namespace CityLBM.Components.Simulation
         private void RunMode3_BundledSolver(IGH_DataAccess DA,
             FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
         {
+            if (!solver.IsBundlerAvailable)
+            {
+                string message = "Mode 3 未检测到本地可用的 bundled solver，并且未提供有效 FX3D 路径。请填写 FluidX3D Path。";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return;
+            }
+
             if (_asyncRunning)
             {
                 string bar = GetProgressBar(_asyncProgress);
@@ -629,12 +665,15 @@ namespace CityLBM.Components.Simulation
                 return;
             }
 
+            _cts?.Dispose();
             _asyncResult = null;
             _asyncRunning = true;
             _asyncProgress = 0;
             lock (_logLock) { _asyncLog.Clear(); }
             StopRefreshTimer();
             StartRefreshTimer();
+            _cts = new System.Threading.CancellationTokenSource();
+            var token = _cts.Token;
 
             string caseDir = "";
             string outputDir = "";
@@ -647,7 +686,7 @@ namespace CityLBM.Components.Simulation
                     Interlocked.Exchange(ref _asyncProgress, 2);
 
                     var result = solver.RunWithBundledSolver(scene, grid, settings,
-                        (pct, msg) =>
+                        progressCallback: (pct, msg) =>
                         {
                             lock (_logLock)
                             {
@@ -655,7 +694,8 @@ namespace CityLBM.Components.Simulation
                                 if (_asyncLog.Count > 200) _asyncLog.RemoveAt(0);
                             }
                             if (pct >= 0) Interlocked.Exchange(ref _asyncProgress, pct);
-                        });
+                        },
+                        cancellationToken: token);
 
                     caseDir = result.CaseDirectory;
                     outputDir = result.OutputDirectory;
@@ -663,20 +703,32 @@ namespace CityLBM.Components.Simulation
                 }
                 catch (Exception ex)
                 {
-                    _asyncResult = new SolverResult
+                    if (ex is OperationCanceledException)
                     {
-                        Success = false,
-                        ErrorMessage = "Bundled solver exception: " + ex.Message,
-                        CaseDirectory = caseDir,
-                        OutputDirectory = outputDir
-                    };
-                    lock (_logLock) { _asyncLog.Add("[ERROR] " + ex.Message); }
+                        _asyncResult = new SolverResult
+                        {
+                            Success = false,
+                            ErrorMessage = "用户取消了操作",
+                            CaseDirectory = caseDir,
+                            OutputDirectory = outputDir
+                        };
+                        lock (_logLock) { _asyncLog.Add("[Bundled] 已取消"); }
+                    }
+                    else
+                    {
+                        _asyncResult = new SolverResult
+                        {
+                            Success = false,
+                            ErrorMessage = "Bundled solver exception: " + ex.Message,
+                            CaseDirectory = caseDir,
+                            OutputDirectory = outputDir
+                        };
+                        lock (_logLock) { _asyncLog.Add("[ERROR] " + ex.Message); }
+                    }
                 }
                 finally
                 {
-                    _asyncRunning = false;
-                    StopRefreshTimer();
-                    TriggerGHRefresh();
+                    FinalizeAsyncRun(_asyncResult);
                 }
             })
             { IsBackground = true, Name = "CityLBM_BundledSolver" };
@@ -764,10 +816,30 @@ namespace CityLBM.Components.Simulation
 
         private void StartRefreshTimer()
         {
+            if (_refreshTimer != null)
+            {
+                StopRefreshTimer();
+            }
             _refreshTimer = new System.Timers.Timer(2000);  // 每 2 秒刷新
             _refreshTimer.Elapsed += (s, e) => TriggerGHRefresh();
             _refreshTimer.AutoReset = true;
             _refreshTimer.Start();
+        }
+
+        private void FinalizeAsyncRun(SolverResult result)
+        {
+            result ??= new SolverResult
+            {
+                Success = false,
+                ErrorMessage = "异步运行异常终止，未返回结果。",
+                EndTime = DateTime.Now
+            };
+            _asyncResult = result;
+            _asyncRunning = false;
+            StopRefreshTimer();
+            _cts?.Dispose();
+            _cts = null;
+            TriggerGHRefresh();
         }
 
         private void StopRefreshTimer()
@@ -840,6 +912,8 @@ namespace CityLBM.Components.Simulation
             // 组件从文档移除时停止定时器，防止泄漏
             StopRefreshTimer();
             _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
             base.RemovedFromDocument(document);
         }
 

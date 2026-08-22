@@ -56,6 +56,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expected-compared-component", default="", help="Expected probe comparison component.")
     parser.add_argument("--u-ref-tolerance", type=float, default=1.0e-6)
     parser.add_argument("--wind-vector-tolerance", type=float, default=1.0e-6)
+    parser.add_argument("--max-official-coordinate-delta-m", type=float, default=1.0e-6)
     parser.add_argument("--expected-vtk-pattern", default="u-*.vtk")
     parser.add_argument("--average-last-n", type=int, default=20)
     parser.add_argument("--min-avg-frames", type=int, default=20)
@@ -365,6 +366,21 @@ def probe_unique_values(rows: List[Dict[str, str]], field: str) -> List[str]:
     return sorted({str(row.get(field) or "").strip() for row in rows if str(row.get(field) or "").strip()})
 
 
+def row_value(row: Dict[str, str], *fields: str) -> str:
+    lowered = {key.lower(): value for key, value in row.items()}
+    for field in fields:
+        if field in row:
+            return str(row.get(field) or "").strip()
+        value = lowered.get(field.lower())
+        if value is not None:
+            return str(value or "").strip()
+    return ""
+
+
+def probe_row_failed(row: Dict[str, str]) -> bool:
+    return str(row_value(row, "failed", "Failed") or "").strip().lower() in {"true", "1", "yes", "fail"}
+
+
 def main() -> int:
     args = parse_args()
     run_dir = Path(args.run_dir).expanduser().resolve()
@@ -618,21 +634,88 @@ def main() -> int:
         reasons.append("boundary_evidence_files_not_hashed")
 
     expected_component = str(args.expected_compared_component or "").strip()
-    failed_probe_rows = [
-        row for row in probe_rows
-        if str(row.get("failed") or row.get("Failed") or "").strip().lower() in {"true", "1", "yes", "fail"}
-    ]
+    failed_probe_rows = [row for row in probe_rows if probe_row_failed(row)]
+    valid_probe_rows = [row for row in probe_rows if not probe_row_failed(row)]
     compared_components = {
-        str(row.get("compared_component") or row.get("ComparedComponent") or "").strip()
-        for row in probe_rows
-        if str(row.get("compared_component") or row.get("ComparedComponent") or "").strip()
+        row_value(row, "compared_component", "ComparedComponent")
+        for row in valid_probe_rows
+        if row_value(row, "compared_component", "ComparedComponent")
     }
     if not probe_rows:
         reasons.append("probe_audit_missing_or_empty")
+    if probe_rows and not valid_probe_rows:
+        reasons.append("probe_audit_has_no_valid_rows")
     if failed_probe_rows:
         reasons.append("probe_audit_has_failed_rows")
     if expected_component and compared_components != {expected_component}:
         reasons.append("probe_compared_component_mismatch")
+    official_coordinate_deltas = [
+        value for value in (
+            as_float(row_value(row, "official_coordinate_delta", "OfficialCoordinateDelta"))
+            for row in valid_probe_rows
+        )
+        if value is not None
+    ]
+    missing_official_coordinate_delta_count = len(valid_probe_rows) - len(official_coordinate_deltas)
+    max_official_coordinate_delta = max(official_coordinate_deltas) if official_coordinate_deltas else None
+    official_coordinate_delta_violation_count = sum(
+        1 for value in official_coordinate_deltas if abs(value) > args.max_official_coordinate_delta_m
+    )
+    normalization_missing_count = 0
+    normalization_invalid_count = 0
+    wind_missing_count = 0
+    wind_invalid_count = 0
+    uref_missing_count = 0
+    uref_mismatch_count = 0
+    nearest_distance_missing_count = 0
+    tolerance_missing_or_disabled_count = 0
+    probe_out_of_tolerance_count = 0
+    for row in valid_probe_rows:
+        normalized = as_bool(row_value(row, "normalization_valid", "NormalizationValid"))
+        if normalized is None:
+            normalization_missing_count += 1
+        elif normalized is not True:
+            normalization_invalid_count += 1
+        wind_valid = as_bool(row_value(row, "wind_direction_valid", "WindDirectionValid"))
+        if wind_valid is None:
+            wind_missing_count += 1
+        elif wind_valid is not True:
+            wind_invalid_count += 1
+        row_uref = as_float(row_value(row, "u_ref", "Uref", "U_ref"))
+        if row_uref is None:
+            uref_missing_count += 1
+        elif args.u_ref is not None and abs(row_uref - args.u_ref) > args.u_ref_tolerance:
+            uref_mismatch_count += 1
+        if as_float(row_value(row, "nearest_distance", "NearestDistance")) is None:
+            nearest_distance_missing_count += 1
+        tolerance = as_float(row_value(row, "tolerance", "Tolerance"))
+        if tolerance is None or tolerance <= 0.0:
+            tolerance_missing_or_disabled_count += 1
+        if as_bool(row_value(row, "out_of_tolerance", "OutOfTolerance")) is True:
+            probe_out_of_tolerance_count += 1
+    if valid_probe_rows:
+        if missing_official_coordinate_delta_count:
+            reasons.append("probe_official_coordinate_delta_missing")
+        if official_coordinate_delta_violation_count:
+            reasons.append("probe_official_coordinate_delta_exceeds_threshold")
+        if normalization_missing_count:
+            reasons.append("probe_normalization_valid_missing")
+        if normalization_invalid_count:
+            reasons.append("probe_normalization_invalid")
+        if wind_missing_count:
+            reasons.append("probe_wind_direction_valid_missing")
+        if wind_invalid_count:
+            reasons.append("probe_wind_direction_invalid")
+        if uref_missing_count:
+            reasons.append("probe_uref_missing")
+        if uref_mismatch_count:
+            reasons.append("probe_uref_mismatch")
+        if nearest_distance_missing_count:
+            reasons.append("probe_nearest_distance_missing")
+        if tolerance_missing_or_disabled_count:
+            reasons.append("probe_tolerance_missing_or_disabled")
+        if probe_out_of_tolerance_count:
+            reasons.append("probe_out_of_tolerance")
     probe_source_steps_values = probe_unique_values(probe_rows, "vtk_source_time_steps")
     probe_source_hash_values = probe_unique_values(probe_rows, "vtk_source_sha256")
     probe_source_steps = parse_int_list(probe_source_steps_values[0]) if len(probe_source_steps_values) == 1 else []
@@ -733,9 +816,24 @@ def main() -> int:
         "boundary_protocol_gate": boundary_protocol_gate,
         "boundary_evidence_gate": boundary_evidence_gate,
         "probe_audit_row_count": len(probe_rows),
+        "probe_audit_valid_row_count": len(valid_probe_rows),
         "probe_audit_failed_row_count": len(failed_probe_rows),
         "probe_audit_compared_components": sorted(compared_components),
         "expected_compared_component": expected_component,
+        "probe_official_coordinate_delta_count": len(official_coordinate_deltas),
+        "probe_missing_official_coordinate_delta_count": missing_official_coordinate_delta_count,
+        "probe_max_official_coordinate_delta_m": max_official_coordinate_delta,
+        "probe_official_coordinate_delta_violation_count": official_coordinate_delta_violation_count,
+        "probe_max_official_coordinate_delta_threshold_m": args.max_official_coordinate_delta_m,
+        "probe_normalization_missing_count": normalization_missing_count,
+        "probe_normalization_invalid_count": normalization_invalid_count,
+        "probe_wind_direction_missing_count": wind_missing_count,
+        "probe_wind_direction_invalid_count": wind_invalid_count,
+        "probe_uref_missing_count": uref_missing_count,
+        "probe_uref_mismatch_count": uref_mismatch_count,
+        "probe_nearest_distance_missing_count": nearest_distance_missing_count,
+        "probe_tolerance_missing_or_disabled_count": tolerance_missing_or_disabled_count,
+        "probe_out_of_tolerance_count": probe_out_of_tolerance_count,
         "probe_source_time_steps": probe_source_steps,
         "probe_source_time_steps_match_runtime": probe_source_steps_match,
         "probe_source_vtk_sha256": probe_source_hashes,

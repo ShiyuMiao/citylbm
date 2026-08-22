@@ -385,6 +385,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native VTK probe extraction now writes the official RS coordinates and per-row `official_coordinate_delta` directly
   into `probe_audit.csv`, so the final gate can audit coordinate closure from the sampled probe rows instead of trusting
   summary-only metrics fields.
+- `audit_native_preconditions.py` now independently audits per-probe official-coordinate deltas, normalization flags,
+  wind-direction flags, `Uref`, nearest VTK distance and nonzero probe tolerance before a native FluidX3D baseline can
+  pass paper-grade preconditions.
 - Added `scripts/audit_component_sensitivity.py` and wired it into the native validation chain, metrics builder and
   final gate. It compares `speed_ratio`, signed/absolute streamwise ratio and component ratios against official RS
   values, then flags whether a different component or a scale-like Uref/SI conversion factor can explain the bias before

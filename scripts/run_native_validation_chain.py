@@ -655,6 +655,8 @@ def main() -> int:
             str(args.u_ref),
             "--expected-compared-component",
             args.compared_component,
+            "--max-official-coordinate-delta-m",
+            str(args.max_official_coordinate_delta_m),
             "--expected-vtk-pattern",
             args.pattern,
             "--average-last-n",
