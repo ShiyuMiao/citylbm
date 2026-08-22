@@ -71,6 +71,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-inlet-streamwise-variance", type=float, default=1.0e-12)
     parser.add_argument("--min-inlet-temporal-lag1-correlation", type=float, default=0.10)
     parser.add_argument("--min-inlet-spatial-adjacent-correlation", type=float, default=0.05)
+    parser.add_argument("--min-inlet-temporal-integral-lag-count", type=int, default=2)
+    parser.add_argument("--min-inlet-spatial-integral-lag-count", type=int, default=2)
     parser.add_argument("--max-frontal-blockage-ratio", type=float, default=0.05)
     parser.add_argument("--max-estimated-mach", type=float, default=0.20)
     parser.add_argument("--min-lbm-tau", type=float, default=0.500001)
@@ -3753,6 +3755,18 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_spatial_adjacent = as_float(
         get_any(inlet_correlation_audit, ["spatial_adjacent_mean_correlation"])
     )
+    inlet_temporal_integral_lag_count = as_int(
+        get_any(inlet_correlation_audit, ["temporal_integral_positive_lag_count"])
+    )
+    inlet_temporal_integral_time_steps = as_int(
+        get_any(inlet_correlation_audit, ["temporal_integral_time_steps"])
+    )
+    inlet_spatial_integral_lag_count = as_int(
+        get_any(inlet_correlation_audit, ["spatial_integral_positive_lag_count"])
+    )
+    inlet_spatial_integral_length_m = as_float(
+        get_any(inlet_correlation_audit, ["spatial_integral_length_m"])
+    )
     inlet_streamwise_variance = as_float(
         get_any(inlet_correlation_audit, ["mean_streamwise_fluctuation_variance"])
     )
@@ -3905,6 +3919,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and inlet_temporal_lag1 >= args.min_inlet_temporal_lag1_correlation
         and inlet_spatial_adjacent is not None
         and inlet_spatial_adjacent >= args.min_inlet_spatial_adjacent_correlation
+        and inlet_temporal_integral_lag_count is not None
+        and inlet_temporal_integral_lag_count >= args.min_inlet_temporal_integral_lag_count
+        and inlet_spatial_integral_lag_count is not None
+        and inlet_spatial_integral_lag_count >= args.min_inlet_spatial_integral_lag_count
     )
     add_gate(
         gates,
@@ -3923,6 +3941,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"temporal_lag1_abs_mean_correlation={inlet_temporal_lag1_abs}; "
             f"spatial_adjacent_mean_correlation={inlet_spatial_adjacent}; "
             f"required >= {args.min_inlet_spatial_adjacent_correlation}; "
+            f"temporal_integral_positive_lag_count={inlet_temporal_integral_lag_count}; "
+            f"required >= {args.min_inlet_temporal_integral_lag_count}; "
+            f"temporal_integral_time_steps={inlet_temporal_integral_time_steps}; "
+            f"spatial_integral_positive_lag_count={inlet_spatial_integral_lag_count}; "
+            f"required >= {args.min_inlet_spatial_integral_lag_count}; "
+            f"spatial_integral_length_m={inlet_spatial_integral_length_m}; "
             f"mean_streamwise_fluctuation_variance={inlet_streamwise_variance}; "
             f"required > {args.min_inlet_streamwise_variance}; "
             f"temporal_finite_correlation_fraction={inlet_temporal_finite_fraction}; "
@@ -3953,7 +3977,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"correlation_values_source=audit_json_only; "
             f"audit={inlet_correlation_audit_path or 'missing'}; "
             f"audit_exists={inlet_correlation_audit_exists}; "
-            f"metrics_inlet_correlation_audit={metric_inlet_correlation_audit or 'ignored'}"
+            f"metrics_inlet_correlation_audit={metric_inlet_correlation_audit or 'ignored'}; "
+            f"metrics_temporal_integral_lag_count={get_any(metrics, ['inlet_temporal_integral_positive_lag_count']) or 'ignored'}; "
+            f"metrics_spatial_integral_lag_count={get_any(metrics, ['inlet_spatial_integral_positive_lag_count']) or 'ignored'}"
         ),
         "Run scripts/audit_inlet_correlation_from_vtk.py on real final-window inlet VTK frames; RMS/k alone is not enough to prove correlated turbulent inflow.",
     )
@@ -5307,6 +5333,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "min_normalization_scaled_improvement_ratio": args.min_normalization_scaled_improvement_ratio,
             "min_inlet_temporal_finite_fraction": args.min_inlet_temporal_finite_fraction,
             "min_inlet_spatial_finite_fraction": args.min_inlet_spatial_finite_fraction,
+            "min_inlet_temporal_integral_lag_count": args.min_inlet_temporal_integral_lag_count,
+            "min_inlet_spatial_integral_lag_count": args.min_inlet_spatial_integral_lag_count,
             "min_inlet_correlation_sample_count": args.min_inlet_correlation_sample_count,
             "min_inlet_correlation_adjacent_pair_count": args.min_inlet_correlation_adjacent_pair_count,
             "max_frontal_blockage_ratio": args.max_frontal_blockage_ratio,

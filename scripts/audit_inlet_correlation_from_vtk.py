@@ -71,6 +71,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-streamwise-variance", type=float, default=1.0e-12)
     parser.add_argument("--min-temporal-lag1-correlation", type=float, default=0.10)
     parser.add_argument("--min-spatial-adjacent-correlation", type=float, default=0.05)
+    parser.add_argument("--max-temporal-lag-count", type=int, default=8)
+    parser.add_argument("--max-spatial-lag-cells", type=int, default=8)
+    parser.add_argument("--min-temporal-integral-lag-count", type=int, default=2)
+    parser.add_argument("--min-spatial-integral-lag-count", type=int, default=2)
     parser.add_argument("--min-temporal-finite-fraction", type=float, default=0.80)
     parser.add_argument("--min-spatial-finite-fraction", type=float, default=0.80)
     return parser.parse_args()
@@ -124,6 +128,12 @@ def axis_index(axis: str) -> int:
 
 
 def adjacent_pairs(selected: Sequence[int], dims: Tuple[int, int, int], normal_axis: str) -> List[Tuple[int, int]]:
+    return lagged_pairs(selected, dims, normal_axis, 1)
+
+
+def lagged_pairs(selected: Sequence[int], dims: Tuple[int, int, int], normal_axis: str, lag_cells: int) -> List[Tuple[int, int]]:
+    if lag_cells <= 0:
+        return []
     selected_set = set(selected)
     nx, ny, _ = dims
     strides = [1, nx, nx * ny]
@@ -132,15 +142,65 @@ def adjacent_pairs(selected: Sequence[int], dims: Tuple[int, int, int], normal_a
     for axis, stride in enumerate(strides):
         if axis == normal:
             continue
+        offset = stride * lag_cells
         for idx in selected:
-            neighbor = idx + stride
+            neighbor = idx + offset
             if neighbor in selected_set:
                 # Avoid wrapping at x/y row boundaries.
                 c0 = coordinate(idx, dims, (0.0, 0.0, 0.0), (1.0, 1.0, 1.0))
                 c1 = coordinate(neighbor, dims, (0.0, 0.0, 0.0), (1.0, 1.0, 1.0))
-                if abs(c1[axis] - c0[axis] - 1.0) <= 1.0e-9:
+                if abs(c1[axis] - c0[axis] - float(lag_cells)) <= 1.0e-9:
                     pairs.append((idx, neighbor))
     return pairs
+
+
+def positive_integral_lag_count(correlations: Sequence[Optional[float]]) -> int:
+    count = 0
+    for value in correlations:
+        if value is None or value <= 0.0:
+            break
+        count += 1
+    return count
+
+
+def temporal_lag_correlations(
+    streamwise_series: Dict[int, List[float]],
+    max_lag_count: int,
+) -> List[Optional[float]]:
+    lag_count = max(0, max_lag_count)
+    correlations: List[Optional[float]] = []
+    for lag in range(1, lag_count + 1):
+        lag_values: List[float] = []
+        for series in streamwise_series.values():
+            if len(series) <= lag:
+                continue
+            corr = correlation(series[:-lag], series[lag:])
+            if corr is not None:
+                lag_values.append(corr)
+        correlations.append(mean(lag_values))
+    return correlations
+
+
+def spatial_lag_correlations(
+    streamwise_series: Dict[int, List[float]],
+    selected: Sequence[int],
+    dims: Tuple[int, int, int],
+    normal_axis: str,
+    max_lag_cells: int,
+) -> Tuple[List[Optional[float]], List[int]]:
+    lag_count = max(0, max_lag_cells)
+    correlations: List[Optional[float]] = []
+    pair_counts: List[int] = []
+    for lag in range(1, lag_count + 1):
+        pairs = lagged_pairs(selected, dims, normal_axis, lag)
+        pair_counts.append(len(pairs))
+        values: List[float] = []
+        for a_idx, b_idx in pairs:
+            corr = correlation(streamwise_series[a_idx], streamwise_series[b_idx])
+            if corr is not None:
+                values.append(corr)
+        correlations.append(mean(values))
+    return correlations, pair_counts
 
 
 def selected_vtk_records(files: Sequence[Path]) -> List[Dict[str, Any]]:
@@ -213,10 +273,22 @@ def write_failure_report(
         "mean_streamwise_fluctuation_variance": None,
         "temporal_lag1_mean_correlation": None,
         "temporal_lag1_abs_mean_correlation": None,
+        "temporal_lag_correlations": [],
+        "temporal_integral_positive_lag_count": 0,
+        "temporal_integral_time_steps": 0,
         "spatial_adjacent_mean_correlation": None,
+        "spatial_lag_correlations": [],
+        "spatial_lag_pair_counts": [],
+        "spatial_integral_positive_lag_count": 0,
+        "spatial_integral_length_cells": 0,
+        "spatial_integral_length_m": 0.0,
         "min_streamwise_variance": args.min_streamwise_variance,
         "min_temporal_lag1_correlation": args.min_temporal_lag1_correlation,
         "min_spatial_adjacent_correlation": args.min_spatial_adjacent_correlation,
+        "max_temporal_lag_count": args.max_temporal_lag_count,
+        "max_spatial_lag_cells": args.max_spatial_lag_cells,
+        "min_temporal_integral_lag_count": args.min_temporal_integral_lag_count,
+        "min_spatial_integral_lag_count": args.min_spatial_integral_lag_count,
         "min_temporal_finite_fraction": args.min_temporal_finite_fraction,
         "min_spatial_finite_fraction": args.min_spatial_finite_fraction,
         "audit_error": error,
@@ -379,6 +451,41 @@ def main() -> int:
     temporal_corr = mean(temporal_corrs)
     temporal_abs_corr = mean(temporal_abs_corrs)
     spatial_corr = mean(spatial_corrs)
+    temporal_lag_values = temporal_lag_correlations(
+        streamwise_series,
+        args.max_temporal_lag_count,
+    )
+    temporal_integral_lag_count = positive_integral_lag_count(temporal_lag_values)
+    source_step_interval = (
+        source_steps[1] - source_steps[0]
+        if len(source_steps) >= 2 and source_spacing_uniform
+        else None
+    )
+    temporal_integral_time_steps = (
+        temporal_integral_lag_count * source_step_interval
+        if source_step_interval is not None
+        else None
+    )
+    spatial_lag_values, spatial_lag_pair_counts = spatial_lag_correlations(
+        streamwise_series,
+        selected,
+        first["dimensions"],
+        axis,
+        args.max_spatial_lag_cells,
+    )
+    spatial_integral_lag_count = positive_integral_lag_count(spatial_lag_values)
+    normal_index = axis_index(axis)
+    tangential_spacing = [
+        abs(float(first["spacing"][idx]))
+        for idx in range(3)
+        if idx != normal_index
+    ]
+    mean_tangential_spacing = mean(tangential_spacing)
+    spatial_integral_length_m = (
+        spatial_integral_lag_count * mean_tangential_spacing
+        if mean_tangential_spacing is not None
+        else None
+    )
     temporal_finite_fraction = len(temporal_corrs) / float(len(selected)) if selected else None
     spatial_finite_fraction = len(spatial_corrs) / float(len(pairs)) if pairs else None
 
@@ -411,6 +518,10 @@ def main() -> int:
         reasons.append(
             f"temporal_finite_fraction_below_{args.min_temporal_finite_fraction:.6g}"
         )
+    if temporal_integral_lag_count < args.min_temporal_integral_lag_count:
+        reasons.append(
+            f"temporal_integral_lag_count_below_{args.min_temporal_integral_lag_count}"
+        )
     if spatial_corr is None or spatial_corr < args.min_spatial_adjacent_correlation:
         reasons.append(
             f"spatial_adjacent_correlation_below_{args.min_spatial_adjacent_correlation:.6g}"
@@ -418,6 +529,10 @@ def main() -> int:
     if spatial_finite_fraction is None or spatial_finite_fraction < args.min_spatial_finite_fraction:
         reasons.append(
             f"spatial_finite_fraction_below_{args.min_spatial_finite_fraction:.6g}"
+        )
+    if spatial_integral_lag_count < args.min_spatial_integral_lag_count:
+        reasons.append(
+            f"spatial_integral_lag_count_below_{args.min_spatial_integral_lag_count}"
         )
 
     gate = PASS if not reasons else FAIL
@@ -457,10 +572,22 @@ def main() -> int:
         "mean_streamwise_fluctuation_variance": mean_variance,
         "temporal_lag1_mean_correlation": temporal_corr,
         "temporal_lag1_abs_mean_correlation": temporal_abs_corr,
+        "temporal_lag_correlations": temporal_lag_values,
+        "temporal_integral_positive_lag_count": temporal_integral_lag_count,
+        "temporal_integral_time_steps": temporal_integral_time_steps,
         "spatial_adjacent_mean_correlation": spatial_corr,
+        "spatial_lag_correlations": spatial_lag_values,
+        "spatial_lag_pair_counts": spatial_lag_pair_counts,
+        "spatial_integral_positive_lag_count": spatial_integral_lag_count,
+        "spatial_integral_length_cells": spatial_integral_lag_count,
+        "spatial_integral_length_m": spatial_integral_length_m,
         "min_streamwise_variance": args.min_streamwise_variance,
         "min_temporal_lag1_correlation": args.min_temporal_lag1_correlation,
         "min_spatial_adjacent_correlation": args.min_spatial_adjacent_correlation,
+        "max_temporal_lag_count": args.max_temporal_lag_count,
+        "max_spatial_lag_cells": args.max_spatial_lag_cells,
+        "min_temporal_integral_lag_count": args.min_temporal_integral_lag_count,
+        "min_spatial_integral_lag_count": args.min_spatial_integral_lag_count,
         "min_temporal_finite_fraction": args.min_temporal_finite_fraction,
         "min_spatial_finite_fraction": args.min_spatial_finite_fraction,
         "inlet_correlation_gate": gate,
@@ -475,11 +602,13 @@ def main() -> int:
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_json.write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
     print(
-        "inlet_correlation_gate={gate}; temporal_lag1={temporal}; temporal_lag1_abs={temporal_abs}; spatial={spatial}; reasons={reasons}".format(
+        "inlet_correlation_gate={gate}; temporal_lag1={temporal}; temporal_lag1_abs={temporal_abs}; temporal_integral_lags={temporal_integral}; spatial={spatial}; spatial_integral_lags={spatial_integral}; reasons={reasons}".format(
             gate=gate,
             temporal=temporal_corr,
             temporal_abs=temporal_abs_corr,
+            temporal_integral=temporal_integral_lag_count,
             spatial=spatial_corr,
+            spatial_integral=spatial_integral_lag_count,
             reasons=";".join(report["inlet_correlation_gate_reasons"]),
         )
     )

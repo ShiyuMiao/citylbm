@@ -74,6 +74,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `case_metadata.json`, the native baseline manifest, metrics template and `validation_gate.py` now track the synthetic
   inlet correlation length and its evidence source. A user-selected STG correlation length is treated as diagnostic-only
   until it is replaced or justified by AIJ length-scale data, a precursor/recycling field or a validated DFM/SEM model.
+- `audit_inlet_correlation_from_vtk.py`, the metrics template and `validation_gate.py` now report temporal/spatial
+  integral positive-lag counts. Inlet fluctuations must retain at least a short multi-lag correlation footprint, so
+  lag-1-only or near-white-noise RMS/k perturbations remain diagnostic rather than paper-grade turbulent inflow evidence.
 - `validation_gate.py` now treats inlet length-scale evidence as metadata/protocol-audit evidence only. Metrics-table
   `inlet_length_scale_source`, `inlet_length_scale_gate` and `synthetic_correlation_length_m` fields are reported as
   ignored context and cannot pass the length-scale gate by themselves.
