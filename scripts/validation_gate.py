@@ -4496,6 +4496,36 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Require every official probe to lie inside the physical VTK grid before interpolation; fix scale, domain_origin or RS coordinate transforms before comparing errors.",
     )
 
+    metrics_protocol_gate = str(
+        get_any(metrics, ["protocol_gate", "ProtocolGate", "metrics_protocol_gate"])
+        or ""
+    ).strip()
+    metrics_probe_uref_expected = as_float(
+        get_any(metrics, ["probe_uref_expected_mps", "ProbeUrefExpectedMps"])
+    )
+    metrics_probe_uref_values = str(
+        get_any(metrics, ["probe_uref_values", "ProbeUrefValues"]) or ""
+    ).strip()
+    metrics_probe_uref_mismatch_count = as_int(
+        get_any(metrics, ["probe_uref_mismatch_count", "ProbeUrefMismatchCount"])
+    )
+    metrics_protocol_ok = (
+        metrics_protocol_gate == "metrics_ready_for_validation_gate"
+        and (metrics_probe_uref_mismatch_count in {None, 0})
+    )
+    add_gate(
+        gates,
+        "metrics_protocol",
+        PASS if metrics_protocol_ok else FAIL,
+        (
+            f"metrics_protocol_gate={metrics_protocol_gate or 'missing'}; "
+            f"probe_uref_expected_mps={metrics_probe_uref_expected if metrics_probe_uref_expected is not None else 'not_set'}; "
+            f"probe_uref_values={metrics_probe_uref_values or 'missing'}; "
+            f"probe_uref_mismatch_count={metrics_probe_uref_mismatch_count if metrics_probe_uref_mismatch_count is not None else 'missing'}"
+        ),
+        "Rebuild validation_metrics.csv from the current probe audit and official table until its internal protocol_gate is metrics_ready_for_validation_gate.",
+    )
+
     normalization_valid = as_bool(get_any(metrics, ["normalization_valid", "NormalizationValid"]))
     wind_valid = as_bool(get_any(metrics, ["wind_direction_valid", "WindDirectionValid"]))
     uref = as_float(get_any(metrics, ["Uref_mps", "Uref", "U_ref"]))

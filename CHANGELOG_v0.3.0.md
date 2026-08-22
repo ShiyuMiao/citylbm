@@ -157,6 +157,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `validation_gate.py`: when `--case` or `--wind-direction` is requested, the official RS table must expose a matching
   case/condition or wind/direction column and the filtered subset must be non-empty. This prevents Case E `bc/ac` rows
   or other wind directions from silently entering the reported error statistics and final gate.
+- `validation_metrics_from_probe_audit.py` now records `probe_uref_expected_mps`, `probe_uref_values` and
+  `probe_uref_mismatch_count`; when the command-level Uref differs from the per-probe audit Uref, the metrics
+  `protocol_gate` fails with `fail_probe_uref_mismatch`. `validation_gate.py` now includes a `metrics_protocol` gate so
+  these internal coordinate/component/Uref protocol failures cannot be ignored by later accuracy checks.
 - `audit_component_sensitivity.py` now uses the same lowercase alphanumeric probe-ID normalization as the main metrics
   and gate scripts, and rejects duplicate official IDs after normalization. Component/Uref sensitivity checks therefore
   compare the same official points as the final metrics join.

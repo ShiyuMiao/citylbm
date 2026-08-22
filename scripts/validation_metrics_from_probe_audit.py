@@ -359,6 +359,9 @@ TEMPLATE_FIELDS = [
     "component_rmse_improvement_ratio",
     "normalization_best_fit_scale",
     "normalization_scaled_improvement_ratio",
+    "probe_uref_expected_mps",
+    "probe_uref_values",
+    "probe_uref_mismatch_count",
     "grid_sensitivity_audit",
     "grid_sensitivity_gate",
     "grid_sensitivity_gate_reasons",
@@ -433,6 +436,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--probe-id-column", default="probe_id")
     parser.add_argument("--sim-value-column", default="compared_value")
     parser.add_argument("--u-ref", type=float, default=None, help="Reference velocity, used only for metadata checks.")
+    parser.add_argument("--u-ref-tolerance", type=float, default=1.0e-6)
     parser.add_argument("--z-ref", type=float, default=None)
     parser.add_argument("--dx", type=float, default=None)
     parser.add_argument("--steps", type=int, default=None)
@@ -1159,6 +1163,11 @@ def main() -> int:
     normalization_gate_value = all(normalization_values) if normalization_values else None
     wind_gate_value = all(wind_values) if wind_values else None
     unique_probe_urefs = sorted({round(value, 12) for value in probe_urefs})
+    probe_uref_mismatch_count = 0
+    if args.u_ref is not None:
+        probe_uref_mismatch_count = sum(
+            1 for value in probe_urefs if abs(value - args.u_ref) > args.u_ref_tolerance
+        )
     inferred_uref = args.u_ref
     if inferred_uref is None:
         if len(unique_probe_urefs) == 1:
@@ -1222,6 +1231,8 @@ def main() -> int:
         protocol_failures.append("fail_probe_vtk_grid_extent")
     if args.u_ref is None and len(unique_probe_urefs) > 1:
         protocol_failures.append("fail_mixed_probe_uref")
+    if args.u_ref is not None and probe_uref_mismatch_count > 0:
+        protocol_failures.append("fail_probe_uref_mismatch")
     if component_consistency_gate != "pass":
         protocol_failures.append(component_consistency_gate)
     if normalization_gate_value is not True:
@@ -1942,6 +1953,9 @@ def main() -> int:
             "component_rmse_improvement_ratio": fmt(audit_float(component_sensitivity_audit, "component_rmse_improvement_ratio")),
             "normalization_best_fit_scale": fmt(audit_float(component_sensitivity_audit, "selected_best_fit_scale_to_exp")),
             "normalization_scaled_improvement_ratio": fmt(audit_float(component_sensitivity_audit, "selected_scaled_improvement_ratio")),
+            "probe_uref_expected_mps": fmt(args.u_ref),
+            "probe_uref_values": ";".join(fmt(value) for value in unique_probe_urefs),
+            "probe_uref_mismatch_count": probe_uref_mismatch_count,
             "grid_sensitivity_audit": str(Path(args.grid_sensitivity_audit).resolve()) if args.grid_sensitivity_audit else "",
             "grid_sensitivity_gate": audit_gate(grid_sensitivity_audit, "grid_sensitivity_gate"),
             "grid_sensitivity_gate_reasons": ";".join(
@@ -1992,7 +2006,9 @@ def main() -> int:
                 f"matched={valid_n}; official_filtered={len(official_rows)}; "
                 f"missing_official_probe_count={missing_official_probe_count}; "
                 f"official_probe_coverage_ratio={fmt(official_probe_coverage_ratio)}; "
+                f"probe_uref_expected_mps={fmt(args.u_ref) or 'not_set'}; "
                 f"probe_uref_values={';'.join(fmt(value) for value in unique_probe_urefs) or 'none'}; "
+                f"probe_uref_mismatch_count={probe_uref_mismatch_count}; "
                 f"metrics_protocol_failures={';'.join(protocol_failures) or 'none'}"
             ),
         }
