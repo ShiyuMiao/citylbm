@@ -1976,7 +1976,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    // 原因：FluidX3D 的 voxelize_mesh_on_device() 内部在 !initialized 时");
             sb.AppendLine("    // 会调用 u.read_from_device()，把 GPU 端的 u（此时还是 reset(0) 的零值）");
             sb.AppendLine("    // 覆盖到 CPU 端，导致之前 parallel_for 设置的速度全部丢失！");
-            AppendEquilibriumBoundaryVelocityInitialization(sb, scene.WindProfile);
+            AppendEquilibriumBoundaryVelocityInitialization(sb, scene.WindProfile, syntheticInletActive, windDir);
             sb.AppendLine();
             sb.AppendLine("    lbm.flags.write_to_device();");
             sb.AppendLine("    lbm.u.write_to_device();");
@@ -2174,11 +2174,17 @@ namespace CityLBM.Solver
             sb.AppendLine("        if(z == Nz-1u) { lbm.flags[n] = TYPE_E; return; }");
         }
 
-        private void AppendEquilibriumBoundaryVelocityInitialization(StringBuilder sb, WindProfileType windProfile)
+        private void AppendEquilibriumBoundaryVelocityInitialization(StringBuilder sb, WindProfileType windProfile, bool syntheticInletActive, Vector3d windDir)
         {
+            string inletCondition = syntheticInletActive ? GetInletFaceCondition(windDir) : "";
+
             sb.AppendLine("    // CityLBM v0.3.0 validation fix: initialize all TYPE_E boundary velocities.");
             sb.AppendLine("    // Without this pass, outlet/lateral/top TYPE_E nodes can keep zero velocity after the boundary return path,");
             sb.AppendLine("    // which may add artificial damping and contribute to systematic speed-ratio underprediction.");
+            if (syntheticInletActive)
+            {
+                sb.AppendLine("    // Synthetic turbulent inlet nodes keep the t=0 STG-lite velocity; only non-inlet TYPE_E faces use the mean profile.");
+            }
             sb.AppendLine("    parallel_for(lbm.get_N(), [&](ulong n) {");
             sb.AppendLine("        if(lbm.flags[n] != TYPE_E) return;");
             sb.AppendLine("        uint x=0u, y=0u, z=0u;");
@@ -2191,6 +2197,16 @@ namespace CityLBM.Solver
             }
             else
             {
+                if (syntheticInletActive)
+                {
+                    sb.AppendLine($"        if({inletCondition}) {{");
+                    sb.AppendLine("            float3 u_e = syntheticTurbulentInlet(x, y, z, 0u);");
+                    sb.AppendLine("            lbm.u.x[n] = u_e.x;");
+                    sb.AppendLine("            lbm.u.y[n] = u_e.y;");
+                    sb.AppendLine("            lbm.u.z[n] = u_e.z;");
+                    sb.AppendLine("            return;");
+                    sb.AppendLine("        }");
+                }
                 sb.AppendLine("        float3 u_e = windProfile(z);");
                 sb.AppendLine("        lbm.u.x[n] = u_e.x;");
                 sb.AppendLine("        lbm.u.y[n] = u_e.y;");
@@ -2816,9 +2832,11 @@ namespace CityLBM.Solver
                     BoundaryConditionMethodClass = "citylbm_type_e_box_simplified",
                     BoundaryConditionPaperGradeStatus = "diagnostic_only_until_boundary_source_and_aij_protocol_evidence_pass",
                     BoundaryTypeEVelocityInitializationApplied = true,
-                    BoundaryTypeEVelocityInitializationTreatment = scene.WindProfile == WindProfileType.Uniform
-                        ? "all_TYPE_E_boundaries_initialized_from_uniform_mean_velocity_before_device_upload"
-                        : "all_TYPE_E_boundaries_initialized_from_height_varying_mean_profile_before_device_upload",
+                    BoundaryTypeEVelocityInitializationTreatment = syntheticActive
+                        ? "TYPE_E_inlet_preserves_synthetic_turbulent_velocity_t0; outlet_lateral_top_initialized_from_height_varying_mean_profile_before_device_upload"
+                        : (scene.WindProfile == WindProfileType.Uniform
+                            ? "all_TYPE_E_boundaries_initialized_from_uniform_mean_velocity_before_device_upload"
+                            : "all_TYPE_E_boundaries_initialized_from_height_varying_mean_profile_before_device_upload"),
                     BoundaryTypeEVelocityInitializationProfileAware = scene.WindProfile != WindProfileType.Uniform,
                     BoundaryTypeEVelocityInitializationDeviceUploadOrder = "lbm.flags_and_lbm.u_written_to_device_after_initialization_before_stl_voxelization",
                     BoundaryVelocityInitializationPaperGradeStatus = "diagnostic_damping_mitigation_not_wind_tunnel_equivalent_boundary",
@@ -3366,9 +3384,11 @@ namespace CityLBM.Solver
                         BoundaryConditionMethodClass = "citylbm_type_e_box_simplified",
                         BoundaryConditionPaperGradeStatus = "diagnostic_only_until_boundary_source_and_aij_protocol_evidence_pass",
                         BoundaryTypeEVelocityInitializationApplied = true,
-                        BoundaryTypeEVelocityInitializationTreatment = scene.WindProfile == WindProfileType.Uniform
-                            ? "all_TYPE_E_boundaries_initialized_from_uniform_mean_velocity_before_device_upload"
-                            : "all_TYPE_E_boundaries_initialized_from_height_varying_mean_profile_before_device_upload",
+                        BoundaryTypeEVelocityInitializationTreatment = IsSyntheticTurbulentInletActive(scene, settings)
+                            ? "TYPE_E_inlet_preserves_synthetic_turbulent_velocity_t0; outlet_lateral_top_initialized_from_height_varying_mean_profile_before_device_upload"
+                            : (scene.WindProfile == WindProfileType.Uniform
+                                ? "all_TYPE_E_boundaries_initialized_from_uniform_mean_velocity_before_device_upload"
+                                : "all_TYPE_E_boundaries_initialized_from_height_varying_mean_profile_before_device_upload"),
                         BoundaryTypeEVelocityInitializationProfileAware = scene.WindProfile != WindProfileType.Uniform,
                         BoundaryTypeEVelocityInitializationDeviceUploadOrder = "lbm.flags_and_lbm.u_written_to_device_after_initialization_before_stl_voxelization",
                         BoundaryVelocityInitializationPaperGradeStatus = "diagnostic_damping_mitigation_not_wind_tunnel_equivalent_boundary",

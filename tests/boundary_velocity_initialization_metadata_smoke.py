@@ -12,8 +12,13 @@ def main() -> int:
     metrics = (repo / "scripts" / "validation_metrics_from_probe_audit.py").read_text(encoding="utf-8-sig")
 
     require(
-        "AppendEquilibriumBoundaryVelocityInitialization(sb, scene.WindProfile)" in source,
+        "AppendEquilibriumBoundaryVelocityInitialization(sb, scene.WindProfile, syntheticInletActive, windDir)" in source,
         "setup.cpp generation must call the Type-E velocity initialization pass",
+    )
+    require(
+        "Synthetic turbulent inlet nodes keep the t=0 STG-lite velocity" in source
+        and "float3 u_e = syntheticTurbulentInlet(x, y, z, 0u);" in source,
+        "Type-E velocity initialization must not overwrite synthetic turbulent inlet nodes with the mean profile",
     )
     require(
         "lbm.flags.write_to_device();" in source and "lbm.u.write_to_device();" in source,
@@ -26,6 +31,10 @@ def main() -> int:
     require(
         "BoundaryTypeEVelocityInitializationTreatment" in source,
         "case metadata must record how Type-E velocity initialization is applied",
+    )
+    require(
+        "TYPE_E_inlet_preserves_synthetic_turbulent_velocity_t0" in source,
+        "case metadata must record the synthetic-inlet-preserving initialization path",
     )
     require(
         "BoundaryVelocityInitializationPaperGradeStatus = \"diagnostic_damping_mitigation_not_wind_tunnel_equivalent_boundary\""
