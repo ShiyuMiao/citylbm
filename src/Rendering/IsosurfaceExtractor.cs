@@ -75,7 +75,6 @@ namespace CityLBM.Rendering
             var scalarField = scalars.ToArray();
             
             var mesh = new Mesh();
-            int triangleCount = 0;
 
             // 遍历所有体素（cell），每个 cell 是一个立方体，8个顶点
             for (int i = 0; i < nx - 1; i++)

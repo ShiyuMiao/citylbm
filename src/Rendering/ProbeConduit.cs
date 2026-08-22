@@ -208,7 +208,7 @@ namespace CityLBM.Rendering
             Color velColor = GetSpeedColor(probe.Speed);
             
             // 合速度用更粗的线
-            display.DrawLine(new Line(probe.Position, endPoint), velColor, 3);
+            display.DrawLine(new Line(probe.Position, endPoint), velColor, (int)_lineWidth);
             DrawArrowHead(display, endPoint, scaledVel, velColor, 1.0);
             
             // 如果有风向参考，绘制风向指示（虚线）

@@ -31,9 +31,6 @@ namespace CityLBM.Rendering
         // 计算域边界
         private BoundingBox _domainBounds = BoundingBox.Unset;
 
-        // 指南针显示位置（屏幕坐标）
-        private bool _followViewport = true; // 是否跟随视角
-
         public void SetWindData(
             double directionDegrees,
             double windSpeed,

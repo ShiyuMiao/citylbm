@@ -249,8 +249,8 @@ namespace CityLBM.Components.Results
         /// </summary>
         private static int GetSafetyLevel(double speed)
         {
-            if (speed <= 15.0) return 0;  // Safe
-            if (speed <= 20.0) return 1;  // Unsafe (vulnerable groups)
+            if (speed <= SafetyThreshold15) return 0;  // Safe
+            if (speed <= SafetyThreshold20) return 1;  // Unsafe (vulnerable groups)
             return 2;                      // Dangerous (general public)
         }
 
