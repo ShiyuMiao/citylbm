@@ -322,6 +322,12 @@ TEMPLATE_FIELDS = [
     "native_preconditions_gate_reasons",
     "native_preconditions_protocol_identity_gate",
     "native_preconditions_time_average_gate",
+    "native_preconditions_expected_uref_mps",
+    "native_preconditions_actual_uref_mps",
+    "native_preconditions_expected_zref_m",
+    "native_preconditions_af_uref_at_zref_mps",
+    "native_preconditions_uref_af_profile_delta_mps",
+    "native_preconditions_metadata_uref_af_profile_delta_mps",
     "native_inlet_profile_audit",
     "native_inlet_profile_gate",
     "native_inlet_u_profile_gate",
@@ -2023,6 +2029,24 @@ def main() -> int:
             ),
             "native_preconditions_time_average_gate": audit_gate(
                 native_preconditions_audit, "native_preconditions_time_average_gate"
+            ),
+            "native_preconditions_expected_uref_mps": fmt(
+                audit_float(native_preconditions_audit, "expected_uref_mps")
+            ),
+            "native_preconditions_actual_uref_mps": fmt(
+                audit_float(native_preconditions_audit, "actual_uref_mps")
+            ),
+            "native_preconditions_expected_zref_m": fmt(
+                audit_float(native_preconditions_audit, "expected_zref_m")
+            ),
+            "native_preconditions_af_uref_at_zref_mps": fmt(
+                audit_float(native_preconditions_audit, "af_uref_at_zref_mps")
+            ),
+            "native_preconditions_uref_af_profile_delta_mps": fmt(
+                audit_float(native_preconditions_audit, "uref_af_profile_delta_mps")
+            ),
+            "native_preconditions_metadata_uref_af_profile_delta_mps": fmt(
+                audit_float(native_preconditions_audit, "metadata_uref_af_profile_delta_mps")
             ),
             "native_inlet_profile_audit": audit_field(native_preconditions_audit, "inlet_profile_audit"),
             "native_inlet_profile_gate": audit_gate(native_preconditions_audit, "inlet_profile_gate"),

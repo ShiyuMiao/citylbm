@@ -18,6 +18,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   interpolation at `--z-ref` when a reference height is provided. A mismatched normalization velocity fails before VTK
   probing or remains an explicit native-precondition blocker, preventing scale-like speed-ratio bias from entering the
   Case A/E evidence chain.
+- `validation_metrics_from_probe_audit.py` and `docs/validation_metrics_template.csv` now carry native AF-reference
+  fields (`expected_uref_mps`, `actual_uref_mps`, `expected_zref_m`, interpolated AF `U(zref)`, and both Uref-vs-AF
+  deltas), so downstream Case A/E summary rows expose normalization/profile inconsistencies instead of hiding them in
+  separate precondition JSON files.
 - The `k` column is preserved, converted to LBM units and stored in metadata.
 - `case_metadata.json` now records CustomTable row count, `k` row count, all-row `k` consistency, SI/LBM `k` ranges,
   profile origin and the first/last profile heights, so AIJ run packages can audit the inlet profile without reopening
