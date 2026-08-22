@@ -14,9 +14,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `profile_origin_z_m + (z_cell + 0.5) * dx`, and metadata records the same `ProfileOriginZM`. Shifted CFD domains can
   no longer silently apply the AF profile at the wrong physical height.
 - `Uref` is retained as metadata for normalization instead of replacing the inflow table.
-- `scripts/run_native_validation_chain.py` now binds `--u-ref` to the AF CSV interpolation at `--z-ref` when a
-  reference height is provided. A mismatched normalization velocity fails before VTK probing, preventing scale-like
-  speed-ratio bias from entering the Case A/E evidence chain.
+- `scripts/run_native_validation_chain.py` and `scripts/audit_native_preconditions.py` now bind `--u-ref` to the AF CSV
+  interpolation at `--z-ref` when a reference height is provided. A mismatched normalization velocity fails before VTK
+  probing or remains an explicit native-precondition blocker, preventing scale-like speed-ratio bias from entering the
+  Case A/E evidence chain.
 - The `k` column is preserved, converted to LBM units and stored in metadata.
 - `case_metadata.json` now records CustomTable row count, `k` row count, all-row `k` consistency, SI/LBM `k` ranges,
   profile origin and the first/last profile heights, so AIJ run packages can audit the inlet profile without reopening

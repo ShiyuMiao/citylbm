@@ -773,6 +773,7 @@ def main() -> int:
             "--out",
             str(native_preconditions_json),
         ]
+        add_optional(native_preconditions_cmd, "--z-ref", args.z_ref)
         if native_manifest_path:
             native_preconditions_cmd.extend(["--manifest", str(native_manifest_path)])
         manifest["Steps"].append(run_step("audit_native_preconditions", native_preconditions_cmd, allow_fail=True))

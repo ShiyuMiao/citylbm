@@ -90,6 +90,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--software", default="", help="Expected software label.")
     parser.add_argument("--wind-vector", default="", help="Expected wind vector, e.g. 0,-1,0.")
     parser.add_argument("--u-ref", type=float, default=None, help="Expected reference wind speed in m/s.")
+    parser.add_argument("--z-ref", type=float, default=None, help="Reference height used to derive Uref from the AF profile.")
     parser.add_argument("--expected-compared-component", default="", help="Expected probe comparison component.")
     parser.add_argument("--u-ref-tolerance", type=float, default=1.0e-6)
     parser.add_argument("--wind-vector-tolerance", type=float, default=1.0e-6)
@@ -828,6 +829,47 @@ def find_csv_column(rows: List[Dict[str, str]], candidates: Iterable[str]) -> st
     return ""
 
 
+def find_column_by_fieldnames(fieldnames: Iterable[str], candidates: Iterable[str]) -> str:
+    normalized = {normalized_column_key(column): column for column in fieldnames}
+    for candidate in candidates:
+        found = normalized.get(normalized_column_key(candidate))
+        if found:
+            return found
+    return ""
+
+
+def af_u_at_reference_height(path: Optional[Path], z_ref: Optional[float]) -> Optional[float]:
+    if path is None or z_ref is None or not path.exists():
+        return None
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if not reader.fieldnames:
+            return None
+        z_column = find_column_by_fieldnames(reader.fieldnames, ["z", "z(m)", "height", "height_m"])
+        u_column = find_column_by_fieldnames(reader.fieldnames, ["U", "U(m/s)", "u_mps", "velocity", "velocity_mps"])
+        if not z_column or not u_column:
+            return None
+        samples: List[Tuple[float, float]] = []
+        for row in reader:
+            z = as_float(row.get(z_column))
+            u = as_float(row.get(u_column))
+            if z is not None and u is not None:
+                samples.append((z, u))
+    if len(samples) < 2:
+        return None
+    samples.sort(key=lambda item: item[0])
+    if z_ref <= samples[0][0]:
+        return samples[0][1]
+    if z_ref >= samples[-1][0]:
+        return samples[-1][1]
+    for (z0, u0), (z1, u1) in zip(samples, samples[1:]):
+        if z0 <= z_ref <= z1:
+            if abs(z1 - z0) <= 1.0e-12:
+                return u0
+            return u0 + (u1 - u0) * ((z_ref - z0) / (z1 - z0))
+    return None
+
+
 def filter_official_rows(
     rows: List[Dict[str, str]],
     case: str,
@@ -1152,10 +1194,26 @@ def main() -> int:
     shared_u_ref = as_float(shared.get("ReferenceWindSpeedMps"))
     metadata_u_ref = as_float(metadata.get("ReferenceWindSpeedMps") or metadata.get("WindSpeed"))
     u_ref = shared_u_ref if shared_u_ref is not None else metadata_u_ref
+    af_csv = Path(args.af_csv).expanduser().resolve() if args.af_csv else None
+    u_ref_from_af = af_u_at_reference_height(af_csv, args.z_ref)
     if args.u_ref is not None and (u_ref is None or abs(u_ref - args.u_ref) > args.u_ref_tolerance):
         reasons.append("uref_mismatch")
+    if (
+        args.u_ref is not None
+        and u_ref_from_af is not None
+        and abs(args.u_ref - u_ref_from_af) > args.u_ref_tolerance
+    ):
+        reasons.append("uref_af_profile_mismatch")
+        reasons.append(
+            f"uref_af_profile_delta_{reason_token(f'{abs(args.u_ref - u_ref_from_af):.12g}')}"
+        )
+    if (
+        u_ref is not None
+        and u_ref_from_af is not None
+        and abs(u_ref - u_ref_from_af) > args.u_ref_tolerance
+    ):
+        reasons.append("metadata_uref_af_profile_mismatch")
 
-    af_csv = Path(args.af_csv).expanduser().resolve() if args.af_csv else None
     af_sha = sha256_file(af_csv)
     manifest_af_sha = str(shared.get("WindProfileCsvSha256") or "").strip().lower()
     if af_csv:
@@ -1699,6 +1757,8 @@ def main() -> int:
         for reason in [
             "wind_vector_mismatch",
             "uref_mismatch",
+            "uref_af_profile_mismatch",
+            "metadata_uref_af_profile_mismatch",
             "af_csv_missing",
             "af_csv_hash_mismatch",
             "wind_profile_not_customtable",
@@ -1729,6 +1789,18 @@ def main() -> int:
         "wind_vector_delta": wind_delta,
         "expected_uref_mps": args.u_ref,
         "actual_uref_mps": u_ref,
+        "expected_zref_m": args.z_ref,
+        "af_uref_at_zref_mps": u_ref_from_af,
+        "uref_af_profile_delta_mps": (
+            abs(args.u_ref - u_ref_from_af)
+            if args.u_ref is not None and u_ref_from_af is not None
+            else None
+        ),
+        "metadata_uref_af_profile_delta_mps": (
+            abs(u_ref - u_ref_from_af)
+            if u_ref is not None and u_ref_from_af is not None
+            else None
+        ),
         "expected_vtk_pattern": args.expected_vtk_pattern,
         "runtime_vtk_pattern": runtime_pattern,
         "average_last_n_required": args.average_last_n,
