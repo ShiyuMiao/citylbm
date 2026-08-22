@@ -535,6 +535,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     probe_source_gate = by_key.get("probe_source_window")
     probe_gate = by_key.get("probe_mapping")
     sensitivity_gate = by_key.get("component_normalization_sensitivity")
+    native_probe_traceability_gate = by_key.get("native_probe_component_traceability")
     coordinate_gates = [
         metrics_hash_gate,
         coordinate_gate,
@@ -544,6 +545,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         probe_source_gate,
         probe_gate,
         sensitivity_gate,
+        native_probe_traceability_gate,
     ]
     if any(gate is None or gate.get("status") != PASS for gate in coordinate_gates):
         coordinate_priority_gate = next(
@@ -2114,6 +2116,99 @@ def native_inlet_precondition_traceability_status(
             reasons.append(f"{label}_minimum_step_span_missing")
         elif minimum < min_avg_step_span:
             reasons.append(f"{label}_minimum_step_span_below_{min_avg_step_span}")
+
+    return {
+        "ok": not reasons,
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+    }
+
+
+def native_probe_component_traceability_status(
+    native_preconditions_audit: Dict[str, Any],
+    min_avg_step_span: int,
+) -> Dict[str, Any]:
+    reasons: List[str] = []
+    if not native_preconditions_audit:
+        reasons.append("native_preconditions_audit_missing")
+
+    expected_zero_counts = [
+        "probe_audit_failed_row_count",
+        "probe_missing_id_count",
+        "probe_duplicate_id_count",
+        "missing_official_probe_id_count",
+        "unmatched_probe_id_count",
+        "probe_missing_official_coordinate_delta_count",
+        "probe_official_coordinate_delta_violation_count",
+        "probe_normalization_missing_count",
+        "probe_normalization_invalid_count",
+        "probe_wind_direction_missing_count",
+        "probe_wind_direction_invalid_count",
+        "probe_uref_missing_count",
+        "probe_uref_mismatch_count",
+        "probe_nearest_distance_missing_count",
+        "probe_tolerance_missing_or_disabled_count",
+        "probe_out_of_tolerance_count",
+    ]
+    for key in expected_zero_counts:
+        value = as_int(get_any(native_preconditions_audit, [key]))
+        if value is None:
+            reasons.append(f"{key}_missing")
+        elif value != 0:
+            reasons.append(f"{key}_not_zero:{value}")
+
+    row_count = as_int(get_any(native_preconditions_audit, ["probe_audit_row_count"]))
+    valid_row_count = as_int(get_any(native_preconditions_audit, ["probe_audit_valid_row_count"]))
+    if row_count is None or row_count <= 0:
+        reasons.append("probe_audit_row_count_missing_or_zero")
+    if valid_row_count is None or valid_row_count <= 0:
+        reasons.append("probe_audit_valid_row_count_missing_or_zero")
+    elif row_count is not None and valid_row_count != row_count:
+        reasons.append(f"probe_audit_valid_row_count_mismatch:{valid_row_count}_of_{row_count}")
+
+    coverage = as_float(get_any(native_preconditions_audit, ["official_probe_coverage_ratio"]))
+    if coverage is None:
+        reasons.append("official_probe_coverage_ratio_missing")
+    elif abs(coverage - 1.0) > 1.0e-12:
+        reasons.append(f"official_probe_coverage_ratio_not_one:{coverage}")
+
+    for key in [
+        "probe_source_time_steps_match_runtime",
+        "probe_source_steps_strictly_increasing",
+        "probe_source_step_spacing_uniform",
+        "probe_source_step_span_match_runtime",
+        "probe_source_vtk_sha256_match_runtime",
+    ]:
+        value = as_bool(get_any(native_preconditions_audit, [key]))
+        if value is not True:
+            reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+
+    for label, key in [
+        ("probe", "probe_source_step_span"),
+        ("probe_minimum", "probe_minimum_validation_average_step_span"),
+        ("component", "component_source_step_span"),
+        ("component_minimum", "component_minimum_source_step_span"),
+    ]:
+        value = as_int(get_any(native_preconditions_audit, [key]))
+        if value is None:
+            reasons.append(f"{label}_source_step_span_missing")
+        elif value < min_avg_step_span:
+            reasons.append(f"{label}_source_step_span_below_{min_avg_step_span}")
+
+    for key in [
+        "component_normalization_gate",
+        "component_sensitivity_gate",
+        "normalization_scale_gate",
+        "component_source_window_gate",
+    ]:
+        value = str(get_any(native_preconditions_audit, [key]) or "").strip().lower()
+        if value != "pass":
+            reasons.append(f"{key}_not_pass:{value or 'missing'}")
+
+    for key in ["component_source_time_steps", "component_source_sha256"]:
+        value = str(get_any(native_preconditions_audit, [key]) or "").strip()
+        if not value:
+            reasons.append(f"{key}_missing")
 
     return {
         "ok": not reasons,
@@ -4569,9 +4664,38 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         ),
         "Regenerate native inlet profile and inlet correlation audits from the same runtime-selected final VTK window, with matching AF CSV hash, VTK hashes, increasing/uniform source steps and sufficient solver-step span.",
     )
+    native_probe_traceability = native_probe_component_traceability_status(
+        native_preconditions_audit,
+        args.min_avg_step_span,
+    )
+    add_gate(
+        gates,
+        "native_probe_component_traceability",
+        PASS if native_probe_traceability["ok"] else FAIL,
+        (
+            f"native_preconditions_audit={native_preconditions_audit_path or 'missing'}; "
+            f"reasons={native_probe_traceability['reasons_csv'] or 'none'}; "
+            f"probe_audit_row_count={native_preconditions_probe_row_count}; "
+            f"probe_audit_failed_row_count={native_preconditions_probe_failed_count}; "
+            f"official_probe_coverage_ratio={get_any(native_preconditions_audit, ['official_probe_coverage_ratio'])}; "
+            f"probe_max_official_coordinate_delta_m={get_any(native_preconditions_audit, ['probe_max_official_coordinate_delta_m'])}; "
+            f"probe_official_coordinate_delta_violation_count={get_any(native_preconditions_audit, ['probe_official_coordinate_delta_violation_count'])}; "
+            f"probe_source_time_steps_match_runtime={get_any(native_preconditions_audit, ['probe_source_time_steps_match_runtime'])}; "
+            f"probe_source_vtk_sha256_match_runtime={get_any(native_preconditions_audit, ['probe_source_vtk_sha256_match_runtime'])}; "
+            f"probe_source_step_span={get_any(native_preconditions_audit, ['probe_source_step_span'])}; "
+            f"component_normalization_gate={native_preconditions_component_gate or 'missing'}; "
+            f"component_sensitivity_gate={native_preconditions_component_sensitivity_gate or 'missing'}; "
+            f"normalization_scale_gate={native_preconditions_normalization_scale_gate or 'missing'}; "
+            f"component_source_window_gate={get_any(native_preconditions_audit, ['component_source_window_gate']) or 'missing'}; "
+            f"component_source_step_span={get_any(native_preconditions_audit, ['component_source_step_span'])}; "
+            f"required_min_avg_step_span={args.min_avg_step_span}"
+        ),
+        "Regenerate probe_audit.csv and component_sensitivity_audit.json from the same final VTK window, with official probe IDs, official coordinates, Uref, wind vector, compared component, tolerance and source hashes closed.",
+    )
     native_preconditions_full_evidence_ok = (
         native_preconditions_audit_path is not None
         and native_inlet_traceability["ok"]
+        and native_probe_traceability["ok"]
         and native_preconditions_inlet_source_gate == "pass"
         and native_preconditions_paper_inlet_gate == "pass"
         and native_preconditions_inlet_distribution_consistent is True
@@ -4613,6 +4737,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_correlation_gate={native_preconditions_inlet_correlation_gate or 'missing'}; "
             f"native_inlet_traceability_ok={native_inlet_traceability['ok']}; "
             f"native_inlet_traceability_reasons={native_inlet_traceability['reasons_csv'] or 'none'}; "
+            f"native_probe_traceability_ok={native_probe_traceability['ok']}; "
+            f"native_probe_traceability_reasons={native_probe_traceability['reasons_csv'] or 'none'}; "
             f"boundary_source_gate={native_preconditions_boundary_source_gate or 'missing'}; "
             f"paper_grade_boundary_source_gate={native_preconditions_paper_boundary_gate or 'missing'}; "
             f"boundary_source_wind_tunnel_equivalent={native_preconditions_boundary_equivalent}; "
@@ -5624,6 +5750,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "boundary_protocol": "boundary protocol",
         "roughness_or_precursor": "roughness or precursor evidence",
         "native_preconditions_full_evidence": "native FluidX3D preconditions",
+        "native_probe_component_traceability": "native FluidX3D probe/component/Uref traceability",
         "native_baseline": "native FluidX3D baseline",
         "native_citylbm_parity": "native-CityLBM parity",
         "grid_sensitivity": "grid sensitivity",
