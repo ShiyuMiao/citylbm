@@ -256,6 +256,17 @@ def source_step_span_from_steps(steps: List[int]) -> Optional[int]:
     return ordered[-1] - ordered[0]
 
 
+def source_steps_strictly_increasing(steps: List[int]) -> bool:
+    return len(steps) >= 2 and all(right > left for left, right in zip(steps, steps[1:]))
+
+
+def source_steps_uniformly_spaced(steps: List[int]) -> bool:
+    if len(steps) < 2:
+        return False
+    spacings = [right - left for left, right in zip(steps, steps[1:])]
+    return all(spacing > 0 for spacing in spacings) and len(set(spacings)) == 1
+
+
 def split_scalar_list(value: Any, separators: Tuple[str, ...] = (",", ";")) -> List[str]:
     if value is None:
         return []
@@ -361,10 +372,15 @@ def append_source_step_span_reasons(
     audit: Dict[str, Any],
     min_step_span: int,
 ) -> Dict[str, Any]:
+    audit_steps = audit_source_steps(audit)
     reported = as_int(audit.get("source_step_span"))
-    computed = source_step_span_from_steps(audit_source_steps(audit))
+    computed = source_step_span_from_steps(audit_steps)
     effective = computed if computed is not None else reported
     matches_steps = reported is not None and computed is not None and reported == computed
+    increasing = source_steps_strictly_increasing(audit_steps)
+    uniform = source_steps_uniformly_spaced(audit_steps)
+    reported_increasing = as_bool(audit.get("source_steps_strictly_increasing"))
+    reported_uniform = as_bool(audit.get("source_step_spacing_uniform"))
     if audit:
         if reported is None:
             reasons.append(f"{label}_source_step_span_missing")
@@ -372,6 +388,14 @@ def append_source_step_span_reasons(
             reasons.append(f"{label}_source_time_steps_span_missing")
         elif reported is not None and reported != computed:
             reasons.append(f"{label}_source_step_span_mismatch_time_steps")
+        if not increasing:
+            reasons.append(f"{label}_source_steps_not_strictly_increasing")
+        if not uniform:
+            reasons.append(f"{label}_source_step_spacing_not_uniform")
+        if reported_increasing is not None and reported_increasing != increasing:
+            reasons.append(f"{label}_source_steps_increasing_flag_mismatch")
+        if reported_uniform is not None and reported_uniform != uniform:
+            reasons.append(f"{label}_source_step_spacing_flag_mismatch")
     if effective is None or effective < min_step_span:
         reasons.append(f"{label}_step_span_too_short")
     return {
@@ -379,6 +403,10 @@ def append_source_step_span_reasons(
         f"{label}_source_step_span_from_time_steps": computed,
         f"{label}_source_step_span": effective,
         f"{label}_source_step_span_matches_time_steps": matches_steps,
+        f"{label}_source_steps_strictly_increasing": increasing,
+        f"{label}_source_step_spacing_uniform": uniform,
+        f"{label}_reported_source_steps_strictly_increasing": reported_increasing,
+        f"{label}_reported_source_step_spacing_uniform": reported_uniform,
     }
 
 
@@ -640,6 +668,10 @@ def main() -> int:
     runtime_step_span_reported = as_int(runtime_audit.get("source_step_span"))
     runtime_step_span_from_steps = source_step_span_from_steps(runtime_steps)
     runtime_step_span = runtime_step_span_from_steps if runtime_step_span_from_steps is not None else runtime_step_span_reported
+    runtime_steps_increasing = source_steps_strictly_increasing(runtime_steps)
+    runtime_steps_uniform = source_steps_uniformly_spaced(runtime_steps)
+    runtime_reported_steps_increasing = as_bool(runtime_audit.get("source_steps_strictly_increasing"))
+    runtime_reported_steps_uniform = as_bool(runtime_audit.get("source_step_spacing_uniform"))
     planned_span = expected_final_window_span(
         shared_steps or metadata_steps,
         shared_save_interval or metadata_save_interval,
@@ -653,6 +685,14 @@ def main() -> int:
             reasons.append("runtime_source_time_steps_span_missing")
         elif runtime_step_span_reported is not None and runtime_step_span_reported != runtime_step_span_from_steps:
             reasons.append("runtime_source_step_span_mismatch_time_steps")
+        if not runtime_steps_increasing:
+            reasons.append("runtime_source_steps_not_strictly_increasing")
+        if not runtime_steps_uniform:
+            reasons.append("runtime_source_step_spacing_not_uniform")
+        if runtime_reported_steps_increasing is not None and runtime_reported_steps_increasing != runtime_steps_increasing:
+            reasons.append("runtime_source_steps_increasing_flag_mismatch")
+        if runtime_reported_steps_uniform is not None and runtime_reported_steps_uniform != runtime_steps_uniform:
+            reasons.append("runtime_source_step_spacing_flag_mismatch")
     if runtime_step_span is None or runtime_step_span < args.min_avg_step_span:
         reasons.append("runtime_average_step_span_too_short")
     if planned_span is None or planned_span < args.min_avg_step_span:
@@ -971,6 +1011,8 @@ def main() -> int:
     probe_minimum_step_span = probe_minimum_step_span_values[0] if len(probe_minimum_step_span_values) == 1 else None
     probe_source_steps_match = bool(runtime_steps) and probe_source_steps == runtime_steps
     probe_source_hashes_match = bool(runtime_hashes) and bool(probe_source_hashes) and set(probe_source_hashes) == set(runtime_hashes)
+    probe_source_steps_increasing = source_steps_strictly_increasing(probe_source_steps)
+    probe_source_steps_uniform = source_steps_uniformly_spaced(probe_source_steps)
     probe_source_step_span_match = (
         runtime_step_span is not None
         and probe_source_step_span is not None
@@ -981,6 +1023,10 @@ def main() -> int:
             reasons.append("probe_source_time_steps_inconsistent_or_missing")
         elif not probe_source_steps_match:
             reasons.append("probe_source_time_steps_mismatch")
+        if not probe_source_steps_increasing:
+            reasons.append("probe_source_steps_not_strictly_increasing")
+        if not probe_source_steps_uniform:
+            reasons.append("probe_source_step_spacing_not_uniform")
         if len(probe_source_hash_values) != 1:
             reasons.append("probe_source_vtk_hashes_inconsistent_or_missing")
         elif not probe_source_hashes_match:
@@ -1056,6 +1102,10 @@ def main() -> int:
             and runtime_step_span_from_steps is not None
             and runtime_step_span_reported == runtime_step_span_from_steps
         ),
+        "runtime_source_steps_strictly_increasing": runtime_steps_increasing,
+        "runtime_source_step_spacing_uniform": runtime_steps_uniform,
+        "runtime_reported_source_steps_strictly_increasing": runtime_reported_steps_increasing,
+        "runtime_reported_source_step_spacing_uniform": runtime_reported_steps_uniform,
         "runtime_source_time_steps": runtime_steps,
         "runtime_source_vtk_sha256": runtime_hashes,
         "runtime_time_averaging_gate": time_gate,
@@ -1127,6 +1177,8 @@ def main() -> int:
         "probe_out_of_tolerance_count": probe_out_of_tolerance_count,
         "probe_source_time_steps": probe_source_steps,
         "probe_source_time_steps_match_runtime": probe_source_steps_match,
+        "probe_source_steps_strictly_increasing": probe_source_steps_increasing,
+        "probe_source_step_spacing_uniform": probe_source_steps_uniform,
         "probe_source_step_span": probe_source_step_span,
         "probe_source_step_span_match_runtime": probe_source_step_span_match,
         "probe_minimum_validation_average_step_span": probe_minimum_step_span,
