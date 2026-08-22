@@ -46,6 +46,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--official-value-column", default="")
     parser.add_argument("--probe-id-column", default="probe_id")
     parser.add_argument("--selected-component", default="", help="Expected/selected compared component.")
+    parser.add_argument(
+        "--min-source-step-span",
+        type=int,
+        default=0,
+        help="Minimum VTK time-step span required in the probe audit source window.",
+    )
+    parser.add_argument(
+        "--expected-source-time-steps",
+        default="",
+        help="Optional comma/semicolon/space-separated VTK source steps expected in every valid probe row.",
+    )
+    parser.add_argument(
+        "--expected-source-sha256",
+        default="",
+        help="Optional semicolon/comma/space-separated VTK source SHA256 hashes expected in every valid probe row.",
+    )
     parser.add_argument("--min-component-improvement-ratio", type=float, default=0.20)
     parser.add_argument("--max-best-scale-deviation", type=float, default=0.20)
     parser.add_argument("--min-scale-improvement-ratio", type=float, default=0.25)
@@ -119,6 +135,243 @@ def as_bool(value: Any) -> Optional[bool]:
     if text in {"false", "0", "no", "fail", "invalid"}:
         return False
     return None
+
+
+def as_int(value: Any) -> Optional[int]:
+    parsed = as_float(value)
+    if parsed is None:
+        return None
+    rounded = int(round(parsed))
+    if abs(parsed - rounded) > 1.0e-9:
+        return None
+    return rounded
+
+
+def parse_int_list(text: str) -> List[int]:
+    values: List[int] = []
+    for part in text.replace(";", ",").replace(" ", ",").split(","):
+        token = part.strip()
+        if not token:
+            continue
+        value = as_int(token)
+        if value is None:
+            return []
+        values.append(value)
+    return values
+
+
+def split_list_text(text: Any) -> List[str]:
+    if text is None:
+        return []
+    return [
+        part.strip()
+        for part in str(text).replace(",", ";").replace("|", ";").split(";")
+        if part.strip()
+    ]
+
+
+def normalized_hash_list(text: Any) -> List[str]:
+    return [part.lower() for part in split_list_text(text) if len(part.strip()) >= 16]
+
+
+def steps_strictly_increasing(steps: Sequence[int]) -> bool:
+    return len(steps) > 0 and all(b > a for a, b in zip(steps, steps[1:]))
+
+
+def steps_uniformly_spaced(steps: Sequence[int]) -> bool:
+    if len(steps) <= 2:
+        return len(steps) > 0
+    spacing = steps[1] - steps[0]
+    return spacing > 0 and all((b - a) == spacing for a, b in zip(steps, steps[1:]))
+
+
+def source_window_summary(
+    probe_rows: Sequence[Dict[str, str]],
+    base_dir: Path,
+    min_step_span: int,
+    expected_source_steps_text: str,
+    expected_source_hashes_text: str,
+) -> Dict[str, Any]:
+    expected_steps = parse_int_list(expected_source_steps_text) if expected_source_steps_text.strip() else []
+    expected_hashes = normalized_hash_list(expected_source_hashes_text)
+    reasons: List[str] = []
+    valid_count = 0
+    source_step_sets = set()
+    source_hash_sets = set()
+    source_file_sets = set()
+    source_step_spans = set()
+    minimum_step_spans = set()
+    missing_steps_count = 0
+    invalid_steps_count = 0
+    source_steps_mismatch_count = 0
+    missing_step_span_count = 0
+    source_step_span_mismatch_count = 0
+    source_step_span_short_count = 0
+    missing_minimum_step_span_count = 0
+    minimum_step_span_mismatch_count = 0
+    missing_hash_count = 0
+    source_hash_count_mismatch_count = 0
+    source_hash_mismatch_count = 0
+    missing_files_count = 0
+    source_file_count_mismatch_count = 0
+    source_file_missing_count = 0
+    source_file_hash_mismatch_count = 0
+    source_file_expected_hash_mismatch_count = 0
+
+    for row in probe_rows:
+        if probe_row_failed(row):
+            continue
+        valid_count += 1
+        step_text = get_value(row, "vtk_source_time_steps").strip()
+        row_steps = parse_int_list(step_text) if step_text else []
+        if not row_steps:
+            missing_steps_count += 1
+            invalid_steps_count += 1
+        else:
+            source_step_sets.add(",".join(str(step) for step in row_steps))
+            if expected_steps and row_steps != expected_steps:
+                source_steps_mismatch_count += 1
+            if not steps_strictly_increasing(row_steps):
+                invalid_steps_count += 1
+            if not steps_uniformly_spaced(row_steps):
+                invalid_steps_count += 1
+
+        expected_step_span = row_steps[-1] - row_steps[0] if len(row_steps) >= 2 else None
+        row_step_span = as_int(get_value(row, "vtk_source_step_span"))
+        if row_step_span is None and len(row_steps) == 1 and min_step_span <= 0:
+            row_step_span = 0
+            expected_step_span = 0
+        if row_step_span is None:
+            missing_step_span_count += 1
+        else:
+            source_step_spans.add(row_step_span)
+            if expected_step_span is not None and row_step_span != expected_step_span:
+                source_step_span_mismatch_count += 1
+            if min_step_span > 0 and row_step_span < min_step_span:
+                source_step_span_short_count += 1
+
+        row_min_span = as_int(get_value(row, "minimum_validation_average_step_span"))
+        if row_min_span is None:
+            missing_minimum_step_span_count += 1
+        else:
+            minimum_step_spans.add(row_min_span)
+            if min_step_span > 0 and row_min_span != min_step_span:
+                minimum_step_span_mismatch_count += 1
+
+        row_hashes = normalized_hash_list(get_value(row, "vtk_source_sha256"))
+        if not row_hashes:
+            missing_hash_count += 1
+        else:
+            source_hash_sets.add(";".join(row_hashes))
+            if row_steps and len(row_hashes) != len(row_steps):
+                source_hash_count_mismatch_count += 1
+            if expected_hashes and row_hashes != expected_hashes:
+                source_hash_mismatch_count += 1
+
+        source_files = split_list_text(get_value(row, "vtk_source_files"))
+        if not source_files:
+            missing_files_count += 1
+            continue
+        if row_steps and len(source_files) != len(row_steps):
+            source_file_count_mismatch_count += 1
+        resolved_files: List[str] = []
+        actual_hashes: List[str] = []
+        for raw_file in source_files:
+            source_file = Path(raw_file).expanduser()
+            if not source_file.is_absolute():
+                source_file = (base_dir / source_file).resolve()
+            else:
+                source_file = source_file.resolve()
+            resolved_files.append(str(source_file))
+            if not source_file.exists():
+                source_file_missing_count += 1
+                continue
+            actual_hashes.append(sha256_file(source_file).lower())
+        source_file_sets.add(";".join(resolved_files))
+        if actual_hashes and row_hashes and actual_hashes != row_hashes:
+            source_file_hash_mismatch_count += 1
+        if actual_hashes and expected_hashes and actual_hashes != expected_hashes:
+            source_file_expected_hash_mismatch_count += 1
+
+    if valid_count <= 0:
+        reasons.append("no_valid_probe_rows_for_source_window")
+    if missing_steps_count:
+        reasons.append("source_time_steps_missing")
+    if invalid_steps_count:
+        reasons.append("source_time_steps_invalid")
+    if source_steps_mismatch_count:
+        reasons.append("source_time_steps_mismatch")
+    if len(source_step_sets) != 1:
+        reasons.append("source_time_steps_inconsistent")
+    if missing_step_span_count:
+        reasons.append("source_step_span_missing")
+    if source_step_span_mismatch_count:
+        reasons.append("source_step_span_mismatch")
+    if source_step_span_short_count:
+        reasons.append("source_step_span_too_short")
+    if len(source_step_spans) != 1:
+        reasons.append("source_step_span_inconsistent")
+    if missing_minimum_step_span_count:
+        reasons.append("minimum_validation_average_step_span_missing")
+    if minimum_step_span_mismatch_count:
+        reasons.append("minimum_validation_average_step_span_mismatch")
+    if len(minimum_step_spans) != 1:
+        reasons.append("minimum_validation_average_step_span_inconsistent")
+    if missing_hash_count:
+        reasons.append("source_vtk_sha256_missing")
+    if source_hash_count_mismatch_count:
+        reasons.append("source_vtk_sha256_count_mismatch")
+    if source_hash_mismatch_count:
+        reasons.append("source_vtk_sha256_mismatch")
+    if len(source_hash_sets) != 1:
+        reasons.append("source_vtk_sha256_inconsistent")
+    if missing_files_count:
+        reasons.append("source_vtk_files_missing")
+    if source_file_count_mismatch_count:
+        reasons.append("source_vtk_file_count_mismatch")
+    if source_file_missing_count:
+        reasons.append("source_vtk_file_not_found")
+    if source_file_hash_mismatch_count:
+        reasons.append("source_vtk_file_hash_mismatch")
+    if source_file_expected_hash_mismatch_count:
+        reasons.append("source_vtk_file_expected_hash_mismatch")
+    if len(source_file_sets) != 1:
+        reasons.append("source_vtk_files_inconsistent")
+
+    sorted_step_sets = sorted(source_step_sets)
+    sorted_hash_sets = sorted(source_hash_sets)
+    return {
+        "component_source_window_gate": "pass" if not reasons else "fail",
+        "component_source_window_gate_reasons": reasons or ["source_window_consistent_and_hashed"],
+        "component_source_window_valid_probe_row_count": valid_count,
+        "component_source_time_steps": sorted_step_sets[0] if len(sorted_step_sets) == 1 else "",
+        "component_source_step_span": sorted(source_step_spans)[0] if len(source_step_spans) == 1 else None,
+        "component_minimum_source_step_span": sorted(minimum_step_spans)[0] if len(minimum_step_spans) == 1 else None,
+        "component_source_sha256": sorted_hash_sets[0] if len(sorted_hash_sets) == 1 else "",
+        "component_source_time_steps_unique_count": len(source_step_sets),
+        "component_source_step_span_unique_count": len(source_step_spans),
+        "component_source_hash_set_unique_count": len(source_hash_sets),
+        "component_source_file_set_unique_count": len(source_file_sets),
+        "component_source_missing_steps_count": missing_steps_count,
+        "component_source_invalid_steps_count": invalid_steps_count,
+        "component_source_steps_mismatch_count": source_steps_mismatch_count,
+        "component_source_missing_step_span_count": missing_step_span_count,
+        "component_source_step_span_mismatch_count": source_step_span_mismatch_count,
+        "component_source_step_span_short_count": source_step_span_short_count,
+        "component_source_missing_minimum_step_span_count": missing_minimum_step_span_count,
+        "component_source_minimum_step_span_mismatch_count": minimum_step_span_mismatch_count,
+        "component_source_missing_hash_count": missing_hash_count,
+        "component_source_hash_count_mismatch_count": source_hash_count_mismatch_count,
+        "component_source_hash_mismatch_count": source_hash_mismatch_count,
+        "component_source_missing_files_count": missing_files_count,
+        "component_source_file_count_mismatch_count": source_file_count_mismatch_count,
+        "component_source_file_missing_count": source_file_missing_count,
+        "component_source_file_hash_mismatch_count": source_file_hash_mismatch_count,
+        "component_source_file_expected_hash_mismatch_count": source_file_expected_hash_mismatch_count,
+        "component_expected_source_time_steps": ",".join(str(step) for step in expected_steps),
+        "component_expected_source_sha256": ";".join(expected_hashes),
+        "component_required_min_source_step_span": min_step_span,
+    }
 
 
 def filter_official(rows: Sequence[Dict[str, str]], case_name: str, wind_direction: str) -> List[Dict[str, str]]:
@@ -354,6 +607,13 @@ def main() -> int:
     official_rows = filter_official(read_csv(official_path), args.case, args.wind_direction)
     if not probe_rows:
         raise SystemExit("Probe audit CSV has no rows.")
+    source_window = source_window_summary(
+        probe_rows,
+        probe_path.parent,
+        args.min_source_step_span,
+        args.expected_source_time_steps,
+        args.expected_source_sha256,
+    )
 
     official_id_col = args.official_id_column or find_column(official_rows, ["No.", "No", "probe_id", "id", "point"])
     official_value_col = args.official_value_column or find_column(
@@ -450,7 +710,12 @@ def main() -> int:
 
     component_gate = "pass" if not component_gate_reasons else "fail"
     normalization_gate = "pass" if not normalization_gate_reasons else "fail"
-    overall_gate = "pass" if component_gate == "pass" and normalization_gate == "pass" else "fail"
+    source_window_gate = str(source_window.get("component_source_window_gate") or "").strip().lower()
+    overall_gate = (
+        "pass"
+        if component_gate == "pass" and normalization_gate == "pass" and source_window_gate == "pass"
+        else "fail"
+    )
     report = {
         "schema": "citylbm.component_sensitivity_audit.v1",
         "generated_at_utc": utc_now(),
@@ -477,6 +742,7 @@ def main() -> int:
         "selected_component": selected_component,
         "selected_component_source": selected_component_source,
         **component_summary,
+        **source_window,
         "best_component_by_rmse": best["component"],
         "selected_component_rmse": selected.get("RMSE"),
         "selected_component_bias": selected_bias,

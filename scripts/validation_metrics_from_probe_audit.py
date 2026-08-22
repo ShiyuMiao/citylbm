@@ -364,6 +364,14 @@ TEMPLATE_FIELDS = [
     "component_sensitivity_unmatched_valid_probe_id_count",
     "component_sensitivity_missing_official_probe_id_count",
     "component_sensitivity_official_probe_coverage_ratio",
+    "component_source_window_gate",
+    "component_source_window_gate_reasons",
+    "component_source_time_steps",
+    "component_source_step_span",
+    "component_minimum_source_step_span",
+    "component_source_sha256",
+    "component_source_time_steps_unique_count",
+    "component_source_hash_set_unique_count",
     "component_normalization_gate",
     "component_sensitivity_gate",
     "normalization_scale_gate",
@@ -1991,6 +1999,24 @@ def main() -> int:
             ),
             "component_sensitivity_official_probe_coverage_ratio": fmt(
                 audit_float(component_sensitivity_audit, "official_probe_coverage_ratio")
+            ),
+            "component_source_window_gate": audit_gate(component_sensitivity_audit, "component_source_window_gate"),
+            "component_source_window_gate_reasons": ";".join(
+                str(reason) for reason in component_sensitivity_audit.get("component_source_window_gate_reasons", [])
+            )
+            if isinstance(component_sensitivity_audit.get("component_source_window_gate_reasons"), list)
+            else str(component_sensitivity_audit.get("component_source_window_gate_reasons", "")),
+            "component_source_time_steps": audit_field(component_sensitivity_audit, "component_source_time_steps"),
+            "component_source_step_span": fmt(audit_int(component_sensitivity_audit, "component_source_step_span")),
+            "component_minimum_source_step_span": fmt(
+                audit_int(component_sensitivity_audit, "component_minimum_source_step_span")
+            ),
+            "component_source_sha256": audit_field(component_sensitivity_audit, "component_source_sha256"),
+            "component_source_time_steps_unique_count": fmt(
+                audit_int(component_sensitivity_audit, "component_source_time_steps_unique_count")
+            ),
+            "component_source_hash_set_unique_count": fmt(
+                audit_int(component_sensitivity_audit, "component_source_hash_set_unique_count")
             ),
             "component_normalization_gate": audit_gate(component_sensitivity_audit, "component_normalization_gate"),
             "component_sensitivity_gate": audit_gate(component_sensitivity_audit, "component_sensitivity_gate"),

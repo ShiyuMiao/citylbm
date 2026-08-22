@@ -617,6 +617,8 @@ def main() -> int:
             args.wind_direction_label,
             "--selected-component",
             args.compared_component,
+            "--min-source-step-span",
+            str(args.min_avg_step_span),
         ]
         manifest["Steps"].append(run_step("audit_component_sensitivity", component_sensitivity_cmd, allow_fail=True))
         write_manifest(manifest_path, manifest)

@@ -5051,6 +5051,17 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     normalization_scaled_improvement = as_float(
         component_sensitivity_audit.get("selected_scaled_improvement_ratio")
     )
+    component_source_window_gate = str(
+        component_sensitivity_audit.get("component_source_window_gate") or ""
+    ).strip().lower()
+    component_source_window_reasons_raw = component_sensitivity_audit.get("component_source_window_gate_reasons")
+    component_source_window_reasons = (
+        [str(value) for value in component_source_window_reasons_raw]
+        if isinstance(component_source_window_reasons_raw, list)
+        else [str(component_source_window_reasons_raw)]
+        if component_source_window_reasons_raw
+        else []
+    )
     component_probe_audit_sha256 = str(
         get_any(component_sensitivity_audit, ["probe_audit_sha256", "ProbeAuditSha256"]) or ""
     ).strip().lower()
@@ -5096,6 +5107,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and component_normalization_gate == "pass"
         and component_sensitivity_gate == "pass"
         and normalization_scale_gate == "pass"
+        and component_source_window_gate == "pass"
         and component_probe_hash_matches
         and component_official_hash_matches
         and component_scope_ok
@@ -5110,6 +5122,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"component_normalization_gate={component_normalization_gate or 'missing'}; "
             f"component_sensitivity_gate={component_sensitivity_gate or 'missing'}; "
             f"normalization_scale_gate={normalization_scale_gate or 'missing'}; "
+            f"component_source_window_gate={component_source_window_gate or 'missing'}; "
+            f"component_source_window_reasons={';'.join(component_source_window_reasons) or 'missing'}; "
+            f"component_source_time_steps={component_sensitivity_audit.get('component_source_time_steps') or 'missing'}; "
+            f"component_source_step_span={component_sensitivity_audit.get('component_source_step_span')}; "
+            f"component_minimum_source_step_span={component_sensitivity_audit.get('component_minimum_source_step_span')}; "
+            f"component_source_hash_set_unique_count={component_sensitivity_audit.get('component_source_hash_set_unique_count')}; "
             f"component_audit_case={component_audit_case or 'missing'}; "
             f"expected_case={identity_case or 'not_set'}; "
             f"component_scope_case_ok={component_scope_case_ok}; "

@@ -1368,6 +1368,7 @@ def main() -> int:
     component_gate = str(component_sensitivity_audit.get("component_normalization_gate") or "").strip().lower()
     component_sensitivity_gate = str(component_sensitivity_audit.get("component_sensitivity_gate") or "").strip().lower()
     normalization_scale_gate = str(component_sensitivity_audit.get("normalization_scale_gate") or "").strip().lower()
+    component_source_window_gate = str(component_sensitivity_audit.get("component_source_window_gate") or "").strip().lower()
     if not component_sensitivity_audit:
         reasons.append("component_sensitivity_audit_missing")
     if component_gate != "pass":
@@ -1376,6 +1377,8 @@ def main() -> int:
         reasons.append("component_sensitivity_gate_not_pass")
     if normalization_scale_gate != "pass":
         reasons.append("normalization_scale_gate_not_pass")
+    if component_source_window_gate != "pass":
+        reasons.append("component_source_window_gate_not_pass")
 
     protocol_identity_gate = "pass" if not any(
         reason in reasons
@@ -1563,6 +1566,19 @@ def main() -> int:
         "component_normalization_gate": component_gate,
         "component_sensitivity_gate": component_sensitivity_gate,
         "normalization_scale_gate": normalization_scale_gate,
+        "component_source_window_gate": component_source_window_gate,
+        "component_source_window_gate_reasons": component_sensitivity_audit.get(
+            "component_source_window_gate_reasons", []
+        ),
+        "component_source_window_gate_reasons_csv": ";".join(
+            str(reason) for reason in component_sensitivity_audit.get("component_source_window_gate_reasons", [])
+        )
+        if isinstance(component_sensitivity_audit.get("component_source_window_gate_reasons"), list)
+        else str(component_sensitivity_audit.get("component_source_window_gate_reasons", "")),
+        "component_source_time_steps": str(component_sensitivity_audit.get("component_source_time_steps") or ""),
+        "component_source_step_span": component_sensitivity_audit.get("component_source_step_span"),
+        "component_minimum_source_step_span": component_sensitivity_audit.get("component_minimum_source_step_span"),
+        "component_source_sha256": str(component_sensitivity_audit.get("component_source_sha256") or ""),
         "native_preconditions_protocol_identity_gate": protocol_identity_gate,
         "native_preconditions_time_average_gate": time_average_gate,
         "native_preconditions_manifest_sha256": sha256_file(manifest_path),
