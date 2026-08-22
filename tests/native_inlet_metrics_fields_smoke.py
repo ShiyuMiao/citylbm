@@ -113,6 +113,11 @@ def main() -> int:
                         "inlet_source_velocity_field_only_not_false:True;"
                         "inlet_tke_gate_not_pass:fail"
                     ),
+                    "native_probe_component_equivalence_gate": "fail",
+                    "native_probe_component_equivalence_gate_reasons_csv": (
+                        "probe_uref_mismatch_count_80;"
+                        "normalization_scale_gate_not_pass:fail"
+                    ),
                     "expected_uref_mps": 3.93,
                     "actual_uref_mps": 3.90,
                     "expected_zref_m": 15.9,
@@ -231,6 +236,11 @@ def main() -> int:
         "native_inlet_equivalence_gate_reasons": (
             "inlet_source_velocity_field_only_not_false:True;"
             "inlet_tke_gate_not_pass:fail"
+        ),
+        "native_probe_component_equivalence_gate": "fail",
+        "native_probe_component_equivalence_gate_reasons": (
+            "probe_uref_mismatch_count_80;"
+            "normalization_scale_gate_not_pass:fail"
         ),
         "native_preconditions_expected_uref_mps": "3.93",
         "native_preconditions_actual_uref_mps": "3.9",

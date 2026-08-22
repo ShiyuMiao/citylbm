@@ -407,6 +407,8 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_has_legacy_hardcoded_streamwise_clipping",
     "native_inlet_source_uncorrelated_random_patterns",
     "native_inlet_source_recommended_next_action",
+    "native_probe_component_equivalence_gate",
+    "native_probe_component_equivalence_gate_reasons",
     "native_probe_compared_component_values",
     "native_probe_expected_compared_component",
     "native_probe_compared_component_mismatch_reason",
@@ -2340,6 +2342,12 @@ def main() -> int:
             ),
             "native_inlet_source_recommended_next_action": audit_field(
                 native_preconditions_audit, "inlet_source_recommended_next_action"
+            ),
+            "native_probe_component_equivalence_gate": audit_gate(
+                native_preconditions_audit, "native_probe_component_equivalence_gate"
+            ),
+            "native_probe_component_equivalence_gate_reasons": audit_field(
+                native_preconditions_audit, "native_probe_component_equivalence_gate_reasons_csv"
             ),
             "native_probe_compared_component_values": audit_field(
                 native_preconditions_audit, "probe_audit_compared_components_csv"

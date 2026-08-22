@@ -2409,6 +2409,107 @@ def main() -> int:
     if component_source_window_gate != "pass":
         reasons.append("component_source_window_gate_not_pass")
 
+    native_probe_component_equivalence_reasons: List[str] = []
+    if not probe_rows:
+        native_probe_component_equivalence_reasons.append("probe_audit_missing_or_empty")
+    if probe_rows and not valid_probe_rows:
+        native_probe_component_equivalence_reasons.append("probe_audit_has_no_valid_rows")
+    if failed_probe_rows:
+        native_probe_component_equivalence_reasons.append(count_reason("probe_audit_failed_row_count", len(failed_probe_rows)))
+    if expected_component and compared_components != {expected_component}:
+        native_probe_component_equivalence_reasons.append(
+            compared_component_mismatch_reason or "probe_compared_component_mismatch"
+        )
+    if valid_probe_rows and not probe_id_column:
+        native_probe_component_equivalence_reasons.append("probe_id_column_missing")
+    if valid_probe_rows and official_coordinate_error:
+        native_probe_component_equivalence_reasons.append("probe_official_identity_error:" + official_coordinate_error)
+    for key, value in [
+        ("probe_missing_id_count", missing_probe_id_count),
+        ("probe_duplicate_id_count", len(duplicate_probe_ids)),
+        ("probe_unmatched_official_id_count", len(unmatched_probe_ids)),
+        ("missing_official_probe_id_count", len(missing_official_probe_ids)),
+        ("probe_missing_official_coordinate_delta_count", missing_official_coordinate_delta_count),
+        ("probe_official_coordinate_delta_violation_count", official_coordinate_delta_violation_count),
+        ("probe_normalization_valid_missing_count", normalization_missing_count),
+        ("probe_normalization_invalid_count", normalization_invalid_count),
+        ("probe_wind_direction_valid_missing_count", wind_missing_count),
+        ("probe_wind_direction_invalid_count", wind_invalid_count),
+        ("probe_uref_missing_count", uref_missing_count),
+        ("probe_uref_mismatch_count", uref_mismatch_count),
+        ("probe_nearest_distance_missing_count", nearest_distance_missing_count),
+        ("probe_tolerance_missing_or_disabled_count", tolerance_missing_or_disabled_count),
+        ("probe_out_of_tolerance_count", probe_out_of_tolerance_count),
+    ]:
+        if value:
+            native_probe_component_equivalence_reasons.append(count_reason(key, value))
+    if valid_probe_rows and requires_current_official_recompute and official_coordinate_recomputed_count != len(valid_probe_rows):
+        native_probe_component_equivalence_reasons.append(
+            count_reason("probe_official_coordinate_delta_recomputed_count", official_coordinate_recomputed_count)
+        )
+    if valid_probe_rows:
+        if official_probe_coverage_ratio is None:
+            native_probe_component_equivalence_reasons.append("official_probe_coverage_ratio_missing")
+        elif abs(official_probe_coverage_ratio - 1.0) > 1.0e-12:
+            native_probe_component_equivalence_reasons.append(
+                f"official_probe_coverage_ratio_not_one:{official_probe_coverage_ratio}"
+            )
+    for key, value in [
+        ("probe_source_time_steps_match_runtime", probe_source_steps_match),
+        ("probe_source_steps_strictly_increasing", probe_source_steps_increasing),
+        ("probe_source_step_spacing_uniform", probe_source_steps_uniform),
+        ("probe_source_step_span_match_runtime", probe_source_step_span_match),
+        ("probe_source_vtk_sha256_match_runtime", probe_source_hashes_match),
+        (
+            "component_sensitivity_probe_audit_sha256_matches_current",
+            component_hash_traceability["probe_audit_sha256_matches_current"],
+        ),
+        (
+            "component_sensitivity_official_sha256_matches_current",
+            component_hash_traceability["official_sha256_matches_current"],
+        ),
+    ]:
+        if value is not True:
+            native_probe_component_equivalence_reasons.append(
+                f"{key}_not_true:{value if value is not None else 'missing'}"
+            )
+    for key, value in [
+        ("probe_source_step_span", probe_source_step_span),
+        ("probe_minimum_validation_average_step_span", probe_minimum_step_span),
+        ("component_source_step_span", as_int(component_sensitivity_audit.get("component_source_step_span"))),
+        ("component_minimum_source_step_span", as_int(component_sensitivity_audit.get("component_minimum_source_step_span"))),
+    ]:
+        if value is None:
+            native_probe_component_equivalence_reasons.append(f"{key}_missing")
+        elif value < args.min_avg_step_span:
+            native_probe_component_equivalence_reasons.append(
+                count_below_minimum_reason(key, value, args.min_avg_step_span) or f"{key}_below_minimum"
+            )
+    for key, value in [
+        ("component_normalization_gate", component_gate),
+        ("component_sensitivity_gate", component_sensitivity_gate),
+        ("normalization_scale_gate", normalization_scale_gate),
+        ("component_source_window_gate", component_source_window_gate),
+        ("component_sensitivity_hash_traceability_gate", component_hash_traceability["gate"]),
+    ]:
+        if value != "pass":
+            native_probe_component_equivalence_reasons.append(f"{key}_not_pass:{value or 'missing'}")
+    for key, value in [
+        ("component_source_time_steps", component_sensitivity_audit.get("component_source_time_steps")),
+        ("component_source_sha256", component_sensitivity_audit.get("component_source_sha256")),
+        ("probe_audit_sha256", probe_audit_sha),
+        ("official_measurement_sha256", official_sha),
+        ("component_sensitivity_probe_audit_sha256", component_hash_traceability["component_probe_audit_sha256"]),
+        ("component_sensitivity_official_sha256", component_hash_traceability["component_official_sha256"]),
+    ]:
+        if not str(value or "").strip():
+            native_probe_component_equivalence_reasons.append(f"{key}_missing")
+    native_probe_component_equivalence_gate = (
+        "pass" if not native_probe_component_equivalence_reasons else "fail"
+    )
+    if native_probe_component_equivalence_gate != "pass":
+        reasons.append("native_probe_component_equivalence_gate_not_pass")
+
     protocol_identity_gate = "pass" if not any(
         reason in reasons
         for reason in [
@@ -2523,6 +2624,11 @@ def main() -> int:
         "native_inlet_equivalence_gate": native_inlet_equivalence_gate,
         "native_inlet_equivalence_gate_reasons": native_inlet_equivalence_reasons,
         "native_inlet_equivalence_gate_reasons_csv": ";".join(native_inlet_equivalence_reasons),
+        "native_probe_component_equivalence_gate": native_probe_component_equivalence_gate,
+        "native_probe_component_equivalence_gate_reasons": native_probe_component_equivalence_reasons,
+        "native_probe_component_equivalence_gate_reasons_csv": ";".join(
+            native_probe_component_equivalence_reasons
+        ),
         "inlet_source_gate": inlet_source_gate,
         "paper_grade_inlet_source_gate": paper_inlet_source_gate,
         "inlet_source_distribution_consistent": inlet_distribution_consistent,
