@@ -2308,6 +2308,8 @@ def native_probe_component_traceability_status(
         "probe_source_step_spacing_uniform",
         "probe_source_step_span_match_runtime",
         "probe_source_vtk_sha256_match_runtime",
+        "component_sensitivity_probe_audit_sha256_matches_current",
+        "component_sensitivity_official_sha256_matches_current",
     ]:
         value = as_bool(get_any(native_preconditions_audit, [key]))
         if value is not True:
@@ -2330,12 +2332,20 @@ def native_probe_component_traceability_status(
         "component_sensitivity_gate",
         "normalization_scale_gate",
         "component_source_window_gate",
+        "component_sensitivity_hash_traceability_gate",
     ]:
         value = str(get_any(native_preconditions_audit, [key]) or "").strip().lower()
         if value != "pass":
             reasons.append(f"{key}_not_pass:{value or 'missing'}")
 
-    for key in ["component_source_time_steps", "component_source_sha256"]:
+    for key in [
+        "component_source_time_steps",
+        "component_source_sha256",
+        "probe_audit_sha256",
+        "official_measurement_sha256",
+        "component_sensitivity_probe_audit_sha256",
+        "component_sensitivity_official_sha256",
+    ]:
         value = str(get_any(native_preconditions_audit, [key]) or "").strip()
         if not value:
             reasons.append(f"{key}_missing")
@@ -5387,6 +5397,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"component_sensitivity_gate={native_preconditions_component_sensitivity_gate or 'missing'}; "
             f"normalization_scale_gate={native_preconditions_normalization_scale_gate or 'missing'}; "
             f"component_source_window_gate={get_any(native_preconditions_audit, ['component_source_window_gate']) or 'missing'}; "
+            f"component_sensitivity_hash_traceability_gate={get_any(native_preconditions_audit, ['component_sensitivity_hash_traceability_gate']) or 'missing'}; "
+            f"component_sensitivity_probe_audit_sha256_matches_current={get_any(native_preconditions_audit, ['component_sensitivity_probe_audit_sha256_matches_current'])}; "
+            f"component_sensitivity_official_sha256_matches_current={get_any(native_preconditions_audit, ['component_sensitivity_official_sha256_matches_current'])}; "
             f"component_source_step_span={get_any(native_preconditions_audit, ['component_source_step_span'])}; "
             f"required_min_avg_step_span={args.min_avg_step_span}"
         ),

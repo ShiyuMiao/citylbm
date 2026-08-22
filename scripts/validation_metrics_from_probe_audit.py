@@ -337,6 +337,14 @@ TEMPLATE_FIELDS = [
     "native_preconditions_runtime_selected_last_window",
     "native_preconditions_runtime_source_vtk_sha256_count",
     "native_preconditions_runtime_source_vtk_sha256_unique_count",
+    "native_component_sensitivity_hash_traceability_gate",
+    "native_component_sensitivity_hash_traceability_gate_reasons",
+    "native_component_sensitivity_probe_audit_sha256_matches_current",
+    "native_component_sensitivity_official_sha256_matches_current",
+    "native_component_sensitivity_probe_audit_sha256",
+    "native_component_sensitivity_official_sha256",
+    "native_preconditions_probe_audit_sha256",
+    "native_preconditions_official_measurement_sha256",
     "native_inlet_profile_audit",
     "native_inlet_profile_gate",
     "native_inlet_u_profile_gate",
@@ -2099,6 +2107,30 @@ def main() -> int:
             ),
             "native_preconditions_runtime_source_vtk_sha256_unique_count": fmt(
                 audit_int(native_preconditions_audit, "runtime_source_vtk_sha256_unique_count")
+            ),
+            "native_component_sensitivity_hash_traceability_gate": audit_gate(
+                native_preconditions_audit, "component_sensitivity_hash_traceability_gate"
+            ),
+            "native_component_sensitivity_hash_traceability_gate_reasons": audit_field(
+                native_preconditions_audit, "component_sensitivity_hash_traceability_gate_reasons_csv"
+            ),
+            "native_component_sensitivity_probe_audit_sha256_matches_current": first_bool_text(
+                native_preconditions_audit.get("component_sensitivity_probe_audit_sha256_matches_current")
+            ),
+            "native_component_sensitivity_official_sha256_matches_current": first_bool_text(
+                native_preconditions_audit.get("component_sensitivity_official_sha256_matches_current")
+            ),
+            "native_component_sensitivity_probe_audit_sha256": audit_field(
+                native_preconditions_audit, "component_sensitivity_probe_audit_sha256"
+            ),
+            "native_component_sensitivity_official_sha256": audit_field(
+                native_preconditions_audit, "component_sensitivity_official_sha256"
+            ),
+            "native_preconditions_probe_audit_sha256": audit_field(
+                native_preconditions_audit, "probe_audit_sha256"
+            ),
+            "native_preconditions_official_measurement_sha256": audit_field(
+                native_preconditions_audit, "official_measurement_sha256"
             ),
             "native_inlet_profile_audit": audit_field(native_preconditions_audit, "inlet_profile_audit"),
             "native_inlet_profile_gate": audit_gate(native_preconditions_audit, "inlet_profile_gate"),

@@ -440,6 +440,45 @@ def sha256_file(path: Optional[Path]) -> str:
     return digest.hexdigest().lower()
 
 
+def component_sensitivity_input_hash_traceability(
+    component_sensitivity_audit: Dict[str, Any],
+    probe_audit_sha256: str,
+    official_sha256: str,
+) -> Dict[str, Any]:
+    """Check that component sensitivity was generated from current probe/official inputs."""
+    reasons: List[str] = []
+    component_probe_sha = str(component_sensitivity_audit.get("probe_audit_sha256") or "").strip().lower()
+    component_official_sha = str(component_sensitivity_audit.get("official_sha256") or "").strip().lower()
+    probe_matches: Optional[bool] = None
+    official_matches: Optional[bool] = None
+
+    if component_sensitivity_audit and probe_audit_sha256:
+        probe_matches = component_probe_sha == probe_audit_sha256
+        if not component_probe_sha:
+            reasons.append("component_sensitivity_probe_audit_hash_missing")
+        elif not probe_matches:
+            reasons.append("component_sensitivity_probe_audit_hash_mismatch")
+
+    if component_sensitivity_audit and official_sha256:
+        official_matches = component_official_sha == official_sha256
+        if not component_official_sha:
+            reasons.append("component_sensitivity_official_hash_missing")
+        elif not official_matches:
+            reasons.append("component_sensitivity_official_hash_mismatch")
+
+    return {
+        "gate": "pass" if not reasons else "fail",
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+        "probe_audit_sha256": probe_audit_sha256,
+        "official_sha256": official_sha256,
+        "component_probe_audit_sha256": component_probe_sha,
+        "component_official_sha256": component_official_sha,
+        "probe_audit_sha256_matches_current": probe_matches,
+        "official_sha256_matches_current": official_matches,
+    }
+
+
 def find_first(base: Path, names: Iterable[str]) -> Optional[Path]:
     for name in names:
         for root in [base, base / "output", base / "src", base / "validation_chain"]:
@@ -1036,6 +1075,13 @@ def main() -> int:
     protocol_content_audit = audit_protocol_content(validation_protocol_audit)
     probe_rows = read_csv_rows(probe_audit_path)
     component_sensitivity_audit = read_json(component_sensitivity_audit_path)
+    probe_audit_sha = sha256_file(probe_audit_path)
+    official_sha = sha256_file(official_path)
+    component_hash_traceability = component_sensitivity_input_hash_traceability(
+        component_sensitivity_audit,
+        probe_audit_sha,
+        official_sha,
+    )
     reasons: List[str] = []
 
     if not manifest:
@@ -1761,6 +1807,7 @@ def main() -> int:
     component_source_window_gate = str(component_sensitivity_audit.get("component_source_window_gate") or "").strip().lower()
     if not component_sensitivity_audit:
         reasons.append("component_sensitivity_audit_missing")
+    reasons.extend(component_hash_traceability["reasons"])
     if component_gate != "pass":
         reasons.append("component_normalization_gate_not_pass")
     if component_sensitivity_gate != "pass":
@@ -1859,6 +1906,19 @@ def main() -> int:
         "probe_audit": str(probe_audit_path) if probe_audit_path else "",
         "component_sensitivity_audit": str(component_sensitivity_audit_path) if component_sensitivity_audit_path else "",
         "official_measurement_csv": str(official_path) if official_path else "",
+        "probe_audit_sha256": probe_audit_sha,
+        "official_measurement_sha256": official_sha,
+        "component_sensitivity_probe_audit_sha256": component_hash_traceability["component_probe_audit_sha256"],
+        "component_sensitivity_official_sha256": component_hash_traceability["component_official_sha256"],
+        "component_sensitivity_probe_audit_sha256_matches_current": component_hash_traceability[
+            "probe_audit_sha256_matches_current"
+        ],
+        "component_sensitivity_official_sha256_matches_current": component_hash_traceability[
+            "official_sha256_matches_current"
+        ],
+        "component_sensitivity_hash_traceability_gate": component_hash_traceability["gate"],
+        "component_sensitivity_hash_traceability_gate_reasons": component_hash_traceability["reasons"],
+        "component_sensitivity_hash_traceability_gate_reasons_csv": component_hash_traceability["reasons_csv"],
         "inlet_source_gate": inlet_source_gate,
         "paper_grade_inlet_source_gate": paper_inlet_source_gate,
         "inlet_source_distribution_consistent": inlet_distribution_consistent,
