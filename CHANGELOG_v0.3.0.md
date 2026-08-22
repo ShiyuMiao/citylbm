@@ -45,6 +45,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now requires `validation_metrics.csv` to come from the same final-window VTK steps recorded in
   the runtime/read-VTK audit; stale metrics or four-frame diagnostic averages are blocked before any paper-grade
   accuracy claim.
+- The final time-averaging consistency gate now also requires archived evidence that selected VTK frames are the last
+  available window, have strictly increasing time steps and use uniform spacing. A copied `time_averaging_gate=pass`
+  label is not enough without those window facts.
 - `validation_gate.py` now has a dedicated `validation_protocol_content` gate. Empty
   `validation_protocol_audit.json` files, missing required protocol items, missing statuses or explicit failed protocol
   items block paper-grade evidence before inlet, boundary, time-averaging or bias metrics are interpreted.

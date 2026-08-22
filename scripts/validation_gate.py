@@ -1882,6 +1882,15 @@ def metrics_time_averaging_consistency_status(
     runtime_time_gate = str(
         get_any(runtime_audit, ["time_averaging_gate", "TimeAveragingGate"]) or ""
     ).strip().lower()
+    runtime_selected_last_window = as_bool(
+        get_any(runtime_audit, ["selected_last_window", "SelectedLastWindow"])
+    )
+    runtime_steps_increasing = as_bool(
+        get_any(runtime_audit, ["source_steps_strictly_increasing", "SourceStepsStrictlyIncreasing"])
+    )
+    runtime_spacing_uniform = as_bool(
+        get_any(runtime_audit, ["source_step_spacing_uniform", "SourceStepSpacingUniform"])
+    )
 
     metrics_frame_count, metrics_source_text, metrics_has_steps = source_frame_details(metrics)
     metrics_steps, metrics_steps_error = parsed_source_steps(metrics_source_text)
@@ -1894,6 +1903,15 @@ def metrics_time_averaging_consistency_status(
     metrics_time_gate = str(
         get_any(metrics, ["time_averaging_gate", "TimeAveragingGate"]) or ""
     ).strip().lower()
+    metrics_selected_last_window = as_bool(
+        get_any(metrics, ["selected_last_window", "SelectedLastWindow"])
+    )
+    metrics_steps_increasing = as_bool(
+        get_any(metrics, ["source_steps_strictly_increasing", "SourceStepsStrictlyIncreasing"])
+    )
+    metrics_spacing_uniform = as_bool(
+        get_any(metrics, ["source_step_spacing_uniform", "SourceStepSpacingUniform"])
+    )
 
     reasons: List[str] = []
     if not runtime_has_steps:
@@ -1910,6 +1928,24 @@ def metrics_time_averaging_consistency_status(
         reasons.append("runtime_source_step_span_missing")
     elif runtime_span < min_avg_step_span:
         reasons.append(f"runtime_source_step_span_below_{min_avg_step_span}")
+    if runtime_selected_last_window is not True:
+        reasons.append(
+            "runtime_selected_last_window_missing"
+            if runtime_selected_last_window is None
+            else "runtime_selected_last_window_not_true"
+        )
+    if runtime_steps_increasing is not True:
+        reasons.append(
+            "runtime_source_steps_strictly_increasing_missing"
+            if runtime_steps_increasing is None
+            else "runtime_source_steps_not_strictly_increasing"
+        )
+    if runtime_spacing_uniform is not True:
+        reasons.append(
+            "runtime_source_step_spacing_uniform_missing"
+            if runtime_spacing_uniform is None
+            else "runtime_source_step_spacing_not_uniform"
+        )
 
     if not metrics_has_steps:
         reasons.append("metrics_source_time_steps_missing")
@@ -1929,6 +1965,24 @@ def metrics_time_averaging_consistency_status(
         reasons.append("metrics_minimum_validation_average_step_span_missing")
     elif metrics_min_step_span != min_avg_step_span:
         reasons.append("metrics_minimum_validation_average_step_span_mismatch")
+    if metrics_selected_last_window is not True:
+        reasons.append(
+            "metrics_selected_last_window_missing"
+            if metrics_selected_last_window is None
+            else "metrics_selected_last_window_not_true"
+        )
+    if metrics_steps_increasing is not True:
+        reasons.append(
+            "metrics_source_steps_strictly_increasing_missing"
+            if metrics_steps_increasing is None
+            else "metrics_source_steps_not_strictly_increasing"
+        )
+    if metrics_spacing_uniform is not True:
+        reasons.append(
+            "metrics_source_step_spacing_uniform_missing"
+            if metrics_spacing_uniform is None
+            else "metrics_source_step_spacing_not_uniform"
+        )
     if runtime_min_step_span is not None and metrics_min_step_span is not None and runtime_min_step_span != metrics_min_step_span:
         reasons.append("metrics_runtime_minimum_step_span_mismatch")
 
@@ -1967,6 +2021,9 @@ def metrics_time_averaging_consistency_status(
         "runtime_source_step_span": runtime_span,
         "runtime_minimum_step_span": runtime_min_step_span,
         "runtime_time_averaging_gate": runtime_time_gate,
+        "runtime_selected_last_window": runtime_selected_last_window,
+        "runtime_source_steps_strictly_increasing": runtime_steps_increasing,
+        "runtime_source_step_spacing_uniform": runtime_spacing_uniform,
         "metrics_frame_count": metrics_frame_count,
         "metrics_averaged_frame_count": metrics_averaged_count,
         "metrics_available_frame_count": metrics_available_count,
@@ -1974,6 +2031,9 @@ def metrics_time_averaging_consistency_status(
         "metrics_source_step_span": metrics_span,
         "metrics_minimum_step_span": metrics_min_step_span,
         "metrics_time_averaging_gate": metrics_time_gate,
+        "metrics_selected_last_window": metrics_selected_last_window,
+        "metrics_source_steps_strictly_increasing": metrics_steps_increasing,
+        "metrics_source_step_spacing_uniform": metrics_spacing_uniform,
     }
 
 

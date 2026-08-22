@@ -28,6 +28,9 @@ def main() -> int:
         "source_step_span": 39000,
         "available_frame_count": 40,
         "minimum_validation_average_step_span": 20000,
+        "selected_last_window": True,
+        "source_steps_strictly_increasing": True,
+        "source_step_spacing_uniform": True,
     }
     stale_metrics = {
         "time_averaging_gate": "diagnostic_only",
@@ -36,6 +39,9 @@ def main() -> int:
         "averaged_frame_count": 4,
         "available_frame_count": 40,
         "minimum_validation_average_step_span": 20000,
+        "selected_last_window": False,
+        "source_steps_strictly_increasing": True,
+        "source_step_spacing_uniform": True,
     }
 
     failed = module.metrics_time_averaging_consistency_status(
@@ -51,6 +57,7 @@ def main() -> int:
         "metrics_time_averaging_gate_not_pass:diagnostic_only",
         "metrics_averaged_frame_count_below_40",
         "metrics_source_step_span_below_20000",
+        "metrics_selected_last_window_not_true",
         "metrics_source_time_steps_do_not_match_runtime_audit",
     ):
         if expected not in reasons:
@@ -63,6 +70,7 @@ def main() -> int:
             "source_time_steps": runtime_audit["source_time_steps"],
             "source_step_span": runtime_audit["source_step_span"],
             "averaged_frame_count": 40,
+            "selected_last_window": True,
         }
     )
     passed = module.metrics_time_averaging_consistency_status(
