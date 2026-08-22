@@ -592,6 +592,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   inlet has three-component velocity writes, three-component fluctuation evidence and `k`-driven three-component STG
   evidence. A velocity-field STG source that cannot prove all three components are perturbed from `k` fails the inlet
   source audit instead of being treated as a reliable turbulent inlet.
+- `validation_gate.py`, `audit_native_preconditions.py` and the metrics template now require those three-component STG
+  evidence fields for STG-like source audits. Older `inlet_source_audit.json` files without the new fields remain
+  diagnostic and native baselines report the missing STG evidence as a first-priority turbulent-inlet blocker.
 - `audit_native_run.py` no longer lets command-line speed-stability values pass the native `time_averaging_gate`.
   Paper-grade time averaging must use deterministic sampled-VTK statistics from the selected final-window frames. Any
   CLI override of mean speed, standard deviation or stability ratio is recorded as `mean_speed_statistics_source=cli_override`

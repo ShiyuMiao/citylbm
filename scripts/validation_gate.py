@@ -769,6 +769,23 @@ def paper_grade_inlet_method_pass(
     )
 
 
+def stg_three_component_evidence_pass(
+    *,
+    required: bool,
+    has_three_component_velocity_write: Optional[bool],
+    has_three_component_fluctuation_evidence: Optional[bool],
+    has_k_driven_three_component_stg: Optional[bool],
+) -> bool:
+    return (
+        not required
+        or (
+            has_three_component_velocity_write is True
+            and has_three_component_fluctuation_evidence is True
+            and has_k_driven_three_component_stg is True
+        )
+    )
+
+
 def read_probe_counts(path: Optional[Path]) -> Tuple[Optional[int], Optional[int], Optional[str]]:
     if not path or not path.exists():
         return None, None, "probe audit CSV not found"
@@ -3443,6 +3460,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     audit_has_synthetic_inlet_function = as_bool(
         get_any(inlet_source_audit, ["has_synthetic_inlet_function"])
     )
+    audit_has_three_component_velocity_write = as_bool(
+        get_any(inlet_source_audit, ["has_three_component_velocity_write"])
+    )
+    audit_has_three_component_fluctuation_evidence = as_bool(
+        get_any(inlet_source_audit, ["has_three_component_fluctuation_evidence"])
+    )
+    audit_has_k_driven_three_component_stg = as_bool(
+        get_any(inlet_source_audit, ["has_k_driven_three_component_stg"])
+    )
     audit_has_stg_refresh_with_current_time = as_bool(
         get_any(inlet_source_audit, ["has_synthetic_inlet_refresh_with_current_time"])
     )
@@ -3773,6 +3799,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             and audit_has_segmented_stg_run_loop is True
         )
     )
+    audit_stg_three_component_evidence_ok = stg_three_component_evidence_pass(
+        required=audit_stg_run_loop_required,
+        has_three_component_velocity_write=audit_has_three_component_velocity_write,
+        has_three_component_fluctuation_evidence=audit_has_three_component_fluctuation_evidence,
+        has_k_driven_three_component_stg=audit_has_k_driven_three_component_stg,
+    )
     inlet_gate_status = PASS
     if inlet_status == "fail" or distribution_status == "fail":
         inlet_gate_status = FAIL
@@ -3835,6 +3867,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and inlet_source_setup_hash_matches
         and audit_inlet_source_comment_stripped is True
         and audit_stg_run_loop_ok
+        and audit_stg_three_component_evidence_ok
         and audit_has_uncorrelated_random_inlet is not True
     )
     add_gate(
@@ -3870,11 +3903,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"audit_comment_stripped_code_audit={audit_inlet_source_comment_stripped}; "
             f"audit_synthetic_inlet_requested={audit_synthetic_inlet_requested}; "
             f"audit_has_synthetic_inlet_function={audit_has_synthetic_inlet_function}; "
+            f"audit_has_three_component_velocity_write={audit_has_three_component_velocity_write}; "
+            f"audit_has_three_component_fluctuation_evidence={audit_has_three_component_fluctuation_evidence}; "
+            f"audit_has_k_driven_three_component_stg={audit_has_k_driven_three_component_stg}; "
             f"audit_stg_run_loop_required={audit_stg_run_loop_required}; "
             f"audit_has_synthetic_inlet_refresh_with_current_time={audit_has_stg_refresh_with_current_time}; "
             f"audit_has_update_interval_run_control={audit_has_update_interval_run_control}; "
             f"audit_has_segmented_stg_run_loop={audit_has_segmented_stg_run_loop}; "
             f"audit_stg_run_loop_ok={audit_stg_run_loop_ok}; "
+            f"audit_stg_three_component_evidence_ok={audit_stg_three_component_evidence_ok}; "
             f"audit_has_uncorrelated_random_inlet={audit_has_uncorrelated_random_inlet}; "
             f"audit_inlet_correlation_model={audit_inlet_correlation_model or 'missing'}; "
             f"inlet_source_gate_reasons={inlet_source_reasons or 'none'}; "

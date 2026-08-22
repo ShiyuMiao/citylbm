@@ -57,6 +57,28 @@ def main() -> int:
     if module.paper_grade_inlet_method_pass(**uncorrelated):
         raise AssertionError("uncorrelated RMS/k forcing must not be paper-grade")
 
+    if not module.stg_three_component_evidence_pass(
+        required=True,
+        has_three_component_velocity_write=True,
+        has_three_component_fluctuation_evidence=True,
+        has_k_driven_three_component_stg=True,
+    ):
+        raise AssertionError("complete three-component STG evidence should pass the source-evidence helper")
+    if module.stg_three_component_evidence_pass(
+        required=True,
+        has_three_component_velocity_write=True,
+        has_three_component_fluctuation_evidence=True,
+        has_k_driven_three_component_stg=None,
+    ):
+        raise AssertionError("stale STG audit without k-driven three-component evidence must fail")
+    if not module.stg_three_component_evidence_pass(
+        required=False,
+        has_three_component_velocity_write=None,
+        has_three_component_fluctuation_evidence=None,
+        has_k_driven_three_component_stg=None,
+    ):
+        raise AssertionError("non-STG distribution-consistent inlets should not require STG fields")
+
     print("validation_gate_velocity_only_inlet_smoke passed")
     return 0
 

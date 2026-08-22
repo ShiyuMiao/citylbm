@@ -49,6 +49,8 @@ def main() -> int:
         "boundary_required_support_field_outlet_reflection_check_supported_not_supported",
         "inlet_source_velocity_field_only",
         "inlet_source_uses_uncorrelated_random_rms",
+        "inlet_source_missing_three_component_fluctuation_evidence",
+        "inlet_source_missing_k_driven_three_component_stg_evidence",
         "systematic_bias_after_prerequisites",
     ]
     priorities = module.build_native_diagnostic_priority(reasons)
@@ -71,6 +73,8 @@ def main() -> int:
     if "RMS/k velocity perturbations alone remain diagnostic" not in top["diagnosis"]:
         raise AssertionError(top["diagnosis"])
     if "inlet_source_uses_uncorrelated_random_rms" not in top["reasons"]:
+        raise AssertionError(top)
+    if "inlet_source_missing_k_driven_three_component_stg_evidence" not in top["reasons"]:
         raise AssertionError(top)
 
     time_priority = next(item for item in priorities if item["key"] == "time_averaging_stationarity")

@@ -1039,6 +1039,20 @@ def main() -> int:
     inlet_source_method_class = str(inlet_source_audit.get("inlet_source_method_class") or "").strip()
     inlet_correlation_model = str(inlet_source_audit.get("synthetic_inlet_correlation_model") or "").strip()
     inlet_has_uncorrelated_random = as_bool(inlet_source_audit.get("has_uncorrelated_random_inlet"))
+    inlet_has_three_component_velocity_write = as_bool(
+        inlet_source_audit.get("has_three_component_velocity_write")
+    )
+    inlet_has_three_component_fluctuation_evidence = as_bool(
+        inlet_source_audit.get("has_three_component_fluctuation_evidence")
+    )
+    inlet_has_k_driven_three_component_stg = as_bool(
+        inlet_source_audit.get("has_k_driven_three_component_stg")
+    )
+    inlet_stg_evidence_required = (
+        "stg" in inlet_source_method_class.lower()
+        or "stg" in inlet_correlation_model.lower()
+        or as_bool(inlet_source_audit.get("has_synthetic_inlet_function")) is True
+    )
     inlet_source_reasons = split_scalar_list(inlet_source_audit.get("inlet_source_gate_reasons"))
     paper_inlet_source_reasons = split_scalar_list(inlet_source_audit.get("paper_grade_inlet_source_gate_reasons"))
     if not inlet_source_audit:
@@ -1051,6 +1065,12 @@ def main() -> int:
         reasons.append("inlet_source_not_distribution_consistent")
     if inlet_velocity_only is True:
         reasons.append("inlet_source_velocity_field_only")
+    if inlet_stg_evidence_required and inlet_has_three_component_velocity_write is not True:
+        reasons.append("inlet_source_missing_three_component_velocity_write_evidence")
+    if inlet_stg_evidence_required and inlet_has_three_component_fluctuation_evidence is not True:
+        reasons.append("inlet_source_missing_three_component_fluctuation_evidence")
+    if inlet_stg_evidence_required and inlet_has_k_driven_three_component_stg is not True:
+        reasons.append("inlet_source_missing_k_driven_three_component_stg_evidence")
     if (
         inlet_has_uncorrelated_random is True
         or inlet_correlation_model == "uncorrelated_random_rms_velocity_field_only"
@@ -1572,6 +1592,10 @@ def main() -> int:
         "inlet_source_method_class": inlet_source_method_class,
         "inlet_synthetic_correlation_model": inlet_correlation_model,
         "inlet_source_has_uncorrelated_random_inlet": inlet_has_uncorrelated_random,
+        "inlet_source_stg_evidence_required": inlet_stg_evidence_required,
+        "inlet_source_has_three_component_velocity_write": inlet_has_three_component_velocity_write,
+        "inlet_source_has_three_component_fluctuation_evidence": inlet_has_three_component_fluctuation_evidence,
+        "inlet_source_has_k_driven_three_component_stg": inlet_has_k_driven_three_component_stg,
         "inlet_source_gate_reasons": inlet_source_reasons,
         "inlet_source_gate_reasons_csv": ";".join(inlet_source_reasons),
         "paper_grade_inlet_source_gate_reasons": paper_inlet_source_reasons,

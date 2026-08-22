@@ -286,6 +286,10 @@ TEMPLATE_FIELDS = [
     "native_preconditions_gate_reasons",
     "native_preconditions_protocol_identity_gate",
     "native_preconditions_time_average_gate",
+    "native_inlet_source_stg_evidence_required",
+    "native_inlet_source_has_three_component_velocity_write",
+    "native_inlet_source_has_three_component_fluctuation_evidence",
+    "native_inlet_source_has_k_driven_three_component_stg",
     "native_probe_compared_component_values",
     "native_probe_expected_compared_component",
     "native_probe_compared_component_mismatch_reason",
@@ -1842,6 +1846,18 @@ def main() -> int:
             ),
             "native_preconditions_time_average_gate": audit_gate(
                 native_preconditions_audit, "native_preconditions_time_average_gate"
+            ),
+            "native_inlet_source_stg_evidence_required": first_bool_text(
+                native_preconditions_audit.get("inlet_source_stg_evidence_required")
+            ),
+            "native_inlet_source_has_three_component_velocity_write": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_three_component_velocity_write")
+            ),
+            "native_inlet_source_has_three_component_fluctuation_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_three_component_fluctuation_evidence")
+            ),
+            "native_inlet_source_has_k_driven_three_component_stg": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_k_driven_three_component_stg")
             ),
             "native_probe_compared_component_values": audit_field(
                 native_preconditions_audit, "probe_audit_compared_components_csv"
