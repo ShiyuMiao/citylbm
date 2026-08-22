@@ -48,6 +48,8 @@ void main_setup() {
         lbm.u.y[n] = u_e.y;
         lbm.u.z[n] = u_e.z;
     });
+    lbm.flags.write_to_device();
+    lbm.u.write_to_device();
 }
 """,
             encoding="utf-8",
@@ -108,6 +110,8 @@ void main_setup() {
         require(data.get("metadata_claims_advanced_boundary") is False, data)
         require(data.get("has_type_e_velocity_initialization") is True, data)
         require(data.get("has_profile_type_e_velocity_initialization") is True, data)
+        require(data.get("has_type_e_velocity_initialization_before_device_upload") is True, data)
+        require(data.get("has_u_device_upload_after_type_e_velocity_initialization") is True, data)
         require(data.get("has_paper_grade_outlet_source") is False, data)
         require(data.get("has_paper_grade_side_top_source") is False, data)
         require(data.get("has_paper_grade_rough_wall_source") is False, data)
@@ -121,6 +125,69 @@ void main_setup() {
             "non_reflecting_or_validated_outlet_state"
             in data.get("missing_paper_grade_source_evidence", []),
             data,
+        )
+
+        late_upload_setup = tmp_dir / "late_upload_setup.cpp"
+        late_upload_report = tmp_dir / "late_upload_boundary_source_audit.json"
+        late_upload_setup.write_text(
+            """
+void main_setup() {
+    parallel_for(lbm.get_N(), [&](ulong n) {
+        uint x=0u, y=0u, z=0u;
+        lbm.coordinates(n, x, y, z);
+        if(z == 0u) { lbm.flags[n] = TYPE_S; return; }
+        if(y == Ny-1u) {
+            lbm.flags[n] = TYPE_E;
+            float3 u_in = windProfile(z);
+            lbm.u.x[n] = u_in.x; lbm.u.y[n] = u_in.y; lbm.u.z[n] = u_in.z;
+            return;
+        }
+        if(y == 0u)  { lbm.flags[n] = TYPE_E; return; }
+        if(x == 0u || x == Nx-1u) { lbm.flags[n] = TYPE_E; return; }
+        if(z == Nz-1u) { lbm.flags[n] = TYPE_E; return; }
+    });
+    lbm.flags.write_to_device();
+    lbm.u.write_to_device();
+    lbm.voxelize_stl(get_exe_path()+"../buildings.stl", TYPE_S);
+    parallel_for(lbm.get_N(), [&](ulong n) {
+        if(lbm.flags[n] != TYPE_E) return;
+        uint x=0u, y=0u, z=0u;
+        lbm.coordinates(n, x, y, z);
+        float3 u_e = windProfile(z);
+        lbm.u.x[n] = u_e.x;
+        lbm.u.y[n] = u_e.y;
+        lbm.u.z[n] = u_e.z;
+    });
+}
+""",
+            encoding="utf-8",
+        )
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(audit_script),
+                "--setup",
+                str(late_upload_setup),
+                "--metadata",
+                str(metadata),
+                "--out",
+                str(late_upload_report),
+            ],
+            cwd=str(repo),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if completed.returncode == 0:
+            raise AssertionError("Type-E velocity initialization after device upload must fail source audit.")
+        late_upload = json.loads(late_upload_report.read_text(encoding="utf-8"))
+        require(late_upload.get("boundary_source_gate") == "fail", late_upload)
+        require(late_upload.get("has_type_e_velocity_initialization") is True, late_upload)
+        require(late_upload.get("has_type_e_velocity_initialization_before_device_upload") is False, late_upload)
+        require(
+            "type_e_boundary_velocity_initialization_not_uploaded_after_initialization"
+            in late_upload.get("boundary_source_gate_reasons", []),
+            late_upload,
         )
 
         advanced_setup = tmp_dir / "advanced_setup.cpp"

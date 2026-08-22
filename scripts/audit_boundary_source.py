@@ -84,6 +84,7 @@ def find_type_e_velocity_initialization(code: str) -> Dict[str, Any]:
             "velocity_write": False,
             "profile": False,
             "uniform": False,
+            "block_start_index": -1,
         }
 
     window = code[guard_match.start() : guard_match.start() + 1200]
@@ -103,6 +104,7 @@ def find_type_e_velocity_initialization(code: str) -> Dict[str, Any]:
         "velocity_write": has_profile_write or has_uniform,
         "profile": has_profile and has_profile_write,
         "uniform": has_uniform,
+        "block_start_index": guard_match.start(),
     }
 
 
@@ -187,6 +189,25 @@ def main() -> int:
     )
     has_profile_type_e_velocity_initialization = (
         has_type_e_velocity_initialization and type_e_velocity_initialization["profile"]
+    )
+    flags_write_to_device_index = implementation_code.find("lbm.flags.write_to_device()")
+    u_write_to_device_index = implementation_code.find("lbm.u.write_to_device()")
+    type_e_velocity_initialization_index = int(type_e_velocity_initialization["block_start_index"])
+    has_flags_device_upload_after_type_e_velocity_initialization = (
+        has_type_e_velocity_initialization
+        and flags_write_to_device_index >= 0
+        and type_e_velocity_initialization_index >= 0
+        and type_e_velocity_initialization_index < flags_write_to_device_index
+    )
+    has_u_device_upload_after_type_e_velocity_initialization = (
+        has_type_e_velocity_initialization
+        and u_write_to_device_index >= 0
+        and type_e_velocity_initialization_index >= 0
+        and type_e_velocity_initialization_index < u_write_to_device_index
+    )
+    has_type_e_velocity_initialization_before_device_upload = (
+        has_flags_device_upload_after_type_e_velocity_initialization
+        and has_u_device_upload_after_type_e_velocity_initialization
     )
     has_profile_inlet = contains_any(implementation_code, ["windProfile(z)", "profile_u_lbm", "profile_z_m"])
     has_outlet_type_e = bool(
@@ -468,6 +489,8 @@ def main() -> int:
             reasons.append("type_e_boundary_velocity_initialization_missing_or_incomplete")
         if has_profile_inlet and not has_profile_type_e_velocity_initialization:
             reasons.append("profile_type_e_boundary_velocity_initialization_missing")
+        if has_type_e_velocity_initialization and not has_type_e_velocity_initialization_before_device_upload:
+            reasons.append("type_e_boundary_velocity_initialization_not_uploaded_after_initialization")
     if metadata_claims_advanced and not source_wind_tunnel_equivalent:
         reasons.append("metadata_claims_advanced_boundary_without_source_evidence")
     if advanced_boundary_token_only:
@@ -525,6 +548,12 @@ def main() -> int:
         "has_type_e_velocity_initialization_guard": type_e_velocity_initialization["guard"],
         "has_type_e_velocity_initialization_coordinates": type_e_velocity_initialization["coordinates"],
         "has_type_e_velocity_initialization_velocity_write": type_e_velocity_initialization["velocity_write"],
+        "type_e_velocity_initialization_source_index": type_e_velocity_initialization_index,
+        "flags_write_to_device_source_index": flags_write_to_device_index,
+        "u_write_to_device_source_index": u_write_to_device_index,
+        "has_type_e_velocity_initialization_before_device_upload": has_type_e_velocity_initialization_before_device_upload,
+        "has_flags_device_upload_after_type_e_velocity_initialization": has_flags_device_upload_after_type_e_velocity_initialization,
+        "has_u_device_upload_after_type_e_velocity_initialization": has_u_device_upload_after_type_e_velocity_initialization,
         "has_profile_type_e_velocity_initialization": has_profile_type_e_velocity_initialization,
         "has_uniform_type_e_velocity_initialization": (
             has_type_e_velocity_initialization and type_e_velocity_initialization["uniform"]

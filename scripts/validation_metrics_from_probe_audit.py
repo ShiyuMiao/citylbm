@@ -186,6 +186,9 @@ TEMPLATE_FIELDS = [
     "boundary_type_e_velocity_initialization_guard",
     "boundary_type_e_velocity_initialization_coordinates",
     "boundary_type_e_velocity_initialization_velocity_write",
+    "boundary_type_e_velocity_initialization_before_device_upload",
+    "boundary_flags_device_upload_after_type_e_velocity_initialization",
+    "boundary_u_device_upload_after_type_e_velocity_initialization",
     "boundary_profile_type_e_velocity_initialization",
     "boundary_uniform_type_e_velocity_initialization",
     "boundary_velocity_initialization_metadata_applied",
@@ -1805,6 +1808,15 @@ def main() -> int:
             ),
             "boundary_type_e_velocity_initialization_velocity_write": first_bool_text(
                 boundary_source_audit.get("has_type_e_velocity_initialization_velocity_write")
+            ),
+            "boundary_type_e_velocity_initialization_before_device_upload": first_bool_text(
+                boundary_source_audit.get("has_type_e_velocity_initialization_before_device_upload")
+            ),
+            "boundary_flags_device_upload_after_type_e_velocity_initialization": first_bool_text(
+                boundary_source_audit.get("has_flags_device_upload_after_type_e_velocity_initialization")
+            ),
+            "boundary_u_device_upload_after_type_e_velocity_initialization": first_bool_text(
+                boundary_source_audit.get("has_u_device_upload_after_type_e_velocity_initialization")
             ),
             "boundary_profile_type_e_velocity_initialization": first_bool_text(
                 boundary_source_audit.get("has_profile_type_e_velocity_initialization")
