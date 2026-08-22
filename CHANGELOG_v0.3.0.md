@@ -91,6 +91,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now requires boundary-equivalence support, evidence-file hashes, supported boundary-condition
   fields and clearance checks to come from the archived `boundary_protocol_audit.json` itself. Metrics CSV fields can
   no longer self-report those boundary evidence booleans in place of the external audit file.
+- `audit_native_preconditions.py` now independently requires the archived boundary protocol audit to expose
+  boundary-equivalence support, supported evidence class, supported boundary-condition fields, blockage/clearance gates
+  and all inlet/outlet/lateral/top/roughness/reflection support booleans before a native FluidX3D Case A/E run can be
+  used as the strict baseline for CityLBM error diagnosis.
 - `audit_boundary_protocol.py`, the metrics template and `validation_gate.py` now require independent support booleans
   for inlet, outlet, lateral, top, ground-wall treatment, roughness treatment, floor roughness source, blockage source,
   fetch/clearance source, outlet-reflection check and side/top-boundary check. A text-filled evidence JSON with values

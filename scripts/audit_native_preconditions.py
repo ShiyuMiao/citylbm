@@ -34,6 +34,20 @@ REQUIRED_RUN_ROLES = [
     "Validation protocol audit",
 ]
 
+REQUIRED_BOUNDARY_SUPPORT_FIELDS = [
+    "inlet_boundary_supported",
+    "outlet_boundary_supported",
+    "lateral_boundary_supported",
+    "top_boundary_supported",
+    "ground_wall_treatment_supported",
+    "roughness_treatment_supported",
+    "floor_roughness_source_supported",
+    "blockage_source_supported",
+    "fetch_clearance_source_supported",
+    "outlet_reflection_check_supported",
+    "side_top_boundary_check_supported",
+]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Audit native FluidX3D strict-baseline preconditions.")
@@ -831,6 +845,27 @@ def main() -> int:
     boundary_protocol_gate = str(boundary_protocol_audit.get("boundary_protocol_gate") or "").strip().lower()
     boundary_evidence_gate = str(boundary_protocol_audit.get("boundary_evidence_gate") or "").strip().lower()
     boundary_evidence_hashed = as_bool(boundary_protocol_audit.get("boundary_evidence_files_all_hashed"))
+    boundary_equivalence_supported = as_bool(boundary_protocol_audit.get("boundary_equivalence_supported"))
+    boundary_evidence_class_supported = as_bool(boundary_protocol_audit.get("boundary_evidence_class_supported"))
+    boundary_condition_fields_supported = as_bool(
+        boundary_protocol_audit.get("boundary_condition_fields_supported")
+    )
+    boundary_clearance_numeric_gate = str(boundary_protocol_audit.get("clearance_numeric_gate") or "").strip().lower()
+    boundary_blockage_gate = str(boundary_protocol_audit.get("blockage_gate") or "").strip().lower()
+    boundary_missing_evidence_fields = split_scalar_list(boundary_protocol_audit.get("missing_evidence_fields"))
+    boundary_unsupported_condition_fields = split_scalar_list(
+        boundary_protocol_audit.get("unsupported_boundary_condition_fields")
+    )
+    if not boundary_unsupported_condition_fields:
+        support_reasons = split_scalar_list(boundary_protocol_audit.get("boundary_condition_support_reasons"))
+        prefix = "unsupported_boundary_condition_fields:"
+        for support_reason in support_reasons:
+            if support_reason.startswith(prefix):
+                boundary_unsupported_condition_fields = split_scalar_list(support_reason[len(prefix) :])
+                break
+    boundary_required_support_fields_missing_or_false = [
+        field for field in REQUIRED_BOUNDARY_SUPPORT_FIELDS if as_bool(boundary_protocol_audit.get(field)) is not True
+    ]
     if not boundary_protocol_audit:
         reasons.append("boundary_protocol_audit_missing")
     if boundary_protocol_gate != "pass":
@@ -839,6 +874,23 @@ def main() -> int:
         reasons.append("boundary_evidence_gate_not_pass")
     if boundary_evidence_hashed is not True:
         reasons.append("boundary_evidence_files_not_hashed")
+    if boundary_protocol_audit:
+        if boundary_equivalence_supported is not True:
+            reasons.append("boundary_equivalence_not_supported")
+        if boundary_evidence_class_supported is not True:
+            reasons.append("boundary_evidence_class_not_supported")
+        if boundary_condition_fields_supported is not True:
+            reasons.append("boundary_condition_fields_not_supported")
+        if boundary_clearance_numeric_gate != "pass":
+            reasons.append("boundary_clearance_numeric_gate_not_pass")
+        if boundary_blockage_gate != "pass":
+            reasons.append("boundary_blockage_gate_not_pass")
+        if boundary_missing_evidence_fields:
+            reasons.append("boundary_missing_evidence_fields_present")
+        if boundary_unsupported_condition_fields:
+            reasons.append("boundary_unsupported_condition_fields_present")
+        if boundary_required_support_fields_missing_or_false:
+            reasons.append("boundary_required_support_fields_missing_or_false")
 
     expected_component = str(args.expected_compared_component or "").strip()
     failed_probe_rows = [row for row in probe_rows if probe_row_failed(row)]
@@ -1140,6 +1192,15 @@ def main() -> int:
         **boundary_source_hash_check,
         "boundary_protocol_gate": boundary_protocol_gate,
         "boundary_evidence_gate": boundary_evidence_gate,
+        "boundary_evidence_files_all_hashed": boundary_evidence_hashed,
+        "boundary_equivalence_supported": boundary_equivalence_supported,
+        "boundary_evidence_class_supported": boundary_evidence_class_supported,
+        "boundary_condition_fields_supported": boundary_condition_fields_supported,
+        "boundary_clearance_numeric_gate": boundary_clearance_numeric_gate,
+        "boundary_blockage_gate": boundary_blockage_gate,
+        "boundary_missing_evidence_fields": boundary_missing_evidence_fields,
+        "boundary_unsupported_condition_fields": boundary_unsupported_condition_fields,
+        "boundary_required_support_fields_missing_or_false": boundary_required_support_fields_missing_or_false,
         "probe_audit_row_count": len(probe_rows),
         "probe_audit_valid_row_count": len(valid_probe_rows),
         "probe_audit_failed_row_count": len(failed_probe_rows),
