@@ -779,6 +779,43 @@ def build_official_coordinate_lookup(
     return lookup, None
 
 
+def probe_official_coordinate_delta_summary(
+    valid_probe_rows: List[Dict[str, str]],
+    official_coordinates: Dict[str, Tuple[float, float, float]],
+    probe_id_column: str,
+) -> Dict[str, Any]:
+    coordinate_deltas: List[float] = []
+    recomputed_count = 0
+    use_current_official = bool(official_coordinates and probe_id_column)
+    for row in valid_probe_rows:
+        coordinate_delta: Optional[float] = None
+        if use_current_official:
+            probe_id = normalized_column_key(str(row.get(probe_id_column) or "").strip())
+            official_coordinate = official_coordinates.get(probe_id)
+            if official_coordinate is not None:
+                probe_x = as_float(row_value(row, "x", "X"))
+                probe_y = as_float(row_value(row, "y", "Y"))
+                probe_z = as_float(row_value(row, "z", "Z"))
+                if probe_x is not None and probe_y is not None and probe_z is not None:
+                    coordinate_delta = max(
+                        abs(probe_x - official_coordinate[0]),
+                        abs(probe_y - official_coordinate[1]),
+                        abs(probe_z - official_coordinate[2]),
+                    )
+                    recomputed_count += 1
+        else:
+            coordinate_delta = as_float(row_value(row, "official_coordinate_delta", "OfficialCoordinateDelta"))
+        if coordinate_delta is not None:
+            coordinate_deltas.append(coordinate_delta)
+    return {
+        "deltas": coordinate_deltas,
+        "recomputed_count": recomputed_count,
+        "missing_count": len(valid_probe_rows) - len(coordinate_deltas),
+        "source": "current_official_csv_recomputed" if use_current_official else "probe_audit_only",
+        "requires_current_official_recompute": use_current_official,
+    }
+
+
 def probe_row_failed(row: Dict[str, str]) -> bool:
     failed = as_bool(row_value(row, "failed", "Failed"))
     out_of_tolerance = as_bool(row_value(row, "out_of_tolerance", "OutOfTolerance"))
@@ -1268,27 +1305,16 @@ def main() -> int:
                 f"_of_{len(official_probe_ids)}"
             )
             reasons.append(official_probe_coverage_reason)
-    official_coordinate_deltas: List[float] = []
-    official_coordinate_recomputed_count = 0
-    for row in valid_probe_rows:
-        coordinate_delta = as_float(row_value(row, "official_coordinate_delta", "OfficialCoordinateDelta"))
-        if coordinate_delta is None and official_coordinates and probe_id_column:
-            probe_id = normalized_column_key(str(row.get(probe_id_column) or "").strip())
-            official_coordinate = official_coordinates.get(probe_id)
-            if official_coordinate is not None:
-                probe_x = as_float(row_value(row, "x", "X"))
-                probe_y = as_float(row_value(row, "y", "Y"))
-                probe_z = as_float(row_value(row, "z", "Z"))
-                if probe_x is not None and probe_y is not None and probe_z is not None:
-                    coordinate_delta = max(
-                        abs(probe_x - official_coordinate[0]),
-                        abs(probe_y - official_coordinate[1]),
-                        abs(probe_z - official_coordinate[2]),
-                    )
-                    official_coordinate_recomputed_count += 1
-        if coordinate_delta is not None:
-            official_coordinate_deltas.append(coordinate_delta)
-    missing_official_coordinate_delta_count = len(valid_probe_rows) - len(official_coordinate_deltas)
+    coordinate_summary = probe_official_coordinate_delta_summary(
+        valid_probe_rows,
+        official_coordinates,
+        probe_id_column,
+    )
+    official_coordinate_deltas = coordinate_summary["deltas"]
+    official_coordinate_recomputed_count = coordinate_summary["recomputed_count"]
+    missing_official_coordinate_delta_count = coordinate_summary["missing_count"]
+    official_coordinate_delta_source = coordinate_summary["source"]
+    requires_current_official_recompute = coordinate_summary["requires_current_official_recompute"]
     max_official_coordinate_delta = max(official_coordinate_deltas) if official_coordinate_deltas else None
     official_coordinate_delta_violation_count = sum(
         1 for value in official_coordinate_deltas if abs(value) > args.max_official_coordinate_delta_m
@@ -1332,6 +1358,14 @@ def main() -> int:
             reasons.append("probe_official_coordinate_delta_missing")
             reasons.append(
                 count_reason("probe_official_coordinate_delta_missing_count", missing_official_coordinate_delta_count)
+            )
+        if requires_current_official_recompute and official_coordinate_recomputed_count != len(valid_probe_rows):
+            reasons.append("probe_official_coordinate_delta_current_official_recompute_incomplete")
+            reasons.append(
+                count_reason(
+                    "probe_official_coordinate_delta_recomputed_count",
+                    official_coordinate_recomputed_count,
+                )
             )
         if official_coordinate_delta_violation_count:
             reasons.append("probe_official_coordinate_delta_exceeds_threshold")
@@ -1613,11 +1647,7 @@ def main() -> int:
         "official_probe_coverage_ratio": official_probe_coverage_ratio,
         "probe_official_coverage_reason": official_probe_coverage_reason,
         "probe_official_coordinate_delta_count": len(official_coordinate_deltas),
-        "probe_official_coordinate_delta_source": (
-            "probe_audit_or_current_official_csv"
-            if official_coordinates
-            else "probe_audit_only"
-        ),
+        "probe_official_coordinate_delta_source": official_coordinate_delta_source,
         "probe_official_coordinate_delta_recomputed_count": official_coordinate_recomputed_count,
         "probe_official_coordinate_delta_recompute_error": official_coordinate_error,
         "probe_missing_official_coordinate_delta_count": missing_official_coordinate_delta_count,
