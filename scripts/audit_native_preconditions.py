@@ -401,6 +401,14 @@ def source_steps_uniformly_spaced(steps: List[int]) -> bool:
     return all(spacing > 0 for spacing in spacings) and len(set(spacings)) == 1
 
 
+def count_below_minimum_reason(label: str, value: Optional[int], minimum: int) -> str:
+    if value is None:
+        return f"{label}_missing"
+    if value < minimum:
+        return f"{label}_{value}_below_minimum_{minimum}"
+    return ""
+
+
 def split_scalar_list(value: Any, separators: Tuple[str, ...] = (",", ";")) -> List[str]:
     if value is None:
         return []
@@ -782,8 +790,15 @@ def main() -> int:
     metadata_frame_count = as_int(metadata.get("ExpectedVtkFrameCount"))
     requested_frame_count = as_int(runtime_audit.get("requested_vtk_frame_count"))
     frame_candidates = [value for value in [shared_frame_count, metadata_frame_count, requested_frame_count] if value is not None]
-    if not frame_candidates or min(frame_candidates) < args.min_avg_frames:
+    planned_frame_count_min = min(frame_candidates) if frame_candidates else None
+    planned_frame_shortfall_reason = count_below_minimum_reason(
+        "planned_vtk_frame_count",
+        planned_frame_count_min,
+        args.min_avg_frames,
+    )
+    if planned_frame_shortfall_reason:
         reasons.append("planned_vtk_frame_count_below_minimum")
+        reasons.append(planned_frame_shortfall_reason)
 
     runtime_pattern = str(runtime_audit.get("vtk_pattern") or "").strip()
     if not runtime_audit:
@@ -794,8 +809,17 @@ def main() -> int:
     runtime_avg = as_int(runtime_audit.get("average_last_n_requested"))
     if runtime_avg is None:
         runtime_avg = as_int(runtime_audit.get("averaged_frame_count"))
+    runtime_average_shortfall_reason = count_below_minimum_reason(
+        "runtime_average_window_frame_count",
+        runtime_avg,
+        args.min_avg_frames,
+    )
     if runtime_avg is None or runtime_avg < args.min_avg_frames or runtime_avg != args.average_last_n:
         reasons.append("runtime_average_window_mismatch_or_too_short")
+        if runtime_average_shortfall_reason:
+            reasons.append(runtime_average_shortfall_reason)
+        if runtime_avg is not None and runtime_avg != args.average_last_n:
+            reasons.append(f"runtime_average_window_{runtime_avg}_does_not_match_required_{args.average_last_n}")
 
     runtime_steps = audit_source_steps(runtime_audit)
     runtime_hashes = runtime_source_hashes(runtime_audit, runtime_steps)
@@ -827,10 +851,22 @@ def main() -> int:
             reasons.append("runtime_source_steps_increasing_flag_mismatch")
         if runtime_reported_steps_uniform is not None and runtime_reported_steps_uniform != runtime_steps_uniform:
             reasons.append("runtime_source_step_spacing_flag_mismatch")
-    if runtime_step_span is None or runtime_step_span < args.min_avg_step_span:
+    runtime_step_shortfall_reason = count_below_minimum_reason(
+        "runtime_average_step_span",
+        runtime_step_span,
+        args.min_avg_step_span,
+    )
+    planned_step_shortfall_reason = count_below_minimum_reason(
+        "planned_average_step_span",
+        planned_span,
+        args.min_avg_step_span,
+    )
+    if runtime_step_shortfall_reason:
         reasons.append("runtime_average_step_span_too_short")
-    if planned_span is None or planned_span < args.min_avg_step_span:
+        reasons.append(runtime_step_shortfall_reason)
+    if planned_step_shortfall_reason:
         reasons.append("planned_average_step_span_too_short")
+        reasons.append(planned_step_shortfall_reason)
 
     time_gate = str(runtime_audit.get("time_averaging_gate") or "").strip().lower()
     requested_frame_gate = str(runtime_audit.get("requested_vtk_frame_gate") or "").strip().lower()
@@ -1278,9 +1314,13 @@ def main() -> int:
         "runtime_average_last_n": runtime_avg,
         "min_avg_frames": args.min_avg_frames,
         "min_avg_step_span": args.min_avg_step_span,
-        "planned_frame_count_min": min(frame_candidates) if frame_candidates else None,
+        "planned_frame_count_min": planned_frame_count_min,
+        "planned_frame_count_shortfall_reason": planned_frame_shortfall_reason,
+        "runtime_average_window_shortfall_reason": runtime_average_shortfall_reason,
         "planned_final_window_step_span": planned_span,
+        "planned_average_step_span_shortfall_reason": planned_step_shortfall_reason,
         "runtime_source_step_span": runtime_step_span,
+        "runtime_average_step_span_shortfall_reason": runtime_step_shortfall_reason,
         "runtime_reported_source_step_span": runtime_step_span_reported,
         "runtime_source_step_span_from_time_steps": runtime_step_span_from_steps,
         "runtime_source_step_span_matches_time_steps": (

@@ -42,6 +42,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native/CityLBM run audits now also compute the planned final VTK averaging-window solver-step span from
   `TimeSteps`, `SaveInterval`, `SaveStartStep` and `AverageLastN`; validation fails if the requested final window has
   enough frames but does not cover the minimum solver-step span.
+- `audit_native_preconditions.py` now records numeric time-window shortfall reasons, such as
+  `runtime_average_window_frame_count_4_below_minimum_40` or
+  `runtime_average_step_span_3000_below_minimum_20000`, so short four-frame baselines remain traceable in downstream
+  metrics and diagnostic priorities.
 - `case_metadata.json` records protocol-risk fields: simplified boundary-condition summary, expected VTK frame count, required averaging, and validation-readiness status.
 - `Run Simulation` no longer falls back to the legacy bundled v0.5.0 solver when no external FluidX3D path is provided; controlled validation must use an explicit external FluidX3D baseline.
 - Mode 3 now follows the same explicit FluidX3D source-path rule as Mode 1/2. The legacy bundled solver code path is

@@ -22,9 +22,19 @@ def load_audit_module():
 
 def main() -> int:
     module = load_audit_module()
+    if module.count_below_minimum_reason("runtime_average_window_frame_count", 4, 40) != (
+        "runtime_average_window_frame_count_4_below_minimum_40"
+    ):
+        raise AssertionError("frame shortfall reason did not preserve the actual count")
+    if module.count_below_minimum_reason("runtime_average_step_span", 3000, 20000) != (
+        "runtime_average_step_span_3000_below_minimum_20000"
+    ):
+        raise AssertionError("step-span shortfall reason did not preserve the actual span")
 
     reasons = [
         "runtime_average_step_span_too_short",
+        "runtime_average_window_frame_count_4_below_minimum_40",
+        "runtime_average_step_span_3000_below_minimum_20000",
         "probe_uref_mismatch",
         "paper_grade_boundary_source_gate_not_pass",
         "inlet_source_velocity_field_only",
@@ -52,6 +62,12 @@ def main() -> int:
         raise AssertionError(top["diagnosis"])
     if "inlet_source_uses_uncorrelated_random_rms" not in top["reasons"]:
         raise AssertionError(top)
+
+    time_priority = next(item for item in priorities if item["key"] == "time_averaging_stationarity")
+    if "runtime_average_window_frame_count_4_below_minimum_40" not in time_priority["reasons"]:
+        raise AssertionError(time_priority)
+    if "runtime_average_step_span_3000_below_minimum_20000" not in time_priority["reasons"]:
+        raise AssertionError(time_priority)
 
     boundary_only = module.build_native_diagnostic_priority(
         ["boundary_source_simplified", "blockage_gate_not_pass"]
