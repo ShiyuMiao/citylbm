@@ -758,6 +758,40 @@ def main() -> int:
         args.wind_direction_label,
     )
     probe_id_column = find_csv_column(valid_probe_rows, ["probe_id", "ProbeId", "ProbeID", "No.", "No", "number", "point_id", "PointId", "id", "ID"])
+    official_probe_ids = set(official_coordinates.keys())
+    probe_ids: List[str] = []
+    seen_probe_ids = set()
+    duplicate_probe_ids = set()
+    missing_probe_id_count = 0
+    if valid_probe_rows and not probe_id_column:
+        reasons.append("probe_id_column_missing")
+    for row in valid_probe_rows:
+        probe_id = normalized_column_key(str(row.get(probe_id_column) or "").strip()) if probe_id_column else ""
+        if not probe_id:
+            missing_probe_id_count += 1
+            continue
+        if probe_id in seen_probe_ids:
+            duplicate_probe_ids.add(probe_id)
+        seen_probe_ids.add(probe_id)
+        probe_ids.append(probe_id)
+    unmatched_probe_ids = sorted(set(probe_ids) - official_probe_ids) if official_probe_ids else sorted(set(probe_ids))
+    missing_official_probe_ids = sorted(official_probe_ids - set(probe_ids)) if official_probe_ids else []
+    official_probe_coverage_ratio = (
+        len(official_probe_ids & set(probe_ids)) / len(official_probe_ids)
+        if official_probe_ids
+        else None
+    )
+    if valid_probe_rows:
+        if official_coordinate_error:
+            reasons.append("probe_official_identity_error:" + official_coordinate_error)
+        if missing_probe_id_count:
+            reasons.append("probe_id_missing")
+        if duplicate_probe_ids:
+            reasons.append("probe_id_duplicate")
+        if unmatched_probe_ids:
+            reasons.append("probe_unmatched_official_ids")
+        if missing_official_probe_ids or official_probe_coverage_ratio != 1.0:
+            reasons.append("probe_official_probe_coverage_incomplete")
     official_coordinate_deltas: List[float] = []
     official_coordinate_recomputed_count = 0
     for row in valid_probe_rows:
@@ -943,6 +977,15 @@ def main() -> int:
         "probe_audit_failed_row_count": len(failed_probe_rows),
         "probe_audit_compared_components": sorted(compared_components),
         "expected_compared_component": expected_component,
+        "probe_id_column": probe_id_column,
+        "probe_missing_id_count": missing_probe_id_count,
+        "probe_duplicate_id_count": len(duplicate_probe_ids),
+        "probe_unique_id_count": len(seen_probe_ids),
+        "official_probe_id_count": len(official_probe_ids),
+        "matched_official_probe_id_count": len(official_probe_ids & set(probe_ids)),
+        "missing_official_probe_id_count": len(missing_official_probe_ids),
+        "unmatched_probe_id_count": len(unmatched_probe_ids),
+        "official_probe_coverage_ratio": official_probe_coverage_ratio,
         "probe_official_coordinate_delta_count": len(official_coordinate_deltas),
         "probe_official_coordinate_delta_source": (
             "probe_audit_or_current_official_csv"

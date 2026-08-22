@@ -162,6 +162,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/audit_native_preconditions.py` and `scripts/run_native_validation_chain.py` now use the same official
   RS/measurement CSV fallback for native-baseline probe coordinate closure, so the native precondition gate and final
   validation gate no longer disagree about Grasshopper-exported probe audits that omit derived coordinate-delta fields.
+- `scripts/audit_native_preconditions.py` now also requires one-to-one official probe coverage for the selected
+  case/wind subset: missing probe IDs, duplicate probe IDs, extra probe IDs or omitted official measurement points keep
+  the native baseline diagnostic instead of allowing a partial matched subset to support accuracy claims.
 - `scripts/validation_gate.py` now rechecks valid per-probe IDs against the current official RS/measurement table:
   every valid probe row must have a non-empty unique ID, and each ID must exist in the official table before
   coordinate/Uref/compared-component diagnostics can pass.
