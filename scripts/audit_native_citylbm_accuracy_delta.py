@@ -39,6 +39,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wind-direction", default="", help="Optional wind-direction filter.")
     parser.add_argument("--citylbm-software", default="citylbm")
     parser.add_argument("--native-software", default="native-fluidx3d")
+    parser.add_argument(
+        "--native-preconditions-audit",
+        help="native_preconditions_audit.json proving native FluidX3D protocol closure before interpreting accuracy.",
+    )
     parser.add_argument("--max-rmse-regression-delta", type=float, default=0.03)
     parser.add_argument("--max-abs-bias-regression-delta", type=float, default=0.03)
     parser.add_argument("--max-r2-drop", type=float, default=0.05)
@@ -88,6 +92,84 @@ def read_rows(path: Path) -> List[Dict[str, Any]]:
         return list(csv.DictReader(handle))
 
 
+def read_json(path: Optional[Path]) -> Dict[str, Any]:
+    if path is None:
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def text_field(row: Dict[str, Any], key: str) -> str:
+    return str(row.get(key) or "").strip()
+
+
+def int_field(row: Dict[str, Any], key: str) -> Optional[int]:
+    value = row.get(key)
+    if isinstance(value, int):
+        return value
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return int(float(text))
+    except ValueError:
+        return None
+
+
+def native_preconditions_status(audit: Dict[str, Any], audit_path: Optional[Path]) -> Dict[str, Any]:
+    reasons: List[str] = []
+    if audit_path is None:
+        reasons.append("native_preconditions_audit_not_provided")
+    elif not audit:
+        reasons.append("native_preconditions_audit_missing_or_unreadable")
+
+    required_pass_gates = [
+        "native_preconditions_gate",
+        "native_precondition_closure_gate",
+        "native_preconditions_protocol_identity_gate",
+        "native_preconditions_time_average_evidence_gate",
+        "native_inlet_equivalence_gate",
+        "native_boundary_equivalence_gate",
+        "native_probe_component_equivalence_gate",
+    ]
+    for key in required_pass_gates:
+        value = text_field(audit, key).lower()
+        if value != "pass":
+            reasons.append(f"{key}_not_pass:{value or 'missing'}")
+
+    failed_stage_count = int_field(audit, "native_precondition_failed_stage_count")
+    if failed_stage_count is None:
+        reasons.append("native_precondition_failed_stage_count_missing")
+    elif failed_stage_count != 0:
+        reasons.append(f"native_precondition_failed_stage_count_not_zero:{failed_stage_count}")
+
+    return {
+        "gate": "pass" if not reasons else "fail",
+        "reasons": reasons or ["native_preconditions_closed"],
+        "audit": str(audit_path) if audit_path else "",
+        "native_preconditions_gate": text_field(audit, "native_preconditions_gate"),
+        "native_precondition_closure_gate": text_field(audit, "native_precondition_closure_gate"),
+        "native_preconditions_protocol_identity_gate": text_field(
+            audit, "native_preconditions_protocol_identity_gate"
+        ),
+        "native_preconditions_time_average_evidence_gate": text_field(
+            audit, "native_preconditions_time_average_evidence_gate"
+        ),
+        "native_inlet_equivalence_gate": text_field(audit, "native_inlet_equivalence_gate"),
+        "native_boundary_equivalence_gate": text_field(audit, "native_boundary_equivalence_gate"),
+        "native_probe_component_equivalence_gate": text_field(
+            audit, "native_probe_component_equivalence_gate"
+        ),
+        "native_precondition_failed_stage_count": failed_stage_count,
+        "native_precondition_top_blocking_stage_key": text_field(
+            audit, "native_precondition_top_blocking_stage_key"
+        ),
+    }
+
+
 def select_row(
     rows: List[Dict[str, Any]],
     software: str,
@@ -129,8 +211,22 @@ def main() -> int:
     city_path = Path(args.citylbm_metrics).expanduser().resolve()
     native_path = Path(args.native_metrics).expanduser().resolve()
     out_path = Path(args.out).expanduser().resolve()
+    native_preconditions_path = (
+        Path(args.native_preconditions_audit).expanduser().resolve()
+        if args.native_preconditions_audit
+        else None
+    )
 
     reasons: List[str] = []
+    citylbm_delta_reasons: List[str] = []
+    native_preconditions = read_json(native_preconditions_path)
+    native_preconditions_gate = native_preconditions_status(native_preconditions, native_preconditions_path)
+    if native_preconditions_gate["gate"] != "pass":
+        reasons.append("native_preconditions_not_closed")
+        reasons.extend(
+            f"native_precondition_reason:{reason}"
+            for reason in native_preconditions_gate["reasons"]
+        )
     try:
         city_rows = read_rows(city_path)
     except (OSError, json.JSONDecodeError, csv.Error) as exc:
@@ -195,18 +291,28 @@ def main() -> int:
     )
 
     if rmse_regression_delta is not None and rmse_regression_delta > args.max_rmse_regression_delta:
-        reasons.append(f"citylbm_rmse_regression_delta_above_{args.max_rmse_regression_delta}")
+        reason = f"citylbm_rmse_regression_delta_above_{args.max_rmse_regression_delta}"
+        reasons.append(reason)
+        citylbm_delta_reasons.append(reason)
     if (
         abs_bias_regression_delta is not None
         and abs_bias_regression_delta > args.max_abs_bias_regression_delta
     ):
-        reasons.append(f"citylbm_abs_bias_regression_delta_above_{args.max_abs_bias_regression_delta}")
+        reason = f"citylbm_abs_bias_regression_delta_above_{args.max_abs_bias_regression_delta}"
+        reasons.append(reason)
+        citylbm_delta_reasons.append(reason)
     if r2_drop is not None and r2_drop > args.max_r2_drop:
-        reasons.append(f"citylbm_r2_drop_above_{args.max_r2_drop}")
+        reason = f"citylbm_r2_drop_above_{args.max_r2_drop}"
+        reasons.append(reason)
+        citylbm_delta_reasons.append(reason)
     if slope_delta is not None and slope_delta > args.max_slope_delta:
-        reasons.append(f"citylbm_slope_delta_above_{args.max_slope_delta}")
+        reason = f"citylbm_slope_delta_above_{args.max_slope_delta}"
+        reasons.append(reason)
+        citylbm_delta_reasons.append(reason)
     if intercept_delta is not None and intercept_delta > args.max_intercept_delta:
-        reasons.append(f"citylbm_intercept_delta_above_{args.max_intercept_delta}")
+        reason = f"citylbm_intercept_delta_above_{args.max_intercept_delta}"
+        reasons.append(reason)
+        citylbm_delta_reasons.append(reason)
 
     native_accuracy_gate = "pass"
     native_accuracy_reasons: List[str] = []
@@ -221,9 +327,11 @@ def main() -> int:
         native_accuracy_reasons.append("native_u_r2_not_publishable")
 
     delta_gate = "pass" if not reasons else "fail"
-    citylbm_additional_error = delta_gate != "pass"
+    citylbm_additional_error = bool(citylbm_delta_reasons)
     if citylbm_additional_error:
         interpretation = "citylbm_regression_or_transfer_error"
+    elif native_preconditions_gate["gate"] != "pass":
+        interpretation = "native_preconditions_not_closed"
     elif native_accuracy_gate == "pass":
         interpretation = "citylbm_matches_publishable_native_baseline"
     else:
@@ -236,6 +344,29 @@ def main() -> int:
         "native_citylbm_accuracy_delta_gate_reasons": reasons or ["citylbm_accuracy_matches_native_within_delta_thresholds"],
         "accuracy_interpretation": interpretation,
         "citylbm_additional_error_flag": citylbm_additional_error,
+        "citylbm_additional_error_reasons": citylbm_delta_reasons,
+        "native_preconditions_audit": native_preconditions_gate["audit"],
+        "native_preconditions_accuracy_gate": native_preconditions_gate["gate"],
+        "native_preconditions_accuracy_gate_reasons": native_preconditions_gate["reasons"],
+        "native_preconditions_gate": native_preconditions_gate["native_preconditions_gate"],
+        "native_precondition_closure_gate": native_preconditions_gate["native_precondition_closure_gate"],
+        "native_preconditions_protocol_identity_gate": native_preconditions_gate[
+            "native_preconditions_protocol_identity_gate"
+        ],
+        "native_preconditions_time_average_evidence_gate": native_preconditions_gate[
+            "native_preconditions_time_average_evidence_gate"
+        ],
+        "native_inlet_equivalence_gate": native_preconditions_gate["native_inlet_equivalence_gate"],
+        "native_boundary_equivalence_gate": native_preconditions_gate["native_boundary_equivalence_gate"],
+        "native_probe_component_equivalence_gate": native_preconditions_gate[
+            "native_probe_component_equivalence_gate"
+        ],
+        "native_precondition_failed_stage_count": native_preconditions_gate[
+            "native_precondition_failed_stage_count"
+        ],
+        "native_precondition_top_blocking_stage_key": native_preconditions_gate[
+            "native_precondition_top_blocking_stage_key"
+        ],
         "native_accuracy_gate": native_accuracy_gate,
         "native_accuracy_gate_reasons": native_accuracy_reasons or ["native_accuracy_metrics_within_thresholds"],
         "citylbm_metrics": str(city_path),

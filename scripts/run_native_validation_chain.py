@@ -117,6 +117,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-grid-refinement-ratio", type=float, default=1.25)
     parser.add_argument("--max-grid-rmse-change-ratio", type=float, default=0.10)
     parser.add_argument("--max-grid-bias-change-ratio", type=float, default=0.05)
+    parser.add_argument("--max-native-citylbm-rmse-delta", type=float, default=0.03)
+    parser.add_argument("--max-native-citylbm-abs-bias-delta", type=float, default=0.03)
+    parser.add_argument("--max-native-citylbm-r2-drop", type=float, default=0.05)
+    parser.add_argument("--max-native-citylbm-slope-delta", type=float, default=0.10)
+    parser.add_argument("--max-native-citylbm-intercept-delta", type=float, default=0.05)
     parser.add_argument("--vtk-stability-sample-limit", type=int, default=20000)
     parser.add_argument(
         "--allow-velocity-only-inlet",
@@ -368,6 +373,7 @@ def main() -> int:
     component_sensitivity_csv = out_dir / "component_sensitivity_audit.csv"
     grid_sensitivity_json = out_dir / "grid_sensitivity_audit.json"
     native_citylbm_parity_json = out_dir / "native_citylbm_parity_audit.json"
+    native_citylbm_accuracy_delta_json = out_dir / "native_citylbm_accuracy_delta_audit.json"
     metrics_csv = out_dir / "validation_metrics.csv"
     comparison_csv = out_dir / "probe_comparison.csv"
     gate_json = out_dir / "validation_gate_report.json"
@@ -890,10 +896,56 @@ def main() -> int:
             manifest["Steps"].append(run_step("audit_native_citylbm_parity", parity_cmd, allow_fail=True))
             write_manifest(manifest_path, manifest)
 
+            accuracy_delta_cmd = [
+                py,
+                str(script_dir / "audit_native_citylbm_accuracy_delta.py"),
+                "--citylbm-metrics",
+                str(metrics_csv),
+                "--native-metrics",
+                str(Path(args.paired_native_metrics).expanduser().resolve()),
+                "--native-preconditions-audit",
+                str(native_preconditions_json),
+                "--out",
+                str(native_citylbm_accuracy_delta_json),
+                "--case",
+                args.case,
+                "--wind-direction",
+                args.wind_direction_label,
+                "--citylbm-software",
+                args.software,
+                "--native-software",
+                "native-fluidx3d",
+                "--max-rmse-regression-delta",
+                str(args.max_native_citylbm_rmse_delta),
+                "--max-abs-bias-regression-delta",
+                str(args.max_native_citylbm_abs_bias_delta),
+                "--max-r2-drop",
+                str(args.max_native_citylbm_r2_drop),
+                "--max-slope-delta",
+                str(args.max_native_citylbm_slope_delta),
+                "--max-intercept-delta",
+                str(args.max_native_citylbm_intercept_delta),
+                "--native-max-u-rmse-ratio",
+                str(args.max_u_rmse_ratio),
+                "--native-max-u-bias-ratio",
+                str(args.max_u_bias_ratio),
+                "--native-min-u-r2",
+                str(args.min_u_r2),
+            ]
+            manifest["Steps"].append(run_step("audit_native_citylbm_accuracy_delta", accuracy_delta_cmd, allow_fail=True))
+            write_manifest(manifest_path, manifest)
+
             metrics_with_parity_cmd = list(metrics_cmd)
             if args.grid_sensitivity_metrics:
                 metrics_with_parity_cmd.extend(["--grid-sensitivity-audit", str(grid_sensitivity_json)])
-            metrics_with_parity_cmd.extend(["--native-citylbm-parity-audit", str(native_citylbm_parity_json)])
+            metrics_with_parity_cmd.extend(
+                [
+                    "--native-citylbm-parity-audit",
+                    str(native_citylbm_parity_json),
+                    "--native-citylbm-accuracy-delta-audit",
+                    str(native_citylbm_accuracy_delta_json),
+                ]
+            )
             manifest["Steps"].append(run_step("validation_metrics_from_probe_audit_with_native_citylbm_parity", metrics_with_parity_cmd))
             write_manifest(manifest_path, manifest)
 

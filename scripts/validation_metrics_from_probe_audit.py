@@ -497,6 +497,10 @@ TEMPLATE_FIELDS = [
     "native_citylbm_accuracy_delta_gate_reasons",
     "native_citylbm_accuracy_interpretation",
     "native_citylbm_additional_error_flag",
+    "native_citylbm_additional_error_reasons",
+    "native_preconditions_accuracy_gate",
+    "native_preconditions_accuracy_gate_reasons",
+    "native_preconditions_accuracy_top_blocker",
     "native_accuracy_gate",
     "native_accuracy_gate_reasons",
     "native_citylbm_U_RMSE_delta",
@@ -2570,6 +2574,18 @@ def main() -> int:
             ),
             "native_citylbm_additional_error_flag": first_bool_text(
                 native_citylbm_accuracy_delta_audit.get("citylbm_additional_error_flag")
+            ),
+            "native_citylbm_additional_error_reasons": audit_list_field(
+                native_citylbm_accuracy_delta_audit, "citylbm_additional_error_reasons"
+            ),
+            "native_preconditions_accuracy_gate": audit_gate(
+                native_citylbm_accuracy_delta_audit, "native_preconditions_accuracy_gate"
+            ),
+            "native_preconditions_accuracy_gate_reasons": audit_list_field(
+                native_citylbm_accuracy_delta_audit, "native_preconditions_accuracy_gate_reasons"
+            ),
+            "native_preconditions_accuracy_top_blocker": audit_field(
+                native_citylbm_accuracy_delta_audit, "native_precondition_top_blocking_stage_key"
             ),
             "native_accuracy_gate": audit_gate(
                 native_citylbm_accuracy_delta_audit, "native_accuracy_gate"
