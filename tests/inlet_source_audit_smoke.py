@@ -256,6 +256,40 @@ for(uint remaining=100u; remaining>0u; ) {
         if "source_velocity_field_only" not in spectral_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(spectral_report["paper_grade_inlet_source_gate_reasons"])
 
+        named_recycling_setup = root / "named_recycling_setup.cpp"
+        named_recycling_out = root / "named_recycling_audit.json"
+        write_text(
+            named_recycling_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+void recycling_rescaling_inlet(uint t_step) {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0];
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+""",
+        )
+        named_recycling_code, named_recycling_report = run_audit(
+            named_recycling_setup,
+            metadata,
+            named_recycling_out,
+        )
+        if named_recycling_code == 0:
+            raise AssertionError("named recycling inlet without recycled field unexpectedly passed")
+        if named_recycling_report["inlet_source_gate"] != "fail":
+            raise AssertionError(named_recycling_report)
+        if named_recycling_report["inlet_source_method_class"] != "named_method_without_precursor_recycling_field_evidence":
+            raise AssertionError(named_recycling_report["inlet_source_method_class"])
+        if "precursor_recycling_method_missing_recycled_field_evidence" not in named_recycling_report["inlet_source_gate_reasons"]:
+            raise AssertionError(named_recycling_report["inlet_source_gate_reasons"])
+
         sem_setup = root / "sem_setup.cpp"
         sem_out = root / "sem_audit.json"
         write_text(

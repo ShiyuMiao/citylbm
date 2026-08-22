@@ -739,6 +739,10 @@ def main() -> int:
         reasons.append("metadata_claims_distribution_consistency_without_source_evidence")
     if metadata_claims_distribution and has_distribution_write and not has_inlet_distribution_reconstruction and not has_precursor:
         reasons.append("distribution_function_write_not_tied_to_inlet_reconstruction")
+    if source_method_class == "named_method_without_distribution_evidence":
+        reasons.append("advanced_inlet_method_missing_distribution_evidence")
+    if source_method_class == "named_method_without_precursor_recycling_field_evidence":
+        reasons.append("precursor_recycling_method_missing_recycled_field_evidence")
 
     source_gate = "pass" if not reasons else "fail"
     paper_gate_reasons: List[str] = []
