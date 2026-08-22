@@ -573,6 +573,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `audit_native_preconditions.py` now applies the same current-official-coordinate rule to native FluidX3D baseline
   preconditions. When an official RS/probe CSV is provided, native baseline evidence must recompute every valid probe
   coordinate delta from that file instead of trusting stale `official_coordinate_delta` values copied in a probe audit.
+- `validation_metrics_from_probe_audit.py` and `docs/validation_metrics_template.csv` now carry the native baseline
+  coordinate-delta source, recomputed count, recompute error and missing-delta count so exported metrics expose whether
+  native probe evidence came from the current official table.
 - `validation_gate.py` now verifies that native FluidX3D baseline source hashes come from one explicit complete source
   root. The manifest must prove a build file plus `src/setup.cpp`, `src/defines.hpp`, `src/lbm.hpp` and `src/lbm.cpp`
   under the declared `NativeFluidX3DSourcePath`, not merely provide four matching hashes from arbitrary paths.

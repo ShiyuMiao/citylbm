@@ -291,6 +291,10 @@ TEMPLATE_FIELDS = [
     "native_probe_unmatched_probe_ids",
     "native_probe_duplicate_ids",
     "native_probe_max_official_coordinate_delta_m",
+    "native_probe_official_coordinate_delta_source",
+    "native_probe_official_coordinate_delta_recomputed_count",
+    "native_probe_official_coordinate_delta_recompute_error",
+    "native_probe_missing_official_coordinate_delta_count",
     "native_probe_official_coordinate_delta_violation_count",
     "native_probe_uref_mismatch_count",
     "native_probe_out_of_tolerance_count",
@@ -1846,6 +1850,18 @@ def main() -> int:
             "native_probe_duplicate_ids": audit_field(native_preconditions_audit, "probe_duplicate_ids_csv"),
             "native_probe_max_official_coordinate_delta_m": fmt(
                 audit_float(native_preconditions_audit, "probe_max_official_coordinate_delta_m")
+            ),
+            "native_probe_official_coordinate_delta_source": audit_field(
+                native_preconditions_audit, "probe_official_coordinate_delta_source"
+            ),
+            "native_probe_official_coordinate_delta_recomputed_count": audit_field(
+                native_preconditions_audit, "probe_official_coordinate_delta_recomputed_count"
+            ),
+            "native_probe_official_coordinate_delta_recompute_error": audit_field(
+                native_preconditions_audit, "probe_official_coordinate_delta_recompute_error"
+            ),
+            "native_probe_missing_official_coordinate_delta_count": audit_field(
+                native_preconditions_audit, "probe_missing_official_coordinate_delta_count"
             ),
             "native_probe_official_coordinate_delta_violation_count": audit_field(
                 native_preconditions_audit, "probe_official_coordinate_delta_violation_count"
