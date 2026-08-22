@@ -257,6 +257,19 @@ TEMPLATE_FIELDS = [
     "native_preconditions_gate_reasons",
     "native_preconditions_protocol_identity_gate",
     "native_preconditions_time_average_gate",
+    "native_probe_compared_component_values",
+    "native_probe_expected_compared_component",
+    "native_probe_compared_component_mismatch_reason",
+    "native_probe_official_coverage_reason",
+    "native_probe_missing_official_probe_ids",
+    "native_probe_unmatched_probe_ids",
+    "native_probe_duplicate_ids",
+    "native_probe_max_official_coordinate_delta_m",
+    "native_probe_official_coordinate_delta_violation_count",
+    "native_probe_uref_mismatch_count",
+    "native_probe_out_of_tolerance_count",
+    "native_probe_projection_issue_reason",
+    "native_probe_component_uref_issue_reason",
     "native_boundary_protocol_gate",
     "native_boundary_evidence_gate",
     "native_boundary_protocol_gate_reasons",
@@ -1707,6 +1720,39 @@ def main() -> int:
             ),
             "native_preconditions_time_average_gate": audit_gate(
                 native_preconditions_audit, "native_preconditions_time_average_gate"
+            ),
+            "native_probe_compared_component_values": audit_field(
+                native_preconditions_audit, "probe_audit_compared_components_csv"
+            ),
+            "native_probe_expected_compared_component": audit_field(
+                native_preconditions_audit, "expected_compared_component"
+            ),
+            "native_probe_compared_component_mismatch_reason": audit_field(
+                native_preconditions_audit, "probe_compared_component_mismatch_reason"
+            ),
+            "native_probe_official_coverage_reason": audit_field(
+                native_preconditions_audit, "probe_official_coverage_reason"
+            ),
+            "native_probe_missing_official_probe_ids": audit_field(
+                native_preconditions_audit, "missing_official_probe_ids_csv"
+            ),
+            "native_probe_unmatched_probe_ids": audit_field(native_preconditions_audit, "unmatched_probe_ids_csv"),
+            "native_probe_duplicate_ids": audit_field(native_preconditions_audit, "probe_duplicate_ids_csv"),
+            "native_probe_max_official_coordinate_delta_m": fmt(
+                audit_float(native_preconditions_audit, "probe_max_official_coordinate_delta_m")
+            ),
+            "native_probe_official_coordinate_delta_violation_count": audit_field(
+                native_preconditions_audit, "probe_official_coordinate_delta_violation_count"
+            ),
+            "native_probe_uref_mismatch_count": audit_field(native_preconditions_audit, "probe_uref_mismatch_count"),
+            "native_probe_out_of_tolerance_count": audit_field(
+                native_preconditions_audit, "probe_out_of_tolerance_count"
+            ),
+            "native_probe_projection_issue_reason": audit_field(
+                native_preconditions_audit, "probe_projection_issue_reason"
+            ),
+            "native_probe_component_uref_issue_reason": audit_field(
+                native_preconditions_audit, "probe_component_uref_issue_reason"
             ),
             "native_boundary_protocol_gate": audit_gate(native_preconditions_audit, "boundary_protocol_gate"),
             "native_boundary_evidence_gate": audit_gate(native_preconditions_audit, "boundary_evidence_gate"),

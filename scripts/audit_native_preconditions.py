@@ -409,6 +409,17 @@ def count_below_minimum_reason(label: str, value: Optional[int], minimum: int) -
     return ""
 
 
+def reason_token(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    token = "".join(char if char.isascii() and (char.isalnum() or char in "._+-") else "_" for char in text)
+    token = "_".join(part for part in token.split("_") if part)
+    return token or "missing"
+
+
+def count_reason(label: str, count: int) -> str:
+    return f"{label}_{count}"
+
+
 def split_scalar_list(value: Any, separators: Tuple[str, ...] = (",", ";")) -> List[str]:
     if value is None:
         return []
@@ -1093,6 +1104,8 @@ def main() -> int:
         for row in valid_probe_rows
         if row_value(row, "compared_component", "ComparedComponent")
     }
+    compared_component_values_csv = ";".join(sorted(compared_components))
+    compared_component_mismatch_reason = ""
     if not probe_rows:
         reasons.append("probe_audit_missing_or_empty")
     if probe_rows and not valid_probe_rows:
@@ -1101,6 +1114,11 @@ def main() -> int:
         reasons.append("probe_audit_has_failed_rows")
     if expected_component and compared_components != {expected_component}:
         reasons.append("probe_compared_component_mismatch")
+        compared_component_mismatch_reason = (
+            f"probe_compared_component_{reason_token(compared_component_values_csv)}"
+            f"_expected_{reason_token(expected_component)}"
+        )
+        reasons.append(compared_component_mismatch_reason)
 
     official_coordinates, official_coordinate_error = build_official_coordinate_lookup(
         official_path,
@@ -1126,22 +1144,32 @@ def main() -> int:
         probe_ids.append(probe_id)
     unmatched_probe_ids = sorted(set(probe_ids) - official_probe_ids) if official_probe_ids else sorted(set(probe_ids))
     missing_official_probe_ids = sorted(official_probe_ids - set(probe_ids)) if official_probe_ids else []
+    duplicate_probe_ids_sorted = sorted(duplicate_probe_ids)
     official_probe_coverage_ratio = (
         len(official_probe_ids & set(probe_ids)) / len(official_probe_ids)
         if official_probe_ids
         else None
     )
+    official_probe_coverage_reason = ""
     if valid_probe_rows:
         if official_coordinate_error:
             reasons.append("probe_official_identity_error:" + official_coordinate_error)
         if missing_probe_id_count:
             reasons.append("probe_id_missing")
+            reasons.append(count_reason("probe_id_missing_count", missing_probe_id_count))
         if duplicate_probe_ids:
             reasons.append("probe_id_duplicate")
+            reasons.append(count_reason("probe_id_duplicate_count", len(duplicate_probe_ids)))
         if unmatched_probe_ids:
             reasons.append("probe_unmatched_official_ids")
+            reasons.append(count_reason("probe_unmatched_official_id_count", len(unmatched_probe_ids)))
         if missing_official_probe_ids or official_probe_coverage_ratio != 1.0:
             reasons.append("probe_official_probe_coverage_incomplete")
+            official_probe_coverage_reason = (
+                f"probe_official_coverage_{len(official_probe_ids & set(probe_ids))}"
+                f"_of_{len(official_probe_ids)}"
+            )
+            reasons.append(official_probe_coverage_reason)
     official_coordinate_deltas: List[float] = []
     official_coordinate_recomputed_count = 0
     for row in valid_probe_rows:
@@ -1167,6 +1195,8 @@ def main() -> int:
     official_coordinate_delta_violation_count = sum(
         1 for value in official_coordinate_deltas if abs(value) > args.max_official_coordinate_delta_m
     )
+    probe_projection_issue_reason = ""
+    probe_component_uref_issue_reason = compared_component_mismatch_reason
     normalization_missing_count = 0
     normalization_invalid_count = 0
     wind_missing_count = 0
@@ -1202,26 +1232,56 @@ def main() -> int:
     if valid_probe_rows:
         if missing_official_coordinate_delta_count:
             reasons.append("probe_official_coordinate_delta_missing")
+            reasons.append(
+                count_reason("probe_official_coordinate_delta_missing_count", missing_official_coordinate_delta_count)
+            )
         if official_coordinate_delta_violation_count:
             reasons.append("probe_official_coordinate_delta_exceeds_threshold")
+            reasons.append(
+                count_reason(
+                    "probe_official_coordinate_delta_violation_count",
+                    official_coordinate_delta_violation_count,
+                )
+            )
         if normalization_missing_count:
             reasons.append("probe_normalization_valid_missing")
+            reasons.append(count_reason("probe_normalization_valid_missing_count", normalization_missing_count))
         if normalization_invalid_count:
             reasons.append("probe_normalization_invalid")
+            reasons.append(count_reason("probe_normalization_invalid_count", normalization_invalid_count))
         if wind_missing_count:
             reasons.append("probe_wind_direction_valid_missing")
+            reasons.append(count_reason("probe_wind_direction_valid_missing_count", wind_missing_count))
         if wind_invalid_count:
             reasons.append("probe_wind_direction_invalid")
+            reasons.append(count_reason("probe_wind_direction_invalid_count", wind_invalid_count))
         if uref_missing_count:
             reasons.append("probe_uref_missing")
+            reasons.append(count_reason("probe_uref_missing_count", uref_missing_count))
         if uref_mismatch_count:
             reasons.append("probe_uref_mismatch")
+            uref_reason = count_reason("probe_uref_mismatch_count", uref_mismatch_count)
+            reasons.append(uref_reason)
+            probe_component_uref_issue_reason = ";".join(
+                reason for reason in [probe_component_uref_issue_reason, uref_reason] if reason
+            )
         if nearest_distance_missing_count:
             reasons.append("probe_nearest_distance_missing")
+            reasons.append(count_reason("probe_nearest_distance_missing_count", nearest_distance_missing_count))
         if tolerance_missing_or_disabled_count:
             reasons.append("probe_tolerance_missing_or_disabled")
+            tolerance_reason = count_reason("probe_tolerance_missing_or_disabled_count", tolerance_missing_or_disabled_count)
+            reasons.append(tolerance_reason)
+            probe_projection_issue_reason = ";".join(
+                reason for reason in [probe_projection_issue_reason, tolerance_reason] if reason
+            )
         if probe_out_of_tolerance_count:
             reasons.append("probe_out_of_tolerance")
+            out_of_tolerance_reason = count_reason("probe_out_of_tolerance_count", probe_out_of_tolerance_count)
+            reasons.append(out_of_tolerance_reason)
+            probe_projection_issue_reason = ";".join(
+                reason for reason in [probe_projection_issue_reason, out_of_tolerance_reason] if reason
+            )
     probe_source_steps_values = probe_unique_values(
         probe_rows,
         "vtk_source_time_steps",
@@ -1427,16 +1487,22 @@ def main() -> int:
         "probe_audit_valid_row_count": len(valid_probe_rows),
         "probe_audit_failed_row_count": len(failed_probe_rows),
         "probe_audit_compared_components": sorted(compared_components),
+        "probe_audit_compared_components_csv": compared_component_values_csv,
         "expected_compared_component": expected_component,
+        "probe_compared_component_mismatch_reason": compared_component_mismatch_reason,
         "probe_id_column": probe_id_column,
         "probe_missing_id_count": missing_probe_id_count,
         "probe_duplicate_id_count": len(duplicate_probe_ids),
+        "probe_duplicate_ids_csv": ";".join(duplicate_probe_ids_sorted),
         "probe_unique_id_count": len(seen_probe_ids),
         "official_probe_id_count": len(official_probe_ids),
         "matched_official_probe_id_count": len(official_probe_ids & set(probe_ids)),
         "missing_official_probe_id_count": len(missing_official_probe_ids),
+        "missing_official_probe_ids_csv": ";".join(missing_official_probe_ids),
         "unmatched_probe_id_count": len(unmatched_probe_ids),
+        "unmatched_probe_ids_csv": ";".join(unmatched_probe_ids),
         "official_probe_coverage_ratio": official_probe_coverage_ratio,
+        "probe_official_coverage_reason": official_probe_coverage_reason,
         "probe_official_coordinate_delta_count": len(official_coordinate_deltas),
         "probe_official_coordinate_delta_source": (
             "probe_audit_or_current_official_csv"
@@ -1458,6 +1524,8 @@ def main() -> int:
         "probe_nearest_distance_missing_count": nearest_distance_missing_count,
         "probe_tolerance_missing_or_disabled_count": tolerance_missing_or_disabled_count,
         "probe_out_of_tolerance_count": probe_out_of_tolerance_count,
+        "probe_projection_issue_reason": probe_projection_issue_reason,
+        "probe_component_uref_issue_reason": probe_component_uref_issue_reason,
         "probe_source_time_steps": probe_source_steps,
         "probe_source_time_steps_match_runtime": probe_source_steps_match,
         "probe_source_steps_strictly_increasing": probe_source_steps_increasing,

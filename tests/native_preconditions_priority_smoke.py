@@ -30,12 +30,20 @@ def main() -> int:
         "runtime_average_step_span_3000_below_minimum_20000"
     ):
         raise AssertionError("step-span shortfall reason did not preserve the actual span")
+    if module.reason_token("abs streamwise ratio; speed") != "abs_streamwise_ratio_speed":
+        raise AssertionError("reason token did not normalize component labels")
+    if module.count_reason("probe_uref_mismatch_count", 80) != "probe_uref_mismatch_count_80":
+        raise AssertionError("count reason did not preserve the failing row count")
 
     reasons = [
         "runtime_average_step_span_too_short",
         "runtime_average_window_frame_count_4_below_minimum_40",
         "runtime_average_step_span_3000_below_minimum_20000",
         "probe_uref_mismatch",
+        "probe_uref_mismatch_count_80",
+        "probe_out_of_tolerance_count_12",
+        "probe_compared_component_speed_expected_abs_streamwise_ratio",
+        "probe_official_coverage_72_of_80",
         "paper_grade_boundary_source_gate_not_pass",
         "boundary_missing_evidence_field_floor_roughness_source",
         "boundary_required_support_field_outlet_reflection_check_supported_not_supported",
@@ -70,6 +78,16 @@ def main() -> int:
         raise AssertionError(time_priority)
     if "runtime_average_step_span_3000_below_minimum_20000" not in time_priority["reasons"]:
         raise AssertionError(time_priority)
+
+    coordinate_priority = next(item for item in priorities if item["key"] == "coordinate_component_normalization")
+    for reason in [
+        "probe_uref_mismatch_count_80",
+        "probe_out_of_tolerance_count_12",
+        "probe_compared_component_speed_expected_abs_streamwise_ratio",
+        "probe_official_coverage_72_of_80",
+    ]:
+        if reason not in coordinate_priority["reasons"]:
+            raise AssertionError(coordinate_priority)
 
     boundary_only = module.build_native_diagnostic_priority(
         [

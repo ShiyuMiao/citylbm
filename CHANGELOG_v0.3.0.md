@@ -546,6 +546,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   still open.
 - The final `diagnostic_priority` now expands failed systematic-bias prerequisites and the native FluidX3D top blocker,
   so a large residual bias points to the exact open evidence gates before any solver-accuracy interpretation.
+- `audit_native_preconditions.py` now preserves concrete probe mapping and normalization blocker details, including the
+  compared component values, missing/unmatched/duplicate probe IDs, official-coordinate coverage, coordinate-delta
+  violation counts, Uref mismatch counts and VTK projection tolerance failures. The metrics CSV carries these native
+  probe fields forward so residual bias cannot be explained without first proving RS probe identity, wind component,
+  Uref normalization and sampling coordinates.
 
 ## Remaining scientific work
 
