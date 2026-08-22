@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""Smoke-test native inlet precondition field propagation into metrics CSV."""
+
+from __future__ import annotations
+
+import csv
+import json
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+
+REPO = Path(__file__).resolve().parents[1]
+
+
+def write_csv(path: Path, rows: list[dict[str, object]]) -> None:
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def main() -> int:
+    with tempfile.TemporaryDirectory(prefix="citylbm_native_inlet_metrics_") as tmp:
+        work = Path(tmp)
+        official = work / "official.csv"
+        probe = work / "probe.csv"
+        native_audit = work / "native_preconditions_audit.json"
+        metrics = work / "metrics.csv"
+
+        write_csv(
+            official,
+            [
+                {
+                    "case": "AIJ_CaseA",
+                    "wind_direction": "N",
+                    "No.": "1",
+                    "Velocity_Ratio": "1.0",
+                    "x": "0.0",
+                    "y": "0.0",
+                    "z": "2.0",
+                }
+            ],
+        )
+        write_csv(
+            probe,
+            [
+                {
+                    "probe_id": "1",
+                    "compared_value": "0.9",
+                    "failed": "false",
+                    "validation_status": "pass",
+                    "inside_vtk_grid_extent": "true",
+                    "x": "0.0",
+                    "y": "0.0",
+                    "z": "2.0",
+                    "nearest_distance": "0.1",
+                    "normalization_valid": "true",
+                    "wind_direction_valid": "true",
+                    "Uref": "1.0",
+                    "compared_component": "speed_ratio",
+                    "tolerance": "0.5",
+                    "vtk_source_time_steps": "1000;2000;3000",
+                    "vtk_source_step_span": "2000",
+                    "minimum_validation_average_step_span": "2000",
+                    "vtk_source_sha256": "a;b;c",
+                }
+            ],
+        )
+        native_audit.write_text(
+            json.dumps(
+                {
+                    "native_preconditions_gate": "fail",
+                    "native_preconditions_time_average_gate": "fail",
+                    "inlet_profile_audit": "run/inlet_profile_audit.json",
+                    "inlet_profile_gate": "FAIL",
+                    "inlet_u_profile_gate": "PASS",
+                    "inlet_k_profile_gate": "FAIL",
+                    "inlet_profile_time_averaging_gate": "FAIL",
+                    "inlet_profile_af_csv_sha256_matches_expected": False,
+                    "inlet_profile_source_time_steps_match_runtime": True,
+                    "inlet_profile_source_vtk_sha256_match_runtime": False,
+                    "inlet_profile_source_step_span": 2000,
+                    "inlet_profile_minimum_step_span": 20000,
+                    "inlet_correlation_audit": "run/inlet_correlation_audit.json",
+                    "inlet_correlation_gate": "FAIL",
+                    "inlet_correlation_source_time_steps_match_runtime": True,
+                    "inlet_correlation_source_vtk_sha256_match_runtime": False,
+                    "inlet_correlation_source_step_span": 2000,
+                    "inlet_correlation_minimum_step_span": 20000,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+        command = [
+            sys.executable,
+            str(REPO / "scripts" / "validation_metrics_from_probe_audit.py"),
+            "--probe-audit",
+            str(probe),
+            "--official",
+            str(official),
+            "--out",
+            str(metrics),
+            "--case",
+            "AIJ_CaseA",
+            "--wind-direction",
+            "N",
+            "--source-time-steps",
+            "1000;2000;3000",
+            "--native-preconditions-audit",
+            str(native_audit),
+        ]
+        subprocess.run(command, cwd=str(REPO), check=True)
+
+        with metrics.open("r", encoding="utf-8", newline="") as handle:
+            row = next(csv.DictReader(handle))
+
+    expected = {
+        "native_inlet_profile_audit": "run/inlet_profile_audit.json",
+        "native_inlet_profile_gate": "fail",
+        "native_inlet_u_profile_gate": "pass",
+        "native_inlet_k_profile_gate": "fail",
+        "native_inlet_profile_time_averaging_gate": "fail",
+        "native_inlet_profile_af_csv_sha256_matches_expected": "false",
+        "native_inlet_profile_source_time_steps_match_runtime": "true",
+        "native_inlet_profile_source_vtk_sha256_match_runtime": "false",
+        "native_inlet_profile_source_step_span": "2000",
+        "native_inlet_profile_minimum_step_span": "20000",
+        "native_inlet_correlation_audit": "run/inlet_correlation_audit.json",
+        "native_inlet_correlation_gate": "fail",
+        "native_inlet_correlation_source_time_steps_match_runtime": "true",
+        "native_inlet_correlation_source_vtk_sha256_match_runtime": "false",
+        "native_inlet_correlation_source_step_span": "2000",
+        "native_inlet_correlation_minimum_step_span": "20000",
+    }
+    for field, value in expected.items():
+        if row.get(field) != value:
+            raise AssertionError(f"{field}: expected {value!r}, got {row.get(field)!r}")
+
+    print("native_inlet_metrics_fields_smoke passed")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

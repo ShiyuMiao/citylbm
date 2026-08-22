@@ -306,6 +306,22 @@ TEMPLATE_FIELDS = [
     "native_preconditions_gate_reasons",
     "native_preconditions_protocol_identity_gate",
     "native_preconditions_time_average_gate",
+    "native_inlet_profile_audit",
+    "native_inlet_profile_gate",
+    "native_inlet_u_profile_gate",
+    "native_inlet_k_profile_gate",
+    "native_inlet_profile_time_averaging_gate",
+    "native_inlet_profile_af_csv_sha256_matches_expected",
+    "native_inlet_profile_source_time_steps_match_runtime",
+    "native_inlet_profile_source_vtk_sha256_match_runtime",
+    "native_inlet_profile_source_step_span",
+    "native_inlet_profile_minimum_step_span",
+    "native_inlet_correlation_audit",
+    "native_inlet_correlation_gate",
+    "native_inlet_correlation_source_time_steps_match_runtime",
+    "native_inlet_correlation_source_vtk_sha256_match_runtime",
+    "native_inlet_correlation_source_step_span",
+    "native_inlet_correlation_minimum_step_span",
     "native_inlet_source_stg_evidence_required",
     "native_inlet_source_has_three_component_velocity_write",
     "native_inlet_source_has_three_component_fluctuation_evidence",
@@ -1926,6 +1942,42 @@ def main() -> int:
             ),
             "native_preconditions_time_average_gate": audit_gate(
                 native_preconditions_audit, "native_preconditions_time_average_gate"
+            ),
+            "native_inlet_profile_audit": audit_field(native_preconditions_audit, "inlet_profile_audit"),
+            "native_inlet_profile_gate": audit_gate(native_preconditions_audit, "inlet_profile_gate"),
+            "native_inlet_u_profile_gate": audit_gate(native_preconditions_audit, "inlet_u_profile_gate"),
+            "native_inlet_k_profile_gate": audit_gate(native_preconditions_audit, "inlet_k_profile_gate"),
+            "native_inlet_profile_time_averaging_gate": audit_gate(
+                native_preconditions_audit, "inlet_profile_time_averaging_gate"
+            ),
+            "native_inlet_profile_af_csv_sha256_matches_expected": first_bool_text(
+                native_preconditions_audit.get("inlet_profile_af_csv_sha256_matches_expected")
+            ),
+            "native_inlet_profile_source_time_steps_match_runtime": first_bool_text(
+                native_preconditions_audit.get("inlet_profile_source_time_steps_match_runtime")
+            ),
+            "native_inlet_profile_source_vtk_sha256_match_runtime": first_bool_text(
+                native_preconditions_audit.get("inlet_profile_source_vtk_sha256_match_runtime")
+            ),
+            "native_inlet_profile_source_step_span": fmt(
+                audit_int(native_preconditions_audit, "inlet_profile_source_step_span")
+            ),
+            "native_inlet_profile_minimum_step_span": fmt(
+                audit_int(native_preconditions_audit, "inlet_profile_minimum_step_span")
+            ),
+            "native_inlet_correlation_audit": audit_field(native_preconditions_audit, "inlet_correlation_audit"),
+            "native_inlet_correlation_gate": audit_gate(native_preconditions_audit, "inlet_correlation_gate"),
+            "native_inlet_correlation_source_time_steps_match_runtime": first_bool_text(
+                native_preconditions_audit.get("inlet_correlation_source_time_steps_match_runtime")
+            ),
+            "native_inlet_correlation_source_vtk_sha256_match_runtime": first_bool_text(
+                native_preconditions_audit.get("inlet_correlation_source_vtk_sha256_match_runtime")
+            ),
+            "native_inlet_correlation_source_step_span": fmt(
+                audit_int(native_preconditions_audit, "inlet_correlation_source_step_span")
+            ),
+            "native_inlet_correlation_minimum_step_span": fmt(
+                audit_int(native_preconditions_audit, "inlet_correlation_minimum_step_span")
             ),
             "native_inlet_source_stg_evidence_required": first_bool_text(
                 native_preconditions_audit.get("inlet_source_stg_evidence_required")
