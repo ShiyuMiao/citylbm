@@ -512,6 +512,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `lbm.run(...)`) as correlated velocity-field inlet evidence instead of misclassifying dormant helper code as missing
   DFM/SEM proof. It still fails the paper-grade inlet gate because this path is velocity-field-only and does not
   reconstruct inlet distribution functions.
+- `scripts/audit_inlet_source.py` now applies STG-lite-specific spectral-mode, Taylor-advection, update-interval and
+  amplitude-cap checks only to velocity-field-only STG-lite sources. Distribution-consistent SEM/DFM/precursor evidence
+  is no longer failed by CityLBM STG-lite diagnostics, while uncorrelated RMS/k random inlet forcing is explicitly tested
+  to remain non-paper-grade.
 - `audit_native_run.py` no longer lets command-line speed-stability values pass the native `time_averaging_gate`.
   Paper-grade time averaging must use deterministic sampled-VTK statistics from the selected final-window frames. Any
   CLI override of mean speed, standard deviation or stability ratio is recorded as `mean_speed_statistics_source=cli_override`

@@ -579,6 +579,10 @@ def main() -> int:
         "named_method_without_distribution_evidence",
         "named_method_without_precursor_recycling_field_evidence",
     }
+    stg_lite_velocity_source = source_method_class in {
+        "stg_lite_velocity_field_only",
+        "stg_lite_correlated_velocity_field_only",
+    }
 
     if synthetic_requested and not has_stg_function and not has_digital_filter and not has_sem and not has_precursor:
         reasons.append("metadata_requests_turbulent_inlet_but_source_has_no_inlet_method")
@@ -598,27 +602,27 @@ def main() -> int:
         reasons.append("precursor_recycling_source_missing_recycled_field_evidence")
     if synthetic_requested and has_stg_function and not has_k_profile:
         reasons.append("synthetic_inlet_source_missing_profile_k_lbm")
-    if synthetic_requested and has_stg_function and not has_stg_refresh_loop:
+    if synthetic_requested and stg_lite_velocity_source and not has_stg_refresh_loop:
         reasons.append("synthetic_inlet_not_refreshed_in_run_loop")
-    if synthetic_requested and has_stg_function and not has_stg_refresh_with_current_time:
+    if synthetic_requested and stg_lite_velocity_source and not has_stg_refresh_with_current_time:
         reasons.append("synthetic_inlet_missing_refresh_with_current_solver_time")
-    if synthetic_requested and has_stg_function and not has_length_scale:
+    if synthetic_requested and stg_lite_velocity_source and not has_length_scale:
         reasons.append("synthetic_inlet_missing_length_scale_source")
-    if synthetic_requested and has_stg_function and not (has_spectral_modes or has_native_synthetic_eddy_evidence):
+    if synthetic_requested and stg_lite_velocity_source and not (has_spectral_modes or has_native_synthetic_eddy_evidence):
         reasons.append("synthetic_inlet_missing_spectral_modes")
-    if synthetic_requested and has_stg_function and effective_stg_mode_count is not None and effective_stg_mode_count < 32:
+    if synthetic_requested and stg_lite_velocity_source and effective_stg_mode_count is not None and effective_stg_mode_count < 32:
         reasons.append("synthetic_inlet_too_few_spectral_modes")
-    if synthetic_requested and has_stg_function and not has_taylor_advection:
+    if synthetic_requested and stg_lite_velocity_source and not has_taylor_advection:
         reasons.append("synthetic_inlet_missing_temporal_advection")
-    if synthetic_requested and has_stg_function and not (has_transverse_projection or has_native_synthetic_eddy_evidence):
+    if synthetic_requested and stg_lite_velocity_source and not (has_transverse_projection or has_native_synthetic_eddy_evidence):
         reasons.append("synthetic_inlet_missing_transverse_projection")
-    if synthetic_requested and has_stg_function and not has_update_interval:
+    if synthetic_requested and stg_lite_velocity_source and not has_update_interval:
         reasons.append("synthetic_inlet_missing_update_interval")
-    if synthetic_requested and has_stg_function and has_update_interval and not has_update_interval_run_control:
+    if synthetic_requested and stg_lite_velocity_source and has_update_interval and not has_update_interval_run_control:
         reasons.append("synthetic_inlet_update_interval_not_used_in_run_loop")
-    if synthetic_requested and has_stg_function and not has_segmented_stg_run_loop:
+    if synthetic_requested and stg_lite_velocity_source and not has_segmented_stg_run_loop:
         reasons.append("synthetic_inlet_refresh_not_coupled_to_segmented_lbm_run")
-    if synthetic_requested and has_stg_function and not (has_bounded_amplitude or has_native_synthetic_eddy_evidence):
+    if synthetic_requested and stg_lite_velocity_source and not (has_bounded_amplitude or has_native_synthetic_eddy_evidence):
         reasons.append("synthetic_inlet_missing_amplitude_cap")
     if synthetic_requested and has_uncorrelated_random_inlet:
         reasons.append("synthetic_inlet_uses_uncorrelated_random_rms")
