@@ -202,6 +202,9 @@ TEMPLATE_FIELDS = [
     "wall_roughness_treatment",
     "synthetic_mode_count",
     "synthetic_update_interval",
+    "synthetic_minimum_recommended_refresh_count",
+    "synthetic_expected_final_window_refresh_count",
+    "synthetic_temporal_sampling_gate",
     "synthetic_max_fraction",
     "synthetic_correlation_length_m",
     "inlet_length_scale_source",
@@ -753,6 +756,18 @@ def infer_inlet_method_class_supported(metadata: Dict[str, Any]) -> str:
 
 def infer_synthetic_update_interval(metadata: Dict[str, Any]) -> str:
     return metadata_field(metadata, "SyntheticTurbulenceUpdateInterval", "InletUpdateInterval")
+
+
+def infer_synthetic_minimum_recommended_refresh_count(metadata: Dict[str, Any]) -> str:
+    return metadata_field(metadata, "SyntheticTurbulenceMinimumRecommendedRefreshes")
+
+
+def infer_synthetic_expected_final_window_refresh_count(metadata: Dict[str, Any]) -> str:
+    return metadata_field(metadata, "SyntheticTurbulenceExpectedFinalWindowRefreshCount")
+
+
+def infer_synthetic_temporal_sampling_gate(metadata: Dict[str, Any]) -> str:
+    return metadata_field(metadata, "SyntheticTurbulentInletTemporalSamplingGate")
 
 
 def infer_synthetic_correlation_length_m(metadata: Dict[str, Any]) -> str:
@@ -1607,6 +1622,9 @@ def main() -> int:
             "wall_roughness_treatment": infer_wall_roughness_treatment(metadata),
             "synthetic_mode_count": metadata_field(metadata, "SyntheticTurbulenceModeCount"),
             "synthetic_update_interval": infer_synthetic_update_interval(metadata),
+            "synthetic_minimum_recommended_refresh_count": infer_synthetic_minimum_recommended_refresh_count(metadata),
+            "synthetic_expected_final_window_refresh_count": infer_synthetic_expected_final_window_refresh_count(metadata),
+            "synthetic_temporal_sampling_gate": infer_synthetic_temporal_sampling_gate(metadata),
             "synthetic_max_fraction": metadata_field(metadata, "SyntheticTurbulenceMaxFractionOfMean"),
             "synthetic_correlation_length_m": infer_synthetic_correlation_length_m(metadata),
             "inlet_length_scale_source": infer_inlet_length_scale_source(metadata),

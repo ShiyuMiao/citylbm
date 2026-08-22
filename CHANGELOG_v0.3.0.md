@@ -55,6 +55,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - STG-lite spectral modes are now projected normal to their synthetic wave vectors before summation, reducing non-physical divergent inlet fluctuations while keeping the method deterministic and auditable.
 - STG-lite temporal evolution now uses Taylor frozen-turbulence phase advection along the local mean wind instead of an arbitrary discrete phase increment, improving time correlation while remaining a diagnostic velocity-field inlet.
 - Synthetic inlet runs now limit each solver advance to `SyntheticTurbulenceUpdateInterval`, so inlet perturbations refresh independently from the VTK save interval.
+- `Run Simulation`, `case_metadata.json` and `validation_protocol_audit` now track the expected number of STG-lite inlet
+  refreshes inside the final averaging window. Mode 1/2/3 validation runs are blocked when STG-lite is active but the
+  averaged window samples fewer than 200 inlet-pattern refreshes; Mode 0 still generates the case as diagnostic-only.
 - Interactive `GRAPHICS` runs now use the same STG-lite refresh loop as batch runs, and inlet perturbations are applied only
   to `TYPE_E` inlet nodes so solid ground/building flags are not touched by the diagnostic inlet refresh.
 - `setup.cpp`, `case_metadata.json` and `validation_protocol_audit` now explicitly record that STG-lite refreshes macroscopic `lbm.u` only and does not reconstruct FluidX3D distribution functions.

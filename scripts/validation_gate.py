@@ -3774,6 +3774,57 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Use AIJ-documented turbulence length scales, a precursor/recycling field, or a validated DFM/SEM length-scale model backed by current setup.cpp source-audit evidence; a user-selected STG correlation length is diagnostic only.",
     )
 
+    synthetic_injected = as_bool(
+        get_any(metadata, ["SyntheticTurbulentInletInjected", "SyntheticInletInjected"])
+    )
+    metadata_temporal_sampling_gate = str(
+        get_any(metadata, ["SyntheticTurbulentInletTemporalSamplingGate"]) or ""
+    ).strip().lower()
+    metrics_temporal_sampling_gate = str(
+        get_any(metrics, ["synthetic_temporal_sampling_gate", "SyntheticTurbulentInletTemporalSamplingGate"]) or ""
+    ).strip().lower()
+    metadata_stg_refresh_count = as_int(
+        get_any(metadata, ["SyntheticTurbulenceExpectedFinalWindowRefreshCount"])
+    )
+    metrics_stg_refresh_count = as_int(
+        get_any(metrics, ["synthetic_expected_final_window_refresh_count", "SyntheticTurbulenceExpectedFinalWindowRefreshCount"])
+    )
+    metadata_stg_refresh_minimum = as_int(
+        get_any(metadata, ["SyntheticTurbulenceMinimumRecommendedRefreshes"])
+    )
+    metrics_stg_refresh_minimum = as_int(
+        get_any(metrics, ["synthetic_minimum_recommended_refresh_count", "SyntheticTurbulenceMinimumRecommendedRefreshes"])
+    )
+    temporal_sampling_not_applicable = synthetic_injected is not True
+    temporal_sampling_pass = (
+        temporal_sampling_not_applicable
+        or (
+            metadata_temporal_sampling_gate == "pass"
+            and metrics_temporal_sampling_gate == "pass"
+            and metadata_stg_refresh_count is not None
+            and metadata_stg_refresh_minimum is not None
+            and metadata_stg_refresh_count >= metadata_stg_refresh_minimum
+            and metrics_stg_refresh_count == metadata_stg_refresh_count
+            and metrics_stg_refresh_minimum == metadata_stg_refresh_minimum
+        )
+    )
+    add_gate(
+        gates,
+        "inlet_temporal_sampling",
+        PASS if temporal_sampling_pass else FAIL,
+        (
+            f"synthetic_injected={synthetic_injected}; "
+            f"metadata_temporal_sampling_gate={metadata_temporal_sampling_gate or 'missing'}; "
+            f"metrics_temporal_sampling_gate={metrics_temporal_sampling_gate or 'missing'}; "
+            f"metadata_stg_refresh_count={metadata_stg_refresh_count}; "
+            f"metadata_stg_refresh_minimum={metadata_stg_refresh_minimum}; "
+            f"metrics_stg_refresh_count={metrics_stg_refresh_count}; "
+            f"metrics_stg_refresh_minimum={metrics_stg_refresh_minimum}; "
+            f"not_applicable={temporal_sampling_not_applicable}"
+        ),
+        "For STG-lite validation, the final averaged VTK window must sample enough inlet-pattern refreshes; otherwise increase TimeSteps, reduce STG Update, or keep the run diagnostic-only.",
+    )
+
     metrics_native_id = str(get_any(metrics, ["native_fluidx3d_baseline_id"]) or "").strip()
     manifest_native_id = str(manifest.get("BaselineId") or "").strip()
     native_id = metrics_native_id or manifest_native_id

@@ -33,6 +33,7 @@ namespace CityLBM.Solver
         private const int MinimumRecommendedAveragingFrames = 20;
         private const int PaperRecommendedAveragingFrames = 40;
         private const int PaperRecommendedAverageStepSpan = 20000;
+        private const int PaperRecommendedStgRefreshes = 200;
 
         #region Properties
 
@@ -2510,6 +2511,12 @@ namespace CityLBM.Solver
                     ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                     : 0;
                 int expectedPaperAverageStepSpan = ComputeExpectedFinalWindowStepSpan(settings, PaperRecommendedAveragingFrames);
+                int expectedPaperAverageStgRefreshes = ComputeExpectedFinalWindowStgRefreshCount(settings, PaperRecommendedAveragingFrames);
+                string syntheticTemporalSamplingGate = syntheticActive
+                    ? (expectedPaperAverageStgRefreshes >= PaperRecommendedStgRefreshes
+                        ? "pass"
+                        : "diagnostic_only_insufficient_stg_refreshes_in_average_window")
+                    : "not_applicable";
                 var metadata = new
                 {
                     SchemaVersion = 2,
@@ -2604,6 +2611,9 @@ namespace CityLBM.Solver
                     SyntheticTurbulentInletLengthScaleSource = GetSyntheticTurbulenceLengthScaleSource(scene, settings),
                     SyntheticTurbulentInletLengthScaleGate = GetSyntheticTurbulenceLengthScaleGate(scene, settings),
                     SyntheticTurbulenceUpdateInterval = settings.SyntheticTurbulenceUpdateInterval,
+                    SyntheticTurbulenceMinimumRecommendedRefreshes = PaperRecommendedStgRefreshes,
+                    SyntheticTurbulenceExpectedFinalWindowRefreshCount = expectedPaperAverageStgRefreshes,
+                    SyntheticTurbulentInletTemporalSamplingGate = syntheticTemporalSamplingGate,
                     SyntheticTurbulenceMaxFractionOfMean = settings.SyntheticTurbulenceMaxFractionOfMean,
                     ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor is available from AF table" : "",
                     WallRoughnessTreatment = "ground/buildings are voxelized TYPE_S no-slip; RoughnessLength shapes analytic mean profiles but is not a FluidX3D rough-wall or wall-function boundary in v0.3.0",
@@ -2943,6 +2953,15 @@ namespace CityLBM.Solver
             return savedSteps[savedSteps.Count - 1] - savedSteps[savedSteps.Count - windowCount];
         }
 
+        private static int ComputeExpectedFinalWindowStgRefreshCount(SimulationSettings settings, int averageFrameCount)
+        {
+            int span = ComputeExpectedFinalWindowStepSpan(settings, averageFrameCount);
+            if (span <= 0 || settings.SyntheticTurbulenceUpdateInterval <= 0)
+                return 0;
+
+            return (int)Math.Floor(span / (double)settings.SyntheticTurbulenceUpdateInterval);
+        }
+
         private IEnumerable<string> BuildProtocolRisks(Scene scene, SimulationSettings settings)
         {
             bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
@@ -2956,6 +2975,9 @@ namespace CityLBM.Solver
                     yield return "STG-lite inlet refreshes macroscopic lbm.u values on TYPE_E inlet nodes in both batch and graphics modes; distribution functions are not reconstructed, so k preservation must be proven by an empty-tunnel native baseline before paper-grade validation.";
                     if (!HasSupportedSyntheticTurbulenceLengthScaleSource(settings.SyntheticTurbulenceLengthScaleSource))
                         yield return "STG-lite correlation length is still a diagnostic user-selected value; provide AIJ/official/precursor/DFM/SEM length-scale evidence before paper-grade validation.";
+                    int expectedStgRefreshes = ComputeExpectedFinalWindowStgRefreshCount(settings, PaperRecommendedAveragingFrames);
+                    if (expectedStgRefreshes < PaperRecommendedStgRefreshes)
+                        yield return $"STG-lite final averaging window is expected to contain only {expectedStgRefreshes} inlet refreshes; paper-grade use should sample at least {PaperRecommendedStgRefreshes} refreshes after stationarity.";
                 }
                 else
                 {
@@ -2976,6 +2998,7 @@ namespace CityLBM.Solver
                 ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                 : 0;
             int expectedPaperAverageStepSpan = ComputeExpectedFinalWindowStepSpan(settings, PaperRecommendedAveragingFrames);
+            int expectedPaperAverageStgRefreshes = ComputeExpectedFinalWindowStgRefreshCount(settings, PaperRecommendedAveragingFrames);
             if (expectedFrames < PaperRecommendedAveragingFrames || expectedPaperAverageStepSpan < PaperRecommendedAverageStepSpan)
             {
                 yield return $"Only {expectedFrames} VTK frames and a final {PaperRecommendedAveragingFrames}-frame step span of {expectedPaperAverageStepSpan} are expected; formal validation should average at least {PaperRecommendedAveragingFrames} late frames spanning about {PaperRecommendedAverageStepSpan} solver steps after stationarity is checked.";
@@ -3274,6 +3297,7 @@ namespace CityLBM.Solver
                 ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                 : 0;
             int expectedPaperAverageStepSpan = ComputeExpectedFinalWindowStepSpan(settings, PaperRecommendedAveragingFrames);
+            int expectedPaperAverageStgRefreshes = ComputeExpectedFinalWindowStgRefreshCount(settings, PaperRecommendedAveragingFrames);
 
             yield return new ValidationProtocolAuditItem
             {
@@ -3314,6 +3338,23 @@ namespace CityLBM.Solver
                         : "AF tables provide k but not turbulent length scales or Reynolds-stress tensors; a user-selected lattice correlation length can strongly affect Case A/E pedestrian-level speed ratios.")
                     : "If turbulent inflow is later enabled, its length-scale source must be archived and validated.",
                 RequiredNextAction = "For paper-grade turbulent-inflow validation, use AIJ-documented length scales, a precursor/recycling field, or a calibrated DFM/SEM length-scale model and archive the evidence."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "inlet_temporal_sampling",
+                Status = syntheticActive
+                    ? (expectedPaperAverageStgRefreshes >= PaperRecommendedStgRefreshes ? "partial" : "risk")
+                    : "partial",
+                Evidence = syntheticActive
+                    ? $"STG Update={settings.SyntheticTurbulenceUpdateInterval} steps; final {PaperRecommendedAveragingFrames}-frame average spans {expectedPaperAverageStepSpan} solver steps and is expected to sample {expectedPaperAverageStgRefreshes} inlet refreshes; recommended minimum={PaperRecommendedStgRefreshes}."
+                    : "No synthetic turbulent inlet is active, so inlet temporal-refresh sampling is not applicable to this generated case.",
+                Risk = syntheticActive && expectedPaperAverageStgRefreshes < PaperRecommendedStgRefreshes
+                    ? "The saved-frame count can look sufficient while the inlet fluctuation pattern changes too few times, producing short-sample or pseudo-steady validation metrics."
+                    : "Even with enough planned STG refreshes, stationarity and actual sampled VTK source steps must still be proven after the run.",
+                RequiredNextAction = syntheticActive
+                    ? "Use a smaller STG Update interval or longer final averaging window, then verify inlet temporal correlation from the selected VTK frames."
+                    : "If a synthetic inlet is later enabled, archive the update interval, final-window refresh count and inlet-correlation audit."
             };
 
             yield return new ValidationProtocolAuditItem

@@ -99,6 +99,9 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "projected normal to synthetic wave vectors");
                 Require(metadata, "component RMS target sigma=sqrt(2k/3)");
                 Require(metadata, "\"SyntheticTurbulenceUpdateInterval\": 7");
+                Require(metadata, "\"SyntheticTurbulenceMinimumRecommendedRefreshes\": 200");
+                Require(metadata, "\"SyntheticTurbulenceExpectedFinalWindowRefreshCount\": 128");
+                Require(metadata, "\"SyntheticTurbulentInletTemporalSamplingGate\": \"diagnostic_only_insufficient_stg_refreshes_in_average_window\"");
                 Require(metadata, "\"SyntheticTurbulenceMaxFractionOfMean\": 0.42");
                 Require(metadata, "\"SyntheticTurbulenceCorrelationLengthM\": 8.0");
                 Require(metadata, "aij_length_scale_verified: smoke-test archived integral length evidence");
@@ -123,6 +126,9 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "\"ProfileOriginZM\": -4.0");
                 Require(audit, "inlet_distribution_consistency");
                 Require(audit, "inlet_turbulence_length_scale");
+                Require(audit, "inlet_temporal_sampling");
+                Require(audit, "expected to sample 128 inlet refreshes");
+                Require(audit, "recommended minimum=200");
                 Require(audit, "source='aij_length_scale_verified: smoke-test archived integral length evidence', gate=pass");
                 Require(audit, "STG-lite");
                 Require(audit, "LbmTau=");
@@ -371,6 +377,10 @@ namespace CityLBM.CodegenSmoke
             Require(source, "CustomTable k column is complete, but Synthetic Inlet is off");
             Require(source, "k will be recorded and converted only; it will not create inlet turbulence in FluidX3D");
             Require(source, "STG-lite uses velocity-field inlet perturbations only");
+            Require(source, "MinimumValidationStgRefreshes");
+            Require(source, "ExpectedFinalWindowStgRefreshCount");
+            Require(source, "validation requires at least {MinimumValidationStgRefreshes} inlet refreshes");
+            Require(source, "Synthetic Inlet is active but the final averaging window has only");
             Require(source, "HasCompleteCustomProfileK");
             RequireNotContains(source, "Validation default is 10000");
             RequireNotContains(source, "Validation default is 500");

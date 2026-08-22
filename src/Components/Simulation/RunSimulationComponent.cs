@@ -48,6 +48,7 @@ namespace CityLBM.Components.Simulation
 
         private const int MinimumValidationAveragingFrames = 20;
         private const int MinimumValidationAveragingStepSpan = 5000;
+        private const int MinimumValidationStgRefreshes = 200;
 
         public RunSimulationComponent()
             : base("Run Simulation", "Sim",
@@ -354,7 +355,7 @@ namespace CityLBM.Components.Simulation
 
             var solver = new FluidX3DInterface(fluidX3DPath);
             mode = Math.Max(0, Math.Min(3, mode));
-            if (!ValidateRunWindow(DA, settings, mode))
+            if (!ValidateRunWindow(DA, scene, settings, mode))
             {
                 return;
             }
@@ -482,7 +483,7 @@ namespace CityLBM.Components.Simulation
             return true;
         }
 
-        private bool ValidateRunWindow(IGH_DataAccess DA, SimulationSettings settings, int mode)
+        private bool ValidateRunWindow(IGH_DataAccess DA, Core.Scene scene, SimulationSettings settings, int mode)
         {
             if (settings.TimeSteps <= 0)
             {
@@ -508,6 +509,8 @@ namespace CityLBM.Components.Simulation
 
             int expectedFrames = ExpectedVtkFrameCount(settings);
             int expectedFinalWindowStepSpan = ExpectedFinalWindowStepSpan(settings, MinimumValidationAveragingFrames);
+            bool syntheticActive = settings.EnableSyntheticTurbulentInlet && HasCompleteCustomProfileK(scene);
+            int expectedFinalWindowStgRefreshes = ExpectedFinalWindowStgRefreshCount(settings, MinimumValidationAveragingFrames);
             if (mode == 0)
             {
                 if (expectedFrames < MinimumValidationAveragingFrames ||
@@ -517,6 +520,12 @@ namespace CityLBM.Components.Simulation
                         $"Mode 0 will generate a smoke/diagnostic case only: expected VTK frames={expectedFrames}, " +
                         $"final-window step span={expectedFinalWindowStepSpan}; validation requires at least " +
                         $"{MinimumValidationAveragingFrames} frames spanning {MinimumValidationAveragingStepSpan} steps.");
+                }
+                if (syntheticActive && expectedFinalWindowStgRefreshes < MinimumValidationStgRefreshes)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        $"Mode 0 will generate a diagnostic STG-lite case only: final-window STG refresh count={expectedFinalWindowStgRefreshes}; " +
+                        $"validation requires at least {MinimumValidationStgRefreshes} inlet refreshes in the averaged window.");
                 }
                 return true;
             }
@@ -529,6 +538,17 @@ namespace CityLBM.Components.Simulation
                     $"expected VTK frames={expectedFrames}, final-window step span={expectedFinalWindowStepSpan}. " +
                     $"Use at least {MinimumValidationAveragingFrames} frames spanning {MinimumValidationAveragingStepSpan} steps " +
                     "for the final time-averaging window.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            if (syntheticActive && expectedFinalWindowStgRefreshes < MinimumValidationStgRefreshes)
+            {
+                string message =
+                    $"Mode {mode} validation run blocked: Synthetic Inlet is active but the final averaging window has only " +
+                    $"{expectedFinalWindowStgRefreshes} STG-lite refreshes. Use a smaller STG Update interval, more Time Steps, " +
+                    $"or a longer final averaging window so at least {MinimumValidationStgRefreshes} inlet-pattern refreshes are sampled.";
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
                 OutputValidationFailure(DA, message);
                 return false;
@@ -562,6 +582,15 @@ namespace CityLBM.Components.Simulation
 
             int firstIndex = savedSteps.Count - windowCount;
             return savedSteps[savedSteps.Count - 1] - savedSteps[firstIndex];
+        }
+
+        private static int ExpectedFinalWindowStgRefreshCount(SimulationSettings settings, int averageFrameCount)
+        {
+            int span = ExpectedFinalWindowStepSpan(settings, averageFrameCount);
+            if (span <= 0 || settings.SyntheticTurbulenceUpdateInterval <= 0)
+                return 0;
+
+            return (int)Math.Floor(span / (double)settings.SyntheticTurbulenceUpdateInterval);
         }
 
         private static void OutputValidationFailure(IGH_DataAccess DA, string message)
