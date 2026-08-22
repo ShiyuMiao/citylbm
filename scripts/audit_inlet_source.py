@@ -110,14 +110,14 @@ def strip_cpp_string_literals(text: str) -> str:
 
 
 def distribution_reconstruction_evidence(code: str) -> Dict[str, Any]:
-    distribution_pattern = re.compile(
-        r"lbm\.f\s*\[|lbm\.f0|lbm\.feq|calculate_f_eq|device_sem_stress_ddf|stress_ddf",
+    distribution_write_pattern = re.compile(
+        r"\blbm\.(?:f|f0|feq|df|ddf)\s*(?:\[[^\]]+\]|\.[A-Za-z_][A-Za-z0-9_]*\s*\[[^\]]+\])\s*=",
         flags=re.IGNORECASE,
     )
     contextual_count = 0
-    generic_count = 0
-    for match in distribution_pattern.finditer(code):
-        generic_count += 1
+    write_count = 0
+    for match in distribution_write_pattern.finditer(code):
+        write_count += 1
         window = code[max(0, match.start() - 700) : min(len(code), match.end() + 900)]
         has_inlet_context = contains_any(
             window,
@@ -136,18 +136,17 @@ def distribution_reconstruction_evidence(code: str) -> Dict[str, Any]:
                 "calculate_f_eq",
                 "feq",
                 "stress_ddf",
-                "distribution_consistent",
                 "reconstruct",
                 "reconstruction",
-                "equilibrium distribution",
+                "equilibrium",
             ],
         )
         if has_inlet_context and has_reconstruction_context:
             contextual_count += 1
     return {
-        "distribution_write_count": generic_count,
+        "distribution_write_count": write_count,
         "inlet_distribution_reconstruction_count": contextual_count,
-        "has_distribution_function_write": generic_count > 0,
+        "has_distribution_function_write": write_count > 0,
         "has_inlet_distribution_reconstruction": contextual_count > 0,
     }
 

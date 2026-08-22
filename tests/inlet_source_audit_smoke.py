@@ -609,6 +609,51 @@ void recycling_rescaling_inlet(uint t_step) {
         if "source_velocity_field_only" not in precursor_velocity_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(precursor_velocity_report["paper_grade_inlet_source_gate_reasons"])
 
+        sem_no_distribution_write_setup = root / "sem_no_distribution_write_setup.cpp"
+        sem_no_distribution_write_out = root / "sem_no_distribution_write_audit.json"
+        write_text(
+            sem_no_distribution_write_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_r11_lbm[] = {0.000066f, 0.000133f};
+const float profile_r22_lbm[] = {0.000066f, 0.000133f};
+const float profile_r33_lbm[] = {0.000066f, 0.000133f};
+const float synthetic_eddy_length_scale = 4.0f;
+const float profile_origin_z_m = 0.0f;
+struct SemEddy { float eddy_center; float eddy_radius; float eddy_strength; float eddy_lifetime; };
+SemEddy sem_eddy[64];
+void sem_distribution(uint t_step) {}
+float calculate_f_eq(uint q, float rho, float ux, float uy, float uz) { return rho + ux + uy + uz + q; }
+void reconstructSyntheticEddyInletDistributions(uint n) {
+    if(flags[n]==TYPE_E) {
+        const float ux = profile_u_lbm[0];
+        lbm.u.x[n] = ux;
+    }
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    sem_distribution(t_step);
+    reconstructSyntheticEddyInletDistributions(0u);
+}
+""",
+        )
+        sem_no_write_code, sem_no_write_report = run_audit(
+            sem_no_distribution_write_setup,
+            dfm_metadata,
+            sem_no_distribution_write_out,
+        )
+        if sem_no_write_code == 0:
+            raise AssertionError("SEM symbol-only inlet without distribution writes unexpectedly passed")
+        if sem_no_write_report["has_distribution_function_write"] is not False:
+            raise AssertionError(sem_no_write_report)
+        if sem_no_write_report["has_inlet_distribution_reconstruction"] is not False:
+            raise AssertionError(sem_no_write_report)
+        if sem_no_write_report["distribution_function_write_count"] != 0:
+            raise AssertionError(sem_no_write_report)
+        if "source_not_distribution_consistent" not in sem_no_write_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(sem_no_write_report["paper_grade_inlet_source_gate_reasons"])
+
         sem_setup = root / "sem_setup.cpp"
         sem_out = root / "sem_audit.json"
         write_text(
