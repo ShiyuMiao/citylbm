@@ -369,6 +369,16 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 
 ## Machine Gate
 
+Before launching the native solver on the experiment workstation, create a traceable native baseline manifest and, when
+ready, install the generated Case A source into the explicit FluidX3D tree:
+
+```powershell
+python scripts\run_native_fluidx3d_case.py --case-dir <native_casea_case_dir> --fluidx3d-source <FluidX3D_source_root> --out <native_casea_case_dir>\native_fluidx3d_baseline_manifest.json --baseline-id <casea_native_baseline_id> --expected-aij-case CaseA --expected-wind-direction <direction> --time-steps <steps> --vtk-save-interval <save_interval> --expected-vtk-frame-count <frame_count> --install
+```
+
+Add `--build` only after the FluidX3D build toolchain is available. Add `--run` only for the actual baseline solver run.
+The default runner mode is preflight-only and writes a manifest without changing the source tree or launching CFD.
+
 After every native FluidX3D or CityLBM-driven Case A run, execute the repository gate before using metrics in a paper:
 
 ```powershell

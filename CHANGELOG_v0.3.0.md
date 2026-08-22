@@ -186,6 +186,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Each generated case now also writes `native_fluidx3d_baseline_manifest.json` and `.md` so native FluidX3D and
   CityLBM-driven runs must archive the same `setup.cpp`, `defines.hpp`, geometry, metadata, averaging window and probe
   audit evidence before any paper-grade accuracy claim.
+- Added `scripts/run_native_fluidx3d_case.py` as the pre-run native FluidX3D preparation entry point. It validates an
+  explicitly supplied FluidX3D source root, can install a CityLBM-generated `setup.cpp`/`defines.hpp` into that source
+  tree with backups, optionally builds/runs the executable, and writes the hash-traceable native baseline manifest. The
+  default mode is dry-run preflight and does not start CFD.
 - The native baseline manifest now includes existence flags and SHA256 hashes for the generated source, geometry and
   metadata files so paired native/CityLBM runs can prove they used identical inputs.
 - The native baseline manifest now includes a stable `BaselineId`, derived from the scene name and required source hashes,
@@ -499,6 +503,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   VTK packages. It runs the native run audit, generated `setup.cpp` inlet-source and boundary-source audits, inlet `U/k` profile audit, trilinear probe extraction, metrics builder and
   validation gate, then writes `validation_chain_manifest.json` so Case A/Case E reruns cannot skip required evidence
   while being mistaken for fresh CFD simulations.
+- `scripts/run_native_fluidx3d_case.py` and `scripts/run_native_validation_chain.py` now split the native workflow into
+  two auditable phases: prepare/install/build/run the real FluidX3D case first, then audit the newly generated VTK
+  frames. The post-run chain still does not run CFD and must not be used to rebrand old VTK output as a fresh
+  experiment.
 - `validation_gate.py` now writes `diagnostic_priority` to the JSON report and console output. Failed runs are triaged
   in the required order: coordinate/component/Uref/probe evidence plus component/Uref sensitivity, time averaging, inlet
   `U/k` preservation, generated-source inlet evidence, turbulent inlet method, length scale and correlation evidence, generated-source boundary evidence, boundary/roughness/blockage, native

@@ -66,6 +66,17 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   containing `FluidX3D.sln`, `Makefile` or `CMakeLists.txt`, plus `src/setup.cpp`, `src/defines.hpp`, `src/lbm.hpp` and
   `src/lbm.cpp`. Mode 0 may still generate a case without FX3D for offline preparation, but that is not a run.
 
+On the experiment workstation, prepare the native FluidX3D Case E baseline with the repository runner before launching
+the solver:
+
+```powershell
+python scripts\run_native_fluidx3d_case.py --case-dir <casee_ac_N_case_dir> --fluidx3d-source <FluidX3D_source_root> --out <casee_ac_N_case_dir>\native_fluidx3d_baseline_manifest.json --baseline-id <casee_native_baseline_id> --expected-aij-case CaseE --expected-wind-direction N --time-steps <steps> --vtk-save-interval <save_interval> --expected-vtk-frame-count <frame_count> --install
+```
+
+Add `--build` and `--run` only on the machine that will actually execute the native baseline. This script does not make
+the post-run evidence package; after real `u-*.vtk` frames exist, run `scripts\run_native_validation_chain.py` on that
+new output directory.
+
 ## Required checks before accepting a run
 
 - Generated `setup.cpp` contains `profile_z_m[]`, `profile_z_lbm[]`, `profile_u_lbm[]`, `profile_k_m2s2[]`, `profile_k_lbm[]`, `profile_origin_z_m`, `profile_first_z_m` and `profile_last_z_m`.

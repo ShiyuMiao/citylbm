@@ -16,6 +16,9 @@ CityLBM is a Grasshopper workflow plugin for urban wind simulation with FluidX3D
 - Adds reusable validation metrics utilities for MAE, RMSE, bias, R2 and regression slope/intercept.
 - Adds `scripts/validation_gate.py` to prevent smoke/diagnostic runs from being reported as paper-grade AIJ validation.
 - Adds boundary-protocol diagnostics for domain clearance, boundary types and approximate frontal/plan blockage ratios.
+- Adds `scripts/run_native_fluidx3d_case.py` to preflight a complete external FluidX3D source root, optionally install a
+  CityLBM-generated case into it, and write a hash-traceable native baseline manifest before any native-vs-CityLBM
+  accuracy claim.
 
 ## Important limitation
 
@@ -28,6 +31,15 @@ The Grasshopper plugin can be installed and the case-generation workflow can run
 The `FluidX3D Path` input must point to a complete deployable FluidX3D source root containing `FluidX3D.sln`, `Makefile` or `CMakeLists.txt`, plus `src/setup.cpp`, `src/defines.hpp`, `src/lbm.hpp` and `src/lbm.cpp`.
 
 Use `Mode 0 = Generate Case` to check Grasshopper wiring without compiling or running FluidX3D.
+
+On the experiment workstation, use the native runner before launching a strict FluidX3D baseline:
+
+```powershell
+python scripts\run_native_fluidx3d_case.py --case-dir <case_dir> --fluidx3d-source <FluidX3D_source_root> --out <case_dir>\native_fluidx3d_baseline_manifest.json --baseline-id <baseline_id> --expected-aij-case CaseA --expected-wind-direction N --install
+```
+
+Add `--build` and `--run` only when the workstation is ready for the actual native solver run. The script does not run
+CFD by default.
 
 ## AIJ Case E essentials
 
