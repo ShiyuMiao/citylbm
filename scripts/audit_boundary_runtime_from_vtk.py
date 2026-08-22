@@ -61,6 +61,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-side-top-u-mae-ratio", type=float, default=0.15)
     parser.add_argument("--max-outlet-u-mae-ratio", type=float, default=0.25)
     parser.add_argument("--max-negative-streamwise-fraction", type=float, default=0.05)
+    parser.add_argument("--max-side-top-normal-velocity-ratio", type=float, default=0.10)
     return parser.parse_args()
 
 
@@ -126,13 +127,16 @@ def face_stats(
     expected_values: List[float] = []
     errors: List[float] = []
     speed_stddevs: List[float] = []
+    normal_abs_values: List[float] = []
     negative_count = 0
     total_count = 0
+    normal_idx = axis_index(axis)
 
     for idx in selected:
         coord = coordinate(idx, frame["dimensions"], frame["origin"], frame["spacing"])
         velocities = [vectors[idx] for vectors in frame_vectors]
         streamwise_values = [sum(v[i] * wind[i] for i in range(3)) for v in velocities]
+        normal_abs_values.extend(abs(v[normal_idx]) for v in velocities)
         streamwise_mean = mean(streamwise_values)
         expected = interpolate(af_samples, "u", coord[2])
         if streamwise_mean is None or expected is None:
@@ -151,6 +155,8 @@ def face_stats(
     bias_value = mean(errors)
     den = mean(expected_values)
     mean_streamwise = mean(streamwise_means)
+    mean_abs_normal = mean(normal_abs_values)
+    max_abs_normal = max(normal_abs_values) if normal_abs_values else None
     return {
         "name": name,
         "axis": axis,
@@ -168,6 +174,14 @@ def face_stats(
         "u_rmse_ratio": rmse_value / den if rmse_value is not None and den and den > 1.0e-12 else None,
         "u_bias_ratio": bias_value / den if bias_value is not None and den and den > 1.0e-12 else None,
         "negative_streamwise_fraction": negative_count / total_count if total_count else None,
+        "mean_abs_normal_velocity_mps": mean_abs_normal,
+        "max_abs_normal_velocity_mps": max_abs_normal,
+        "mean_abs_normal_velocity_ratio": (
+            mean_abs_normal / den if mean_abs_normal is not None and den and den > 1.0e-12 else None
+        ),
+        "max_abs_normal_velocity_ratio": (
+            max_abs_normal / den if max_abs_normal is not None and den and den > 1.0e-12 else None
+        ),
         "mean_speed_stddev_mps": mean(speed_stddevs),
         "mean_speed_stddev_ratio": (
             (mean(speed_stddevs) or 0.0) / mean_streamwise
@@ -263,6 +277,12 @@ def main() -> int:
             side_top_reasons.append(f"{face['name']}_negative_streamwise_fraction_above_threshold")
     side_top_gate = PASS if not side_top_reasons else FAIL
 
+    side_top_normal_reasons: List[str] = []
+    for face in side_top:
+        if not ratio_ok(face.get("max_abs_normal_velocity_ratio"), args.max_side_top_normal_velocity_ratio):
+            side_top_normal_reasons.append(f"{face['name']}_normal_velocity_ratio_above_threshold")
+    side_top_normal_gate = PASS if not side_top_normal_reasons else FAIL
+
     outlet_reasons: List[str] = []
     if not ratio_ok(outlet.get("u_mae_ratio"), args.max_outlet_u_mae_ratio):
         outlet_reasons.append("outlet_u_mae_ratio_above_threshold")
@@ -276,14 +296,23 @@ def main() -> int:
         runtime_reasons.extend(time_reasons or ["boundary_face_sampling_incomplete"])
     runtime_reasons.extend(inlet_reasons)
     runtime_reasons.extend(side_top_reasons)
+    runtime_reasons.extend(side_top_normal_reasons)
     runtime_reasons.extend(outlet_reasons)
-    boundary_runtime_gate = PASS if traceability_gate == PASS and profile_gate == PASS else FAIL
+    boundary_runtime_gate = PASS if traceability_gate == PASS and profile_gate == PASS and side_top_normal_gate == PASS else FAIL
     max_u_mae_ratio = max(
         [face.get("u_mae_ratio") for face in all_faces if face.get("u_mae_ratio") is not None],
         default=None,
     )
     max_negative_fraction = max(
         [face.get("negative_streamwise_fraction") for face in all_faces if face.get("negative_streamwise_fraction") is not None],
+        default=None,
+    )
+    max_side_top_normal_velocity_ratio = max(
+        [face.get("max_abs_normal_velocity_ratio") for face in side_top if face.get("max_abs_normal_velocity_ratio") is not None],
+        default=None,
+    )
+    max_side_top_normal_abs_mps = max(
+        [face.get("max_abs_normal_velocity_mps") for face in side_top if face.get("max_abs_normal_velocity_mps") is not None],
         default=None,
     )
 
@@ -310,6 +339,8 @@ def main() -> int:
         "boundary_runtime_inlet_gate_reasons": inlet_reasons or ["inlet_boundary_profile_preserved"],
         "boundary_runtime_side_top_gate": side_top_gate,
         "boundary_runtime_side_top_gate_reasons": side_top_reasons or ["side_top_boundary_profiles_preserved"],
+        "boundary_runtime_side_top_normal_leakage_gate": side_top_normal_gate,
+        "boundary_runtime_side_top_normal_leakage_gate_reasons": side_top_normal_reasons or ["side_top_normal_velocity_within_threshold"],
         "boundary_runtime_outlet_gate": outlet_gate,
         "boundary_runtime_outlet_gate_reasons": outlet_reasons or ["outlet_boundary_profile_preserved"],
         "boundary_runtime_profile_preservation_gate": profile_gate,
@@ -317,6 +348,8 @@ def main() -> int:
         "boundary_runtime_gate_reasons": runtime_reasons or ["boundary_runtime_faces_preserve_af_profile"],
         "max_boundary_u_mae_ratio": max_u_mae_ratio,
         "max_boundary_negative_streamwise_fraction": max_negative_fraction,
+        "max_side_top_normal_velocity_ratio": max_side_top_normal_velocity_ratio,
+        "max_side_top_normal_abs_mps": max_side_top_normal_abs_mps,
         "inlet_u_mae_ratio": inlet.get("u_mae_ratio"),
         "outlet_u_mae_ratio": outlet.get("u_mae_ratio"),
         "side_top_max_u_mae_ratio": max(
@@ -346,6 +379,9 @@ def main() -> int:
             "u_mae_ratio",
             "u_bias_ratio",
             "negative_streamwise_fraction",
+            "mean_abs_normal_velocity_ratio",
+            "max_abs_normal_velocity_ratio",
+            "max_abs_normal_velocity_mps",
         ]
         with out_csv.open("w", encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(handle, fieldnames=fields, extrasaction="ignore")
@@ -354,8 +390,10 @@ def main() -> int:
 
     print(
         "boundary_runtime_gate="
-        f"{boundary_runtime_gate}; inlet={inlet_gate}; side_top={side_top_gate}; outlet={outlet_gate}; "
-        f"max_u_mae_ratio={max_u_mae_ratio}"
+        f"{boundary_runtime_gate}; inlet={inlet_gate}; side_top={side_top_gate}; "
+        f"side_top_normal={side_top_normal_gate}; outlet={outlet_gate}; "
+        f"max_u_mae_ratio={max_u_mae_ratio}; "
+        f"max_side_top_normal_velocity_ratio={max_side_top_normal_velocity_ratio}"
     )
     return 0 if boundary_runtime_gate == PASS else 2
 

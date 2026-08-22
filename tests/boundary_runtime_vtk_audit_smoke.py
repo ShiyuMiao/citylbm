@@ -82,9 +82,47 @@ def main() -> int:
         require(data.get("boundary_runtime_traceability_gate") == "pass", data)
         require(data.get("boundary_runtime_inlet_gate") == "pass", data)
         require(data.get("boundary_runtime_side_top_gate") == "pass", data)
+        require(data.get("boundary_runtime_side_top_normal_leakage_gate") == "pass", data)
+        require(data.get("max_side_top_normal_velocity_ratio") == 0.0, data)
         require(data.get("boundary_runtime_outlet_gate") == "pass", data)
         require(len(data.get("faces", [])) == 5, data)
         require(summary_csv.exists(), data)
+
+        bad_vtk_dir = tmp_dir / "vtk_bad"
+        bad_vtk_dir.mkdir()
+        for step in [1000, 2000, 3000]:
+            write_vtk(bad_vtk_dir / f"u-{step:09d}.vtk", (1.0, 0.3, 0.0))
+        bad_report = tmp_dir / "boundary_runtime_audit_bad.json"
+        bad_completed = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                str(bad_vtk_dir),
+                "--af-csv",
+                str(af_csv),
+                "--wind-direction",
+                "1,0,0",
+                "--average-last-n",
+                "3",
+                "--min-frames",
+                "3",
+                "--min-step-span",
+                "2000",
+                "--out-json",
+                str(bad_report),
+            ],
+            cwd=str(repo),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if bad_completed.returncode == 0:
+            raise AssertionError(bad_completed.stdout + "\n" + bad_completed.stderr)
+        bad_data = json.loads(bad_report.read_text(encoding="utf-8"))
+        require(bad_data.get("boundary_runtime_gate") == "fail", bad_data)
+        require(bad_data.get("boundary_runtime_side_top_gate") == "pass", bad_data)
+        require(bad_data.get("boundary_runtime_side_top_normal_leakage_gate") == "fail", bad_data)
+        require(float(bad_data.get("max_side_top_normal_velocity_ratio")) > 0.1, bad_data)
 
     print("boundary_runtime_vtk_audit_smoke passed")
     return 0

@@ -204,11 +204,14 @@ TEMPLATE_FIELDS = [
     "boundary_runtime_profile_preservation_gate",
     "boundary_runtime_inlet_gate",
     "boundary_runtime_side_top_gate",
+    "boundary_runtime_side_top_normal_leakage_gate",
     "boundary_runtime_outlet_gate",
     "boundary_runtime_max_u_mae_ratio",
     "boundary_runtime_inlet_u_mae_ratio",
     "boundary_runtime_outlet_u_mae_ratio",
     "boundary_runtime_side_top_max_u_mae_ratio",
+    "boundary_runtime_max_side_top_normal_velocity_ratio",
+    "boundary_runtime_max_side_top_normal_abs_mps",
     "boundary_runtime_max_negative_streamwise_fraction",
     "boundary_runtime_source_step_span",
     "boundary_runtime_frame_count",
@@ -416,8 +419,11 @@ TEMPLATE_FIELDS = [
     "native_boundary_runtime_profile_preservation_gate",
     "native_boundary_runtime_inlet_gate",
     "native_boundary_runtime_side_top_gate",
+    "native_boundary_runtime_side_top_normal_leakage_gate",
     "native_boundary_runtime_outlet_gate",
     "native_boundary_runtime_max_u_mae_ratio",
+    "native_boundary_runtime_max_side_top_normal_velocity_ratio",
+    "native_boundary_runtime_max_side_top_normal_abs_mps",
     "native_boundary_runtime_source_step_span",
     "native_top_blocking_priority_rank",
     "native_top_blocking_priority_key",
@@ -1867,11 +1873,20 @@ def main() -> int:
             ),
             "boundary_runtime_inlet_gate": audit_gate(boundary_runtime_audit, "boundary_runtime_inlet_gate"),
             "boundary_runtime_side_top_gate": audit_gate(boundary_runtime_audit, "boundary_runtime_side_top_gate"),
+            "boundary_runtime_side_top_normal_leakage_gate": audit_gate(
+                boundary_runtime_audit, "boundary_runtime_side_top_normal_leakage_gate"
+            ),
             "boundary_runtime_outlet_gate": audit_gate(boundary_runtime_audit, "boundary_runtime_outlet_gate"),
             "boundary_runtime_max_u_mae_ratio": audit_field(boundary_runtime_audit, "max_boundary_u_mae_ratio"),
             "boundary_runtime_inlet_u_mae_ratio": audit_field(boundary_runtime_audit, "inlet_u_mae_ratio"),
             "boundary_runtime_outlet_u_mae_ratio": audit_field(boundary_runtime_audit, "outlet_u_mae_ratio"),
             "boundary_runtime_side_top_max_u_mae_ratio": audit_field(boundary_runtime_audit, "side_top_max_u_mae_ratio"),
+            "boundary_runtime_max_side_top_normal_velocity_ratio": audit_field(
+                boundary_runtime_audit, "max_side_top_normal_velocity_ratio"
+            ),
+            "boundary_runtime_max_side_top_normal_abs_mps": audit_field(
+                boundary_runtime_audit, "max_side_top_normal_abs_mps"
+            ),
             "boundary_runtime_max_negative_streamwise_fraction": audit_field(
                 boundary_runtime_audit, "max_boundary_negative_streamwise_fraction"
             ),
@@ -2313,9 +2328,18 @@ def main() -> int:
             "native_boundary_runtime_side_top_gate": audit_gate(
                 native_preconditions_audit, "boundary_runtime_side_top_gate"
             ),
+            "native_boundary_runtime_side_top_normal_leakage_gate": audit_gate(
+                native_preconditions_audit, "boundary_runtime_side_top_normal_leakage_gate"
+            ),
             "native_boundary_runtime_outlet_gate": audit_gate(native_preconditions_audit, "boundary_runtime_outlet_gate"),
             "native_boundary_runtime_max_u_mae_ratio": audit_field(
                 native_preconditions_audit, "boundary_runtime_max_u_mae_ratio"
+            ),
+            "native_boundary_runtime_max_side_top_normal_velocity_ratio": audit_field(
+                native_preconditions_audit, "boundary_runtime_max_side_top_normal_velocity_ratio"
+            ),
+            "native_boundary_runtime_max_side_top_normal_abs_mps": audit_field(
+                native_preconditions_audit, "boundary_runtime_max_side_top_normal_abs_mps"
             ),
             "native_boundary_runtime_source_step_span": audit_field(
                 native_preconditions_audit, "boundary_runtime_source_step_span"

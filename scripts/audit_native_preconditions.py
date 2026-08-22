@@ -1530,6 +1530,9 @@ def main() -> int:
     ).strip().lower()
     boundary_runtime_inlet_gate = str(boundary_runtime_audit.get("boundary_runtime_inlet_gate") or "").strip().lower()
     boundary_runtime_side_top_gate = str(boundary_runtime_audit.get("boundary_runtime_side_top_gate") or "").strip().lower()
+    boundary_runtime_side_top_normal_gate = str(
+        boundary_runtime_audit.get("boundary_runtime_side_top_normal_leakage_gate") or ""
+    ).strip().lower()
     boundary_runtime_outlet_gate = str(boundary_runtime_audit.get("boundary_runtime_outlet_gate") or "").strip().lower()
     boundary_runtime_reasons = split_scalar_list(boundary_runtime_audit.get("boundary_runtime_gate_reasons"))
     boundary_runtime_traceability_reasons = split_scalar_list(
@@ -1548,6 +1551,8 @@ def main() -> int:
             reasons.append("boundary_runtime_inlet_gate_not_pass")
         if boundary_runtime_side_top_gate != "pass":
             reasons.append("boundary_runtime_side_top_gate_not_pass")
+        if boundary_runtime_side_top_normal_gate != "pass":
+            reasons.append("boundary_runtime_side_top_normal_leakage_gate_not_pass")
         if boundary_runtime_outlet_gate != "pass":
             reasons.append("boundary_runtime_outlet_gate_not_pass")
         for reason in boundary_runtime_reasons:
@@ -2006,11 +2011,14 @@ def main() -> int:
         "boundary_runtime_profile_preservation_gate": boundary_runtime_profile_gate,
         "boundary_runtime_inlet_gate": boundary_runtime_inlet_gate,
         "boundary_runtime_side_top_gate": boundary_runtime_side_top_gate,
+        "boundary_runtime_side_top_normal_leakage_gate": boundary_runtime_side_top_normal_gate,
         "boundary_runtime_outlet_gate": boundary_runtime_outlet_gate,
         "boundary_runtime_max_u_mae_ratio": boundary_runtime_audit.get("max_boundary_u_mae_ratio", ""),
         "boundary_runtime_inlet_u_mae_ratio": boundary_runtime_audit.get("inlet_u_mae_ratio", ""),
         "boundary_runtime_outlet_u_mae_ratio": boundary_runtime_audit.get("outlet_u_mae_ratio", ""),
         "boundary_runtime_side_top_max_u_mae_ratio": boundary_runtime_audit.get("side_top_max_u_mae_ratio", ""),
+        "boundary_runtime_max_side_top_normal_velocity_ratio": boundary_runtime_audit.get("max_side_top_normal_velocity_ratio", ""),
+        "boundary_runtime_max_side_top_normal_abs_mps": boundary_runtime_audit.get("max_side_top_normal_abs_mps", ""),
         "boundary_runtime_max_negative_streamwise_fraction": boundary_runtime_audit.get("max_boundary_negative_streamwise_fraction", ""),
         "boundary_runtime_source_step_span": boundary_runtime_audit.get("source_step_span", ""),
         "boundary_runtime_frame_count": boundary_runtime_audit.get("frame_count", ""),

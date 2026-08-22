@@ -2380,6 +2380,7 @@ def native_boundary_traceability_status(
         "boundary_runtime_profile_preservation_gate",
         "boundary_runtime_inlet_gate",
         "boundary_runtime_side_top_gate",
+        "boundary_runtime_side_top_normal_leakage_gate",
         "boundary_runtime_outlet_gate",
     ]:
         value = str(get_any(native_preconditions_audit, [key]) or "").strip().lower()
@@ -3983,6 +3984,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         )
         or ""
     ).strip().lower()
+    boundary_runtime_side_top_normal_gate = str(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["boundary_runtime_side_top_normal_leakage_gate"]),
+            get_any(metrics, ["boundary_runtime_side_top_normal_leakage_gate", "BoundaryRuntimeSideTopNormalLeakageGate"]),
+        )
+        or ""
+    ).strip().lower()
     boundary_runtime_outlet_gate = str(
         get_first_available(
             get_any(boundary_runtime_audit, ["boundary_runtime_outlet_gate"]),
@@ -4023,6 +4031,18 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             get_any(metrics, ["boundary_runtime_side_top_max_u_mae_ratio", "BoundaryRuntimeSideTopMaxUMaeRatio"]),
         )
     )
+    boundary_runtime_max_side_top_normal_velocity_ratio = as_float(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["max_side_top_normal_velocity_ratio"]),
+            get_any(metrics, ["boundary_runtime_max_side_top_normal_velocity_ratio", "BoundaryRuntimeMaxSideTopNormalVelocityRatio"]),
+        )
+    )
+    boundary_runtime_max_side_top_normal_abs_mps = as_float(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["max_side_top_normal_abs_mps"]),
+            get_any(metrics, ["boundary_runtime_max_side_top_normal_abs_mps", "BoundaryRuntimeMaxSideTopNormalAbsMps"]),
+        )
+    )
     boundary_runtime_max_negative_fraction = as_float(
         get_first_available(
             get_any(boundary_runtime_audit, ["max_boundary_negative_streamwise_fraction"]),
@@ -4048,6 +4068,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and boundary_runtime_profile_gate == "pass"
         and boundary_runtime_inlet_gate == "pass"
         and boundary_runtime_side_top_gate == "pass"
+        and boundary_runtime_side_top_normal_gate == "pass"
         and boundary_runtime_outlet_gate == "pass"
     )
     add_gate(
@@ -4061,17 +4082,20 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_runtime_profile_preservation_gate={boundary_runtime_profile_gate or 'missing'}; "
             f"boundary_runtime_inlet_gate={boundary_runtime_inlet_gate or 'missing'}; "
             f"boundary_runtime_side_top_gate={boundary_runtime_side_top_gate or 'missing'}; "
+            f"boundary_runtime_side_top_normal_leakage_gate={boundary_runtime_side_top_normal_gate or 'missing'}; "
             f"boundary_runtime_outlet_gate={boundary_runtime_outlet_gate or 'missing'}; "
             f"max_boundary_u_mae_ratio={boundary_runtime_max_u_mae_ratio}; "
             f"inlet_u_mae_ratio={boundary_runtime_inlet_u_mae_ratio}; "
             f"side_top_max_u_mae_ratio={boundary_runtime_side_top_max_u_mae_ratio}; "
+            f"max_side_top_normal_velocity_ratio={boundary_runtime_max_side_top_normal_velocity_ratio}; "
+            f"max_side_top_normal_abs_mps={boundary_runtime_max_side_top_normal_abs_mps}; "
             f"outlet_u_mae_ratio={boundary_runtime_outlet_u_mae_ratio}; "
             f"max_negative_streamwise_fraction={boundary_runtime_max_negative_fraction}; "
             f"frame_count={boundary_runtime_frame_count}; "
             f"source_step_span={boundary_runtime_source_step_span}; "
             f"reasons={boundary_runtime_reasons or 'none'}"
         ),
-        "Run scripts/audit_boundary_runtime_from_vtk.py on the same final VTK averaging window and fix inlet/outlet/lateral/top boundary treatment until boundary-face U(z) preservation and reverse-flow checks pass.",
+        "Run scripts/audit_boundary_runtime_from_vtk.py on the same final VTK averaging window and fix inlet/outlet/lateral/top boundary treatment until boundary-face U(z), side/top no-penetration and reverse-flow checks pass.",
     )
 
     roughness_layout = metadata.get("RoughnessLayout") if isinstance(metadata.get("RoughnessLayout"), dict) else {}
@@ -5304,6 +5328,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_preconditions_boundary_runtime_side_top_gate = str(
         get_any(native_preconditions_audit, ["boundary_runtime_side_top_gate"]) or ""
     ).strip().lower()
+    native_preconditions_boundary_runtime_side_top_normal_gate = str(
+        get_any(native_preconditions_audit, ["boundary_runtime_side_top_normal_leakage_gate"]) or ""
+    ).strip().lower()
     native_preconditions_boundary_runtime_outlet_gate = str(
         get_any(native_preconditions_audit, ["boundary_runtime_outlet_gate"]) or ""
     ).strip().lower()
@@ -5449,8 +5476,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_runtime_profile_preservation_gate={native_preconditions_boundary_runtime_profile_gate or 'missing'}; "
             f"boundary_runtime_inlet_gate={native_preconditions_boundary_runtime_inlet_gate or 'missing'}; "
             f"boundary_runtime_side_top_gate={native_preconditions_boundary_runtime_side_top_gate or 'missing'}; "
+            f"boundary_runtime_side_top_normal_leakage_gate={native_preconditions_boundary_runtime_side_top_normal_gate or 'missing'}; "
             f"boundary_runtime_outlet_gate={native_preconditions_boundary_runtime_outlet_gate or 'missing'}; "
             f"boundary_runtime_max_u_mae_ratio={get_any(native_preconditions_audit, ['boundary_runtime_max_u_mae_ratio'])}; "
+            f"boundary_runtime_max_side_top_normal_velocity_ratio={get_any(native_preconditions_audit, ['boundary_runtime_max_side_top_normal_velocity_ratio'])}; "
             f"boundary_runtime_source_step_span={get_any(native_preconditions_audit, ['boundary_runtime_source_step_span'])}; "
             f"boundary_run_identity_gate={get_any(native_preconditions_audit, ['boundary_run_identity_gate']) or 'missing'}; "
             f"boundary_evidence_metadata_sha256_matches_current={get_any(native_preconditions_audit, ['boundary_evidence_metadata_sha256_matches_current'])}; "
@@ -5522,6 +5551,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and native_preconditions_boundary_runtime_profile_gate == "pass"
         and native_preconditions_boundary_runtime_inlet_gate == "pass"
         and native_preconditions_boundary_runtime_side_top_gate == "pass"
+        and native_preconditions_boundary_runtime_side_top_normal_gate == "pass"
         and native_preconditions_boundary_runtime_outlet_gate == "pass"
         and native_preconditions_probe_row_count is not None
         and native_preconditions_probe_row_count > 0
@@ -5570,6 +5600,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_runtime_profile_preservation_gate={native_preconditions_boundary_runtime_profile_gate or 'missing'}; "
             f"boundary_runtime_inlet_gate={native_preconditions_boundary_runtime_inlet_gate or 'missing'}; "
             f"boundary_runtime_side_top_gate={native_preconditions_boundary_runtime_side_top_gate or 'missing'}; "
+            f"boundary_runtime_side_top_normal_leakage_gate={native_preconditions_boundary_runtime_side_top_normal_gate or 'missing'}; "
             f"boundary_runtime_outlet_gate={native_preconditions_boundary_runtime_outlet_gate or 'missing'}; "
             f"probe_audit_row_count={native_preconditions_probe_row_count}; "
             f"probe_audit_failed_row_count={native_preconditions_probe_failed_count}; "
@@ -5654,6 +5685,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_preconditions_boundary_runtime_profile_preservation_gate={native_preconditions_boundary_runtime_profile_gate or 'missing'}; "
             f"native_preconditions_boundary_runtime_inlet_gate={native_preconditions_boundary_runtime_inlet_gate or 'missing'}; "
             f"native_preconditions_boundary_runtime_side_top_gate={native_preconditions_boundary_runtime_side_top_gate or 'missing'}; "
+            f"native_preconditions_boundary_runtime_side_top_normal_leakage_gate={native_preconditions_boundary_runtime_side_top_normal_gate or 'missing'}; "
             f"native_preconditions_boundary_runtime_outlet_gate={native_preconditions_boundary_runtime_outlet_gate or 'missing'}; "
             f"native_preconditions_probe_audit_row_count={native_preconditions_probe_row_count}; "
             f"native_preconditions_probe_audit_failed_row_count={native_preconditions_probe_failed_count}; "

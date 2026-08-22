@@ -35,6 +35,7 @@ def passing_native_audit():
         "boundary_runtime_profile_preservation_gate": "pass",
         "boundary_runtime_inlet_gate": "pass",
         "boundary_runtime_side_top_gate": "pass",
+        "boundary_runtime_side_top_normal_leakage_gate": "pass",
         "boundary_runtime_outlet_gate": "pass",
         "boundary_source_wind_tunnel_equivalent": True,
         "boundary_source_simplified": False,
@@ -95,6 +96,30 @@ def main() -> int:
     ]:
         if expected not in failed["reasons"]:
             raise AssertionError(failed["reasons"])
+
+    bad_normal = copy.deepcopy(passing_native_audit())
+    bad_normal["boundary_runtime_side_top_normal_leakage_gate"] = "fail"
+    normal_failed = module.native_boundary_traceability_status(
+        bad_normal,
+        expected_case="CaseE",
+        expected_wind_direction="N",
+    )
+    if normal_failed["ok"]:
+        raise AssertionError(normal_failed)
+    if "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail" not in normal_failed["reasons"]:
+        raise AssertionError(normal_failed["reasons"])
+
+    missing_normal = copy.deepcopy(passing_native_audit())
+    del missing_normal["boundary_runtime_side_top_normal_leakage_gate"]
+    missing_failed = module.native_boundary_traceability_status(
+        missing_normal,
+        expected_case="CaseE",
+        expected_wind_direction="N",
+    )
+    if missing_failed["ok"]:
+        raise AssertionError(missing_failed)
+    if "boundary_runtime_side_top_normal_leakage_gate_not_pass:missing" not in missing_failed["reasons"]:
+        raise AssertionError(missing_failed["reasons"])
 
     gates = [
         pass_gate(module, key)
