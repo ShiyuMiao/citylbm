@@ -2517,6 +2517,25 @@ namespace CityLBM.Solver
                         ? "pass"
                         : "diagnostic_only_insufficient_stg_refreshes_in_average_window")
                     : "not_applicable";
+                string inletReynoldsStressTreatment = syntheticActive
+                    ? "isotropic_from_k_only_R11_R22_R33_2k_over_3_R12_R13_R23_0; no measured Reynolds-stress tensor in AF table"
+                    : (hasK ? "metadata_only_isotropic_k_assumption_not_injected" : "none");
+                bool inletReynoldsStressTensorAvailable = false;
+                bool inletDistributionFunctionReconstruction = false;
+                string[] missingPaperGradeInletEvidence = syntheticActive
+                    ? new[]
+                    {
+                        "measured_or_precursor_reynolds_stress_tensor",
+                        "inlet_distribution_function_reconstruction",
+                        "empty_tunnel_U_k_correlation_preservation_gate"
+                    }
+                    : new[]
+                    {
+                        "active_correlated_turbulent_inlet",
+                        "measured_or_precursor_reynolds_stress_tensor",
+                        "inlet_distribution_function_reconstruction",
+                        "empty_tunnel_U_k_correlation_preservation_gate"
+                    };
                 var metadata = new
                 {
                     SchemaVersion = 2,
@@ -2601,9 +2620,12 @@ namespace CityLBM.Solver
                     SyntheticTurbulentInletDistributionTreatment = syntheticActive
                         ? "velocity_field_only_no_distribution_function_reconstruction; refreshed on TYPE_E inlet nodes in batch and graphics modes"
                         : "none",
+                    InletDistributionFunctionReconstruction = inletDistributionFunctionReconstruction,
                     SyntheticTurbulentInletPaperGradeStatus = syntheticActive
                         ? "diagnostic_only_until_distribution_reconstruction_or_native_k_preservation_gate_passes"
                         : "not_applicable",
+                    PaperGradeTurbulentInletPrerequisiteGate = "fail",
+                    PaperGradeTurbulentInletMissingEvidence = missingPaperGradeInletEvidence,
                     SyntheticTurbulenceIntensityScale = settings.SyntheticTurbulenceIntensityScale,
                     SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
                     SyntheticTurbulenceCorrelationLengthM = settings.SyntheticTurbulenceCorrelationCells * grid.Dx,
@@ -2615,6 +2637,8 @@ namespace CityLBM.Solver
                     SyntheticTurbulenceExpectedFinalWindowRefreshCount = expectedPaperAverageStgRefreshes,
                     SyntheticTurbulentInletTemporalSamplingGate = syntheticTemporalSamplingGate,
                     SyntheticTurbulenceMaxFractionOfMean = settings.SyntheticTurbulenceMaxFractionOfMean,
+                    InletReynoldsStressTensorAvailable = inletReynoldsStressTensorAvailable,
+                    InletReynoldsStressTreatment = inletReynoldsStressTreatment,
                     ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor is available from AF table" : "",
                     WallRoughnessTreatment = "ground/buildings are voxelized TYPE_S no-slip; RoughnessLength shapes analytic mean profiles but is not a FluidX3D rough-wall or wall-function boundary in v0.3.0",
                     WindDirectionUnitVector = new
@@ -3338,6 +3362,17 @@ namespace CityLBM.Solver
                         : "AF tables provide k but not turbulent length scales or Reynolds-stress tensors; a user-selected lattice correlation length can strongly affect Case A/E pedestrian-level speed ratios.")
                     : "If turbulent inflow is later enabled, its length-scale source must be archived and validated.",
                 RequiredNextAction = "For paper-grade turbulent-inflow validation, use AIJ-documented length scales, a precursor/recycling field, or a calibrated DFM/SEM length-scale model and archive the evidence."
+            };
+
+            yield return new ValidationProtocolAuditItem
+            {
+                Key = "inlet_reynolds_stress_tensor",
+                Status = syntheticActive ? "risk" : (hasK ? "risk" : "fail"),
+                Evidence = syntheticActive
+                    ? "STG-lite derives sigma from isotropic k only: R11=R22=R33=2k/3 and R12=R13=R23=0 are assumptions, not measured AIJ Reynolds-stress tensors."
+                    : (hasK ? "AF k column is available, but no Reynolds-stress tensor is injected at the inlet." : "No k or Reynolds-stress inlet evidence is active."),
+                Risk = "A k-only isotropic inlet can match turbulence kinetic energy while missing anisotropy and shear stresses that control separation, recirculation and pedestrian-level speed ratios.",
+                RequiredNextAction = "For paper-grade claims, archive a measured/precursor Reynolds-stress tensor, or prove with empty-tunnel and building baselines that the isotropic-k approximation preserves the target U/k/correlation envelope."
             };
 
             yield return new ValidationProtocolAuditItem

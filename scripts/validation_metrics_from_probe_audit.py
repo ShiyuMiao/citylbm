@@ -178,6 +178,12 @@ TEMPLATE_FIELDS = [
     "inlet_source_distribution_function_write_count",
     "inlet_source_has_inlet_distribution_reconstruction",
     "inlet_source_inlet_distribution_reconstruction_count",
+    "inlet_source_has_inlet_length_scale_evidence",
+    "inlet_source_metadata_length_scale_gate",
+    "inlet_source_has_reynolds_stress_tensor_evidence",
+    "inlet_source_has_documented_isotropic_k_assumption",
+    "inlet_source_reynolds_stress_treatment",
+    "inlet_source_metadata_reynolds_stress_treatment",
     "inlet_source_has_digital_filter_evidence",
     "inlet_source_has_digital_filter_kernel_evidence",
     "inlet_source_has_digital_filter_state_evidence",
@@ -1597,6 +1603,24 @@ def main() -> int:
             ),
             "inlet_source_inlet_distribution_reconstruction_count": audit_field(
                 inlet_source_audit, "inlet_distribution_reconstruction_count"
+            ),
+            "inlet_source_has_inlet_length_scale_evidence": first_bool_text(
+                inlet_source_audit.get("has_inlet_length_scale_evidence")
+            ),
+            "inlet_source_metadata_length_scale_gate": audit_field(
+                inlet_source_audit, "metadata_length_scale_gate"
+            ),
+            "inlet_source_has_reynolds_stress_tensor_evidence": first_bool_text(
+                inlet_source_audit.get("has_reynolds_stress_tensor_evidence")
+            ),
+            "inlet_source_has_documented_isotropic_k_assumption": first_bool_text(
+                inlet_source_audit.get("has_documented_isotropic_k_assumption")
+            ),
+            "inlet_source_reynolds_stress_treatment": audit_field(
+                inlet_source_audit, "reynolds_stress_treatment"
+            ),
+            "inlet_source_metadata_reynolds_stress_treatment": audit_field(
+                inlet_source_audit, "metadata_reynolds_stress_treatment"
             ),
             "inlet_source_has_digital_filter_evidence": first_bool_text(
                 inlet_source_audit.get("has_digital_filter_evidence")

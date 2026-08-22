@@ -107,6 +107,12 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "aij_length_scale_verified: smoke-test archived integral length evidence");
                 Require(metadata, "\"SyntheticTurbulentInletLengthScaleGate\": \"pass\"");
                 Require(metadata, "refreshed on TYPE_E inlet nodes in batch and graphics modes");
+                Require(metadata, "\"InletDistributionFunctionReconstruction\": false");
+                Require(metadata, "\"PaperGradeTurbulentInletPrerequisiteGate\": \"fail\"");
+                Require(metadata, "measured_or_precursor_reynolds_stress_tensor");
+                Require(metadata, "empty_tunnel_U_k_correlation_preservation_gate");
+                Require(metadata, "\"InletReynoldsStressTensorAvailable\": false");
+                Require(metadata, "isotropic_from_k_only_R11_R22_R33_2k_over_3_R12_R13_R23_0");
                 Require(metadata, "\"ExpectedVtkFrameCount\": 10");
                 Require(metadata, "\"TimeAveragingRunGate\": \"smoke_only_too_few_frames_for_validation\"");
                 Require(metadata, "\"PaperRecommendedAveragingFrames\": 40");
@@ -125,6 +131,8 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "\"SolverStabilityWarnings\": \"not_available_until_solver_log_is_archived\"");
                 Require(metadata, "\"ProfileOriginZM\": -4.0");
                 Require(audit, "inlet_distribution_consistency");
+                Require(audit, "inlet_reynolds_stress_tensor");
+                Require(audit, "R11=R22=R33=2k/3");
                 Require(audit, "inlet_turbulence_length_scale");
                 Require(audit, "inlet_temporal_sampling");
                 Require(audit, "expected to sample 128 inlet refreshes");

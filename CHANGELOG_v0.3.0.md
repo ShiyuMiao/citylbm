@@ -551,6 +551,12 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   violation counts, Uref mismatch counts and VTK projection tolerance failures. The metrics CSV carries these native
   probe fields forward so residual bias cannot be explained without first proving RS probe identity, wind component,
   Uref normalization and sampling coordinates.
+- The inlet-source evidence gate now requires more than a k-driven STG-lite label before accepting paper-grade turbulent
+  inflow. `case_metadata.json`, `validation_protocol_audit.json`, `audit_inlet_source.py` and the metrics template now
+  expose whether the inlet has turbulent length-scale evidence, Reynolds-stress tensor evidence and distribution-function
+  reconstruction. The current CityLBM STG-lite path remains explicitly marked as `velocity_field_only` with an isotropic
+  k assumption until a measured/precursor Reynolds-stress tensor and distribution-consistent inlet are implemented or
+  proven by native empty-tunnel U/k/correlation preservation tests.
 
 ## Remaining scientific work
 

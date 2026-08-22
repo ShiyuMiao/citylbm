@@ -233,6 +233,17 @@ def main() -> int:
     metadata_method = metadata_value(metadata, "SyntheticTurbulentInletMethod", "TurbulenceMethod")
     metadata_treatment = metadata_value(metadata, "SyntheticTurbulentInletDistributionTreatment")
     metadata_class = metadata_value(metadata, "PaperGradeInletMethodClass", "InletMethodClass")
+    metadata_reynolds_stress_treatment = metadata_value(
+        metadata,
+        "InletReynoldsStressTreatment",
+        "ReynoldsStressAssumption",
+        "SyntheticTurbulentInletReynoldsStressTreatment",
+    )
+    metadata_length_scale_gate = metadata_value(
+        metadata,
+        "SyntheticTurbulentInletLengthScaleGate",
+        "InletLengthScaleGate",
+    ).strip().lower()
     synthetic_requested = any(
         token in " ".join([metadata_method, metadata_treatment, metadata_class]).lower()
         for token in ["synthetic", "stg", "digital", "filter", "sem", "dfm", "precursor", "recycling"]
@@ -452,6 +463,43 @@ def main() -> int:
             "synthetic_eddy_lz_cells",
         ],
     )
+    reynolds_stress_tensor_tokens = [
+        "reynolds_stress_tensor",
+        "reynoldsStressTensor",
+        "profile_r11_lbm",
+        "profile_r22_lbm",
+        "profile_r33_lbm",
+        "r11_profile",
+        "r22_profile",
+        "r33_profile",
+        "R11",
+        "R22",
+        "R33",
+    ]
+    has_reynolds_stress_tensor_evidence = (
+        has_precursor_recycling_field
+        or contains_any(implementation_source, reynolds_stress_tensor_tokens)
+        or contains_any(metadata_reynolds_stress_treatment, ["full_tensor", "reynolds_stress_tensor", "r11"])
+    )
+    has_documented_isotropic_k_assumption = contains_any(
+        " ".join([implementation_source, metadata_reynolds_stress_treatment]),
+        [
+            "isotropic k",
+            "isotropic_from_k",
+            "2k/3",
+            "2k_over_3",
+            "r11=r22=r33",
+            "r12=r13=r23=0",
+        ],
+    )
+    reynolds_stress_treatment = (
+        "full_tensor_or_precursor_evidence"
+        if has_reynolds_stress_tensor_evidence
+        else "documented_isotropic_k_only"
+        if has_documented_isotropic_k_assumption
+        else "missing"
+    )
+    has_inlet_length_scale_evidence = has_length_scale or metadata_length_scale_gate == "pass"
     has_update_interval = (
         "citylbm_stg_update_interval" in implementation_source_lower
         or "inlet_update_interval" in implementation_source_lower
@@ -606,7 +654,7 @@ def main() -> int:
         reasons.append("synthetic_inlet_not_refreshed_in_run_loop")
     if synthetic_requested and stg_lite_velocity_source and not has_stg_refresh_with_current_time:
         reasons.append("synthetic_inlet_missing_refresh_with_current_solver_time")
-    if synthetic_requested and stg_lite_velocity_source and not has_length_scale:
+    if synthetic_requested and stg_lite_velocity_source and not has_inlet_length_scale_evidence:
         reasons.append("synthetic_inlet_missing_length_scale_source")
     if synthetic_requested and stg_lite_velocity_source and not (has_spectral_modes or has_native_synthetic_eddy_evidence):
         reasons.append("synthetic_inlet_missing_spectral_modes")
@@ -642,6 +690,10 @@ def main() -> int:
         paper_gate_reasons.append("source_not_distribution_consistent")
     if source_velocity_only:
         paper_gate_reasons.append("source_velocity_field_only")
+    if synthetic_requested and not has_inlet_length_scale_evidence:
+        paper_gate_reasons.append("source_missing_turbulent_length_scale_evidence")
+    if synthetic_requested and not has_reynolds_stress_tensor_evidence:
+        paper_gate_reasons.append("source_missing_reynolds_stress_tensor_evidence")
     paper_gate = "pass" if not paper_gate_reasons else "fail"
 
     report: Dict[str, Any] = {
@@ -705,6 +757,12 @@ def main() -> int:
         "has_taylor_advection_evidence": has_taylor_advection,
         "has_transverse_projection_evidence": has_transverse_projection,
         "has_length_scale_evidence": has_length_scale,
+        "metadata_length_scale_gate": metadata_length_scale_gate,
+        "has_inlet_length_scale_evidence": has_inlet_length_scale_evidence,
+        "metadata_reynolds_stress_treatment": metadata_reynolds_stress_treatment,
+        "has_reynolds_stress_tensor_evidence": has_reynolds_stress_tensor_evidence,
+        "has_documented_isotropic_k_assumption": has_documented_isotropic_k_assumption,
+        "reynolds_stress_treatment": reynolds_stress_treatment,
         "has_update_interval": has_update_interval,
         "stg_refresh_current_time_call_count": refresh_current_time_calls,
         "native_refresh_current_time_call_count": native_refresh_current_time_calls,

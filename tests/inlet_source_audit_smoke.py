@@ -98,6 +98,8 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(random_report["synthetic_inlet_correlation_model"])
         if "synthetic_inlet_uses_uncorrelated_random_rms" not in random_report["inlet_source_gate_reasons"]:
             raise AssertionError(random_report["inlet_source_gate_reasons"])
+        if "source_missing_reynolds_stress_tensor_evidence" not in random_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(random_report["paper_grade_inlet_source_gate_reasons"])
 
         sem_setup = root / "sem_setup.cpp"
         sem_out = root / "sem_audit.json"
@@ -107,6 +109,10 @@ for(uint remaining=100u; remaining>0u; ) {
 const float profile_z_m[] = {0.0f, 10.0f};
 const float profile_u_lbm[] = {0.01f, 0.02f};
 const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_r11_lbm[] = {0.000066f, 0.000133f};
+const float profile_r22_lbm[] = {0.000066f, 0.000133f};
+const float profile_r33_lbm[] = {0.000066f, 0.000133f};
+const float synthetic_eddy_length_scale = 4.0f;
 const float profile_origin_z_m = 0.0f;
 struct SemEddy { float eddy_center; float eddy_radius; float eddy_strength; float eddy_lifetime; };
 SemEddy sem_eddy[64];
@@ -138,6 +144,10 @@ void applySyntheticTurbulentInlet(uint t_step) {
             raise AssertionError(sem_report["inlet_source_method_class"])
         if sem_report["distribution_consistency_basis"] != "sem_eddy_population_distribution_reconstruction":
             raise AssertionError(sem_report["distribution_consistency_basis"])
+        if sem_report["reynolds_stress_treatment"] != "full_tensor_or_precursor_evidence":
+            raise AssertionError(sem_report["reynolds_stress_treatment"])
+        if not sem_report["has_inlet_length_scale_evidence"]:
+            raise AssertionError(sem_report)
 
     print("inlet_source_audit_smoke passed")
     return 0
