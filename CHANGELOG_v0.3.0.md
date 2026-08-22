@@ -22,6 +22,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   fields (`expected_uref_mps`, `actual_uref_mps`, `expected_zref_m`, interpolated AF `U(zref)`, and both Uref-vs-AF
   deltas), so downstream Case A/E summary rows expose normalization/profile inconsistencies instead of hiding them in
   separate precondition JSON files.
+- `validation_gate.py` now treats those native AF-reference fields as hard inlet-precondition evidence: missing
+  `AF U(zref)` data or Uref-vs-AF deltas above `--uref-tolerance` fail the native inlet traceability gate before a
+  FluidX3D baseline can be used for CityLBM accuracy interpretation.
 - The `k` column is preserved, converted to LBM units and stored in metadata.
 - `case_metadata.json` now records CustomTable row count, `k` row count, all-row `k` consistency, SI/LBM `k` ranges,
   profile origin and the first/last profile heights, so AIJ run packages can audit the inlet profile without reopening

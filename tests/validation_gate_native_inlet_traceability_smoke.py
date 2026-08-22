@@ -37,6 +37,12 @@ def passing_native_audit():
         "inlet_correlation_source_vtk_sha256_match_runtime": True,
         "inlet_correlation_source_steps_strictly_increasing": True,
         "inlet_correlation_source_step_spacing_uniform": True,
+        "expected_uref_mps": 3.928296,
+        "actual_uref_mps": 3.928296,
+        "expected_zref_m": 15.9,
+        "af_uref_at_zref_mps": 3.928296,
+        "uref_af_profile_delta_mps": 0.0,
+        "metadata_uref_af_profile_delta_mps": 0.0,
         "inlet_profile_source_step_span": 20000,
         "inlet_profile_minimum_step_span": 20000,
         "inlet_correlation_source_step_span": 20000,
@@ -76,6 +82,29 @@ def main() -> int:
         raise AssertionError(reasons)
     if "inlet_correlation_source_step_span_below_20000" not in reasons:
         raise AssertionError(reasons)
+
+    uref_bad = copy.deepcopy(passing_native_audit())
+    uref_bad["metadata_uref_af_profile_delta_mps"] = 0.05
+    uref_failed = module.native_inlet_precondition_traceability_status(
+        uref_bad,
+        min_avg_step_span=20000,
+        uref_tolerance=1.0e-6,
+    )
+    if uref_failed["ok"]:
+        raise AssertionError(uref_failed)
+    if "metadata_uref_af_profile_delta_mps_above_tolerance:0.05" not in uref_failed["reasons"]:
+        raise AssertionError(uref_failed["reasons"])
+
+    missing_uref = copy.deepcopy(passing_native_audit())
+    missing_uref.pop("af_uref_at_zref_mps")
+    missing_failed = module.native_inlet_precondition_traceability_status(
+        missing_uref,
+        min_avg_step_span=20000,
+    )
+    if missing_failed["ok"]:
+        raise AssertionError(missing_failed)
+    if "af_uref_at_zref_mps_missing" not in missing_failed["reasons"]:
+        raise AssertionError(missing_failed["reasons"])
 
     gates = [
         pass_gate(module, key)

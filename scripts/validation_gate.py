@@ -2175,6 +2175,7 @@ def metrics_time_averaging_consistency_status(
 def native_inlet_precondition_traceability_status(
     native_preconditions_audit: Dict[str, Any],
     min_avg_step_span: int,
+    uref_tolerance: float = 1.0e-6,
 ) -> Dict[str, Any]:
     reasons: List[str] = []
     if not native_preconditions_audit:
@@ -2205,6 +2206,31 @@ def native_inlet_precondition_traceability_status(
         value = as_bool(get_any(native_preconditions_audit, [key]))
         if value is not True:
             reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+
+    expected_uref = as_float(get_any(native_preconditions_audit, ["expected_uref_mps"]))
+    actual_uref = as_float(get_any(native_preconditions_audit, ["actual_uref_mps"]))
+    expected_zref = as_float(get_any(native_preconditions_audit, ["expected_zref_m"]))
+    af_uref = as_float(get_any(native_preconditions_audit, ["af_uref_at_zref_mps"]))
+    uref_af_delta = as_float(get_any(native_preconditions_audit, ["uref_af_profile_delta_mps"]))
+    metadata_uref_af_delta = as_float(
+        get_any(native_preconditions_audit, ["metadata_uref_af_profile_delta_mps"])
+    )
+    for key, value in [
+        ("expected_uref_mps", expected_uref),
+        ("actual_uref_mps", actual_uref),
+        ("expected_zref_m", expected_zref),
+        ("af_uref_at_zref_mps", af_uref),
+        ("uref_af_profile_delta_mps", uref_af_delta),
+        ("metadata_uref_af_profile_delta_mps", metadata_uref_af_delta),
+    ]:
+        if value is None:
+            reasons.append(f"{key}_missing")
+    for key, value in [
+        ("uref_af_profile_delta_mps", uref_af_delta),
+        ("metadata_uref_af_profile_delta_mps", metadata_uref_af_delta),
+    ]:
+        if value is not None and value > uref_tolerance:
+            reasons.append(f"{key}_above_tolerance:{value}")
 
     for label, span_key, minimum_key in [
         ("inlet_profile", "inlet_profile_source_step_span", "inlet_profile_minimum_step_span"),
@@ -5254,6 +5280,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_inlet_traceability = native_inlet_precondition_traceability_status(
         native_preconditions_audit,
         args.min_avg_step_span,
+        args.uref_tolerance,
     )
     add_gate(
         gates,
@@ -5266,6 +5293,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_u_profile_gate={native_preconditions_inlet_u_profile_gate or 'missing'}; "
             f"inlet_k_profile_gate={native_preconditions_inlet_k_profile_gate or 'missing'}; "
             f"inlet_profile_time_averaging_gate={get_any(native_preconditions_audit, ['inlet_profile_time_averaging_gate']) or 'missing'}; "
+            f"expected_uref_mps={get_any(native_preconditions_audit, ['expected_uref_mps'])}; "
+            f"actual_uref_mps={get_any(native_preconditions_audit, ['actual_uref_mps'])}; "
+            f"expected_zref_m={get_any(native_preconditions_audit, ['expected_zref_m'])}; "
+            f"af_uref_at_zref_mps={get_any(native_preconditions_audit, ['af_uref_at_zref_mps'])}; "
+            f"uref_af_profile_delta_mps={get_any(native_preconditions_audit, ['uref_af_profile_delta_mps'])}; "
+            f"metadata_uref_af_profile_delta_mps={get_any(native_preconditions_audit, ['metadata_uref_af_profile_delta_mps'])}; "
+            f"uref_tolerance={args.uref_tolerance}; "
             f"inlet_profile_af_csv_sha256_matches_expected={get_any(native_preconditions_audit, ['inlet_profile_af_csv_sha256_matches_expected'])}; "
             f"inlet_profile_source_time_steps_match_runtime={get_any(native_preconditions_audit, ['inlet_profile_source_time_steps_match_runtime'])}; "
             f"inlet_profile_source_vtk_sha256_match_runtime={get_any(native_preconditions_audit, ['inlet_profile_source_vtk_sha256_match_runtime'])}; "
