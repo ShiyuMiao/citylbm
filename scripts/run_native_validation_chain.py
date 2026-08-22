@@ -299,6 +299,8 @@ def main() -> int:
     inlet_audit_csv = out_dir / "inlet_profile_audit.csv"
     inlet_correlation_json = out_dir / "inlet_correlation_audit.json"
     boundary_audit_json = out_dir / "boundary_protocol_audit.json"
+    boundary_runtime_json = out_dir / "boundary_runtime_audit.json"
+    boundary_runtime_csv = out_dir / "boundary_runtime_audit.csv"
     probe_audit_csv = out_dir / "probe_audit.csv"
     component_sensitivity_json = out_dir / "component_sensitivity_audit.json"
     component_sensitivity_csv = out_dir / "component_sensitivity_audit.csv"
@@ -352,6 +354,8 @@ def main() -> int:
             "InletProfileAuditCsv": str(inlet_audit_csv),
             "InletCorrelationAuditJson": str(inlet_correlation_json),
             "BoundaryProtocolAuditJson": str(boundary_audit_json),
+            "BoundaryRuntimeAuditJson": str(boundary_runtime_json),
+            "BoundaryRuntimeAuditCsv": str(boundary_runtime_csv),
             "ProbeAuditCsv": str(probe_audit_csv),
             "ComponentSensitivityAuditJson": str(component_sensitivity_json),
             "ComponentSensitivityAuditCsv": str(component_sensitivity_csv),
@@ -564,6 +568,34 @@ def main() -> int:
         manifest["Steps"].append(run_step("audit_inlet_correlation_from_vtk", inlet_correlation_cmd, allow_fail=True))
         write_manifest(manifest_path, manifest)
 
+        boundary_runtime_cmd = [
+            py,
+            str(script_dir / "audit_boundary_runtime_from_vtk.py"),
+            str(vtk_dir),
+            "--af-csv",
+            str(af_csv),
+            "--wind-direction",
+            args.wind_vector,
+            "--pattern",
+            args.pattern,
+            "--average-last-n",
+            str(args.average_last_n),
+            "--min-frames",
+            str(args.min_avg_frames),
+            "--min-step-span",
+            str(args.min_avg_step_span),
+            "--velocity-scale",
+            str(args.velocity_scale),
+            "--max-inlet-u-mae-ratio",
+            str(args.max_empty_tunnel_u_bias_ratio),
+            "--out-json",
+            str(boundary_runtime_json),
+            "--out-csv",
+            str(boundary_runtime_csv),
+        ]
+        manifest["Steps"].append(run_step("audit_boundary_runtime_from_vtk", boundary_runtime_cmd, allow_fail=True))
+        write_manifest(manifest_path, manifest)
+
         probe_cmd = [
             py,
             str(script_dir / "probe_vtk_points.py"),
@@ -641,6 +673,8 @@ def main() -> int:
             str(boundary_source_json),
             "--boundary-protocol-audit",
             str(boundary_audit_json),
+            "--boundary-runtime-audit",
+            str(boundary_runtime_json),
             "--probe-audit",
             str(probe_audit_csv),
             "--component-sensitivity-audit",
@@ -706,6 +740,8 @@ def main() -> int:
             str(native_preconditions_json),
             "--boundary-protocol-audit",
             str(boundary_audit_json),
+            "--boundary-runtime-audit",
+            str(boundary_runtime_json),
             "--component-sensitivity-audit",
             str(component_sensitivity_json),
             "--case",

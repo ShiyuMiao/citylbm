@@ -192,6 +192,21 @@ TEMPLATE_FIELDS = [
     "boundary_velocity_initialization_metadata_device_upload_order",
     "boundary_velocity_initialization_metadata_paper_grade_status",
     "boundary_source_setup_sha256",
+    "boundary_runtime_audit",
+    "boundary_runtime_gate",
+    "boundary_runtime_gate_reasons",
+    "boundary_runtime_traceability_gate",
+    "boundary_runtime_profile_preservation_gate",
+    "boundary_runtime_inlet_gate",
+    "boundary_runtime_side_top_gate",
+    "boundary_runtime_outlet_gate",
+    "boundary_runtime_max_u_mae_ratio",
+    "boundary_runtime_inlet_u_mae_ratio",
+    "boundary_runtime_outlet_u_mae_ratio",
+    "boundary_runtime_side_top_max_u_mae_ratio",
+    "boundary_runtime_max_negative_streamwise_fraction",
+    "boundary_runtime_source_step_span",
+    "boundary_runtime_frame_count",
     "inlet_source_audit",
     "inlet_source_gate",
     "inlet_source_gate_reasons",
@@ -365,6 +380,15 @@ TEMPLATE_FIELDS = [
     "native_boundary_clearance_numeric_gate",
     "native_boundary_clearance_numeric_gate_reasons",
     "native_boundary_blockage_gate",
+    "native_boundary_runtime_gate",
+    "native_boundary_runtime_gate_reasons",
+    "native_boundary_runtime_traceability_gate",
+    "native_boundary_runtime_profile_preservation_gate",
+    "native_boundary_runtime_inlet_gate",
+    "native_boundary_runtime_side_top_gate",
+    "native_boundary_runtime_outlet_gate",
+    "native_boundary_runtime_max_u_mae_ratio",
+    "native_boundary_runtime_source_step_span",
     "native_top_blocking_priority_rank",
     "native_top_blocking_priority_key",
     "native_top_blocking_priority_reason_count",
@@ -527,6 +551,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--inlet-source-audit", help="Optional inlet_source_audit.json from audit_inlet_source.py.")
     parser.add_argument("--boundary-source-audit", help="Optional boundary_source_audit.json from audit_boundary_source.py.")
     parser.add_argument("--boundary-protocol-audit", help="Optional boundary_protocol_audit.json from audit_boundary_protocol.py.")
+    parser.add_argument("--boundary-runtime-audit", help="Optional boundary_runtime_audit.json from audit_boundary_runtime_from_vtk.py.")
     parser.add_argument("--component-sensitivity-audit", help="Optional component/Uref sensitivity JSON from audit_component_sensitivity.py.")
     parser.add_argument("--grid-sensitivity-audit", help="Optional grid_sensitivity_audit.json from audit_grid_sensitivity.py.")
     parser.add_argument("--native-preconditions-audit", help="Optional native_preconditions_audit.json from audit_native_preconditions.py.")
@@ -1075,6 +1100,7 @@ def main() -> int:
     inlet_source_audit = read_json(Path(args.inlet_source_audit).resolve() if args.inlet_source_audit else None)
     boundary_source_audit = read_json(Path(args.boundary_source_audit).resolve() if args.boundary_source_audit else None)
     boundary_protocol_audit = read_json(Path(args.boundary_protocol_audit).resolve() if args.boundary_protocol_audit else None)
+    boundary_runtime_audit = read_json(Path(args.boundary_runtime_audit).resolve() if args.boundary_runtime_audit else None)
     component_sensitivity_audit = read_json(Path(args.component_sensitivity_audit).resolve() if args.component_sensitivity_audit else None)
     grid_sensitivity_audit = read_json(Path(args.grid_sensitivity_audit).resolve() if args.grid_sensitivity_audit else None)
     native_preconditions_audit = read_json(Path(args.native_preconditions_audit).resolve() if args.native_preconditions_audit else None)
@@ -1768,6 +1794,29 @@ def main() -> int:
                 metadata, "BoundaryVelocityInitializationPaperGradeStatus"
             ),
             "boundary_source_setup_sha256": audit_field(boundary_source_audit, "setup_cpp_sha256"),
+            "boundary_runtime_audit": str(Path(args.boundary_runtime_audit).resolve()) if args.boundary_runtime_audit else "",
+            "boundary_runtime_gate": audit_gate(boundary_runtime_audit, "boundary_runtime_gate"),
+            "boundary_runtime_gate_reasons": ";".join(
+                str(reason) for reason in boundary_runtime_audit.get("boundary_runtime_gate_reasons", [])
+            )
+            if isinstance(boundary_runtime_audit.get("boundary_runtime_gate_reasons"), list)
+            else audit_field(boundary_runtime_audit, "boundary_runtime_gate_reasons"),
+            "boundary_runtime_traceability_gate": audit_gate(boundary_runtime_audit, "boundary_runtime_traceability_gate"),
+            "boundary_runtime_profile_preservation_gate": audit_gate(
+                boundary_runtime_audit, "boundary_runtime_profile_preservation_gate"
+            ),
+            "boundary_runtime_inlet_gate": audit_gate(boundary_runtime_audit, "boundary_runtime_inlet_gate"),
+            "boundary_runtime_side_top_gate": audit_gate(boundary_runtime_audit, "boundary_runtime_side_top_gate"),
+            "boundary_runtime_outlet_gate": audit_gate(boundary_runtime_audit, "boundary_runtime_outlet_gate"),
+            "boundary_runtime_max_u_mae_ratio": audit_field(boundary_runtime_audit, "max_boundary_u_mae_ratio"),
+            "boundary_runtime_inlet_u_mae_ratio": audit_field(boundary_runtime_audit, "inlet_u_mae_ratio"),
+            "boundary_runtime_outlet_u_mae_ratio": audit_field(boundary_runtime_audit, "outlet_u_mae_ratio"),
+            "boundary_runtime_side_top_max_u_mae_ratio": audit_field(boundary_runtime_audit, "side_top_max_u_mae_ratio"),
+            "boundary_runtime_max_negative_streamwise_fraction": audit_field(
+                boundary_runtime_audit, "max_boundary_negative_streamwise_fraction"
+            ),
+            "boundary_runtime_source_step_span": audit_field(boundary_runtime_audit, "source_step_span"),
+            "boundary_runtime_frame_count": audit_field(boundary_runtime_audit, "frame_count"),
             "inlet_source_audit": str(Path(args.inlet_source_audit).resolve()) if args.inlet_source_audit else "",
             "inlet_source_gate": audit_gate(inlet_source_audit, "inlet_source_gate"),
             "inlet_source_gate_reasons": ";".join(
@@ -2123,6 +2172,27 @@ def main() -> int:
                 native_preconditions_audit, "boundary_clearance_numeric_gate_reasons_csv"
             ),
             "native_boundary_blockage_gate": audit_gate(native_preconditions_audit, "boundary_blockage_gate"),
+            "native_boundary_runtime_gate": audit_gate(native_preconditions_audit, "boundary_runtime_gate"),
+            "native_boundary_runtime_gate_reasons": audit_field(
+                native_preconditions_audit, "boundary_runtime_gate_reasons_csv"
+            ),
+            "native_boundary_runtime_traceability_gate": audit_gate(
+                native_preconditions_audit, "boundary_runtime_traceability_gate"
+            ),
+            "native_boundary_runtime_profile_preservation_gate": audit_gate(
+                native_preconditions_audit, "boundary_runtime_profile_preservation_gate"
+            ),
+            "native_boundary_runtime_inlet_gate": audit_gate(native_preconditions_audit, "boundary_runtime_inlet_gate"),
+            "native_boundary_runtime_side_top_gate": audit_gate(
+                native_preconditions_audit, "boundary_runtime_side_top_gate"
+            ),
+            "native_boundary_runtime_outlet_gate": audit_gate(native_preconditions_audit, "boundary_runtime_outlet_gate"),
+            "native_boundary_runtime_max_u_mae_ratio": audit_field(
+                native_preconditions_audit, "boundary_runtime_max_u_mae_ratio"
+            ),
+            "native_boundary_runtime_source_step_span": audit_field(
+                native_preconditions_audit, "boundary_runtime_source_step_span"
+            ),
             "native_top_blocking_priority_rank": audit_field(
                 native_preconditions_audit, "native_top_blocking_priority_rank"
             ),

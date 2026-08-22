@@ -30,6 +30,12 @@ def passing_native_audit():
         "boundary_run_identity_gate": "pass",
         "boundary_clearance_numeric_gate": "pass",
         "boundary_blockage_gate": "pass",
+        "boundary_runtime_gate": "pass",
+        "boundary_runtime_traceability_gate": "pass",
+        "boundary_runtime_profile_preservation_gate": "pass",
+        "boundary_runtime_inlet_gate": "pass",
+        "boundary_runtime_side_top_gate": "pass",
+        "boundary_runtime_outlet_gate": "pass",
         "boundary_source_wind_tunnel_equivalent": True,
         "boundary_source_simplified": False,
         "boundary_source_setup_cpp_sha256_matches_current": True,
@@ -107,6 +113,7 @@ def main() -> int:
             "k_preservation_or_accuracy",
             "boundary_source_evidence",
             "boundary_protocol",
+            "boundary_runtime",
             "roughness_or_precursor",
         ]
     ]

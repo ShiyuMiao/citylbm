@@ -80,6 +80,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--inlet-correlation-audit", help="inlet_correlation_audit.json from final-window VTK.")
     parser.add_argument("--boundary-source-audit", help="boundary_source_audit.json from generated setup.cpp.")
     parser.add_argument("--boundary-protocol-audit", help="boundary_protocol_audit.json with AIJ-equivalent evidence.")
+    parser.add_argument("--boundary-runtime-audit", help="boundary_runtime_audit.json from final-window VTK boundary faces.")
     parser.add_argument("--probe-audit", help="probe_audit.csv used for metrics.")
     parser.add_argument("--component-sensitivity-audit", help="component_sensitivity_audit.json for component/Uref checks.")
     parser.add_argument("--official", help="Official RS/probe CSV used to recompute per-probe coordinate closure.")
@@ -971,6 +972,7 @@ def main() -> int:
     inlet_correlation_audit_path = Path(args.inlet_correlation_audit).expanduser().resolve() if args.inlet_correlation_audit else find_first(run_dir, ["inlet_correlation_audit.json"])
     boundary_source_audit_path = Path(args.boundary_source_audit).expanduser().resolve() if args.boundary_source_audit else find_first(run_dir, ["boundary_source_audit.json"])
     boundary_protocol_audit_path = Path(args.boundary_protocol_audit).expanduser().resolve() if args.boundary_protocol_audit else find_first(run_dir, ["boundary_protocol_audit.json"])
+    boundary_runtime_audit_path = Path(args.boundary_runtime_audit).expanduser().resolve() if args.boundary_runtime_audit else find_first(run_dir, ["boundary_runtime_audit.json"])
     probe_audit_path = Path(args.probe_audit).expanduser().resolve() if args.probe_audit else find_first(run_dir, ["probe_audit.csv"])
     component_sensitivity_audit_path = Path(args.component_sensitivity_audit).expanduser().resolve() if args.component_sensitivity_audit else find_first(run_dir, ["component_sensitivity_audit.json"])
     official_path = Path(args.official).expanduser().resolve() if args.official else None
@@ -987,6 +989,7 @@ def main() -> int:
     inlet_correlation_audit = read_json(inlet_correlation_audit_path)
     boundary_source_audit = read_json(boundary_source_audit_path)
     boundary_protocol_audit = read_json(boundary_protocol_audit_path)
+    boundary_runtime_audit = read_json(boundary_runtime_audit_path)
     validation_protocol_audit = read_json(protocol_audit_path)
     protocol_content_audit = audit_protocol_content(validation_protocol_audit)
     probe_rows = read_csv_rows(probe_audit_path)
@@ -1391,6 +1394,42 @@ def main() -> int:
             if identity_reason != "boundary_evidence_bound_to_current_run":
                 reasons.append(f"boundary_identity_{identity_reason}")
 
+    boundary_runtime_gate = str(boundary_runtime_audit.get("boundary_runtime_gate") or "").strip().lower()
+    boundary_runtime_traceability_gate = str(
+        boundary_runtime_audit.get("boundary_runtime_traceability_gate") or ""
+    ).strip().lower()
+    boundary_runtime_profile_gate = str(
+        boundary_runtime_audit.get("boundary_runtime_profile_preservation_gate") or ""
+    ).strip().lower()
+    boundary_runtime_inlet_gate = str(boundary_runtime_audit.get("boundary_runtime_inlet_gate") or "").strip().lower()
+    boundary_runtime_side_top_gate = str(boundary_runtime_audit.get("boundary_runtime_side_top_gate") or "").strip().lower()
+    boundary_runtime_outlet_gate = str(boundary_runtime_audit.get("boundary_runtime_outlet_gate") or "").strip().lower()
+    boundary_runtime_reasons = split_scalar_list(boundary_runtime_audit.get("boundary_runtime_gate_reasons"))
+    boundary_runtime_traceability_reasons = split_scalar_list(
+        boundary_runtime_audit.get("boundary_runtime_traceability_gate_reasons")
+    )
+    if not boundary_runtime_audit:
+        reasons.append("boundary_runtime_audit_missing")
+    else:
+        if boundary_runtime_gate != "pass":
+            reasons.append("boundary_runtime_gate_not_pass")
+        if boundary_runtime_traceability_gate != "pass":
+            reasons.append("boundary_runtime_traceability_gate_not_pass")
+        if boundary_runtime_profile_gate != "pass":
+            reasons.append("boundary_runtime_profile_preservation_gate_not_pass")
+        if boundary_runtime_inlet_gate != "pass":
+            reasons.append("boundary_runtime_inlet_gate_not_pass")
+        if boundary_runtime_side_top_gate != "pass":
+            reasons.append("boundary_runtime_side_top_gate_not_pass")
+        if boundary_runtime_outlet_gate != "pass":
+            reasons.append("boundary_runtime_outlet_gate_not_pass")
+        for reason in boundary_runtime_reasons:
+            if reason != "boundary_runtime_faces_preserve_af_profile":
+                reasons.append(f"boundary_runtime_{reason}")
+        for reason in boundary_runtime_traceability_reasons:
+            if reason != "boundary_runtime_window_traceable":
+                reasons.append(f"boundary_runtime_traceability_{reason}")
+
     expected_component = str(args.expected_compared_component or "").strip()
     failed_probe_rows = [row for row in probe_rows if probe_row_failed(row)]
     valid_probe_rows = [row for row in probe_rows if not probe_row_failed(row)]
@@ -1723,6 +1762,7 @@ def main() -> int:
         "inlet_correlation_audit": str(inlet_correlation_audit_path) if inlet_correlation_audit_path else "",
         "boundary_source_audit": str(boundary_source_audit_path) if boundary_source_audit_path else "",
         "boundary_protocol_audit": str(boundary_protocol_audit_path) if boundary_protocol_audit_path else "",
+        "boundary_runtime_audit": str(boundary_runtime_audit_path) if boundary_runtime_audit_path else "",
         "probe_audit": str(probe_audit_path) if probe_audit_path else "",
         "component_sensitivity_audit": str(component_sensitivity_audit_path) if component_sensitivity_audit_path else "",
         "official_measurement_csv": str(official_path) if official_path else "",
@@ -1795,6 +1835,23 @@ def main() -> int:
         "boundary_evidence_files_unreadable_csv": ";".join(boundary_evidence_files_unreadable),
         "boundary_required_support_fields_missing_or_false": boundary_required_support_fields_missing_or_false,
         "boundary_required_support_fields_missing_or_false_csv": ";".join(boundary_required_support_fields_missing_or_false),
+        "boundary_runtime_gate": boundary_runtime_gate,
+        "boundary_runtime_gate_reasons": boundary_runtime_reasons,
+        "boundary_runtime_gate_reasons_csv": ";".join(boundary_runtime_reasons),
+        "boundary_runtime_traceability_gate": boundary_runtime_traceability_gate,
+        "boundary_runtime_traceability_gate_reasons": boundary_runtime_traceability_reasons,
+        "boundary_runtime_traceability_gate_reasons_csv": ";".join(boundary_runtime_traceability_reasons),
+        "boundary_runtime_profile_preservation_gate": boundary_runtime_profile_gate,
+        "boundary_runtime_inlet_gate": boundary_runtime_inlet_gate,
+        "boundary_runtime_side_top_gate": boundary_runtime_side_top_gate,
+        "boundary_runtime_outlet_gate": boundary_runtime_outlet_gate,
+        "boundary_runtime_max_u_mae_ratio": boundary_runtime_audit.get("max_boundary_u_mae_ratio", ""),
+        "boundary_runtime_inlet_u_mae_ratio": boundary_runtime_audit.get("inlet_u_mae_ratio", ""),
+        "boundary_runtime_outlet_u_mae_ratio": boundary_runtime_audit.get("outlet_u_mae_ratio", ""),
+        "boundary_runtime_side_top_max_u_mae_ratio": boundary_runtime_audit.get("side_top_max_u_mae_ratio", ""),
+        "boundary_runtime_max_negative_streamwise_fraction": boundary_runtime_audit.get("max_boundary_negative_streamwise_fraction", ""),
+        "boundary_runtime_source_step_span": boundary_runtime_audit.get("source_step_span", ""),
+        "boundary_runtime_frame_count": boundary_runtime_audit.get("frame_count", ""),
         "probe_audit_row_count": len(probe_rows),
         "probe_audit_valid_row_count": len(valid_probe_rows),
         "probe_audit_failed_row_count": len(failed_probe_rows),

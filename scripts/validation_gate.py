@@ -79,6 +79,9 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "boundary_evidence_gate",
     "boundary_source_gate",
     "paper_grade_boundary_source_gate",
+    "boundary_runtime_gate",
+    "boundary_runtime_traceability_gate",
+    "boundary_runtime_profile_preservation_gate",
     "inlet_source_gate",
     "paper_grade_inlet_source_gate",
     "inlet_method_class_supported",
@@ -552,6 +555,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
 
     boundary_source_gate = by_key.get("boundary_source_evidence")
     boundary_gate = by_key.get("boundary_protocol")
+    boundary_runtime_gate = by_key.get("boundary_runtime")
     roughness_gate = by_key.get("roughness_or_precursor")
     native_boundary_traceability_gate = by_key.get("native_boundary_traceability")
     if any(
@@ -559,6 +563,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
         for gate in [
             boundary_source_gate,
             boundary_gate,
+            boundary_runtime_gate,
             roughness_gate,
             native_boundary_traceability_gate,
         ]
@@ -569,6 +574,7 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
                 for gate in [
                     boundary_source_gate,
                     boundary_gate,
+                    boundary_runtime_gate,
                     roughness_gate,
                     native_boundary_traceability_gate,
                 ]
@@ -2332,6 +2338,12 @@ def native_boundary_traceability_status(
         "boundary_run_identity_gate",
         "boundary_clearance_numeric_gate",
         "boundary_blockage_gate",
+        "boundary_runtime_gate",
+        "boundary_runtime_traceability_gate",
+        "boundary_runtime_profile_preservation_gate",
+        "boundary_runtime_inlet_gate",
+        "boundary_runtime_side_top_gate",
+        "boundary_runtime_outlet_gate",
     ]:
         value = str(get_any(native_preconditions_audit, [key]) or "").strip().lower()
         if value != "pass":
@@ -2824,6 +2836,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_source_audit_path = find_first(run_dir, ["inlet_source_audit.json"])
     boundary_source_audit_path = find_first(run_dir, ["boundary_source_audit.json"])
     boundary_audit_path = find_first(run_dir, ["boundary_protocol_audit.json"])
+    boundary_runtime_audit_path = find_first(run_dir, ["boundary_runtime_audit.json"])
     component_sensitivity_audit_path = find_first(run_dir, ["component_sensitivity_audit.json"])
     grid_sensitivity_audit_path = find_first(run_dir, ["grid_sensitivity_audit.json"])
     native_preconditions_audit_path = find_first(run_dir, ["native_preconditions_audit.json"])
@@ -2852,6 +2865,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_source_audit = read_json(inlet_source_audit_path)
     boundary_source_audit = read_json(boundary_source_audit_path)
     external_boundary_audit = read_json(boundary_audit_path)
+    boundary_runtime_audit = read_json(boundary_runtime_audit_path)
     component_sensitivity_audit = read_json(component_sensitivity_audit_path)
     grid_sensitivity_audit = read_json(grid_sensitivity_audit_path)
     native_preconditions_audit = read_json(native_preconditions_audit_path)
@@ -2883,6 +2897,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and inlet_source_audit_path
         and boundary_source_audit_path
         and boundary_audit_path
+        and boundary_runtime_audit_path
         and runtime_audit_path
         and grid_sensitivity_audit_path
         and native_preconditions_audit_path
@@ -2898,6 +2913,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_source_audit={inlet_source_audit_path or 'missing'}; "
             f"boundary_source_audit={boundary_source_audit_path or 'missing'}; "
             f"boundary_audit={boundary_audit_path or 'missing'}; "
+            f"boundary_runtime_audit={boundary_runtime_audit_path or 'missing'}; "
             f"runtime_audit={runtime_audit_path or 'missing'}; "
             f"grid_sensitivity_audit={grid_sensitivity_audit_path or 'missing'}; "
             f"native_preconditions_audit={native_preconditions_audit_path or 'missing'}; "
@@ -2905,7 +2921,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_citylbm_accuracy_delta_audit={native_citylbm_accuracy_delta_audit_path or ('missing' if citylbm_result else ('not_required_for_' + (software_label or 'unknown')))}; "
             f"metrics={metrics_path or 'missing'}"
         ),
-        "Archive case_metadata.json, validation_protocol_audit.json, inlet_profile_audit.json, inlet_correlation_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, native_preconditions_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json and native_citylbm_accuracy_delta_audit.json.",
+        "Archive case_metadata.json, validation_protocol_audit.json, inlet_profile_audit.json, inlet_correlation_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, boundary_runtime_audit.json, native_run_audit/read_vtk_audit JSON, native_preconditions_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json and native_citylbm_accuracy_delta_audit.json.",
     )
     add_gate(
         gates,
@@ -3841,6 +3857,132 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"metrics_blockage_protocol_gate={get_any(metrics, ['blockage_protocol_gate', 'BlockageProtocolGate']) or 'ignored'}"
         ),
         "Fix domain extents/model placement, reduce blockage, archive setup.cpp boundary-source evidence, and replace/justify simplified TYPE_E boundaries with AIJ-equivalent boundary/fetch/roughness evidence or an empty-tunnel/native boundary-preservation check.",
+    )
+
+    boundary_runtime_gate_value = str(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["boundary_runtime_gate"]),
+            get_any(metrics, ["boundary_runtime_gate", "BoundaryRuntimeGate"]),
+        )
+        or ""
+    ).strip().lower()
+    boundary_runtime_traceability_gate = str(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["boundary_runtime_traceability_gate"]),
+            get_any(metrics, ["boundary_runtime_traceability_gate", "BoundaryRuntimeTraceabilityGate"]),
+        )
+        or ""
+    ).strip().lower()
+    boundary_runtime_profile_gate = str(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["boundary_runtime_profile_preservation_gate"]),
+            get_any(metrics, ["boundary_runtime_profile_preservation_gate", "BoundaryRuntimeProfilePreservationGate"]),
+        )
+        or ""
+    ).strip().lower()
+    boundary_runtime_inlet_gate = str(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["boundary_runtime_inlet_gate"]),
+            get_any(metrics, ["boundary_runtime_inlet_gate", "BoundaryRuntimeInletGate"]),
+        )
+        or ""
+    ).strip().lower()
+    boundary_runtime_side_top_gate = str(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["boundary_runtime_side_top_gate"]),
+            get_any(metrics, ["boundary_runtime_side_top_gate", "BoundaryRuntimeSideTopGate"]),
+        )
+        or ""
+    ).strip().lower()
+    boundary_runtime_outlet_gate = str(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["boundary_runtime_outlet_gate"]),
+            get_any(metrics, ["boundary_runtime_outlet_gate", "BoundaryRuntimeOutletGate"]),
+        )
+        or ""
+    ).strip().lower()
+    boundary_runtime_reason_values = get_first_available(
+        get_any(boundary_runtime_audit, ["boundary_runtime_gate_reasons"]),
+        get_any(metrics, ["boundary_runtime_gate_reasons", "BoundaryRuntimeGateReasons"]),
+    )
+    boundary_runtime_reasons = (
+        ";".join(as_string_list(boundary_runtime_reason_values))
+        if isinstance(boundary_runtime_reason_values, list)
+        else str(boundary_runtime_reason_values or "")
+    )
+    boundary_runtime_max_u_mae_ratio = as_float(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["max_boundary_u_mae_ratio"]),
+            get_any(metrics, ["boundary_runtime_max_u_mae_ratio", "BoundaryRuntimeMaxUMaeRatio"]),
+        )
+    )
+    boundary_runtime_inlet_u_mae_ratio = as_float(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["inlet_u_mae_ratio"]),
+            get_any(metrics, ["boundary_runtime_inlet_u_mae_ratio", "BoundaryRuntimeInletUMaeRatio"]),
+        )
+    )
+    boundary_runtime_outlet_u_mae_ratio = as_float(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["outlet_u_mae_ratio"]),
+            get_any(metrics, ["boundary_runtime_outlet_u_mae_ratio", "BoundaryRuntimeOutletUMaeRatio"]),
+        )
+    )
+    boundary_runtime_side_top_max_u_mae_ratio = as_float(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["side_top_max_u_mae_ratio"]),
+            get_any(metrics, ["boundary_runtime_side_top_max_u_mae_ratio", "BoundaryRuntimeSideTopMaxUMaeRatio"]),
+        )
+    )
+    boundary_runtime_max_negative_fraction = as_float(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["max_boundary_negative_streamwise_fraction"]),
+            get_any(metrics, ["boundary_runtime_max_negative_streamwise_fraction", "BoundaryRuntimeMaxNegativeStreamwiseFraction"]),
+        )
+    )
+    boundary_runtime_source_step_span = as_int(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["source_step_span"]),
+            get_any(metrics, ["boundary_runtime_source_step_span", "BoundaryRuntimeSourceStepSpan"]),
+        )
+    )
+    boundary_runtime_frame_count = as_int(
+        get_first_available(
+            get_any(boundary_runtime_audit, ["frame_count"]),
+            get_any(metrics, ["boundary_runtime_frame_count", "BoundaryRuntimeFrameCount"]),
+        )
+    )
+    boundary_runtime_ok = (
+        boundary_runtime_audit_path is not None
+        and boundary_runtime_gate_value == "pass"
+        and boundary_runtime_traceability_gate == "pass"
+        and boundary_runtime_profile_gate == "pass"
+        and boundary_runtime_inlet_gate == "pass"
+        and boundary_runtime_side_top_gate == "pass"
+        and boundary_runtime_outlet_gate == "pass"
+    )
+    add_gate(
+        gates,
+        "boundary_runtime",
+        PASS if boundary_runtime_ok else FAIL,
+        (
+            f"boundary_runtime_audit={boundary_runtime_audit_path or 'missing'}; "
+            f"boundary_runtime_gate={boundary_runtime_gate_value or 'missing'}; "
+            f"boundary_runtime_traceability_gate={boundary_runtime_traceability_gate or 'missing'}; "
+            f"boundary_runtime_profile_preservation_gate={boundary_runtime_profile_gate or 'missing'}; "
+            f"boundary_runtime_inlet_gate={boundary_runtime_inlet_gate or 'missing'}; "
+            f"boundary_runtime_side_top_gate={boundary_runtime_side_top_gate or 'missing'}; "
+            f"boundary_runtime_outlet_gate={boundary_runtime_outlet_gate or 'missing'}; "
+            f"max_boundary_u_mae_ratio={boundary_runtime_max_u_mae_ratio}; "
+            f"inlet_u_mae_ratio={boundary_runtime_inlet_u_mae_ratio}; "
+            f"side_top_max_u_mae_ratio={boundary_runtime_side_top_max_u_mae_ratio}; "
+            f"outlet_u_mae_ratio={boundary_runtime_outlet_u_mae_ratio}; "
+            f"max_negative_streamwise_fraction={boundary_runtime_max_negative_fraction}; "
+            f"frame_count={boundary_runtime_frame_count}; "
+            f"source_step_span={boundary_runtime_source_step_span}; "
+            f"reasons={boundary_runtime_reasons or 'none'}"
+        ),
+        "Run scripts/audit_boundary_runtime_from_vtk.py on the same final VTK averaging window and fix inlet/outlet/lateral/top boundary treatment until boundary-face U(z) preservation and reverse-flow checks pass.",
     )
 
     roughness_layout = metadata.get("RoughnessLayout") if isinstance(metadata.get("RoughnessLayout"), dict) else {}
@@ -5042,6 +5184,24 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_preconditions_boundary_evidence_gate = str(
         get_any(native_preconditions_audit, ["boundary_evidence_gate"]) or ""
     ).strip().lower()
+    native_preconditions_boundary_runtime_gate = str(
+        get_any(native_preconditions_audit, ["boundary_runtime_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_boundary_runtime_traceability_gate = str(
+        get_any(native_preconditions_audit, ["boundary_runtime_traceability_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_boundary_runtime_profile_gate = str(
+        get_any(native_preconditions_audit, ["boundary_runtime_profile_preservation_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_boundary_runtime_inlet_gate = str(
+        get_any(native_preconditions_audit, ["boundary_runtime_inlet_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_boundary_runtime_side_top_gate = str(
+        get_any(native_preconditions_audit, ["boundary_runtime_side_top_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_boundary_runtime_outlet_gate = str(
+        get_any(native_preconditions_audit, ["boundary_runtime_outlet_gate"]) or ""
+    ).strip().lower()
     native_boundary_expected_case = str(args.case or "").strip()
     native_boundary_expected_wind_direction = str(
         get_any(metrics, ["wind_direction", "WindDirection", "Wind_direction"]) or ""
@@ -5165,6 +5325,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_source_setup_cpp_sha256_matches_current={get_any(native_preconditions_audit, ['boundary_source_setup_cpp_sha256_matches_current'])}; "
             f"boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
             f"boundary_evidence_gate={native_preconditions_boundary_evidence_gate or 'missing'}; "
+            f"boundary_runtime_gate={native_preconditions_boundary_runtime_gate or 'missing'}; "
+            f"boundary_runtime_traceability_gate={native_preconditions_boundary_runtime_traceability_gate or 'missing'}; "
+            f"boundary_runtime_profile_preservation_gate={native_preconditions_boundary_runtime_profile_gate or 'missing'}; "
+            f"boundary_runtime_inlet_gate={native_preconditions_boundary_runtime_inlet_gate or 'missing'}; "
+            f"boundary_runtime_side_top_gate={native_preconditions_boundary_runtime_side_top_gate or 'missing'}; "
+            f"boundary_runtime_outlet_gate={native_preconditions_boundary_runtime_outlet_gate or 'missing'}; "
+            f"boundary_runtime_max_u_mae_ratio={get_any(native_preconditions_audit, ['boundary_runtime_max_u_mae_ratio'])}; "
+            f"boundary_runtime_source_step_span={get_any(native_preconditions_audit, ['boundary_runtime_source_step_span'])}; "
             f"boundary_run_identity_gate={get_any(native_preconditions_audit, ['boundary_run_identity_gate']) or 'missing'}; "
             f"boundary_evidence_metadata_sha256_matches_current={get_any(native_preconditions_audit, ['boundary_evidence_metadata_sha256_matches_current'])}; "
             f"boundary_evidence_files_all_hashed={get_any(native_preconditions_audit, ['boundary_evidence_files_all_hashed'])}; "
@@ -5226,6 +5394,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and native_preconditions_boundary_simplified is False
         and native_preconditions_boundary_protocol_gate == "pass"
         and native_preconditions_boundary_evidence_gate == "pass"
+        and native_preconditions_boundary_runtime_gate == "pass"
+        and native_preconditions_boundary_runtime_traceability_gate == "pass"
+        and native_preconditions_boundary_runtime_profile_gate == "pass"
+        and native_preconditions_boundary_runtime_inlet_gate == "pass"
+        and native_preconditions_boundary_runtime_side_top_gate == "pass"
+        and native_preconditions_boundary_runtime_outlet_gate == "pass"
         and native_preconditions_probe_row_count is not None
         and native_preconditions_probe_row_count > 0
         and native_preconditions_probe_failed_count == 0
@@ -5267,6 +5441,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_source_simplified={native_preconditions_boundary_simplified}; "
             f"boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
             f"boundary_evidence_gate={native_preconditions_boundary_evidence_gate or 'missing'}; "
+            f"boundary_runtime_gate={native_preconditions_boundary_runtime_gate or 'missing'}; "
+            f"boundary_runtime_traceability_gate={native_preconditions_boundary_runtime_traceability_gate or 'missing'}; "
+            f"boundary_runtime_profile_preservation_gate={native_preconditions_boundary_runtime_profile_gate or 'missing'}; "
+            f"boundary_runtime_inlet_gate={native_preconditions_boundary_runtime_inlet_gate or 'missing'}; "
+            f"boundary_runtime_side_top_gate={native_preconditions_boundary_runtime_side_top_gate or 'missing'}; "
+            f"boundary_runtime_outlet_gate={native_preconditions_boundary_runtime_outlet_gate or 'missing'}; "
             f"probe_audit_row_count={native_preconditions_probe_row_count}; "
             f"probe_audit_failed_row_count={native_preconditions_probe_failed_count}; "
             f"probe_audit_compared_components={';'.join(sorted(native_preconditions_probe_components)) or 'missing'}; "
@@ -5345,6 +5525,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_preconditions_boundary_source_simplified={native_preconditions_boundary_simplified}; "
             f"native_preconditions_boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
             f"native_preconditions_boundary_evidence_gate={native_preconditions_boundary_evidence_gate or 'missing'}; "
+            f"native_preconditions_boundary_runtime_gate={native_preconditions_boundary_runtime_gate or 'missing'}; "
+            f"native_preconditions_boundary_runtime_traceability_gate={native_preconditions_boundary_runtime_traceability_gate or 'missing'}; "
+            f"native_preconditions_boundary_runtime_profile_preservation_gate={native_preconditions_boundary_runtime_profile_gate or 'missing'}; "
+            f"native_preconditions_boundary_runtime_inlet_gate={native_preconditions_boundary_runtime_inlet_gate or 'missing'}; "
+            f"native_preconditions_boundary_runtime_side_top_gate={native_preconditions_boundary_runtime_side_top_gate or 'missing'}; "
+            f"native_preconditions_boundary_runtime_outlet_gate={native_preconditions_boundary_runtime_outlet_gate or 'missing'}; "
             f"native_preconditions_probe_audit_row_count={native_preconditions_probe_row_count}; "
             f"native_preconditions_probe_audit_failed_row_count={native_preconditions_probe_failed_count}; "
             f"native_preconditions_probe_audit_compared_components={';'.join(sorted(native_preconditions_probe_components)) or 'missing'}; "
@@ -6329,6 +6515,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "native_inlet_precondition_traceability": "native FluidX3D inlet U/k and correlation traceability",
         "boundary_source_evidence": "boundary source evidence",
         "boundary_protocol": "boundary protocol",
+        "boundary_runtime": "boundary runtime face preservation",
         "native_boundary_traceability": "native FluidX3D AIJ boundary traceability",
         "roughness_or_precursor": "roughness or precursor evidence",
         "native_preconditions_full_evidence": "native FluidX3D preconditions",
@@ -6470,6 +6657,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "boundary_source_audit": str(boundary_source_audit_path) if boundary_source_audit_path else "",
             "inlet_correlation_audit": str(inlet_correlation_audit_path) if inlet_correlation_audit_path else "",
             "boundary_protocol_audit": str(boundary_audit_path) if boundary_audit_path else "",
+            "boundary_runtime_audit": str(boundary_runtime_audit_path) if boundary_runtime_audit_path else "",
             "component_sensitivity_audit": str(component_sensitivity_audit_path) if component_sensitivity_audit_path else "",
             "grid_sensitivity_audit": str(grid_sensitivity_audit_path) if grid_sensitivity_audit_path else "",
             "native_preconditions_audit": str(native_preconditions_audit_path) if native_preconditions_audit_path else "",
