@@ -111,6 +111,19 @@ def strip_cpp_comments(text: str) -> str:
     return re.sub(r"//.*", "", without_block)
 
 
+def strip_negated_boundary_claims(text: str) -> str:
+    """Remove common negative statements so they are not read as advanced claims."""
+    cleaned = text
+    negative_patterns = [
+        r"\bno\s+[\w\-/ ]{0,60}?(?:non[_ -]?reflecting|rough[_ -]?wall|wall[_ -]?function|precursor|recycling)[\w\-/ ]{0,30}",
+        r"\bwithout\s+[\w\-/ ]{0,60}?(?:non[_ -]?reflecting|rough[_ -]?wall|wall[_ -]?function|precursor|recycling)[\w\-/ ]{0,30}",
+        r"\bnot\s+[\w\-/ ]{0,60}?(?:non[_ -]?reflecting|rough[_ -]?wall|wall[_ -]?function|precursor|recycling)[\w\-/ ]{0,30}",
+    ]
+    for pattern in negative_patterns:
+        cleaned = re.sub(pattern, " ", cleaned, flags=re.IGNORECASE)
+    return cleaned
+
+
 def extract_cpp_comments(text: str) -> str:
     comments = re.findall(r"/\*.*?\*/|//.*", text, flags=re.DOTALL)
     return "\n".join(comments)
@@ -140,6 +153,7 @@ def main() -> int:
     boundary_types = nested(metadata, "BoundaryProtocolAudit", "BoundaryTypes")
     boundary_types_text = json.dumps(boundary_types, ensure_ascii=True) if isinstance(boundary_types, dict) else ""
     metadata_boundary_text = " ".join([boundary_summary, boundary_types_text]).lower()
+    metadata_boundary_claim_text = strip_negated_boundary_claims(metadata_boundary_text)
 
     has_equilibrium_boundaries = "equilibrium_boundaries" in lower
     has_type_e_define = "#define type_e" in lower or "type_e 0x02" in lower
@@ -343,8 +357,7 @@ def main() -> int:
     )
 
     simplified_type_e_box = (
-        has_equilibrium_boundaries
-        and type_e_assignment_count >= 3
+        type_e_assignment_count >= 3
         and has_outlet_type_e
         and (has_lateral_type_e or has_top_type_e)
         and not has_non_reflecting_outlet
@@ -374,10 +387,10 @@ def main() -> int:
         source_class = "none"
 
     source_boundary_coherent = (
-        has_equilibrium_boundaries
-        and has_type_e_symbol
+        has_type_e_symbol
         and has_type_s_symbol
         and type_e_assignment_count > 0
+        and type_s_assignment_count > 0
         and has_ground_no_slip
         and has_building_voxel_solid
     )
@@ -401,7 +414,7 @@ def main() -> int:
     }
 
     metadata_claims_advanced = any(
-        token in metadata_boundary_text
+        token in metadata_boundary_claim_text
         for token in [
             "non_reflecting",
             "non-reflecting",
