@@ -67,6 +67,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now adds `native_probe_component_traceability`, requiring native FluidX3D probe IDs, official
   coordinates, projection tolerance, Uref, wind vector, compared component and component-sensitivity source window to
   match the same final averaged VTK window before residual bias can be interpreted.
+- `validation_gate.py` now adds `native_boundary_traceability`, requiring native FluidX3D boundary-source code,
+  AIJ-equivalent boundary evidence, current metadata hash, boundary evidence file hashes, supported outlet/side/top/
+  floor/roughness/fetch fields and case/wind identity before boundary-sensitive bias can be interpreted.
 - `case_metadata.json` records protocol-risk fields: simplified boundary-condition summary, expected VTK frame count, required averaging, and validation-readiness status.
 - `Run Simulation` no longer falls back to the legacy bundled v0.5.0 solver when no external FluidX3D path is provided; controlled validation must use an explicit external FluidX3D baseline.
 - Mode 3 now follows the same explicit FluidX3D source-path rule as Mode 1/2. The legacy bundled solver code path is

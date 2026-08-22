@@ -491,9 +491,27 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     boundary_source_gate = by_key.get("boundary_source_evidence")
     boundary_gate = by_key.get("boundary_protocol")
     roughness_gate = by_key.get("roughness_or_precursor")
-    if any(gate is None or gate.get("status") != PASS for gate in [boundary_source_gate, boundary_gate, roughness_gate]):
+    native_boundary_traceability_gate = by_key.get("native_boundary_traceability")
+    if any(
+        gate is None or gate.get("status") != PASS
+        for gate in [
+            boundary_source_gate,
+            boundary_gate,
+            roughness_gate,
+            native_boundary_traceability_gate,
+        ]
+    ):
         boundary_priority_gate = next(
-            (gate for gate in [boundary_source_gate, boundary_gate, roughness_gate] if gate is None or gate.get("status") != PASS),
+            (
+                gate
+                for gate in [
+                    boundary_source_gate,
+                    boundary_gate,
+                    roughness_gate,
+                    native_boundary_traceability_gate,
+                ]
+                if gate is None or gate.get("status") != PASS
+            ),
             boundary_gate,
         )
         add_priority(
@@ -2209,6 +2227,82 @@ def native_probe_component_traceability_status(
         value = str(get_any(native_preconditions_audit, [key]) or "").strip()
         if not value:
             reasons.append(f"{key}_missing")
+
+    return {
+        "ok": not reasons,
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+    }
+
+
+def native_boundary_traceability_status(
+    native_preconditions_audit: Dict[str, Any],
+    expected_case: str = "",
+    expected_wind_direction: str = "",
+) -> Dict[str, Any]:
+    reasons: List[str] = []
+    if not native_preconditions_audit:
+        reasons.append("native_preconditions_audit_missing")
+
+    for key in [
+        "boundary_source_gate",
+        "paper_grade_boundary_source_gate",
+        "boundary_protocol_gate",
+        "boundary_evidence_gate",
+        "boundary_run_identity_gate",
+        "boundary_clearance_numeric_gate",
+        "boundary_blockage_gate",
+    ]:
+        value = str(get_any(native_preconditions_audit, [key]) or "").strip().lower()
+        if value != "pass":
+            reasons.append(f"{key}_not_pass:{value or 'missing'}")
+
+    for key in [
+        "boundary_source_wind_tunnel_equivalent",
+        "boundary_source_setup_cpp_sha256_matches_current",
+        "boundary_evidence_metadata_sha256_matches_current",
+        "boundary_evidence_files_all_hashed",
+        "boundary_equivalence_supported",
+        "boundary_evidence_class_supported",
+        "boundary_condition_fields_supported",
+    ]:
+        value = as_bool(get_any(native_preconditions_audit, [key]))
+        if value is not True:
+            reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+
+    simplified = as_bool(get_any(native_preconditions_audit, ["boundary_source_simplified"]))
+    if simplified is not False:
+        reasons.append(
+            f"boundary_source_simplified_not_false:{simplified if simplified is not None else 'missing'}"
+        )
+
+    for key in [
+        "boundary_source_missing_paper_grade_source_evidence",
+        "boundary_missing_evidence_fields",
+        "boundary_unsupported_condition_fields",
+        "boundary_evidence_files_missing",
+        "boundary_evidence_files_empty",
+        "boundary_evidence_files_unreadable",
+        "boundary_required_support_fields_missing_or_false",
+    ]:
+        values = as_string_list(get_any(native_preconditions_audit, [key]))
+        if values:
+            reasons.append(f"{key}_not_empty:{','.join(values)}")
+
+    evidence_case = str(get_any(native_preconditions_audit, ["boundary_evidence_aij_case"]) or "").strip()
+    evidence_wind = str(
+        get_any(native_preconditions_audit, ["boundary_evidence_wind_direction"]) or ""
+    ).strip()
+    if not evidence_case:
+        reasons.append("boundary_evidence_aij_case_missing")
+    elif expected_case and evidence_case.lower() != expected_case.strip().lower():
+        reasons.append(f"boundary_evidence_aij_case_mismatch:{evidence_case}!={expected_case}")
+    if not evidence_wind:
+        reasons.append("boundary_evidence_wind_direction_missing")
+    elif expected_wind_direction and evidence_wind.lower() != expected_wind_direction.strip().lower():
+        reasons.append(
+            f"boundary_evidence_wind_direction_mismatch:{evidence_wind}!={expected_wind_direction}"
+        )
 
     return {
         "ok": not reasons,
@@ -4592,6 +4686,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_preconditions_boundary_evidence_gate = str(
         get_any(native_preconditions_audit, ["boundary_evidence_gate"]) or ""
     ).strip().lower()
+    native_boundary_expected_case = str(args.case or "").strip()
+    native_boundary_expected_wind_direction = str(
+        get_any(metrics, ["wind_direction", "WindDirection", "Wind_direction"]) or ""
+    ).strip()
     native_preconditions_probe_row_count = as_int(
         get_any(native_preconditions_audit, ["probe_audit_row_count"])
     )
@@ -4692,10 +4790,44 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         ),
         "Regenerate probe_audit.csv and component_sensitivity_audit.json from the same final VTK window, with official probe IDs, official coordinates, Uref, wind vector, compared component, tolerance and source hashes closed.",
     )
+    native_boundary_traceability = native_boundary_traceability_status(
+        native_preconditions_audit,
+        expected_case=native_boundary_expected_case,
+        expected_wind_direction=native_boundary_expected_wind_direction,
+    )
+    add_gate(
+        gates,
+        "native_boundary_traceability",
+        PASS if native_boundary_traceability["ok"] else FAIL,
+        (
+            f"native_preconditions_audit={native_preconditions_audit_path or 'missing'}; "
+            f"reasons={native_boundary_traceability['reasons_csv'] or 'none'}; "
+            f"boundary_source_gate={native_preconditions_boundary_source_gate or 'missing'}; "
+            f"paper_grade_boundary_source_gate={native_preconditions_paper_boundary_gate or 'missing'}; "
+            f"boundary_source_wind_tunnel_equivalent={native_preconditions_boundary_equivalent}; "
+            f"boundary_source_simplified={native_preconditions_boundary_simplified}; "
+            f"boundary_source_setup_cpp_sha256_matches_current={get_any(native_preconditions_audit, ['boundary_source_setup_cpp_sha256_matches_current'])}; "
+            f"boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
+            f"boundary_evidence_gate={native_preconditions_boundary_evidence_gate or 'missing'}; "
+            f"boundary_run_identity_gate={get_any(native_preconditions_audit, ['boundary_run_identity_gate']) or 'missing'}; "
+            f"boundary_evidence_metadata_sha256_matches_current={get_any(native_preconditions_audit, ['boundary_evidence_metadata_sha256_matches_current'])}; "
+            f"boundary_evidence_files_all_hashed={get_any(native_preconditions_audit, ['boundary_evidence_files_all_hashed'])}; "
+            f"boundary_equivalence_supported={get_any(native_preconditions_audit, ['boundary_equivalence_supported'])}; "
+            f"boundary_evidence_class_supported={get_any(native_preconditions_audit, ['boundary_evidence_class_supported'])}; "
+            f"boundary_condition_fields_supported={get_any(native_preconditions_audit, ['boundary_condition_fields_supported'])}; "
+            f"boundary_required_support_fields_missing_or_false={get_any(native_preconditions_audit, ['boundary_required_support_fields_missing_or_false_csv']) or 'none'}; "
+            f"boundary_evidence_aij_case={get_any(native_preconditions_audit, ['boundary_evidence_aij_case']) or 'missing'}; "
+            f"expected_case={native_boundary_expected_case or 'not_set'}; "
+            f"boundary_evidence_wind_direction={get_any(native_preconditions_audit, ['boundary_evidence_wind_direction']) or 'missing'}; "
+            f"expected_wind_direction={native_boundary_expected_wind_direction or 'not_set'}"
+        ),
+        "Regenerate boundary_source_audit.json and boundary_protocol_audit.json from the current native setup, with AIJ-equivalent outlet/side/top/floor/roughness/fetch evidence, current metadata hash and hashed support files.",
+    )
     native_preconditions_full_evidence_ok = (
         native_preconditions_audit_path is not None
         and native_inlet_traceability["ok"]
         and native_probe_traceability["ok"]
+        and native_boundary_traceability["ok"]
         and native_preconditions_inlet_source_gate == "pass"
         and native_preconditions_paper_inlet_gate == "pass"
         and native_preconditions_inlet_distribution_consistent is True
@@ -4739,6 +4871,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_inlet_traceability_reasons={native_inlet_traceability['reasons_csv'] or 'none'}; "
             f"native_probe_traceability_ok={native_probe_traceability['ok']}; "
             f"native_probe_traceability_reasons={native_probe_traceability['reasons_csv'] or 'none'}; "
+            f"native_boundary_traceability_ok={native_boundary_traceability['ok']}; "
+            f"native_boundary_traceability_reasons={native_boundary_traceability['reasons_csv'] or 'none'}; "
             f"boundary_source_gate={native_preconditions_boundary_source_gate or 'missing'}; "
             f"paper_grade_boundary_source_gate={native_preconditions_paper_boundary_gate or 'missing'}; "
             f"boundary_source_wind_tunnel_equivalent={native_preconditions_boundary_equivalent}; "
@@ -5748,6 +5882,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "native_inlet_precondition_traceability": "native FluidX3D inlet U/k and correlation traceability",
         "boundary_source_evidence": "boundary source evidence",
         "boundary_protocol": "boundary protocol",
+        "native_boundary_traceability": "native FluidX3D AIJ boundary traceability",
         "roughness_or_precursor": "roughness or precursor evidence",
         "native_preconditions_full_evidence": "native FluidX3D preconditions",
         "native_probe_component_traceability": "native FluidX3D probe/component/Uref traceability",
