@@ -464,6 +464,14 @@ def expected_vtk_frame_preflight(
         else:
             expected_steps = list(range(start, requested_time_steps + 1, requested_save_interval))
     expected_count = len(expected_steps) if expected_steps else metadata_expected
+    requested_frame_shortfall = (
+        None if expected_count is None else max(0, min_avg_frames - expected_count)
+    )
+    requested_averaging_window_shortfall = (
+        min_avg_frames
+        if average_last_n <= 0
+        else max(0, min_avg_frames - average_last_n)
+    )
     if expected_count is None:
         reasons.append("requested_vtk_frame_count_unavailable")
     elif expected_count < min_avg_frames:
@@ -476,6 +484,11 @@ def expected_vtk_frame_preflight(
         expected_final_window_steps = expected_steps[-average_last_n:]
         if len(expected_final_window_steps) >= 2:
             expected_final_window_step_span = expected_final_window_steps[-1] - expected_final_window_steps[0]
+    requested_final_window_step_span_shortfall = (
+        None
+        if expected_final_window_step_span is None
+        else max(0, min_avg_step_span - expected_final_window_step_span)
+    )
     if min_avg_step_span > 0:
         if expected_final_window_step_span is None:
             reasons.append("requested_vtk_expected_final_window_step_span_missing")
@@ -486,11 +499,14 @@ def expected_vtk_frame_preflight(
         "requested_vtk_save_interval": requested_save_interval,
         "requested_vtk_save_start_step": requested_save_start,
         "requested_vtk_frame_count": expected_count,
+        "requested_vtk_frame_shortfall": requested_frame_shortfall,
         "requested_vtk_expected_time_steps": expected_steps,
         "requested_vtk_expected_time_steps_csv": ",".join(str(step) for step in expected_steps),
         "requested_vtk_expected_final_window_time_steps": expected_final_window_steps,
         "requested_vtk_expected_final_window_time_steps_csv": ",".join(str(step) for step in expected_final_window_steps),
         "requested_vtk_expected_final_window_step_span": expected_final_window_step_span,
+        "requested_vtk_averaging_window_shortfall": requested_averaging_window_shortfall,
+        "requested_vtk_expected_final_window_step_span_shortfall": requested_final_window_step_span_shortfall,
         "requested_vtk_minimum_step_span": min_avg_step_span,
         "metadata_expected_vtk_frame_count": metadata_expected,
         "requested_vtk_frame_gate": "pass" if not reasons else "diagnostic_only",
@@ -520,6 +536,10 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
     sampled_stability = compute_sampled_vtk_stability(
         selected_vtk_files,
         args.vtk_stability_sample_limit,
+    )
+    averaged_frame_shortfall = max(0, args.min_avg_frames - len(selected_steps))
+    source_step_span_shortfall = (
+        None if source_step_span is None else max(0, args.min_avg_step_span - source_step_span)
     )
     freshness_audit = run_freshness_audit(run_dir, metadata_path, selected_vtk_files)
     cli_speed_fields = {
@@ -613,16 +633,20 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "average_last_n_requested": args.average_last_n,
         "averaging_enabled": args.average_last_n > 0,
         "averaged_frame_count": len(selected_steps),
+        "averaged_frame_shortfall": averaged_frame_shortfall,
         "available_frame_count": len(known_steps),
         "requested_time_steps": requested_frame_preflight["requested_time_steps"],
         "requested_vtk_save_interval": requested_frame_preflight["requested_vtk_save_interval"],
         "requested_vtk_save_start_step": requested_frame_preflight["requested_vtk_save_start_step"],
         "requested_vtk_frame_count": requested_frame_preflight["requested_vtk_frame_count"],
+        "requested_vtk_frame_shortfall": requested_frame_preflight["requested_vtk_frame_shortfall"],
         "requested_vtk_expected_time_steps": requested_frame_preflight["requested_vtk_expected_time_steps"],
         "requested_vtk_expected_time_steps_csv": requested_frame_preflight["requested_vtk_expected_time_steps_csv"],
         "requested_vtk_expected_final_window_time_steps": requested_frame_preflight["requested_vtk_expected_final_window_time_steps"],
         "requested_vtk_expected_final_window_time_steps_csv": requested_frame_preflight["requested_vtk_expected_final_window_time_steps_csv"],
         "requested_vtk_expected_final_window_step_span": requested_frame_preflight["requested_vtk_expected_final_window_step_span"],
+        "requested_vtk_averaging_window_shortfall": requested_frame_preflight["requested_vtk_averaging_window_shortfall"],
+        "requested_vtk_expected_final_window_step_span_shortfall": requested_frame_preflight["requested_vtk_expected_final_window_step_span_shortfall"],
         "requested_vtk_minimum_step_span": requested_frame_preflight["requested_vtk_minimum_step_span"],
         "metadata_expected_vtk_frame_count": requested_frame_preflight["metadata_expected_vtk_frame_count"],
         "requested_vtk_frame_gate": requested_frame_preflight["requested_vtk_frame_gate"],
@@ -635,6 +659,7 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "source_first_time_step": selected_steps[0] if selected_steps else None,
         "source_last_time_step": selected_steps[-1] if selected_steps else None,
         "source_step_span": source_step_span,
+        "source_step_span_shortfall": source_step_span_shortfall,
         "latest_available_time_step": known_steps[-1] if known_steps else None,
         "selected_last_window": selected_last_window,
         "source_steps_strictly_increasing": increasing,

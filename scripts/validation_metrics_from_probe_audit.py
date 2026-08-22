@@ -31,14 +31,18 @@ TEMPLATE_FIELDS = [
     "steps",
     "save_interval",
     "averaging_window",
+    "averaged_frame_shortfall",
     "available_frame_count",
     "vtk_pattern",
     "requested_time_steps",
     "requested_vtk_save_interval",
     "requested_vtk_save_start_step",
     "requested_vtk_frame_count",
+    "requested_vtk_frame_shortfall",
     "requested_vtk_expected_final_window_time_steps",
     "requested_vtk_expected_final_window_step_span",
+    "requested_vtk_averaging_window_shortfall",
+    "requested_vtk_expected_final_window_step_span_shortfall",
     "requested_vtk_minimum_step_span",
     "requested_vtk_frame_gate",
     "requested_vtk_frame_gate_reasons",
@@ -50,6 +54,7 @@ TEMPLATE_FIELDS = [
     "source_first_time_step",
     "source_last_time_step",
     "source_step_span",
+    "source_step_span_shortfall",
     "minimum_validation_average_step_span",
     "latest_available_time_step",
     "selected_last_window",
@@ -1304,6 +1309,10 @@ def main() -> int:
         audit_int(inlet_profile_audit, "frame_count"),
         args.averaging_window,
     )
+    averaged_frame_shortfall = first_int(
+        audit_int(read_vtk_audit, "averaged_frame_shortfall"),
+        audit_int(inlet_profile_audit, "averaged_frame_shortfall"),
+    )
     available_frame_count = first_int(
         audit_int(read_vtk_audit, "available_frame_count"),
         audit_int(inlet_profile_audit, "available_frame_count"),
@@ -1312,11 +1321,18 @@ def main() -> int:
     requested_vtk_save_interval = audit_int(read_vtk_audit, "requested_vtk_save_interval")
     requested_vtk_save_start_step = audit_int(read_vtk_audit, "requested_vtk_save_start_step")
     requested_vtk_frame_count = audit_int(read_vtk_audit, "requested_vtk_frame_count")
+    requested_vtk_frame_shortfall = audit_int(read_vtk_audit, "requested_vtk_frame_shortfall")
     requested_vtk_expected_final_window_time_steps = first_text(
         read_vtk_audit.get("requested_vtk_expected_final_window_time_steps_csv")
     )
     requested_vtk_expected_final_window_step_span = audit_int(
         read_vtk_audit, "requested_vtk_expected_final_window_step_span"
+    )
+    requested_vtk_averaging_window_shortfall = audit_int(
+        read_vtk_audit, "requested_vtk_averaging_window_shortfall"
+    )
+    requested_vtk_expected_final_window_step_span_shortfall = audit_int(
+        read_vtk_audit, "requested_vtk_expected_final_window_step_span_shortfall"
     )
     requested_vtk_minimum_step_span = audit_int(read_vtk_audit, "requested_vtk_minimum_step_span")
     requested_vtk_frame_gate = first_text(read_vtk_audit.get("requested_vtk_frame_gate"))
@@ -1337,6 +1353,10 @@ def main() -> int:
     )
     if source_step_span is None and source_first_time_step is not None and source_last_time_step is not None:
         source_step_span = source_last_time_step - source_first_time_step
+    source_step_span_shortfall = first_int(
+        audit_int(read_vtk_audit, "source_step_span_shortfall"),
+        audit_int(inlet_profile_audit, "source_step_span_shortfall"),
+    )
     minimum_average_step_span = first_int(
         audit_int(read_vtk_audit, "minimum_validation_average_step_span"),
         audit_int(inlet_profile_audit, "minimum_validation_average_step_span"),
@@ -1436,14 +1456,18 @@ def main() -> int:
             "steps": fmt(args.steps),
             "save_interval": fmt(args.save_interval),
             "averaging_window": fmt(averaging_window),
+            "averaged_frame_shortfall": fmt(averaged_frame_shortfall),
             "available_frame_count": fmt(available_frame_count),
             "vtk_pattern": audit_field(read_vtk_audit, "vtk_pattern") or audit_field(inlet_profile_audit, "vtk_pattern"),
             "requested_time_steps": fmt(requested_time_steps),
             "requested_vtk_save_interval": fmt(requested_vtk_save_interval),
             "requested_vtk_save_start_step": fmt(requested_vtk_save_start_step),
             "requested_vtk_frame_count": fmt(requested_vtk_frame_count),
+            "requested_vtk_frame_shortfall": fmt(requested_vtk_frame_shortfall),
             "requested_vtk_expected_final_window_time_steps": requested_vtk_expected_final_window_time_steps,
             "requested_vtk_expected_final_window_step_span": fmt(requested_vtk_expected_final_window_step_span),
+            "requested_vtk_averaging_window_shortfall": fmt(requested_vtk_averaging_window_shortfall),
+            "requested_vtk_expected_final_window_step_span_shortfall": fmt(requested_vtk_expected_final_window_step_span_shortfall),
             "requested_vtk_minimum_step_span": fmt(requested_vtk_minimum_step_span),
             "requested_vtk_frame_gate": requested_vtk_frame_gate,
             "requested_vtk_frame_gate_reasons": requested_vtk_frame_gate_reasons,
@@ -1455,6 +1479,7 @@ def main() -> int:
             "source_first_time_step": fmt(source_first_time_step),
             "source_last_time_step": fmt(source_last_time_step),
             "source_step_span": fmt(source_step_span),
+            "source_step_span_shortfall": fmt(source_step_span_shortfall),
             "minimum_validation_average_step_span": fmt(minimum_average_step_span),
             "latest_available_time_step": fmt(latest_available_time_step),
             "selected_last_window": selected_last_window,
