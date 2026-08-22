@@ -824,6 +824,41 @@ def audit_source_hashes(audit: Dict[str, Any]) -> List[str]:
     return []
 
 
+def step_hash_pairs_from_steps_hashes(steps: List[int], hashes: List[str]) -> List[Tuple[int, str]]:
+    if not steps or not hashes or len(steps) != len(hashes):
+        return []
+    return [(step, digest) for step, digest in zip(steps, hashes)]
+
+
+def audit_source_step_hash_pairs(audit: Dict[str, Any]) -> List[Tuple[int, str]]:
+    for key in ["selected_vtk_files", "freshness_selected_vtk_files", "vtk_files"]:
+        records = audit.get(key)
+        if not isinstance(records, list):
+            continue
+        pairs: List[Tuple[int, str]] = []
+        for record in records:
+            if not isinstance(record, dict):
+                continue
+            step = as_int(
+                record.get("time_step")
+                or record.get("TimeStep")
+                or record.get("timestep")
+                or record.get("step")
+            )
+            digest = str(
+                record.get("sha256")
+                or record.get("Sha256")
+                or record.get("SHA256")
+                or record.get("hash")
+                or ""
+            ).strip().lower()
+            if step is not None and digest:
+                pairs.append((step, digest))
+        if pairs:
+            return sorted(pairs)
+    return step_hash_pairs_from_steps_hashes(audit_source_steps(audit), audit_source_hashes(audit))
+
+
 def runtime_source_hashes(runtime_audit: Dict[str, Any], runtime_steps: List[int]) -> List[str]:
     records = runtime_audit.get("freshness_selected_vtk_files")
     if isinstance(records, list) and records:
@@ -856,8 +891,11 @@ def append_source_window_reasons(
 ) -> Dict[str, Any]:
     audit_steps = audit_source_steps(audit)
     audit_hashes = audit_source_hashes(audit)
+    audit_step_hash_pairs = audit_source_step_hash_pairs(audit)
+    runtime_step_hash_pairs = step_hash_pairs_from_steps_hashes(runtime_steps, runtime_hashes)
     steps_match = bool(runtime_steps) and audit_steps == runtime_steps
     hashes_match = bool(runtime_hashes) and bool(audit_hashes) and set(audit_hashes) == set(runtime_hashes)
+    step_hash_pairs_match = bool(runtime_step_hash_pairs) and audit_step_hash_pairs == runtime_step_hash_pairs
     if audit:
         if not runtime_steps:
             reasons.append(f"{label}_runtime_source_time_steps_missing")
@@ -871,11 +909,14 @@ def append_source_window_reasons(
             reasons.append(f"{label}_source_vtk_hashes_missing")
         elif not hashes_match:
             reasons.append(f"{label}_source_vtk_hashes_mismatch")
+        if not step_hash_pairs_match:
+            reasons.append(f"{label}_source_step_hash_pairs_mismatch")
     return {
         f"{label}_source_time_steps": audit_steps,
         f"{label}_source_time_steps_match_runtime": steps_match,
         f"{label}_source_vtk_sha256": audit_hashes,
         f"{label}_source_vtk_sha256_match_runtime": hashes_match,
+        f"{label}_source_step_hash_pairs_match_runtime": step_hash_pairs_match,
     }
 
 
@@ -1156,6 +1197,7 @@ def build_inlet_equivalence_evidence_reasons(
     for key in [
         "inlet_profile_source_time_steps_match_runtime",
         "inlet_profile_source_vtk_sha256_match_runtime",
+        "inlet_profile_source_step_hash_pairs_match_runtime",
     ]:
         value = as_bool(inlet_profile_window_check.get(key))
         if value is not True:
@@ -1190,6 +1232,7 @@ def build_inlet_equivalence_evidence_reasons(
     for key in [
         "inlet_correlation_source_time_steps_match_runtime",
         "inlet_correlation_source_vtk_sha256_match_runtime",
+        "inlet_correlation_source_step_hash_pairs_match_runtime",
     ]:
         value = as_bool(inlet_correlation_window_check.get(key))
         if value is not True:
@@ -2229,11 +2272,18 @@ def main() -> int:
     boundary_runtime_steps_uniform = source_steps_uniformly_spaced(boundary_runtime_steps)
     boundary_runtime_hash_count = len(boundary_runtime_hashes)
     boundary_runtime_hash_unique_count = len(set(boundary_runtime_hashes))
+    runtime_step_hash_pairs = step_hash_pairs_from_steps_hashes(runtime_steps, runtime_hashes)
+    boundary_runtime_step_hash_pairs = audit_source_step_hash_pairs(boundary_runtime_audit)
     boundary_runtime_steps_match_runtime = bool(runtime_steps) and boundary_runtime_steps == runtime_steps
     boundary_runtime_hashes_match_runtime = (
         bool(runtime_hashes)
         and bool(boundary_runtime_hashes)
         and set(boundary_runtime_hashes) == set(runtime_hashes)
+    )
+    boundary_runtime_step_hash_pairs_match_runtime = (
+        bool(runtime_step_hash_pairs)
+        and bool(boundary_runtime_step_hash_pairs)
+        and boundary_runtime_step_hash_pairs == runtime_step_hash_pairs
     )
     if not boundary_runtime_audit:
         reasons.append("boundary_runtime_audit_missing")
@@ -2268,6 +2318,8 @@ def main() -> int:
             reasons.append("boundary_runtime_source_step_spacing_not_uniform")
         if not boundary_runtime_hashes_match_runtime:
             reasons.append("boundary_runtime_source_vtk_sha256_mismatch_runtime")
+        if not boundary_runtime_step_hash_pairs_match_runtime:
+            reasons.append("boundary_runtime_source_step_hash_pairs_mismatch_runtime")
         if boundary_runtime_hash_count != len(boundary_runtime_steps):
             reasons.append("boundary_runtime_source_vtk_sha256_count_mismatch_time_steps")
         if boundary_runtime_hash_count < args.min_avg_frames:
@@ -2920,6 +2972,7 @@ def main() -> int:
         "boundary_runtime_source_vtk_sha256": boundary_runtime_hashes,
         "boundary_runtime_source_vtk_sha256_csv": ";".join(boundary_runtime_hashes),
         "boundary_runtime_source_vtk_sha256_match_runtime": boundary_runtime_hashes_match_runtime,
+        "boundary_runtime_source_step_hash_pairs_match_runtime": boundary_runtime_step_hash_pairs_match_runtime,
         "boundary_runtime_source_vtk_sha256_count": boundary_runtime_hash_count,
         "boundary_runtime_source_vtk_sha256_unique_count": boundary_runtime_hash_unique_count,
         "boundary_runtime_frame_count": boundary_runtime_frame_count,

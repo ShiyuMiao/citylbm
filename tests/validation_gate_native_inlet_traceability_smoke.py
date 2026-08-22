@@ -35,10 +35,12 @@ def passing_native_audit():
         "inlet_profile_af_csv_sha256_matches_expected": True,
         "inlet_profile_source_time_steps_match_runtime": True,
         "inlet_profile_source_vtk_sha256_match_runtime": True,
+        "inlet_profile_source_step_hash_pairs_match_runtime": True,
         "inlet_profile_source_steps_strictly_increasing": True,
         "inlet_profile_source_step_spacing_uniform": True,
         "inlet_correlation_source_time_steps_match_runtime": True,
         "inlet_correlation_source_vtk_sha256_match_runtime": True,
+        "inlet_correlation_source_step_hash_pairs_match_runtime": True,
         "inlet_correlation_source_steps_strictly_increasing": True,
         "inlet_correlation_source_step_spacing_uniform": True,
         "inlet_source_has_streamwise_clipping_control": True,
@@ -77,6 +79,7 @@ def main() -> int:
 
     bad = copy.deepcopy(passing_native_audit())
     bad["inlet_profile_source_vtk_sha256_match_runtime"] = False
+    bad["inlet_profile_source_step_hash_pairs_match_runtime"] = False
     bad["inlet_correlation_source_step_span"] = 3000
     failed = module.native_inlet_precondition_traceability_status(
         bad,
@@ -86,6 +89,8 @@ def main() -> int:
         raise AssertionError(failed)
     reasons = failed["reasons"]
     if "inlet_profile_source_vtk_sha256_match_runtime_not_true:False" not in reasons:
+        raise AssertionError(reasons)
+    if "inlet_profile_source_step_hash_pairs_match_runtime_not_true:False" not in reasons:
         raise AssertionError(reasons)
     if "inlet_correlation_source_step_span_below_20000" not in reasons:
         raise AssertionError(reasons)

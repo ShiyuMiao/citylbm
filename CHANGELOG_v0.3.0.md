@@ -99,6 +99,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native boundary runtime traceability now also checks that the boundary-runtime audit uses the same final-window
   `source_time_steps` and VTK SHA256 set as the main runtime audit, preventing stale boundary-preservation evidence
   from supporting Case A/E bias interpretation.
+- Native inlet profile, inlet correlation and boundary-runtime traceability now require `time_step -> VTK SHA256` pair
+  equality against the main runtime final window. Matching only the time-step list and the unordered hash set is no
+  longer sufficient for paper-grade native FluidX3D evidence.
 - `validation_gate.py` now adds `native_time_averaging_traceability`, requiring native FluidX3D planned and runtime
   final-window frame counts, solver-step span, increasing/uniform source steps and empty shortfall reasons before a
   native baseline or systematic-bias interpretation can pass.

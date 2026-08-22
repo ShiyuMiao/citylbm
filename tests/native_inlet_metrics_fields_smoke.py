@@ -119,6 +119,7 @@ def main() -> int:
                     "boundary_runtime_source_steps_strictly_increasing": True,
                     "boundary_runtime_source_step_spacing_uniform": True,
                     "boundary_runtime_source_vtk_sha256_match_runtime": False,
+                    "boundary_runtime_source_step_hash_pairs_match_runtime": False,
                     "native_inlet_equivalence_gate": "fail",
                     "native_inlet_equivalence_gate_reasons_csv": (
                         "inlet_source_velocity_field_only_not_false:True;"
@@ -147,6 +148,7 @@ def main() -> int:
                     "inlet_profile_af_csv_sha256_matches_expected": False,
                     "inlet_profile_source_time_steps_match_runtime": True,
                     "inlet_profile_source_vtk_sha256_match_runtime": False,
+                    "inlet_profile_source_step_hash_pairs_match_runtime": False,
                     "inlet_profile_source_step_span": 2000,
                     "inlet_profile_minimum_step_span": 20000,
                     "inlet_correlation_audit": "run/inlet_correlation_audit.json",
@@ -160,6 +162,7 @@ def main() -> int:
                     "inlet_mean_turbulent_kinetic_energy_from_components": 0.14,
                     "inlet_correlation_source_time_steps_match_runtime": True,
                     "inlet_correlation_source_vtk_sha256_match_runtime": False,
+                    "inlet_correlation_source_step_hash_pairs_match_runtime": False,
                     "inlet_correlation_source_step_span": 2000,
                     "inlet_correlation_minimum_step_span": 20000,
                     "native_precondition_closure_gate": "fail",
@@ -226,6 +229,7 @@ def main() -> int:
         "native_inlet_profile_af_csv_sha256_matches_expected": "false",
         "native_inlet_profile_source_time_steps_match_runtime": "true",
         "native_inlet_profile_source_vtk_sha256_match_runtime": "false",
+        "native_inlet_profile_source_step_hash_pairs_match_runtime": "false",
         "native_inlet_profile_source_step_span": "2000",
         "native_inlet_profile_minimum_step_span": "20000",
         "native_inlet_correlation_audit": "run/inlet_correlation_audit.json",
@@ -239,6 +243,7 @@ def main() -> int:
         "native_inlet_mean_turbulent_kinetic_energy_from_components": "0.14",
         "native_inlet_correlation_source_time_steps_match_runtime": "true",
         "native_inlet_correlation_source_vtk_sha256_match_runtime": "false",
+        "native_inlet_correlation_source_step_hash_pairs_match_runtime": "false",
         "native_inlet_correlation_source_step_span": "2000",
         "native_inlet_correlation_minimum_step_span": "20000",
         "native_preconditions_time_average_evidence_gate": "fail",
@@ -255,6 +260,7 @@ def main() -> int:
         "native_boundary_runtime_source_steps_strictly_increasing": "true",
         "native_boundary_runtime_source_step_spacing_uniform": "true",
         "native_boundary_runtime_source_vtk_sha256_match_runtime": "false",
+        "native_boundary_runtime_source_step_hash_pairs_match_runtime": "false",
         "native_inlet_equivalence_gate": "fail",
         "native_inlet_equivalence_gate_reasons": (
             "inlet_source_velocity_field_only_not_false:True;"

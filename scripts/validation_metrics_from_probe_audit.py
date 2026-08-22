@@ -387,6 +387,7 @@ TEMPLATE_FIELDS = [
     "native_inlet_profile_af_csv_sha256_matches_expected",
     "native_inlet_profile_source_time_steps_match_runtime",
     "native_inlet_profile_source_vtk_sha256_match_runtime",
+    "native_inlet_profile_source_step_hash_pairs_match_runtime",
     "native_inlet_profile_source_step_span",
     "native_inlet_profile_minimum_step_span",
     "native_inlet_correlation_audit",
@@ -400,6 +401,7 @@ TEMPLATE_FIELDS = [
     "native_inlet_mean_turbulent_kinetic_energy_from_components",
     "native_inlet_correlation_source_time_steps_match_runtime",
     "native_inlet_correlation_source_vtk_sha256_match_runtime",
+    "native_inlet_correlation_source_step_hash_pairs_match_runtime",
     "native_inlet_correlation_source_step_span",
     "native_inlet_correlation_minimum_step_span",
     "native_inlet_source_stg_evidence_required",
@@ -477,6 +479,7 @@ TEMPLATE_FIELDS = [
     "native_boundary_runtime_source_steps_strictly_increasing",
     "native_boundary_runtime_source_step_spacing_uniform",
     "native_boundary_runtime_source_vtk_sha256_match_runtime",
+    "native_boundary_runtime_source_step_hash_pairs_match_runtime",
     "native_top_blocking_priority_rank",
     "native_top_blocking_priority_key",
     "native_top_blocking_priority_reason_count",
@@ -2313,6 +2316,9 @@ def main() -> int:
             "native_inlet_profile_source_vtk_sha256_match_runtime": first_bool_text(
                 native_preconditions_audit.get("inlet_profile_source_vtk_sha256_match_runtime")
             ),
+            "native_inlet_profile_source_step_hash_pairs_match_runtime": first_bool_text(
+                native_preconditions_audit.get("inlet_profile_source_step_hash_pairs_match_runtime")
+            ),
             "native_inlet_profile_source_step_span": fmt(
                 audit_int(native_preconditions_audit, "inlet_profile_source_step_span")
             ),
@@ -2343,6 +2349,9 @@ def main() -> int:
             ),
             "native_inlet_correlation_source_vtk_sha256_match_runtime": first_bool_text(
                 native_preconditions_audit.get("inlet_correlation_source_vtk_sha256_match_runtime")
+            ),
+            "native_inlet_correlation_source_step_hash_pairs_match_runtime": first_bool_text(
+                native_preconditions_audit.get("inlet_correlation_source_step_hash_pairs_match_runtime")
             ),
             "native_inlet_correlation_source_step_span": fmt(
                 audit_int(native_preconditions_audit, "inlet_correlation_source_step_span")
@@ -2554,6 +2563,9 @@ def main() -> int:
             ),
             "native_boundary_runtime_source_vtk_sha256_match_runtime": first_bool_text(
                 native_preconditions_audit.get("boundary_runtime_source_vtk_sha256_match_runtime")
+            ),
+            "native_boundary_runtime_source_step_hash_pairs_match_runtime": first_bool_text(
+                native_preconditions_audit.get("boundary_runtime_source_step_hash_pairs_match_runtime")
             ),
             "native_top_blocking_priority_rank": audit_field(
                 native_preconditions_audit, "native_top_blocking_priority_rank"

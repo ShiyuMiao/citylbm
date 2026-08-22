@@ -70,6 +70,7 @@
 - Native baseline metrics now also preserve the actual inlet distribution route and `EQUILIBRIUM_BOUNDARIES`/`TYPE_E` equilibrium-boundary evidence, so velocity-field-only inlet writes cannot be promoted as paper-grade FluidX3D inlet treatment.
 - Native probe/component traceability now requires component/Uref sensitivity audits to use the same runtime final-window time steps and VTK SHA256 set.
 - Native boundary traceability now requires boundary-runtime audits to use the same runtime final-window time steps and VTK SHA256 set.
+- Native inlet and boundary traceability now also require `time_step -> VTK SHA256` pairs to match the runtime final window, not only matching step lists and hash sets.
 - Added a separate `roughness_or_precursor` validation gate so AIJ Case A/E runs cannot pass paper-grade boundary checks through domain-clearance/blockage evidence alone when wind-tunnel roughness geometry, validated rough-wall treatment or precursor/recycling equivalence is missing.
 
 ### Known limits

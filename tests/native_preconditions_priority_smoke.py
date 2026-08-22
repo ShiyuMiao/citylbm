@@ -35,6 +35,26 @@ def main() -> int:
     if module.count_reason("probe_uref_mismatch_count", 80) != "probe_uref_mismatch_count_80":
         raise AssertionError("count reason did not preserve the failing row count")
 
+    source_window_reasons = []
+    source_window = module.append_source_window_reasons(
+        source_window_reasons,
+        "inlet_profile",
+        {
+            "source_time_steps": [1000, 2000],
+            "source_vtk_sha256": ["b" * 64, "a" * 64],
+        },
+        [1000, 2000],
+        ["a" * 64, "b" * 64],
+    )
+    if source_window["inlet_profile_source_time_steps_match_runtime"] is not True:
+        raise AssertionError(source_window)
+    if source_window["inlet_profile_source_vtk_sha256_match_runtime"] is not True:
+        raise AssertionError(source_window)
+    if source_window["inlet_profile_source_step_hash_pairs_match_runtime"] is not False:
+        raise AssertionError(source_window)
+    if "inlet_profile_source_step_hash_pairs_mismatch" not in source_window_reasons:
+        raise AssertionError(source_window_reasons)
+
     passing_time_reasons = module.build_time_average_evidence_reasons(
         runtime_audit_present=True,
         runtime_reported_time_average_gate="pass",
@@ -150,10 +170,12 @@ def main() -> int:
     passing_window_profile = {
         "inlet_profile_source_time_steps_match_runtime": True,
         "inlet_profile_source_vtk_sha256_match_runtime": True,
+        "inlet_profile_source_step_hash_pairs_match_runtime": True,
     }
     passing_window_correlation = {
         "inlet_correlation_source_time_steps_match_runtime": True,
         "inlet_correlation_source_vtk_sha256_match_runtime": True,
+        "inlet_correlation_source_step_hash_pairs_match_runtime": True,
     }
     passing_inlet_reasons = module.build_inlet_equivalence_evidence_reasons(
         inlet_source_audit=passing_inlet_source,
@@ -211,11 +233,13 @@ def main() -> int:
         inlet_profile_window_check={
             "inlet_profile_source_time_steps_match_runtime": True,
             "inlet_profile_source_vtk_sha256_match_runtime": False,
+            "inlet_profile_source_step_hash_pairs_match_runtime": False,
         },
         inlet_correlation_audit=failing_inlet_correlation,
         inlet_correlation_window_check={
             "inlet_correlation_source_time_steps_match_runtime": True,
             "inlet_correlation_source_vtk_sha256_match_runtime": False,
+            "inlet_correlation_source_step_hash_pairs_match_runtime": False,
         },
         min_avg_frames=40,
         min_avg_step_span=20000,
@@ -239,10 +263,12 @@ def main() -> int:
         "inlet_profile_frame_count_4_below_minimum_40",
         "inlet_profile_source_step_span_3000_below_minimum_20000",
         "inlet_profile_source_vtk_sha256_match_runtime_not_true:False",
+        "inlet_profile_source_step_hash_pairs_match_runtime_not_true:False",
         "inlet_tke_gate_not_pass:fail",
         "inlet_correlation_frame_count_4_below_minimum_40",
         "inlet_correlation_source_step_span_3000_below_minimum_20000",
         "inlet_correlation_source_vtk_sha256_match_runtime_not_true:False",
+        "inlet_correlation_source_step_hash_pairs_match_runtime_not_true:False",
         "inlet_tke_reason:tke_ratio_outside_tolerance",
     ]:
         if expected_reason not in failing_inlet_reasons:
