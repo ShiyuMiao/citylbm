@@ -23,6 +23,26 @@ PASS = "PASS"
 FAIL = "FAIL"
 WARN = "WARN"
 
+REQUIRED_PROTOCOL_ITEM_KEYS = [
+    "inlet_mean_profile",
+    "inlet_turbulence_k",
+    "inlet_turbulence_length_scale",
+    "inlet_reynolds_stress_tensor",
+    "inlet_temporal_sampling",
+    "inlet_distribution_consistency",
+    "native_fluidx3d_baseline",
+    "boundary_conditions",
+    "wall_roughness_model",
+    "lbm_stability_scaling",
+    "time_averaging",
+    "wind_direction_sign",
+    "coordinate_transform",
+    "probe_projection",
+    "normalization_basis",
+    "systematic_bias_gate",
+    "grid_resolution",
+]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -409,6 +429,17 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
     by_key = gate_by_key(gates)
     priorities: List[Dict[str, Any]] = []
 
+    protocol_gate = by_key.get("validation_protocol_content")
+    if protocol_gate is None or protocol_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            0,
+            "validation_protocol_content",
+            protocol_gate,
+            "The validation protocol audit is missing, empty or incomplete, so later inlet, boundary, averaging and bias diagnostics cannot be treated as a complete paper-grade evidence chain.",
+            "Regenerate validation_protocol_audit.json from the current case and verify all required protocol items before interpreting CFD error metrics.",
+        )
+
     source_gate = by_key.get("inlet_source_evidence")
     inlet_gate = by_key.get("inlet_turbulence")
     paper_inlet_gate = by_key.get("paper_grade_inlet_method")
@@ -669,6 +700,44 @@ def protocol_status(items: List[Dict[str, Any]], key: str) -> Optional[str]:
         if str(item.get("Key") or item.get("key") or "") == key:
             return str(item.get("Status") or item.get("status") or "").lower()
     return None
+
+
+def audit_protocol_content(
+    audit: Dict[str, Any],
+    required_keys: Iterable[str] = REQUIRED_PROTOCOL_ITEM_KEYS,
+) -> Dict[str, Any]:
+    items = [item for item in load_protocol_items(audit) if isinstance(item, dict)]
+    statuses = {
+        str(item.get("Key") or item.get("key") or "").strip(): str(
+            item.get("Status") or item.get("status") or ""
+        ).strip().lower()
+        for item in items
+        if str(item.get("Key") or item.get("key") or "").strip()
+    }
+    required = list(required_keys)
+    missing = [key for key in required if key not in statuses]
+    missing_status = [key for key in required if key in statuses and not statuses[key]]
+    failed = [key for key, status in statuses.items() if status == "fail"]
+    reasons: List[str] = []
+    if not audit or not items:
+        reasons.append("validation_protocol_audit_missing_or_empty")
+    reasons.extend(f"validation_protocol_item_missing:{key}" for key in missing)
+    reasons.extend(f"validation_protocol_item_status_missing:{key}" for key in missing_status)
+    reasons.extend(f"validation_protocol_item_fail:{key}" for key in failed)
+    return {
+        "ok": not reasons,
+        "item_count": len(items),
+        "required_item_count": len(required),
+        "audit_gate": str(audit.get("Gate") or audit.get("gate") or ""),
+        "missing_keys": missing,
+        "missing_status_keys": missing_status,
+        "failed_keys": failed,
+        "risk_keys": [key for key, status in statuses.items() if status == "risk"],
+        "partial_keys": [key for key, status in statuses.items() if status == "partial"],
+        "statuses": statuses,
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+    }
 
 
 def read_probe_counts(path: Optional[Path]) -> Tuple[Optional[int], Optional[int], Optional[str]]:
@@ -2091,6 +2160,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     manifest = read_json(manifest_path)
     metrics, metrics_path = read_metrics(metrics_path)
     items = load_protocol_items(audit)
+    protocol_content = audit_protocol_content(audit)
     shared_run_conditions = manifest.get("SharedRunConditions", {})
     if not isinstance(shared_run_conditions, dict):
         shared_run_conditions = {}
@@ -2133,6 +2203,23 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"metrics={metrics_path or 'missing'}"
         ),
         "Archive case_metadata.json, validation_protocol_audit.json, inlet_profile_audit.json, inlet_correlation_audit.json, inlet_source_audit.json, boundary_source_audit.json, boundary_protocol_audit.json, native_run_audit/read_vtk_audit JSON, native_preconditions_audit.json, grid_sensitivity_audit.json and metrics CSV/JSON for every run; CityLBM accuracy claims also require native_citylbm_parity_audit.json.",
+    )
+    add_gate(
+        gates,
+        "validation_protocol_content",
+        PASS if protocol_content["ok"] else FAIL,
+        (
+            f"audit={audit_path or 'missing'}; "
+            f"audit_gate={protocol_content['audit_gate'] or 'missing'}; "
+            f"item_count={protocol_content['item_count']}; "
+            f"required_item_count={protocol_content['required_item_count']}; "
+            f"missing_keys={';'.join(protocol_content['missing_keys']) or 'none'}; "
+            f"missing_status_keys={';'.join(protocol_content['missing_status_keys']) or 'none'}; "
+            f"failed_keys={';'.join(protocol_content['failed_keys']) or 'none'}; "
+            f"risk_keys={';'.join(protocol_content['risk_keys']) or 'none'}; "
+            f"partial_keys={';'.join(protocol_content['partial_keys']) or 'none'}"
+        ),
+        "Regenerate validation_protocol_audit.json from the current case until all required protocol items are present with explicit statuses and no item is marked fail.",
     )
 
     metrics_probe_audit_sha256 = str(
@@ -5291,6 +5378,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
 
     prerequisite_labels = {
+        "validation_protocol_content": "validation protocol content",
         "metrics_input_hash_traceability": "metrics hash traceability",
         "run_freshness": "fresh VTK inputs",
         "runtime_vtk_hash_traceability": "runtime VTK hash traceability",
