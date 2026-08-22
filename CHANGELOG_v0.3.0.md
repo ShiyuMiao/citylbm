@@ -388,6 +388,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `audit_native_preconditions.py` now independently audits per-probe official-coordinate deltas, normalization flags,
   wind-direction flags, `Uref`, nearest VTK distance and nonzero probe tolerance before a native FluidX3D baseline can
   pass paper-grade preconditions.
+- The Grasshopper `Run Simulation` component now blocks Mode 1/2/3 validation runs unless the planned VTK output provides
+  at least 20 saved frames and the final averaging window spans at least 5000 solver steps. Mode 0 still generates cases,
+  but flags shorter schedules as smoke/diagnostic only.
 - Added `scripts/audit_component_sensitivity.py` and wired it into the native validation chain, metrics builder and
   final gate. It compares `speed_ratio`, signed/absolute streamwise ratio and component ratios against official RS
   values, then flags whether a different component or a scale-like Uref/SI conversion factor can explain the bias before

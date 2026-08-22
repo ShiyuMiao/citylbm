@@ -46,7 +46,8 @@ namespace CityLBM.Components.Simulation
         private DateTime _componentCreatedAt = DateTime.Now;  // 组件创建时间
         private static readonly TimeSpan GH_LOAD_GRACE_PERIOD = TimeSpan.FromSeconds(3);  // GH 加载宽限期
 
-        private const int MinimumValidationAveragingFrames = 10;
+        private const int MinimumValidationAveragingFrames = 20;
+        private const int MinimumValidationAveragingStepSpan = 5000;
 
         public RunSimulationComponent()
             : base("Run Simulation", "Sim",
@@ -467,21 +468,28 @@ namespace CityLBM.Components.Simulation
             }
 
             int expectedFrames = ExpectedVtkFrameCount(settings);
+            int expectedFinalWindowStepSpan = ExpectedFinalWindowStepSpan(settings, MinimumValidationAveragingFrames);
             if (mode == 0)
             {
-                if (expectedFrames < MinimumValidationAveragingFrames)
+                if (expectedFrames < MinimumValidationAveragingFrames ||
+                    expectedFinalWindowStepSpan < MinimumValidationAveragingStepSpan)
                 {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                        $"Mode 0 will generate a smoke-test case only: expected VTK frames={expectedFrames}, minimum validation frames={MinimumValidationAveragingFrames}.");
+                        $"Mode 0 will generate a smoke/diagnostic case only: expected VTK frames={expectedFrames}, " +
+                        $"final-window step span={expectedFinalWindowStepSpan}; validation requires at least " +
+                        $"{MinimumValidationAveragingFrames} frames spanning {MinimumValidationAveragingStepSpan} steps.");
                 }
                 return true;
             }
 
-            if (expectedFrames < MinimumValidationAveragingFrames)
+            if (expectedFrames < MinimumValidationAveragingFrames ||
+                expectedFinalWindowStepSpan < MinimumValidationAveragingStepSpan)
             {
                 string message =
                     $"Mode {mode} validation run blocked: TimeSteps={settings.TimeSteps}, SaveInterval={settings.SaveInterval}, " +
-                    $"expected VTK frames={expectedFrames}. Use at least {MinimumValidationAveragingFrames} frames for the final time-averaging window.";
+                    $"expected VTK frames={expectedFrames}, final-window step span={expectedFinalWindowStepSpan}. " +
+                    $"Use at least {MinimumValidationAveragingFrames} frames spanning {MinimumValidationAveragingStepSpan} steps " +
+                    "for the final time-averaging window.";
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
                 OutputValidationFailure(DA, message);
                 return false;
@@ -495,6 +503,26 @@ namespace CityLBM.Components.Simulation
             return settings.SaveInterval > 0
                 ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                 : 0;
+        }
+
+        private static int ExpectedFinalWindowStepSpan(SimulationSettings settings, int averageFrameCount)
+        {
+            if (settings.SaveInterval <= 0 || settings.TimeSteps <= 0 || averageFrameCount <= 1)
+                return 0;
+
+            var savedSteps = new List<int>();
+            for (int step = settings.SaveInterval; step <= settings.TimeSteps; step += settings.SaveInterval)
+                savedSteps.Add(step);
+
+            if (savedSteps.Count == 0 || savedSteps[savedSteps.Count - 1] != settings.TimeSteps)
+                savedSteps.Add(settings.TimeSteps);
+
+            int windowCount = Math.Min(averageFrameCount, savedSteps.Count);
+            if (windowCount <= 1)
+                return 0;
+
+            int firstIndex = savedSteps.Count - windowCount;
+            return savedSteps[savedSteps.Count - 1] - savedSteps[firstIndex];
         }
 
         private static void OutputValidationFailure(IGH_DataAccess DA, string message)
