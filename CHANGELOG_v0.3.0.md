@@ -30,6 +30,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `horizontal_speed(_ratio)`, `abs_streamwise(_ratio)`, `lateral(_ratio)`, signed axis ratios and a
   `component_projection_basis`. `scripts/audit_component_sensitivity.py` includes the new candidates, making wind-sign,
   speed-vs-streamwise and Uref mistakes easier to detect before interpreting systematic bias.
+- `docs/validation_metrics_template.csv` is synchronized with the metrics writer fields, including boundary-audit
+  hash provenance and selected-component bias/mean diagnostics. A smoke test now fails if future metrics outputs and
+  the user-facing template diverge.
 - `Read VTK` now emits an explicit `time_averaging_gate` and GH warning when the selected VTK window is unaveraged,
   shorter than 40 frames, does not span at least 20000 solver steps, is not the last available window, non-uniform, or above the stability thresholds.
 - `Run Simulation` and `SimulationSettings` now default to `TimeSteps=40000` and `SaveInterval=1000`, producing about
