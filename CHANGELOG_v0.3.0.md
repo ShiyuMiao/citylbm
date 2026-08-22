@@ -155,6 +155,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/validation_gate.py` now computes official-coordinate delta coverage from the per-probe audit rows by default.
   `max_official_coordinate_delta_m` and `official_coordinate_delta_count` in `validation_metrics.csv` are summaries only
   and cannot replace `probe_audit.csv` for paper-grade coordinate closure.
+- `scripts/validation_gate.py` now recomputes per-probe official-coordinate deltas from the current official
+  RS/measurement CSV when the Grasshopper Data Probe audit does not already contain `official_coordinate_delta`. This
+  keeps coordinate closure tied to the archived official table and avoids requiring GH users to hand-author derived
+  coordinate-delta columns.
 - `scripts/validation_gate.py` now rechecks valid per-probe IDs against the current official RS/measurement table:
   every valid probe row must have a non-empty unique ID, and each ID must exist in the official table before
   coordinate/Uref/compared-component diagnostics can pass.

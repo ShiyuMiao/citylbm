@@ -785,6 +785,58 @@ def filter_official_identity_rows(
     return filtered, None
 
 
+def build_official_coordinate_lookup(
+    official_path: Optional[Path],
+    case: str = "",
+    wind_direction: str = "",
+) -> Tuple[Dict[str, Tuple[float, float, float]], Optional[str]]:
+    if not official_path or not official_path.exists():
+        return {}, "official measurement CSV not found"
+    with official_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        return {}, "official measurement CSV has no rows"
+    rows, filter_error = filter_official_identity_rows(rows, case, wind_direction)
+    if filter_error:
+        return {}, filter_error
+    if not rows:
+        return {}, "official measurement CSV has no matching case/wind rows"
+
+    id_candidates = ["probe_id", "ProbeId", "ProbeID", "No.", "No", "number", "point_id", "PointId", "id", "ID"]
+    id_column = find_csv_column(rows, id_candidates)
+    x_column = find_csv_column(rows, ["x", "X", "x_m", "X_m", "X(m)", "x(m)"])
+    y_column = find_csv_column(rows, ["y", "Y", "y_m", "Y_m", "Y(m)", "y(m)"])
+    z_column = find_csv_column(rows, ["z", "Z", "z_m", "Z_m", "Z(m)", "z(m)"])
+    if not id_column:
+        return {}, "official_id_column_missing"
+    if not x_column or not y_column or not z_column:
+        return {}, "official_coordinate_columns_missing"
+
+    coordinates: Dict[str, Tuple[float, float, float]] = {}
+    duplicate_ids = set()
+    invalid_coordinate_count = 0
+    for row in rows:
+        probe_id = normalized_column_key(str(row.get(id_column) or "").strip())
+        if not probe_id:
+            continue
+        x = as_float(row.get(x_column))
+        y = as_float(row.get(y_column))
+        z = as_float(row.get(z_column))
+        if x is None or y is None or z is None:
+            invalid_coordinate_count += 1
+            continue
+        if probe_id in coordinates:
+            duplicate_ids.add(probe_id)
+        coordinates[probe_id] = (x, y, z)
+    if duplicate_ids:
+        return {}, "official_duplicate_ids_after_normalization"
+    if invalid_coordinate_count:
+        return {}, f"official_invalid_coordinate_count:{invalid_coordinate_count}"
+    if not coordinates:
+        return {}, "official_coordinate_lookup_empty"
+    return coordinates, None
+
+
 def read_probe_component_audit(path: Optional[Path]) -> Tuple[Optional[int], List[str], Optional[int], Optional[str]]:
     if not path or not path.exists():
         return None, [], None, "probe audit CSV not found"
@@ -855,6 +907,9 @@ def read_probe_coordinate_normalization_audit(
     uref_tolerance: float,
     expected_wind_vector: Optional[Tuple[float, float, float]],
     wind_vector_tolerance: float,
+    official_path: Optional[Path] = None,
+    case: str = "",
+    wind_direction: str = "",
 ) -> Dict[str, Any]:
     result: Dict[str, Any] = {
         "valid_count": None,
@@ -873,6 +928,9 @@ def read_probe_coordinate_normalization_audit(
         "unique_wind_vector_count": None,
         "missing_vtk_grid_extent_count": 0,
         "outside_vtk_grid_extent_count": 0,
+        "official_coordinate_recomputed_count": 0,
+        "official_coordinate_source": "",
+        "official_coordinate_error": None,
         "error": None,
     }
     if not path or not path.exists():
@@ -885,6 +943,20 @@ def read_probe_coordinate_normalization_audit(
         result["error"] = "probe audit CSV has no rows"
         return result
 
+    official_coordinates, official_coordinate_error = build_official_coordinate_lookup(
+        official_path,
+        case,
+        wind_direction,
+    )
+    result["official_coordinate_error"] = official_coordinate_error
+    result["official_coordinate_source"] = (
+        "probe_audit_or_current_official_csv"
+        if official_coordinates
+        else "probe_audit_only"
+    )
+
+    id_candidates = ["probe_id", "ProbeId", "ProbeID", "No.", "No", "number", "point_id", "PointId", "id", "ID"]
+    probe_id_column = find_csv_column(rows, id_candidates)
     valid_count = 0
     urefs: List[float] = []
     wind_vectors: List[Tuple[float, float, float]] = []
@@ -933,6 +1005,20 @@ def read_probe_coordinate_normalization_audit(
                 ],
             )
         )
+        if coordinate_delta is None and official_coordinates and probe_id_column:
+            probe_id = normalized_column_key(str(row.get(probe_id_column) or "").strip())
+            official_coordinate = official_coordinates.get(probe_id)
+            if official_coordinate is not None:
+                probe_x = as_float(get_any(row, ["x", "X"]))
+                probe_y = as_float(get_any(row, ["y", "Y"]))
+                probe_z = as_float(get_any(row, ["z", "Z"]))
+                if probe_x is not None and probe_y is not None and probe_z is not None:
+                    coordinate_delta = max(
+                        abs(probe_x - official_coordinate[0]),
+                        abs(probe_y - official_coordinate[1]),
+                        abs(probe_z - official_coordinate[2]),
+                    )
+                    result["official_coordinate_recomputed_count"] += 1
         if coordinate_delta is None:
             result["missing_official_coordinate_delta_count"] += 1
         else:
@@ -4299,17 +4385,20 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     metrics_official_probe_coverage_ratio = as_float(
         get_any(metrics, ["official_probe_coverage_ratio", "OfficialProbeCoverageRatio"])
     )
+    identity_case = str(get_any(metrics, ["case", "Case"]) or args.case or "").strip()
+    identity_wind_direction = str(
+        get_any(metrics, ["wind_direction", "WindDirection", "Wind_direction"]) or ""
+    ).strip()
     probe_coord_norm = read_probe_coordinate_normalization_audit(
         probe_path,
         args.expected_uref,
         args.uref_tolerance,
         expected_wind_vector,
         args.wind_vector_tolerance,
+        official_path,
+        identity_case,
+        identity_wind_direction,
     )
-    identity_case = str(get_any(metrics, ["case", "Case"]) or args.case or "").strip()
-    identity_wind_direction = str(
-        get_any(metrics, ["wind_direction", "WindDirection", "Wind_direction"]) or ""
-    ).strip()
     probe_identity = read_probe_identity_audit(
         probe_path,
         official_path,
@@ -4422,6 +4511,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"metrics_max_official_coordinate_delta_m={metrics_coord_delta if metrics_coord_delta is not None else 'ignored'}; "
             f"metrics_official_coordinate_delta_count={metrics_coord_delta_count if metrics_coord_delta_count is not None else 'ignored'}; "
             f"probe_norm_valid_count={probe_coord_norm['valid_count']}; "
+            f"probe_official_coordinate_source={probe_coord_norm['official_coordinate_source']}; "
+            f"probe_official_coordinate_recomputed_count={probe_coord_norm['official_coordinate_recomputed_count']}; "
+            f"probe_official_coordinate_error={probe_coord_norm['official_coordinate_error'] or 'none'}; "
             f"probe_missing_official_coordinate_delta_count={probe_coord_norm['missing_official_coordinate_delta_count']}; "
             f"probe_missing_normalization_count={probe_coord_norm['missing_normalization_count']}; "
             f"probe_invalid_normalization_count={probe_coord_norm['invalid_normalization_count']}; "
