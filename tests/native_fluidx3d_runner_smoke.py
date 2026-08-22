@@ -12,6 +12,25 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 RUNNER = REPO / "scripts" / "run_native_fluidx3d_case.py"
+PROTOCOL_STATUSES = {
+    "inlet_mean_profile": "pass",
+    "inlet_turbulence_k": "partial",
+    "inlet_turbulence_length_scale": "partial",
+    "inlet_reynolds_stress_tensor": "risk",
+    "inlet_temporal_sampling": "partial",
+    "inlet_distribution_consistency": "risk",
+    "native_fluidx3d_baseline": "risk",
+    "boundary_conditions": "risk",
+    "wall_roughness_model": "risk",
+    "lbm_stability_scaling": "partial",
+    "time_averaging": "partial",
+    "wind_direction_sign": "partial",
+    "coordinate_transform": "partial",
+    "probe_projection": "risk",
+    "normalization_basis": "partial",
+    "systematic_bias_gate": "risk",
+    "grid_resolution": "partial",
+}
 
 
 def write(path: Path, text: str) -> None:
@@ -40,12 +59,23 @@ def create_source(root: Path) -> None:
     write(root / "src" / "lbm.cpp", "// lbm source\n")
 
 
+def validation_protocol_audit() -> dict:
+    return {
+        "SchemaVersion": 1,
+        "Gate": "not_paper_grade",
+        "Items": [
+            {"Key": key, "Status": status, "Evidence": "smoke"}
+            for key, status in PROTOCOL_STATUSES.items()
+        ],
+    }
+
+
 def create_case(root: Path) -> None:
     write(root / "src" / "setup.cpp", "// case setup\n")
     write(root / "src" / "defines.hpp", "// case defines\n")
     write(root / "case_metadata.json", json.dumps({"AijCase": "CaseA", "WindDirection": "N"}, indent=2))
     write(root / "domain_origin.json", json.dumps({"origin": [0, 0, 0]}, indent=2))
-    write(root / "validation_protocol_audit.json", json.dumps({"items": []}, indent=2))
+    write(root / "validation_protocol_audit.json", json.dumps(validation_protocol_audit(), indent=2))
     write(root / "buildings.stl", "solid smoke\nendsolid smoke\n")
 
 
@@ -89,6 +119,10 @@ def main() -> int:
             raise AssertionError("native path was not marked explicit")
         if dry["NativeFluidX3DSourceValidation"]["IsValid"] is not True:
             raise AssertionError(dry["NativeFluidX3DSourceValidation"])
+        if dry["ValidationProtocolAuditGate"]["Gate"] != "pass":
+            raise AssertionError(dry["ValidationProtocolAuditGate"])
+        if dry["ValidationProtocolAuditGate"]["Statuses"]["inlet_distribution_consistency"] != "risk":
+            raise AssertionError(dry["ValidationProtocolAuditGate"])
         if dry["Install"]["Performed"] is not False:
             raise AssertionError(dry["Install"])
         if (source_root / "src" / "setup.cpp").read_text(encoding="utf-8") != "// original native setup\n":
@@ -208,6 +242,41 @@ def main() -> int:
         missing_protocol = load_json(missing_protocol_manifest)
         if "case_required_file_missing:Validation protocol audit" not in missing_protocol["RunnerGate"]["Reasons"]:
             raise AssertionError(missing_protocol["RunnerGate"])
+
+        empty_protocol_case = temp / "empty_protocol_case"
+        create_case(empty_protocol_case)
+        write(empty_protocol_case / "validation_protocol_audit.json", json.dumps({"items": []}, indent=2))
+        empty_protocol_manifest = temp / "empty_protocol" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(empty_protocol_case),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(empty_protocol_manifest),
+                "--baseline-id",
+                "smoke-casea-native-empty-protocol",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+            ],
+            expected_returncode=2,
+        )
+        empty_protocol = load_json(empty_protocol_manifest)
+        if "validation_protocol_audit_missing_or_empty" not in empty_protocol["RunnerGate"]["Reasons"]:
+            raise AssertionError(empty_protocol["RunnerGate"])
+        if "validation_protocol_item_missing:inlet_distribution_consistency" not in empty_protocol["RunnerGate"]["Reasons"]:
+            raise AssertionError(empty_protocol["RunnerGate"])
 
     print("native_fluidx3d_runner_smoke passed")
     return 0

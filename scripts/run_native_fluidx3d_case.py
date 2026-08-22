@@ -42,6 +42,26 @@ OPTIONAL_CASE_FILES = [
     ("Equivalent precursor evidence", Path("equivalent_precursor_evidence.json")),
 ]
 
+REQUIRED_PROTOCOL_ITEM_KEYS = [
+    "inlet_mean_profile",
+    "inlet_turbulence_k",
+    "inlet_turbulence_length_scale",
+    "inlet_reynolds_stress_tensor",
+    "inlet_temporal_sampling",
+    "inlet_distribution_consistency",
+    "native_fluidx3d_baseline",
+    "boundary_conditions",
+    "wall_roughness_model",
+    "lbm_stability_scaling",
+    "time_averaging",
+    "wind_direction_sign",
+    "coordinate_transform",
+    "probe_projection",
+    "normalization_basis",
+    "systematic_bias_gate",
+    "grid_resolution",
+]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -96,6 +116,56 @@ def json_load(path: Path) -> Dict[str, Any]:
     with path.open("r", encoding="utf-8-sig") as handle:
         data = json.load(handle)
     return data if isinstance(data, dict) else {}
+
+
+def protocol_items(audit: Dict[str, Any]) -> List[Dict[str, Any]]:
+    for key in ["Items", "items", "ProtocolItems", "protocol_items"]:
+        value = audit.get(key)
+        if isinstance(value, list):
+            return [item for item in value if isinstance(item, dict)]
+    return []
+
+
+def protocol_item_key(item: Dict[str, Any]) -> str:
+    return str(item.get("Key") or item.get("key") or "").strip()
+
+
+def protocol_item_status(item: Dict[str, Any]) -> str:
+    return str(item.get("Status") or item.get("status") or "").strip().lower()
+
+
+def audit_validation_protocol(path: Path) -> Dict[str, Any]:
+    audit = json_load(path)
+    items = protocol_items(audit)
+    by_key = {protocol_item_key(item): protocol_item_status(item) for item in items if protocol_item_key(item)}
+    missing_keys = [key for key in REQUIRED_PROTOCOL_ITEM_KEYS if key not in by_key]
+    empty_status_keys = [key for key in REQUIRED_PROTOCOL_ITEM_KEYS if key in by_key and not by_key[key]]
+    fail_keys = [key for key, status in by_key.items() if status == "fail"]
+    risk_keys = [key for key, status in by_key.items() if status == "risk"]
+    partial_keys = [key for key, status in by_key.items() if status == "partial"]
+    reasons = []
+    if not audit or not items:
+        reasons.append("validation_protocol_audit_missing_or_empty")
+    reasons.extend(f"validation_protocol_item_missing:{key}" for key in missing_keys)
+    reasons.extend(f"validation_protocol_item_status_missing:{key}" for key in empty_status_keys)
+    reasons.extend(f"validation_protocol_item_fail:{key}" for key in fail_keys)
+    return {
+        "Path": str(path.resolve()),
+        "Exists": path.is_file(),
+        "Sha256": sha256_or_empty(path),
+        "Gate": "pass" if not reasons else "diagnostic_only",
+        "Reasons": reasons,
+        "ReasonsCsv": ";".join(reasons),
+        "AuditGate": str(audit.get("Gate") or audit.get("gate") or ""),
+        "ItemCount": len(items),
+        "RequiredItemKeys": REQUIRED_PROTOCOL_ITEM_KEYS,
+        "Statuses": by_key,
+        "MissingKeys": missing_keys,
+        "EmptyStatusKeys": empty_status_keys,
+        "FailKeys": fail_keys,
+        "RiskKeys": risk_keys,
+        "PartialKeys": partial_keys,
+    }
 
 
 def path_record(role: str, path: Path) -> Dict[str, Any]:
@@ -388,6 +458,7 @@ def main() -> int:
     metadata_path = case_dir / "case_metadata.json"
     metadata = json_load(metadata_path)
     case_label, wind_label = case_identity(metadata)
+    validation_protocol = audit_validation_protocol(case_dir / "validation_protocol_audit.json")
     expected_case = args.expected_aij_case.strip()
     expected_wind = args.expected_wind_direction.strip()
     source_validation = validate_source_root(source_root)
@@ -402,6 +473,8 @@ def main() -> int:
     for role, rel in REQUIRED_CASE_FILES:
         if not (case_dir / rel).is_file():
             reasons.append(f"case_required_file_missing:{role}")
+    if validation_protocol["Gate"] != "pass":
+        reasons.extend(str(reason) for reason in validation_protocol["Reasons"])
     if expected_case and not case_label:
         reasons.append("case_label_missing_in_metadata")
     elif not identity_matches(expected_case, case_label):
@@ -499,6 +572,7 @@ def main() -> int:
         "ExpectedAijCase": expected_case,
         "ExpectedWindDirection": expected_wind,
         "RequiredSourceFiles": required_files,
+        "ValidationProtocolAuditGate": validation_protocol,
         "Install": install_record,
         "Build": build_record,
         "Run": run_record,

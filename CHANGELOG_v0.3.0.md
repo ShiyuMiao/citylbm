@@ -193,6 +193,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/run_native_fluidx3d_case.py` now also fails fast to diagnostic-only when the generated case lacks
   `validation_protocol_audit.json`, when expected case/wind identity is missing or mismatched, or when the planned VTK
   schedule cannot provide the default 40-frame / 20000-step final averaging window.
+- `scripts/run_native_fluidx3d_case.py` now audits the content of `validation_protocol_audit.json`. Empty audit files,
+  missing protocol items, missing item statuses or explicit failed protocol items are diagnostic-only, so a native
+  FluidX3D baseline cannot pass merely because the audit file exists.
 - The native baseline manifest now includes existence flags and SHA256 hashes for the generated source, geometry and
   metadata files so paired native/CityLBM runs can prove they used identical inputs.
 - The native baseline manifest now includes a stable `BaselineId`, derived from the scene name and required source hashes,
