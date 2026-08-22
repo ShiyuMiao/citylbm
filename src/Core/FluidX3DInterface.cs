@@ -93,7 +93,8 @@ namespace CityLBM.Solver
         }
 
         public SolverResult RunWithBundledSolver(Scene scene, CartesianGrid grid, SimulationSettings settings,
-                                                  Action<int, string> progressCallback = null)
+                                                  Action<int, string> progressCallback = null,
+                                                  CancellationToken cancellationToken = default)
         {
             var result = new SolverResult { StartTime = DateTime.Now };
             var log = new StringBuilder();
@@ -108,8 +109,11 @@ namespace CityLBM.Solver
                 result.Success = false;
                 result.ErrorMessage = "FluidX3D Bundler init failed.\n" + FluidX3DBundler.Instance.GetInitLog();
                 result.Log = log.ToString();
+                result.EndTime = DateTime.Now;
                 return result;
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             log.AppendLine("[1/4] Generating case files...");
             string caseDir;
@@ -117,12 +121,14 @@ namespace CityLBM.Solver
             {
                 caseDir = GenerateCase(scene, grid, settings, enableGraphics: false);
                 log.AppendLine("      Case dir: " + caseDir);
+                cancellationToken.ThrowIfCancellationRequested();
             }
             catch (Exception ex)
             {
                 result.Success = false;
                 result.ErrorMessage = "Case generation failed: " + ex.Message;
                 result.Log = log.ToString();
+                result.EndTime = DateTime.Now;
                 return result;
             }
 
@@ -135,6 +141,7 @@ namespace CityLBM.Solver
                 result.Success = false;
                 result.ErrorMessage = "Generated case files not found.";
                 result.Log = log.ToString();
+                result.EndTime = DateTime.Now;
                 return result;
             }
 
@@ -153,6 +160,7 @@ namespace CityLBM.Solver
                 result.ErrorMessage = "Failed to get/build FluidX3D binary.";
                 result.CaseDirectory = caseDir;
                 result.Log = log.ToString();
+                result.EndTime = DateTime.Now;
                 return result;
             }
             log.AppendLine("      Binary: " + exePath);
@@ -180,16 +188,37 @@ namespace CityLBM.Solver
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
                     int dc = 0;
-                    while (!process.HasExited) { process.WaitForExit(2000); dc++; progressCallback?.Invoke(Math.Min(50 + dc * 2, 95), "Simulating..."); }
+                    while (!process.HasExited)
+                    {
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            try { process.Kill(); } catch { }
+                            throw new OperationCanceledException();
+                        }
+                        process.WaitForExit(2000);
+                        dc++;
+                        progressCallback?.Invoke(Math.Min(50 + dc * 2, 95), "Simulating...");
+                    }
                     result.ExitCode = process.ExitCode;
                     result.Success = process.ExitCode == 0;
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                result.Success = false;
+                result.ErrorMessage = "用户取消了操作";
+                result.CaseDirectory = caseDir;
+                result.Log = log.ToString();
+                result.EndTime = DateTime.Now;
+                return result;
             }
             catch (Exception ex)
             {
                 result.Success = false;
                 result.ErrorMessage = "Simulation failed: " + ex.Message;
                 result.Log = log.ToString();
+                result.CaseDirectory = caseDir;
+                result.EndTime = DateTime.Now;
                 return result;
             }
 
