@@ -22,8 +22,10 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 COMPONENT_CANDIDATES = [
     "speed_ratio",
+    "horizontal_speed_ratio",
     "streamwise_ratio",
     "abs_streamwise_ratio",
+    "lateral_ratio",
     "u_ratio",
     "v_ratio",
     "w_ratio",

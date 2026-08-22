@@ -52,7 +52,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--u-ref", type=float, required=True, help="Reference velocity for speed/streamwise ratios.")
     parser.add_argument(
         "--compared-component",
-        choices=["speed_ratio", "streamwise_ratio", "speed", "streamwise_velocity", "u", "v", "w"],
+        choices=[
+            "speed_ratio",
+            "horizontal_speed_ratio",
+            "streamwise_ratio",
+            "abs_streamwise_ratio",
+            "lateral_ratio",
+            "speed",
+            "horizontal_speed",
+            "streamwise_velocity",
+            "abs_streamwise_velocity",
+            "lateral_velocity",
+            "u",
+            "v",
+            "w",
+        ],
         default="speed_ratio",
     )
     parser.add_argument(
@@ -396,21 +410,52 @@ def compared_value(
     velocity: Tuple[float, float, float],
     wind: Tuple[float, float, float],
     u_ref: float,
-) -> Tuple[float, float, float, float]:
+) -> Dict[str, float]:
     speed = math.sqrt(sum(value * value for value in velocity))
     streamwise = sum(velocity[i] * wind[i] for i in range(3))
+    abs_streamwise = abs(streamwise)
+    horizontal_speed = math.sqrt(velocity[0] * velocity[0] + velocity[1] * velocity[1])
+    lateral_sq = max(0.0, speed * speed - streamwise * streamwise)
+    lateral = math.sqrt(lateral_sq)
     speed_ratio = speed / u_ref if u_ref > 0 else float("nan")
+    horizontal_speed_ratio = horizontal_speed / u_ref if u_ref > 0 else float("nan")
     streamwise_ratio = streamwise / u_ref if u_ref > 0 else float("nan")
+    abs_streamwise_ratio = abs_streamwise / u_ref if u_ref > 0 else float("nan")
+    lateral_ratio = lateral / u_ref if u_ref > 0 else float("nan")
+    u_ratio = velocity[0] / u_ref if u_ref > 0 else float("nan")
+    v_ratio = velocity[1] / u_ref if u_ref > 0 else float("nan")
+    w_ratio = velocity[2] / u_ref if u_ref > 0 else float("nan")
     mapping = {
         "speed_ratio": speed_ratio,
+        "horizontal_speed_ratio": horizontal_speed_ratio,
         "streamwise_ratio": streamwise_ratio,
+        "abs_streamwise_ratio": abs_streamwise_ratio,
+        "lateral_ratio": lateral_ratio,
         "speed": speed,
+        "horizontal_speed": horizontal_speed,
         "streamwise_velocity": streamwise,
+        "abs_streamwise_velocity": abs_streamwise,
+        "lateral_velocity": lateral,
         "u": velocity[0],
         "v": velocity[1],
         "w": velocity[2],
     }
-    return mapping[component], speed, streamwise, speed_ratio
+    return {
+        "compared_value": mapping[component],
+        "speed": speed,
+        "horizontal_speed": horizontal_speed,
+        "streamwise_velocity": streamwise,
+        "abs_streamwise_velocity": abs_streamwise,
+        "lateral_velocity": lateral,
+        "speed_ratio": speed_ratio,
+        "horizontal_speed_ratio": horizontal_speed_ratio,
+        "streamwise_ratio": streamwise_ratio,
+        "abs_streamwise_ratio": abs_streamwise_ratio,
+        "lateral_ratio": lateral_ratio,
+        "u_ratio": u_ratio,
+        "v_ratio": v_ratio,
+        "w_ratio": w_ratio,
+    }
 
 
 def main() -> int:
@@ -478,15 +523,24 @@ def main() -> int:
                     "v": "",
                     "w": "",
                     "speed": "",
+                    "horizontal_speed": "",
                     "wind_x": wind[0],
                     "wind_y": wind[1],
                     "wind_z": wind[2],
                     "wind_direction_valid": "true",
                     "streamwise_velocity": "",
+                    "abs_streamwise_velocity": "",
+                    "lateral_velocity": "",
                     "Uref": args.u_ref,
                     "normalization_valid": "true" if args.u_ref > 0 and math.isfinite(args.u_ref) else "false",
                     "speed_ratio": "",
+                    "horizontal_speed_ratio": "",
                     "streamwise_ratio": "",
+                    "abs_streamwise_ratio": "",
+                    "lateral_ratio": "",
+                    "u_ratio": "",
+                    "v_ratio": "",
+                    "w_ratio": "",
                     "nearest_distance": "",
                     "nearest_grid_x": "",
                     "nearest_grid_y": "",
@@ -515,6 +569,7 @@ def main() -> int:
                     "vtk_source_files": source_files_csv,
                     "vtk_source_sha256": source_hashes_csv,
                     "compared_component": args.compared_component,
+                    "component_projection_basis": "speed_or_velocity_dot_airflow_unit_vector",
                     "compared_value": "",
                     "tolerance": args.tolerance,
                     "out_of_tolerance": "false",
@@ -545,13 +600,13 @@ def main() -> int:
             sum(velocity[axis] for velocity in velocities) / len(velocities) * args.velocity_scale
             for axis in range(3)
         )
-        value, speed, streamwise, speed_ratio = compared_value(
+        component_values = compared_value(
             args.compared_component,
             mean_velocity,
             wind,
             args.u_ref,
         )
-        streamwise_ratio = streamwise / args.u_ref if args.u_ref > 0 else float("nan")
+        value = component_values["compared_value"]
         normalization_valid = args.u_ref > 0 and math.isfinite(args.u_ref)
         wind_valid = all(math.isfinite(component) for component in wind)
         out_of_tolerance = args.tolerance > 0 and distance > args.tolerance
@@ -577,16 +632,25 @@ def main() -> int:
                 "u": mean_velocity[0],
                 "v": mean_velocity[1],
                 "w": mean_velocity[2],
-                "speed": speed,
+                "speed": component_values["speed"],
+                "horizontal_speed": component_values["horizontal_speed"],
                 "wind_x": wind[0],
                 "wind_y": wind[1],
                 "wind_z": wind[2],
                 "wind_direction_valid": "true" if wind_valid else "false",
-                "streamwise_velocity": streamwise,
+                "streamwise_velocity": component_values["streamwise_velocity"],
+                "abs_streamwise_velocity": component_values["abs_streamwise_velocity"],
+                "lateral_velocity": component_values["lateral_velocity"],
                 "Uref": args.u_ref,
                 "normalization_valid": "true" if normalization_valid else "false",
-                "speed_ratio": speed_ratio,
-                "streamwise_ratio": streamwise_ratio,
+                "speed_ratio": component_values["speed_ratio"],
+                "horizontal_speed_ratio": component_values["horizontal_speed_ratio"],
+                "streamwise_ratio": component_values["streamwise_ratio"],
+                "abs_streamwise_ratio": component_values["abs_streamwise_ratio"],
+                "lateral_ratio": component_values["lateral_ratio"],
+                "u_ratio": component_values["u_ratio"],
+                "v_ratio": component_values["v_ratio"],
+                "w_ratio": component_values["w_ratio"],
                 "nearest_distance": distance,
                 "nearest_grid_x": vtk_coord[0],
                 "nearest_grid_y": vtk_coord[1],
@@ -615,6 +679,7 @@ def main() -> int:
                 "vtk_source_files": source_files_csv,
                 "vtk_source_sha256": source_hashes_csv,
                 "compared_component": args.compared_component,
+                "component_projection_basis": "speed_or_velocity_dot_airflow_unit_vector",
                 "compared_value": value,
                 "tolerance": args.tolerance,
                 "out_of_tolerance": "true" if out_of_tolerance else "false",
@@ -638,15 +703,24 @@ def main() -> int:
         "v",
         "w",
         "speed",
+        "horizontal_speed",
         "wind_x",
         "wind_y",
         "wind_z",
         "wind_direction_valid",
         "streamwise_velocity",
+        "abs_streamwise_velocity",
+        "lateral_velocity",
         "Uref",
         "normalization_valid",
         "speed_ratio",
+        "horizontal_speed_ratio",
         "streamwise_ratio",
+        "abs_streamwise_ratio",
+        "lateral_ratio",
+        "u_ratio",
+        "v_ratio",
+        "w_ratio",
         "nearest_distance",
         "nearest_grid_x",
         "nearest_grid_y",
@@ -675,6 +749,7 @@ def main() -> int:
         "vtk_source_files",
         "vtk_source_sha256",
         "compared_component",
+        "component_projection_basis",
         "compared_value",
         "tolerance",
         "out_of_tolerance",

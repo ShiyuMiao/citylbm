@@ -26,6 +26,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   `u-10000.vtk` style outputs from being selected before shorter time-step names during latest-frame and averaging workflows.
 - `Read VTK` now reports averaged-field stability diagnostics: mean speed, mean/max pointwise speed standard deviation,
   and mean/max relative fluctuation across the averaged VTK frames.
+- `scripts/probe_vtk_points.py` now writes explicit velocity-projection diagnostics for VTK probe extraction:
+  `horizontal_speed(_ratio)`, `abs_streamwise(_ratio)`, `lateral(_ratio)`, signed axis ratios and a
+  `component_projection_basis`. `scripts/audit_component_sensitivity.py` includes the new candidates, making wind-sign,
+  speed-vs-streamwise and Uref mistakes easier to detect before interpreting systematic bias.
 - `Read VTK` now emits an explicit `time_averaging_gate` and GH warning when the selected VTK window is unaveraged,
   shorter than 40 frames, does not span at least 20000 solver steps, is not the last available window, non-uniform, or above the stability thresholds.
 - `Run Simulation` and `SimulationSettings` now default to `TimeSteps=40000` and `SaveInterval=1000`, producing about
