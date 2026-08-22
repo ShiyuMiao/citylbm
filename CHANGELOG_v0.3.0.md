@@ -596,6 +596,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now has a direct smoke-tested paper-grade inlet-method predicate: `--allow-velocity-only-inlet`
   can relax only the general diagnostic inlet gate and cannot promote STG-lite or uncorrelated RMS/k forcing to
   paper-grade turbulent-inlet evidence.
+- `audit_inlet_source.py` now also detects C++ STL random generators such as `std::mt19937`,
+  `std::normal_distribution` and `std::uniform_real_distribution` in inlet context, so RMS/k velocity perturbations
+  built from those sources are classified as uncorrelated diagnostic inlet forcing.
 
 ## Remaining scientific work
 

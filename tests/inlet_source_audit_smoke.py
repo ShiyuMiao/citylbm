@@ -101,6 +101,47 @@ for(uint remaining=100u; remaining>0u; ) {
         if "source_missing_reynolds_stress_tensor_evidence" not in random_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(random_report["paper_grade_inlet_source_gate_reasons"])
 
+        stl_random_setup = root / "stl_random_setup.cpp"
+        stl_random_out = root / "stl_random_audit.json"
+        write_text(
+            stl_random_setup,
+            """
+#include <random>
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+std::mt19937 rng(1234u);
+std::normal_distribution<float> gaussian_noise(0.0f, 1.0f);
+void applySyntheticTurbulentInlet(uint t_step) {
+    const float sigma = sqrt(2.0f * profile_k_lbm[0] / 3.0f);
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0] + sigma * gaussian_noise(rng);
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > citylbm_stg_update_interval ? citylbm_stg_update_interval : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        stl_random_code, stl_random_report = run_audit(stl_random_setup, metadata, stl_random_out)
+        if stl_random_code == 0:
+            raise AssertionError("STL random inlet unexpectedly passed")
+        if stl_random_report["synthetic_inlet_correlation_model"] != "uncorrelated_random_rms_velocity_field_only":
+            raise AssertionError(stl_random_report["synthetic_inlet_correlation_model"])
+        if "synthetic_inlet_uses_uncorrelated_random_rms" not in stl_random_report["inlet_source_gate_reasons"]:
+            raise AssertionError(stl_random_report["inlet_source_gate_reasons"])
+        random_patterns = ";".join(stl_random_report["uncorrelated_random_inlet_patterns"])
+        if "mt19937" not in random_patterns or "normal_distribution" not in random_patterns:
+            raise AssertionError(random_patterns)
+
         sem_setup = root / "sem_setup.cpp"
         sem_out = root / "sem_audit.json"
         write_text(
