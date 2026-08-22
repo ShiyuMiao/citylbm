@@ -101,6 +101,10 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
                 "paper_grade_inlet_source",
                 "distribution_consistent",
                 "velocity_field_only",
+                "uncorrelated",
+                "random",
+                "rms",
+                "method_class",
                 "correlation",
             ],
             "The native baseline must first prove the AIJ AF U(z)/k(z) inlet and correlated turbulence source; RMS/k velocity perturbations alone remain diagnostic.",
@@ -867,6 +871,11 @@ def main() -> int:
     paper_inlet_source_gate = str(inlet_source_audit.get("paper_grade_inlet_source_gate") or "").strip().lower()
     inlet_distribution_consistent = as_bool(inlet_source_audit.get("inlet_source_distribution_consistent"))
     inlet_velocity_only = as_bool(inlet_source_audit.get("inlet_source_velocity_field_only"))
+    inlet_source_method_class = str(inlet_source_audit.get("inlet_source_method_class") or "").strip()
+    inlet_correlation_model = str(inlet_source_audit.get("synthetic_inlet_correlation_model") or "").strip()
+    inlet_has_uncorrelated_random = as_bool(inlet_source_audit.get("has_uncorrelated_random_inlet"))
+    inlet_source_reasons = split_scalar_list(inlet_source_audit.get("inlet_source_gate_reasons"))
+    paper_inlet_source_reasons = split_scalar_list(inlet_source_audit.get("paper_grade_inlet_source_gate_reasons"))
     if not inlet_source_audit:
         reasons.append("inlet_source_audit_missing")
     if inlet_source_gate != "pass":
@@ -877,6 +886,12 @@ def main() -> int:
         reasons.append("inlet_source_not_distribution_consistent")
     if inlet_velocity_only is True:
         reasons.append("inlet_source_velocity_field_only")
+    if (
+        inlet_has_uncorrelated_random is True
+        or inlet_correlation_model == "uncorrelated_random_rms_velocity_field_only"
+        or "synthetic_inlet_uses_uncorrelated_random_rms" in inlet_source_reasons
+    ):
+        reasons.append("inlet_source_uses_uncorrelated_random_rms")
     inlet_source_hash_check = append_setup_hash_reason(reasons, "inlet_source", inlet_source_audit, setup_sha)
 
     inlet_profile_gate = str(inlet_profile_audit.get("inlet_profile_gate") or "").strip().upper()
@@ -1293,6 +1308,13 @@ def main() -> int:
         "paper_grade_inlet_source_gate": paper_inlet_source_gate,
         "inlet_source_distribution_consistent": inlet_distribution_consistent,
         "inlet_source_velocity_field_only": inlet_velocity_only,
+        "inlet_source_method_class": inlet_source_method_class,
+        "inlet_synthetic_correlation_model": inlet_correlation_model,
+        "inlet_source_has_uncorrelated_random_inlet": inlet_has_uncorrelated_random,
+        "inlet_source_gate_reasons": inlet_source_reasons,
+        "inlet_source_gate_reasons_csv": ";".join(inlet_source_reasons),
+        "paper_grade_inlet_source_gate_reasons": paper_inlet_source_reasons,
+        "paper_grade_inlet_source_gate_reasons_csv": ";".join(paper_inlet_source_reasons),
         **inlet_source_hash_check,
         "inlet_profile_gate": inlet_profile_gate,
         "inlet_u_profile_gate": inlet_u_profile_gate,

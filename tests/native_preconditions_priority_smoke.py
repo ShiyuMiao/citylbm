@@ -28,6 +28,7 @@ def main() -> int:
         "probe_uref_mismatch",
         "paper_grade_boundary_source_gate_not_pass",
         "inlet_source_velocity_field_only",
+        "inlet_source_uses_uncorrelated_random_rms",
         "systematic_bias_after_prerequisites",
     ]
     priorities = module.build_native_diagnostic_priority(reasons)
@@ -49,6 +50,8 @@ def main() -> int:
         raise AssertionError(top)
     if "RMS/k velocity perturbations alone remain diagnostic" not in top["diagnosis"]:
         raise AssertionError(top["diagnosis"])
+    if "inlet_source_uses_uncorrelated_random_rms" not in top["reasons"]:
+        raise AssertionError(top)
 
     boundary_only = module.build_native_diagnostic_priority(
         ["boundary_source_simplified", "blockage_gate_not_pass"]
