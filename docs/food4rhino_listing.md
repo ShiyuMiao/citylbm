@@ -32,7 +32,7 @@ The plugin can be installed and `Mode 0 = Generate Case` can run without launchi
 For controlled validation, the path must point to a complete FluidX3D source root containing a build file (`FluidX3D.sln`, `Makefile` or `CMakeLists.txt`) and `src/setup.cpp`, `src/defines.hpp`, `src/lbm.hpp`, `src/lbm.cpp`. Auto-detected paths are not accepted as paper-grade baseline evidence.
 
 ### Validation Status
-v0.3.0 is validation-ready, not a completed benchmark claim. Case A and Case E must be rerun on the user's experimental machine with explicit FluidX3D source evidence, newly generated VTK files, at least 20 final-window frames spanning at least 5000 solver steps, inlet U/k preservation checks, boundary-protocol evidence and grid sensitivity before SCI-level accuracy claims are made.
+v0.3.0 is validation-ready, not a completed benchmark claim. Case A and Case E must be rerun on the user's experimental machine with explicit FluidX3D source evidence, newly generated VTK files, at least 40 final-window frames spanning at least 20000 solver steps, inlet U/k preservation checks, boundary-protocol evidence and grid sensitivity before SCI-level accuracy claims are made.
 
 ### System Requirements
 - Windows 10/11

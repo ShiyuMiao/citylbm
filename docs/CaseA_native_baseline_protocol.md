@@ -195,14 +195,14 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 
 6. Time-averaging gate.
    Do not report a single instantaneous VTK frame as validation. Archive post-spinup probe time means and, when VTK is
-   used for visualization, at least 20 post-spinup VTK frames or an explicit averaged VTK field with the source frame
+   used for visualization, at least 40 post-spinup VTK frames or an explicit averaged VTK field with the source frame
    list. For CityLBM post-processing, save the `Read VTK` `Averaging Audit` JSON output and pass it into the metrics
-   builder. CityLBM v0.3.0 defaults to `TimeSteps=10000` and `SaveInterval=500` so new cases produce about 20 VTK
+   builder. CityLBM v0.3.0 defaults to `TimeSteps=40000` and `SaveInterval=1000` so new cases produce about 40 VTK
    frames; shorter runs must be labelled smoke tests. The audit must show `selected_last_window=true`,
    `source_steps_strictly_increasing=true`, `source_step_spacing_uniform=true`, and
    `source_last_time_step=latest_available_time_step`. It must also record `source_step_span`; v0.3.0 rejects a
    paper-grade time average unless the final averaged window covers at least `--min-avg-step-span` solver steps
-   (`5000` by default). The same gate also requires `mean_speed_stddev_ratio <= 0.05` and
+   (`20000` by default). The same gate also requires `mean_speed_stddev_ratio <= 0.05` and
    `max_speed_stddev_ratio <= 0.20` from the Read VTK averaging audit or native-run audit unless a stricter
    case-specific stationarity criterion is documented. The machine gate only counts the archived runtime audit as the
    authoritative time-averaging source: sampled VTK stability statistics (`mean_speed_statistics_source=sampled_vtk` or
@@ -372,17 +372,17 @@ python scripts\validation_gate.py <run_dir> --case CaseA --software native-fluid
 If metrics are produced from Grasshopper `Data Probe`, build the metrics row first:
 
 ```powershell
-python scripts\audit_native_run.py <run_dir> --metadata <case_metadata.json> --solver-log <solver.log> --average-last-n 20 --min-avg-frames 20 --min-avg-step-span 5000 --out <native_run_audit.json>
+python scripts\audit_native_run.py <run_dir> --metadata <case_metadata.json> --solver-log <solver.log> --average-last-n 40 --min-avg-frames 40 --min-avg-step-span 20000 --out <native_run_audit.json>
 
 python scripts\audit_inlet_source.py --setup <run_dir>\src\setup.cpp --metadata <case_metadata.json> --out <run_dir>\inlet_source_audit.json
 
 python scripts\audit_boundary_source.py --setup <run_dir>\src\setup.cpp --metadata <case_metadata.json> --out <run_dir>\boundary_source_audit.json
 
-python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 20 --min-frames 20 --min-step-span 5000 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
+python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 40 --min-frames 40 --min-step-span 20000 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
 
-python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 20 --min-frames 20 --min-step-span 5000 --out-json <run_dir>\inlet_correlation_audit.json
+python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 1,0,0 --plane-axis auto-inlet --average-last-n 40 --min-frames 40 --min-step-span 20000 --out-json <run_dir>\inlet_correlation_audit.json
 
-python scripts\probe_vtk_points.py <run_dir>\output --official <RS-caseA.csv> --case CaseA --wind-direction-label <direction> --wind-direction 1,0,0 --u-ref <Uref> --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 20 --min-avg-frames 20 --min-avg-step-span 5000 --out <probe_audit.csv>
+python scripts\probe_vtk_points.py <run_dir>\output --official <RS-caseA.csv> --case CaseA --wind-direction-label <direction> --wind-direction 1,0,0 --u-ref <Uref> --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 40 --min-avg-frames 40 --min-avg-step-span 20000 --out <probe_audit.csv>
 
 python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <RS-caseA.csv> --case CaseA --wind-direction <direction> --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
 
@@ -402,7 +402,7 @@ python scripts\audit_boundary_protocol.py <run_dir> --metadata <case_metadata.js
 For a native FluidX3D run that bypasses Grasshopper, the same evidence chain can be generated with one command:
 
 ```powershell
-python scripts\run_native_validation_chain.py <run_dir> --official <RS-caseA.csv> --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --boundary-evidence <boundary_evidence.json> --solver-log <solver.log> --case CaseA --wind-direction-label <direction> --wind-vector 1,0,0 --u-ref <Uref> --software native-fluidx3d --average-last-n 20 --min-avg-frames 20 --min-avg-step-span 5000 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m>
+python scripts\run_native_validation_chain.py <run_dir> --official <RS-caseA.csv> --af-csv <AF_caseA.csv> --metadata <case_metadata.json> --boundary-evidence <boundary_evidence.json> --solver-log <solver.log> --case CaseA --wind-direction-label <direction> --wind-vector 1,0,0 --u-ref <Uref> --software native-fluidx3d --average-last-n 40 --min-avg-frames 40 --min-avg-step-span 20000 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m>
 ```
 
 The command writes `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_profile_audit.json/.csv`,

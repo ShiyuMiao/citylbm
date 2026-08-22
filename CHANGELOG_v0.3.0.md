@@ -23,11 +23,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `Read VTK` now reports averaged-field stability diagnostics: mean speed, mean/max pointwise speed standard deviation,
   and mean/max relative fluctuation across the averaged VTK frames.
 - `Read VTK` now emits an explicit `time_averaging_gate` and GH warning when the selected VTK window is unaveraged,
-  shorter than 20 frames, does not span at least 5000 solver steps, is not the last available window, non-uniform, or above the stability thresholds.
-- `Run Simulation` and `SimulationSettings` now default to `TimeSteps=10000` and `SaveInterval=500`, producing about
-  20 VTK frames for a minimum validation averaging workflow instead of short demo-only output.
+  shorter than 40 frames, does not span at least 20000 solver steps, is not the last available window, non-uniform, or above the stability thresholds.
+- `Run Simulation` and `SimulationSettings` now default to `TimeSteps=40000` and `SaveInterval=1000`, producing about
+  40 VTK frames for a paper-grade preflight averaging workflow instead of short demo-only output.
 - `Run Simulation` now blocks Mode 1/2/3 when the planned `TimeSteps / SaveInterval` window would produce fewer than
-  20 VTK frames or fewer than 5000 solver steps. Mode 0 can still generate smoke-test cases, but the metadata marks them as non-validation runs.
+  40 VTK frames or fewer than 20000 solver steps. Mode 0 can still generate smoke-test cases, but the metadata marks them as non-validation runs.
 - Native/CityLBM run audits now also compute the planned final VTK averaging-window solver-step span from
   `TimeSteps`, `SaveInterval`, `SaveStartStep` and `AverageLastN`; validation fails if the requested final window has
   enough frames but does not cover the minimum solver-step span.
@@ -336,7 +336,7 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   paper-grade averaging gate.
 - `audit_native_run.py`, `validation_metrics_from_probe_audit.py`, `validation_gate.py` and
   `run_native_validation_chain.py` now record and enforce the final-window solver-step span. A run can no longer pass
-  paper-grade time averaging solely by saving many closely spaced VTK frames; the default minimum span is `5000` solver
+  paper-grade time averaging solely by saving many closely spaced VTK frames; the default minimum span is `20000` solver
   steps via `--min-avg-step-span`.
 - Inlet U/k preservation and inlet-correlation audits now use the same minimum final-window step-span rule. The
   validation gate rejects inlet-profile or inlet-correlation evidence when its archived source VTK window is too short,
@@ -410,12 +410,12 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   Uref, wind-vector evidence, compared component, time-averaged value and per-probe failure flags.
 - Native VTK probe extraction now records unparsable official probe coordinates as explicit failed rows with
   `failure_reason=invalid_probe_coordinate` instead of silently dropping those probes from `failed_n`.
-- Native VTK probe extraction now defaults to a 20-frame final-window average and refuses to write a validation probe
+- Native VTK probe extraction now defaults to a 40-frame final-window average and refuses to write a validation probe
   audit when the selected VTK window is shorter than `--min-avg-frames`; one-frame extraction must be explicitly marked
   as smoke-test behavior by lowering that threshold.
 - Native VTK probe extraction now also records `vtk_source_step_span` and
   `minimum_validation_average_step_span`, and refuses validation probe audits whose selected final-window VTK files
-  cover fewer than `--min-avg-step-span` solver steps (`5000` by default). The metrics table and final gate now require
+  cover fewer than `--min-avg-step-span` solver steps (`20000` by default). The metrics table and final gate now require
   the per-probe source-step span to match the runtime averaging window, preventing short-window probe averages from
   passing as paper-grade time averaging evidence.
 - Native VTK probe extraction now defaults to structured-grid trilinear velocity sampling instead of nearest-node
@@ -428,7 +428,7 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   wind-direction flags, `Uref`, nearest VTK distance and nonzero probe tolerance before a native FluidX3D baseline can
   pass paper-grade preconditions.
 - The Grasshopper `Run Simulation` component now blocks Mode 1/2/3 validation runs unless the planned VTK output provides
-  at least 20 saved frames and the final averaging window spans at least 5000 solver steps. Mode 0 still generates cases,
+  at least 40 saved frames and the final averaging window spans at least 20000 solver steps. Mode 0 still generates cases,
   but flags shorter schedules as smoke/diagnostic only.
 - Added `scripts/audit_component_sensitivity.py` and wired it into the native validation chain, metrics builder and
   final gate. It compares `speed_ratio`, signed/absolute streamwise ratio and component ratios against official RS

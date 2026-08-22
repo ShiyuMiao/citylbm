@@ -47,9 +47,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out-json", required=True, help="Output inlet correlation audit JSON.")
     parser.add_argument("--metadata", help="Optional case_metadata.json for traceability.")
     parser.add_argument("--pattern", default="u-*.vtk")
-    parser.add_argument("--average-last-n", type=int, default=20)
-    parser.add_argument("--min-frames", type=int, default=20)
-    parser.add_argument("--min-step-span", type=int, default=5000)
+    parser.add_argument("--average-last-n", type=int, default=40)
+    parser.add_argument("--min-frames", type=int, default=40)
+    parser.add_argument("--min-step-span", type=int, default=20000)
     parser.add_argument("--wind-direction", default="1,0,0")
     parser.add_argument(
         "--plane-axis",

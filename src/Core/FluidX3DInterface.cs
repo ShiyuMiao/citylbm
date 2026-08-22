@@ -31,8 +31,8 @@ namespace CityLBM.Solver
     public class FluidX3DInterface
     {
         private const int MinimumRecommendedAveragingFrames = 20;
-        private const int PaperRecommendedAveragingFrames = 20;
-        private const int PaperRecommendedAverageStepSpan = 5000;
+        private const int PaperRecommendedAveragingFrames = 40;
+        private const int PaperRecommendedAverageStepSpan = 20000;
 
         #region Properties
 
@@ -3882,8 +3882,8 @@ namespace CityLBM.Solver
     {
         public double Viscosity { get; set; } = 1.5e-5;  // 空气运动粘度 (m²/s)
         public double Density { get; set; } = 1.225;     // 空气密度 (kg/m³)
-        public int TimeSteps { get; set; } = 10000;      // validation-oriented default; lower values are smoke tests only
-        public int SaveInterval { get; set; } = 500;     // writes enough frames for minimum time averaging
+        public int TimeSteps { get; set; } = 40000;      // validation-oriented default; lower values are smoke tests only
+        public int SaveInterval { get; set; } = 1000;    // writes enough frames for paper-grade time averaging preflight
 
         public double InletVelocityX { get; set; }
         public double InletVelocityY { get; set; }

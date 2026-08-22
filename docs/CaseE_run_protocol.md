@@ -27,7 +27,7 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 ## Simulation settings
 
 - First smoke run: `dx=5 m`, `steps=2000-5000`, `save interval=500 or 1000`
-- Formal validation: `dx=2-3 m`, `steps>=10000`, save enough final VTK frames for time averaging. This dx is still
+- Formal validation: `dx=2-3 m`, `steps>=40000`, save enough final VTK frames for time averaging. This dx is still
   not sufficient by itself: archive at least one matched coarser/finer metrics row and run
   `scripts\audit_grid_sensitivity.py` so `grid_sensitivity_audit.json` proves bounded finest-grid RMSE/bias change.
   The final gate reads grid convergence from this audit JSON, not from self-reported metrics fields.
@@ -53,8 +53,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   `inlet_correlation_audit.json`; copying passing `inlet_source_*` or `inlet_correlation_*` fields into
   `validation_metrics.csv` is not accepted as turbulent-inlet evidence.
 - Do not compare a single early VTK frame as a final result.
-  The averaging gate requires at least 20 final-window frames, a final-window solver-step span of at least
-  `--min-avg-step-span` (`5000` by default), and sampled VTK stability statistics; command-line or hand-entered
+  The averaging gate requires at least 40 final-window frames, a final-window solver-step span of at least
+  `--min-avg-step-span` (`20000` by default), and sampled VTK stability statistics; command-line or hand-entered
   mean/max speed standard-deviation ratios are diagnostic only.
   The native or Read VTK audit must also record the planned final VTK averaging window
   (`requested_vtk_expected_final_window_time_steps`, `requested_vtk_expected_final_window_step_span` and
@@ -320,11 +320,11 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
 - Convert the `Data Probe` audit table and official `RS_caseE.csv` subset into a standard metrics row:
 
 ```powershell
-python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 20 --min-frames 20 --min-step-span 5000 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
+python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 40 --min-frames 40 --min-step-span 20000 --out-json <run_dir>\inlet_profile_audit.json --out-csv <run_dir>\inlet_profile_audit.csv
 
-python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 20 --min-frames 20 --min-step-span 5000 --out-json <run_dir>\inlet_correlation_audit.json
+python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 40 --min-frames 40 --min-step-span 20000 --out-json <run_dir>\inlet_correlation_audit.json
 
-python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 20 --min-avg-frames 20 --min-avg-step-span 5000 --out <probe_audit.csv>
+python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 40 --min-avg-frames 40 --min-avg-step-span 20000 --out <probe_audit.csv>
 
 python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <official_data>\RS_caseE.csv --case ac --wind-direction N --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
 
@@ -348,7 +348,7 @@ python scripts\audit_boundary_protocol.py <run_dir> --metadata <case_metadata.js
   package with one command:
 
 ```powershell
-python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --boundary-evidence <boundary_evidence_casee_ac_N.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 20 --min-avg-frames 20 --min-avg-step-span 5000 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250 --paired-native-metrics <native_validation_metrics.csv>
+python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --boundary-evidence <boundary_evidence_casee_ac_N.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 40 --min-avg-frames 40 --min-avg-step-span 20000 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250 --paired-native-metrics <native_validation_metrics.csv>
 ```
 
   The command creates `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_source_audit.json`,
@@ -407,8 +407,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   The v0.3.0 machine gate requires at least 20 compared parity fields, at least 20 compared gate fields and all 5
   evidence-hash fields for CityLBM/native parity.
 - Mean speed, mean/max pointwise speed standard deviation and mean/max relative fluctuation from the averaged VTK field
-- `time_averaging` gate must use the final available VTK window, contain at least 20 frames, have strictly increasing
-  uniformly spaced source steps, cover at least `--min-avg-step-span` solver steps (`5000` by default), and satisfy
+- `time_averaging` gate must use the final available VTK window, contain at least 40 frames, have strictly increasing
+  uniformly spaced source steps, cover at least `--min-avg-step-span` solver steps (`20000` by default), and satisfy
   `mean_speed_stddev_ratio <= 0.05` and `max_speed_stddev_ratio <= 0.20` from the Read VTK audit or native-run audit
   unless a stricter case-specific stationarity criterion is documented.
   Self-reported `validation_metrics.csv` fields cannot pass this gate without the runtime audit artifact.
