@@ -9,6 +9,7 @@ can be considered for paper-grade validation.
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import subprocess
@@ -51,6 +52,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wind-vector", required=True, help="Airflow vector, e.g. 1,0,0 or 0,-1,0.")
     parser.add_argument("--u-ref", required=True, type=float, help="Reference velocity for normalization.")
     parser.add_argument("--z-ref", type=float, default=None, help="Reference height, if applicable.")
+    parser.add_argument(
+        "--u-ref-af-tolerance",
+        type=float,
+        default=1.0e-6,
+        help="Maximum allowed difference between --u-ref and AF CSV U(z_ref).",
+    )
     parser.add_argument("--software", default="native-fluidx3d", help="Software label for the metrics/gate row.")
     parser.add_argument("--version", default="", help="Optional software/plugin version label.")
     parser.add_argument("--dx", default="", help="Optional grid spacing recorded in metrics.")
@@ -271,6 +278,54 @@ def find_run_file(run_dir: Path, name: str) -> Optional[Path]:
     return None
 
 
+def normalized_column_name(name: str) -> str:
+    return "".join(ch for ch in str(name).lower() if ch.isalnum())
+
+
+def find_profile_column(fieldnames: Sequence[str], candidates: Sequence[str]) -> str:
+    normalized = {normalized_column_name(name): name for name in fieldnames}
+    for candidate in candidates:
+        found = normalized.get(normalized_column_name(candidate))
+        if found:
+            return found
+    return ""
+
+
+def af_u_at_reference_height(path: Path, z_ref: Optional[float]) -> Optional[float]:
+    if z_ref is None:
+        return None
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if not reader.fieldnames:
+            raise SystemExit(f"AF CSV has no header: {path}")
+        z_col = find_profile_column(reader.fieldnames, ["z", "z(m)", "height", "height_m"])
+        u_col = find_profile_column(reader.fieldnames, ["U", "U(m/s)", "u_mps", "velocity", "velocity_mps"])
+        if not z_col or not u_col:
+            raise SystemExit(f"AF CSV must contain z and U columns for Uref audit: {path}")
+        samples: List[tuple[float, float]] = []
+        for row in reader:
+            try:
+                z = float(str(row.get(z_col) or "").strip())
+                u = float(str(row.get(u_col) or "").strip())
+            except ValueError:
+                continue
+            samples.append((z, u))
+    if len(samples) < 2:
+        raise SystemExit(f"AF CSV must contain at least two valid z/U rows for Uref audit: {path}")
+    samples.sort(key=lambda item: item[0])
+    if z_ref <= samples[0][0]:
+        return samples[0][1]
+    if z_ref >= samples[-1][0]:
+        return samples[-1][1]
+    for (z0, u0), (z1, u1) in zip(samples, samples[1:]):
+        if z0 <= z_ref <= z1:
+            if abs(z1 - z0) <= 1.0e-12:
+                return u0
+            weight = (z_ref - z0) / (z1 - z0)
+            return u0 + (u1 - u0) * weight
+    return None
+
+
 def main() -> int:
     args = parse_args()
     script_dir = Path(__file__).resolve().parent
@@ -278,6 +333,13 @@ def main() -> int:
     official = as_existing_path(args.official, "official")
     af_csv = as_existing_path(args.af_csv, "af_csv")
     metadata = as_existing_path(args.metadata, "metadata")
+    u_ref_from_af = af_u_at_reference_height(af_csv, args.z_ref)
+    if u_ref_from_af is not None and abs(args.u_ref - u_ref_from_af) > args.u_ref_af_tolerance:
+        raise SystemExit(
+            "Uref does not match AF CSV interpolation at --z-ref: "
+            f"--u-ref={args.u_ref}, AF_U({args.z_ref})={u_ref_from_af}, "
+            f"tolerance={args.u_ref_af_tolerance}. Fix the normalization basis before probing VTK."
+        )
     solver_log = Path(args.solver_log).expanduser().resolve() if args.solver_log else None
     if solver_log is not None and not solver_log.exists():
         raise SystemExit(f"solver_log does not exist: {solver_log}")
@@ -333,6 +395,9 @@ def main() -> int:
             "WindVector": args.wind_vector,
             "Uref": args.u_ref,
             "Zref": args.z_ref,
+            "UrefFromAfAtZref": u_ref_from_af,
+            "UrefAfTolerance": args.u_ref_af_tolerance,
+            "UrefMatchesAfAtZref": True if u_ref_from_af is not None else None,
             "Software": args.software,
             "AverageLastN": args.average_last_n,
             "VtkSaveStartStep": args.vtk_save_start_step,
