@@ -139,6 +139,8 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
                 "rms",
                 "method_class",
                 "correlation",
+                "streamwise",
+                "clipping",
             ],
             "The native baseline must first prove the AIJ AF U(z)/k(z) inlet and correlated turbulence source; RMS/k velocity perturbations alone remain diagnostic.",
             "Fix the native setup/inlet audits before interpreting probe error or comparing against CityLBM.",
@@ -268,6 +270,8 @@ def build_native_precondition_closure(reasons: List[str]) -> Dict[str, Any]:
                 "rms",
                 "method_class",
                 "correlation",
+                "streamwise",
+                "clipping",
             ],
             "Prove AF U(z)/k(z), correlated turbulent inlet and distribution-consistent inlet treatment.",
         ),
@@ -1315,6 +1319,14 @@ def main() -> int:
     inlet_has_layerwise_mean_preserving_correction = as_bool(
         inlet_source_audit.get("has_layerwise_mean_preserving_inlet_correction")
     )
+    inlet_has_streamwise_clipping_control = as_bool(
+        inlet_source_audit.get("has_streamwise_clipping_control")
+    )
+    inlet_streamwise_min_fraction = as_float(inlet_source_audit.get("streamwise_min_fraction"))
+    inlet_streamwise_clipping_enabled = as_bool(inlet_source_audit.get("streamwise_clipping_enabled"))
+    inlet_has_legacy_hardcoded_streamwise_clipping = as_bool(
+        inlet_source_audit.get("has_legacy_hardcoded_streamwise_clipping")
+    )
     inlet_stg_evidence_required = (
         "stg" in inlet_source_method_class.lower()
         or "stg" in inlet_correlation_model.lower()
@@ -1342,6 +1354,15 @@ def main() -> int:
         reasons.append("inlet_source_missing_mean_preserving_inlet_correction")
     if inlet_stg_evidence_required and inlet_has_layerwise_mean_preserving_correction is not True:
         reasons.append("inlet_source_missing_layerwise_mean_preserving_inlet_correction")
+    if inlet_stg_evidence_required and inlet_has_streamwise_clipping_control is not True:
+        reasons.append("inlet_source_missing_streamwise_clipping_control")
+    if inlet_streamwise_clipping_enabled is True:
+        reasons.append("inlet_source_streamwise_clipping_enabled")
+    if (
+        inlet_has_legacy_hardcoded_streamwise_clipping is True
+        or "synthetic_inlet_uses_legacy_hardcoded_streamwise_clipping" in inlet_source_reasons
+    ):
+        reasons.append("inlet_source_uses_legacy_hardcoded_streamwise_clipping")
     if (
         inlet_has_uncorrelated_random is True
         or inlet_correlation_model == "uncorrelated_random_rms_velocity_field_only"
@@ -1956,6 +1977,10 @@ def main() -> int:
         "inlet_source_has_k_driven_three_component_stg": inlet_has_k_driven_three_component_stg,
         "inlet_source_has_mean_preserving_inlet_correction": inlet_has_mean_preserving_correction,
         "inlet_source_has_layerwise_mean_preserving_inlet_correction": inlet_has_layerwise_mean_preserving_correction,
+        "inlet_source_has_streamwise_clipping_control": inlet_has_streamwise_clipping_control,
+        "inlet_source_streamwise_min_fraction": inlet_streamwise_min_fraction,
+        "inlet_source_streamwise_clipping_enabled": inlet_streamwise_clipping_enabled,
+        "inlet_source_has_legacy_hardcoded_streamwise_clipping": inlet_has_legacy_hardcoded_streamwise_clipping,
         "inlet_source_gate_reasons": inlet_source_reasons,
         "inlet_source_gate_reasons_csv": ";".join(inlet_source_reasons),
         "paper_grade_inlet_source_gate_reasons": paper_inlet_source_reasons,

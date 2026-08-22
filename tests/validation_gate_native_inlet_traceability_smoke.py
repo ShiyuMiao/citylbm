@@ -40,6 +40,9 @@ def passing_native_audit():
         "inlet_correlation_source_vtk_sha256_match_runtime": True,
         "inlet_correlation_source_steps_strictly_increasing": True,
         "inlet_correlation_source_step_spacing_uniform": True,
+        "inlet_source_has_streamwise_clipping_control": True,
+        "inlet_source_streamwise_clipping_enabled": False,
+        "inlet_source_has_legacy_hardcoded_streamwise_clipping": False,
         "expected_uref_mps": 3.928296,
         "actual_uref_mps": 3.928296,
         "expected_zref_m": 15.9,
@@ -119,6 +122,22 @@ def main() -> int:
         raise AssertionError(missing_k_failed)
     if "inlet_k_variance_gate_not_pass:missing" not in missing_k_failed["reasons"]:
         raise AssertionError(missing_k_failed["reasons"])
+
+    clipping_bad = copy.deepcopy(passing_native_audit())
+    clipping_bad["inlet_source_streamwise_clipping_enabled"] = True
+    clipping_bad["inlet_source_has_legacy_hardcoded_streamwise_clipping"] = True
+    clipping_failed = module.native_inlet_precondition_traceability_status(
+        clipping_bad,
+        min_avg_step_span=20000,
+    )
+    if clipping_failed["ok"]:
+        raise AssertionError(clipping_failed)
+    for reason in [
+        "inlet_source_streamwise_clipping_enabled_not_false:True",
+        "inlet_source_has_legacy_hardcoded_streamwise_clipping_not_false:True",
+    ]:
+        if reason not in clipping_failed["reasons"]:
+            raise AssertionError(clipping_failed["reasons"])
 
     gates = [
         pass_gate(module, key)

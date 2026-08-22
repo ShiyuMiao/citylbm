@@ -25,9 +25,38 @@ def main() -> int:
         run_dir.mkdir()
         af_csv = root / "AF.csv"
         metadata = root / "case_metadata.json"
+        inlet_source_audit = run_dir / "inlet_source_audit.json"
         out_json = root / "native_preconditions_audit.json"
         write_text(af_csv, "z(m),U(m/s),k(m2/s2)\n10,3.0,0.1\n20,5.0,0.2\n")
         write_text(metadata, '{"ReferenceWindSpeedMps": 3.0, "WindProfile": "CustomTable"}\n')
+        write_text(
+            inlet_source_audit,
+            json.dumps(
+                {
+                    "inlet_source_gate": "pass",
+                    "paper_grade_inlet_source_gate": "pass",
+                    "inlet_source_distribution_consistent": True,
+                    "inlet_source_velocity_field_only": False,
+                    "inlet_source_method_class": "stg_lite_correlated_velocity_field_only",
+                    "synthetic_inlet_correlation_model": "spectral_taylor_projected_velocity_field_only",
+                    "has_synthetic_inlet_function": True,
+                    "has_three_component_velocity_write": True,
+                    "has_three_component_fluctuation_evidence": True,
+                    "has_k_driven_three_component_stg": True,
+                    "has_mean_preserving_inlet_correction": True,
+                    "has_layerwise_mean_preserving_inlet_correction": True,
+                    "has_streamwise_clipping_control": True,
+                    "streamwise_min_fraction": 0.05,
+                    "streamwise_clipping_enabled": True,
+                    "has_legacy_hardcoded_streamwise_clipping": True,
+                    "inlet_source_gate_reasons": [
+                        "synthetic_inlet_uses_legacy_hardcoded_streamwise_clipping",
+                    ],
+                    "paper_grade_inlet_source_gate_reasons": [],
+                },
+                indent=2,
+            ),
+        )
 
         completed = subprocess.run(
             [
@@ -58,8 +87,20 @@ def main() -> int:
         reasons = report.get("native_preconditions_gate_reasons", [])
         if "uref_af_profile_mismatch" not in reasons:
             raise AssertionError(reasons)
+        if "inlet_source_streamwise_clipping_enabled" not in reasons:
+            raise AssertionError(reasons)
+        if "inlet_source_uses_legacy_hardcoded_streamwise_clipping" not in reasons:
+            raise AssertionError(reasons)
         if report.get("af_uref_at_zref_mps") != 4.0:
             raise AssertionError(report.get("af_uref_at_zref_mps"))
+        if report.get("inlet_source_has_streamwise_clipping_control") is not True:
+            raise AssertionError(report)
+        if report.get("inlet_source_streamwise_min_fraction") != 0.05:
+            raise AssertionError(report.get("inlet_source_streamwise_min_fraction"))
+        if report.get("inlet_source_streamwise_clipping_enabled") is not True:
+            raise AssertionError(report)
+        if report.get("inlet_source_has_legacy_hardcoded_streamwise_clipping") is not True:
+            raise AssertionError(report)
         if report.get("native_preconditions_protocol_identity_gate") != "fail":
             raise AssertionError(report.get("native_preconditions_protocol_identity_gate"))
 

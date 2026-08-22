@@ -2203,10 +2203,19 @@ def native_inlet_precondition_traceability_status(
         "inlet_correlation_source_vtk_sha256_match_runtime",
         "inlet_correlation_source_steps_strictly_increasing",
         "inlet_correlation_source_step_spacing_uniform",
+        "inlet_source_has_streamwise_clipping_control",
     ]:
         value = as_bool(get_any(native_preconditions_audit, [key]))
         if value is not True:
             reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+
+    for key in [
+        "inlet_source_streamwise_clipping_enabled",
+        "inlet_source_has_legacy_hardcoded_streamwise_clipping",
+    ]:
+        value = as_bool(get_any(native_preconditions_audit, [key]))
+        if value is not False:
+            reasons.append(f"{key}_not_false:{value if value is not None else 'missing'}")
 
     expected_uref = as_float(get_any(native_preconditions_audit, ["expected_uref_mps"]))
     actual_uref = as_float(get_any(native_preconditions_audit, ["actual_uref_mps"]))
