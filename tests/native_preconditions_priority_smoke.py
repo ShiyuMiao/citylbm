@@ -37,6 +37,8 @@ def main() -> int:
         "runtime_average_step_span_3000_below_minimum_20000",
         "probe_uref_mismatch",
         "paper_grade_boundary_source_gate_not_pass",
+        "boundary_missing_evidence_field_floor_roughness_source",
+        "boundary_required_support_field_outlet_reflection_check_supported_not_supported",
         "inlet_source_velocity_field_only",
         "inlet_source_uses_uncorrelated_random_rms",
         "systematic_bias_after_prerequisites",
@@ -70,9 +72,15 @@ def main() -> int:
         raise AssertionError(time_priority)
 
     boundary_only = module.build_native_diagnostic_priority(
-        ["boundary_source_simplified", "blockage_gate_not_pass"]
+        [
+            "boundary_source_simplified",
+            "blockage_gate_not_pass",
+            "boundary_missing_evidence_field_floor_roughness_source",
+        ]
     )
     if boundary_only[0]["key"] != "boundary_roughness_blockage":
+        raise AssertionError(boundary_only)
+    if "boundary_missing_evidence_field_floor_roughness_source" not in boundary_only[0]["reasons"]:
         raise AssertionError(boundary_only)
 
     print("native_preconditions_priority_smoke passed")

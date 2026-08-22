@@ -104,6 +104,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   The external evidence or generated metadata must expose `boundary_equivalence_basis`, upstream/downstream/lateral/top
   clearance in building-height units, floor roughness source, outlet reflection check and side/top boundary check. The
   final validation gate now reports `boundary_equivalence_supported`, `clearance_numeric_gate` and clearance reasons.
+- `audit_native_preconditions.py` and the metrics CSV now preserve native boundary-protocol details, including missing
+  AIJ evidence fields, unsupported boundary-condition fields, required support booleans, clearance reasons and evidence
+  file hash failures. A native baseline with simplified or undocumented boundary/fetch/roughness assumptions now points
+  to the exact missing evidence instead of only reporting a generic boundary failure.
 - Boundary support files are now read and SHA256-hashed by `audit_boundary_protocol.py`. Empty, unreadable or
   existence-only files keep `boundary_evidence_files_all_hashed=false`, and the final validation gate fails until the
   evidence artifacts are non-empty and traceable in the run archive.

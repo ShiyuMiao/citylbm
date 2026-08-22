@@ -257,6 +257,19 @@ TEMPLATE_FIELDS = [
     "native_preconditions_gate_reasons",
     "native_preconditions_protocol_identity_gate",
     "native_preconditions_time_average_gate",
+    "native_boundary_protocol_gate",
+    "native_boundary_evidence_gate",
+    "native_boundary_protocol_gate_reasons",
+    "native_boundary_missing_evidence_fields",
+    "native_boundary_unsupported_condition_fields",
+    "native_boundary_required_support_fields_missing_or_false",
+    "native_boundary_equivalence_supported",
+    "native_boundary_evidence_class_supported",
+    "native_boundary_evidence_files_all_hashed",
+    "native_boundary_condition_fields_supported",
+    "native_boundary_clearance_numeric_gate",
+    "native_boundary_clearance_numeric_gate_reasons",
+    "native_boundary_blockage_gate",
     "native_top_blocking_priority_rank",
     "native_top_blocking_priority_key",
     "native_top_blocking_priority_reason_count",
@@ -1695,6 +1708,39 @@ def main() -> int:
             "native_preconditions_time_average_gate": audit_gate(
                 native_preconditions_audit, "native_preconditions_time_average_gate"
             ),
+            "native_boundary_protocol_gate": audit_gate(native_preconditions_audit, "boundary_protocol_gate"),
+            "native_boundary_evidence_gate": audit_gate(native_preconditions_audit, "boundary_evidence_gate"),
+            "native_boundary_protocol_gate_reasons": audit_field(
+                native_preconditions_audit, "boundary_protocol_gate_reasons_csv"
+            ),
+            "native_boundary_missing_evidence_fields": audit_field(
+                native_preconditions_audit, "boundary_missing_evidence_fields_csv"
+            ),
+            "native_boundary_unsupported_condition_fields": audit_field(
+                native_preconditions_audit, "boundary_unsupported_condition_fields_csv"
+            ),
+            "native_boundary_required_support_fields_missing_or_false": audit_field(
+                native_preconditions_audit, "boundary_required_support_fields_missing_or_false_csv"
+            ),
+            "native_boundary_equivalence_supported": first_bool_text(
+                native_preconditions_audit.get("boundary_equivalence_supported")
+            ),
+            "native_boundary_evidence_class_supported": first_bool_text(
+                native_preconditions_audit.get("boundary_evidence_class_supported")
+            ),
+            "native_boundary_evidence_files_all_hashed": first_bool_text(
+                native_preconditions_audit.get("boundary_evidence_files_all_hashed")
+            ),
+            "native_boundary_condition_fields_supported": first_bool_text(
+                native_preconditions_audit.get("boundary_condition_fields_supported")
+            ),
+            "native_boundary_clearance_numeric_gate": audit_gate(
+                native_preconditions_audit, "boundary_clearance_numeric_gate"
+            ),
+            "native_boundary_clearance_numeric_gate_reasons": audit_field(
+                native_preconditions_audit, "boundary_clearance_numeric_gate_reasons_csv"
+            ),
+            "native_boundary_blockage_gate": audit_gate(native_preconditions_audit, "boundary_blockage_gate"),
             "native_top_blocking_priority_rank": audit_field(
                 native_preconditions_audit, "native_top_blocking_priority_rank"
             ),

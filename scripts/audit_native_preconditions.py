@@ -1019,17 +1019,28 @@ def main() -> int:
     )
     boundary_clearance_numeric_gate = str(boundary_protocol_audit.get("clearance_numeric_gate") or "").strip().lower()
     boundary_blockage_gate = str(boundary_protocol_audit.get("blockage_gate") or "").strip().lower()
+    boundary_protocol_reasons = split_scalar_list(boundary_protocol_audit.get("boundary_protocol_gate_reasons"))
+    boundary_condition_support_reasons = split_scalar_list(
+        boundary_protocol_audit.get("boundary_condition_support_reasons")
+    )
+    boundary_clearance_reasons = split_scalar_list(
+        boundary_protocol_audit.get("clearance_numeric_gate_reasons")
+    )
     boundary_missing_evidence_fields = split_scalar_list(boundary_protocol_audit.get("missing_evidence_fields"))
     boundary_unsupported_condition_fields = split_scalar_list(
         boundary_protocol_audit.get("unsupported_boundary_condition_fields")
     )
     if not boundary_unsupported_condition_fields:
-        support_reasons = split_scalar_list(boundary_protocol_audit.get("boundary_condition_support_reasons"))
         prefix = "unsupported_boundary_condition_fields:"
-        for support_reason in support_reasons:
+        for support_reason in boundary_condition_support_reasons:
             if support_reason.startswith(prefix):
                 boundary_unsupported_condition_fields = split_scalar_list(support_reason[len(prefix) :])
                 break
+    boundary_evidence_files_missing = split_scalar_list(boundary_protocol_audit.get("boundary_evidence_files_missing"))
+    boundary_evidence_files_empty = split_scalar_list(boundary_protocol_audit.get("boundary_evidence_files_empty"))
+    boundary_evidence_files_unreadable = split_scalar_list(
+        boundary_protocol_audit.get("boundary_evidence_files_unreadable")
+    )
     boundary_required_support_fields_missing_or_false = [
         field for field in REQUIRED_BOUNDARY_SUPPORT_FIELDS if as_bool(boundary_protocol_audit.get(field)) is not True
     ]
@@ -1054,10 +1065,25 @@ def main() -> int:
             reasons.append("boundary_blockage_gate_not_pass")
         if boundary_missing_evidence_fields:
             reasons.append("boundary_missing_evidence_fields_present")
+            for field in boundary_missing_evidence_fields:
+                reasons.append(f"boundary_missing_evidence_field_{field}")
         if boundary_unsupported_condition_fields:
             reasons.append("boundary_unsupported_condition_fields_present")
+            for field in boundary_unsupported_condition_fields:
+                reasons.append(f"boundary_condition_field_{field}_not_supported")
         if boundary_required_support_fields_missing_or_false:
             reasons.append("boundary_required_support_fields_missing_or_false")
+            for field in boundary_required_support_fields_missing_or_false:
+                reasons.append(f"boundary_required_support_field_{field}_not_supported")
+        for clearance_reason in boundary_clearance_reasons:
+            if clearance_reason != "clearance_numeric_evidence_complete":
+                reasons.append(f"boundary_clearance_{clearance_reason}")
+        for path in boundary_evidence_files_missing:
+            reasons.append(f"boundary_evidence_file_missing_{Path(path).name or 'unnamed'}")
+        for path in boundary_evidence_files_empty:
+            reasons.append(f"boundary_evidence_file_empty_{Path(path).name or 'unnamed'}")
+        for path in boundary_evidence_files_unreadable:
+            reasons.append(f"boundary_evidence_file_unreadable_{Path(path).name or 'unnamed'}")
 
     expected_component = str(args.expected_compared_component or "").strip()
     failed_probe_rows = [row for row in probe_rows if probe_row_failed(row)]
@@ -1379,9 +1405,24 @@ def main() -> int:
         "boundary_condition_fields_supported": boundary_condition_fields_supported,
         "boundary_clearance_numeric_gate": boundary_clearance_numeric_gate,
         "boundary_blockage_gate": boundary_blockage_gate,
+        "boundary_protocol_gate_reasons": boundary_protocol_reasons,
+        "boundary_protocol_gate_reasons_csv": ";".join(boundary_protocol_reasons),
         "boundary_missing_evidence_fields": boundary_missing_evidence_fields,
+        "boundary_missing_evidence_fields_csv": ";".join(boundary_missing_evidence_fields),
         "boundary_unsupported_condition_fields": boundary_unsupported_condition_fields,
+        "boundary_unsupported_condition_fields_csv": ";".join(boundary_unsupported_condition_fields),
+        "boundary_condition_support_reasons": boundary_condition_support_reasons,
+        "boundary_condition_support_reasons_csv": ";".join(boundary_condition_support_reasons),
+        "boundary_clearance_numeric_gate_reasons": boundary_clearance_reasons,
+        "boundary_clearance_numeric_gate_reasons_csv": ";".join(boundary_clearance_reasons),
+        "boundary_evidence_files_missing": boundary_evidence_files_missing,
+        "boundary_evidence_files_missing_csv": ";".join(boundary_evidence_files_missing),
+        "boundary_evidence_files_empty": boundary_evidence_files_empty,
+        "boundary_evidence_files_empty_csv": ";".join(boundary_evidence_files_empty),
+        "boundary_evidence_files_unreadable": boundary_evidence_files_unreadable,
+        "boundary_evidence_files_unreadable_csv": ";".join(boundary_evidence_files_unreadable),
         "boundary_required_support_fields_missing_or_false": boundary_required_support_fields_missing_or_false,
+        "boundary_required_support_fields_missing_or_false_csv": ";".join(boundary_required_support_fields_missing_or_false),
         "probe_audit_row_count": len(probe_rows),
         "probe_audit_valid_row_count": len(valid_probe_rows),
         "probe_audit_failed_row_count": len(failed_probe_rows),
