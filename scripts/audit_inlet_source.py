@@ -21,6 +21,7 @@ from typing import Any, Dict, Iterable, List, Optional
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Audit generated FluidX3D setup.cpp inlet implementation evidence.")
     parser.add_argument("--setup", required=True, help="Generated setup.cpp path.")
+    parser.add_argument("--defines", help="Optional generated defines.hpp path.")
     parser.add_argument("--metadata", help="Optional case_metadata.json.")
     parser.add_argument("--out", required=True, help="Output inlet_source_audit.json.")
     return parser.parse_args()
@@ -44,6 +45,12 @@ def read_json(path: Optional[Path]) -> Dict[str, Any]:
     with path.open("r", encoding="utf-8-sig") as handle:
         data = json.load(handle)
     return data if isinstance(data, dict) else {}
+
+
+def read_optional_text(path: Optional[Path]) -> str:
+    if not path or not path.exists():
+        return ""
+    return path.read_text(encoding="utf-8-sig", errors="replace")
 
 
 def metadata_value(metadata: Dict[str, Any], *keys: str) -> str:
@@ -221,6 +228,7 @@ def strip_cpp_comments(text: str) -> str:
 def main() -> int:
     args = parse_args()
     setup_path = Path(args.setup).expanduser().resolve()
+    defines_path = Path(args.defines).expanduser().resolve() if args.defines else None
     metadata_path = Path(args.metadata).expanduser().resolve() if args.metadata else None
     out_path = Path(args.out).expanduser().resolve()
     metadata = read_json(metadata_path)
@@ -231,14 +239,21 @@ def main() -> int:
         source = ""
         setup_hash = ""
     else:
-        source = setup_path.read_text(encoding="utf-8-sig", errors="replace")
+        source = read_optional_text(setup_path)
         setup_hash = sha256(setup_path)
 
     audited_source = strip_cpp_comments(source)
     implementation_source = strip_cpp_string_literals(audited_source)
+    defines_source = read_optional_text(defines_path)
+    audited_defines_source = strip_cpp_comments(defines_source)
+    implementation_defines_source = strip_cpp_string_literals(audited_defines_source)
     audited_source_lower = audited_source.lower()
     implementation_source_lower = implementation_source.lower()
     audited_source_hash = hashlib.sha256(audited_source.encode("utf-8")).hexdigest().upper() if audited_source else ""
+    defines_hash = sha256(defines_path) if defines_path and defines_path.exists() else ""
+    audited_defines_source_hash = (
+        hashlib.sha256(audited_defines_source.encode("utf-8")).hexdigest().upper() if audited_defines_source else ""
+    )
     metadata_method = metadata_value(metadata, "SyntheticTurbulentInletMethod", "TurbulenceMethod")
     metadata_treatment = metadata_value(metadata, "SyntheticTurbulentInletDistributionTreatment")
     metadata_class = metadata_value(metadata, "PaperGradeInletMethodClass", "InletMethodClass")
@@ -332,6 +347,19 @@ def main() -> int:
     has_three_component_velocity_write = all(
         contains_any(implementation_source, [token])
         for token in ["lbm.u.x", "lbm.u.y", "lbm.u.z"]
+    )
+    has_type_e_boundary_flag = contains_any(implementation_source, ["TYPE_E"])
+    has_flags_device_upload = has_regex(implementation_source, r"\blbm\.flags\.write_to_device\s*\(")
+    has_u_device_upload = has_regex(implementation_source, r"\blbm\.u\.write_to_device\s*\(")
+    has_equilibrium_boundaries_define = has_regex(
+        implementation_defines_source,
+        r"^\s*#\s*define\s+EQUILIBRIUM_BOUNDARIES\b",
+    )
+    has_type_e_equilibrium_boundary_route = (
+        has_equilibrium_boundaries_define
+        and has_type_e_boundary_flag
+        and has_velocity_field_write
+        and has_u_device_upload
     )
     distribution_evidence = distribution_reconstruction_evidence(implementation_source)
     has_distribution_write = distribution_evidence["has_distribution_function_write"]
@@ -709,6 +737,17 @@ def main() -> int:
         "digital_filter_distribution_consistent",
         "synthetic_eddy_distribution_consistent",
     }
+    inlet_distribution_route = "none"
+    if has_inlet_distribution_reconstruction:
+        inlet_distribution_route = "direct_setup_distribution_write"
+    elif has_type_e_equilibrium_boundary_route:
+        inlet_distribution_route = "fluidx3d_equilibrium_boundaries_type_e_from_preset_rho_u"
+    elif has_velocity_field_write:
+        inlet_distribution_route = "velocity_field_only_without_equilibrium_boundary_define"
+    inlet_distribution_route_gate = "pass" if inlet_distribution_route in {
+        "direct_setup_distribution_write",
+        "fluidx3d_equilibrium_boundaries_type_e_from_preset_rho_u",
+    } else "fail"
     advanced_code_evidence = (
         has_distribution_consistent_digital_filter
         or has_distribution_consistent_sem
@@ -781,7 +820,6 @@ def main() -> int:
         reasons.append("synthetic_inlet_missing_layerwise_mean_preserving_inlet_correction")
     if synthetic_requested and has_uncorrelated_random_inlet:
         reasons.append("synthetic_inlet_uses_uncorrelated_random_rms")
-
     metadata_claims_distribution = any(
         token in " ".join([metadata_treatment, metadata_class]).lower()
         for token in ["distribution_consistent", "digital_filter", "digital-filter", "sem", "dfm", "precursor", "recycling"]
@@ -813,8 +851,12 @@ def main() -> int:
         "setup_cpp": str(setup_path),
         "setup_cpp_sha256": setup_hash,
         "comment_stripped_setup_cpp_sha256": audited_source_hash,
+        "defines_hpp": str(defines_path) if defines_path else "",
+        "defines_hpp_sha256": defines_hash,
+        "comment_stripped_defines_hpp_sha256": audited_defines_source_hash,
         "inlet_source_comment_stripped_code_audit": True,
         "advanced_inlet_evidence_uses_comment_stripped_code": True,
+        "defines_hpp_audited": bool(defines_path),
         "metadata": str(metadata_path) if metadata_path else "",
         "metadata_method": metadata_method,
         "metadata_distribution_treatment": metadata_treatment,
@@ -836,6 +878,13 @@ def main() -> int:
         "has_native_synthetic_eddy_refresh": has_native_synthetic_eddy_refresh,
         "has_velocity_field_write": has_velocity_field_write,
         "has_three_component_velocity_write": has_three_component_velocity_write,
+        "has_type_e_boundary_flag": has_type_e_boundary_flag,
+        "has_flags_device_upload": has_flags_device_upload,
+        "has_u_device_upload": has_u_device_upload,
+        "has_equilibrium_boundaries_define": has_equilibrium_boundaries_define,
+        "has_type_e_equilibrium_boundary_route": has_type_e_equilibrium_boundary_route,
+        "inlet_distribution_route": inlet_distribution_route,
+        "inlet_distribution_route_gate": inlet_distribution_route_gate,
         "has_three_component_fluctuation_evidence": has_three_component_fluctuation_evidence,
         "has_k_driven_three_component_stg": has_k_driven_three_component_stg,
         "has_distribution_function_write": has_distribution_write,
@@ -902,7 +951,8 @@ def main() -> int:
         "paper_grade_inlet_source_gate_reasons": paper_gate_reasons or ["source_distribution_consistent"],
         "recommended_next_action": (
             "Use source evidence plus final-window VTK inlet profile/correlation audits. Do not describe a velocity-field "
-            "STG-lite source as digital-filter, SEM, precursor, recycling or distribution-consistent inlet."
+            "STG-lite source as digital-filter, SEM, precursor, recycling or distribution-consistent inlet. Treat FluidX3D "
+            "EQUILIBRIUM_BOUNDARIES as a kernel equilibrium TYPE_E route, not as proof of full turbulent-inflow fidelity by itself."
         ),
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)

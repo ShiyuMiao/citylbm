@@ -18,18 +18,21 @@ def write_text(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8", newline="\n")
 
 
-def run_audit(setup: Path, metadata: Path, out_json: Path) -> tuple[int, dict]:
+def run_audit(setup: Path, metadata: Path, out_json: Path, defines: Path | None = None) -> tuple[int, dict]:
+    command = [
+        sys.executable,
+        str(REPO / "scripts" / "audit_inlet_source.py"),
+        "--setup",
+        str(setup),
+        "--metadata",
+        str(metadata),
+        "--out",
+        str(out_json),
+    ]
+    if defines is not None:
+        command.extend(["--defines", str(defines)])
     completed = subprocess.run(
-        [
-            sys.executable,
-            str(REPO / "scripts" / "audit_inlet_source.py"),
-            "--setup",
-            str(setup),
-            "--metadata",
-            str(metadata),
-            "--out",
-            str(out_json),
-        ],
+        command,
         cwd=str(REPO),
         text=True,
         capture_output=True,
@@ -107,6 +110,75 @@ for(uint remaining=100u; remaining>0u; ) {
         if random_report["has_k_driven_three_component_stg"]:
             raise AssertionError(random_report)
 
+        type_e_velocity_setup = root / "type_e_velocity_setup.cpp"
+        no_define_out = root / "type_e_velocity_no_define_audit.json"
+        equilibrium_defines = root / "defines.hpp"
+        with_define_out = root / "type_e_velocity_with_define_audit.json"
+        write_text(
+            type_e_velocity_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+void applySyntheticTurbulentInlet(uint t_step) {
+    for(uint n=0u; n<10u; n++) {
+        if(lbm.flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0];
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+    lbm.flags.write_to_device();
+    lbm.u.write_to_device();
+}
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > citylbm_stg_update_interval ? citylbm_stg_update_interval : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        no_define_code, no_define_report = run_audit(type_e_velocity_setup, metadata, no_define_out)
+        if no_define_code == 0:
+            raise AssertionError("TYPE_E velocity-only inlet without EQUILIBRIUM_BOUNDARIES unexpectedly passed")
+        if no_define_report["inlet_distribution_route"] != "velocity_field_only_without_equilibrium_boundary_define":
+            raise AssertionError(no_define_report)
+        if no_define_report["inlet_distribution_route_gate"] != "fail":
+            raise AssertionError(no_define_report)
+        if no_define_report["has_type_e_equilibrium_boundary_route"]:
+            raise AssertionError(no_define_report)
+
+        write_text(
+            equilibrium_defines,
+            """
+#pragma once
+#define D3Q19
+#define SRT
+#define EQUILIBRIUM_BOUNDARIES
+""",
+        )
+        with_define_code, with_define_report = run_audit(
+            type_e_velocity_setup,
+            metadata,
+            with_define_out,
+            equilibrium_defines,
+        )
+        if with_define_code == 0:
+            raise AssertionError("velocity-field STG with only equilibrium boundary route should not be paper-grade")
+        if with_define_report["has_equilibrium_boundaries_define"] is not True:
+            raise AssertionError(with_define_report)
+        if with_define_report["has_type_e_equilibrium_boundary_route"] is not True:
+            raise AssertionError(with_define_report)
+        if with_define_report["inlet_distribution_route"] != "fluidx3d_equilibrium_boundaries_type_e_from_preset_rho_u":
+            raise AssertionError(with_define_report["inlet_distribution_route"])
+        if with_define_report["inlet_distribution_route_gate"] != "pass":
+            raise AssertionError(with_define_report)
+        if with_define_report["inlet_source_distribution_consistent"]:
+            raise AssertionError(with_define_report)
+        if "source_velocity_field_only" not in with_define_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(with_define_report["paper_grade_inlet_source_gate_reasons"])
         stl_random_setup = root / "stl_random_setup.cpp"
         stl_random_out = root / "stl_random_audit.json"
         write_text(

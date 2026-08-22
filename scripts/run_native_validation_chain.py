@@ -477,6 +477,7 @@ def main() -> int:
         write_manifest(manifest_path, manifest)
 
         setup_cpp = find_run_file(run_dir, "setup.cpp")
+        defines_hpp = find_run_file(run_dir, "defines.hpp")
         if setup_cpp:
             inlet_source_cmd = [
                 py,
@@ -488,6 +489,8 @@ def main() -> int:
                 "--out",
                 str(inlet_source_json),
             ]
+            if defines_hpp:
+                inlet_source_cmd.extend(["--defines", str(defines_hpp)])
             manifest["Steps"].append(run_step("audit_inlet_source", inlet_source_cmd, allow_fail=True))
             boundary_source_cmd = [
                 py,

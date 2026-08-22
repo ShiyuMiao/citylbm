@@ -228,6 +228,13 @@ TEMPLATE_FIELDS = [
     "inlet_source_velocity_field_only",
     "inlet_source_advanced_code_evidence",
     "inlet_source_comment_stripped_code_audit",
+    "inlet_source_defines_hpp",
+    "inlet_source_defines_hpp_sha256",
+    "inlet_source_defines_hpp_audited",
+    "inlet_source_has_equilibrium_boundaries_define",
+    "inlet_source_has_type_e_equilibrium_boundary_route",
+    "inlet_source_distribution_route",
+    "inlet_source_distribution_route_gate",
     "inlet_source_has_distribution_function_write",
     "inlet_source_distribution_function_write_count",
     "inlet_source_has_inlet_distribution_reconstruction",
@@ -1977,6 +1984,19 @@ def main() -> int:
             "inlet_source_comment_stripped_code_audit": first_bool_text(
                 inlet_source_audit.get("inlet_source_comment_stripped_code_audit")
             ),
+            "inlet_source_defines_hpp": audit_field(inlet_source_audit, "defines_hpp"),
+            "inlet_source_defines_hpp_sha256": audit_field(inlet_source_audit, "defines_hpp_sha256"),
+            "inlet_source_defines_hpp_audited": first_bool_text(
+                inlet_source_audit.get("defines_hpp_audited")
+            ),
+            "inlet_source_has_equilibrium_boundaries_define": first_bool_text(
+                inlet_source_audit.get("has_equilibrium_boundaries_define")
+            ),
+            "inlet_source_has_type_e_equilibrium_boundary_route": first_bool_text(
+                inlet_source_audit.get("has_type_e_equilibrium_boundary_route")
+            ),
+            "inlet_source_distribution_route": audit_field(inlet_source_audit, "inlet_distribution_route"),
+            "inlet_source_distribution_route_gate": audit_gate(inlet_source_audit, "inlet_distribution_route_gate"),
             "inlet_source_has_distribution_function_write": first_bool_text(
                 inlet_source_audit.get("has_distribution_function_write")
             ),
