@@ -385,6 +385,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_metrics_from_probe_audit.py` now records native/CityLBM parity comparison coverage counts, and
   `validation_gate.py` fails CityLBM paper-grade promotion unless the archived parity audit includes enough gate-field
   coverage and all required evidence-hash comparisons.
+- `scripts/audit_native_citylbm_parity.py` and `validation_gate.py` now require explicit critical parity fields, not
+  just aggregate match counts. Case/wind, dx, VTK cadence, averaging, Uref, inlet/boundary/probe gates and AF/official/
+  source-audit hashes must all be present and matched before CityLBM accuracy can be interpreted against native
+  FluidX3D.
 - Added `scripts/audit_inlet_profile_from_vtk.py` to read real post-spinup `u-*.vtk` frames, sample an inlet or
   empty-tunnel cross-plane, reconstruct time-mean streamwise `U(z)` and temporal-variance `k(z)`, and compare both
   against the official AF table. This replaces hand-filled empty-tunnel `U/k` evidence with an archived JSON/CSV audit.

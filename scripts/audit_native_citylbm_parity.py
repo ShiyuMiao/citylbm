@@ -93,6 +93,63 @@ NUMERIC_FIELDS = [
     "valid_n",
 ]
 
+CRITICAL_PARITY_FIELDS = [
+    "case",
+    "wind_direction",
+    "dx_m",
+    "steps",
+    "save_interval",
+    "averaging_window",
+    "requested_time_steps",
+    "requested_vtk_save_interval",
+    "requested_vtk_frame_count",
+    "Uref_mps",
+    "Zref_m",
+    "compared_component",
+    "wind_vector",
+    "inlet_face",
+    "outlet_face",
+    "lateral_faces",
+    "velocity_set",
+    "les_model",
+    "synthetic_inlet_method",
+    "inlet_distribution_treatment",
+    "inlet_method_class",
+    "wall_roughness_treatment",
+    "boundary_evidence_class",
+    "requested_vtk_frame_gate",
+    "run_freshness_gate",
+    "time_averaging_gate",
+    "lbm_stability_gate",
+    "normalization_valid",
+    "compared_component_consistency_gate",
+    "wind_direction_valid",
+    "blockage_protocol_gate",
+    "boundary_protocol_gate",
+    "boundary_evidence_gate",
+    "boundary_source_gate",
+    "paper_grade_boundary_source_gate",
+    "inlet_source_gate",
+    "paper_grade_inlet_source_gate",
+    "inlet_method_class_supported",
+    "inlet_length_scale_gate",
+    "inlet_correlation_gate",
+    "inlet_profile_time_averaging_gate",
+    "inlet_streamwise_direction_gate",
+    "inlet_profile_gate",
+    "inlet_u_profile_gate",
+    "inlet_k_profile_gate",
+    "probe_vtk_source_window_gate",
+    "component_normalization_gate",
+    "component_sensitivity_gate",
+    "normalization_scale_gate",
+    "profile_csv_sha256",
+    "official_measurement_sha256",
+    "component_sensitivity_official_sha256",
+    "inlet_source_setup_sha256",
+    "boundary_source_setup_sha256",
+]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Audit paired native FluidX3D and CityLBM metrics parity.")
@@ -280,6 +337,20 @@ def main() -> int:
     mismatches = [item for item in comparisons if not item["match"]]
     if mismatches:
         reasons.append("paired_condition_mismatch:" + ",".join(item["field"] for item in mismatches))
+    comparison_by_field = {str(item.get("field") or ""): item for item in comparisons}
+    missing_critical_fields = [
+        field
+        for field in CRITICAL_PARITY_FIELDS
+        if not comparison_by_field.get(field) or comparison_by_field[field].get("match") is not True
+    ]
+    matched_critical_fields = [
+        field
+        for field in CRITICAL_PARITY_FIELDS
+        if comparison_by_field.get(field) and comparison_by_field[field].get("match") is True
+    ]
+    critical_field_gate = "pass" if not missing_critical_fields else "fail"
+    if missing_critical_fields:
+        reasons.append("critical_parity_field_missing_or_mismatch:" + ",".join(missing_critical_fields))
 
     gate = "pass" if not reasons else "fail"
     report = {
@@ -301,6 +372,13 @@ def main() -> int:
         "compared_gate_field_count": len(GATE_FIELDS),
         "compared_hash_field_count": len(HASH_FIELDS),
         "compared_numeric_field_count": len(NUMERIC_FIELDS),
+        "critical_parity_field_gate": critical_field_gate,
+        "required_critical_fields": CRITICAL_PARITY_FIELDS,
+        "required_critical_field_count": len(CRITICAL_PARITY_FIELDS),
+        "matched_critical_fields": matched_critical_fields,
+        "matched_critical_field_count": len(matched_critical_fields),
+        "missing_critical_fields": missing_critical_fields,
+        "missing_critical_field_count": len(missing_critical_fields),
         "mismatched_fields": [item["field"] for item in mismatches],
         "comparisons": comparisons,
         "recommended_next_action": (

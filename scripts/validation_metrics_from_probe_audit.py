@@ -384,6 +384,11 @@ TEMPLATE_FIELDS = [
     "native_citylbm_parity_compared_gate_field_count",
     "native_citylbm_parity_compared_hash_field_count",
     "native_citylbm_parity_compared_numeric_field_count",
+    "native_citylbm_parity_critical_field_gate",
+    "native_citylbm_parity_required_critical_field_count",
+    "native_citylbm_parity_matched_critical_field_count",
+    "native_citylbm_parity_missing_critical_field_count",
+    "native_citylbm_parity_missing_critical_fields",
     "probe_mapping_table",
     "probe_mapping_table_sha256",
     "official_measurement_sha256",
@@ -2137,6 +2142,15 @@ def main() -> int:
             "native_citylbm_parity_compared_gate_field_count": audit_field(native_citylbm_parity_audit, "compared_gate_field_count"),
             "native_citylbm_parity_compared_hash_field_count": audit_field(native_citylbm_parity_audit, "compared_hash_field_count"),
             "native_citylbm_parity_compared_numeric_field_count": audit_field(native_citylbm_parity_audit, "compared_numeric_field_count"),
+            "native_citylbm_parity_critical_field_gate": audit_field(native_citylbm_parity_audit, "critical_parity_field_gate"),
+            "native_citylbm_parity_required_critical_field_count": audit_field(native_citylbm_parity_audit, "required_critical_field_count"),
+            "native_citylbm_parity_matched_critical_field_count": audit_field(native_citylbm_parity_audit, "matched_critical_field_count"),
+            "native_citylbm_parity_missing_critical_field_count": audit_field(native_citylbm_parity_audit, "missing_critical_field_count"),
+            "native_citylbm_parity_missing_critical_fields": ";".join(
+                str(field) for field in native_citylbm_parity_audit.get("missing_critical_fields", [])
+            )
+            if isinstance(native_citylbm_parity_audit.get("missing_critical_fields"), list)
+            else str(native_citylbm_parity_audit.get("missing_critical_fields", "")),
             "probe_mapping_table": str(probe_path),
             "probe_mapping_table_sha256": sha256_file(probe_path),
             "official_measurement_sha256": sha256_file(official_path),

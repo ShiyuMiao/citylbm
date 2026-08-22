@@ -43,6 +43,63 @@ REQUIRED_PROTOCOL_ITEM_KEYS = [
     "grid_resolution",
 ]
 
+NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
+    "case",
+    "wind_direction",
+    "dx_m",
+    "steps",
+    "save_interval",
+    "averaging_window",
+    "requested_time_steps",
+    "requested_vtk_save_interval",
+    "requested_vtk_frame_count",
+    "Uref_mps",
+    "Zref_m",
+    "compared_component",
+    "wind_vector",
+    "inlet_face",
+    "outlet_face",
+    "lateral_faces",
+    "velocity_set",
+    "les_model",
+    "synthetic_inlet_method",
+    "inlet_distribution_treatment",
+    "inlet_method_class",
+    "wall_roughness_treatment",
+    "boundary_evidence_class",
+    "requested_vtk_frame_gate",
+    "run_freshness_gate",
+    "time_averaging_gate",
+    "lbm_stability_gate",
+    "normalization_valid",
+    "compared_component_consistency_gate",
+    "wind_direction_valid",
+    "blockage_protocol_gate",
+    "boundary_protocol_gate",
+    "boundary_evidence_gate",
+    "boundary_source_gate",
+    "paper_grade_boundary_source_gate",
+    "inlet_source_gate",
+    "paper_grade_inlet_source_gate",
+    "inlet_method_class_supported",
+    "inlet_length_scale_gate",
+    "inlet_correlation_gate",
+    "inlet_profile_time_averaging_gate",
+    "inlet_streamwise_direction_gate",
+    "inlet_profile_gate",
+    "inlet_u_profile_gate",
+    "inlet_k_profile_gate",
+    "probe_vtk_source_window_gate",
+    "component_normalization_gate",
+    "component_sensitivity_gate",
+    "normalization_scale_gate",
+    "profile_csv_sha256",
+    "official_measurement_sha256",
+    "component_sensitivity_official_sha256",
+    "inlet_source_setup_sha256",
+    "boundary_source_setup_sha256",
+]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -2413,6 +2470,78 @@ def native_time_averaging_traceability_status(
         "runtime_source_step_span": runtime_span,
         "runtime_source_step_span_from_time_steps": runtime_span_from_steps,
         "planned_final_window_step_span": planned_span,
+    }
+
+
+def native_citylbm_parity_critical_status(
+    native_citylbm_parity_audit: Dict[str, Any],
+) -> Dict[str, Any]:
+    reasons: List[str] = []
+    if not native_citylbm_parity_audit:
+        reasons.append("native_citylbm_parity_audit_missing")
+
+    declared_gate = str(
+        get_any(native_citylbm_parity_audit, ["critical_parity_field_gate"]) or ""
+    ).strip().lower()
+    if declared_gate != "pass":
+        reasons.append(f"critical_parity_field_gate_not_pass:{declared_gate or 'missing'}")
+
+    required_fields = as_string_list(
+        get_any(native_citylbm_parity_audit, ["required_critical_fields"])
+    )
+    if not required_fields:
+        required_fields = list(NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS)
+        reasons.append("required_critical_fields_missing")
+    missing_declared = as_string_list(
+        get_any(native_citylbm_parity_audit, ["missing_critical_fields"])
+    )
+    if missing_declared:
+        reasons.append("missing_critical_fields_declared:" + ",".join(missing_declared))
+
+    comparisons = get_any(native_citylbm_parity_audit, ["comparisons"])
+    comparison_by_field: Dict[str, Dict[str, Any]] = {}
+    if isinstance(comparisons, list):
+        for item in comparisons:
+            if not isinstance(item, dict):
+                continue
+            field = str(item.get("field") or "").strip()
+            if field:
+                comparison_by_field[field] = item
+    else:
+        reasons.append("comparisons_missing_or_not_list")
+
+    missing_recomputed = [
+        field
+        for field in required_fields
+        if not comparison_by_field.get(field)
+        or as_bool(comparison_by_field[field].get("match")) is not True
+    ]
+    if missing_recomputed:
+        reasons.append("missing_critical_fields_recomputed:" + ",".join(missing_recomputed))
+
+    matched_count = as_int(
+        get_any(native_citylbm_parity_audit, ["matched_critical_field_count"])
+    )
+    required_count = as_int(
+        get_any(native_citylbm_parity_audit, ["required_critical_field_count"])
+    )
+    if required_count is None:
+        reasons.append("required_critical_field_count_missing")
+        required_count = len(required_fields)
+    if matched_count is None:
+        reasons.append("matched_critical_field_count_missing")
+    elif matched_count < required_count:
+        reasons.append(f"matched_critical_field_count_below_required:{matched_count}_of_{required_count}")
+
+    return {
+        "ok": not reasons,
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+        "required_fields": required_fields,
+        "required_field_count": required_count,
+        "matched_field_count": matched_count,
+        "missing_declared": missing_declared,
+        "missing_recomputed": missing_recomputed,
     }
 
 
@@ -5129,11 +5258,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     parity_compared_hash_count = as_int(
         get_any(native_citylbm_parity_audit, ["compared_hash_field_count"])
     )
+    parity_critical_status = native_citylbm_parity_critical_status(
+        native_citylbm_parity_audit
+    )
     parity_ok = (
         not citylbm_result
         or (
             native_citylbm_parity_audit_path is not None
             and parity_gate == "pass"
+            and parity_critical_status["ok"]
             and parity_native_metrics
             and parity_matched_count is not None
             and parity_matched_count >= args.min_native_citylbm_parity_field_count
@@ -5158,6 +5291,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"required_gate_fields >= {args.min_native_citylbm_parity_gate_field_count}; "
             f"compared_hash_field_count={parity_compared_hash_count}; "
             f"required_hash_fields >= {args.min_native_citylbm_parity_hash_field_count}; "
+            f"critical_parity_ok={parity_critical_status['ok']}; "
+            f"critical_parity_reasons={parity_critical_status['reasons_csv'] or 'none'}; "
+            f"matched_critical_field_count={parity_critical_status['matched_field_count']}; "
+            f"required_critical_field_count={parity_critical_status['required_field_count']}; "
+            f"missing_critical_fields={','.join(parity_critical_status['missing_recomputed']) or 'none'}; "
             f"mismatched_field_count={parity_mismatched_count}; mismatched_fields={parity_mismatched_fields or 'none'}; "
             f"native_citylbm_parity_gate_reasons={parity_reasons or 'none'}; "
             f"metrics_native_citylbm_parity_gate={get_any(metrics, ['native_citylbm_parity_gate', 'NativeCitylbmParityGate']) or 'ignored'}"
