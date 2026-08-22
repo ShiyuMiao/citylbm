@@ -2569,6 +2569,7 @@ namespace CityLBM.Solver
                 double maxKM2s2 = hasK ? scene.CustomWindProfile.Where(s => s.HasK).Max(s => s.K) : 0.0;
                 bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
                 var boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
+                double metadataBuildingHeightM = boundaryAudit.BuildingBoundsM == null ? 0.0 : boundaryAudit.BuildingBoundsM.Height;
                 double tau = ComputeTau(settings, grid, scene);
                 double nuLbm = ComputeNuLbm(settings, grid, scene);
                 double reynolds = EstimateRunReynoldsNumber(scene, grid, settings);
@@ -2648,6 +2649,13 @@ namespace CityLBM.Solver
                     SolverStabilityWarnings = "not_available_until_solver_log_is_archived",
                     VelocityOutputUnits = "FluidX3D write_device_to_vtk true requested; reader treats metadata as the unit contract.",
                     VtkReaderShouldApplyVelocityScale = false,
+                    GeometryPhysicalUnitAssumption = "Rhino_model_geometry_is_already_real_scale_meters_before_case_generation",
+                    GeometryScaleEvidenceGate = scene.BuildingMeshes != null && scene.BuildingMeshes.Count > 0 && metadataBuildingHeightM > 1.0
+                        ? "diagnostic_geometry_scale_plausible_verify_against_official_probe_coordinates"
+                        : "risk_missing_or_model_scale_geometry_verify_units_and_stl_scale",
+                    GeometryScaleExpectedCaseENote = "AIJ_CaseE_official_BD_caseE_stl_is_1_to_250_model_scale_and_must_be_scaled_by_250_before_Add_Buildings",
+                    GeometryBuildingCount = scene.BuildingMeshes == null ? 0 : scene.BuildingMeshes.Count,
+                    GeometryBuildingHeightM = metadataBuildingHeightM,
                     DxM = grid.Dx,
                     Nx = grid.Nx,
                     Ny = grid.Ny,
@@ -3198,6 +3206,7 @@ namespace CityLBM.Solver
                     BuildBaselineSourceFile("Validation protocol audit", validationAuditPath)
                 };
                 var boundaryAudit = BuildBoundaryProtocolAudit(scene, grid);
+                double manifestBuildingHeightM = boundaryAudit.BuildingBoundsM == null ? 0.0 : boundaryAudit.BuildingBoundsM.Height;
                 var sourceValidation = ValidateFluidX3DSourcePath(out string sourceValidationMessage);
                 string baselineId = BuildNativeBaselineId(scene, requiredSourceFiles);
                 string[] missingPaperGradeBoundaryEvidence = new[]
@@ -3235,6 +3244,13 @@ namespace CityLBM.Solver
                         ExpectedVtkFrameCount = settings.SaveInterval > 0
                             ? (int)Math.Ceiling(settings.TimeSteps / (double)settings.SaveInterval)
                             : 0,
+                        GeometryPhysicalUnitAssumption = "Rhino_model_geometry_is_already_real_scale_meters_before_case_generation",
+                        GeometryScaleEvidenceGate = scene.BuildingMeshes != null && scene.BuildingMeshes.Count > 0 && manifestBuildingHeightM > 1.0
+                            ? "diagnostic_geometry_scale_plausible_verify_against_official_probe_coordinates"
+                            : "risk_missing_or_model_scale_geometry_verify_units_and_stl_scale",
+                        GeometryScaleExpectedCaseENote = "AIJ_CaseE_official_BD_caseE_stl_is_1_to_250_model_scale_and_must_be_scaled_by_250_before_Add_Buildings",
+                        GeometryBuildingCount = scene.BuildingMeshes == null ? 0 : scene.BuildingMeshes.Count,
+                        GeometryBuildingHeightM = manifestBuildingHeightM,
                         MinimumRecommendedAveragingFrames = MinimumRecommendedAveragingFrames,
                         PaperRecommendedAveragingFrames = PaperRecommendedAveragingFrames,
                         PaperRecommendedAverageStepSpan = PaperRecommendedAverageStepSpan,

@@ -107,6 +107,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `probe_vtk_points.py` now records the VTK physical grid extent for every sampled probe and hard-fails probes outside
   that extent before nearest/trilinear interpolation, so incorrect STL scale, `domain_origin` or RS coordinate
   transforms cannot be hidden by clamping samples to the VTK boundary.
+- `case_metadata.json`, the native baseline manifest and validation metrics now record the geometry-unit assumption,
+  building count/height and a geometry-scale evidence gate. The metadata explicitly states that CityLBM expects real-scale
+  meter geometry and that the official AIJ Case E `BD_caseE.stl` model-scale geometry must be scaled by 250 before
+  adding buildings.
 - `case_metadata.json` and the native baseline manifest now include `BoundaryProtocolAudit`, a structured record of
   inlet/outlet/lateral/top faces, domain clearances in meters and building-height units, simplified boundary types and a
   diagnostic boundary-clearance gate.
