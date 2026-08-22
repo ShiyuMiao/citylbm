@@ -129,6 +129,21 @@ def extract_cpp_comments(text: str) -> str:
     return "\n".join(comments)
 
 
+def count_empty_advanced_boundary_method_stubs(text: str) -> int:
+    return count_regex(
+        text,
+        (
+            r"\b(?:void|float|float3|uint|int|bool|auto)\s+"
+            r"\w*(?:non_reflecting|nonReflecting|convective_outlet|convectiveOutlet|"
+            r"absorbing_outlet|absorbingOutlet|radiation_boundary|radiationBoundary|"
+            r"periodic_boundary|periodicBoundary|rough_wall|roughWall|wall_function|"
+            r"wallFunction|log_law|logLaw|precursor|recycling_rescaling|"
+            r"recyclingRescaling|recycle_rescale|recycleRescale)\w*"
+            r"\s*\([^;{}]*\)\s*\{\s*\}"
+        ),
+    )
+
+
 def main() -> int:
     args = parse_args()
     setup_path = Path(args.setup).expanduser().resolve()
@@ -350,6 +365,8 @@ def main() -> int:
     has_precursor_or_recycling = (
         has_precursor_or_recycling_method and has_precursor_or_recycling_field_evidence
     )
+    empty_advanced_method_stub_count = count_empty_advanced_boundary_method_stubs(implementation_code)
+    has_empty_advanced_method_stub = empty_advanced_method_stub_count > 0
     has_paper_grade_outlet_source = has_non_reflecting_outlet
     has_paper_grade_side_top_source = has_periodic_side_top
     has_paper_grade_rough_wall_source = has_rough_wall_function
@@ -421,6 +438,7 @@ def main() -> int:
         and has_paper_grade_side_top_source
         and has_paper_grade_rough_wall_source
         and has_paper_grade_development_source
+        and not has_empty_advanced_method_stub
     )
     source_simplified = source_class in {
         "simplified_type_e_box",
@@ -464,6 +482,8 @@ def main() -> int:
         reasons.append("rough_wall_boundary_source_missing_wall_action_evidence")
     if has_precursor_or_recycling_method and not has_precursor_or_recycling_field_evidence:
         reasons.append("precursor_recycling_boundary_source_missing_recycled_field_evidence")
+    if has_empty_advanced_method_stub:
+        reasons.append("advanced_boundary_method_empty_stub_definition")
 
     source_gate = "pass" if not reasons else "fail"
     paper_reasons: List[str] = []
@@ -475,6 +495,8 @@ def main() -> int:
         paper_reasons.append("ground_and_buildings_no_slip_without_rough_wall_or_precursor")
     if source_class == "named_boundary_method_without_field_evidence":
         paper_reasons.append("boundary_method_named_without_concrete_state_or_field_evidence")
+    if has_empty_advanced_method_stub:
+        paper_reasons.append("advanced_boundary_method_empty_stub_definition")
     for missing_key in missing_paper_grade_source_evidence:
         paper_reasons.append(f"missing_{missing_key}")
     paper_gate = "pass" if not paper_reasons else "fail"
@@ -526,6 +548,8 @@ def main() -> int:
         "has_precursor_or_recycling_boundary_method": has_precursor_or_recycling_method,
         "has_precursor_or_recycling_boundary_field_evidence": has_precursor_or_recycling_field_evidence,
         "has_precursor_or_recycling_boundary_token": has_precursor_or_recycling_token,
+        "has_empty_advanced_boundary_method_stub": has_empty_advanced_method_stub,
+        "empty_advanced_boundary_method_stub_count": empty_advanced_method_stub_count,
         "has_paper_grade_outlet_source": has_paper_grade_outlet_source,
         "has_paper_grade_side_top_source": has_paper_grade_side_top_source,
         "has_paper_grade_rough_wall_source": has_paper_grade_rough_wall_source,

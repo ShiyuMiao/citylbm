@@ -175,6 +175,8 @@ TEMPLATE_FIELDS = [
     "boundary_source_has_rough_wall_action_evidence",
     "boundary_source_has_precursor_or_recycling_boundary_method",
     "boundary_source_has_precursor_or_recycling_boundary_field_evidence",
+    "boundary_source_has_empty_advanced_boundary_method_stub",
+    "boundary_source_empty_advanced_boundary_method_stub_count",
     "boundary_source_has_paper_grade_outlet_source",
     "boundary_source_has_paper_grade_side_top_source",
     "boundary_source_has_paper_grade_rough_wall_source",
@@ -1748,6 +1750,12 @@ def main() -> int:
             ),
             "boundary_source_has_precursor_or_recycling_boundary_field_evidence": first_bool_text(
                 boundary_source_audit.get("has_precursor_or_recycling_boundary_field_evidence")
+            ),
+            "boundary_source_has_empty_advanced_boundary_method_stub": first_bool_text(
+                boundary_source_audit.get("has_empty_advanced_boundary_method_stub")
+            ),
+            "boundary_source_empty_advanced_boundary_method_stub_count": fmt(
+                audit_int(boundary_source_audit, "empty_advanced_boundary_method_stub_count")
             ),
             "boundary_source_has_paper_grade_outlet_source": first_bool_text(
                 boundary_source_audit.get("has_paper_grade_outlet_source")

@@ -25,6 +25,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now treats those native AF-reference fields as hard inlet-precondition evidence: missing
   `AF U(zref)` data or Uref-vs-AF deltas above `--uref-tolerance` fail the native inlet traceability gate before a
   FluidX3D baseline can be used for CityLBM accuracy interpretation.
+- `audit_boundary_source.py` now rejects empty advanced-boundary method stubs such as `void non_reflecting_outlet(...) {}`
+  as paper-grade source evidence. Boundary-source metrics now expose the empty-stub flag and count, preventing a named
+  non-reflecting/periodic/rough-wall/precursor function from being mistaken for implemented AIJ-equivalent boundaries.
 - The `k` column is preserved, converted to LBM units and stored in metadata.
 - `case_metadata.json` now records CustomTable row count, `k` row count, all-row `k` consistency, SI/LBM `k` ranges,
   profile origin and the first/last profile heights, so AIJ run packages can audit the inlet profile without reopening
