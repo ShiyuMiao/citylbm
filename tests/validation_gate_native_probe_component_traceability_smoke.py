@@ -103,6 +103,31 @@ def main() -> int:
     if not ok["ok"]:
         raise AssertionError(ok)
 
+    missing_official_set = copy.deepcopy(passing_native_audit())
+    for key in [
+        "official_expected_row_count",
+        "official_expected_z_m",
+        "official_probe_set_row_count",
+        "official_probe_ids_unique",
+        "official_z_mismatch_count",
+    ]:
+        missing_official_set.pop(key, None)
+    missing_status = module.native_probe_component_traceability_status(
+        missing_official_set,
+        min_avg_step_span=20000,
+    )
+    if missing_status["ok"]:
+        raise AssertionError(missing_status)
+    for expected in [
+        "official_expected_row_count_missing",
+        "official_expected_z_m_missing",
+        "official_probe_set_row_count_missing",
+        "official_probe_ids_unique_not_true:missing",
+        "official_z_mismatch_count_missing",
+    ]:
+        if expected not in missing_status["reasons"]:
+            raise AssertionError(missing_status)
+
     bad = copy.deepcopy(passing_native_audit())
     bad["probe_out_of_tolerance_count"] = 2
     bad["probe_source_vtk_sha256_match_runtime"] = False

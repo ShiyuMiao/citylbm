@@ -492,6 +492,10 @@ sensitivity or residual bias is interpreted. The archived manifest/metadata must
 viscosity and estimated Reynolds number, recorded velocity set and LES/subgrid model, no solver stability warnings, and
 `lbm_stability_scaling` closed in the validation protocol audit. A failing item means the run is diagnostic, not a
 native FluidX3D accuracy baseline.
+Native probe/component traceability also requires the official RS probe set to declare its expected row count and
+official probe height. Missing `official_expected_row_count`, missing `official_expected_z_m`, non-unique official probe
+IDs, incomplete official-probe coverage, or any official-height mismatch must fail before component choice, Uref
+normalization or residual bias is interpreted.
 
 ## Current Blockers
 

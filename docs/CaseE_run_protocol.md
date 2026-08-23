@@ -481,6 +481,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Official probe-set gate: `official_probe_set_gate`, `official_probe_set_row_count`, `official_expected_row_count`,
   `official_expected_z_m`, `official_z_match_count` and `official_z_mismatch_count`. For `ac + N`, this must show
   exactly 80 official rows at `z=2.0 m`.
+  The native precondition gate treats missing `official_expected_row_count`, missing `official_expected_z_m`, non-unique
+  official probe IDs, incomplete official coverage, or any official-height mismatch as a hard failure. Do not use a
+  diagnostic `z+half-cell` or unfiltered RS comparison as Case E validation evidence.
 - Per-probe `Uref`, wind vector, `normalization_valid` and `wind_direction_valid` coverage from the Data Probe audit
   CSV. For paper-grade Case E, every valid probe must carry the same finite normalization basis and declared wind vector;
   a correct summary metrics row is diagnostic if the per-probe audit is missing or mixed. The

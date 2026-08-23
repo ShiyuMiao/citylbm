@@ -2479,33 +2479,40 @@ def native_probe_component_traceability_status(
         reasons.append(f"official_probe_coverage_ratio_not_one:{coverage}")
     official_expected_row_count = as_int(get_any(native_preconditions_audit, ["official_expected_row_count"]))
     official_expected_z = str(get_any(native_preconditions_audit, ["official_expected_z_m"]) or "").strip()
-    if official_expected_row_count is not None or official_expected_z:
-        official_probe_set_gate = str(get_any(native_preconditions_audit, ["official_probe_set_gate"]) or "").strip().lower()
-        if official_probe_set_gate != "pass":
-            reasons.append(f"official_probe_set_gate_not_pass:{official_probe_set_gate or 'missing'}")
-        probe_official_height_gate = str(
-            get_any(native_preconditions_audit, ["probe_official_height_gate"]) or ""
-        ).strip().lower()
-        if probe_official_height_gate != "pass":
-            reasons.append(f"probe_official_height_gate_not_pass:{probe_official_height_gate or 'missing'}")
-            for reason in as_string_list(
-                get_any(
-                    native_preconditions_audit,
-                    ["probe_official_height_gate_reasons", "probe_official_height_gate_reasons_csv"],
-                )
-            ):
-                reasons.append(f"probe_official_height_gate:{reason}")
-        official_probe_set_row_count = as_int(get_any(native_preconditions_audit, ["official_probe_set_row_count"]))
-        if official_expected_row_count is not None and official_probe_set_row_count != official_expected_row_count:
-            reasons.append(
-                f"official_probe_set_row_count_mismatch:{official_probe_set_row_count}_of_{official_expected_row_count}"
+    if official_expected_row_count is None:
+        reasons.append("official_expected_row_count_missing")
+    if not official_expected_z:
+        reasons.append("official_expected_z_m_missing")
+    official_probe_set_gate = str(get_any(native_preconditions_audit, ["official_probe_set_gate"]) or "").strip().lower()
+    if official_probe_set_gate != "pass":
+        reasons.append(f"official_probe_set_gate_not_pass:{official_probe_set_gate or 'missing'}")
+    probe_official_height_gate = str(
+        get_any(native_preconditions_audit, ["probe_official_height_gate"]) or ""
+    ).strip().lower()
+    if probe_official_height_gate != "pass":
+        reasons.append(f"probe_official_height_gate_not_pass:{probe_official_height_gate or 'missing'}")
+        for reason in as_string_list(
+            get_any(
+                native_preconditions_audit,
+                ["probe_official_height_gate_reasons", "probe_official_height_gate_reasons_csv"],
             )
-        official_probe_ids_unique = as_bool(get_any(native_preconditions_audit, ["official_probe_ids_unique"]))
-        if official_probe_ids_unique is not True:
-            reasons.append(f"official_probe_ids_unique_not_true:{official_probe_ids_unique if official_probe_ids_unique is not None else 'missing'}")
-        official_z_mismatch_count = as_int(get_any(native_preconditions_audit, ["official_z_mismatch_count"]))
-        if official_expected_z and official_z_mismatch_count != 0:
-            reasons.append(f"official_z_mismatch_count_not_zero:{official_z_mismatch_count if official_z_mismatch_count is not None else 'missing'}")
+        ):
+            reasons.append(f"probe_official_height_gate:{reason}")
+    official_probe_set_row_count = as_int(get_any(native_preconditions_audit, ["official_probe_set_row_count"]))
+    if official_probe_set_row_count is None:
+        reasons.append("official_probe_set_row_count_missing")
+    elif official_expected_row_count is not None and official_probe_set_row_count != official_expected_row_count:
+        reasons.append(
+            f"official_probe_set_row_count_mismatch:{official_probe_set_row_count}_of_{official_expected_row_count}"
+        )
+    official_probe_ids_unique = as_bool(get_any(native_preconditions_audit, ["official_probe_ids_unique"]))
+    if official_probe_ids_unique is not True:
+        reasons.append(f"official_probe_ids_unique_not_true:{official_probe_ids_unique if official_probe_ids_unique is not None else 'missing'}")
+    official_z_mismatch_count = as_int(get_any(native_preconditions_audit, ["official_z_mismatch_count"]))
+    if official_z_mismatch_count is None:
+        reasons.append("official_z_mismatch_count_missing")
+    elif official_z_mismatch_count != 0:
+        reasons.append(f"official_z_mismatch_count_not_zero:{official_z_mismatch_count}")
 
     for key in [
         "probe_source_time_steps_match_runtime",

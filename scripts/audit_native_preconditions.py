@@ -2873,10 +2873,18 @@ def main() -> int:
     official_expected_z_tolerance = next(iter(official_probe_set_unique_values["official_expected_z_tolerance"]), "")
     official_z_match_count = as_int(next(iter(official_probe_set_unique_values["official_z_match_count"]), ""))
     official_z_mismatch_count = as_int(next(iter(official_probe_set_unique_values["official_z_mismatch_count"]), ""))
-    if official_expected_row_count is not None and official_probe_set_row_count != official_expected_row_count:
+    if official_expected_row_count is None:
+        official_probe_set_reasons.append("official_expected_row_count_missing")
+    elif official_probe_set_row_count != official_expected_row_count:
         official_probe_set_reasons.append(
             f"official_row_count_{official_probe_set_row_count}_does_not_match_expected_{official_expected_row_count}"
         )
+    if not str(official_expected_z or "").strip():
+        official_probe_set_reasons.append("official_expected_z_missing")
+    if official_probe_set_row_count is None:
+        official_probe_set_reasons.append("official_probe_set_row_count_missing")
+    if official_probe_ids_unique is None:
+        official_probe_set_reasons.append("official_probe_ids_unique_missing")
     if official_probe_ids_unique is False:
         official_probe_set_reasons.append("official_probe_ids_not_unique")
     if official_missing_probe_id_count and official_missing_probe_id_count > 0:
