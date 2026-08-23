@@ -1119,6 +1119,9 @@ def build_inlet_equivalence_evidence_reasons(
         inlet_source_audit.get("has_three_component_fluctuation_evidence")
     )
     source_has_k_driven_stg = as_bool(inlet_source_audit.get("has_k_driven_three_component_stg"))
+    source_has_component_phase_decorrelation = as_bool(
+        inlet_source_audit.get("has_component_phase_decorrelation")
+    )
     source_has_mean_correction = as_bool(inlet_source_audit.get("has_mean_preserving_inlet_correction"))
     source_has_layer_correction = as_bool(inlet_source_audit.get("has_layerwise_mean_preserving_inlet_correction"))
     source_has_streamwise_clipping_control = as_bool(inlet_source_audit.get("has_streamwise_clipping_control"))
@@ -1174,6 +1177,7 @@ def build_inlet_equivalence_evidence_reasons(
         ("inlet_source_has_three_component_velocity_write", source_has_three_component_write),
         ("inlet_source_has_three_component_fluctuation_evidence", source_has_three_component_fluctuation),
         ("inlet_source_has_k_driven_three_component_stg", source_has_k_driven_stg),
+        ("inlet_source_has_component_phase_decorrelation", source_has_component_phase_decorrelation),
         ("inlet_source_has_mean_preserving_inlet_correction", source_has_mean_correction),
         ("inlet_source_has_layerwise_mean_preserving_inlet_correction", source_has_layer_correction),
         ("inlet_source_has_streamwise_clipping_control", source_has_streamwise_clipping_control),
@@ -2097,6 +2101,9 @@ def main() -> int:
     inlet_has_k_driven_three_component_stg = as_bool(
         inlet_source_audit.get("has_k_driven_three_component_stg")
     )
+    inlet_has_component_phase_decorrelation = as_bool(
+        inlet_source_audit.get("has_component_phase_decorrelation")
+    )
     inlet_has_mean_preserving_correction = as_bool(
         inlet_source_audit.get("has_mean_preserving_inlet_correction")
     )
@@ -2142,6 +2149,8 @@ def main() -> int:
         reasons.append("inlet_source_missing_three_component_fluctuation_evidence")
     if inlet_stg_evidence_required and inlet_has_k_driven_three_component_stg is not True:
         reasons.append("inlet_source_missing_k_driven_three_component_stg_evidence")
+    if inlet_stg_evidence_required and inlet_has_component_phase_decorrelation is not True:
+        reasons.append("inlet_source_missing_component_phase_decorrelation")
     if inlet_stg_evidence_required and inlet_has_mean_preserving_correction is not True:
         reasons.append("inlet_source_missing_mean_preserving_inlet_correction")
     if inlet_stg_evidence_required and inlet_has_layerwise_mean_preserving_correction is not True:
@@ -3159,6 +3168,7 @@ def main() -> int:
         "inlet_source_has_three_component_velocity_write": inlet_has_three_component_velocity_write,
         "inlet_source_has_three_component_fluctuation_evidence": inlet_has_three_component_fluctuation_evidence,
         "inlet_source_has_k_driven_three_component_stg": inlet_has_k_driven_three_component_stg,
+        "inlet_source_has_component_phase_decorrelation": inlet_has_component_phase_decorrelation,
         "inlet_source_has_mean_preserving_inlet_correction": inlet_has_mean_preserving_correction,
         "inlet_source_has_layerwise_mean_preserving_inlet_correction": inlet_has_layerwise_mean_preserving_correction,
         "inlet_source_has_streamwise_clipping_control": inlet_has_streamwise_clipping_control,

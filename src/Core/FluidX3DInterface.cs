@@ -2405,6 +2405,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    // CityLBM STG-lite inlet: deterministic spectral synthetic fluctuations from isotropic k.");
             sb.AppendLine("    // Temporal evolution uses Taylor frozen-turbulence advection along the local mean wind.");
             sb.AppendLine("    // Per-mode fluctuation vectors are projected normal to their wave vector to reduce non-physical divergence.");
+            sb.AppendLine("    // Component-specific deterministic phases reduce artificial u/v/w cross-correlation under the isotropic k assumption.");
             sb.AppendLine("    // This is a diagnostic approximation, not a full digital-filter/SEM/precursor inlet with Reynolds-stress tensors.");
             sb.AppendLine("    // It updates macroscopic inlet velocity fields only; distribution functions are not reconstructed here.");
             sb.AppendLine("    // Each refresh subtracts the perturbation mean per inlet z_cell so finite-mode/capped fluctuations preserve the AF mean profile by height.");
@@ -2457,10 +2458,12 @@ namespace CityLBM.Solver
             sb.AppendLine("            float aa = sqrtf(ax*ax + ay*ay + az*az);");
             sb.AppendLine("            if(aa > 1.0e-6f) { ax /= aa; ay /= aa; az /= aa; }");
             sb.AppendLine("            float phase = kx * advected_x + ky * advected_y + kz * advected_z;");
-            sb.AppendLine("            float wave = sinf(phase + citylbm_mode_phase(m, 1));");
-            sb.AppendLine("            fluct_x += ax * wave;");
-            sb.AppendLine("            fluct_y += ay * wave;");
-            sb.AppendLine("            fluct_z += az * wave;");
+            sb.AppendLine("            float wave_x = sinf(phase + citylbm_mode_phase(m, 0));");
+            sb.AppendLine("            float wave_y = sinf(phase + citylbm_mode_phase(m, 1));");
+            sb.AppendLine("            float wave_z = sinf(phase + citylbm_mode_phase(m, 2));");
+            sb.AppendLine("            fluct_x += ax * wave_x;");
+            sb.AppendLine("            fluct_y += ay * wave_y;");
+            sb.AppendLine("            fluct_z += az * wave_z;");
             sb.AppendLine("        }");
             sb.AppendLine("        fluct_x *= citylbm_stg_norm_x;");
             sb.AppendLine("        fluct_y *= citylbm_stg_norm_y;");
@@ -2769,6 +2772,9 @@ namespace CityLBM.Solver
                         : "none",
                     SyntheticTurbulentInletDivergenceTreatment = syntheticActive
                         ? "per-mode fluctuation amplitudes projected normal to synthetic wave vectors"
+                        : "none",
+                    SyntheticTurbulentInletComponentPhaseTreatment = syntheticActive
+                        ? "component_specific_deterministic_phases_for_u_v_w_to_reduce_cross_component_correlation_under_isotropic_k"
                         : "none",
                     SyntheticTurbulentInletEnergyNormalization = syntheticActive
                         ? "component RMS target sigma=sqrt(2k/3); per-component deterministic spectral normalization accounts for finite-mode projected-component energy"

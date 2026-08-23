@@ -366,6 +366,7 @@ const uint Nz = 16u;
 const float dir_x = 1.0f, dir_y = 0.0f, dir_z = 0.0f;
 float citylbm_mode_wave(int mode, int axis) { return (1.0f + mode + axis) / citylbm_stg_corr_cells; }
 float citylbm_mode_amplitude(int mode, int axis) { return 0.1f + mode + axis; }
+float citylbm_mode_phase(int mode, int component) { return 0.17320508f * (float)((mode + 1) * (component * 13 + 7)); }
 float3 windProfile(uint z_cell) {
     const float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f;
     return float3(profile_u_lbm[0] + z_m * 0.0f, 0.0f, 0.0f);
@@ -390,10 +391,13 @@ float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
         float kk = kx*kx + ky*ky + kz*kz;
         float ak = ax*kx + ay*ky + az*kz;
         if(kk > 1.0e-12f) { ax -= ak*kx/kk; ay -= ak*ky/kk; az -= ak*kz/kk; }
-        float wave = sinf(kx * advected_x + ky * advected_y + kz * advected_z);
-        fluct_x += ax * wave;
-        fluct_y += ay * wave;
-        fluct_z += az * wave;
+        float phase = kx * advected_x + ky * advected_y + kz * advected_z;
+        float wave_x = sinf(phase + citylbm_mode_phase(m, 0));
+        float wave_y = sinf(phase + citylbm_mode_phase(m, 1));
+        float wave_z = sinf(phase + citylbm_mode_phase(m, 2));
+        fluct_x += ax * wave_x;
+        fluct_y += ay * wave_y;
+        fluct_z += az * wave_z;
     }
     return float3(mean.x + sigma * fluct_x, mean.y + sigma * fluct_y, mean.z + sigma * fluct_z);
 }
@@ -457,6 +461,8 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(spectral_report)
         if not spectral_report["has_k_driven_three_component_stg"]:
             raise AssertionError(spectral_report)
+        if not spectral_report["has_component_phase_decorrelation"]:
+            raise AssertionError(spectral_report)
         if not spectral_report["has_mean_preserving_inlet_correction"]:
             raise AssertionError(spectral_report)
         if not spectral_report["has_layerwise_mean_preserving_inlet_correction"]:
@@ -471,6 +477,36 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(spectral_report)
         if spectral_report["has_legacy_hardcoded_streamwise_clipping"] is not False:
             raise AssertionError(spectral_report)
+
+        correlated_phase_setup = root / "correlated_phase_setup.cpp"
+        correlated_phase_out = root / "correlated_phase_audit.json"
+        correlated_text = spectral_setup.read_text(encoding="utf-8").replace(
+            """float phase = kx * advected_x + ky * advected_y + kz * advected_z;
+        float wave_x = sinf(phase + citylbm_mode_phase(m, 0));
+        float wave_y = sinf(phase + citylbm_mode_phase(m, 1));
+        float wave_z = sinf(phase + citylbm_mode_phase(m, 2));
+        fluct_x += ax * wave_x;
+        fluct_y += ay * wave_y;
+        fluct_z += az * wave_z;""",
+            """float wave = sinf(kx * advected_x + ky * advected_y + kz * advected_z);
+        fluct_x += ax * wave;
+        fluct_y += ay * wave;
+        fluct_z += az * wave;""",
+        )
+        write_text(correlated_phase_setup, correlated_text)
+        correlated_phase_code, correlated_phase_report = run_audit(
+            correlated_phase_setup,
+            metadata,
+            correlated_phase_out,
+        )
+        if correlated_phase_code == 0:
+            raise AssertionError("single-phase three-component STG unexpectedly passed")
+        if correlated_phase_report["has_component_phase_decorrelation"]:
+            raise AssertionError(correlated_phase_report)
+        if "synthetic_inlet_missing_component_phase_decorrelation" not in correlated_phase_report[
+            "inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(correlated_phase_report["inlet_source_gate_reasons"])
 
         legacy_clip_setup = root / "legacy_clip_setup.cpp"
         legacy_clip_out = root / "legacy_clip_audit.json"

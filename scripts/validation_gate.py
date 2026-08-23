@@ -72,6 +72,7 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "inlet_source_has_three_component_velocity_write",
     "inlet_source_has_three_component_fluctuation_evidence",
     "inlet_source_has_k_driven_three_component_stg",
+    "inlet_source_has_component_phase_decorrelation",
     "inlet_source_has_mean_preserving_inlet_correction",
     "inlet_source_has_layerwise_mean_preserving_inlet_correction",
     "inlet_source_has_streamwise_clipping_control",
@@ -2238,6 +2239,7 @@ def native_inlet_precondition_traceability_status(
         "inlet_correlation_source_step_hash_pairs_match_runtime",
         "inlet_correlation_source_steps_strictly_increasing",
         "inlet_correlation_source_step_spacing_uniform",
+        "inlet_source_has_component_phase_decorrelation",
         "inlet_source_has_streamwise_clipping_control",
     ]:
         value = as_bool(get_any(native_preconditions_audit, [key]))

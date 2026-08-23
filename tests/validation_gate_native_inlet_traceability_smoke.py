@@ -43,6 +43,7 @@ def passing_native_audit():
         "inlet_correlation_source_step_hash_pairs_match_runtime": True,
         "inlet_correlation_source_steps_strictly_increasing": True,
         "inlet_correlation_source_step_spacing_uniform": True,
+        "inlet_source_has_component_phase_decorrelation": True,
         "inlet_source_has_streamwise_clipping_control": True,
         "inlet_source_streamwise_clipping_enabled": False,
         "inlet_source_has_legacy_hardcoded_streamwise_clipping": False,

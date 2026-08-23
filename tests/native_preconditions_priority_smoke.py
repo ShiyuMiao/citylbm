@@ -141,6 +141,7 @@ def main() -> int:
         "has_three_component_velocity_write": True,
         "has_three_component_fluctuation_evidence": True,
         "has_k_driven_three_component_stg": True,
+        "has_component_phase_decorrelation": True,
         "has_mean_preserving_inlet_correction": True,
         "has_layerwise_mean_preserving_inlet_correction": True,
         "has_streamwise_clipping_control": True,

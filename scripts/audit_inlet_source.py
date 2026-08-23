@@ -522,6 +522,14 @@ def main() -> int:
         and contains_any(implementation_source, ["sigma = sqrtf", "sqrtf(0.6666667f * k_lbm)", "sqrt(2.0f * profile_k_lbm"])
         and has_three_component_fluctuation_evidence
     )
+    has_component_phase_decorrelation = (
+        has_regex(implementation_source, r"\bwave_x\s*=\s*sinf\s*\(")
+        and has_regex(implementation_source, r"\bwave_y\s*=\s*sinf\s*\(")
+        and has_regex(implementation_source, r"\bwave_z\s*=\s*sinf\s*\(")
+        and has_regex(implementation_source, r"citylbm_mode_phase\s*\(\s*m\s*,\s*0\s*\)")
+        and has_regex(implementation_source, r"citylbm_mode_phase\s*\(\s*m\s*,\s*1\s*\)")
+        and has_regex(implementation_source, r"citylbm_mode_phase\s*\(\s*m\s*,\s*2\s*\)")
+    ) or has_native_synthetic_eddy_evidence
     has_length_scale = contains_any(
         implementation_source,
         [
@@ -812,6 +820,8 @@ def main() -> int:
         reasons.append("synthetic_inlet_missing_three_component_fluctuation_evidence")
     if synthetic_requested and stg_lite_velocity_source and not has_k_driven_three_component_stg:
         reasons.append("synthetic_inlet_missing_k_driven_three_component_stg_evidence")
+    if synthetic_requested and stg_lite_velocity_source and not has_component_phase_decorrelation:
+        reasons.append("synthetic_inlet_missing_component_phase_decorrelation")
     if synthetic_requested and stg_lite_velocity_source and not has_update_interval:
         reasons.append("synthetic_inlet_missing_update_interval")
     if synthetic_requested and stg_lite_velocity_source and has_update_interval and not has_update_interval_run_control:
@@ -897,6 +907,7 @@ def main() -> int:
         "inlet_distribution_route_gate": inlet_distribution_route_gate,
         "has_three_component_fluctuation_evidence": has_three_component_fluctuation_evidence,
         "has_k_driven_three_component_stg": has_k_driven_three_component_stg,
+        "has_component_phase_decorrelation": has_component_phase_decorrelation,
         "has_distribution_function_write": has_distribution_write,
         "distribution_function_write_count": distribution_evidence["distribution_write_count"],
         "has_inlet_distribution_reconstruction": has_inlet_distribution_reconstruction,
