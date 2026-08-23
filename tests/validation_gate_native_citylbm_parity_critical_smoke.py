@@ -100,6 +100,14 @@ def main() -> int:
         report = json.loads(out.read_text(encoding="utf-8"))
         if report["critical_parity_field_gate"] != "pass":
             raise AssertionError(report)
+        for field in [
+            "synthetic_temporal_sampling_gate",
+            "synthetic_expected_final_window_refresh_count",
+            "inlet_source_has_k_driven_three_component_stg",
+            "boundary_runtime_side_top_normal_leakage_gate",
+        ]:
+            if field not in report["required_critical_fields"]:
+                raise AssertionError((field, report["required_critical_fields"]))
         status = gate_module.native_citylbm_parity_critical_status(report)
         if not status["ok"]:
             raise AssertionError(status)
@@ -119,16 +127,21 @@ def main() -> int:
         if "critical_parity_field_gate_not_pass:missing" not in legacy_status["reasons"]:
             raise AssertionError(legacy_status)
 
-        bad_native = tmp_path / "native_missing_hash.csv"
+        bad_native = tmp_path / "native_missing_synthetic_gate.csv"
         bad_out = tmp_path / "bad_native_citylbm_parity_audit.json"
-        write_metrics(bad_native, "native-fluidx3d", audit_module, missing_field="profile_csv_sha256")
+        write_metrics(
+            bad_native,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="synthetic_temporal_sampling_gate",
+        )
         failed = run_parity_audit(REPO / "scripts" / "audit_native_citylbm_parity.py", city, bad_native, bad_out)
         if failed.returncode == 0:
             raise AssertionError((failed.returncode, failed.stdout, failed.stderr))
         bad_report = json.loads(bad_out.read_text(encoding="utf-8"))
         if bad_report["critical_parity_field_gate"] != "fail":
             raise AssertionError(bad_report)
-        if "profile_csv_sha256" not in bad_report["missing_critical_fields"]:
+        if "synthetic_temporal_sampling_gate" not in bad_report["missing_critical_fields"]:
             raise AssertionError(bad_report)
 
     print("validation_gate_native_citylbm_parity_critical_smoke passed")
