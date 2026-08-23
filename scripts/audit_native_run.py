@@ -59,6 +59,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mean-speed-stddev-ratio", type=float, default=None)
     parser.add_argument("--max-speed-stddev-ratio", type=float, default=None)
     parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Return exit code 2 unless freshness, frame scheduling, final-window averaging, stationarity and solver-log gates pass.",
+    )
+    parser.add_argument(
         "--vtk-stability-sample-limit",
         type=int,
         default=20000,
@@ -766,9 +771,33 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
     return audit
 
 
+def build_strict_native_run_gate(audit: Dict[str, Any]) -> Dict[str, Any]:
+    required_gates = {
+        "run_freshness_gate": "pass",
+        "requested_vtk_frame_gate": "pass",
+        "time_averaging_gate": "pass",
+        "final_window_stationarity_gate": "pass",
+        "lbm_stability_gate": "solver_log_no_stability_warnings",
+    }
+    reasons: List[str] = []
+    for key, expected in required_gates.items():
+        actual = str(audit.get(key) or "")
+        if actual != expected:
+            reasons.append(f"{key}_not_{expected}:{actual or 'missing'}")
+    return {
+        "strict_native_run_gate": "pass" if not reasons else "fail",
+        "strict_native_run_gate_reasons": reasons or ["native_run_artifacts_pass_strict_evidence_gates"],
+        "strict_native_run_gate_reasons_csv": ";".join(
+            reasons or ["native_run_artifacts_pass_strict_evidence_gates"]
+        ),
+        "strict_native_run_required_gates": required_gates,
+    }
+
+
 def main() -> int:
     args = parse_args()
     audit = build_audit(args)
+    audit.update(build_strict_native_run_gate(audit))
     out_path = Path(args.out).resolve()
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(audit, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -788,6 +817,14 @@ def main() -> int:
             audit["run_freshness_gate_reasons_csv"] or "none",
         )
     )
+    print(
+        "strict_native_run_gate={}; strict_reasons={}".format(
+            audit["strict_native_run_gate"],
+            audit["strict_native_run_gate_reasons_csv"],
+        )
+    )
+    if args.strict and audit["strict_native_run_gate"] != "pass":
+        return 2
     return 0
 
 

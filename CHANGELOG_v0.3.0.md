@@ -417,6 +417,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Added `scripts/audit_native_run.py` to turn a native FluidX3D run directory into a reusable audit JSON containing VTK
   frame hashes, selected final time steps, time-averaging gate fields, solver-log stability warning status and LBM
   stability metadata for downstream metrics/gate checks.
+- `scripts/audit_native_run.py` now writes `strict_native_run_gate` and supports `--strict`; diagnostic audits still
+  produce JSON, but a native run with stale VTK, too few averaging frames, insufficient final-window span, stationarity
+  failure or missing/dirty solver log returns a non-zero code when strict checking is requested.
 - `scripts/audit_native_run.py` now computes time-stability ratios directly from real VTK velocity time series when the
   ratios are not supplied on the command line. It deterministically samples up to 20,000 points across the selected final
   frames, records the sampling method, and feeds `mean_speed_stddev_ratio` / `max_speed_stddev_ratio` into the same

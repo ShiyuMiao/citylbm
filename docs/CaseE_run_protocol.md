@@ -239,6 +239,9 @@ new output directory.
   run-freshness evidence, solver-log stability warnings and LBM stability fields in the same schema used by the
   `Read VTK` audit output. `validation_gate.py` uses this runtime audit JSON as the authoritative source for
   run-freshness, solver-stability and time-averaging pass/fail decisions.
+  Add `--strict` when the audit is used as a paper-readiness checkpoint; the JSON is still written, but the command
+  returns non-zero unless freshness, requested VTK scheduling, final-window averaging, stationarity and solver-log gates
+  all pass.
   The script deterministically samples up to 20,000 points from the selected final VTK frames and computes
   `mean_speed_stddev_ratio` and `max_speed_stddev_ratio` from the real velocity time series. Manually supplied
   mean-speed, standard-deviation or stability-ratio values are recorded as `mean_speed_statistics_source=cli_override`

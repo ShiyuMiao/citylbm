@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
+import json
 import importlib.util
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -93,6 +96,78 @@ def main() -> int:
         drifting_stats = module.compute_sampled_vtk_stability(drifting, sample_limit=100)
         if drifting_stats["final_window_mean_speed_drift_ratio"] <= 0.03:
             raise AssertionError(drifting_stats)
+
+        run_dir = tmp_dir / "native_run"
+        run_dir.mkdir()
+        metadata = run_dir / "case_metadata.json"
+        metadata.write_text(
+            json.dumps(
+                {
+                    "TimeSteps": 4000,
+                    "SaveInterval": 1000,
+                    "ExpectedVtkFrameCount": 4,
+                }
+            ),
+            encoding="utf-8",
+        )
+        for step in [1000, 2000, 3000, 4000]:
+            write_vtk(run_dir / f"u-{step:010d}.vtk", 1.0)
+        out_json = tmp_dir / "native_run_audit.json"
+        script = REPO / "scripts" / "audit_native_run.py"
+        default_result = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                str(run_dir),
+                "--metadata",
+                str(metadata),
+                "--out",
+                str(out_json),
+                "--average-last-n",
+                "4",
+                "--time-steps",
+                "4000",
+                "--vtk-save-interval",
+                "1000",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        if default_result.returncode != 0:
+            raise AssertionError(default_result.stderr or default_result.stdout)
+        default_audit = json.loads(out_json.read_text(encoding="utf-8"))
+        if default_audit["strict_native_run_gate"] != "fail":
+            raise AssertionError(default_audit)
+        if "time_averaging_gate_not_pass" not in default_audit["strict_native_run_gate_reasons_csv"]:
+            raise AssertionError(default_audit)
+        strict_result = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                str(run_dir),
+                "--metadata",
+                str(metadata),
+                "--out",
+                str(out_json),
+                "--average-last-n",
+                "4",
+                "--time-steps",
+                "4000",
+                "--vtk-save-interval",
+                "1000",
+                "--strict",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        if strict_result.returncode != 2:
+            raise AssertionError(strict_result.stderr or strict_result.stdout)
 
     print("native_run_time_average_shortfall_smoke passed")
     return 0
