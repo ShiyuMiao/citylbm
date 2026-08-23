@@ -34,6 +34,7 @@ namespace CityLBM.Solver
         private const int PaperRecommendedAveragingFrames = 40;
         private const int PaperRecommendedAverageStepSpan = 20000;
         private const int PaperRecommendedStgRefreshes = 200;
+        private const int StrictBaselineSyntheticTurbulenceModes = 128;
 
         #region Properties
 
@@ -2666,6 +2667,11 @@ namespace CityLBM.Solver
                         ? "pass"
                         : "diagnostic_only_insufficient_stg_refreshes_in_average_window")
                     : "not_applicable";
+                string syntheticModeCountGate = syntheticActive
+                    ? (settings.SyntheticTurbulenceModeCount >= StrictBaselineSyntheticTurbulenceModes
+                        ? "pass"
+                        : "diagnostic_only_low_spectral_mode_count")
+                    : "not_applicable";
                 string inletReynoldsStressTreatment = syntheticActive
                     ? "isotropic_from_k_only_R11_R22_R33_2k_over_3_R12_R13_R23_0; no measured Reynolds-stress tensor in AF table"
                     : (hasK ? "metadata_only_isotropic_k_assumption_not_injected" : "none");
@@ -2818,6 +2824,8 @@ namespace CityLBM.Solver
                     SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
                     SyntheticTurbulenceCorrelationLengthM = settings.SyntheticTurbulenceCorrelationCells * grid.Dx,
                     SyntheticTurbulenceModeCount = settings.SyntheticTurbulenceModeCount,
+                    SyntheticTurbulenceMinimumStrictBaselineModeCount = StrictBaselineSyntheticTurbulenceModes,
+                    SyntheticTurbulenceStrictModeCountGate = syntheticModeCountGate,
                     SyntheticTurbulentInletLengthScaleSource = GetSyntheticTurbulenceLengthScaleSource(scene, settings),
                     SyntheticTurbulentInletLengthScaleGate = GetSyntheticTurbulenceLengthScaleGate(scene, settings),
                     SyntheticTurbulenceUpdateInterval = settings.SyntheticTurbulenceUpdateInterval,
@@ -3209,6 +3217,8 @@ namespace CityLBM.Solver
                     yield return "STG-lite inlet refreshes macroscopic lbm.u values on TYPE_E inlet nodes in both batch and graphics modes; distribution functions are not reconstructed, so k preservation must be proven by an empty-tunnel native baseline before paper-grade validation.";
                     if (!HasSupportedSyntheticTurbulenceLengthScaleSource(settings.SyntheticTurbulenceLengthScaleSource))
                         yield return "STG-lite correlation length is still a diagnostic user-selected value; provide AIJ/official/precursor/DFM/SEM length-scale evidence before paper-grade validation.";
+                    if (settings.SyntheticTurbulenceModeCount < StrictBaselineSyntheticTurbulenceModes)
+                        yield return $"STG-lite uses only {settings.SyntheticTurbulenceModeCount} spectral modes; strict Case A/E baselines should use at least {StrictBaselineSyntheticTurbulenceModes} modes before interpreting accuracy.";
                     int expectedStgRefreshes = ComputeExpectedFinalWindowStgRefreshCount(settings, PaperRecommendedAveragingFrames);
                     if (expectedStgRefreshes < PaperRecommendedStgRefreshes)
                         yield return $"STG-lite final averaging window is expected to contain only {expectedStgRefreshes} inlet refreshes; paper-grade use should sample at least {PaperRecommendedStgRefreshes} refreshes after stationarity.";
@@ -3383,6 +3393,12 @@ namespace CityLBM.Solver
                         SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
                         SyntheticTurbulenceCorrelationLengthM = settings.SyntheticTurbulenceCorrelationCells * grid.Dx,
                         SyntheticTurbulenceModeCount = settings.SyntheticTurbulenceModeCount,
+                        SyntheticTurbulenceMinimumStrictBaselineModeCount = StrictBaselineSyntheticTurbulenceModes,
+                        SyntheticTurbulenceStrictModeCountGate = IsSyntheticTurbulentInletActive(scene, settings)
+                            ? (settings.SyntheticTurbulenceModeCount >= StrictBaselineSyntheticTurbulenceModes
+                                ? "pass"
+                                : "diagnostic_only_low_spectral_mode_count")
+                            : "not_applicable",
                         SyntheticTurbulentInletLengthScaleSource = GetSyntheticTurbulenceLengthScaleSource(scene, settings),
                         SyntheticTurbulentInletLengthScaleGate = GetSyntheticTurbulenceLengthScaleGate(scene, settings),
                         SyntheticTurbulenceMinStreamwiseFraction = settings.SyntheticTurbulenceMinStreamwiseFraction,
@@ -3570,6 +3586,7 @@ namespace CityLBM.Solver
                 : 0;
             int expectedPaperAverageStepSpan = ComputeExpectedFinalWindowStepSpan(settings, PaperRecommendedAveragingFrames);
             int expectedPaperAverageStgRefreshes = ComputeExpectedFinalWindowStgRefreshCount(settings, PaperRecommendedAveragingFrames);
+            bool syntheticModeCountStrict = settings.SyntheticTurbulenceModeCount >= StrictBaselineSyntheticTurbulenceModes;
 
             yield return new ValidationProtocolAuditItem
             {
@@ -3590,7 +3607,7 @@ namespace CityLBM.Solver
                     ? $"AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet with {settings.SyntheticTurbulenceModeCount} spectral modes, per-component RMS normalization from k, Taylor frozen-turbulence advection, deterministic AR(1) refresh-to-refresh phase blending, TYPE_E inlet refreshes in batch/graphics modes and velocity-field-only treatment."
                     : (hasK ? "AF k column is present but only metadata/profile arrays are guaranteed." : "No usable k column found in CustomWindProfile."),
                 Risk = syntheticActive
-                    ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and frozen-turbulence advection with deterministic AR(1) phase blending, uses {settings.SyntheticTurbulenceModeCount} spectral modes and correlation length {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m) with source '{lengthScaleSource}', streamwise clipping fraction {settings.SyntheticTurbulenceMinStreamwiseFraction:F3}, and does not reconstruct distribution functions."
+                    ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and frozen-turbulence advection with deterministic AR(1) phase blending, uses {settings.SyntheticTurbulenceModeCount} spectral modes (strict baseline minimum {StrictBaselineSyntheticTurbulenceModes}; mode gate={(syntheticModeCountStrict ? "pass" : "diagnostic_only_low_spectral_mode_count")}) and correlation length {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m) with source '{lengthScaleSource}', streamwise clipping fraction {settings.SyntheticTurbulenceMinStreamwiseFraction:F3}, and does not reconstruct distribution functions."
                     : "Missing or inactive turbulent inlet can cause systematic underprediction of pedestrian-level velocity ratios.",
                 RequiredNextAction = syntheticActive
                     ? "Run empty-tunnel and building native FluidX3D baselines proving downstream U/k preservation and replace/user-justify the inlet length scale before paper claims."
@@ -4249,7 +4266,7 @@ namespace CityLBM.Solver
         public double SyntheticTurbulenceCorrelationCells { get; set; } = 4.0;
 
         /// <summary>Number of deterministic spectral modes used by the STG-lite inlet.</summary>
-        public int SyntheticTurbulenceModeCount { get; set; } = 64;
+        public int SyntheticTurbulenceModeCount { get; set; } = 128;
 
         /// <summary>
         /// Traceable evidence tag/source for the synthetic turbulence correlation length.

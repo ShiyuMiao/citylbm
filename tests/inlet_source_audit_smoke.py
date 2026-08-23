@@ -357,7 +357,7 @@ const float profile_z_m[] = {0.0f, 10.0f};
 const float profile_u_lbm[] = {0.01f, 0.02f};
 const float profile_k_lbm[] = {0.0001f, 0.0002f};
 const float profile_origin_z_m = 0.0f;
-const int citylbm_stg_mode_count = 64;
+const int citylbm_stg_mode_count = 128;
 const float citylbm_stg_corr_cells = 8.0f;
 const uint citylbm_stg_update_interval = 5u;
 const float citylbm_stg_temporal_ar1_rho = 0.85f;
@@ -460,6 +460,8 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError("velocity-field-only spectral STG unexpectedly passed paper gate")
         if spectral_report["inlet_source_gate"] != "pass":
             raise AssertionError(spectral_report)
+        if spectral_report["synthetic_inlet_spectral_mode_count_gate"] != "pass":
+            raise AssertionError(spectral_report)
         if spectral_report["paper_grade_inlet_source_gate"] != "fail":
             raise AssertionError(spectral_report)
         if spectral_report["synthetic_inlet_correlation_model"] != "spectral_taylor_temporal_filtered_projected_velocity_field_only":
@@ -488,6 +490,25 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(spectral_report)
         if spectral_report["has_legacy_hardcoded_streamwise_clipping"] is not False:
             raise AssertionError(spectral_report)
+
+        low_mode_setup = root / "low_mode_spectral_setup.cpp"
+        low_mode_out = root / "low_mode_spectral_audit.json"
+        low_mode_setup.write_text(
+            spectral_setup.read_text(encoding="utf-8").replace(
+                "const int citylbm_stg_mode_count = 128;",
+                "const int citylbm_stg_mode_count = 64;",
+            ),
+            encoding="utf-8",
+        )
+        low_mode_code, low_mode_report = run_audit(low_mode_setup, metadata, low_mode_out)
+        if low_mode_code == 0:
+            raise AssertionError("low-mode STG-lite unexpectedly passed")
+        if low_mode_report["inlet_source_gate"] != "fail":
+            raise AssertionError(low_mode_report)
+        if low_mode_report["synthetic_inlet_spectral_mode_count_gate"] != "diagnostic_only_low_spectral_mode_count":
+            raise AssertionError(low_mode_report)
+        if "synthetic_inlet_below_strict_baseline_spectral_modes" not in low_mode_report["inlet_source_gate_reasons"]:
+            raise AssertionError(low_mode_report["inlet_source_gate_reasons"])
 
         missing_temporal_setup = root / "missing_temporal_setup.cpp"
         missing_temporal_out = root / "missing_temporal_audit.json"

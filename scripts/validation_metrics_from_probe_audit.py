@@ -269,6 +269,7 @@ TEMPLATE_FIELDS = [
     "inlet_source_has_mean_preserving_inlet_correction",
     "inlet_source_has_layerwise_mean_preserving_inlet_correction",
     "inlet_source_spectral_mode_count",
+    "inlet_source_spectral_mode_count_gate",
     "inlet_source_refresh_with_current_time",
     "inlet_source_update_interval_run_control",
     "inlet_source_segmented_stg_run_loop",
@@ -2256,6 +2257,9 @@ def main() -> int:
             ),
             "inlet_source_spectral_mode_count": audit_field(
                 inlet_source_audit, "synthetic_inlet_spectral_mode_count"
+            ),
+            "inlet_source_spectral_mode_count_gate": audit_field(
+                inlet_source_audit, "synthetic_inlet_spectral_mode_count_gate"
             ),
             "inlet_source_refresh_with_current_time": first_bool_text(
                 inlet_source_audit.get("has_synthetic_inlet_refresh_with_current_time")

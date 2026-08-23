@@ -18,6 +18,10 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
 
+MINIMUM_RECOMMENDED_SPECTRAL_MODE_COUNT = 32
+STRICT_BASELINE_SPECTRAL_MODE_COUNT = 128
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Audit generated FluidX3D setup.cpp inlet implementation evidence.")
     parser.add_argument("--setup", required=True, help="Generated setup.cpp path.")
@@ -482,6 +486,13 @@ def main() -> int:
         r"citylbm_stg_mode_count\s*=\s*(\d+)",
     )
     effective_stg_mode_count = stg_mode_count if stg_mode_count is not None else native_stg_mode_count
+    spectral_mode_count_gate = (
+        "not_applicable"
+        if effective_stg_mode_count is None
+        else "pass"
+        if effective_stg_mode_count >= STRICT_BASELINE_SPECTRAL_MODE_COUNT
+        else "diagnostic_only_low_spectral_mode_count"
+    )
     has_taylor_advection = contains_any(
         implementation_source,
         ["advected_x", "advected_y", "advected_z", "frozen-turbulence", "x0 - adv"],
@@ -832,8 +843,20 @@ def main() -> int:
         reasons.append("synthetic_inlet_missing_length_scale_source")
     if synthetic_requested and stg_lite_velocity_source and not (has_spectral_modes or has_native_synthetic_eddy_evidence):
         reasons.append("synthetic_inlet_missing_spectral_modes")
-    if synthetic_requested and stg_lite_velocity_source and effective_stg_mode_count is not None and effective_stg_mode_count < 32:
+    if (
+        synthetic_requested
+        and stg_lite_velocity_source
+        and effective_stg_mode_count is not None
+        and effective_stg_mode_count < MINIMUM_RECOMMENDED_SPECTRAL_MODE_COUNT
+    ):
         reasons.append("synthetic_inlet_too_few_spectral_modes")
+    if (
+        synthetic_requested
+        and stg_lite_velocity_source
+        and effective_stg_mode_count is not None
+        and effective_stg_mode_count < STRICT_BASELINE_SPECTRAL_MODE_COUNT
+    ):
+        reasons.append("synthetic_inlet_below_strict_baseline_spectral_modes")
     if synthetic_requested and stg_lite_velocity_source and not has_taylor_advection:
         reasons.append("synthetic_inlet_missing_temporal_advection")
     if synthetic_requested and stg_lite_velocity_source and not (has_transverse_projection or has_native_synthetic_eddy_evidence):
@@ -962,7 +985,9 @@ def main() -> int:
         "synthetic_inlet_spectral_mode_count": effective_stg_mode_count,
         "citylbm_stg_spectral_mode_count": stg_mode_count,
         "native_synthetic_eddy_count": native_stg_mode_count,
-        "minimum_recommended_spectral_mode_count": 32,
+        "minimum_recommended_spectral_mode_count": MINIMUM_RECOMMENDED_SPECTRAL_MODE_COUNT,
+        "minimum_strict_baseline_spectral_mode_count": STRICT_BASELINE_SPECTRAL_MODE_COUNT,
+        "synthetic_inlet_spectral_mode_count_gate": spectral_mode_count_gate,
         "has_taylor_advection_evidence": has_taylor_advection,
         "has_transverse_projection_evidence": has_transverse_projection,
         "has_length_scale_evidence": has_length_scale,
