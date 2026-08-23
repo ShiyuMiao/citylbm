@@ -14,22 +14,22 @@ REPO = Path(__file__).resolve().parents[1]
 RUNNER = REPO / "scripts" / "run_native_fluidx3d_case.py"
 PROTOCOL_STATUSES = {
     "inlet_mean_profile": "pass",
-    "inlet_turbulence_k": "partial",
-    "inlet_turbulence_length_scale": "partial",
-    "inlet_reynolds_stress_tensor": "risk",
-    "inlet_temporal_sampling": "partial",
-    "inlet_distribution_consistency": "risk",
-    "native_fluidx3d_baseline": "risk",
-    "boundary_conditions": "risk",
-    "wall_roughness_model": "risk",
-    "lbm_stability_scaling": "partial",
-    "time_averaging": "partial",
-    "wind_direction_sign": "partial",
-    "coordinate_transform": "partial",
-    "probe_projection": "risk",
-    "normalization_basis": "partial",
-    "systematic_bias_gate": "risk",
-    "grid_resolution": "partial",
+    "inlet_turbulence_k": "pass",
+    "inlet_turbulence_length_scale": "pass",
+    "inlet_reynolds_stress_tensor": "pass",
+    "inlet_temporal_sampling": "pass",
+    "inlet_distribution_consistency": "pass",
+    "native_fluidx3d_baseline": "pass",
+    "boundary_conditions": "pass",
+    "wall_roughness_model": "pass",
+    "lbm_stability_scaling": "pass",
+    "time_averaging": "pass",
+    "wind_direction_sign": "pass",
+    "coordinate_transform": "pass",
+    "probe_projection": "pass",
+    "normalization_basis": "pass",
+    "systematic_bias_gate": "pass",
+    "grid_resolution": "pass",
 }
 
 
@@ -59,12 +59,13 @@ def create_source(root: Path) -> None:
     write(root / "src" / "lbm.cpp", "// lbm source\n")
 
 
-def validation_protocol_audit() -> dict:
+def validation_protocol_audit(status_overrides: dict | None = None) -> dict:
+    status_overrides = status_overrides or {}
     return {
         "SchemaVersion": 1,
-        "Gate": "not_paper_grade",
+        "Gate": "paper_grade_candidate",
         "Items": [
-            {"Key": key, "Status": status, "Evidence": "smoke"}
+            {"Key": key, "Status": status_overrides.get(key, status), "Evidence": "smoke"}
             for key, status in PROTOCOL_STATUSES.items()
         ],
     }
@@ -130,7 +131,7 @@ def main() -> int:
             raise AssertionError(dry["NativeFluidX3DSourceValidation"])
         if dry["ValidationProtocolAuditGate"]["Gate"] != "pass":
             raise AssertionError(dry["ValidationProtocolAuditGate"])
-        if dry["ValidationProtocolAuditGate"]["Statuses"]["inlet_distribution_consistency"] != "risk":
+        if dry["ValidationProtocolAuditGate"]["Statuses"]["inlet_distribution_consistency"] != "pass":
             raise AssertionError(dry["ValidationProtocolAuditGate"])
         if dry["PlannedSyntheticInletSamplingGate"]["Gate"] != "pass":
             raise AssertionError(dry["PlannedSyntheticInletSamplingGate"])
@@ -228,6 +229,54 @@ def main() -> int:
             raise AssertionError(short["RunnerGate"])
         if "metadata_stg_refresh_count_390_does_not_match_computed_40" not in short["RunnerGate"]["Reasons"]:
             raise AssertionError(short["RunnerGate"])
+
+        incomplete_protocol_case = temp / "incomplete_protocol_case"
+        create_case(incomplete_protocol_case)
+        write(
+            incomplete_protocol_case / "validation_protocol_audit.json",
+            json.dumps(
+                validation_protocol_audit(
+                    {
+                        "inlet_turbulence_k": "partial",
+                        "boundary_conditions": "risk",
+                    }
+                ),
+                indent=2,
+            ),
+        )
+        incomplete_protocol_manifest = temp / "incomplete_protocol" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(incomplete_protocol_case),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(incomplete_protocol_manifest),
+                "--baseline-id",
+                "smoke-casea-native-incomplete-protocol",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+            ],
+            expected_returncode=2,
+        )
+        incomplete_protocol = load_json(incomplete_protocol_manifest)
+        for reason in [
+            "validation_protocol_item_partial:inlet_turbulence_k",
+            "validation_protocol_item_risk:boundary_conditions",
+        ]:
+            if reason not in incomplete_protocol["RunnerGate"]["Reasons"]:
+                raise AssertionError(incomplete_protocol["RunnerGate"])
 
         slow_refresh_case = temp / "slow_refresh_case"
         create_case(slow_refresh_case)

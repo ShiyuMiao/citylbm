@@ -23,11 +23,11 @@ def load_audit_module():
 def protocol(module, overrides=None) -> dict:
     overrides = overrides or {}
     return {
-        "Gate": "not_paper_grade",
+        "Gate": "paper_grade_candidate",
         "Items": [
             {
                 "Key": key,
-                "Status": overrides.get(key, "risk" if key in {"boundary_conditions", "native_fluidx3d_baseline"} else "partial"),
+                "Status": overrides.get(key, "pass"),
             }
             for key in module.REQUIRED_PROTOCOL_ITEM_KEYS
         ],
@@ -56,6 +56,24 @@ def main() -> int:
         raise AssertionError(failed)
     if "validation_protocol_item_fail:time_averaging" not in failed["reasons"]:
         raise AssertionError(failed)
+
+    incomplete = module.audit_protocol_content(
+        protocol(
+            module,
+            {
+                "inlet_turbulence_k": "partial",
+                "boundary_conditions": "risk",
+            },
+        )
+    )
+    if incomplete["gate"] != "fail":
+        raise AssertionError(incomplete)
+    for expected in [
+        "validation_protocol_item_partial:inlet_turbulence_k",
+        "validation_protocol_item_risk:boundary_conditions",
+    ]:
+        if expected not in incomplete["reasons"]:
+            raise AssertionError((expected, incomplete))
 
     priorities = module.build_native_diagnostic_priority(
         [

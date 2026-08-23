@@ -877,12 +877,16 @@ def audit_protocol_content(
     missing = [key for key in required if key not in statuses]
     missing_status = [key for key in required if key in statuses and not statuses[key]]
     failed = [key for key, status in statuses.items() if status == "fail"]
+    risk = [key for key, status in statuses.items() if status == "risk"]
+    partial = [key for key, status in statuses.items() if status == "partial"]
     reasons: List[str] = []
     if not audit or not items:
         reasons.append("validation_protocol_audit_missing_or_empty")
     reasons.extend(f"validation_protocol_item_missing:{key}" for key in missing)
     reasons.extend(f"validation_protocol_item_status_missing:{key}" for key in missing_status)
     reasons.extend(f"validation_protocol_item_fail:{key}" for key in failed)
+    reasons.extend(f"validation_protocol_item_risk:{key}" for key in risk)
+    reasons.extend(f"validation_protocol_item_partial:{key}" for key in partial)
     return {
         "ok": not reasons,
         "item_count": len(items),
@@ -891,8 +895,8 @@ def audit_protocol_content(
         "missing_keys": missing,
         "missing_status_keys": missing_status,
         "failed_keys": failed,
-        "risk_keys": [key for key, status in statuses.items() if status == "risk"],
-        "partial_keys": [key for key, status in statuses.items() if status == "partial"],
+        "risk_keys": risk,
+        "partial_keys": partial,
         "statuses": statuses,
         "reasons": reasons,
         "reasons_csv": ";".join(reasons),

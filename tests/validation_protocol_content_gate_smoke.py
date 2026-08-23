@@ -24,11 +24,11 @@ def load_gate_module():
 def protocol(module, status_overrides: Optional[dict] = None) -> dict:
     overrides = status_overrides or {}
     return {
-        "Gate": "not_paper_grade",
+        "Gate": "paper_grade_candidate",
         "Items": [
             {
                 "Key": key,
-                "Status": overrides.get(key, "risk" if key in {"boundary_conditions", "native_fluidx3d_baseline"} else "partial"),
+                "Status": overrides.get(key, "pass"),
                 "Evidence": "smoke",
             }
             for key in module.REQUIRED_PROTOCOL_ITEM_KEYS
@@ -41,7 +41,7 @@ def main() -> int:
     complete = module.audit_protocol_content(protocol(module))
     if not complete["ok"]:
         raise AssertionError(complete)
-    if "boundary_conditions" not in complete["risk_keys"]:
+    if complete["risk_keys"] or complete["partial_keys"]:
         raise AssertionError(complete)
 
     empty = module.audit_protocol_content({"items": []})
@@ -57,6 +57,24 @@ def main() -> int:
         raise AssertionError(failed)
     if "validation_protocol_item_fail:inlet_distribution_consistency" not in failed["reasons"]:
         raise AssertionError(failed)
+
+    incomplete = module.audit_protocol_content(
+        protocol(
+            module,
+            {
+                "time_averaging": "partial",
+                "boundary_conditions": "risk",
+            },
+        )
+    )
+    if incomplete["ok"]:
+        raise AssertionError(incomplete)
+    for expected in [
+        "validation_protocol_item_partial:time_averaging",
+        "validation_protocol_item_risk:boundary_conditions",
+    ]:
+        if expected not in incomplete["reasons"]:
+            raise AssertionError((expected, incomplete))
 
     gates = []
     module.add_gate(

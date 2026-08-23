@@ -195,6 +195,8 @@ def audit_validation_protocol(path: Path) -> Dict[str, Any]:
     reasons.extend(f"validation_protocol_item_missing:{key}" for key in missing_keys)
     reasons.extend(f"validation_protocol_item_status_missing:{key}" for key in empty_status_keys)
     reasons.extend(f"validation_protocol_item_fail:{key}" for key in fail_keys)
+    reasons.extend(f"validation_protocol_item_risk:{key}" for key in risk_keys)
+    reasons.extend(f"validation_protocol_item_partial:{key}" for key in partial_keys)
     return {
         "Path": str(path.resolve()),
         "Exists": path.is_file(),
