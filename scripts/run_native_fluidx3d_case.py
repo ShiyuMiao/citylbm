@@ -28,11 +28,14 @@ REQUIRED_SOURCE_FILES = [
 ]
 
 REQUIRED_CASE_FILES = [
-    ("FluidX3D setup", Path("src") / "setup.cpp"),
-    ("FluidX3D defines", Path("src") / "defines.hpp"),
     ("Case metadata", Path("case_metadata.json")),
     ("Domain origin", Path("domain_origin.json")),
     ("Validation protocol audit", Path("validation_protocol_audit.json")),
+]
+
+REQUIRED_CASE_FILE_CANDIDATES = [
+    ("FluidX3D setup", [Path("src") / "setup.cpp", Path("setup.cpp")]),
+    ("FluidX3D defines", [Path("src") / "defines.hpp", Path("defines.hpp")]),
 ]
 
 OPTIONAL_CASE_FILES = [
@@ -240,6 +243,24 @@ def path_record(role: str, path: Path) -> Dict[str, Any]:
     }
 
 
+def first_existing_path(base: Path, candidates: Sequence[Path]) -> Optional[Path]:
+    return next((base / rel for rel in candidates if (base / rel).is_file()), None)
+
+
+def case_file_record(role: str, case_dir: Path, candidates: Sequence[Path]) -> Dict[str, Any]:
+    path = first_existing_path(case_dir, candidates)
+    if path is not None:
+        record = path_record(role, path)
+        record["CandidatePaths"] = [rel.as_posix() for rel in candidates]
+        record["SelectedRelativePath"] = path.relative_to(case_dir).as_posix()
+        return record
+    fallback = case_dir / candidates[0]
+    record = path_record(role, fallback)
+    record["CandidatePaths"] = [rel.as_posix() for rel in candidates]
+    record["SelectedRelativePath"] = ""
+    return record
+
+
 def optional_path_record(role: str, path: Path) -> Optional[Dict[str, Any]]:
     if not path.exists() or not path.is_file():
         return None
@@ -284,6 +305,8 @@ def collect_required_files(source_root: Path, case_dir: Path) -> List[Dict[str, 
     records: List[Dict[str, Any]] = []
     for role, rel in REQUIRED_SOURCE_FILES:
         records.append(path_record(role, source_root / rel))
+    for role, candidates in REQUIRED_CASE_FILE_CANDIDATES:
+        records.append(case_file_record(role, case_dir, candidates))
     for role, rel in REQUIRED_CASE_FILES:
         records.append(path_record(role, case_dir / rel))
     for role, rel in OPTIONAL_CASE_FILES:
@@ -337,15 +360,19 @@ def install_case(case_dir: Path, source_root: Path, backup_root: Path) -> Dict[s
     backup_root.mkdir(parents=True, exist_ok=True)
     backups: List[Dict[str, Any]] = []
     installed: List[Dict[str, Any]] = []
-    for rel in [Path("src") / "setup.cpp", Path("src") / "defines.hpp"]:
-        src = case_dir / rel
+    install_sources = [
+        ("src/setup.cpp", first_existing_path(case_dir, [Path("src") / "setup.cpp", Path("setup.cpp")])),
+        ("src/defines.hpp", first_existing_path(case_dir, [Path("src") / "defines.hpp", Path("defines.hpp")])),
+    ]
+    for role, src in install_sources:
+        rel = Path(role)
         dst = source_root / rel
         if dst.exists():
             backup = backup_root / rel
             backup.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(str(dst), str(backup))
             backups.append({"Role": rel.as_posix(), "Path": str(backup.resolve()), "Sha256": sha256(backup)})
-        copied = copy_if_present(src, dst)
+        copied = copy_if_present(src, dst) if src is not None else None
         if copied is not None:
             copied["Role"] = rel.as_posix()
             installed.append(copied)
@@ -626,6 +653,9 @@ def main() -> int:
         reasons.append("native_source_root_missing")
     if not source_validation["IsValid"]:
         reasons.append("native_source_validation_failed")
+    for role, candidates in REQUIRED_CASE_FILE_CANDIDATES:
+        if first_existing_path(case_dir, candidates) is None:
+            reasons.append(f"case_required_file_missing:{role}")
     for role, rel in REQUIRED_CASE_FILES:
         if not (case_dir / rel).is_file():
             reasons.append(f"case_required_file_missing:{role}")

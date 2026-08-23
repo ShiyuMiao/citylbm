@@ -71,9 +71,11 @@ def validation_protocol_audit(status_overrides: dict | None = None) -> dict:
     }
 
 
-def create_case(root: Path) -> None:
-    write(root / "src" / "setup.cpp", "// case setup\n")
-    write(root / "src" / "defines.hpp", "// case defines\n")
+def create_case(root: Path, *, citylbm_root_layout: bool = False) -> None:
+    setup_path = root / "setup.cpp" if citylbm_root_layout else root / "src" / "setup.cpp"
+    defines_path = root / "defines.hpp" if citylbm_root_layout else root / "src" / "defines.hpp"
+    write(setup_path, "// case setup\n")
+    write(defines_path, "// case defines\n")
     metadata = {
         "AijCase": "CaseA",
         "WindDirection": "N",
@@ -191,6 +193,52 @@ def main() -> int:
             raise AssertionError("install did not replace setup.cpp")
         if not (install_manifest.parent / "native_source_backups").exists():
             raise AssertionError("backup directory was not created")
+
+        citylbm_layout_source = temp / "FluidX3D_citylbm_layout"
+        citylbm_layout_case = temp / "citylbm_layout_case"
+        create_source(citylbm_layout_source)
+        create_case(citylbm_layout_case, citylbm_root_layout=True)
+
+        citylbm_layout_manifest = temp / "citylbm_layout" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(citylbm_layout_case),
+                "--fluidx3d-source",
+                str(citylbm_layout_source),
+                "--out",
+                str(citylbm_layout_manifest),
+                "--baseline-id",
+                "smoke-casea-native-citylbm-layout",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+                "--install",
+            ]
+        )
+        citylbm_layout = load_json(citylbm_layout_manifest)
+        if citylbm_layout["RunnerGate"]["Gate"] != "pass":
+            raise AssertionError(citylbm_layout["RunnerGate"])
+        by_role = {record["Role"]: record for record in citylbm_layout["RequiredSourceFiles"]}
+        if by_role["FluidX3D setup"]["SelectedRelativePath"] != "setup.cpp":
+            raise AssertionError(by_role["FluidX3D setup"])
+        if by_role["FluidX3D defines"]["SelectedRelativePath"] != "defines.hpp":
+            raise AssertionError(by_role["FluidX3D defines"])
+        if citylbm_layout["Install"]["Performed"] is not True:
+            raise AssertionError(citylbm_layout["Install"])
+        if (citylbm_layout_source / "src" / "setup.cpp").read_text(encoding="utf-8") != "// case setup\n":
+            raise AssertionError("CityLBM root-layout setup.cpp was not installed into native src/setup.cpp")
+        if (citylbm_layout_source / "src" / "defines.hpp").read_text(encoding="utf-8") != "// case defines\n":
+            raise AssertionError("CityLBM root-layout defines.hpp was not installed into native src/defines.hpp")
 
         short_manifest = temp / "short" / "native_fluidx3d_baseline_manifest.json"
         run_cmd(
