@@ -160,6 +160,47 @@ def main() -> int:
             if role not in roles:
                 raise AssertionError(f"missing manifest role: {role}")
 
+        nondiv_case = temp / "nondiv_case"
+        create_case(nondiv_case)
+        nondiv_metadata_path = nondiv_case / "case_metadata.json"
+        nondiv_metadata = load_json(nondiv_metadata_path)
+        nondiv_metadata["SyntheticTurbulenceExpectedFinalWindowRefreshCount"] = 385
+        write(nondiv_metadata_path, json.dumps(nondiv_metadata, indent=2))
+        nondiv_manifest = temp / "nondiv" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(nondiv_case),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(nondiv_manifest),
+                "--baseline-id",
+                "smoke-casea-native-nondivisible-window",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40500",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "41",
+            ]
+        )
+        nondiv = load_json(nondiv_manifest)
+        if nondiv["RunnerGate"]["Gate"] != "pass":
+            raise AssertionError(nondiv["RunnerGate"])
+        if nondiv["SharedRunConditions"]["ComputedVtkFrameCount"] != 41:
+            raise AssertionError(nondiv["SharedRunConditions"])
+        if nondiv["SharedRunConditions"]["ExpectedFinalWindowStepSpan"] != 38500:
+            raise AssertionError(nondiv["SharedRunConditions"])
+        if nondiv["PlannedSyntheticInletSamplingGate"]["ComputedRefreshCount"] != 385:
+            raise AssertionError(nondiv["PlannedSyntheticInletSamplingGate"])
+
         install_manifest = temp / "install" / "native_fluidx3d_baseline_manifest.json"
         run_cmd(
             [

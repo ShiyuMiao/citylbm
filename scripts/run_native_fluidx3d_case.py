@@ -471,7 +471,16 @@ def collect_vtk_files(output_dir: Path, pattern: str) -> List[Dict[str, Any]]:
 def planned_frame_count(time_steps: Optional[int], save_interval: Optional[int]) -> Optional[int]:
     if time_steps is None or save_interval is None or time_steps <= 0 or save_interval <= 0:
         return None
-    return time_steps // save_interval
+    return (time_steps + save_interval - 1) // save_interval
+
+
+def planned_vtk_steps(time_steps: Optional[int], save_interval: Optional[int]) -> Optional[List[int]]:
+    if time_steps is None or save_interval is None or time_steps <= 0 or save_interval <= 0:
+        return None
+    steps = list(range(save_interval, time_steps + 1, save_interval))
+    if not steps or steps[-1] != time_steps:
+        steps.append(time_steps)
+    return steps
 
 
 def planned_final_window_span(
@@ -479,13 +488,13 @@ def planned_final_window_span(
     save_interval: Optional[int],
     average_last_n: int,
 ) -> Optional[int]:
-    frame_count = planned_frame_count(time_steps, save_interval)
-    if frame_count is None or frame_count <= 0:
+    saved_steps = planned_vtk_steps(time_steps, save_interval)
+    if not saved_steps:
         return None
-    selected = min(frame_count, max(average_last_n, 1))
+    selected = min(len(saved_steps), max(average_last_n, 1))
     if selected <= 1:
         return 0
-    return (selected - 1) * save_interval
+    return saved_steps[-1] - saved_steps[-selected]
 
 
 def audit_planned_vtk_schedule(
