@@ -577,6 +577,44 @@ def solver_accuracy_interpretation_blockers(
     return blockers
 
 
+def mean_velocity_accuracy_failure_reasons(
+    *,
+    u_bias: Optional[float],
+    u_rmse: Optional[float],
+    u_r2: Optional[float],
+    slope: Optional[float],
+    intercept: Optional[float],
+    max_u_bias_ratio: float,
+    max_u_rmse_ratio: float,
+    min_u_r2: float,
+    min_slope: float,
+    max_slope: float,
+    max_intercept_abs: float,
+) -> List[str]:
+    reasons: List[str] = []
+    if u_bias is None:
+        reasons.append("U_bias_ratio_missing")
+    elif abs(u_bias) > max_u_bias_ratio:
+        reasons.append(f"U_bias_ratio_abs_above_{max_u_bias_ratio:g}:{u_bias:g}")
+    if u_rmse is None:
+        reasons.append("U_RMSE_ratio_missing")
+    elif u_rmse > max_u_rmse_ratio:
+        reasons.append(f"U_RMSE_ratio_above_{max_u_rmse_ratio:g}:{u_rmse:g}")
+    if u_r2 is None:
+        reasons.append("U_R2_missing")
+    elif u_r2 < min_u_r2:
+        reasons.append(f"U_R2_below_{min_u_r2:g}:{u_r2:g}")
+    if slope is None:
+        reasons.append("U_regression_slope_missing")
+    elif slope < min_slope or slope > max_slope:
+        reasons.append(f"U_regression_slope_outside_{min_slope:g}_{max_slope:g}:{slope:g}")
+    if intercept is None:
+        reasons.append("U_regression_intercept_missing")
+    elif abs(intercept) > max_intercept_abs:
+        reasons.append(f"U_regression_intercept_abs_above_{max_intercept_abs:g}:{intercept:g}")
+    return reasons
+
+
 def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, Any]) -> List[Dict[str, Any]]:
     by_key = gate_by_key(gates)
     priorities: List[Dict[str, Any]] = []
@@ -7297,25 +7335,28 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     u_r2 = as_float(get_any(metrics, ["U_R2", "R2"]))
     slope = as_float(get_any(metrics, ["U_regression_slope", "slope"]))
     intercept = as_float(get_any(metrics, ["U_regression_intercept", "intercept"]))
-    accuracy_pass = (
-        u_bias is not None
-        and abs(u_bias) <= args.max_u_bias_ratio
-        and u_rmse is not None
-        and u_rmse <= args.max_u_rmse_ratio
-        and u_r2 is not None
-        and u_r2 >= args.min_u_r2
-        and slope is not None
-        and args.min_slope <= slope <= args.max_slope
-        and intercept is not None
-        and abs(intercept) <= args.max_intercept_abs
+    accuracy_failure_reasons = mean_velocity_accuracy_failure_reasons(
+        u_bias=u_bias,
+        u_rmse=u_rmse,
+        u_r2=u_r2,
+        slope=slope,
+        intercept=intercept,
+        max_u_bias_ratio=args.max_u_bias_ratio,
+        max_u_rmse_ratio=args.max_u_rmse_ratio,
+        min_u_r2=args.min_u_r2,
+        min_slope=args.min_slope,
+        max_slope=args.max_slope,
+        max_intercept_abs=args.max_intercept_abs,
     )
+    accuracy_pass = not accuracy_failure_reasons
     add_gate(
         gates,
         "mean_velocity_accuracy",
         PASS if accuracy_pass else FAIL,
         (
             f"U_bias_ratio={u_bias}; U_RMSE_ratio={u_rmse}; U_R2={u_r2}; "
-            f"slope={slope}; intercept={intercept}"
+            f"slope={slope}; intercept={intercept}; "
+            f"failure_reasons={';'.join(accuracy_failure_reasons) or 'none'}"
         ),
         "Do not promote to paper-grade validation until bias, RMSE, R2, slope and intercept all meet thresholds.",
     )
@@ -7475,6 +7516,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "root_cause_interpretation_allowed": root_cause_interpretation_allowed,
         "solver_accuracy_interpretation_allowed": solver_accuracy_allowed,
         "solver_accuracy_interpretation_blockers": solver_accuracy_blockers,
+        "mean_velocity_accuracy_pass": accuracy_pass,
+        "mean_velocity_accuracy_failure_reasons": accuracy_failure_reasons,
         "interpretation_gate": interpretation_status,
         "interpretation_evidence": interpretation_evidence,
     }
