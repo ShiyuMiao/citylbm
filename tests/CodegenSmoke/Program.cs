@@ -76,6 +76,11 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "fluct_x *= citylbm_stg_norm_x");
                 Require(setup, "fluct_y *= citylbm_stg_norm_y");
                 Require(setup, "fluct_z *= citylbm_stg_norm_z");
+                Require(setup, "citylbm_stg_target_sigma");
+                Require(setup, "citylbm_stg_layer_corrected_sum_sq_x");
+                Require(setup, "citylbm_stg_layer_rms_scale_x");
+                Require(setup, "target_sigma / rms_x");
+                Require(setup, "u_in.x = mean.x + (u_in.x - mean.x - citylbm_stg_layer_mean_correction_x[z]) * citylbm_stg_layer_rms_scale_x[z];");
                 RequireNotContains(setup, "sqrtf(6.0f / (float)citylbm_stg_mode_count)");
                 Require(setup, "citylbm_mode_amplitude");
                 Require(setup, "ak*kx");
@@ -108,6 +113,10 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "Taylor frozen-turbulence phase advection");
                 Require(metadata, "projected normal to synthetic wave vectors");
                 Require(metadata, "component RMS target sigma=sqrt(2k/3)");
+                Require(metadata, "per_z_cell inlet-face RMS rescaling");
+                Require(metadata, "\"SyntheticTurbulentInletLayerwiseRmsPreservingCorrection\": true");
+                Require(metadata, "\"SyntheticTurbulentInletLayerwiseRmsPreservingScope\": \"per_z_cell_inlet_layer\"");
+                Require(metadata, "actual inlet-face RMS matches the k-derived target sigma=sqrt(2k/3)");
                 Require(metadata, "\"SyntheticTurbulenceUpdateInterval\": 7");
                 Require(metadata, "\"SyntheticTurbulenceMinimumRecommendedRefreshes\": 200");
                 Require(metadata, "\"SyntheticTurbulenceExpectedFinalWindowRefreshCount\": 128");

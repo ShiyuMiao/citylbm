@@ -26,13 +26,18 @@ def main() -> int:
         "citylbm_stg_temporal_ar1_innovation_scale",
         "citylbm_stg_prev_t_step",
         "previous_phase",
+        "citylbm_stg_target_sigma",
         "SyntheticTurbulentInletComponentRmsNormalization",
         "sqrt(2/sum(projected_unit_mode_component^2))",
         "citylbm_stg_layer_mean_correction_x",
         "citylbm_stg_layer_mean_correction_y",
         "citylbm_stg_layer_mean_correction_z",
         "citylbm_stg_layer_corrected_inlet_count",
+        "citylbm_stg_layer_corrected_sum_sq_x",
+        "citylbm_stg_layer_rms_scale_x",
+        "target_sigma / rms_x",
         "SyntheticTurbulentInletMeanPreservingScope",
+        "SyntheticTurbulentInletLayerwiseRmsPreservingCorrection",
         "per_z_cell_inlet_layer",
     ]
     missing = [token for token in required_tokens if token not in source]

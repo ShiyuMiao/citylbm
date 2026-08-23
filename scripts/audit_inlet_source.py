@@ -707,6 +707,27 @@ def main() -> int:
         )
         and has_regex(implementation_source, r"for\s*\(\s*uint\s+z_layer\s*=\s*0u\s*;\s*z_layer\s*<\s*Nz")
     )
+    has_layerwise_rms_preserving_inlet_correction = (
+        contains_any(
+            implementation_source,
+            [
+                "citylbm_stg_layer_rms_scale_x",
+                "citylbm_stg_layer_rms_scale_y",
+                "citylbm_stg_layer_rms_scale_z",
+                "citylbm_stg_layer_corrected_sum_sq_x",
+                "LayerwiseRmsPreserving",
+                "RMS-preserving at every inlet z_cell",
+            ],
+        )
+        and contains_any(
+            implementation_source,
+            [
+                "citylbm_stg_target_sigma",
+                "target_sigma / rms_x",
+                "target sigma=sqrt(2k/3)",
+            ],
+        )
+    )
     random_source_tokens = [
         r"\brand\s*\(",
         r"\brandom\s*\(",
@@ -931,6 +952,8 @@ def main() -> int:
         reasons.append("synthetic_inlet_missing_mean_preserving_inlet_correction")
     if synthetic_requested and stg_lite_velocity_source and has_mean_preserving_inlet_correction and not has_layerwise_mean_preserving_inlet_correction:
         reasons.append("synthetic_inlet_missing_layerwise_mean_preserving_inlet_correction")
+    if synthetic_requested and stg_lite_velocity_source and not has_layerwise_rms_preserving_inlet_correction:
+        reasons.append("synthetic_inlet_missing_layerwise_rms_preserving_inlet_correction")
     if synthetic_requested and has_uncorrelated_random_inlet:
         reasons.append("synthetic_inlet_uses_uncorrelated_random_rms")
     metadata_claims_distribution = any(
@@ -1075,6 +1098,7 @@ def main() -> int:
         "has_legacy_hardcoded_streamwise_clipping": has_legacy_hardcoded_streamwise_clipping,
         "has_mean_preserving_inlet_correction": has_mean_preserving_inlet_correction,
         "has_layerwise_mean_preserving_inlet_correction": has_layerwise_mean_preserving_inlet_correction,
+        "has_layerwise_rms_preserving_inlet_correction": has_layerwise_rms_preserving_inlet_correction,
         "has_uncorrelated_random_inlet": has_uncorrelated_random_inlet,
         "uncorrelated_random_inlet_patterns": random_source_matches,
         "synthetic_inlet_correlation_model": synthetic_correlation_model,

@@ -380,10 +380,13 @@ float3 windProfile(uint z_cell) {
     return float3(profile_u_lbm[0] + z_m * 0.0f, 0.0f, 0.0f);
 }
 float interpolate_profile_k(float z_m) { return profile_k_lbm[0]; }
+float citylbm_stg_target_sigma(uint z_cell, float3 mean) {
+    float target_sigma = sqrtf(0.6666667f * interpolate_profile_k(profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f));
+    return target_sigma;
+}
 float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
     float3 mean = windProfile(z_cell);
-    float k_lbm = interpolate_profile_k(profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f);
-    float sigma = sqrtf(0.6666667f * k_lbm);
+    float sigma = citylbm_stg_target_sigma(z_cell, mean);
     float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);
     uint citylbm_stg_prev_t_step = t_step > citylbm_stg_update_interval ? t_step - citylbm_stg_update_interval : t_step;
     float citylbm_stg_temporal_rho = citylbm_stg_prev_t_step == t_step ? 0.0f : citylbm_stg_temporal_ar1_rho;
@@ -421,6 +424,12 @@ void applySyntheticTurbulentInlet(uint t_step) {
     std::vector<float> citylbm_stg_layer_mean_correction_y(Nz, 0.0f);
     std::vector<float> citylbm_stg_layer_mean_correction_z(Nz, 0.0f);
     std::vector<ulong> citylbm_stg_layer_corrected_inlet_count(Nz, 0ull);
+    std::vector<float> citylbm_stg_layer_corrected_sum_sq_x(Nz, 0.0f);
+    std::vector<float> citylbm_stg_layer_corrected_sum_sq_y(Nz, 0.0f);
+    std::vector<float> citylbm_stg_layer_corrected_sum_sq_z(Nz, 0.0f);
+    std::vector<float> citylbm_stg_layer_rms_scale_x(Nz, 1.0f);
+    std::vector<float> citylbm_stg_layer_rms_scale_y(Nz, 1.0f);
+    std::vector<float> citylbm_stg_layer_rms_scale_z(Nz, 1.0f);
     for(uint n=0u; n<10u; n++) {
         if(flags[n]==TYPE_E) {
             uint z = n;
@@ -443,10 +452,32 @@ void applySyntheticTurbulentInlet(uint t_step) {
     for(uint n=0u; n<10u; n++) {
         if(flags[n]==TYPE_E) {
             uint z = n;
+            float3 mean = windProfile(n);
             float3 u_in = syntheticTurbulentInlet(0u, 0u, z, t_step);
-            u_in.x -= citylbm_stg_layer_mean_correction_x[z];
-            u_in.y -= citylbm_stg_layer_mean_correction_y[z];
-            u_in.z -= citylbm_stg_layer_mean_correction_z[z];
+            float fluct_x = u_in.x - mean.x - citylbm_stg_layer_mean_correction_x[z];
+            float fluct_y = u_in.y - mean.y - citylbm_stg_layer_mean_correction_y[z];
+            float fluct_z = u_in.z - mean.z - citylbm_stg_layer_mean_correction_z[z];
+            citylbm_stg_layer_corrected_sum_sq_x[z] += fluct_x * fluct_x;
+            citylbm_stg_layer_corrected_sum_sq_y[z] += fluct_y * fluct_y;
+            citylbm_stg_layer_corrected_sum_sq_z[z] += fluct_z * fluct_z;
+        }
+    }
+    for(uint z_layer=0u; z_layer<Nz; z_layer++) {
+        if(citylbm_stg_layer_corrected_inlet_count[z_layer] > 1ull) {
+            float inv_count = 1.0f / (float)citylbm_stg_layer_corrected_inlet_count[z_layer];
+            float target_sigma = citylbm_stg_target_sigma(z_layer, windProfile(z_layer));
+            float rms_x = sqrtf(citylbm_stg_layer_corrected_sum_sq_x[z_layer] * inv_count);
+            citylbm_stg_layer_rms_scale_x[z_layer] = rms_x > 1.0e-12f ? target_sigma / rms_x : 1.0f;
+        }
+    }
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            uint z = n;
+            float3 mean = windProfile(z);
+            float3 u_in = syntheticTurbulentInlet(0u, 0u, z, t_step);
+            u_in.x = mean.x + (u_in.x - mean.x - citylbm_stg_layer_mean_correction_x[z]) * citylbm_stg_layer_rms_scale_x[z];
+            u_in.y = mean.y + (u_in.y - mean.y - citylbm_stg_layer_mean_correction_y[z]) * citylbm_stg_layer_rms_scale_y[z];
+            u_in.z = mean.z + (u_in.z - mean.z - citylbm_stg_layer_mean_correction_z[z]) * citylbm_stg_layer_rms_scale_z[z];
             lbm.u.x[n] = u_in.x;
             lbm.u.y[n] = u_in.y;
             lbm.u.z[n] = u_in.z;
@@ -489,6 +520,8 @@ for(uint remaining=100u; remaining>0u; ) {
         if not spectral_report["has_mean_preserving_inlet_correction"]:
             raise AssertionError(spectral_report)
         if not spectral_report["has_layerwise_mean_preserving_inlet_correction"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_layerwise_rms_preserving_inlet_correction"]:
             raise AssertionError(spectral_report)
         if "source_velocity_field_only" not in spectral_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(spectral_report["paper_grade_inlet_source_gate_reasons"])
