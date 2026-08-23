@@ -26,6 +26,7 @@ def main() -> int:
         work = Path(tmp)
         official = work / "official.csv"
         probe = work / "probe.csv"
+        read_vtk_audit = work / "read_vtk_audit.json"
         inlet_source_audit = work / "inlet_source_audit.json"
         native_audit = work / "native_preconditions_audit.json"
         metrics = work / "metrics.csv"
@@ -68,6 +69,20 @@ def main() -> int:
                     "vtk_source_sha256": "a;b;c",
                 }
             ],
+        )
+        read_vtk_audit.write_text(
+            json.dumps(
+                {
+                    "final_window_stationarity_gate": "diagnostic_only",
+                    "final_window_stationarity_gate_reasons_csv": (
+                        "final_window_mean_speed_drift_above_threshold"
+                    ),
+                    "final_window_mean_speed_drift_ratio": 0.12,
+                    "max_final_window_mean_speed_drift_ratio": 0.18,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
         )
         inlet_source_audit.write_text(
             json.dumps(
@@ -140,6 +155,12 @@ def main() -> int:
                     "af_uref_at_zref_mps": 3.928296,
                     "uref_af_profile_delta_mps": 0.001704,
                     "metadata_uref_af_profile_delta_mps": 0.028296,
+                    "runtime_final_window_stationarity_gate": "diagnostic_only",
+                    "runtime_final_window_stationarity_gate_reasons_csv": (
+                        "final_window_mean_speed_drift_above_threshold"
+                    ),
+                    "runtime_final_window_mean_speed_drift_ratio": 0.12,
+                    "runtime_max_final_window_mean_speed_drift_ratio": 0.18,
                     "inlet_profile_audit": "run/inlet_profile_audit.json",
                     "inlet_profile_gate": "FAIL",
                     "inlet_u_profile_gate": "PASS",
@@ -210,6 +231,8 @@ def main() -> int:
             "N",
             "--source-time-steps",
             "1000;2000;3000",
+            "--read-vtk-audit",
+            str(read_vtk_audit),
             "--inlet-source-audit",
             str(inlet_source_audit),
             "--native-preconditions-audit",
@@ -281,6 +304,16 @@ def main() -> int:
         "native_preconditions_af_uref_at_zref_mps": "3.928296",
         "native_preconditions_uref_af_profile_delta_mps": "0.001704",
         "native_preconditions_metadata_uref_af_profile_delta_mps": "0.028296",
+        "final_window_stationarity_gate": "diagnostic_only",
+        "final_window_stationarity_gate_reasons": "final_window_mean_speed_drift_above_threshold",
+        "final_window_mean_speed_drift_ratio": "0.12",
+        "max_final_window_mean_speed_drift_ratio": "0.18",
+        "native_preconditions_runtime_final_window_stationarity_gate": "diagnostic_only",
+        "native_preconditions_runtime_final_window_stationarity_gate_reasons": (
+            "final_window_mean_speed_drift_above_threshold"
+        ),
+        "native_preconditions_runtime_final_window_mean_speed_drift_ratio": "0.12",
+        "native_preconditions_runtime_max_final_window_mean_speed_drift_ratio": "0.18",
         "native_precondition_closure_gate": "fail",
         "native_precondition_closed_stage_count": "2",
         "native_precondition_failed_stage_count": "4",

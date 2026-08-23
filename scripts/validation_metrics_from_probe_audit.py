@@ -68,6 +68,7 @@ TEMPLATE_FIELDS = [
     "mean_speed_stddev_ratio",
     "max_speed_stddev_ratio",
     "final_window_stationarity_gate",
+    "final_window_stationarity_gate_reasons",
     "final_window_mean_speed_drift_ratio",
     "max_final_window_mean_speed_drift_ratio",
     "mean_speed_statistics_source",
@@ -371,6 +372,7 @@ TEMPLATE_FIELDS = [
     "native_preconditions_runtime_source_vtk_sha256_count",
     "native_preconditions_runtime_source_vtk_sha256_unique_count",
     "native_preconditions_runtime_final_window_stationarity_gate",
+    "native_preconditions_runtime_final_window_stationarity_gate_reasons",
     "native_preconditions_runtime_final_window_mean_speed_drift_ratio",
     "native_preconditions_runtime_max_final_window_mean_speed_drift_ratio",
     "native_component_sensitivity_hash_traceability_gate",
@@ -1631,6 +1633,12 @@ def main() -> int:
         read_vtk_audit.get("final_window_stationarity_gate"),
         inlet_profile_audit.get("final_window_stationarity_gate"),
     )
+    final_window_stationarity_gate_reasons = first_text(
+        read_vtk_audit.get("final_window_stationarity_gate_reasons_csv"),
+        inlet_profile_audit.get("final_window_stationarity_gate_reasons_csv"),
+        audit_list_field(read_vtk_audit, "final_window_stationarity_gate_reasons"),
+        audit_list_field(inlet_profile_audit, "final_window_stationarity_gate_reasons"),
+    )
     final_window_mean_speed_drift_ratio = first_float(
         audit_float(read_vtk_audit, "final_window_mean_speed_drift_ratio"),
         audit_float(inlet_profile_audit, "final_window_mean_speed_drift_ratio"),
@@ -1727,6 +1735,7 @@ def main() -> int:
             "mean_speed_stddev_ratio": fmt(mean_speed_stddev_ratio),
             "max_speed_stddev_ratio": fmt(max_speed_stddev_ratio),
             "final_window_stationarity_gate": final_window_stationarity_gate,
+            "final_window_stationarity_gate_reasons": final_window_stationarity_gate_reasons,
             "final_window_mean_speed_drift_ratio": fmt(final_window_mean_speed_drift_ratio),
             "max_final_window_mean_speed_drift_ratio": fmt(max_final_window_mean_speed_drift_ratio),
             "mean_speed_statistics_source": mean_speed_statistics_source,
@@ -2284,6 +2293,10 @@ def main() -> int:
             "native_preconditions_runtime_final_window_stationarity_gate": audit_gate(
                 native_preconditions_audit, "runtime_final_window_stationarity_gate"
             ),
+            "native_preconditions_runtime_final_window_stationarity_gate_reasons": audit_field(
+                native_preconditions_audit, "runtime_final_window_stationarity_gate_reasons_csv"
+            )
+            or audit_list_field(native_preconditions_audit, "runtime_final_window_stationarity_gate_reasons"),
             "native_preconditions_runtime_final_window_mean_speed_drift_ratio": audit_field(
                 native_preconditions_audit, "runtime_final_window_mean_speed_drift_ratio"
             ),
