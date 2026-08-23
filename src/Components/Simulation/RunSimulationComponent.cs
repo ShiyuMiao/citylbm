@@ -49,6 +49,7 @@ namespace CityLBM.Components.Simulation
         private const int MinimumValidationAveragingFrames = 40;
         private const int MinimumValidationAveragingStepSpan = 20000;
         private const int MinimumValidationStgRefreshes = 200;
+        private const int MinimumValidationStgModes = 128;
 
         public RunSimulationComponent()
             : base("Run Simulation", "Sim",
@@ -348,10 +349,10 @@ namespace CityLBM.Components.Simulation
                 settings.SyntheticTurbulenceMaxFractionOfMean = Math.Max(0.05, Math.Min(0.80, syntheticMaxFraction));
                 settings.SyntheticTurbulenceLengthScaleSource = (syntheticLengthSource ?? "").Trim();
                 settings.SyntheticTurbulenceModeCount = Math.Max(4, Math.Min(1024, syntheticModeCount));
-                if (settings.SyntheticTurbulenceModeCount < 128)
+                if (settings.SyntheticTurbulenceModeCount < MinimumValidationStgModes)
                 {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                        "[v0.3.0] STG-lite modes below 128 are diagnostic only for Case A/E validation; use 128-384 before interpreting accuracy.");
+                        $"[v0.3.0] STG-lite modes below {MinimumValidationStgModes} are diagnostic only for Case A/E validation; use {MinimumValidationStgModes}-384 before interpreting accuracy.");
                 }
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
                     $"[v0.3.0] STG-lite inlet enabled for CustomTable+k. Modes={settings.SyntheticTurbulenceModeCount}, update={settings.SyntheticTurbulenceUpdateInterval}, cap={settings.SyntheticTurbulenceMaxFractionOfMean:F2}. Experimental; not full DFM/precursor/Reynolds-stress inflow.");
@@ -514,7 +515,11 @@ namespace CityLBM.Components.Simulation
 
             int expectedFrames = ExpectedVtkFrameCount(settings);
             int expectedFinalWindowStepSpan = ExpectedFinalWindowStepSpan(settings, MinimumValidationAveragingFrames);
-            bool syntheticActive = settings.EnableSyntheticTurbulentInlet && HasCompleteCustomProfileK(scene);
+            bool customTable = scene != null && scene.WindProfile == WindProfileType.CustomTable;
+            bool syntheticRequestedForCustomTable = settings.EnableSyntheticTurbulentInlet && customTable;
+            bool completeK = HasCompleteCustomProfileK(scene);
+            bool syntheticActive = syntheticRequestedForCustomTable && completeK;
+            bool hasSupportedLengthScaleSource = HasSupportedSyntheticTurbulenceLengthScaleSource(settings.SyntheticTurbulenceLengthScaleSource);
             int expectedFinalWindowStgRefreshes = ExpectedFinalWindowStgRefreshCount(settings, MinimumValidationAveragingFrames);
             if (mode == 0)
             {
@@ -532,6 +537,21 @@ namespace CityLBM.Components.Simulation
                         $"Mode 0 will generate a diagnostic STG-lite case only: final-window STG refresh count={expectedFinalWindowStgRefreshes}; " +
                         $"validation requires at least {MinimumValidationStgRefreshes} inlet refreshes in the averaged window.");
                 }
+                if (syntheticRequestedForCustomTable && !completeK)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        "Mode 0 will generate a diagnostic case only: Synthetic Inlet is requested but CustomTable does not have complete k(m2/s2) values.");
+                }
+                if (syntheticActive && !hasSupportedLengthScaleSource)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        "Mode 0 will generate a diagnostic STG-lite case only: STG Length Source is not an archived AIJ/official/precursor/DFM/SEM length-scale evidence tag.");
+                }
+                if (syntheticActive && settings.SyntheticTurbulenceModeCount < MinimumValidationStgModes)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        $"Mode 0 will generate a diagnostic STG-lite case only: STG Modes={settings.SyntheticTurbulenceModeCount}, minimum validation baseline={MinimumValidationStgModes}.");
+                }
                 return true;
             }
 
@@ -543,6 +563,43 @@ namespace CityLBM.Components.Simulation
                     $"expected VTK frames={expectedFrames}, final-window step span={expectedFinalWindowStepSpan}. " +
                     $"Use at least {MinimumValidationAveragingFrames} frames spanning {MinimumValidationAveragingStepSpan} steps " +
                     "for the final time-averaging window.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            if (syntheticRequestedForCustomTable && !completeK)
+            {
+                string message =
+                    $"Mode {mode} validation run blocked: Synthetic Inlet is requested for a CustomTable profile, " +
+                    "but the profile does not contain complete k(m2/s2) values. Use an AF table with z,U,k for every row, " +
+                    "or disable Synthetic Inlet and treat k as metadata only.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            if (syntheticActive && !hasSupportedLengthScaleSource)
+            {
+                string source = string.IsNullOrWhiteSpace(settings.SyntheticTurbulenceLengthScaleSource)
+                    ? "<empty>"
+                    : settings.SyntheticTurbulenceLengthScaleSource.Trim();
+                string message =
+                    $"Mode {mode} validation run blocked: Synthetic Inlet is active, but STG Length Source='{source}' " +
+                    "is not a supported archived length-scale evidence tag. Accepted tags include " +
+                    "aij_length_scale_verified, official_length_scale_verified, precursor_length_scale, " +
+                    "digital_filter_length_scale, synthetic_eddy_length_scale, sem_length_scale, dfm_length_scale, " +
+                    "or validated_length_scale_model. Mode 0 may still be used for diagnostic case generation.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            if (syntheticActive && settings.SyntheticTurbulenceModeCount < MinimumValidationStgModes)
+            {
+                string message =
+                    $"Mode {mode} validation run blocked: Synthetic Inlet is active but STG Modes={settings.SyntheticTurbulenceModeCount}. " +
+                    $"Use at least {MinimumValidationStgModes} modes before running a controlled validation baseline.";
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
                 OutputValidationFailure(DA, message);
                 return false;
@@ -560,6 +617,36 @@ namespace CityLBM.Components.Simulation
             }
 
             return true;
+        }
+
+        private static bool HasSupportedSyntheticTurbulenceLengthScaleSource(string source)
+        {
+            if (string.IsNullOrWhiteSpace(source))
+                return false;
+
+            string text = source.ToLowerInvariant();
+            string[] tokens =
+            {
+                "aij_length_scale_verified",
+                "official_length_scale_verified",
+                "precursor_length_scale",
+                "recycling_length_scale",
+                "digital_filter_length_scale",
+                "digital-filter_length_scale",
+                "synthetic_eddy_length_scale",
+                "synthetic-eddy_length_scale",
+                "sem_length_scale",
+                "dfm_length_scale",
+                "validated_length_scale_model"
+            };
+
+            foreach (string token in tokens)
+            {
+                if (text.Contains(token))
+                    return true;
+            }
+
+            return false;
         }
 
         private static int ExpectedVtkFrameCount(SimulationSettings settings)
