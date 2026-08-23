@@ -381,6 +381,26 @@ TEMPLATE_FIELDS = [
     "native_component_sensitivity_official_sha256_matches_current",
     "native_component_sensitivity_probe_audit_sha256",
     "native_component_sensitivity_official_sha256",
+    "native_component_normalization_gate",
+    "native_component_sensitivity_gate",
+    "native_component_sensitivity_gate_reasons",
+    "native_component_normalization_scale_gate",
+    "native_component_normalization_scale_gate_reasons",
+    "native_component_selected_component",
+    "native_component_selected_component_source",
+    "native_component_best_component_by_rmse",
+    "native_component_official_probe_coverage_ratio",
+    "native_component_selected_component_rmse_ratio",
+    "native_component_selected_component_bias_ratio",
+    "native_component_selected_component_scaled_bias_ratio",
+    "native_component_selected_component_bias_abs_reduction_ratio",
+    "native_component_selected_component_mean_sim_ratio",
+    "native_component_selected_component_mean_exp_ratio",
+    "native_component_selected_component_mean_sim_to_exp_ratio",
+    "native_component_best_component_rmse_ratio",
+    "native_component_rmse_improvement_ratio",
+    "native_component_normalization_best_fit_scale",
+    "native_component_normalization_scaled_improvement_ratio",
     "native_preconditions_probe_audit_sha256",
     "native_preconditions_official_measurement_sha256",
     "native_inlet_equivalence_gate",
@@ -2343,6 +2363,68 @@ def main() -> int:
             ),
             "native_component_sensitivity_official_sha256": audit_field(
                 native_preconditions_audit, "component_sensitivity_official_sha256"
+            ),
+            "native_component_normalization_gate": audit_gate(
+                native_preconditions_audit, "component_normalization_gate"
+            ),
+            "native_component_sensitivity_gate": audit_gate(
+                native_preconditions_audit, "component_sensitivity_gate"
+            ),
+            "native_component_sensitivity_gate_reasons": audit_field(
+                native_preconditions_audit, "component_sensitivity_gate_reasons_csv"
+            )
+            or audit_list_field(native_preconditions_audit, "component_sensitivity_gate_reasons"),
+            "native_component_normalization_scale_gate": audit_gate(
+                native_preconditions_audit, "normalization_scale_gate"
+            ),
+            "native_component_normalization_scale_gate_reasons": audit_field(
+                native_preconditions_audit, "normalization_scale_gate_reasons_csv"
+            )
+            or audit_list_field(native_preconditions_audit, "normalization_scale_gate_reasons"),
+            "native_component_selected_component": audit_field(
+                native_preconditions_audit, "component_selected_component"
+            ),
+            "native_component_selected_component_source": audit_field(
+                native_preconditions_audit, "component_selected_component_source"
+            ),
+            "native_component_best_component_by_rmse": audit_field(
+                native_preconditions_audit, "component_best_component_by_rmse"
+            ),
+            "native_component_official_probe_coverage_ratio": fmt(
+                audit_float(native_preconditions_audit, "component_official_probe_coverage_ratio")
+            ),
+            "native_component_selected_component_rmse_ratio": fmt(
+                audit_float(native_preconditions_audit, "component_selected_component_rmse")
+            ),
+            "native_component_selected_component_bias_ratio": fmt(
+                audit_float(native_preconditions_audit, "component_selected_component_bias")
+            ),
+            "native_component_selected_component_scaled_bias_ratio": fmt(
+                audit_float(native_preconditions_audit, "component_selected_component_scaled_bias")
+            ),
+            "native_component_selected_component_bias_abs_reduction_ratio": fmt(
+                audit_float(native_preconditions_audit, "component_selected_component_bias_abs_reduction_ratio")
+            ),
+            "native_component_selected_component_mean_sim_ratio": fmt(
+                audit_float(native_preconditions_audit, "component_selected_component_mean_sim")
+            ),
+            "native_component_selected_component_mean_exp_ratio": fmt(
+                audit_float(native_preconditions_audit, "component_selected_component_mean_exp")
+            ),
+            "native_component_selected_component_mean_sim_to_exp_ratio": fmt(
+                audit_float(native_preconditions_audit, "component_selected_component_mean_sim_to_exp_ratio")
+            ),
+            "native_component_best_component_rmse_ratio": fmt(
+                audit_float(native_preconditions_audit, "component_best_component_rmse")
+            ),
+            "native_component_rmse_improvement_ratio": fmt(
+                audit_float(native_preconditions_audit, "component_rmse_improvement_ratio")
+            ),
+            "native_component_normalization_best_fit_scale": fmt(
+                audit_float(native_preconditions_audit, "component_normalization_best_fit_scale")
+            ),
+            "native_component_normalization_scaled_improvement_ratio": fmt(
+                audit_float(native_preconditions_audit, "component_normalization_scaled_improvement_ratio")
             ),
             "native_preconditions_probe_audit_sha256": audit_field(
                 native_preconditions_audit, "probe_audit_sha256"

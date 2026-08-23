@@ -2644,6 +2644,16 @@ def main() -> int:
     component_sensitivity_gate = str(component_sensitivity_audit.get("component_sensitivity_gate") or "").strip().lower()
     normalization_scale_gate = str(component_sensitivity_audit.get("normalization_scale_gate") or "").strip().lower()
     component_source_window_gate = str(component_sensitivity_audit.get("component_source_window_gate") or "").strip().lower()
+    component_sensitivity_gate_reasons_csv = ";".join(
+        str(reason)
+        for reason in component_sensitivity_audit.get("component_sensitivity_gate_reasons", [])
+        if str(reason).strip()
+    )
+    normalization_scale_gate_reasons_csv = ";".join(
+        str(reason)
+        for reason in component_sensitivity_audit.get("normalization_scale_gate_reasons", [])
+        if str(reason).strip()
+    )
     component_source_steps = parse_int_list(component_sensitivity_audit.get("component_source_time_steps"))
     component_source_hashes = parse_hash_list(component_sensitivity_audit.get("component_source_sha256"))
     component_source_steps_match_runtime = bool(runtime_steps) and component_source_steps == runtime_steps
@@ -2893,6 +2903,34 @@ def main() -> int:
         "component_sensitivity_hash_traceability_gate": component_hash_traceability["gate"],
         "component_sensitivity_hash_traceability_gate_reasons": component_hash_traceability["reasons"],
         "component_sensitivity_hash_traceability_gate_reasons_csv": component_hash_traceability["reasons_csv"],
+        "component_normalization_gate": component_gate,
+        "component_sensitivity_gate": component_sensitivity_gate,
+        "component_sensitivity_gate_reasons": component_sensitivity_audit.get("component_sensitivity_gate_reasons", []),
+        "component_sensitivity_gate_reasons_csv": component_sensitivity_gate_reasons_csv,
+        "normalization_scale_gate": normalization_scale_gate,
+        "normalization_scale_gate_reasons": component_sensitivity_audit.get("normalization_scale_gate_reasons", []),
+        "normalization_scale_gate_reasons_csv": normalization_scale_gate_reasons_csv,
+        "component_selected_component": component_sensitivity_audit.get("selected_component"),
+        "component_selected_component_source": component_sensitivity_audit.get("selected_component_source"),
+        "component_best_component_by_rmse": component_sensitivity_audit.get("best_component_by_rmse"),
+        "component_official_probe_coverage_ratio": component_sensitivity_audit.get("official_probe_coverage_ratio"),
+        "component_selected_component_rmse": component_sensitivity_audit.get("selected_component_rmse"),
+        "component_selected_component_bias": component_sensitivity_audit.get("selected_component_bias"),
+        "component_selected_component_scaled_bias": component_sensitivity_audit.get("selected_component_scaled_bias"),
+        "component_selected_component_bias_abs_reduction_ratio": component_sensitivity_audit.get(
+            "selected_component_bias_abs_reduction_ratio"
+        ),
+        "component_selected_component_mean_sim": component_sensitivity_audit.get("selected_component_mean_sim"),
+        "component_selected_component_mean_exp": component_sensitivity_audit.get("selected_component_mean_exp"),
+        "component_selected_component_mean_sim_to_exp_ratio": component_sensitivity_audit.get(
+            "selected_component_mean_sim_to_exp_ratio"
+        ),
+        "component_best_component_rmse": component_sensitivity_audit.get("best_component_rmse"),
+        "component_rmse_improvement_ratio": component_sensitivity_audit.get("component_rmse_improvement_ratio"),
+        "component_normalization_best_fit_scale": component_sensitivity_audit.get("selected_best_fit_scale_to_exp"),
+        "component_normalization_scaled_improvement_ratio": component_sensitivity_audit.get(
+            "selected_scaled_improvement_ratio"
+        ),
         "native_inlet_equivalence_gate": native_inlet_equivalence_gate,
         "native_inlet_equivalence_gate_reasons": native_inlet_equivalence_reasons,
         "native_inlet_equivalence_gate_reasons_csv": ";".join(native_inlet_equivalence_reasons),
