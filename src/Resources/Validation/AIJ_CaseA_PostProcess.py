@@ -200,14 +200,20 @@ else:
 
     errors = []
     n = 0
+    failed_points = 0
     profile_positions = {}
 
     for x, y, z, u_exp in EXP_DATA:
         try:
             vx, vy, vz = trilinear(velocities, nx, ny, nz,
                                    origin, spacing, x, y, z)
-        except:
-            vx = 0.0
+        except Exception as exc:
+            failed_points += 1
+            xh = x / H
+            zh = z / H
+            report.append("{:+7.1f}  {:>8.3f}  {:>8.3f}  {:>10s}  {:>10.3f}  {:>8s}".format(
+                xh, zh, z, "SKIP", u_exp, "FAILED"))
+            continue
 
         u_sim = vx
         err = abs(u_sim - u_exp)
@@ -229,17 +235,24 @@ else:
         err_vecs.append(rg.LineCurve(
             rg.Line(sim_pt, exp_pt)))
 
-    avg_err = sum(errors) / n if n > 0 else 0
+    avg_err = sum(errors) / n if n > 0 else None
+    rms_err = math.sqrt(sum(e*e for e in errors)/n) if n > 0 else None
 
     report.append("-" * 60)
     report.append("")
-    report.append("TOTAL POINTS: {}".format(n))
-    report.append("AVERAGE ERROR: {:.1f}%".format(avg_err))
-    report.append("RMS ERROR:    {:.1f}%".format(
-        math.sqrt(sum(e*e for e in errors)/n)))
+    report.append("VALID POINTS: {}".format(n))
+    report.append("FAILED POINTS: {}".format(failed_points))
+    if n > 0:
+        report.append("AVERAGE ERROR: {:.1f}%".format(avg_err))
+        report.append("RMS ERROR:    {:.1f}%".format(rms_err))
+    else:
+        report.append("AVERAGE ERROR: unavailable")
+        report.append("RMS ERROR:    unavailable")
     report.append("")
 
-    if avg_err < 15:
+    if n == 0:
+        grade = "INVALID (no valid sampled probes)"
+    elif avg_err < 15:
         grade = "EXCELLENT"
     elif avg_err < 25:
         grade = "GOOD (typical LBM result)"
@@ -251,6 +264,7 @@ else:
     report.append("QUALITY GRADE: {}".format(grade))
     report.append("")
     report.append("NOTES:")
+    report.append("  - Probe sampling failures are skipped, not replaced with zero velocity")
     report.append("  - Wind tunnel used ABL profile; CityLBM uses uniform inflow")
     report.append("  - Smagorinsky LES improves wake region accuracy")
     report.append("  - Cube case: recirculation zone is most challenging region")
