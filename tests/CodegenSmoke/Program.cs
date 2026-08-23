@@ -120,6 +120,8 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "\"SyntheticTurbulentInletLengthScaleGate\": \"pass\"");
                 Require(metadata, "refreshed on TYPE_E inlet nodes in batch and graphics modes");
                 Require(metadata, "\"InletDistributionFunctionReconstruction\": false");
+                Require(metadata, "\"SyntheticTurbulentInletPaperGradeStatus\": \"diagnostic_only_until_distribution_reconstruction_reynolds_stress_or_precursor_evidence_and_native_u_k_correlation_gates_pass\"");
+                RequireNotContains(metadata, "diagnostic_only_until_distribution_reconstruction_or_native_k_preservation_gate_passes");
                 Require(metadata, "\"PaperGradeTurbulentInletPrerequisiteGate\": \"fail\"");
                 Require(metadata, "measured_or_precursor_reynolds_stress_tensor");
                 Require(metadata, "empty_tunnel_U_k_correlation_preservation_gate");

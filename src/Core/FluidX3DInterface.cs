@@ -2816,7 +2816,7 @@ namespace CityLBM.Solver
                         : "none",
                     InletDistributionFunctionReconstruction = inletDistributionFunctionReconstruction,
                     SyntheticTurbulentInletPaperGradeStatus = syntheticActive
-                        ? "diagnostic_only_until_distribution_reconstruction_or_native_k_preservation_gate_passes"
+                        ? "diagnostic_only_until_distribution_reconstruction_reynolds_stress_or_precursor_evidence_and_native_u_k_correlation_gates_pass"
                         : "not_applicable",
                     PaperGradeTurbulentInletPrerequisiteGate = "fail",
                     PaperGradeTurbulentInletMissingEvidence = missingPaperGradeInletEvidence,
