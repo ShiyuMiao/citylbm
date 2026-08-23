@@ -88,8 +88,22 @@ UNSUPPORTED_CONDITION_TOKENS = [
     "placeholder",
     "diagnostic_only",
     "assumed_only",
+    "approximate",
+    "approximation",
+    "box boundary",
     "missing",
     "none",
+    "free outflow",
+    "free-outflow",
+    "free approximation",
+    "open boundary",
+    "open outlet",
+    "simple_box",
+    "simplified",
+    "slip/free",
+    "slip approximation",
+    "type e",
+    "type_e",
 ]
 
 CONDITION_SUPPORT_FIELDS = [

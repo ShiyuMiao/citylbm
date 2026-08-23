@@ -126,6 +126,35 @@ def main() -> int:
         wrong_case_data = json.loads(wrong_case_report.read_text(encoding="utf-8"))
         require("aij_case_mismatch" in wrong_case_data.get("boundary_run_identity_gate_reasons", []), wrong_case_data)
 
+        simplified_evidence = tmp_dir / "simplified_boundary_evidence.json"
+        simplified_payload = evidence_payload(metadata_sha)
+        simplified_payload.update(
+            {
+                "outlet_boundary": "official TYPE_E free-outflow approximation sha256",
+                "lateral_boundary": "official TYPE_E slip/free approximation sha256",
+                "top_boundary": "official simplified open boundary sha256",
+                "outlet_reflection_check": "official reflection_checked but free approximation",
+                "side_top_boundary_check": "official reflection_checked but slip/free approximation",
+            }
+        )
+        simplified_evidence.write_text(
+            json.dumps(simplified_payload, indent=2),
+            encoding="utf-8",
+        )
+        simplified_report = tmp_dir / "simplified_boundary_protocol_audit.json"
+        simplified = run_audit(repo, tmp_dir, simplified_evidence, simplified_report)
+        if simplified.returncode == 0:
+            raise AssertionError("Simplified TYPE_E/free/slip boundary labels must fail boundary protocol evidence.")
+        simplified_data = json.loads(simplified_report.read_text(encoding="utf-8"))
+        require(simplified_data.get("boundary_protocol_gate") == "fail", simplified_data)
+        require(simplified_data.get("boundary_condition_fields_supported") is False, simplified_data)
+        require(
+            "unsupported_boundary_condition_fields:"
+            "outlet_boundary,lateral_boundary,top_boundary,outlet_reflection_check,side_top_boundary_check"
+            in simplified_data.get("boundary_protocol_gate_reasons", []),
+            simplified_data,
+        )
+
         good_evidence = tmp_dir / "good_boundary_evidence.json"
         good_evidence.write_text(
             json.dumps(evidence_payload(metadata_sha), indent=2),
