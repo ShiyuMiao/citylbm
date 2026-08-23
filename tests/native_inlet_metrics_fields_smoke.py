@@ -224,6 +224,7 @@ def main() -> int:
                         "probe_uref_mismatch_count_80;"
                         "normalization_scale_gate_not_pass:fail"
                     ),
+                    "probe_component_fidelity_class": "component_or_normalization_mismatch",
                     "probe_official_height_gate": "fail",
                     "probe_official_height_gate_reasons_csv": "official_z_mismatch_count:80",
                     "component_source_time_steps_match_runtime": False,
@@ -396,6 +397,7 @@ def main() -> int:
         "native_inlet_correlation_source_step_span": "2000",
         "native_inlet_correlation_minimum_step_span": "20000",
         "time_averaging_fidelity_class": "nonstationary_final_window",
+        "probe_component_fidelity_class": "official_probe_coordinate_mismatch",
         "native_preconditions_time_average_evidence_gate": "fail",
         "native_preconditions_time_averaging_fidelity_class": "short_diagnostic_average_window",
         "native_preconditions_time_average_evidence_gate_reasons": (
@@ -488,6 +490,7 @@ def main() -> int:
             "probe_uref_mismatch_count_80;"
             "normalization_scale_gate_not_pass:fail"
         ),
+        "native_probe_component_fidelity_class": "component_or_normalization_mismatch",
         "native_probe_official_height_gate": "fail",
         "native_probe_official_height_gate_reasons": "official_z_mismatch_count:80",
         "native_probe_component_source_time_steps_match_runtime": "false",

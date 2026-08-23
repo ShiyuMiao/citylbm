@@ -1978,6 +1978,54 @@ def probe_row_failed(row: Dict[str, str]) -> bool:
     )
 
 
+def classify_probe_component_fidelity(reasons: List[str]) -> str:
+    if not reasons:
+        return "paper_grade_probe_component_normalization"
+    reason_text = ";".join(str(reason) for reason in reasons).lower()
+    if "probe_audit_missing" in reason_text or "official_measurement_sha256_missing" in reason_text:
+        return "missing_probe_or_official_evidence"
+    if any(
+        token in reason_text
+        for token in [
+            "official_probe",
+            "official_coordinate",
+            "coordinate_delta",
+            "missing_official_probe_id",
+            "unmatched_official",
+            "probe_missing_id",
+            "probe_duplicate_id",
+            "official_z",
+            "height_gate",
+        ]
+    ):
+        return "official_probe_coordinate_mismatch"
+    if any(
+        token in reason_text
+        for token in [
+            "out_of_tolerance",
+            "nearest_distance",
+            "tolerance_missing",
+            "probe_projection",
+        ]
+    ):
+        return "probe_projection_mismatch"
+    if any(token in reason_text for token in ["source_", "sha256", "time_steps", "step_span", "window"]):
+        return "stale_or_untraceable_probe_component_window"
+    if any(
+        token in reason_text
+        for token in [
+            "component",
+            "normalization",
+            "streamwise",
+            "uref",
+            "wind_direction",
+            "compared_component",
+        ]
+    ):
+        return "component_or_normalization_mismatch"
+    return "incomplete_probe_component_evidence"
+
+
 def main() -> int:
     args = parse_args()
     run_dir = Path(args.run_dir).expanduser().resolve()
@@ -3436,6 +3484,9 @@ def main() -> int:
     native_probe_component_equivalence_gate = (
         "pass" if not native_probe_component_equivalence_reasons else "fail"
     )
+    probe_component_fidelity_class = classify_probe_component_fidelity(
+        native_probe_component_equivalence_reasons
+    )
     if native_probe_component_equivalence_gate != "pass":
         reasons.append("native_probe_component_equivalence_gate_not_pass")
 
@@ -3645,6 +3696,7 @@ def main() -> int:
         "native_inlet_equivalence_gate_reasons": native_inlet_equivalence_reasons,
         "native_inlet_equivalence_gate_reasons_csv": ";".join(native_inlet_equivalence_reasons),
         "native_probe_component_equivalence_gate": native_probe_component_equivalence_gate,
+        "probe_component_fidelity_class": probe_component_fidelity_class,
         "native_probe_component_equivalence_gate_reasons": native_probe_component_equivalence_reasons,
         "native_probe_component_equivalence_gate_reasons_csv": ";".join(
             native_probe_component_equivalence_reasons

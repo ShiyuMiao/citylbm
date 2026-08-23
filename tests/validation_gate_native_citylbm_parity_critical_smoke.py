@@ -102,6 +102,7 @@ def main() -> int:
             raise AssertionError(report)
         for field in [
             "time_averaging_fidelity_class",
+            "probe_component_fidelity_class",
             "synthetic_temporal_sampling_gate",
             "synthetic_expected_final_window_refresh_count",
             "inlet_source_has_k_driven_three_component_stg",

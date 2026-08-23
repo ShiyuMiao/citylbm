@@ -57,6 +57,7 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "Uref_mps",
     "Zref_m",
     "compared_component",
+    "probe_component_fidelity_class",
     "wind_vector",
     "inlet_face",
     "outlet_face",
@@ -2612,10 +2613,20 @@ def native_probe_component_traceability_status(
         if not value:
             reasons.append(f"{key}_missing")
 
+    probe_component_fidelity_class = str(
+        get_any(native_preconditions_audit, ["probe_component_fidelity_class"]) or ""
+    ).strip().lower()
+    if probe_component_fidelity_class != "paper_grade_probe_component_normalization":
+        reasons.append(
+            "probe_component_fidelity_class_not_paper_grade:"
+            f"{probe_component_fidelity_class or 'missing'}"
+        )
+
     return {
         "ok": not reasons,
         "reasons": reasons,
         "reasons_csv": ";".join(reasons),
+        "probe_component_fidelity_class": probe_component_fidelity_class,
     }
 
 
@@ -5943,6 +5954,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         PASS if native_probe_traceability["ok"] else FAIL,
         (
             f"native_preconditions_audit={native_preconditions_audit_path or 'missing'}; "
+            f"probe_component_fidelity_class={native_probe_traceability['probe_component_fidelity_class'] or 'missing'}; "
             f"reasons={native_probe_traceability['reasons_csv'] or 'none'}; "
             f"probe_audit_row_count={native_preconditions_probe_row_count}; "
             f"probe_audit_failed_row_count={native_preconditions_probe_failed_count}; "

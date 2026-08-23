@@ -51,6 +51,20 @@ def main() -> int:
     if fallback["deltas"] != [0.0]:
         raise AssertionError(fallback)
 
+    cases = {
+        "paper_grade_probe_component_normalization": [],
+        "official_probe_coordinate_mismatch": ["official_probe_coverage_ratio_not_one:0.9"],
+        "probe_projection_mismatch": ["probe_out_of_tolerance_count_2"],
+        "stale_or_untraceable_probe_component_window": [
+            "component_source_step_span_3000_below_minimum_20000",
+        ],
+        "component_or_normalization_mismatch": ["probe_uref_mismatch_count_80"],
+    }
+    for expected, reasons in cases.items():
+        actual = module.classify_probe_component_fidelity(reasons)
+        if actual != expected:
+            raise AssertionError((expected, actual, reasons))
+
     print("native_preconditions_coordinate_recompute_smoke passed")
     return 0
 

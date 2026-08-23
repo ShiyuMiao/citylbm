@@ -106,6 +106,7 @@ TEMPLATE_FIELDS = [
     "normalization_valid",
     "velocity_component",
     "compared_component_consistency_gate",
+    "probe_component_fidelity_class",
     "compared_component_unique_values",
     "wind_vector",
     "wind_direction_valid",
@@ -508,6 +509,7 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_recommended_next_action",
     "native_probe_component_equivalence_gate",
     "native_probe_component_equivalence_gate_reasons",
+    "native_probe_component_fidelity_class",
     "native_probe_official_height_gate",
     "native_probe_official_height_gate_reasons",
     "native_probe_compared_component_values",
@@ -1349,6 +1351,68 @@ def infer_time_averaging_fidelity_class(
     return "incomplete_time_averaging_evidence"
 
 
+def classify_probe_component_fidelity(
+    *,
+    valid_n: int,
+    failed_n: int,
+    official_probe_coverage_ratio: Optional[float],
+    official_probe_set_gate: str,
+    official_probe_height_gate: str,
+    coordinate_delta_count: int,
+    max_coordinate_delta: Optional[float],
+    probe_grid_extent_gate: str,
+    probe_source_window_gate: str,
+    component_consistency_gate: str,
+    probe_uref_mismatch_count: int,
+    normalization_values: List[bool],
+    wind_values: List[bool],
+    component_normalization_gate: str,
+    component_sensitivity_gate: str,
+    normalization_scale_gate: str,
+    streamwise_sign_gate: str,
+    component_source_window_gate: str,
+) -> str:
+    official_closed = (
+        valid_n > 0
+        and failed_n == 0
+        and official_probe_coverage_ratio is not None
+        and abs(official_probe_coverage_ratio - 1.0) <= 1.0e-12
+        and str(official_probe_set_gate or "").strip().lower() == "pass"
+        and str(official_probe_height_gate or "").strip().lower() == "pass"
+        and coordinate_delta_count == valid_n
+        and max_coordinate_delta is not None
+        and max_coordinate_delta <= 1.0e-6
+    )
+    projection_closed = str(probe_grid_extent_gate or "").strip().lower() == "pass"
+    source_window_closed = str(probe_source_window_gate or "").strip().lower() == "pass"
+    component_closed = (
+        str(component_consistency_gate or "").strip().lower() == "pass"
+        and probe_uref_mismatch_count == 0
+        and bool(normalization_values)
+        and bool(wind_values)
+        and all(normalization_values)
+        and all(wind_values)
+        and str(component_normalization_gate or "").strip().lower() == "pass"
+        and str(component_sensitivity_gate or "").strip().lower() == "pass"
+        and str(normalization_scale_gate or "").strip().lower() == "pass"
+        and str(streamwise_sign_gate or "").strip().lower() == "pass"
+    )
+    component_window_closed = str(component_source_window_gate or "").strip().lower() == "pass"
+    if official_closed and projection_closed and source_window_closed and component_closed and component_window_closed:
+        return "paper_grade_probe_component_normalization"
+    if valid_n <= 0:
+        return "missing_probe_or_official_evidence"
+    if not official_closed:
+        return "official_probe_coordinate_mismatch"
+    if not projection_closed:
+        return "probe_projection_mismatch"
+    if not source_window_closed or not component_window_closed:
+        return "stale_or_untraceable_probe_component_window"
+    if not component_closed:
+        return "component_or_normalization_mismatch"
+    return "incomplete_probe_component_evidence"
+
+
 def main() -> int:
     args = parse_args()
     probe_path = Path(args.probe_audit).resolve()
@@ -1741,6 +1805,26 @@ def main() -> int:
         if not protocol_failures
         else ";".join(protocol_failures)
     )
+    probe_component_fidelity_class = classify_probe_component_fidelity(
+        valid_n=valid_n,
+        failed_n=failed,
+        official_probe_coverage_ratio=official_probe_coverage_ratio,
+        official_probe_set_gate=official_probe_set_gate,
+        official_probe_height_gate=official_probe_height_gate,
+        coordinate_delta_count=coordinate_delta_count,
+        max_coordinate_delta=max_coordinate_delta,
+        probe_grid_extent_gate=probe_grid_extent_gate,
+        probe_source_window_gate=probe_source_window_gate,
+        component_consistency_gate=component_consistency_gate,
+        probe_uref_mismatch_count=probe_uref_mismatch_count,
+        normalization_values=normalization_values,
+        wind_values=wind_values,
+        component_normalization_gate=audit_gate(component_sensitivity_audit, "component_normalization_gate"),
+        component_sensitivity_gate=audit_gate(component_sensitivity_audit, "component_sensitivity_gate"),
+        normalization_scale_gate=audit_gate(component_sensitivity_audit, "normalization_scale_gate"),
+        streamwise_sign_gate=audit_gate(component_sensitivity_audit, "streamwise_sign_gate"),
+        component_source_window_gate=audit_gate(component_sensitivity_audit, "component_source_window_gate"),
+    )
 
     boundary_audit = metadata.get("BoundaryProtocolAudit") if isinstance(metadata.get("BoundaryProtocolAudit"), dict) else {}
     blockage_audit = boundary_audit.get("BlockageDiagnostics") if isinstance(boundary_audit.get("BlockageDiagnostics"), dict) else {}
@@ -2004,6 +2088,7 @@ def main() -> int:
             "normalization_valid": csv_bool(normalization_gate_value),
             "velocity_component": compared_component,
             "compared_component_consistency_gate": component_consistency_gate,
+            "probe_component_fidelity_class": probe_component_fidelity_class,
             "compared_component_unique_values": ";".join(unique_compared_components),
             "wind_vector": vector_field(metadata, "WindDirectionUnitVector", "WindDirection", "wind_vector"),
             "wind_direction_valid": csv_bool(wind_gate_value),
@@ -2918,6 +3003,9 @@ def main() -> int:
             ),
             "native_probe_component_equivalence_gate_reasons": audit_field(
                 native_preconditions_audit, "native_probe_component_equivalence_gate_reasons_csv"
+            ),
+            "native_probe_component_fidelity_class": audit_field(
+                native_preconditions_audit, "probe_component_fidelity_class"
             ),
             "native_probe_official_height_gate": audit_gate(
                 native_preconditions_audit, "probe_official_height_gate"

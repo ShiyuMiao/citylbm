@@ -82,6 +82,7 @@ def passing_native_audit():
         "component_sensitivity_probe_audit_sha256_matches_current": True,
         "component_sensitivity_official_sha256_matches_current": True,
         "component_sensitivity_hash_traceability_gate": "pass",
+        "probe_component_fidelity_class": "paper_grade_probe_component_normalization",
     }
 
 
@@ -144,6 +145,7 @@ def main() -> int:
     bad["official_z_mismatch_count"] = 1
     bad["probe_official_height_gate"] = "fail"
     bad["probe_official_height_gate_reasons_csv"] = "official_z_mismatch_count:1"
+    bad["probe_component_fidelity_class"] = "probe_projection_mismatch"
     failed = module.native_probe_component_traceability_status(
         bad,
         min_avg_step_span=20000,
@@ -163,6 +165,7 @@ def main() -> int:
         "streamwise_sign_gate_not_pass:fail",
         "component_sensitivity_probe_audit_sha256_matches_current_not_true:False",
         "component_sensitivity_hash_traceability_gate_not_pass:fail",
+        "probe_component_fidelity_class_not_paper_grade:probe_projection_mismatch",
         "official_probe_set_gate_not_pass:fail",
         "official_z_mismatch_count_not_zero:1",
         "probe_official_height_gate_not_pass:fail",
