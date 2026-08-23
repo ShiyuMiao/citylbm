@@ -453,6 +453,17 @@ def main() -> int:
     if synthetic_only_closure["failed_stage_keys"] != ["turbulent_inlet_method_and_u_k_preservation"]:
         raise AssertionError(synthetic_only_closure)
 
+    actual_vtk_only_closure = module.build_native_precondition_closure(
+        [
+            "actual_vtk_output_reason:actual_vtk_frame_count_1_below_minimum_40",
+            "native_runner_reason:actual_vtk_frame_count_1_does_not_match_expected_40",
+        ]
+    )
+    if actual_vtk_only_closure["top_blocking_stage_key"] != "time_averaging_stationarity":
+        raise AssertionError(actual_vtk_only_closure)
+    if actual_vtk_only_closure["failed_stage_keys"] != ["time_averaging_stationarity"]:
+        raise AssertionError(actual_vtk_only_closure)
+
     prescription = module.build_native_rerun_prescription(
         priorities,
         closure,

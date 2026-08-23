@@ -136,6 +136,8 @@ def main() -> int:
             raise AssertionError(dry["PlannedSyntheticInletSamplingGate"])
         if dry["PlannedSyntheticInletSamplingGate"]["ComputedRefreshCount"] != 390:
             raise AssertionError(dry["PlannedSyntheticInletSamplingGate"])
+        if dry["ActualVtkOutputGate"]["Gate"] != "not_applicable":
+            raise AssertionError(dry["ActualVtkOutputGate"])
         if dry["Install"]["Performed"] is not False:
             raise AssertionError(dry["Install"])
         if (source_root / "src" / "setup.cpp").read_text(encoding="utf-8") != "// original native setup\n":
@@ -267,6 +269,44 @@ def main() -> int:
             raise AssertionError(slow_refresh["PlannedSyntheticInletSamplingGate"])
         if "planned_stg_refresh_count_78_below_minimum_200" not in slow_refresh["RunnerGate"]["Reasons"]:
             raise AssertionError(slow_refresh["RunnerGate"])
+
+        partial_output = temp / "partial_output"
+        write(partial_output / "u-000001000.vtk", "# vtk DataFile Version 3.0\nsmoke\n")
+        partial_output_manifest = temp / "partial_output_manifest" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(case_dir),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(partial_output_manifest),
+                "--baseline-id",
+                "smoke-casea-native-partial-output",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+                "--output-dir",
+                str(partial_output),
+            ],
+            expected_returncode=2,
+        )
+        partial_output_result = load_json(partial_output_manifest)
+        if partial_output_result["ActualVtkOutputGate"]["Gate"] != "diagnostic_only":
+            raise AssertionError(partial_output_result["ActualVtkOutputGate"])
+        if "actual_vtk_frame_count_1_below_minimum_40" not in partial_output_result["RunnerGate"]["Reasons"]:
+            raise AssertionError(partial_output_result["RunnerGate"])
+        if "actual_vtk_frame_count_1_does_not_match_expected_40" not in partial_output_result["RunnerGate"]["Reasons"]:
+            raise AssertionError(partial_output_result["RunnerGate"])
 
         missing_protocol_case = temp / "missing_protocol_case"
         create_case(missing_protocol_case)

@@ -485,6 +485,44 @@ def audit_planned_vtk_schedule(
     }
 
 
+def audit_actual_vtk_output(
+    vtk_records: Sequence[Dict[str, Any]],
+    expected_frame_count: Optional[int],
+    min_frames: int,
+    require_actual_output: bool,
+) -> Dict[str, Any]:
+    reasons: List[str] = []
+    actual_count = len(vtk_records)
+    if not require_actual_output:
+        return {
+            "Gate": "not_applicable",
+            "Reasons": [],
+            "ReasonsCsv": "",
+            "ActualFrameCount": actual_count,
+            "ExpectedFrameCount": expected_frame_count,
+            "MinimumFrameCount": min_frames,
+            "ActualOutputRequired": False,
+        }
+
+    if actual_count <= 0:
+        reasons.append("actual_vtk_output_missing")
+    if actual_count < min_frames:
+        reasons.append(f"actual_vtk_frame_count_{actual_count}_below_minimum_{min_frames}")
+    if expected_frame_count is not None and actual_count != expected_frame_count:
+        reasons.append(
+            f"actual_vtk_frame_count_{actual_count}_does_not_match_expected_{expected_frame_count}"
+        )
+    return {
+        "Gate": "pass" if not reasons else "diagnostic_only",
+        "Reasons": reasons,
+        "ReasonsCsv": ";".join(reasons),
+        "ActualFrameCount": actual_count,
+        "ExpectedFrameCount": expected_frame_count,
+        "MinimumFrameCount": min_frames,
+        "ActualOutputRequired": True,
+    }
+
+
 def audit_planned_synthetic_inlet_sampling(
     metadata: Dict[str, Any],
     final_window_step_span: Optional[int],
@@ -655,6 +693,14 @@ def main() -> int:
     )
     if vtk_schedule["Gate"] != "pass":
         reasons.extend(str(reason) for reason in vtk_schedule["Reasons"])
+    actual_vtk_output = audit_actual_vtk_output(
+        vtk_records,
+        vtk_schedule["ComputedFrameCount"],
+        args.min_vtk_frames,
+        args.run or bool(args.output_dir.strip()),
+    )
+    if actual_vtk_output["Gate"] == "diagnostic_only":
+        reasons.extend(str(reason) for reason in actual_vtk_output["Reasons"])
     synthetic_sampling = audit_planned_synthetic_inlet_sampling(
         metadata,
         vtk_schedule["FinalWindowStepSpan"],
@@ -699,6 +745,7 @@ def main() -> int:
             "VtkPattern": args.vtk_pattern,
         },
         "PlannedVtkScheduleGate": vtk_schedule,
+        "ActualVtkOutputGate": actual_vtk_output,
         "PlannedSyntheticInletSamplingGate": synthetic_sampling,
         "OutputDir": str(output_dir),
         "VtkPattern": args.vtk_pattern,

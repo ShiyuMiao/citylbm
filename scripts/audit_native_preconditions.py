@@ -183,7 +183,10 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
                 "time",
                 "step_span",
                 "step_spacing",
+                "frame_count",
                 "average",
+                "actual_vtk",
+                "vtk_output",
                 "vtk_hash",
                 "fresh",
                 "freshness",
@@ -319,7 +322,10 @@ def build_native_precondition_closure(reasons: List[str]) -> Dict[str, Any]:
                 "time",
                 "step_span",
                 "step_spacing",
+                "frame_count",
                 "average",
+                "actual_vtk",
+                "vtk_output",
                 "vtk_hash",
                 "fresh",
                 "freshness",
@@ -1807,6 +1813,34 @@ def main() -> int:
         reasons.append("planned_vtk_frame_count_below_minimum")
         reasons.append(planned_frame_shortfall_reason)
 
+    native_runner_gate_record = manifest.get("RunnerGate", {})
+    if not isinstance(native_runner_gate_record, dict):
+        native_runner_gate_record = {}
+    native_runner_gate = str(native_runner_gate_record.get("Gate") or "").strip().lower()
+    native_runner_reasons = split_scalar_list(native_runner_gate_record.get("Reasons"))
+    if not native_runner_reasons:
+        native_runner_reasons = split_scalar_list(native_runner_gate_record.get("ReasonsCsv"))
+    if manifest and native_runner_gate != "pass":
+        reasons.append(f"native_runner_gate_not_pass:{native_runner_gate or 'missing'}")
+        for reason in native_runner_reasons:
+            reasons.append(f"native_runner_reason:{reason}")
+
+    actual_vtk_output = manifest.get("ActualVtkOutputGate", {})
+    if not isinstance(actual_vtk_output, dict):
+        actual_vtk_output = {}
+    actual_vtk_output_gate = str(actual_vtk_output.get("Gate") or "").strip().lower()
+    actual_vtk_output_reasons = split_scalar_list(actual_vtk_output.get("Reasons"))
+    if not actual_vtk_output_reasons:
+        actual_vtk_output_reasons = split_scalar_list(actual_vtk_output.get("ReasonsCsv"))
+    actual_vtk_frame_count = as_int(actual_vtk_output.get("ActualFrameCount"))
+    actual_vtk_expected_frame_count = as_int(actual_vtk_output.get("ExpectedFrameCount"))
+    actual_vtk_minimum_frame_count = as_int(actual_vtk_output.get("MinimumFrameCount"))
+    actual_vtk_output_required = as_bool(actual_vtk_output.get("ActualOutputRequired"))
+    if actual_vtk_output and actual_vtk_output_gate == "diagnostic_only":
+        reasons.append("actual_vtk_output_gate_not_pass")
+        for reason in actual_vtk_output_reasons:
+            reasons.append(f"actual_vtk_output_reason:{reason}")
+
     synthetic_sampling = manifest.get("PlannedSyntheticInletSamplingGate", {})
     if not isinstance(synthetic_sampling, dict):
         synthetic_sampling = {}
@@ -2934,6 +2968,16 @@ def main() -> int:
         "native_preconditions_time_average_evidence_gate": time_average_gate,
         "native_preconditions_time_average_evidence_gate_reasons": time_average_evidence_reasons,
         "native_preconditions_time_average_evidence_gate_reasons_csv": ";".join(time_average_evidence_reasons),
+        "native_runner_gate": native_runner_gate,
+        "native_runner_gate_reasons": native_runner_reasons,
+        "native_runner_gate_reasons_csv": ";".join(native_runner_reasons),
+        "actual_vtk_output_gate": actual_vtk_output_gate,
+        "actual_vtk_output_gate_reasons": actual_vtk_output_reasons,
+        "actual_vtk_output_gate_reasons_csv": ";".join(actual_vtk_output_reasons),
+        "actual_vtk_output_required": actual_vtk_output_required,
+        "actual_vtk_frame_count": actual_vtk_frame_count,
+        "actual_vtk_expected_frame_count": actual_vtk_expected_frame_count,
+        "actual_vtk_minimum_frame_count": actual_vtk_minimum_frame_count,
         "planned_synthetic_inlet_sampling_gate": planned_synthetic_gate,
         "planned_synthetic_inlet_sampling_gate_reasons": planned_synthetic_reasons,
         "planned_synthetic_inlet_sampling_gate_reasons_csv": ";".join(planned_synthetic_reasons),
