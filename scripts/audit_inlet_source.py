@@ -535,23 +535,31 @@ def main() -> int:
             "synthetic_eddy_lz_cells",
         ],
     )
-    reynolds_stress_tensor_tokens = [
-        "reynolds_stress_tensor",
-        "reynoldsStressTensor",
-        "profile_r11_lbm",
-        "profile_r22_lbm",
-        "profile_r33_lbm",
-        "r11_profile",
-        "r22_profile",
-        "r33_profile",
-        "R11",
-        "R22",
-        "R33",
+    reynolds_stress_diagonal_patterns = [
+        r"\b(profile_r11_lbm|r11_profile|R11)\b",
+        r"\b(profile_r22_lbm|r22_profile|R22)\b",
+        r"\b(profile_r33_lbm|r33_profile|R33)\b",
     ]
+    reynolds_stress_offdiagonal_patterns = [
+        r"\b(profile_r12_lbm|r12_profile|R12)\b",
+        r"\b(profile_r13_lbm|r13_profile|R13)\b",
+        r"\b(profile_r23_lbm|r23_profile|R23)\b",
+    ]
+    has_reynolds_stress_diagonal_source_evidence = all(
+        has_regex(implementation_source, pattern) for pattern in reynolds_stress_diagonal_patterns
+    )
+    has_reynolds_stress_offdiagonal_source_evidence = all(
+        has_regex(implementation_source, pattern) for pattern in reynolds_stress_offdiagonal_patterns
+    )
+    has_reynolds_stress_full_tensor_source_evidence = (
+        has_reynolds_stress_diagonal_source_evidence and has_reynolds_stress_offdiagonal_source_evidence
+    )
+    has_reynolds_stress_tensor_metadata_claim = contains_any(
+        metadata_reynolds_stress_treatment,
+        ["full_tensor", "reynolds_stress_tensor", "r11", "r22", "r33"],
+    )
     has_reynolds_stress_tensor_evidence = (
-        has_precursor_recycling_field
-        or contains_any(implementation_source, reynolds_stress_tensor_tokens)
-        or contains_any(metadata_reynolds_stress_treatment, ["full_tensor", "reynolds_stress_tensor", "r11"])
+        has_precursor_recycling_field or has_reynolds_stress_diagonal_source_evidence
     )
     has_documented_isotropic_k_assumption = contains_any(
         " ".join([implementation_source, metadata_reynolds_stress_treatment]),
@@ -832,6 +840,8 @@ def main() -> int:
         reasons.append("advanced_inlet_method_missing_distribution_evidence")
     if source_method_class == "named_method_without_precursor_recycling_field_evidence":
         reasons.append("precursor_recycling_method_missing_recycled_field_evidence")
+    if has_reynolds_stress_tensor_metadata_claim and not has_reynolds_stress_tensor_evidence:
+        reasons.append("metadata_claims_reynolds_stress_without_source_evidence")
 
     source_gate = "pass" if not reasons else "fail"
     paper_gate_reasons: List[str] = []
@@ -923,6 +933,10 @@ def main() -> int:
         "metadata_length_scale_gate": metadata_length_scale_gate,
         "has_inlet_length_scale_evidence": has_inlet_length_scale_evidence,
         "metadata_reynolds_stress_treatment": metadata_reynolds_stress_treatment,
+        "has_reynolds_stress_tensor_metadata_claim": has_reynolds_stress_tensor_metadata_claim,
+        "has_reynolds_stress_diagonal_source_evidence": has_reynolds_stress_diagonal_source_evidence,
+        "has_reynolds_stress_offdiagonal_source_evidence": has_reynolds_stress_offdiagonal_source_evidence,
+        "has_reynolds_stress_full_tensor_source_evidence": has_reynolds_stress_full_tensor_source_evidence,
         "has_reynolds_stress_tensor_evidence": has_reynolds_stress_tensor_evidence,
         "has_documented_isotropic_k_assumption": has_documented_isotropic_k_assumption,
         "reynolds_stress_treatment": reynolds_stress_treatment,

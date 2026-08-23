@@ -241,6 +241,10 @@ TEMPLATE_FIELDS = [
     "inlet_source_inlet_distribution_reconstruction_count",
     "inlet_source_has_inlet_length_scale_evidence",
     "inlet_source_metadata_length_scale_gate",
+    "inlet_source_has_reynolds_stress_tensor_metadata_claim",
+    "inlet_source_has_reynolds_stress_diagonal_source_evidence",
+    "inlet_source_has_reynolds_stress_offdiagonal_source_evidence",
+    "inlet_source_has_reynolds_stress_full_tensor_source_evidence",
     "inlet_source_has_reynolds_stress_tensor_evidence",
     "inlet_source_has_documented_isotropic_k_assumption",
     "inlet_source_reynolds_stress_treatment",
@@ -409,6 +413,10 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_distribution_route_gate",
     "native_inlet_source_has_equilibrium_boundaries_define",
     "native_inlet_source_has_type_e_equilibrium_boundary_route",
+    "native_inlet_source_has_reynolds_stress_tensor_metadata_claim",
+    "native_inlet_source_has_reynolds_stress_diagonal_source_evidence",
+    "native_inlet_source_has_reynolds_stress_offdiagonal_source_evidence",
+    "native_inlet_source_has_reynolds_stress_full_tensor_source_evidence",
     "native_inlet_source_has_three_component_velocity_write",
     "native_inlet_source_has_three_component_fluctuation_evidence",
     "native_inlet_source_has_k_driven_three_component_stg",
@@ -2030,6 +2038,18 @@ def main() -> int:
             "inlet_source_metadata_length_scale_gate": audit_field(
                 inlet_source_audit, "metadata_length_scale_gate"
             ),
+            "inlet_source_has_reynolds_stress_tensor_metadata_claim": first_bool_text(
+                inlet_source_audit.get("has_reynolds_stress_tensor_metadata_claim")
+            ),
+            "inlet_source_has_reynolds_stress_diagonal_source_evidence": first_bool_text(
+                inlet_source_audit.get("has_reynolds_stress_diagonal_source_evidence")
+            ),
+            "inlet_source_has_reynolds_stress_offdiagonal_source_evidence": first_bool_text(
+                inlet_source_audit.get("has_reynolds_stress_offdiagonal_source_evidence")
+            ),
+            "inlet_source_has_reynolds_stress_full_tensor_source_evidence": first_bool_text(
+                inlet_source_audit.get("has_reynolds_stress_full_tensor_source_evidence")
+            ),
             "inlet_source_has_reynolds_stress_tensor_evidence": first_bool_text(
                 inlet_source_audit.get("has_reynolds_stress_tensor_evidence")
             ),
@@ -2373,6 +2393,18 @@ def main() -> int:
             ),
             "native_inlet_source_has_type_e_equilibrium_boundary_route": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_type_e_equilibrium_boundary_route")
+            ),
+            "native_inlet_source_has_reynolds_stress_tensor_metadata_claim": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_reynolds_stress_tensor_metadata_claim")
+            ),
+            "native_inlet_source_has_reynolds_stress_diagonal_source_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_reynolds_stress_diagonal_source_evidence")
+            ),
+            "native_inlet_source_has_reynolds_stress_offdiagonal_source_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_reynolds_stress_offdiagonal_source_evidence")
+            ),
+            "native_inlet_source_has_reynolds_stress_full_tensor_source_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_reynolds_stress_full_tensor_source_evidence")
             ),
             "native_inlet_source_has_three_component_velocity_write": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_three_component_velocity_write")

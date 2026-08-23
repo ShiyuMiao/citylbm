@@ -1965,6 +1965,18 @@ def main() -> int:
     inlet_has_type_e_equilibrium_boundary_route = as_bool(
         inlet_source_audit.get("has_type_e_equilibrium_boundary_route")
     )
+    inlet_has_reynolds_metadata_claim = as_bool(
+        inlet_source_audit.get("has_reynolds_stress_tensor_metadata_claim")
+    )
+    inlet_has_reynolds_diagonal_source = as_bool(
+        inlet_source_audit.get("has_reynolds_stress_diagonal_source_evidence")
+    )
+    inlet_has_reynolds_offdiagonal_source = as_bool(
+        inlet_source_audit.get("has_reynolds_stress_offdiagonal_source_evidence")
+    )
+    inlet_has_reynolds_full_tensor_source = as_bool(
+        inlet_source_audit.get("has_reynolds_stress_full_tensor_source_evidence")
+    )
     inlet_has_uncorrelated_random = as_bool(inlet_source_audit.get("has_uncorrelated_random_inlet"))
     inlet_uncorrelated_random_patterns = split_scalar_list(
         inlet_source_audit.get("uncorrelated_random_inlet_patterns")
@@ -2865,6 +2877,10 @@ def main() -> int:
         "inlet_source_distribution_route_gate": inlet_distribution_route_gate,
         "inlet_source_has_equilibrium_boundaries_define": inlet_has_equilibrium_boundaries_define,
         "inlet_source_has_type_e_equilibrium_boundary_route": inlet_has_type_e_equilibrium_boundary_route,
+        "inlet_source_has_reynolds_stress_tensor_metadata_claim": inlet_has_reynolds_metadata_claim,
+        "inlet_source_has_reynolds_stress_diagonal_source_evidence": inlet_has_reynolds_diagonal_source,
+        "inlet_source_has_reynolds_stress_offdiagonal_source_evidence": inlet_has_reynolds_offdiagonal_source,
+        "inlet_source_has_reynolds_stress_full_tensor_source_evidence": inlet_has_reynolds_full_tensor_source,
         "inlet_source_has_uncorrelated_random_inlet": inlet_has_uncorrelated_random,
         "inlet_source_uncorrelated_random_patterns": inlet_uncorrelated_random_patterns,
         "inlet_source_uncorrelated_random_patterns_csv": ";".join(inlet_uncorrelated_random_patterns),

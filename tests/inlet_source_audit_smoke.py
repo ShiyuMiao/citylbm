@@ -726,6 +726,68 @@ void applySyntheticTurbulentInlet(uint t_step) {
         if "source_not_distribution_consistent" not in sem_no_write_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(sem_no_write_report["paper_grade_inlet_source_gate_reasons"])
 
+        metadata_claim_only = root / "case_metadata_full_tensor_claim_only.json"
+        write_text(
+            metadata_claim_only,
+            json.dumps(
+                {
+                    "SyntheticTurbulentInletMethod": "synthetic-eddy",
+                    "SyntheticTurbulentInletDistributionTreatment": "synthetic_eddy_distribution_consistent",
+                    "PaperGradeInletMethodClass": "synthetic_eddy_distribution_consistent",
+                    "InletReynoldsStressTreatment": "full_tensor_or_precursor_evidence",
+                    "SyntheticEddy": {"Enabled": True},
+                },
+                indent=2,
+            ),
+        )
+        sem_metadata_claim_only_setup = root / "sem_metadata_claim_only_setup.cpp"
+        sem_metadata_claim_only_out = root / "sem_metadata_claim_only_audit.json"
+        write_text(
+            sem_metadata_claim_only_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float synthetic_eddy_length_scale = 4.0f;
+const float profile_origin_z_m = 0.0f;
+struct SemEddy { float eddy_center; float eddy_radius; float eddy_strength; float eddy_lifetime; };
+SemEddy sem_eddy[64];
+void sem_distribution(uint t_step) {}
+float calculate_f_eq(uint q, float rho, float ux, float uy, float uz) { return rho + ux + uy + uz + q; }
+void reconstructSyntheticEddyInletDistributions(uint n) {
+    if(flags[n]==TYPE_E) {
+        const float ux = profile_u_lbm[0];
+        for(uint q=0u; q<19u; q++) {
+            lbm.f[n*19u+q] = calculate_f_eq(q, 1.0f, ux, 0.0f, 0.0f);
+        }
+    }
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    sem_distribution(t_step);
+    reconstructSyntheticEddyInletDistributions(0u);
+}
+""",
+        )
+        sem_metadata_claim_only_code, sem_metadata_claim_only_report = run_audit(
+            sem_metadata_claim_only_setup,
+            metadata_claim_only,
+            sem_metadata_claim_only_out,
+        )
+        if sem_metadata_claim_only_code == 0:
+            raise AssertionError("metadata-only Reynolds stress claim unexpectedly passed")
+        if not sem_metadata_claim_only_report["has_reynolds_stress_tensor_metadata_claim"]:
+            raise AssertionError(sem_metadata_claim_only_report)
+        if sem_metadata_claim_only_report["has_reynolds_stress_tensor_evidence"]:
+            raise AssertionError(sem_metadata_claim_only_report)
+        if "metadata_claims_reynolds_stress_without_source_evidence" not in sem_metadata_claim_only_report[
+            "inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(sem_metadata_claim_only_report["inlet_source_gate_reasons"])
+        if "source_missing_reynolds_stress_tensor_evidence" not in sem_metadata_claim_only_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(sem_metadata_claim_only_report["paper_grade_inlet_source_gate_reasons"])
+
         sem_setup = root / "sem_setup.cpp"
         sem_out = root / "sem_audit.json"
         write_text(
