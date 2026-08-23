@@ -102,7 +102,9 @@ def main() -> int:
             raise AssertionError(report)
         for field in [
             "time_averaging_fidelity_class",
+            "native_preconditions_strict_native_run_gate",
             "probe_component_fidelity_class",
+            "streamwise_sign_gate",
             "synthetic_temporal_sampling_gate",
             "synthetic_expected_final_window_refresh_count",
             "inlet_source_has_k_driven_three_component_stg",
@@ -129,6 +131,26 @@ def main() -> int:
             raise AssertionError(legacy_status)
         if "critical_parity_field_gate_not_pass:missing" not in legacy_status["reasons"]:
             raise AssertionError(legacy_status)
+
+        stale_report = dict(report)
+        stale_required = [
+            field
+            for field in stale_report["required_critical_fields"]
+            if field not in {"native_preconditions_strict_native_run_gate", "streamwise_sign_gate"}
+        ]
+        stale_report["required_critical_fields"] = stale_required
+        stale_report["required_critical_field_count"] = len(stale_required)
+        stale_report["matched_critical_fields"] = stale_required
+        stale_report["matched_critical_field_count"] = len(stale_required)
+        stale_report["missing_critical_fields"] = []
+        stale_status = gate_module.native_citylbm_parity_critical_status(stale_report)
+        if stale_status["ok"]:
+            raise AssertionError(stale_status)
+        if not any(
+            reason.startswith("required_critical_fields_omit_current:")
+            for reason in stale_status["reasons"]
+        ):
+            raise AssertionError(stale_status)
 
         bad_native = tmp_path / "native_missing_synthetic_gate.csv"
         bad_out = tmp_path / "bad_native_citylbm_parity_audit.json"

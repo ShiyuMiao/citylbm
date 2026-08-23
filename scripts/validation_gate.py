@@ -3094,12 +3094,24 @@ def native_citylbm_parity_critical_status(
     if declared_gate != "pass":
         reasons.append(f"critical_parity_field_gate_not_pass:{declared_gate or 'missing'}")
 
-    required_fields = as_string_list(
+    declared_required_fields = as_string_list(
         get_any(native_citylbm_parity_audit, ["required_critical_fields"])
     )
-    if not required_fields:
-        required_fields = list(NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS)
+    if not declared_required_fields:
         reasons.append("required_critical_fields_missing")
+    omitted_current_fields = [
+        field
+        for field in NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS
+        if field not in declared_required_fields
+    ]
+    if omitted_current_fields and declared_required_fields:
+        reasons.append(
+            "required_critical_fields_omit_current:"
+            + ",".join(omitted_current_fields)
+        )
+    required_fields = list(
+        dict.fromkeys(declared_required_fields + list(NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS))
+    )
     missing_declared = as_string_list(
         get_any(native_citylbm_parity_audit, ["missing_critical_fields"])
     )

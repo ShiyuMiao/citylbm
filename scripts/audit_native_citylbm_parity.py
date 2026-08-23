@@ -60,6 +60,7 @@ TEXT_FIELDS = [
 ]
 
 GATE_FIELDS = [
+    "native_preconditions_strict_native_run_gate",
     "requested_vtk_frame_gate",
     "run_freshness_gate",
     "time_averaging_gate",
@@ -95,6 +96,7 @@ GATE_FIELDS = [
     "component_normalization_gate",
     "component_sensitivity_gate",
     "normalization_scale_gate",
+    "streamwise_sign_gate",
     "synthetic_temporal_sampling_gate",
 ]
 
@@ -186,6 +188,7 @@ CRITICAL_PARITY_FIELDS = [
     "boundary_source_fidelity_class",
     "boundary_source_has_complete_wind_tunnel_evidence",
     "boundary_source_has_empty_advanced_method_stub_only",
+    "native_preconditions_strict_native_run_gate",
     "requested_vtk_frame_gate",
     "run_freshness_gate",
     "time_averaging_gate",
@@ -220,6 +223,7 @@ CRITICAL_PARITY_FIELDS = [
     "component_normalization_gate",
     "component_sensitivity_gate",
     "normalization_scale_gate",
+    "streamwise_sign_gate",
     "synthetic_temporal_sampling_gate",
     "synthetic_mode_count",
     "synthetic_update_interval",
