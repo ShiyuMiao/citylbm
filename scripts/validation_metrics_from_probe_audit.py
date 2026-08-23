@@ -367,6 +367,22 @@ TEMPLATE_FIELDS = [
     "native_preconditions_strict_native_run_gate_reasons",
     "native_preconditions_time_average_evidence_gate",
     "native_preconditions_time_average_evidence_gate_reasons",
+    "native_preconditions_lbm_stability_gate",
+    "native_preconditions_lbm_stability_gate_reasons",
+    "native_preconditions_target_max_profile_velocity_lbm",
+    "native_preconditions_estimated_max_profile_mach",
+    "native_preconditions_max_estimated_mach_threshold",
+    "native_preconditions_lbm_tau",
+    "native_preconditions_min_lbm_tau_threshold",
+    "native_preconditions_max_lbm_tau_threshold",
+    "native_preconditions_lbm_nu",
+    "native_preconditions_physical_viscosity_m2s",
+    "native_preconditions_estimated_reynolds_number",
+    "native_preconditions_velocity_set",
+    "native_preconditions_les_model",
+    "native_preconditions_solver_stability_warnings",
+    "native_preconditions_runtime_lbm_stability_gate",
+    "native_preconditions_protocol_lbm_stability_scaling_status",
     "native_preconditions_planned_synthetic_inlet_sampling_gate",
     "native_preconditions_planned_synthetic_inlet_sampling_gate_reasons",
     "native_preconditions_planned_synthetic_inlet_sampling_active",
@@ -2445,6 +2461,55 @@ def main() -> int:
             ),
             "native_preconditions_time_average_evidence_gate_reasons": audit_field(
                 native_preconditions_audit, "native_preconditions_time_average_evidence_gate_reasons_csv"
+            ),
+            "native_preconditions_lbm_stability_gate": audit_gate(
+                native_preconditions_audit, "native_preconditions_lbm_stability_gate"
+            ),
+            "native_preconditions_lbm_stability_gate_reasons": audit_field(
+                native_preconditions_audit, "native_preconditions_lbm_stability_gate_reasons_csv"
+            )
+            or audit_list_field(native_preconditions_audit, "native_preconditions_lbm_stability_gate_reasons"),
+            "native_preconditions_target_max_profile_velocity_lbm": fmt(
+                audit_float(native_preconditions_audit, "native_preconditions_target_max_profile_velocity_lbm")
+            ),
+            "native_preconditions_estimated_max_profile_mach": fmt(
+                audit_float(native_preconditions_audit, "native_preconditions_estimated_max_profile_mach")
+            ),
+            "native_preconditions_max_estimated_mach_threshold": fmt(
+                audit_float(native_preconditions_audit, "native_preconditions_max_estimated_mach_threshold")
+            ),
+            "native_preconditions_lbm_tau": fmt(
+                audit_float(native_preconditions_audit, "native_preconditions_lbm_tau")
+            ),
+            "native_preconditions_min_lbm_tau_threshold": fmt(
+                audit_float(native_preconditions_audit, "native_preconditions_min_lbm_tau_threshold")
+            ),
+            "native_preconditions_max_lbm_tau_threshold": fmt(
+                audit_float(native_preconditions_audit, "native_preconditions_max_lbm_tau_threshold")
+            ),
+            "native_preconditions_lbm_nu": fmt(
+                audit_float(native_preconditions_audit, "native_preconditions_lbm_nu")
+            ),
+            "native_preconditions_physical_viscosity_m2s": fmt(
+                audit_float(native_preconditions_audit, "native_preconditions_physical_viscosity_m2s")
+            ),
+            "native_preconditions_estimated_reynolds_number": fmt(
+                audit_float(native_preconditions_audit, "native_preconditions_estimated_reynolds_number")
+            ),
+            "native_preconditions_velocity_set": audit_field(
+                native_preconditions_audit, "native_preconditions_velocity_set"
+            ),
+            "native_preconditions_les_model": audit_field(
+                native_preconditions_audit, "native_preconditions_les_model"
+            ),
+            "native_preconditions_solver_stability_warnings": audit_field(
+                native_preconditions_audit, "native_preconditions_solver_stability_warnings"
+            ),
+            "native_preconditions_runtime_lbm_stability_gate": audit_field(
+                native_preconditions_audit, "native_preconditions_runtime_lbm_stability_gate"
+            ),
+            "native_preconditions_protocol_lbm_stability_scaling_status": audit_field(
+                native_preconditions_audit, "native_preconditions_protocol_lbm_stability_scaling_status"
             ),
             "native_preconditions_planned_synthetic_inlet_sampling_gate": audit_gate(
                 native_preconditions_audit, "planned_synthetic_inlet_sampling_gate"

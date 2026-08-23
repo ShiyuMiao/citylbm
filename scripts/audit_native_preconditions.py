@@ -110,6 +110,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--average-last-n", type=int, default=40)
     parser.add_argument("--min-avg-frames", type=int, default=40)
     parser.add_argument("--min-avg-step-span", type=int, default=20000)
+    parser.add_argument("--max-estimated-mach", type=float, default=0.20)
+    parser.add_argument("--min-lbm-tau", type=float, default=0.500001)
+    parser.add_argument("--max-lbm-tau", type=float, default=2.0)
     parser.add_argument("--out", required=True, help="Output audit JSON.")
     return parser.parse_args()
 
@@ -177,6 +180,25 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
         ),
         (
             3,
+            "lbm_stability_scaling",
+            [
+                "lbm",
+                "mach",
+                "tau",
+                "nu",
+                "viscosity",
+                "reynolds",
+                "velocity_set",
+                "les",
+                "smagorinsky",
+                "stability",
+                "solver",
+            ],
+            "Native FluidX3D scaling must keep Mach, tau/nu, Reynolds, velocity set, LES model and solver stability logs inside interpretable ranges.",
+            "Fix LBM scaling/runtime statistics before interpreting residual bias or grid effects.",
+        ),
+        (
+            4,
             "time_averaging_stationarity",
             [
                 "runtime",
@@ -198,7 +220,7 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
             "Rerun or re-audit with the required final-window frame count and solver-step span.",
         ),
         (
-            4,
+            5,
             "coordinate_component_normalization",
             [
                 "probe",
@@ -214,7 +236,7 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
             "Fix the probe audit and component/Uref sensitivity audit before interpreting residual bias.",
         ),
         (
-            5,
+            6,
             "systematic_bias_after_prerequisites",
             [
                 "systematic",
@@ -251,7 +273,7 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
     if unmatched:
         priorities.append(
             {
-                "rank": 6,
+                "rank": 7,
                 "key": "other_precondition_evidence",
                 "reason_count": len(unmatched),
                 "reasons": unmatched,
@@ -318,6 +340,24 @@ def build_native_precondition_closure(reasons: List[str]) -> Dict[str, Any]:
         ),
         (
             3,
+            "lbm_stability_scaling",
+            [
+                "lbm",
+                "mach",
+                "tau",
+                "nu",
+                "viscosity",
+                "reynolds",
+                "velocity_set",
+                "les",
+                "smagorinsky",
+                "stability",
+                "solver",
+            ],
+            "Prove LBM Mach/tau/nu/Re, velocity set, LES model and solver log stability.",
+        ),
+        (
+            4,
             "time_averaging_stationarity",
             [
                 "runtime",
@@ -338,7 +378,7 @@ def build_native_precondition_closure(reasons: List[str]) -> Dict[str, Any]:
             "Prove fresh final-window VTK hashes, frame count, uniform spacing and solver-step span.",
         ),
         (
-            4,
+            5,
             "coordinate_component_normalization",
             [
                 "probe",
@@ -353,7 +393,7 @@ def build_native_precondition_closure(reasons: List[str]) -> Dict[str, Any]:
             "Prove RS probe IDs/coordinates, wind sign, compared component and Uref normalization.",
         ),
         (
-            5,
+            6,
             "grid_resolution_and_systematic_bias",
             [
                 "grid",
@@ -446,6 +486,17 @@ def build_native_rerun_prescription(
                 "archive_non_empty_hashed_boundary_support_files",
                 "prove_roughness_fetch_clearance_blockage_outlet_reflection_and_side_top_checks",
                 "run_boundary_runtime_audit_on_the_same_final_vtk_window",
+            ],
+        ),
+        "lbm_stability_scaling": (
+            "native_lbm_stability_scaling_audit_first",
+            [
+                "keep_target_max_profile_velocity_lbm_at_or_below_0.1",
+                "prove_estimated_max_profile_mach_below_threshold",
+                "prove_lbm_tau_and_nu_are_valid",
+                "record_physical_viscosity_and_estimated_reynolds_number",
+                "record_velocity_set_and_les_or_subgrid_model",
+                "archive_solver_log_with_no_stability_warnings",
             ],
         ),
         "time_averaging_stationarity": (
@@ -565,6 +616,86 @@ def audit_protocol_content(
         "reasons": reasons,
         "reasons_csv": ";".join(reasons),
     }
+
+
+def first_value(*values: Any) -> Any:
+    for value in values:
+        if value is not None and value != "":
+            return value
+    return None
+
+
+def protocol_item_status(protocol_content_audit: Dict[str, Any], key: str) -> str:
+    statuses = protocol_content_audit.get("statuses")
+    if isinstance(statuses, dict):
+        return str(statuses.get(key) or "").strip().lower()
+    return ""
+
+
+def build_lbm_stability_reasons(
+    *,
+    target_velocity_lbm: Optional[float],
+    estimated_mach: Optional[float],
+    lbm_tau: Optional[float],
+    lbm_nu: Optional[float],
+    physical_viscosity: Optional[float],
+    estimated_reynolds: Optional[float],
+    velocity_set: str,
+    les_model: str,
+    solver_warnings: str,
+    lbm_stability_gate: str,
+    protocol_status: str,
+    max_estimated_mach: float,
+    min_lbm_tau: float,
+    max_lbm_tau: float,
+) -> List[str]:
+    reasons: List[str] = []
+    if target_velocity_lbm is None:
+        reasons.append("target_max_profile_velocity_lbm_missing")
+    elif target_velocity_lbm > 0.1:
+        reasons.append(f"target_max_profile_velocity_lbm_above_0.1:{target_velocity_lbm}")
+    if estimated_mach is None:
+        reasons.append("estimated_max_profile_mach_missing")
+    elif estimated_mach > max_estimated_mach:
+        reasons.append(f"estimated_max_profile_mach_above_{max_estimated_mach}:{estimated_mach}")
+    if lbm_tau is None:
+        reasons.append("lbm_tau_missing")
+    elif not (min_lbm_tau <= lbm_tau <= max_lbm_tau):
+        reasons.append(f"lbm_tau_outside_{min_lbm_tau}_{max_lbm_tau}:{lbm_tau}")
+    if lbm_nu is None:
+        reasons.append("lbm_nu_missing")
+    elif lbm_nu <= 0.0:
+        reasons.append(f"lbm_nu_not_positive:{lbm_nu}")
+    if physical_viscosity is None:
+        reasons.append("physical_viscosity_m2s_missing")
+    elif physical_viscosity <= 0.0:
+        reasons.append(f"physical_viscosity_m2s_not_positive:{physical_viscosity}")
+    if estimated_reynolds is None:
+        reasons.append("estimated_reynolds_number_missing")
+    elif estimated_reynolds <= 0.0:
+        reasons.append(f"estimated_reynolds_number_not_positive:{estimated_reynolds}")
+    if not str(velocity_set or "").strip():
+        reasons.append("velocity_set_missing")
+    if not str(les_model or "").strip():
+        reasons.append("les_model_missing")
+
+    normalized_warnings = str(solver_warnings or "").strip().lower()
+    if normalized_warnings not in {
+        "none",
+        "no_warnings",
+        "no_stability_warnings",
+        "pass",
+        "solver_log_no_stability_warnings",
+    }:
+        reasons.append(f"solver_stability_warnings_not_clear:{normalized_warnings or 'missing'}")
+
+    normalized_gate = str(lbm_stability_gate or "").strip().lower()
+    if normalized_gate not in {"pass", "solver_log_no_stability_warnings", "runtime_statistics_archived"}:
+        reasons.append(f"runtime_lbm_stability_gate_not_pass:{normalized_gate or 'missing'}")
+
+    if str(protocol_status or "").strip().lower() in {"", "fail"}:
+        reasons.append(f"validation_protocol_lbm_stability_scaling_not_closed:{protocol_status or 'missing'}")
+    return reasons
 
 
 def read_csv_rows(path: Optional[Path]) -> List[Dict[str, str]]:
@@ -1863,6 +1994,110 @@ def main() -> int:
     if not isinstance(shared, dict):
         shared = {}
         reasons.append("shared_run_conditions_missing")
+
+    target_velocity_lbm = as_float(
+        first_value(
+            runtime_audit.get("target_max_profile_velocity_lbm"),
+            runtime_audit.get("TargetMaxProfileVelocityLbm"),
+            metadata.get("TargetMaxProfileVelocityLbm"),
+            shared.get("TargetMaxProfileVelocityLbm"),
+        )
+    )
+    estimated_mach = as_float(
+        first_value(
+            runtime_audit.get("estimated_max_profile_mach"),
+            runtime_audit.get("EstimatedMaxProfileMach"),
+            metadata.get("EstimatedMaxProfileMach"),
+            shared.get("EstimatedMaxProfileMach"),
+        )
+    )
+    lbm_tau = as_float(
+        first_value(
+            runtime_audit.get("lbm_tau"),
+            runtime_audit.get("LbmTau"),
+            metadata.get("LbmTau"),
+            shared.get("LbmTau"),
+        )
+    )
+    lbm_nu = as_float(
+        first_value(
+            runtime_audit.get("lbm_nu"),
+            runtime_audit.get("LbmNu"),
+            metadata.get("LbmNu"),
+            shared.get("LbmNu"),
+        )
+    )
+    physical_viscosity = as_float(
+        first_value(
+            runtime_audit.get("physical_viscosity_m2s"),
+            runtime_audit.get("PhysicalViscosityM2s"),
+            metadata.get("PhysicalViscosityM2s"),
+            shared.get("PhysicalViscosityM2s"),
+        )
+    )
+    estimated_reynolds = as_float(
+        first_value(
+            runtime_audit.get("estimated_reynolds_number"),
+            runtime_audit.get("EstimatedReynoldsNumber"),
+            metadata.get("EstimatedReynoldsNumber"),
+            shared.get("EstimatedReynoldsNumber"),
+        )
+    )
+    velocity_set = str(
+        first_value(
+            runtime_audit.get("velocity_set"),
+            runtime_audit.get("VelocitySet"),
+            metadata.get("VelocitySet"),
+            shared.get("VelocitySet"),
+        )
+        or ""
+    ).strip()
+    les_model = str(
+        first_value(
+            runtime_audit.get("les_model"),
+            runtime_audit.get("LesModel"),
+            metadata.get("LesModel"),
+            shared.get("LesModel"),
+        )
+        or ""
+    ).strip()
+    solver_warnings = str(
+        first_value(
+            runtime_audit.get("solver_stability_warnings"),
+            runtime_audit.get("SolverStabilityWarnings"),
+            shared.get("SolverStabilityWarnings"),
+        )
+        or ""
+    ).strip()
+    lbm_runtime_gate = str(
+        first_value(
+            runtime_audit.get("lbm_stability_gate"),
+            runtime_audit.get("LbmStabilityGate"),
+            shared.get("LbmStabilityGate"),
+        )
+        or ""
+    ).strip().lower()
+    lbm_protocol_status = protocol_item_status(protocol_content_audit, "lbm_stability_scaling")
+    lbm_stability_reasons = build_lbm_stability_reasons(
+        target_velocity_lbm=target_velocity_lbm,
+        estimated_mach=estimated_mach,
+        lbm_tau=lbm_tau,
+        lbm_nu=lbm_nu,
+        physical_viscosity=physical_viscosity,
+        estimated_reynolds=estimated_reynolds,
+        velocity_set=velocity_set,
+        les_model=les_model,
+        solver_warnings=solver_warnings,
+        lbm_stability_gate=lbm_runtime_gate,
+        protocol_status=lbm_protocol_status,
+        max_estimated_mach=args.max_estimated_mach,
+        min_lbm_tau=args.min_lbm_tau,
+        max_lbm_tau=args.max_lbm_tau,
+    )
+    lbm_stability_gate = "pass" if not lbm_stability_reasons else "fail"
+    if lbm_stability_gate != "pass":
+        reasons.append("lbm_stability_gate_not_pass")
+        reasons.extend(f"lbm_stability_reason:{reason}" for reason in lbm_stability_reasons)
 
     metadata_steps = as_int(metadata.get("TimeSteps"))
     metadata_save_interval = as_int(metadata.get("SaveInterval"))
@@ -3193,6 +3428,23 @@ def main() -> int:
         "native_preconditions_time_average_evidence_gate": time_average_gate,
         "native_preconditions_time_average_evidence_gate_reasons": time_average_evidence_reasons,
         "native_preconditions_time_average_evidence_gate_reasons_csv": ";".join(time_average_evidence_reasons),
+        "native_preconditions_lbm_stability_gate": lbm_stability_gate,
+        "native_preconditions_lbm_stability_gate_reasons": lbm_stability_reasons,
+        "native_preconditions_lbm_stability_gate_reasons_csv": ";".join(lbm_stability_reasons),
+        "native_preconditions_target_max_profile_velocity_lbm": target_velocity_lbm,
+        "native_preconditions_estimated_max_profile_mach": estimated_mach,
+        "native_preconditions_max_estimated_mach_threshold": args.max_estimated_mach,
+        "native_preconditions_lbm_tau": lbm_tau,
+        "native_preconditions_min_lbm_tau_threshold": args.min_lbm_tau,
+        "native_preconditions_max_lbm_tau_threshold": args.max_lbm_tau,
+        "native_preconditions_lbm_nu": lbm_nu,
+        "native_preconditions_physical_viscosity_m2s": physical_viscosity,
+        "native_preconditions_estimated_reynolds_number": estimated_reynolds,
+        "native_preconditions_velocity_set": velocity_set,
+        "native_preconditions_les_model": les_model,
+        "native_preconditions_solver_stability_warnings": solver_warnings,
+        "native_preconditions_runtime_lbm_stability_gate": lbm_runtime_gate,
+        "native_preconditions_protocol_lbm_stability_scaling_status": lbm_protocol_status,
         "native_runner_gate": native_runner_gate,
         "native_runner_gate_reasons": native_runner_reasons,
         "native_runner_gate_reasons_csv": ";".join(native_runner_reasons),
@@ -3570,6 +3822,7 @@ def main() -> int:
             "validation_protocol_content",
             "turbulent_inlet_method_and_u_k_preservation",
             "boundary_roughness_blockage",
+            "lbm_stability_scaling",
             "time_averaging_stationarity",
             "coordinate_component_normalization",
             "systematic_bias_after_prerequisites",

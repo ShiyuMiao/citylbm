@@ -486,6 +486,12 @@ The validation gate infers `systematic_bias` directly from `U_bias_ratio` when i
 threshold, even if `systematic_bias_flag` is missing from the metrics row. If `bias_diagnosis` reports
 `scale_like_error`, audit `Uref`, SI/LBM velocity conversion and compared component before changing inlet or boundary
 parameters. If the scaled error remains large, prioritize boundary, roughness and inlet physics.
+The native precondition audit also treats `native_preconditions_lbm_stability_gate` as a hard gate before R2, grid
+sensitivity or residual bias is interpreted. The archived manifest/metadata must prove `target_max_profile_velocity_lbm
+<= 0.1`, estimated maximum Mach below the configured threshold, valid `lbm_tau` and positive `lbm_nu`, recorded physical
+viscosity and estimated Reynolds number, recorded velocity set and LES/subgrid model, no solver stability warnings, and
+`lbm_stability_scaling` closed in the validation protocol audit. A failing item means the run is diagnostic, not a
+native FluidX3D accuracy baseline.
 
 ## Current Blockers
 

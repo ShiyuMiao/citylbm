@@ -132,6 +132,25 @@ def main() -> int:
                         "runtime_average_window_frame_count_4_below_minimum_40;"
                         "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
                     ),
+                    "native_preconditions_lbm_stability_gate": "fail",
+                    "native_preconditions_lbm_stability_gate_reasons_csv": (
+                        "estimated_max_profile_mach_above_0.2:0.24;"
+                        "runtime_lbm_stability_gate_not_pass:fail"
+                    ),
+                    "native_preconditions_target_max_profile_velocity_lbm": 0.12,
+                    "native_preconditions_estimated_max_profile_mach": 0.24,
+                    "native_preconditions_max_estimated_mach_threshold": 0.2,
+                    "native_preconditions_lbm_tau": 0.5,
+                    "native_preconditions_min_lbm_tau_threshold": 0.500001,
+                    "native_preconditions_max_lbm_tau_threshold": 2.0,
+                    "native_preconditions_lbm_nu": 0.0,
+                    "native_preconditions_physical_viscosity_m2s": 1.5e-5,
+                    "native_preconditions_estimated_reynolds_number": 22000,
+                    "native_preconditions_velocity_set": "D3Q19",
+                    "native_preconditions_les_model": "Smagorinsky Cs=0.12",
+                    "native_preconditions_solver_stability_warnings": "nan_detected",
+                    "native_preconditions_runtime_lbm_stability_gate": "fail",
+                    "native_preconditions_protocol_lbm_stability_scaling_status": "partial",
                     "runtime_source_frame_count": 4,
                     "runtime_source_vtk_sha256_count": 4,
                     "runtime_source_vtk_sha256_unique_count": 4,
@@ -369,6 +388,25 @@ def main() -> int:
             "runtime_average_window_frame_count_4_below_minimum_40;"
             "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
         ),
+        "native_preconditions_lbm_stability_gate": "fail",
+        "native_preconditions_lbm_stability_gate_reasons": (
+            "estimated_max_profile_mach_above_0.2:0.24;"
+            "runtime_lbm_stability_gate_not_pass:fail"
+        ),
+        "native_preconditions_target_max_profile_velocity_lbm": "0.12",
+        "native_preconditions_estimated_max_profile_mach": "0.24",
+        "native_preconditions_max_estimated_mach_threshold": "0.2",
+        "native_preconditions_lbm_tau": "0.5",
+        "native_preconditions_min_lbm_tau_threshold": "0.500001",
+        "native_preconditions_max_lbm_tau_threshold": "2",
+        "native_preconditions_lbm_nu": "0",
+        "native_preconditions_physical_viscosity_m2s": "1.5e-05",
+        "native_preconditions_estimated_reynolds_number": "22000",
+        "native_preconditions_velocity_set": "D3Q19",
+        "native_preconditions_les_model": "Smagorinsky Cs=0.12",
+        "native_preconditions_solver_stability_warnings": "nan_detected",
+        "native_preconditions_runtime_lbm_stability_gate": "fail",
+        "native_preconditions_protocol_lbm_stability_scaling_status": "partial",
         "native_preconditions_runtime_source_frame_count": "4",
         "native_preconditions_runtime_source_vtk_sha256_count": "4",
         "native_preconditions_runtime_source_vtk_sha256_unique_count": "4",

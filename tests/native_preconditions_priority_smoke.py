@@ -154,6 +154,55 @@ def main() -> int:
         if expected_reason not in short_time_reasons:
             raise AssertionError((expected_reason, short_time_reasons))
 
+    passing_lbm_reasons = module.build_lbm_stability_reasons(
+        target_velocity_lbm=0.08,
+        estimated_mach=0.14,
+        lbm_tau=0.56,
+        lbm_nu=0.02,
+        physical_viscosity=1.5e-5,
+        estimated_reynolds=22000.0,
+        velocity_set="D3Q19",
+        les_model="Smagorinsky Cs=0.12",
+        solver_warnings="no_stability_warnings",
+        lbm_stability_gate="pass",
+        protocol_status="pass",
+        max_estimated_mach=0.2,
+        min_lbm_tau=0.500001,
+        max_lbm_tau=2.0,
+    )
+    if passing_lbm_reasons:
+        raise AssertionError(passing_lbm_reasons)
+    failing_lbm_reasons = module.build_lbm_stability_reasons(
+        target_velocity_lbm=0.16,
+        estimated_mach=0.24,
+        lbm_tau=0.5,
+        lbm_nu=0.0,
+        physical_viscosity=None,
+        estimated_reynolds=None,
+        velocity_set="",
+        les_model="",
+        solver_warnings="nan_detected",
+        lbm_stability_gate="fail",
+        protocol_status="partial",
+        max_estimated_mach=0.2,
+        min_lbm_tau=0.500001,
+        max_lbm_tau=2.0,
+    )
+    for expected_reason in [
+        "target_max_profile_velocity_lbm_above_0.1:0.16",
+        "estimated_max_profile_mach_above_0.2:0.24",
+        "lbm_tau_outside_0.500001_2.0:0.5",
+        "lbm_nu_not_positive:0.0",
+        "physical_viscosity_m2s_missing",
+        "estimated_reynolds_number_missing",
+        "velocity_set_missing",
+        "les_model_missing",
+        "solver_stability_warnings_not_clear:nan_detected",
+        "runtime_lbm_stability_gate_not_pass:fail",
+    ]:
+        if expected_reason not in failing_lbm_reasons:
+            raise AssertionError((expected_reason, failing_lbm_reasons))
+
     passing_final_window_gate = module.build_final_window_frame_count_gate(
         runtime_avg=40,
         runtime_source_frame_count=40,
@@ -461,6 +510,8 @@ def main() -> int:
         "paper_grade_boundary_source_gate_not_pass",
         "boundary_missing_evidence_field_floor_roughness_source",
         "boundary_required_support_field_outlet_reflection_check_supported_not_supported",
+        "lbm_stability_reason:estimated_max_profile_mach_above_0.2:0.24",
+        "lbm_stability_reason:runtime_lbm_stability_gate_not_pass:fail",
         "inlet_source_velocity_field_only",
         "inlet_source_uses_uncorrelated_random_rms",
         "inlet_source_missing_three_component_fluctuation_evidence",
@@ -472,11 +523,12 @@ def main() -> int:
     expected = [
         "turbulent_inlet_method_and_u_k_preservation",
         "boundary_roughness_blockage",
+        "lbm_stability_scaling",
         "time_averaging_stationarity",
         "coordinate_component_normalization",
         "systematic_bias_after_prerequisites",
     ]
-    if keys[:5] != expected:
+    if keys[:6] != expected:
         raise AssertionError(keys)
 
     top = priorities[0]
@@ -495,6 +547,7 @@ def main() -> int:
     expected_closure_keys = [
         "turbulent_inlet_method_and_u_k_preservation",
         "boundary_roughness_blockage",
+        "lbm_stability_scaling",
         "time_averaging_stationarity",
         "coordinate_component_normalization",
         "grid_resolution_and_systematic_bias",

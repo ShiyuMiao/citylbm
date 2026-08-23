@@ -37,6 +37,12 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   stability warnings. The v0.3.0 machine gate fails paper-grade promotion unless the runtime metrics row records a
   passing stability gate such as `lbm_stability_gate=solver_log_no_stability_warnings` and
   `solver_stability_warnings=none`.
+  The native precondition audit now exposes this as the hard
+  `native_preconditions_lbm_stability_gate`. A paper-grade row must prove
+  `target_max_profile_velocity_lbm <= 0.1`, estimated maximum Mach below the configured threshold, valid `lbm_tau`,
+  positive `lbm_nu`, recorded physical viscosity and estimated Reynolds number, recorded velocity set and LES/subgrid
+  model, no solver stability warnings, and `lbm_stability_scaling` closed in `validation_protocol_audit.json`. If this
+  gate fails, do not interpret R2, grid-sensitivity trends or systematic bias as Case E solver accuracy.
   In v0.3.0, generated cases compute `nu_lbm = nu_SI * velocity_scale_mps_to_lbm / dx` and do not clamp `tau` upward to
   0.55. If `tau` is too close to 0.5, treat that as a stability/protocol issue to solve with grid, velocity-scale,
   LES/subgrid and solver-log evidence, not as a value to hide in case generation.
