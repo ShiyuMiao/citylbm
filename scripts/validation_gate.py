@@ -83,6 +83,7 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "wall_roughness_treatment",
     "boundary_evidence_class",
     "boundary_source_method_class",
+    "native_preconditions_strict_native_run_gate",
     "requested_vtk_frame_gate",
     "run_freshness_gate",
     "time_averaging_gate",
@@ -2771,6 +2772,24 @@ def native_time_averaging_traceability_status(
     ).strip().lower()
     if time_gate != "pass":
         reasons.append(f"native_preconditions_time_average_gate_not_pass:{time_gate or 'missing'}")
+    strict_native_run_gate = str(
+        get_any(
+            native_preconditions_audit,
+            ["strict_native_run_gate", "native_preconditions_strict_native_run_gate"],
+        )
+        or ""
+    ).strip().lower()
+    strict_native_run_reasons = as_string_list(
+        get_any(
+            native_preconditions_audit,
+            ["strict_native_run_gate_reasons", "native_preconditions_strict_native_run_gate_reasons"],
+        )
+    )
+    if strict_native_run_gate != "pass":
+        reasons.append(f"strict_native_run_gate_not_pass:{strict_native_run_gate or 'missing'}")
+    for reason in strict_native_run_reasons:
+        if reason and reason != "native_run_artifacts_pass_strict_evidence_gates":
+            reasons.append(f"strict_native_run_gate_reason_present:{reason}")
 
     planned_frame_count = as_int(
         get_any(native_preconditions_audit, ["planned_frame_count_min"])
@@ -2936,6 +2955,7 @@ def native_time_averaging_traceability_status(
         "runtime_source_step_span": runtime_span,
         "runtime_source_step_span_from_time_steps": runtime_span_from_steps,
         "runtime_final_window_stationarity_gate": runtime_stationarity_gate,
+        "strict_native_run_gate": strict_native_run_gate,
         "runtime_mean_speed_statistics_source": runtime_mean_speed_statistics_source,
         "runtime_mean_speed_statistics_cli_override": runtime_mean_speed_statistics_cli_override,
         "runtime_final_window_mean_speed_drift_ratio": as_float(

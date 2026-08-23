@@ -362,6 +362,8 @@ TEMPLATE_FIELDS = [
     "native_preconditions_gate_reasons",
     "native_preconditions_protocol_identity_gate",
     "native_preconditions_time_average_gate",
+    "native_preconditions_strict_native_run_gate",
+    "native_preconditions_strict_native_run_gate_reasons",
     "native_preconditions_time_average_evidence_gate",
     "native_preconditions_time_average_evidence_gate_reasons",
     "native_preconditions_planned_synthetic_inlet_sampling_gate",
@@ -2391,6 +2393,12 @@ def main() -> int:
             ),
             "native_preconditions_time_average_gate": audit_gate(
                 native_preconditions_audit, "native_preconditions_time_average_gate"
+            ),
+            "native_preconditions_strict_native_run_gate": audit_gate(
+                native_preconditions_audit, "strict_native_run_gate"
+            ),
+            "native_preconditions_strict_native_run_gate_reasons": audit_field(
+                native_preconditions_audit, "strict_native_run_gate_reasons_csv"
             ),
             "native_preconditions_time_average_evidence_gate": audit_gate(
                 native_preconditions_audit, "native_preconditions_time_average_evidence_gate"

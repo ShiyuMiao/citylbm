@@ -122,6 +122,11 @@ def main() -> int:
                 {
                     "native_preconditions_gate": "fail",
                     "native_preconditions_time_average_gate": "fail",
+                    "strict_native_run_gate": "fail",
+                    "strict_native_run_gate_reasons_csv": (
+                        "time_averaging_gate_not_pass:diagnostic_only;"
+                        "final_window_stationarity_gate_not_pass:diagnostic_only"
+                    ),
                     "native_preconditions_time_average_evidence_gate": "fail",
                     "native_preconditions_time_average_evidence_gate_reasons_csv": (
                         "runtime_average_window_frame_count_4_below_minimum_40;"
@@ -426,6 +431,11 @@ def main() -> int:
         "native_preconditions_af_uref_at_zref_mps": "3.928296",
         "native_preconditions_uref_af_profile_delta_mps": "0.001704",
         "native_preconditions_metadata_uref_af_profile_delta_mps": "0.028296",
+        "native_preconditions_strict_native_run_gate": "fail",
+        "native_preconditions_strict_native_run_gate_reasons": (
+            "time_averaging_gate_not_pass:diagnostic_only;"
+            "final_window_stationarity_gate_not_pass:diagnostic_only"
+        ),
         "final_window_stationarity_gate": "diagnostic_only",
         "final_window_stationarity_gate_reasons": "final_window_mean_speed_drift_above_threshold",
         "final_window_mean_speed_drift_ratio": "0.12",

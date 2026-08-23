@@ -420,6 +420,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `scripts/audit_native_run.py` now writes `strict_native_run_gate` and supports `--strict`; diagnostic audits still
   produce JSON, but a native run with stale VTK, too few averaging frames, insufficient final-window span, stationarity
   failure or missing/dirty solver log returns a non-zero code when strict checking is requested.
+- `strict_native_run_gate` is now propagated into `audit_native_preconditions.py`,
+  `validation_metrics_from_probe_audit.py`, `docs/validation_metrics_template.csv` and `validation_gate.py`. A native
+  baseline with failed freshness, requested-frame, final-window, stationarity or solver-log evidence is blocked in the
+  final metrics/gate package, not only at the standalone command-line audit.
 - `scripts/audit_native_run.py` now computes time-stability ratios directly from real VTK velocity time series when the
   ratios are not supplied on the command line. It deterministically samples up to 20,000 points across the selected final
   frames, records the sampling method, and feeds `mean_speed_stddev_ratio` / `max_speed_stddev_ratio` into the same

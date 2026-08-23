@@ -468,6 +468,17 @@ def main() -> int:
     if actual_vtk_only_closure["failed_stage_keys"] != ["time_averaging_stationarity"]:
         raise AssertionError(actual_vtk_only_closure)
 
+    strict_runtime_only_closure = module.build_native_precondition_closure(
+        [
+            "strict_native_run_gate_not_pass:fail",
+            "strict_native_run_reason:run_freshness_gate_not_pass:diagnostic_only",
+        ]
+    )
+    if strict_runtime_only_closure["top_blocking_stage_key"] != "time_averaging_stationarity":
+        raise AssertionError(strict_runtime_only_closure)
+    if strict_runtime_only_closure["failed_stage_keys"] != ["time_averaging_stationarity"]:
+        raise AssertionError(strict_runtime_only_closure)
+
     prescription = module.build_native_rerun_prescription(
         priorities,
         closure,

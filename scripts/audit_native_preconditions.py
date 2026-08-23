@@ -180,6 +180,8 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
             "time_averaging_stationarity",
             [
                 "runtime",
+                "strict_native",
+                "strict_native_run",
                 "time",
                 "step_span",
                 "step_spacing",
@@ -319,6 +321,8 @@ def build_native_precondition_closure(reasons: List[str]) -> Dict[str, Any]:
             "time_averaging_stationarity",
             [
                 "runtime",
+                "strict_native",
+                "strict_native_run",
                 "time",
                 "step_span",
                 "step_spacing",
@@ -1962,6 +1966,8 @@ def main() -> int:
     requested_frame_gate = str(runtime_audit.get("requested_vtk_frame_gate") or "").strip().lower()
     stationarity_gate = str(runtime_audit.get("final_window_stationarity_gate") or "").strip().lower()
     stationarity_reasons = split_scalar_list(runtime_audit.get("final_window_stationarity_gate_reasons"))
+    strict_native_run_gate = str(runtime_audit.get("strict_native_run_gate") or "").strip().lower()
+    strict_native_run_reasons = split_scalar_list(runtime_audit.get("strict_native_run_gate_reasons"))
     runtime_mean_speed_statistics_source = str(
         runtime_audit.get("mean_speed_statistics_source") or ""
     ).strip().lower()
@@ -1978,6 +1984,10 @@ def main() -> int:
         reasons.append("runtime_final_window_stationarity_gate_not_pass")
         for reason in stationarity_reasons:
             reasons.append(f"runtime_final_window_stationarity_{reason}")
+    if runtime_audit and strict_native_run_gate != "pass":
+        reasons.append(f"strict_native_run_gate_not_pass:{strict_native_run_gate or 'missing'}")
+        for reason in strict_native_run_reasons:
+            reasons.append(f"strict_native_run_reason:{reason}")
     if runtime_audit and runtime_mean_speed_statistics_source != "sampled_vtk":
         reasons.append(
             "runtime_mean_speed_statistics_source_not_sampled_vtk:"
@@ -3069,6 +3079,9 @@ def main() -> int:
         "runtime_mean_speed_statistics_cli_override": runtime_mean_speed_statistics_cli_override,
         "runtime_mean_speed_statistics_cli_override_fields_csv": runtime_mean_speed_statistics_cli_override_fields_csv,
         "runtime_requested_vtk_frame_gate": requested_frame_gate,
+        "strict_native_run_gate": strict_native_run_gate,
+        "strict_native_run_gate_reasons": strict_native_run_reasons,
+        "strict_native_run_gate_reasons_csv": ";".join(strict_native_run_reasons),
         "native_preconditions_time_average_evidence_gate": time_average_gate,
         "native_preconditions_time_average_evidence_gate_reasons": time_average_evidence_reasons,
         "native_preconditions_time_average_evidence_gate_reasons_csv": ";".join(time_average_evidence_reasons),

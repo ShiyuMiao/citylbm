@@ -26,6 +26,8 @@ def passing_native_audit():
     hashes = [f"{index:064x}" for index in range(1, len(steps) + 1)]
     return {
         "native_preconditions_time_average_gate": "pass",
+        "strict_native_run_gate": "pass",
+        "strict_native_run_gate_reasons": ["native_run_artifacts_pass_strict_evidence_gates"],
         "planned_frame_count_min": 40,
         "runtime_average_last_n": 40,
         "runtime_source_time_steps": steps,
@@ -110,6 +112,11 @@ def main() -> int:
     drifting.update(
         {
             "native_preconditions_time_average_gate": "fail",
+            "strict_native_run_gate": "fail",
+            "strict_native_run_gate_reasons": [
+                "time_averaging_gate_not_pass:diagnostic_only",
+                "final_window_stationarity_gate_not_pass:diagnostic_only",
+            ],
             "runtime_final_window_stationarity_gate": "diagnostic_only",
             "runtime_final_window_mean_speed_drift_ratio": 0.08,
             "runtime_final_window_stationarity_gate_reasons": [
@@ -127,6 +134,8 @@ def main() -> int:
     drifting_reasons = drifting_failed["reasons_csv"]
     for expected in (
         "native_preconditions_time_average_gate_not_pass:fail",
+        "strict_native_run_gate_not_pass:fail",
+        "strict_native_run_gate_reason_present:time_averaging_gate_not_pass:diagnostic_only",
         "runtime_final_window_stationarity_gate_not_pass:diagnostic_only",
         "runtime_final_window_stationarity_gate_reasons_present:final_window_mean_speed_drift_ratio_above_threshold",
     ):
