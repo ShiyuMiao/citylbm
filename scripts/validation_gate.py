@@ -548,6 +548,35 @@ def extract_systematic_prerequisite_blocker_list(evidence: str) -> List[str]:
     return [part.strip() for part in blockers.split(";") if part.strip()]
 
 
+def allow_systematic_root_cause_interpretation(
+    systematic_bias_present: bool, failed_prerequisites: List[str]
+) -> bool:
+    return bool(systematic_bias_present) and not failed_prerequisites
+
+
+def allow_solver_accuracy_interpretation(
+    systematic_bias_present: bool,
+    accuracy_pass: bool,
+    failed_prerequisites: List[str],
+) -> bool:
+    return bool(accuracy_pass) and not systematic_bias_present and not failed_prerequisites
+
+
+def solver_accuracy_interpretation_blockers(
+    systematic_bias_present: bool,
+    accuracy_pass: bool,
+    failed_prerequisites: List[str],
+) -> List[str]:
+    blockers: List[str] = []
+    if systematic_bias_present:
+        blockers.append("systematic_bias_present")
+    if not accuracy_pass:
+        blockers.append("mean_velocity_accuracy_failed")
+    if failed_prerequisites:
+        blockers.append("prerequisite_gates_open")
+    return blockers
+
+
 def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, Any]) -> List[Dict[str, Any]]:
     by_key = gate_by_key(gates)
     priorities: List[Dict[str, Any]] = []
@@ -7407,7 +7436,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         interpretation_status = PASS
         interpretation_evidence = (
             "systematic bias is present, and prerequisite gates are closed; residual bias may be interpreted as "
-            "a remaining physics/protocol issue rather than a coordinate, stale-output, inlet-transfer or postprocess artifact."
+            "a remaining physics/protocol issue rather than a coordinate, stale-output, inlet-transfer or postprocess artifact. "
+            "This does not permit a solver-accuracy claim until mean_velocity_accuracy and systematic_bias both pass."
         )
     add_gate(
         gates,
@@ -7415,6 +7445,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         interpretation_status,
         interpretation_evidence,
         "Close all prerequisite evidence gates before using systematic bias, R2 or regression metrics as paper-grade solver-accuracy evidence.",
+    )
+    prerequisites_closed = not failed_prerequisites
+    root_cause_interpretation_allowed = allow_systematic_root_cause_interpretation(
+        systematic_bias_present, failed_prerequisites
+    )
+    solver_accuracy_allowed = allow_solver_accuracy_interpretation(
+        systematic_bias_present, accuracy_pass, failed_prerequisites
+    )
+    solver_accuracy_blockers = solver_accuracy_interpretation_blockers(
+        systematic_bias_present, accuracy_pass, failed_prerequisites
     )
     systematic_bias_diagnostic = {
         "present": systematic_bias_present,
@@ -7431,8 +7471,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "bias_diagnosis": bias_diagnosis,
         "prerequisite_blockers": failed_prerequisites if systematic_bias_present else [],
         "prerequisite_blocker_count": len(failed_prerequisites) if systematic_bias_present else 0,
-        "prerequisite_evidence_closed": systematic_bias_present and not failed_prerequisites,
-        "solver_accuracy_interpretation_allowed": systematic_bias_present and not failed_prerequisites,
+        "prerequisite_evidence_closed": prerequisites_closed,
+        "root_cause_interpretation_allowed": root_cause_interpretation_allowed,
+        "solver_accuracy_interpretation_allowed": solver_accuracy_allowed,
+        "solver_accuracy_interpretation_blockers": solver_accuracy_blockers,
         "interpretation_gate": interpretation_status,
         "interpretation_evidence": interpretation_evidence,
     }

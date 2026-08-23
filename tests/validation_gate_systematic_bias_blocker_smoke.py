@@ -60,6 +60,22 @@ def main() -> int:
     if "Replace STG-lite or prove inlet equivalence" not in item["next_action"]:
         raise AssertionError(item)
 
+    if not module.allow_systematic_root_cause_interpretation(True, []):
+        raise AssertionError("Closed prerequisites should allow root-cause interpretation.")
+    if module.allow_solver_accuracy_interpretation(True, True, []):
+        raise AssertionError(
+            "Systematic bias must block solver-accuracy interpretation even after prerequisites close."
+        )
+    if module.allow_solver_accuracy_interpretation(False, False, []):
+        raise AssertionError("Failed mean-velocity accuracy must block solver-accuracy interpretation.")
+    blockers = module.solver_accuracy_interpretation_blockers(True, False, ["grid sensitivity=FAIL"])
+    if blockers != [
+        "systematic_bias_present",
+        "mean_velocity_accuracy_failed",
+        "prerequisite_gates_open",
+    ]:
+        raise AssertionError(blockers)
+
     print("validation_gate_systematic_bias_blocker_smoke passed")
     return 0
 
