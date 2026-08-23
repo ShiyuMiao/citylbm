@@ -26,6 +26,11 @@ def passing_native_audit():
     hashes = [f"{index:064x}" for index in range(1, len(steps) + 1)]
     return {
         "native_preconditions_time_average_gate": "pass",
+        "native_preconditions_time_average_evidence_gate": "pass",
+        "runtime_reported_time_averaging_gate": "pass",
+        "runtime_time_averaging_gate": "pass",
+        "runtime_requested_vtk_frame_gate": "pass",
+        "runtime_final_window_frame_count_gate": "pass",
         "time_averaging_fidelity_class": "paper_grade_final_window_average",
         "strict_native_run_gate": "pass",
         "strict_native_run_gate_reasons": ["native_run_artifacts_pass_strict_evidence_gates"],
@@ -73,6 +78,33 @@ def main() -> int:
     )
     if not ok["ok"]:
         raise AssertionError(ok)
+
+    collapsed = copy.deepcopy(passing_native_audit())
+    for key in (
+        "native_preconditions_time_average_evidence_gate",
+        "runtime_reported_time_averaging_gate",
+        "runtime_time_averaging_gate",
+        "runtime_requested_vtk_frame_gate",
+        "runtime_final_window_frame_count_gate",
+    ):
+        collapsed.pop(key)
+    collapsed_failed = module.native_time_averaging_traceability_status(
+        collapsed,
+        min_avg_frames=40,
+        min_avg_step_span=20000,
+    )
+    if collapsed_failed["ok"]:
+        raise AssertionError(collapsed_failed)
+    collapsed_reasons = collapsed_failed["reasons_csv"]
+    for expected in (
+        "native_preconditions_time_average_evidence_gate_not_pass:missing",
+        "runtime_reported_time_averaging_gate_not_pass:missing",
+        "runtime_time_averaging_gate_not_pass:missing",
+        "runtime_requested_vtk_frame_gate_not_pass:missing",
+        "runtime_final_window_frame_count_gate_not_pass:missing",
+    ):
+        if expected not in collapsed_reasons:
+            raise AssertionError((expected, collapsed_reasons))
 
     bad = copy.deepcopy(passing_native_audit())
     bad.update(

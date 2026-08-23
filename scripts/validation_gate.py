@@ -2880,6 +2880,30 @@ def native_time_averaging_traceability_status(
     ).strip().lower()
     if time_gate != "pass":
         reasons.append(f"native_preconditions_time_average_gate_not_pass:{time_gate or 'missing'}")
+    time_evidence_gate = str(
+        get_any(native_preconditions_audit, ["native_preconditions_time_average_evidence_gate"]) or ""
+    ).strip().lower()
+    runtime_reported_time_gate = str(
+        get_any(native_preconditions_audit, ["runtime_reported_time_averaging_gate"]) or ""
+    ).strip().lower()
+    runtime_time_gate = str(
+        get_any(native_preconditions_audit, ["runtime_time_averaging_gate"]) or ""
+    ).strip().lower()
+    runtime_requested_vtk_frame_gate = str(
+        get_any(native_preconditions_audit, ["runtime_requested_vtk_frame_gate"]) or ""
+    ).strip().lower()
+    runtime_final_window_frame_count_gate = str(
+        get_any(native_preconditions_audit, ["runtime_final_window_frame_count_gate"]) or ""
+    ).strip().lower()
+    for key, value in [
+        ("native_preconditions_time_average_evidence_gate", time_evidence_gate),
+        ("runtime_reported_time_averaging_gate", runtime_reported_time_gate),
+        ("runtime_time_averaging_gate", runtime_time_gate),
+        ("runtime_requested_vtk_frame_gate", runtime_requested_vtk_frame_gate),
+        ("runtime_final_window_frame_count_gate", runtime_final_window_frame_count_gate),
+    ]:
+        if value != "pass":
+            reasons.append(f"{key}_not_pass:{value or 'missing'}")
     strict_native_run_gate = str(
         get_any(
             native_preconditions_audit,
@@ -3071,6 +3095,11 @@ def native_time_averaging_traceability_status(
         "runtime_source_step_span_from_time_steps": runtime_span_from_steps,
         "runtime_final_window_stationarity_gate": runtime_stationarity_gate,
         "time_averaging_fidelity_class": time_averaging_fidelity_class,
+        "native_preconditions_time_average_evidence_gate": time_evidence_gate,
+        "runtime_reported_time_averaging_gate": runtime_reported_time_gate,
+        "runtime_time_averaging_gate": runtime_time_gate,
+        "runtime_requested_vtk_frame_gate": runtime_requested_vtk_frame_gate,
+        "runtime_final_window_frame_count_gate": runtime_final_window_frame_count_gate,
         "strict_native_run_gate": strict_native_run_gate,
         "runtime_mean_speed_statistics_source": runtime_mean_speed_statistics_source,
         "runtime_mean_speed_statistics_cli_override": runtime_mean_speed_statistics_cli_override,
@@ -6076,6 +6105,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_preconditions_audit={native_preconditions_audit_path or 'missing'}; "
             f"reasons={native_time_traceability['reasons_csv'] or 'none'}; "
             f"native_preconditions_time_average_gate={native_preconditions_time_gate or 'missing'}; "
+            f"native_preconditions_time_average_evidence_gate={native_time_traceability['native_preconditions_time_average_evidence_gate'] or 'missing'}; "
+            f"runtime_reported_time_averaging_gate={native_time_traceability['runtime_reported_time_averaging_gate'] or 'missing'}; "
+            f"runtime_time_averaging_gate={native_time_traceability['runtime_time_averaging_gate'] or 'missing'}; "
+            f"runtime_requested_vtk_frame_gate={native_time_traceability['runtime_requested_vtk_frame_gate'] or 'missing'}; "
+            f"runtime_final_window_frame_count_gate={native_time_traceability['runtime_final_window_frame_count_gate'] or 'missing'}; "
             f"planned_frame_count_min={native_time_traceability['planned_frame_count_min']}; "
             f"runtime_average_last_n={native_time_traceability['runtime_average_last_n']}; "
             f"runtime_source_frame_count={native_time_traceability['runtime_source_frame_count']}; "
