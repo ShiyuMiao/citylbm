@@ -1302,6 +1302,15 @@ def build_inlet_equivalence_evidence_reasons(
     source_comment_stripped = as_bool(inlet_source_audit.get("inlet_source_comment_stripped_code_audit"))
     source_uncorrelated_random = as_bool(inlet_source_audit.get("has_uncorrelated_random_inlet"))
     source_method_class = str(inlet_source_audit.get("inlet_source_method_class") or "").strip()
+    source_fidelity_class = str(
+        inlet_source_audit.get("inlet_source_turbulent_inflow_fidelity_class") or ""
+    ).strip()
+    source_correlated_velocity_only = as_bool(
+        inlet_source_audit.get("inlet_source_has_correlated_velocity_field_only")
+    )
+    source_uncorrelated_rms_velocity_only = as_bool(
+        inlet_source_audit.get("inlet_source_has_uncorrelated_rms_velocity_field_only")
+    )
     source_correlation_model = str(inlet_source_audit.get("synthetic_inlet_correlation_model") or "").strip()
     source_distribution_route = str(inlet_source_audit.get("inlet_distribution_route") or "").strip()
     source_distribution_route_gate = str(inlet_source_audit.get("inlet_distribution_route_gate") or "").strip().lower()
@@ -1344,6 +1353,23 @@ def build_inlet_equivalence_evidence_reasons(
         evidence_reasons.append(f"inlet_source_comment_stripped_code_audit_not_true:{source_comment_stripped}")
     if source_uncorrelated_random is not False:
         evidence_reasons.append(f"inlet_source_has_uncorrelated_random_inlet_not_false:{source_uncorrelated_random}")
+    if source_fidelity_class not in {
+        "distribution_consistent_digital_filter",
+        "distribution_consistent_synthetic_eddy",
+        "distribution_consistent_precursor_or_recycling",
+    }:
+        evidence_reasons.append(
+            f"inlet_source_turbulent_inflow_fidelity_class_not_paper_grade:{source_fidelity_class or 'missing'}"
+        )
+    if source_correlated_velocity_only is not False:
+        evidence_reasons.append(
+            f"inlet_source_has_correlated_velocity_field_only_not_false:{source_correlated_velocity_only}"
+        )
+    if source_uncorrelated_rms_velocity_only is not False:
+        evidence_reasons.append(
+            "inlet_source_has_uncorrelated_rms_velocity_field_only_not_false:"
+            f"{source_uncorrelated_rms_velocity_only}"
+        )
     if source_correlation_model in {"uncorrelated_random_rms_velocity_field_only", "velocity_field_only_without_correlation_evidence"}:
         evidence_reasons.append(f"inlet_synthetic_correlation_model_not_paper_grade:{source_correlation_model}")
     if source_distribution_route_gate != "pass":
@@ -2393,6 +2419,18 @@ def main() -> int:
     inlet_distribution_consistent = as_bool(inlet_source_audit.get("inlet_source_distribution_consistent"))
     inlet_velocity_only = as_bool(inlet_source_audit.get("inlet_source_velocity_field_only"))
     inlet_source_method_class = str(inlet_source_audit.get("inlet_source_method_class") or "").strip()
+    inlet_source_fidelity_class = str(
+        inlet_source_audit.get("inlet_source_turbulent_inflow_fidelity_class") or ""
+    ).strip()
+    inlet_has_correlated_velocity_only = as_bool(
+        inlet_source_audit.get("inlet_source_has_correlated_velocity_field_only")
+    )
+    inlet_has_uncorrelated_rms_velocity_only = as_bool(
+        inlet_source_audit.get("inlet_source_has_uncorrelated_rms_velocity_field_only")
+    )
+    inlet_requires_distribution_reconstruction = as_bool(
+        inlet_source_audit.get("inlet_source_requires_distribution_reconstruction")
+    )
     inlet_correlation_model = str(inlet_source_audit.get("synthetic_inlet_correlation_model") or "").strip()
     inlet_distribution_route = str(inlet_source_audit.get("inlet_distribution_route") or "").strip()
     inlet_distribution_route_gate = str(inlet_source_audit.get("inlet_distribution_route_gate") or "").strip().lower()
@@ -3544,6 +3582,10 @@ def main() -> int:
         "inlet_source_distribution_consistent": inlet_distribution_consistent,
         "inlet_source_velocity_field_only": inlet_velocity_only,
         "inlet_source_method_class": inlet_source_method_class,
+        "inlet_source_turbulent_inflow_fidelity_class": inlet_source_fidelity_class,
+        "inlet_source_has_correlated_velocity_field_only": inlet_has_correlated_velocity_only,
+        "inlet_source_has_uncorrelated_rms_velocity_field_only": inlet_has_uncorrelated_rms_velocity_only,
+        "inlet_source_requires_distribution_reconstruction": inlet_requires_distribution_reconstruction,
         "inlet_synthetic_correlation_model": inlet_correlation_model,
         "inlet_source_distribution_route": inlet_distribution_route,
         "inlet_source_distribution_route_gate": inlet_distribution_route_gate,

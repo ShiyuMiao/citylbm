@@ -99,6 +99,10 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(random_report["paper_grade_inlet_source_gate"])
         if random_report["synthetic_inlet_correlation_model"] != "uncorrelated_random_rms_velocity_field_only":
             raise AssertionError(random_report["synthetic_inlet_correlation_model"])
+        if random_report["inlet_source_turbulent_inflow_fidelity_class"] != "uncorrelated_rms_velocity_field_only":
+            raise AssertionError(random_report["inlet_source_turbulent_inflow_fidelity_class"])
+        if not random_report["inlet_source_has_uncorrelated_rms_velocity_field_only"]:
+            raise AssertionError(random_report)
         if "synthetic_inlet_uses_uncorrelated_random_rms" not in random_report["inlet_source_gate_reasons"]:
             raise AssertionError(random_report["inlet_source_gate_reasons"])
         if "Do not describe" not in random_report["recommended_next_action"]:
@@ -177,6 +181,8 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(with_define_report)
         if with_define_report["inlet_source_distribution_consistent"]:
             raise AssertionError(with_define_report)
+        if with_define_report["inlet_source_turbulent_inflow_fidelity_class"] != "velocity_field_only_without_correlation_evidence":
+            raise AssertionError(with_define_report["inlet_source_turbulent_inflow_fidelity_class"])
         if "source_velocity_field_only" not in with_define_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(with_define_report["paper_grade_inlet_source_gate_reasons"])
         stl_random_setup = root / "stl_random_setup.cpp"
@@ -466,6 +472,10 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(spectral_report)
         if spectral_report["synthetic_inlet_correlation_model"] != "spectral_taylor_temporal_filtered_projected_velocity_field_only":
             raise AssertionError(spectral_report["synthetic_inlet_correlation_model"])
+        if spectral_report["inlet_source_turbulent_inflow_fidelity_class"] != "correlated_velocity_field_only":
+            raise AssertionError(spectral_report["inlet_source_turbulent_inflow_fidelity_class"])
+        if not spectral_report["inlet_source_has_correlated_velocity_field_only"]:
+            raise AssertionError(spectral_report)
         if not spectral_report["has_three_component_velocity_write"]:
             raise AssertionError(spectral_report)
         if not spectral_report["has_three_component_fluctuation_evidence"]:
@@ -481,6 +491,10 @@ for(uint remaining=100u; remaining>0u; ) {
         if not spectral_report["has_layerwise_mean_preserving_inlet_correction"]:
             raise AssertionError(spectral_report)
         if "source_velocity_field_only" not in spectral_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(spectral_report["paper_grade_inlet_source_gate_reasons"])
+        if "source_correlated_velocity_field_only_without_distribution_reconstruction" not in spectral_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
             raise AssertionError(spectral_report["paper_grade_inlet_source_gate_reasons"])
         if spectral_report["has_streamwise_clipping_control"] is not True:
             raise AssertionError(spectral_report)
@@ -941,6 +955,8 @@ void applySyntheticTurbulentInlet(uint t_step) {
             raise AssertionError(sem_report["paper_grade_inlet_source_gate"])
         if sem_report["inlet_source_method_class"] != "synthetic_eddy_distribution_consistent":
             raise AssertionError(sem_report["inlet_source_method_class"])
+        if sem_report["inlet_source_turbulent_inflow_fidelity_class"] != "distribution_consistent_synthetic_eddy":
+            raise AssertionError(sem_report["inlet_source_turbulent_inflow_fidelity_class"])
         if sem_report["distribution_consistency_basis"] != "sem_eddy_population_distribution_reconstruction":
             raise AssertionError(sem_report["distribution_consistency_basis"])
         if sem_report["reynolds_stress_treatment"] != "full_tensor_or_precursor_evidence":

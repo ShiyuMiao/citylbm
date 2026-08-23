@@ -56,6 +56,9 @@ def passing_native_audit():
         "inlet_source_velocity_field_only": False,
         "inlet_source_has_uncorrelated_random_inlet": False,
         "inlet_source_method_class": "digital_filter_distribution_consistent",
+        "inlet_source_turbulent_inflow_fidelity_class": "distribution_consistent_digital_filter",
+        "inlet_source_has_correlated_velocity_field_only": False,
+        "inlet_source_has_uncorrelated_rms_velocity_field_only": False,
         "expected_uref_mps": 3.928296,
         "actual_uref_mps": 3.928296,
         "expected_zref_m": 15.9,
@@ -160,6 +163,8 @@ def main() -> int:
             "inlet_source_has_inlet_distribution_reconstruction": False,
             "inlet_source_velocity_field_only": True,
             "inlet_source_method_class": "stg_lite_correlated_velocity_field_only",
+            "inlet_source_turbulent_inflow_fidelity_class": "correlated_velocity_field_only",
+            "inlet_source_has_correlated_velocity_field_only": True,
         }
     )
     velocity_only_failed = module.native_inlet_precondition_traceability_status(
@@ -176,6 +181,8 @@ def main() -> int:
         "inlet_source_has_inlet_distribution_reconstruction_not_true:False",
         "inlet_source_velocity_field_only_not_false:True",
         "inlet_source_method_class_not_paper_grade:stg_lite_correlated_velocity_field_only",
+        "inlet_source_turbulent_inflow_fidelity_class_not_paper_grade:correlated_velocity_field_only",
+        "inlet_source_has_correlated_velocity_field_only_not_false:True",
     ]:
         if reason not in velocity_only_failed["reasons"]:
             raise AssertionError(velocity_only_failed["reasons"])

@@ -814,6 +814,40 @@ def main() -> int:
         "stg_lite_velocity_field_only",
         "stg_lite_correlated_velocity_field_only",
     }
+    source_has_uncorrelated_rms_velocity_field_only = (
+        source_velocity_only
+        and (
+            has_uncorrelated_random_inlet
+            or synthetic_correlation_model == "uncorrelated_random_rms_velocity_field_only"
+        )
+    )
+    source_has_correlated_velocity_field_only = (
+        source_velocity_only
+        and not source_has_uncorrelated_rms_velocity_field_only
+        and (
+            "correlated" in source_method_class
+            or "spectral" in synthetic_correlation_model
+            or "native_synthetic_eddy" in synthetic_correlation_model
+            or "precursor_or_recycling_velocity_field_only" == source_method_class
+        )
+    )
+    if source_method_class == "digital_filter_distribution_consistent":
+        turbulent_inflow_fidelity_class = "distribution_consistent_digital_filter"
+    elif source_method_class == "synthetic_eddy_distribution_consistent":
+        turbulent_inflow_fidelity_class = "distribution_consistent_synthetic_eddy"
+    elif source_method_class == "precursor_or_recycling":
+        turbulent_inflow_fidelity_class = "distribution_consistent_precursor_or_recycling"
+    elif source_has_uncorrelated_rms_velocity_field_only:
+        turbulent_inflow_fidelity_class = "uncorrelated_rms_velocity_field_only"
+    elif source_has_correlated_velocity_field_only:
+        turbulent_inflow_fidelity_class = "correlated_velocity_field_only"
+    elif source_velocity_only:
+        turbulent_inflow_fidelity_class = "velocity_field_only_without_correlation_evidence"
+    elif source_method_class.startswith("named_method_without"):
+        turbulent_inflow_fidelity_class = "metadata_or_name_only"
+    else:
+        turbulent_inflow_fidelity_class = "none"
+    source_requires_distribution_reconstruction = bool(synthetic_requested or source_method_class != "none")
 
     if synthetic_requested and not has_stg_function and not has_digital_filter and not has_sem and not has_precursor:
         reasons.append("metadata_requests_turbulent_inlet_but_source_has_no_inlet_method")
@@ -906,6 +940,10 @@ def main() -> int:
         paper_gate_reasons.append("source_not_distribution_consistent")
     if source_velocity_only:
         paper_gate_reasons.append("source_velocity_field_only")
+    if source_has_uncorrelated_rms_velocity_field_only:
+        paper_gate_reasons.append("source_uncorrelated_rms_velocity_field_only")
+    if source_has_correlated_velocity_field_only:
+        paper_gate_reasons.append("source_correlated_velocity_field_only_without_distribution_reconstruction")
     if synthetic_requested and not has_inlet_length_scale_evidence:
         paper_gate_reasons.append("source_missing_turbulent_length_scale_evidence")
     if synthetic_requested and not has_reynolds_stress_tensor_evidence:
@@ -1018,8 +1056,12 @@ def main() -> int:
         "uncorrelated_random_inlet_patterns": random_source_matches,
         "synthetic_inlet_correlation_model": synthetic_correlation_model,
         "inlet_source_method_class": source_method_class,
+        "inlet_source_turbulent_inflow_fidelity_class": turbulent_inflow_fidelity_class,
         "inlet_source_distribution_consistent": source_distribution_consistent,
         "inlet_source_velocity_field_only": source_velocity_only,
+        "inlet_source_has_correlated_velocity_field_only": source_has_correlated_velocity_field_only,
+        "inlet_source_has_uncorrelated_rms_velocity_field_only": source_has_uncorrelated_rms_velocity_field_only,
+        "inlet_source_requires_distribution_reconstruction": source_requires_distribution_reconstruction,
         "inlet_source_gate": source_gate,
         "inlet_source_gate_reasons": reasons or ["inlet_source_consistent_with_declared_metadata"],
         "paper_grade_inlet_source_gate": paper_gate,

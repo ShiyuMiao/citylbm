@@ -278,6 +278,9 @@ TEMPLATE_FIELDS = [
     "inlet_source_streamwise_clipping_enabled",
     "inlet_source_has_legacy_hardcoded_streamwise_clipping",
     "inlet_source_has_uncorrelated_random_inlet",
+    "inlet_source_has_correlated_velocity_field_only",
+    "inlet_source_has_uncorrelated_rms_velocity_field_only",
+    "inlet_source_turbulent_inflow_fidelity_class",
     "inlet_source_uncorrelated_random_patterns",
     "inlet_source_correlation_model",
     "inlet_source_recommended_next_action",
@@ -493,6 +496,9 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_streamwise_clipping_enabled",
     "native_inlet_source_has_legacy_hardcoded_streamwise_clipping",
     "native_inlet_source_has_uncorrelated_random_inlet",
+    "native_inlet_source_has_correlated_velocity_field_only",
+    "native_inlet_source_has_uncorrelated_rms_velocity_field_only",
+    "native_inlet_source_turbulent_inflow_fidelity_class",
     "native_inlet_source_uncorrelated_random_patterns",
     "native_inlet_source_recommended_next_action",
     "native_probe_component_equivalence_gate",
@@ -2337,6 +2343,15 @@ def main() -> int:
             "inlet_source_has_uncorrelated_random_inlet": first_bool_text(
                 inlet_source_audit.get("has_uncorrelated_random_inlet")
             ),
+            "inlet_source_has_correlated_velocity_field_only": first_bool_text(
+                inlet_source_audit.get("inlet_source_has_correlated_velocity_field_only")
+            ),
+            "inlet_source_has_uncorrelated_rms_velocity_field_only": first_bool_text(
+                inlet_source_audit.get("inlet_source_has_uncorrelated_rms_velocity_field_only")
+            ),
+            "inlet_source_turbulent_inflow_fidelity_class": audit_field(
+                inlet_source_audit, "inlet_source_turbulent_inflow_fidelity_class"
+            ),
             "inlet_source_uncorrelated_random_patterns": audit_list_field(
                 inlet_source_audit, "uncorrelated_random_inlet_patterns"
             ),
@@ -2830,6 +2845,15 @@ def main() -> int:
             ),
             "native_inlet_source_has_uncorrelated_random_inlet": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_uncorrelated_random_inlet")
+            ),
+            "native_inlet_source_has_correlated_velocity_field_only": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_correlated_velocity_field_only")
+            ),
+            "native_inlet_source_has_uncorrelated_rms_velocity_field_only": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_uncorrelated_rms_velocity_field_only")
+            ),
+            "native_inlet_source_turbulent_inflow_fidelity_class": audit_field(
+                native_preconditions_audit, "inlet_source_turbulent_inflow_fidelity_class"
             ),
             "native_inlet_source_uncorrelated_random_patterns": audit_field(
                 native_preconditions_audit, "inlet_source_uncorrelated_random_patterns_csv"

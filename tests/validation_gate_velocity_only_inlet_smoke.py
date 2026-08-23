@@ -29,6 +29,7 @@ def passing_kwargs() -> dict:
         "audit_inlet_source_velocity_field_only": False,
         "audit_inlet_source_comment_stripped": True,
         "audit_has_uncorrelated_random_inlet": False,
+        "audit_inlet_source_turbulent_inflow_fidelity_class": "distribution_consistent_digital_filter",
         "paper_method_class_ok": True,
         "treatment_distribution_consistent": True,
         "distribution_status": "pass",
@@ -46,6 +47,7 @@ def main() -> int:
         {
             "audit_inlet_source_distribution_consistent": False,
             "audit_inlet_source_velocity_field_only": True,
+            "audit_inlet_source_turbulent_inflow_fidelity_class": "correlated_velocity_field_only",
             "treatment_velocity_only": True,
         }
     )
@@ -54,6 +56,7 @@ def main() -> int:
 
     uncorrelated = passing_kwargs()
     uncorrelated["audit_has_uncorrelated_random_inlet"] = True
+    uncorrelated["audit_inlet_source_turbulent_inflow_fidelity_class"] = "uncorrelated_rms_velocity_field_only"
     if module.paper_grade_inlet_method_pass(**uncorrelated):
         raise AssertionError("uncorrelated RMS/k forcing must not be paper-grade")
 

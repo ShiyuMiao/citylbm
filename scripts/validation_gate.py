@@ -66,6 +66,7 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "inlet_distribution_treatment",
     "inlet_method_class",
     "inlet_source_method_class",
+    "inlet_source_turbulent_inflow_fidelity_class",
     "inlet_source_correlation_model",
     "inlet_source_distribution_route",
     "inlet_source_reynolds_stress_treatment",
@@ -80,6 +81,8 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "inlet_source_streamwise_clipping_enabled",
     "inlet_source_has_legacy_hardcoded_streamwise_clipping",
     "inlet_source_has_uncorrelated_random_inlet",
+    "inlet_source_has_correlated_velocity_field_only",
+    "inlet_source_has_uncorrelated_rms_velocity_field_only",
     "wall_roughness_treatment",
     "boundary_evidence_class",
     "boundary_source_method_class",
@@ -900,6 +903,7 @@ def paper_grade_inlet_method_pass(
     audit_inlet_source_velocity_field_only: Optional[bool],
     audit_inlet_source_comment_stripped: Optional[bool],
     audit_has_uncorrelated_random_inlet: Optional[bool],
+    audit_inlet_source_turbulent_inflow_fidelity_class: str,
     paper_method_class_ok: bool,
     treatment_distribution_consistent: bool,
     distribution_status: str,
@@ -913,6 +917,14 @@ def paper_grade_inlet_method_pass(
         and audit_inlet_source_velocity_field_only is not True
         and audit_inlet_source_comment_stripped is True
         and audit_has_uncorrelated_random_inlet is not True
+        and (
+            audit_inlet_source_turbulent_inflow_fidelity_class
+            in {
+                "distribution_consistent_digital_filter",
+                "distribution_consistent_synthetic_eddy",
+                "distribution_consistent_precursor_or_recycling",
+            }
+        )
         and paper_method_class_ok
         and treatment_distribution_consistent
         and distribution_status == "pass"
@@ -2286,6 +2298,15 @@ def native_inlet_precondition_traceability_status(
     source_method_class = str(
         get_any(native_preconditions_audit, ["inlet_source_method_class"]) or ""
     ).strip().lower()
+    source_fidelity_class = str(
+        get_any(native_preconditions_audit, ["inlet_source_turbulent_inflow_fidelity_class"]) or ""
+    ).strip().lower()
+    source_correlated_velocity_only = as_bool(
+        get_any(native_preconditions_audit, ["inlet_source_has_correlated_velocity_field_only"])
+    )
+    source_uncorrelated_rms_velocity_only = as_bool(
+        get_any(native_preconditions_audit, ["inlet_source_has_uncorrelated_rms_velocity_field_only"])
+    )
     supported_source_method = any(
         token in source_method_class
         for token in [
@@ -2311,6 +2332,24 @@ def native_inlet_precondition_traceability_status(
         reasons.append("inlet_source_method_class_missing")
     elif not supported_source_method:
         reasons.append(f"inlet_source_method_class_not_paper_grade:{source_method_class}")
+    if source_fidelity_class not in {
+        "distribution_consistent_digital_filter",
+        "distribution_consistent_synthetic_eddy",
+        "distribution_consistent_precursor_or_recycling",
+    }:
+        reasons.append(
+            f"inlet_source_turbulent_inflow_fidelity_class_not_paper_grade:{source_fidelity_class or 'missing'}"
+        )
+    if source_correlated_velocity_only is not False:
+        reasons.append(
+            f"inlet_source_has_correlated_velocity_field_only_not_false:"
+            f"{source_correlated_velocity_only if source_correlated_velocity_only is not None else 'missing'}"
+        )
+    if source_uncorrelated_rms_velocity_only is not False:
+        reasons.append(
+            "inlet_source_has_uncorrelated_rms_velocity_field_only_not_false:"
+            f"{source_uncorrelated_rms_velocity_only if source_uncorrelated_rms_velocity_only is not None else 'missing'}"
+        )
 
     inlet_method_text = " ".join(
         str(native_preconditions_audit.get(key) or "").lower()
@@ -4632,6 +4671,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     inlet_source_method_class = str(
         get_any(inlet_source_audit, ["inlet_source_method_class"]) or ""
     ).strip()
+    inlet_source_fidelity_class = str(
+        get_any(inlet_source_audit, ["inlet_source_turbulent_inflow_fidelity_class"]) or ""
+    ).strip()
     inlet_source_distribution_consistent = as_bool(
         get_any(inlet_source_audit, ["inlet_source_distribution_consistent"])
     )
@@ -4647,6 +4689,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     ).strip().lower()
     audit_inlet_source_method_class = str(
         get_any(inlet_source_audit, ["inlet_source_method_class"]) or ""
+    ).strip()
+    audit_inlet_source_fidelity_class = str(
+        get_any(inlet_source_audit, ["inlet_source_turbulent_inflow_fidelity_class"]) or ""
     ).strip()
     audit_inlet_source_distribution_consistent = as_bool(
         get_any(inlet_source_audit, ["inlet_source_distribution_consistent"])
@@ -4724,6 +4769,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     )
     audit_has_uncorrelated_random_inlet = as_bool(
         get_any(inlet_source_audit, ["has_uncorrelated_random_inlet"])
+    )
+    audit_has_correlated_velocity_field_only = as_bool(
+        get_any(inlet_source_audit, ["inlet_source_has_correlated_velocity_field_only"])
+    )
+    audit_has_uncorrelated_rms_velocity_field_only = as_bool(
+        get_any(inlet_source_audit, ["inlet_source_has_uncorrelated_rms_velocity_field_only"])
     )
     audit_inlet_correlation_model = str(
         get_any(inlet_source_audit, ["synthetic_inlet_correlation_model"]) or ""
@@ -5113,6 +5164,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and audit_stg_run_loop_ok
         and audit_stg_three_component_evidence_ok
         and audit_has_uncorrelated_random_inlet is not True
+        and audit_has_correlated_velocity_field_only is not True
+        and audit_has_uncorrelated_rms_velocity_field_only is not True
     )
     add_gate(
         gates,
@@ -5123,6 +5176,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_source_gate={inlet_source_gate or 'missing'}; "
             f"paper_grade_inlet_source_gate={paper_grade_inlet_source_gate or 'missing'}; "
             f"source_method_class={inlet_source_method_class or 'missing'}; "
+            f"source_turbulent_inflow_fidelity_class={inlet_source_fidelity_class or 'missing'}; "
             f"source_distribution_consistent={inlet_source_distribution_consistent}; "
             f"source_velocity_field_only={inlet_source_velocity_field_only}; "
             f"setup_cpp_sha256={inlet_source_setup_sha256 or 'missing'}; "
@@ -5132,6 +5186,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"audit_only_inlet_source_gate={audit_inlet_source_gate or 'missing'}; "
             f"audit_only_paper_grade_inlet_source_gate={audit_paper_grade_inlet_source_gate or 'missing'}; "
             f"audit_only_source_method_class={audit_inlet_source_method_class or 'missing'}; "
+            f"audit_only_source_turbulent_inflow_fidelity_class={audit_inlet_source_fidelity_class or 'missing'}; "
             f"audit_only_source_distribution_consistent={audit_inlet_source_distribution_consistent}; "
             f"audit_only_source_velocity_field_only={audit_inlet_source_velocity_field_only}; "
             f"audit_has_distribution_function_write={audit_has_distribution_function_write}; "
@@ -5157,6 +5212,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"audit_stg_run_loop_ok={audit_stg_run_loop_ok}; "
             f"audit_stg_three_component_evidence_ok={audit_stg_three_component_evidence_ok}; "
             f"audit_has_uncorrelated_random_inlet={audit_has_uncorrelated_random_inlet}; "
+            f"audit_has_correlated_velocity_field_only={audit_has_correlated_velocity_field_only}; "
+            f"audit_has_uncorrelated_rms_velocity_field_only={audit_has_uncorrelated_rms_velocity_field_only}; "
             f"audit_inlet_correlation_model={audit_inlet_correlation_model or 'missing'}; "
             f"inlet_source_gate_reasons={inlet_source_reasons or 'none'}; "
             f"metrics_inlet_source_gate={get_any(metrics, ['inlet_source_gate', 'InletSourceGate']) or 'ignored'}; "
@@ -5189,6 +5246,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         audit_inlet_source_velocity_field_only=audit_inlet_source_velocity_field_only,
         audit_inlet_source_comment_stripped=audit_inlet_source_comment_stripped,
         audit_has_uncorrelated_random_inlet=audit_has_uncorrelated_random_inlet,
+        audit_inlet_source_turbulent_inflow_fidelity_class=audit_inlet_source_fidelity_class,
         paper_method_class_ok=paper_method_class_ok,
         treatment_distribution_consistent=treatment_distribution_consistent,
         distribution_status=distribution_status,
@@ -5204,11 +5262,13 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"method_class_supported={inlet_method_class_supported}; "
             f"inferred_method_class_supported={inferred_method_class_supported}; "
             f"source_method_class={inlet_source_method_class or 'missing'}; "
+            f"source_turbulent_inflow_fidelity_class={inlet_source_fidelity_class or 'missing'}; "
             f"inlet_source_gate={inlet_source_gate or 'missing'}; "
             f"paper_grade_inlet_source_gate={paper_grade_inlet_source_gate or 'missing'}; "
             f"source_distribution_consistent={inlet_source_distribution_consistent}; "
             f"source_velocity_field_only={inlet_source_velocity_field_only}; "
             f"audit_only_paper_grade_inlet_source_gate={audit_paper_grade_inlet_source_gate or 'missing'}; "
+            f"audit_only_source_turbulent_inflow_fidelity_class={audit_inlet_source_fidelity_class or 'missing'}; "
             f"audit_only_source_distribution_consistent={audit_inlet_source_distribution_consistent}; "
             f"audit_only_source_velocity_field_only={audit_inlet_source_velocity_field_only}; "
             f"audit_comment_stripped_code_audit={audit_inlet_source_comment_stripped}; "
@@ -5218,6 +5278,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"audit_has_sem_eddy_population={audit_has_sem_eddy_population}; "
             f"audit_has_precursor_recycling_field={audit_has_precursor_recycling_field}; "
             f"audit_has_uncorrelated_random_inlet={audit_has_uncorrelated_random_inlet}; "
+            f"audit_has_correlated_velocity_field_only={audit_has_correlated_velocity_field_only}; "
+            f"audit_has_uncorrelated_rms_velocity_field_only={audit_has_uncorrelated_rms_velocity_field_only}; "
             f"audit_inlet_correlation_model={audit_inlet_correlation_model or 'missing'}; "
             f"treatment={inlet_treatment or 'missing'}; "
             f"inlet_distribution_consistency={distribution_status or 'missing'}; "
