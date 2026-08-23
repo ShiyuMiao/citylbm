@@ -689,6 +689,14 @@ namespace CityLBM.Components.Simulation
         private void RunMode3_AsyncBackground(IGH_DataAccess DA,
             FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
         {
+            if (string.IsNullOrWhiteSpace(solver.FluidX3DPath))
+            {
+                string message = "Mode 3 使用外部求解器时要求提供 FX3D 路径。";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return;
+            }
+
             if (!RequireExplicitFluidX3DSourcePath(DA, solver, "Mode 3"))
             {
                 return;
@@ -840,11 +848,11 @@ namespace CityLBM.Components.Simulation
             { IsBackground = true, Name = "CityLBM_BundledSolver" };
             bgThread.Start();
 
-            DA.SetData(3, "[Bundled] Background run started...");
+            DA.SetData(3, "[启动] 后台运行已启动（Bundled 内置求解器），编译中...");
             DA.SetData(4, 0);
-            DA.SetData(5, "Initializing bundled solver...");
+            DA.SetData(5, "正在初始化 Bundled 内置求解器...");
             AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
-                "[v0.5.0 Bundled] Background run started (no external FluidX3D needed).\n" +
+                "[Legacy Bundled] Background run started from a compatibility-only path.\n" +
                 "GH component will auto-refresh every 2s.\n" +
                 "Set Cancel=True to abort.");
         }
