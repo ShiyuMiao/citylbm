@@ -2820,6 +2820,22 @@ def native_time_averaging_traceability_status(
     runtime_stationarity_gate = str(
         get_any(native_preconditions_audit, ["runtime_final_window_stationarity_gate"]) or ""
     ).strip().lower()
+    runtime_mean_speed_statistics_source = str(
+        get_any(
+            native_preconditions_audit,
+            ["runtime_mean_speed_statistics_source", "mean_speed_statistics_source"],
+        )
+        or ""
+    ).strip().lower()
+    runtime_mean_speed_statistics_cli_override = as_bool(
+        get_any(
+            native_preconditions_audit,
+            [
+                "runtime_mean_speed_statistics_cli_override",
+                "mean_speed_statistics_cli_override",
+            ],
+        )
+    )
 
     if planned_frame_count is None:
         reasons.append("planned_frame_count_min_missing")
@@ -2890,6 +2906,16 @@ def native_time_averaging_traceability_status(
             reasons.append(f"{key}_present:{','.join(values)}")
     if runtime_stationarity_gate != "pass":
         reasons.append(f"runtime_final_window_stationarity_gate_not_pass:{runtime_stationarity_gate or 'missing'}")
+    if runtime_mean_speed_statistics_source != "sampled_vtk":
+        reasons.append(
+            "runtime_mean_speed_statistics_source_not_sampled_vtk:"
+            f"{runtime_mean_speed_statistics_source or 'missing'}"
+        )
+    if runtime_mean_speed_statistics_cli_override is not False:
+        reasons.append(
+            "runtime_mean_speed_statistics_cli_override_not_false:"
+            f"{runtime_mean_speed_statistics_cli_override if runtime_mean_speed_statistics_cli_override is not None else 'missing'}"
+        )
 
     return {
         "ok": not reasons,
@@ -2904,6 +2930,8 @@ def native_time_averaging_traceability_status(
         "runtime_source_step_span": runtime_span,
         "runtime_source_step_span_from_time_steps": runtime_span_from_steps,
         "runtime_final_window_stationarity_gate": runtime_stationarity_gate,
+        "runtime_mean_speed_statistics_source": runtime_mean_speed_statistics_source,
+        "runtime_mean_speed_statistics_cli_override": runtime_mean_speed_statistics_cli_override,
         "runtime_final_window_mean_speed_drift_ratio": as_float(
             get_any(native_preconditions_audit, ["runtime_final_window_mean_speed_drift_ratio"])
         ),

@@ -59,6 +59,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - Native FluidX3D precondition and validation gates now require the runtime VTK source window to be the last available
   window and to include one unique SHA256-traceable VTK file per averaged frame. A long-looking step list without fresh,
   complete final-window file evidence remains diagnostic-only.
+- Native time-averaging traceability now carries and rechecks the runtime mean-speed statistics source. CLI or hand
+  entered stability statistics cannot pass the native final-window gate unless the archived evidence shows `sampled_vtk`
+  statistics with no override.
 - `validation_gate.py` now requires `validation_metrics.csv` to come from the same final-window VTK steps recorded in
   the runtime/read-VTK audit; stale metrics or four-frame diagnostic averages are blocked before any paper-grade
   accuracy claim.

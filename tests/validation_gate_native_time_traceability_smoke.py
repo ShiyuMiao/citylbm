@@ -41,6 +41,9 @@ def passing_native_audit():
         "runtime_final_window_stationarity_gate": "pass",
         "runtime_final_window_mean_speed_drift_ratio": 0.01,
         "runtime_max_final_window_mean_speed_drift_ratio": 0.03,
+        "runtime_mean_speed_statistics_source": "sampled_vtk",
+        "runtime_mean_speed_statistics_cli_override": False,
+        "runtime_mean_speed_statistics_cli_override_fields_csv": "",
         "planned_final_window_step_span": 39000,
         "planned_frame_count_shortfall_reason": "",
         "runtime_average_window_shortfall_reason": "",
@@ -155,6 +158,31 @@ def main() -> int:
     ):
         if expected not in stale_reasons:
             raise AssertionError((expected, stale_reasons))
+
+    cli_stats = copy.deepcopy(passing_native_audit())
+    cli_stats.update(
+        {
+            "runtime_mean_speed_statistics_source": "cli_override",
+            "runtime_mean_speed_statistics_cli_override": True,
+            "runtime_mean_speed_statistics_cli_override_fields_csv": (
+                "mean_speed_mps,mean_speed_stddev_mps"
+            ),
+        }
+    )
+    cli_failed = module.native_time_averaging_traceability_status(
+        cli_stats,
+        min_avg_frames=40,
+        min_avg_step_span=20000,
+    )
+    if cli_failed["ok"]:
+        raise AssertionError(cli_failed)
+    cli_reasons = cli_failed["reasons_csv"]
+    for expected in (
+        "runtime_mean_speed_statistics_source_not_sampled_vtk:cli_override",
+        "runtime_mean_speed_statistics_cli_override_not_false:True",
+    ):
+        if expected not in cli_reasons:
+            raise AssertionError((expected, cli_reasons))
 
     gates = [
         pass_gate(module, key)

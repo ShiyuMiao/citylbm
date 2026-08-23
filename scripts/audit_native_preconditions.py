@@ -1956,6 +1956,15 @@ def main() -> int:
     requested_frame_gate = str(runtime_audit.get("requested_vtk_frame_gate") or "").strip().lower()
     stationarity_gate = str(runtime_audit.get("final_window_stationarity_gate") or "").strip().lower()
     stationarity_reasons = split_scalar_list(runtime_audit.get("final_window_stationarity_gate_reasons"))
+    runtime_mean_speed_statistics_source = str(
+        runtime_audit.get("mean_speed_statistics_source") or ""
+    ).strip().lower()
+    runtime_mean_speed_statistics_cli_override = as_bool(
+        runtime_audit.get("mean_speed_statistics_cli_override")
+    )
+    runtime_mean_speed_statistics_cli_override_fields_csv = str(
+        runtime_audit.get("mean_speed_statistics_cli_override_fields_csv") or ""
+    )
     runtime_reported_time_average_gate = "pass" if time_gate == "pass" and requested_frame_gate == "pass" else "fail"
     if runtime_reported_time_average_gate != "pass":
         reasons.append("runtime_time_averaging_gate_not_pass")
@@ -1963,6 +1972,16 @@ def main() -> int:
         reasons.append("runtime_final_window_stationarity_gate_not_pass")
         for reason in stationarity_reasons:
             reasons.append(f"runtime_final_window_stationarity_{reason}")
+    if runtime_audit and runtime_mean_speed_statistics_source != "sampled_vtk":
+        reasons.append(
+            "runtime_mean_speed_statistics_source_not_sampled_vtk:"
+            f"{runtime_mean_speed_statistics_source or 'missing'}"
+        )
+    if runtime_audit and runtime_mean_speed_statistics_cli_override is not False:
+        reasons.append(
+            "runtime_mean_speed_statistics_cli_override_not_false:"
+            f"{runtime_mean_speed_statistics_cli_override if runtime_mean_speed_statistics_cli_override is not None else 'missing'}"
+        )
 
     if runtime_audit:
         if not runtime_steps:
@@ -3011,6 +3030,9 @@ def main() -> int:
         "runtime_final_window_stationarity_gate_reasons_csv": ";".join(stationarity_reasons),
         "runtime_final_window_mean_speed_drift_ratio": runtime_audit.get("final_window_mean_speed_drift_ratio", ""),
         "runtime_max_final_window_mean_speed_drift_ratio": runtime_audit.get("max_final_window_mean_speed_drift_ratio", ""),
+        "runtime_mean_speed_statistics_source": runtime_mean_speed_statistics_source,
+        "runtime_mean_speed_statistics_cli_override": runtime_mean_speed_statistics_cli_override,
+        "runtime_mean_speed_statistics_cli_override_fields_csv": runtime_mean_speed_statistics_cli_override_fields_csv,
         "runtime_requested_vtk_frame_gate": requested_frame_gate,
         "native_preconditions_time_average_evidence_gate": time_average_gate,
         "native_preconditions_time_average_evidence_gate_reasons": time_average_evidence_reasons,

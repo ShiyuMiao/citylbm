@@ -383,6 +383,9 @@ TEMPLATE_FIELDS = [
     "native_preconditions_runtime_final_window_stationarity_gate_reasons",
     "native_preconditions_runtime_final_window_mean_speed_drift_ratio",
     "native_preconditions_runtime_max_final_window_mean_speed_drift_ratio",
+    "native_preconditions_runtime_mean_speed_statistics_source",
+    "native_preconditions_runtime_mean_speed_statistics_cli_override",
+    "native_preconditions_runtime_mean_speed_statistics_cli_override_fields",
     "native_component_sensitivity_hash_traceability_gate",
     "native_component_sensitivity_hash_traceability_gate_reasons",
     "native_component_sensitivity_probe_audit_sha256_matches_current",
@@ -2447,6 +2450,15 @@ def main() -> int:
             ),
             "native_preconditions_runtime_max_final_window_mean_speed_drift_ratio": audit_field(
                 native_preconditions_audit, "runtime_max_final_window_mean_speed_drift_ratio"
+            ),
+            "native_preconditions_runtime_mean_speed_statistics_source": audit_field(
+                native_preconditions_audit, "runtime_mean_speed_statistics_source"
+            ),
+            "native_preconditions_runtime_mean_speed_statistics_cli_override": audit_field(
+                native_preconditions_audit, "runtime_mean_speed_statistics_cli_override"
+            ),
+            "native_preconditions_runtime_mean_speed_statistics_cli_override_fields": audit_field(
+                native_preconditions_audit, "runtime_mean_speed_statistics_cli_override_fields_csv"
             ),
             "native_component_sensitivity_hash_traceability_gate": audit_gate(
                 native_preconditions_audit, "component_sensitivity_hash_traceability_gate"
