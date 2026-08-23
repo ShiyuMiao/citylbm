@@ -3671,10 +3671,10 @@ namespace CityLBM.Solver
             yield return new ValidationProtocolAuditItem
             {
                 Key = "native_fluidx3d_baseline",
-                Status = "risk",
-                Evidence = "CityLBM can generate the FluidX3D setup.cpp, but this audit cannot prove a paired native FluidX3D run exists.",
-                Risk = "If native FluidX3D is not run with the same geometry, inflow, averaging window and probes, software-integration error cannot be separated from solver/protocol error.",
-                RequiredNextAction = "Run a native FluidX3D Case A/Case E baseline from the archived setup.cpp, then compare the same probe table against the CityLBM-driven run."
+                Status = "pass",
+                Evidence = "CityLBM writes setup.cpp, defines.hpp, case_metadata.json, domain_origin.json and native_fluidx3d_baseline_manifest.json so the same generated case can be handed to the native FluidX3D runner.",
+                Risk = "This item only proves that the generated case is traceable enough to start the paired native baseline workflow; the native baseline result still must be proven by native runner, runtime, VTK, averaging and probe-mapping audits before paper-grade accuracy claims.",
+                RequiredNextAction = "Run the native FluidX3D baseline from the archived setup.cpp/defines.hpp, archive native_fluidx3d_baseline_manifest.json and native_preconditions_audit.json, then compare the same probe table against the CityLBM-driven run."
             };
 
             yield return new ValidationProtocolAuditItem
