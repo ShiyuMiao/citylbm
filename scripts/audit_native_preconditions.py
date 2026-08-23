@@ -14,6 +14,7 @@ import csv
 import hashlib
 import json
 import math
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
@@ -67,6 +68,16 @@ REQUIRED_PROTOCOL_ITEM_KEYS = [
     "systematic_bias_gate",
     "grid_resolution",
 ]
+
+
+def reason_matches_token(reason: str, token: str) -> bool:
+    reason_text = str(reason or "").lower()
+    token_text = str(token or "").lower()
+    if not token_text:
+        return False
+    if "_" in token_text:
+        return token_text in reason_text
+    return token_text in re.split(r"[^a-z0-9]+", reason_text)
 
 
 def parse_args() -> argparse.Namespace:
@@ -175,6 +186,7 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
                 "average",
                 "vtk_hash",
                 "fresh",
+                "freshness",
                 "source_step",
             ],
             "The final VTK window must be fresh, hash-traceable and long enough for a stable mean-flow comparison.",
@@ -215,7 +227,9 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
     priorities: List[Dict[str, Any]] = []
     matched: set[str] = set()
     for rank, key, tokens, diagnosis, action in groups:
-        matching_reasons = sorted(reason for reason in reason_set if any(token in reason for token in tokens))
+        matching_reasons = sorted(
+            reason for reason in reason_set if any(reason_matches_token(reason, token) for token in tokens)
+        )
         matched.update(matching_reasons)
         if matching_reasons:
             priorities.append(
@@ -273,6 +287,10 @@ def build_native_precondition_closure(reasons: List[str]) -> Dict[str, Any]:
                 "rms",
                 "method_class",
                 "correlation",
+                "synthetic",
+                "stg",
+                "refresh",
+                "sampling",
                 "streamwise",
                 "clipping",
             ],
@@ -304,6 +322,7 @@ def build_native_precondition_closure(reasons: List[str]) -> Dict[str, Any]:
                 "average",
                 "vtk_hash",
                 "fresh",
+                "freshness",
                 "source_step",
             ],
             "Prove fresh final-window VTK hashes, frame count, uniform spacing and solver-step span.",
@@ -344,7 +363,7 @@ def build_native_precondition_closure(reasons: List[str]) -> Dict[str, Any]:
     stages: List[Dict[str, Any]] = []
     for rank, key, tokens, required_evidence in stage_specs:
         stage_reasons = sorted(
-            reason for reason in reason_set if any(token in reason for token in tokens)
+            reason for reason in reason_set if any(reason_matches_token(reason, token) for token in tokens)
         )
         stages.append(
             {
@@ -406,6 +425,7 @@ def build_native_rerun_prescription(
                 "prove_final_window_inlet_u_profile_gate_pass",
                 "prove_final_window_inlet_k_profile_gate_pass",
                 "prove_inlet_correlation_and_tke_gates_pass",
+                "prove_planned_synthetic_inlet_sampling_gate_pass",
                 "archive_inlet_source_profile_correlation_audits_with_matching_setup_and_vtk_hashes",
             ],
         ),

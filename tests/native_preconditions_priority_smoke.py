@@ -442,6 +442,17 @@ def main() -> int:
     if closure["top_blocking_stage_reason_count"] <= 0:
         raise AssertionError(closure)
 
+    synthetic_only_closure = module.build_native_precondition_closure(
+        [
+            "planned_synthetic_inlet_sampling_gate_not_pass:diagnostic_only",
+            "planned_synthetic_inlet_sampling_reason:planned_stg_refresh_count_40_below_minimum_200",
+        ]
+    )
+    if synthetic_only_closure["top_blocking_stage_key"] != "turbulent_inlet_method_and_u_k_preservation":
+        raise AssertionError(synthetic_only_closure)
+    if synthetic_only_closure["failed_stage_keys"] != ["turbulent_inlet_method_and_u_k_preservation"]:
+        raise AssertionError(synthetic_only_closure)
+
     prescription = module.build_native_rerun_prescription(
         priorities,
         closure,
@@ -460,6 +471,7 @@ def main() -> int:
         "prove_final_window_inlet_u_profile_gate_pass",
         "prove_final_window_inlet_k_profile_gate_pass",
         "prove_inlet_correlation_and_tke_gates_pass",
+        "prove_planned_synthetic_inlet_sampling_gate_pass",
     ]:
         if control not in prescription["required_controls"]:
             raise AssertionError(prescription)

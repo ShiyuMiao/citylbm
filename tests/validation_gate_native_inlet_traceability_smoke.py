@@ -140,6 +140,33 @@ def main() -> int:
     if "inlet_tke_gate_not_pass:missing" not in missing_tke_failed["reasons"]:
         raise AssertionError(missing_tke_failed["reasons"])
 
+    stg_refresh_bad = copy.deepcopy(passing_native_audit())
+    stg_refresh_bad.update(
+        {
+            "inlet_source_method_class": "stg_lite_correlated_velocity_field_only",
+            "planned_synthetic_inlet_sampling_gate": "diagnostic_only",
+            "planned_synthetic_inlet_sampling_active": True,
+            "planned_synthetic_inlet_sampling_requested": True,
+            "planned_synthetic_inlet_sampling_injected": True,
+            "planned_synthetic_inlet_refresh_count": 40,
+            "planned_synthetic_inlet_metadata_expected_refresh_count": 390,
+            "planned_synthetic_inlet_minimum_refresh_count": 200,
+        }
+    )
+    stg_refresh_failed = module.native_inlet_precondition_traceability_status(
+        stg_refresh_bad,
+        min_avg_step_span=20000,
+    )
+    if stg_refresh_failed["ok"]:
+        raise AssertionError(stg_refresh_failed)
+    for reason in [
+        "planned_synthetic_inlet_sampling_gate_not_pass:diagnostic_only",
+        "planned_synthetic_inlet_refresh_count_below_minimum:40_of_200",
+        "planned_synthetic_inlet_expected_refresh_count_mismatch:390!=40",
+    ]:
+        if reason not in stg_refresh_failed["reasons"]:
+            raise AssertionError(stg_refresh_failed["reasons"])
+
     clipping_bad = copy.deepcopy(passing_native_audit())
     clipping_bad["inlet_source_streamwise_clipping_enabled"] = True
     clipping_bad["inlet_source_has_legacy_hardcoded_streamwise_clipping"] = True

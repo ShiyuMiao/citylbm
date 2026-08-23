@@ -2252,6 +2252,77 @@ def native_inlet_precondition_traceability_status(
         if value is not False:
             reasons.append(f"{key}_not_false:{value if value is not None else 'missing'}")
 
+    inlet_method_text = " ".join(
+        str(native_preconditions_audit.get(key) or "").lower()
+        for key in [
+            "inlet_source_method_class",
+            "inlet_synthetic_correlation_model",
+            "inlet_source_correlation_model",
+            "synthetic_inlet_method",
+            "inlet_method_class",
+        ]
+    )
+    planned_synthetic_active = as_bool(
+        get_any(native_preconditions_audit, ["planned_synthetic_inlet_sampling_active"])
+    )
+    planned_synthetic_requested = as_bool(
+        get_any(native_preconditions_audit, ["planned_synthetic_inlet_sampling_requested"])
+    )
+    planned_synthetic_injected = as_bool(
+        get_any(native_preconditions_audit, ["planned_synthetic_inlet_sampling_injected"])
+    )
+    synthetic_sampling_required = (
+        "stg" in inlet_method_text
+        or "synthetic" in inlet_method_text
+        or planned_synthetic_active is True
+        or planned_synthetic_requested is True
+        or planned_synthetic_injected is True
+    )
+    if synthetic_sampling_required:
+        planned_synthetic_gate = str(
+            get_any(native_preconditions_audit, ["planned_synthetic_inlet_sampling_gate"]) or ""
+        ).strip().lower()
+        if planned_synthetic_gate != "pass":
+            reasons.append(
+                "planned_synthetic_inlet_sampling_gate_not_pass:"
+                f"{planned_synthetic_gate or 'missing'}"
+            )
+        if planned_synthetic_active is not True:
+            reasons.append(
+                "planned_synthetic_inlet_sampling_active_not_true:"
+                f"{planned_synthetic_active if planned_synthetic_active is not None else 'missing'}"
+            )
+        refresh_count = as_int(
+            get_any(native_preconditions_audit, ["planned_synthetic_inlet_refresh_count"])
+        )
+        expected_refresh_count = as_int(
+            get_any(
+                native_preconditions_audit,
+                ["planned_synthetic_inlet_metadata_expected_refresh_count"],
+            )
+        )
+        minimum_refresh_count = as_int(
+            get_any(native_preconditions_audit, ["planned_synthetic_inlet_minimum_refresh_count"])
+        )
+        if refresh_count is None:
+            reasons.append("planned_synthetic_inlet_refresh_count_missing")
+        if minimum_refresh_count is None:
+            reasons.append("planned_synthetic_inlet_minimum_refresh_count_missing")
+        elif refresh_count is not None and refresh_count < minimum_refresh_count:
+            reasons.append(
+                "planned_synthetic_inlet_refresh_count_below_minimum:"
+                f"{refresh_count}_of_{minimum_refresh_count}"
+            )
+        if (
+            expected_refresh_count is not None
+            and refresh_count is not None
+            and expected_refresh_count != refresh_count
+        ):
+            reasons.append(
+                "planned_synthetic_inlet_expected_refresh_count_mismatch:"
+                f"{expected_refresh_count}!={refresh_count}"
+            )
+
     expected_uref = as_float(get_any(native_preconditions_audit, ["expected_uref_mps"]))
     actual_uref = as_float(get_any(native_preconditions_audit, ["actual_uref_mps"]))
     expected_zref = as_float(get_any(native_preconditions_audit, ["expected_zref_m"]))
