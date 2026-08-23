@@ -2495,10 +2495,12 @@ def native_probe_component_traceability_status(
         "probe_source_step_spacing_uniform",
         "probe_source_step_span_match_runtime",
         "probe_source_vtk_sha256_match_runtime",
+        "probe_source_step_hash_pairs_match_runtime",
         "component_source_time_steps_match_runtime",
         "component_source_steps_strictly_increasing",
         "component_source_step_spacing_uniform",
         "component_source_vtk_sha256_match_runtime",
+        "component_source_step_hash_pairs_match_runtime",
         "component_sensitivity_probe_audit_sha256_matches_current",
         "component_sensitivity_official_sha256_matches_current",
     ]:

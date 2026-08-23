@@ -487,6 +487,8 @@ TEMPLATE_FIELDS = [
     "native_probe_component_source_steps_strictly_increasing",
     "native_probe_component_source_step_spacing_uniform",
     "native_probe_component_source_vtk_sha256_match_runtime",
+    "native_probe_source_step_hash_pairs_match_runtime",
+    "native_probe_component_source_step_hash_pairs_match_runtime",
     "native_boundary_equivalence_gate",
     "native_boundary_equivalence_gate_reasons",
     "native_boundary_source_gate",
@@ -2742,6 +2744,12 @@ def main() -> int:
             ),
             "native_probe_component_source_vtk_sha256_match_runtime": first_bool_text(
                 native_preconditions_audit.get("component_source_vtk_sha256_match_runtime")
+            ),
+            "native_probe_source_step_hash_pairs_match_runtime": first_bool_text(
+                native_preconditions_audit.get("probe_source_step_hash_pairs_match_runtime")
+            ),
+            "native_probe_component_source_step_hash_pairs_match_runtime": first_bool_text(
+                native_preconditions_audit.get("component_source_step_hash_pairs_match_runtime")
             ),
             "native_boundary_equivalence_gate": audit_gate(
                 native_preconditions_audit, "native_boundary_equivalence_gate"

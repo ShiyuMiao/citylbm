@@ -2760,7 +2760,14 @@ def main() -> int:
     probe_source_step_span = probe_source_step_span_values[0] if len(probe_source_step_span_values) == 1 else None
     probe_minimum_step_span = probe_minimum_step_span_values[0] if len(probe_minimum_step_span_values) == 1 else None
     probe_source_steps_match = bool(runtime_steps) and probe_source_steps == runtime_steps
-    probe_source_hashes_match = bool(runtime_hashes) and bool(probe_source_hashes) and set(probe_source_hashes) == set(runtime_hashes)
+    probe_source_hashes_match = bool(runtime_hashes) and bool(probe_source_hashes) and probe_source_hashes == runtime_hashes
+    probe_source_step_hash_pairs_match = (
+        bool(runtime_steps)
+        and bool(runtime_hashes)
+        and probe_source_steps == runtime_steps
+        and probe_source_hashes == runtime_hashes
+        and len(probe_source_steps) == len(probe_source_hashes)
+    )
     probe_source_steps_increasing = source_steps_strictly_increasing(probe_source_steps)
     probe_source_steps_uniform = source_steps_uniformly_spaced(probe_source_steps)
     probe_source_step_span_match = (
@@ -2781,6 +2788,9 @@ def main() -> int:
             reasons.append("probe_source_vtk_hashes_inconsistent_or_missing")
         elif not probe_source_hashes_match:
             reasons.append("probe_source_vtk_hashes_mismatch")
+        if len(probe_source_steps_values) == 1 and len(probe_source_hash_values) == 1:
+            if not probe_source_step_hash_pairs_match:
+                reasons.append("probe_source_step_hash_pairs_mismatch")
         if len(probe_source_step_span_values) != 1:
             reasons.append("probe_source_step_span_inconsistent_or_missing")
         else:
@@ -2813,7 +2823,14 @@ def main() -> int:
     component_source_hashes_match_runtime = (
         bool(runtime_hashes)
         and bool(component_source_hashes)
-        and set(component_source_hashes) == set(runtime_hashes)
+        and component_source_hashes == runtime_hashes
+    )
+    component_source_step_hash_pairs_match_runtime = (
+        bool(runtime_steps)
+        and bool(runtime_hashes)
+        and component_source_steps == runtime_steps
+        and component_source_hashes == runtime_hashes
+        and len(component_source_steps) == len(component_source_hashes)
     )
     component_source_steps_increasing = source_steps_strictly_increasing(component_source_steps)
     component_source_steps_uniform = source_steps_uniformly_spaced(component_source_steps)
@@ -2832,6 +2849,8 @@ def main() -> int:
         reasons.append("component_source_time_steps_mismatch_runtime")
     if not component_source_hashes_match_runtime:
         reasons.append("component_source_vtk_hashes_mismatch_runtime")
+    if not component_source_step_hash_pairs_match_runtime:
+        reasons.append("component_source_step_hash_pairs_mismatch_runtime")
 
     native_probe_component_equivalence_reasons: List[str] = []
     if not probe_rows:
@@ -2884,10 +2903,12 @@ def main() -> int:
         ("probe_source_step_spacing_uniform", probe_source_steps_uniform),
         ("probe_source_step_span_match_runtime", probe_source_step_span_match),
         ("probe_source_vtk_sha256_match_runtime", probe_source_hashes_match),
+        ("probe_source_step_hash_pairs_match_runtime", probe_source_step_hash_pairs_match),
         ("component_source_time_steps_match_runtime", component_source_steps_match_runtime),
         ("component_source_steps_strictly_increasing", component_source_steps_increasing),
         ("component_source_step_spacing_uniform", component_source_steps_uniform),
         ("component_source_vtk_sha256_match_runtime", component_source_hashes_match_runtime),
+        ("component_source_step_hash_pairs_match_runtime", component_source_step_hash_pairs_match_runtime),
         (
             "component_sensitivity_probe_audit_sha256_matches_current",
             component_hash_traceability["probe_audit_sha256_matches_current"],
@@ -3314,6 +3335,7 @@ def main() -> int:
         "probe_minimum_validation_average_step_span": probe_minimum_step_span,
         "probe_source_vtk_sha256": probe_source_hashes,
         "probe_source_vtk_sha256_match_runtime": probe_source_hashes_match,
+        "probe_source_step_hash_pairs_match_runtime": probe_source_step_hash_pairs_match,
         "component_normalization_gate": component_gate,
         "component_sensitivity_gate": component_sensitivity_gate,
         "normalization_scale_gate": normalization_scale_gate,
@@ -3334,6 +3356,7 @@ def main() -> int:
         "component_minimum_source_step_span": component_sensitivity_audit.get("component_minimum_source_step_span"),
         "component_source_sha256": str(component_sensitivity_audit.get("component_source_sha256") or ""),
         "component_source_vtk_sha256_match_runtime": component_source_hashes_match_runtime,
+        "component_source_step_hash_pairs_match_runtime": component_source_step_hash_pairs_match_runtime,
         "native_preconditions_protocol_identity_gate": protocol_identity_gate,
         "native_preconditions_time_average_gate": time_average_gate,
         "native_preconditions_manifest_sha256": sha256_file(manifest_path),

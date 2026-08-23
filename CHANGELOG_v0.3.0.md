@@ -96,6 +96,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now adds `native_probe_component_traceability`, requiring native FluidX3D probe IDs, official
   coordinates, projection tolerance, Uref, wind vector, compared component and component-sensitivity source window to
   match the same final averaged VTK window before residual bias can be interpreted.
+- Native probe/component traceability now also requires ordered `time_step -> VTK SHA256` pair equality against the
+  runtime final window. Matching only the time-step list plus an unordered hash set is no longer enough for probe or
+  component-sensitivity evidence.
 - `validation_gate.py` now adds `native_boundary_traceability`, requiring native FluidX3D boundary-source code,
   AIJ-equivalent boundary evidence, current metadata hash, boundary evidence file hashes, supported outlet/side/top/
   floor/roughness/fetch fields and case/wind identity before boundary-sensitive bias can be interpreted.
