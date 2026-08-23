@@ -290,11 +290,15 @@ def read_vtk_metadata(path: Path) -> Dict[str, Any]:
     if "DATASET STRUCTURED_POINTS" not in text.upper() and "DATASET IMAGE_DATA" not in text.upper():
         raise SystemExit(f"Only STRUCTURED_POINTS/IMAGE_DATA VTK is supported: {path}")
     dims = parse_header_line(text, "DIMENSIONS", 3)
-    origin = parse_header_line(text, "ORIGIN", 3) or (0.0, 0.0, 0.0)
-    spacing = parse_header_line(text, "SPACING", 3) or (1.0, 1.0, 1.0)
+    origin = parse_header_line(text, "ORIGIN", 3)
+    spacing = parse_header_line(text, "SPACING", 3)
     point_data = parse_header_line(text, "POINT_DATA", 1)
     if not dims:
         raise SystemExit(f"VTK DIMENSIONS missing: {path}")
+    if origin is None:
+        raise SystemExit(f"VTK ORIGIN missing; explicit origin is required for official probe-coordinate validation: {path}")
+    if spacing is None:
+        raise SystemExit(f"VTK SPACING missing; explicit spacing/dx is required for official probe-coordinate validation: {path}")
     nx, ny, nz = [int(round(value)) for value in dims]
     expected_count = nx * ny * nz
     if point_data and int(round(point_data[0])) != expected_count:
