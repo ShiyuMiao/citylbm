@@ -411,6 +411,8 @@ TEMPLATE_FIELDS = [
     "native_inlet_correlation_source_step_span",
     "native_inlet_correlation_minimum_step_span",
     "native_inlet_source_stg_evidence_required",
+    "native_inlet_source_method_class",
+    "native_inlet_source_correlation_model",
     "native_inlet_source_distribution_route",
     "native_inlet_source_distribution_route_gate",
     "native_inlet_source_has_equilibrium_boundaries_define",
@@ -428,6 +430,7 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_streamwise_min_fraction",
     "native_inlet_source_streamwise_clipping_enabled",
     "native_inlet_source_has_legacy_hardcoded_streamwise_clipping",
+    "native_inlet_source_has_uncorrelated_random_inlet",
     "native_inlet_source_uncorrelated_random_patterns",
     "native_inlet_source_recommended_next_action",
     "native_probe_component_equivalence_gate",
@@ -2395,6 +2398,12 @@ def main() -> int:
             "native_inlet_source_stg_evidence_required": first_bool_text(
                 native_preconditions_audit.get("inlet_source_stg_evidence_required")
             ),
+            "native_inlet_source_method_class": audit_field(
+                native_preconditions_audit, "inlet_source_method_class"
+            ),
+            "native_inlet_source_correlation_model": audit_field(
+                native_preconditions_audit, "inlet_synthetic_correlation_model"
+            ),
             "native_inlet_source_distribution_route": audit_field(
                 native_preconditions_audit, "inlet_source_distribution_route"
             ),
@@ -2445,6 +2454,9 @@ def main() -> int:
             ),
             "native_inlet_source_has_legacy_hardcoded_streamwise_clipping": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_legacy_hardcoded_streamwise_clipping")
+            ),
+            "native_inlet_source_has_uncorrelated_random_inlet": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_uncorrelated_random_inlet")
             ),
             "native_inlet_source_uncorrelated_random_patterns": audit_field(
                 native_preconditions_audit, "inlet_source_uncorrelated_random_patterns_csv"
