@@ -132,6 +132,15 @@ def main() -> int:
                         "runtime_average_window_frame_count_4_below_minimum_40;"
                         "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
                     ),
+                    "runtime_source_frame_count": 4,
+                    "runtime_source_vtk_sha256_count": 4,
+                    "runtime_source_vtk_sha256_unique_count": 4,
+                    "runtime_final_window_frame_count_gate": "fail",
+                    "runtime_final_window_frame_count_gate_reasons_csv": (
+                        "runtime_average_window_frame_count_4_below_minimum_40;"
+                        "runtime_source_frame_count_4_below_minimum_40;"
+                        "runtime_source_vtk_sha256_count_4_below_minimum_40"
+                    ),
                     "planned_synthetic_inlet_sampling_gate": "diagnostic_only",
                     "planned_synthetic_inlet_sampling_gate_reasons_csv": (
                         "planned_stg_refresh_count_40_below_minimum_200"
@@ -343,6 +352,15 @@ def main() -> int:
         "native_preconditions_time_average_evidence_gate_reasons": (
             "runtime_average_window_frame_count_4_below_minimum_40;"
             "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
+        ),
+        "native_preconditions_runtime_source_frame_count": "4",
+        "native_preconditions_runtime_source_vtk_sha256_count": "4",
+        "native_preconditions_runtime_source_vtk_sha256_unique_count": "4",
+        "native_preconditions_runtime_final_window_frame_count_gate": "fail",
+        "native_preconditions_runtime_final_window_frame_count_gate_reasons": (
+            "runtime_average_window_frame_count_4_below_minimum_40;"
+            "runtime_source_frame_count_4_below_minimum_40;"
+            "runtime_source_vtk_sha256_count_4_below_minimum_40"
         ),
         "native_preconditions_planned_synthetic_inlet_sampling_gate": "diagnostic_only",
         "native_preconditions_planned_synthetic_inlet_sampling_gate_reasons": (

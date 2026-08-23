@@ -1086,6 +1086,40 @@ def build_time_average_evidence_reasons(
     return evidence_reasons
 
 
+def build_final_window_frame_count_gate(
+    *,
+    runtime_avg: Optional[int],
+    runtime_source_frame_count: Optional[int],
+    runtime_hash_count: int,
+    runtime_hash_unique_count: int,
+    runtime_selected_last_window: Optional[bool],
+    min_avg_frames: int,
+) -> Dict[str, Any]:
+    reasons: List[str] = []
+    for label, value in [
+        ("runtime_average_window_frame_count", runtime_avg),
+        ("runtime_source_frame_count", runtime_source_frame_count),
+        ("runtime_source_vtk_sha256_count", runtime_hash_count),
+    ]:
+        if value is None:
+            reasons.append(f"{label}_missing")
+            continue
+        shortfall = count_below_minimum_reason(label, value, min_avg_frames)
+        if shortfall:
+            reasons.append(shortfall)
+    if runtime_hash_unique_count != runtime_hash_count:
+        reasons.append("runtime_source_vtk_sha256_not_unique")
+    if runtime_selected_last_window is not True:
+        reasons.append(
+            f"runtime_selected_last_window_not_true:{runtime_selected_last_window}"
+        )
+    return {
+        "gate": "pass" if not reasons else "fail",
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+    }
+
+
 def build_inlet_equivalence_evidence_reasons(
     *,
     inlet_source_audit: Dict[str, Any],
@@ -1905,6 +1939,7 @@ def main() -> int:
     runtime_steps = audit_source_steps(runtime_audit)
     runtime_hashes = runtime_source_hashes(runtime_audit, runtime_steps)
     runtime_selected_last_window = as_bool(runtime_audit.get("selected_last_window"))
+    runtime_source_frame_count = len(runtime_steps) if runtime_steps else None
     runtime_hash_count = len(runtime_hashes)
     runtime_hash_unique_count = len(set(runtime_hashes))
     runtime_step_span_reported = as_int(runtime_audit.get("source_step_span"))
@@ -2004,6 +2039,21 @@ def main() -> int:
             reasons.append("runtime_source_time_steps_missing")
         if not runtime_hashes:
             reasons.append("runtime_source_vtk_hashes_missing")
+
+    runtime_final_window_frame_count_gate = build_final_window_frame_count_gate(
+        runtime_avg=runtime_avg,
+        runtime_source_frame_count=runtime_source_frame_count,
+        runtime_hash_count=runtime_hash_count,
+        runtime_hash_unique_count=runtime_hash_unique_count,
+        runtime_selected_last_window=runtime_selected_last_window,
+        min_avg_frames=args.min_avg_frames,
+    )
+    if runtime_final_window_frame_count_gate["gate"] != "pass":
+        reasons.append("runtime_final_window_frame_count_gate_not_pass")
+        reasons.extend(
+            f"runtime_final_window_frame_count_gate_reason:{reason}"
+            for reason in runtime_final_window_frame_count_gate["reasons"]
+        )
 
     time_average_evidence_reasons = build_time_average_evidence_reasons(
         runtime_audit_present=bool(runtime_audit),
@@ -3064,10 +3114,14 @@ def main() -> int:
         "runtime_reported_source_steps_strictly_increasing": runtime_reported_steps_increasing,
         "runtime_reported_source_step_spacing_uniform": runtime_reported_steps_uniform,
         "runtime_selected_last_window": runtime_selected_last_window,
+        "runtime_source_frame_count": runtime_source_frame_count,
         "runtime_source_time_steps": runtime_steps,
         "runtime_source_vtk_sha256": runtime_hashes,
         "runtime_source_vtk_sha256_count": runtime_hash_count,
         "runtime_source_vtk_sha256_unique_count": runtime_hash_unique_count,
+        "runtime_final_window_frame_count_gate": runtime_final_window_frame_count_gate["gate"],
+        "runtime_final_window_frame_count_gate_reasons": runtime_final_window_frame_count_gate["reasons"],
+        "runtime_final_window_frame_count_gate_reasons_csv": runtime_final_window_frame_count_gate["reasons_csv"],
         "runtime_reported_time_averaging_gate": runtime_reported_time_average_gate,
         "runtime_time_averaging_gate": time_gate,
         "runtime_final_window_stationarity_gate": stationarity_gate,

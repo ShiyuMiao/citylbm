@@ -121,6 +121,35 @@ def main() -> int:
         if expected_reason not in short_time_reasons:
             raise AssertionError((expected_reason, short_time_reasons))
 
+    passing_final_window_gate = module.build_final_window_frame_count_gate(
+        runtime_avg=40,
+        runtime_source_frame_count=40,
+        runtime_hash_count=40,
+        runtime_hash_unique_count=40,
+        runtime_selected_last_window=True,
+        min_avg_frames=40,
+    )
+    if passing_final_window_gate["gate"] != "pass":
+        raise AssertionError(passing_final_window_gate)
+    short_final_window_gate = module.build_final_window_frame_count_gate(
+        runtime_avg=4,
+        runtime_source_frame_count=4,
+        runtime_hash_count=4,
+        runtime_hash_unique_count=4,
+        runtime_selected_last_window=False,
+        min_avg_frames=40,
+    )
+    if short_final_window_gate["gate"] != "fail":
+        raise AssertionError(short_final_window_gate)
+    for expected_reason in [
+        "runtime_average_window_frame_count_4_below_minimum_40",
+        "runtime_source_frame_count_4_below_minimum_40",
+        "runtime_source_vtk_sha256_count_4_below_minimum_40",
+        "runtime_selected_last_window_not_true:False",
+    ]:
+        if expected_reason not in short_final_window_gate["reasons"]:
+            raise AssertionError((expected_reason, short_final_window_gate))
+
     passing_inlet_source = {
         "inlet_source_gate": "pass",
         "paper_grade_inlet_source_gate": "pass",

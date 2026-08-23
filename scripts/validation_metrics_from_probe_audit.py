@@ -382,8 +382,11 @@ TEMPLATE_FIELDS = [
     "native_preconditions_uref_af_profile_delta_mps",
     "native_preconditions_metadata_uref_af_profile_delta_mps",
     "native_preconditions_runtime_selected_last_window",
+    "native_preconditions_runtime_source_frame_count",
     "native_preconditions_runtime_source_vtk_sha256_count",
     "native_preconditions_runtime_source_vtk_sha256_unique_count",
+    "native_preconditions_runtime_final_window_frame_count_gate",
+    "native_preconditions_runtime_final_window_frame_count_gate_reasons",
     "native_preconditions_runtime_final_window_stationarity_gate",
     "native_preconditions_runtime_final_window_stationarity_gate_reasons",
     "native_preconditions_runtime_final_window_mean_speed_drift_ratio",
@@ -2456,12 +2459,22 @@ def main() -> int:
             "native_preconditions_runtime_selected_last_window": first_bool_text(
                 native_preconditions_audit.get("runtime_selected_last_window")
             ),
+            "native_preconditions_runtime_source_frame_count": fmt(
+                audit_int(native_preconditions_audit, "runtime_source_frame_count")
+            ),
             "native_preconditions_runtime_source_vtk_sha256_count": fmt(
                 audit_int(native_preconditions_audit, "runtime_source_vtk_sha256_count")
             ),
             "native_preconditions_runtime_source_vtk_sha256_unique_count": fmt(
                 audit_int(native_preconditions_audit, "runtime_source_vtk_sha256_unique_count")
             ),
+            "native_preconditions_runtime_final_window_frame_count_gate": audit_gate(
+                native_preconditions_audit, "runtime_final_window_frame_count_gate"
+            ),
+            "native_preconditions_runtime_final_window_frame_count_gate_reasons": audit_field(
+                native_preconditions_audit, "runtime_final_window_frame_count_gate_reasons_csv"
+            )
+            or audit_list_field(native_preconditions_audit, "runtime_final_window_frame_count_gate_reasons"),
             "native_preconditions_runtime_final_window_stationarity_gate": audit_gate(
                 native_preconditions_audit, "runtime_final_window_stationarity_gate"
             ),
