@@ -45,6 +45,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--probe-id-column", default="", help="Official probe ID column. Auto-detected when omitted.")
     parser.add_argument("--case", default="", help="Optional official CSV case filter, e.g. ac or CaseA.")
     parser.add_argument("--wind-direction-label", default="", help="Optional official CSV wind-direction filter, e.g. N.")
+    parser.add_argument(
+        "--expected-row-count",
+        type=int,
+        default=0,
+        help="Expected official rows after case/wind filtering. 0 disables the count gate.",
+    )
+    parser.add_argument(
+        "--expected-z",
+        type=float,
+        default=None,
+        help="Expected official probe height after case/wind filtering, e.g. 2.0 for AIJ Case E pedestrian probes.",
+    )
+    parser.add_argument(
+        "--expected-z-tolerance",
+        type=float,
+        default=1.0e-6,
+        help="Absolute tolerance in meters for --expected-z.",
+    )
     parser.add_argument("--x-column", default="x")
     parser.add_argument("--y-column", default="y")
     parser.add_argument("--z-column", default="z")
@@ -159,6 +177,57 @@ def filter_official_rows(
     if not selected:
         raise SystemExit("Official CSV filter selected no rows.")
     return selected
+
+
+def official_probe_set_summary(
+    rows: Sequence[Dict[str, str]],
+    probe_id_col: str,
+    z_col: str,
+    expected_row_count: int,
+    expected_z: Optional[float],
+    expected_z_tolerance: float,
+) -> Dict[str, Any]:
+    ids: List[str] = []
+    missing_ids = 0
+    for row in rows:
+        probe_id = get_value(row, probe_id_col).strip()
+        if not probe_id:
+            missing_ids += 1
+            continue
+        ids.append(probe_id)
+    duplicate_ids = sorted({probe_id for probe_id in ids if ids.count(probe_id) > 1})
+    z_match_count = 0
+    z_mismatch_count = 0
+    if expected_z is not None:
+        for row in rows:
+            z_value = as_float(get_value(row, z_col))
+            if z_value is not None and abs(z_value - expected_z) <= expected_z_tolerance:
+                z_match_count += 1
+            else:
+                z_mismatch_count += 1
+    summary = {
+        "official_probe_set_row_count": len(rows),
+        "official_expected_row_count": expected_row_count if expected_row_count > 0 else "",
+        "official_probe_ids_unique": "true" if not duplicate_ids and missing_ids == 0 else "false",
+        "official_missing_probe_id_count": missing_ids,
+        "official_duplicate_probe_ids": ";".join(duplicate_ids),
+        "official_expected_z": expected_z if expected_z is not None else "",
+        "official_expected_z_tolerance": expected_z_tolerance if expected_z is not None else "",
+        "official_z_match_count": z_match_count if expected_z is not None else "",
+        "official_z_mismatch_count": z_mismatch_count if expected_z is not None else "",
+    }
+    reasons = []
+    if expected_row_count > 0 and len(rows) != expected_row_count:
+        reasons.append(f"official_row_count_{len(rows)}_does_not_match_expected_{expected_row_count}")
+    if missing_ids:
+        reasons.append(f"missing_probe_ids:{missing_ids}")
+    if duplicate_ids:
+        reasons.append(f"duplicate_probe_ids:{';'.join(duplicate_ids)}")
+    if expected_z is not None and z_mismatch_count:
+        reasons.append(f"official_z_mismatch_count_{z_mismatch_count}")
+    if reasons:
+        raise SystemExit("Official probe set validation failed: " + ", ".join(reasons))
+    return summary
 
 
 def vtk_files(path: Path, pattern: str, average_last_n: int) -> List[Path]:
@@ -501,6 +570,14 @@ def main() -> int:
         raise SystemExit("Could not detect probe ID column. Use --probe-id-column.")
     if not x_col or not y_col or not z_col:
         raise SystemExit("Could not detect x/y/z columns.")
+    official_summary = official_probe_set_summary(
+        official_rows,
+        probe_id_col,
+        z_col,
+        args.expected_row_count,
+        args.expected_z,
+        args.expected_z_tolerance,
+    )
     wind = parse_vector(args.wind_direction)
     out_rows: List[Dict[str, Any]] = []
     for index, row in enumerate(official_rows):
@@ -519,6 +596,7 @@ def main() -> int:
                     "official_y": raw_point_values[1],
                     "official_z": raw_point_values[2],
                     "official_coordinate_delta": "",
+                    **official_summary,
                     "u": "",
                     "v": "",
                     "w": "",
@@ -629,6 +707,7 @@ def main() -> int:
                 "official_y": official_point[1],
                 "official_z": official_point[2],
                 "official_coordinate_delta": official_coordinate_delta,
+                **official_summary,
                 "u": mean_velocity[0],
                 "v": mean_velocity[1],
                 "w": mean_velocity[2],
@@ -699,6 +778,15 @@ def main() -> int:
         "official_y",
         "official_z",
         "official_coordinate_delta",
+        "official_probe_set_row_count",
+        "official_expected_row_count",
+        "official_probe_ids_unique",
+        "official_missing_probe_id_count",
+        "official_duplicate_probe_ids",
+        "official_expected_z",
+        "official_expected_z_tolerance",
+        "official_z_match_count",
+        "official_z_mismatch_count",
         "u",
         "v",
         "w",

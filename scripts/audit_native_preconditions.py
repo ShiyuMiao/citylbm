@@ -2481,6 +2481,53 @@ def main() -> int:
     expected_component = str(args.expected_compared_component or "").strip()
     failed_probe_rows = [row for row in probe_rows if probe_row_failed(row)]
     valid_probe_rows = [row for row in probe_rows if not probe_row_failed(row)]
+    official_probe_set_field_names = [
+        "official_probe_set_row_count",
+        "official_expected_row_count",
+        "official_probe_ids_unique",
+        "official_missing_probe_id_count",
+        "official_duplicate_probe_ids",
+        "official_expected_z",
+        "official_expected_z_tolerance",
+        "official_z_match_count",
+        "official_z_mismatch_count",
+    ]
+    official_probe_set_unique_values = {
+        field: sorted(
+            {
+                row_value(row, field)
+                for row in probe_rows
+                if row_value(row, field)
+            }
+        )
+        for field in official_probe_set_field_names
+    }
+    official_probe_set_reasons: List[str] = []
+    for field, values in official_probe_set_unique_values.items():
+        if len(values) > 1:
+            official_probe_set_reasons.append(f"mixed_{field}:{len(values)}")
+    official_probe_set_row_count = as_int(next(iter(official_probe_set_unique_values["official_probe_set_row_count"]), ""))
+    official_expected_row_count = as_int(next(iter(official_probe_set_unique_values["official_expected_row_count"]), ""))
+    official_probe_ids_unique = as_bool(next(iter(official_probe_set_unique_values["official_probe_ids_unique"]), ""))
+    official_missing_probe_id_count = as_int(next(iter(official_probe_set_unique_values["official_missing_probe_id_count"]), ""))
+    official_duplicate_probe_ids = ";".join(official_probe_set_unique_values["official_duplicate_probe_ids"])
+    official_expected_z = next(iter(official_probe_set_unique_values["official_expected_z"]), "")
+    official_expected_z_tolerance = next(iter(official_probe_set_unique_values["official_expected_z_tolerance"]), "")
+    official_z_match_count = as_int(next(iter(official_probe_set_unique_values["official_z_match_count"]), ""))
+    official_z_mismatch_count = as_int(next(iter(official_probe_set_unique_values["official_z_mismatch_count"]), ""))
+    if official_expected_row_count is not None and official_probe_set_row_count != official_expected_row_count:
+        official_probe_set_reasons.append(
+            f"official_row_count_{official_probe_set_row_count}_does_not_match_expected_{official_expected_row_count}"
+        )
+    if official_probe_ids_unique is False:
+        official_probe_set_reasons.append("official_probe_ids_not_unique")
+    if official_missing_probe_id_count and official_missing_probe_id_count > 0:
+        official_probe_set_reasons.append(f"official_missing_probe_id_count:{official_missing_probe_id_count}")
+    if official_duplicate_probe_ids:
+        official_probe_set_reasons.append(f"official_duplicate_probe_ids:{official_duplicate_probe_ids}")
+    if official_z_mismatch_count and official_z_mismatch_count > 0:
+        official_probe_set_reasons.append(f"official_z_mismatch_count:{official_z_mismatch_count}")
+    official_probe_set_gate = "pass" if not official_probe_set_reasons else "fail"
     compared_components = {
         row_value(row, "compared_component", "ComparedComponent")
         for row in valid_probe_rows
@@ -3199,6 +3246,17 @@ def main() -> int:
         "probe_duplicate_ids_csv": ";".join(duplicate_probe_ids_sorted),
         "probe_unique_id_count": len(seen_probe_ids),
         "official_probe_id_count": len(official_probe_ids),
+        "official_probe_set_gate": official_probe_set_gate,
+        "official_probe_set_gate_reasons": official_probe_set_reasons,
+        "official_probe_set_row_count": official_probe_set_row_count,
+        "official_expected_row_count": official_expected_row_count,
+        "official_probe_ids_unique": official_probe_ids_unique,
+        "official_missing_probe_id_count": official_missing_probe_id_count,
+        "official_duplicate_probe_ids": official_duplicate_probe_ids,
+        "official_expected_z_m": official_expected_z,
+        "official_expected_z_tolerance_m": official_expected_z_tolerance,
+        "official_z_match_count": official_z_match_count,
+        "official_z_mismatch_count": official_z_mismatch_count,
         "matched_official_probe_id_count": len(official_probe_ids & set(probe_ids)),
         "missing_official_probe_id_count": len(missing_official_probe_ids),
         "missing_official_probe_ids_csv": ";".join(missing_official_probe_ids),

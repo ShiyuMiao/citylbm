@@ -265,6 +265,9 @@ new output directory.
   `official_coordinate_delta_count`; the machine gate fails if valid probes mix components or if coordinate deltas are
   not available for every valid official probe. Native FluidX3D reruns outside Grasshopper must generate the same audit
   schema with `scripts\probe_vtk_points.py`, filtered to `case=ac` and `Wind_direction=N`, before building metrics.
+  For Case E `ac + N`, the probe extraction must also pass `--expected-row-count 80 --expected-z 2.0`; the generated
+  audit must report `official_probe_set_gate=pass` after metrics are built. This prevents accidental comparison against
+  another wind direction, construction state, non-pedestrian height or partial official subset.
   The metrics row must also carry `probe_mapping_table_sha256` and `official_measurement_sha256`; the final gate checks
   those against the current `--probe-audit` and `--official` files before any coordinate, component, Uref or bias metric
   is interpreted.
@@ -341,7 +344,7 @@ python scripts\audit_inlet_profile_from_vtk.py <run_dir>\output --af-csv <offici
 
 python scripts\audit_inlet_correlation_from_vtk.py <run_dir>\output --metadata <case_metadata.json> --wind-direction 0,-1,0 --plane-axis auto-inlet --average-last-n 40 --min-frames 40 --min-step-span 20000 --out-json <run_dir>\inlet_correlation_audit.json
 
-python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 40 --min-avg-frames 40 --min-avg-step-span 20000 --out <probe_audit.csv>
+python scripts\probe_vtk_points.py <run_dir>\output --official <official_data>\RS_caseE.csv --case ac --wind-direction-label N --wind-direction 0,-1,0 --u-ref 3.928296 --compared-component speed_ratio --interpolation trilinear --tolerance <probe_tolerance_m> --average-last-n 40 --min-avg-frames 40 --min-avg-step-span 20000 --expected-row-count 80 --expected-z 2.0 --out <probe_audit.csv>
 
 python scripts\audit_component_sensitivity.py --probe-audit <probe_audit.csv> --official <official_data>\RS_caseE.csv --case ac --wind-direction N --selected-component speed_ratio --out-json <run_dir>\component_sensitivity_audit.json --out-csv <run_dir>\component_sensitivity_audit.csv
 
@@ -365,7 +368,7 @@ python scripts\audit_boundary_protocol.py <run_dir> --metadata <case_metadata.js
   package with one command:
 
 ```powershell
-python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --boundary-evidence <boundary_evidence_casee_ac_N.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 40 --min-avg-frames 40 --min-avg-step-span 20000 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250 --paired-native-metrics <native_validation_metrics.csv>
+python scripts\run_native_validation_chain.py <run_dir> --official <official_data>\RS_caseE.csv --af-csv <official_data>\AF_caseE.csv --metadata <case_metadata.json> --boundary-evidence <boundary_evidence_casee_ac_N.json> --solver-log <solver.log> --case ac --wind-direction-label N --wind-vector 0,-1,0 --u-ref 3.928296 --z-ref 15.9 --software citylbm --average-last-n 40 --min-avg-frames 40 --min-avg-step-span 20000 --compared-component speed_ratio --interpolation trilinear --probe-tolerance <probe_tolerance_m> --expected-probe-row-count 80 --expected-probe-z 2.0 --dx <dx_m> --steps <steps> --save-interval <save_interval> --geometry-scale 250 --paired-native-metrics <native_validation_metrics.csv>
 ```
 
   The command creates `validation_chain_manifest.json`, `native_run_audit.json`, `inlet_source_audit.json`,
@@ -462,6 +465,9 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Valid probe-ID coverage: probe ID column, official ID column, unique valid probe count, duplicate/missing probe-ID
   count, unmatched official-ID count, official measurement count, official probe coverage ratio and missing official
   probe count
+- Official probe-set gate: `official_probe_set_gate`, `official_probe_set_row_count`, `official_expected_row_count`,
+  `official_expected_z_m`, `official_z_match_count` and `official_z_mismatch_count`. For `ac + N`, this must show
+  exactly 80 official rows at `z=2.0 m`.
 - Per-probe `Uref`, wind vector, `normalization_valid` and `wind_direction_valid` coverage from the Data Probe audit
   CSV. For paper-grade Case E, every valid probe must carry the same finite normalization basis and declared wind vector;
   a correct summary metrics row is diagnostic if the per-probe audit is missing or mixed. The

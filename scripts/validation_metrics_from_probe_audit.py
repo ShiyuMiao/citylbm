@@ -668,6 +668,17 @@ TEMPLATE_FIELDS = [
     "official_measurement_count",
     "official_probe_coverage_ratio",
     "missing_official_probe_count",
+    "official_probe_set_gate",
+    "official_probe_set_gate_reasons",
+    "official_probe_set_row_count",
+    "official_expected_row_count",
+    "official_probe_ids_unique",
+    "official_missing_probe_id_count",
+    "official_duplicate_probe_ids",
+    "official_expected_z_m",
+    "official_expected_z_tolerance_m",
+    "official_z_match_count",
+    "official_z_mismatch_count",
     "mean_probe_distance_m",
     "max_probe_distance_m",
     "max_official_coordinate_delta_m",
@@ -1329,9 +1340,25 @@ def main() -> int:
     probe_inside_grid_extent_count = 0
     probe_outside_grid_extent_count = 0
     probe_missing_grid_extent_count = 0
+    official_probe_set_fields = [
+        "official_probe_set_row_count",
+        "official_expected_row_count",
+        "official_probe_ids_unique",
+        "official_missing_probe_id_count",
+        "official_duplicate_probe_ids",
+        "official_expected_z",
+        "official_expected_z_tolerance",
+        "official_z_match_count",
+        "official_z_mismatch_count",
+    ]
+    official_probe_set_values: Dict[str, List[str]] = {field: [] for field in official_probe_set_fields}
     matched_official_probe_ids = set()
 
     for row in probe_rows:
+        for field in official_probe_set_fields:
+            value = get_value(row, field).strip()
+            if value:
+                official_probe_set_values[field].append(value)
         probe_id = get_value(row, args.probe_id_column).strip()
         probe_key = normalized_probe_id(probe_id)
         official_row = official.get(probe_key)
@@ -1439,6 +1466,48 @@ def main() -> int:
         if official_measurement_count
         else None
     )
+    official_probe_set_unique_values = {
+        field: sorted(set(values))
+        for field, values in official_probe_set_values.items()
+    }
+    official_probe_set_reasons: List[str] = []
+    for field, values in official_probe_set_unique_values.items():
+        if len(values) > 1:
+            official_probe_set_reasons.append(f"mixed_{field}:{len(values)}")
+    official_probe_set_row_count = first_int(
+        *(as_int(value) for value in official_probe_set_unique_values["official_probe_set_row_count"])
+    )
+    official_expected_row_count = first_int(
+        *(as_int(value) for value in official_probe_set_unique_values["official_expected_row_count"])
+    )
+    official_probe_ids_unique = first_bool_text(*official_probe_set_unique_values["official_probe_ids_unique"])
+    official_missing_probe_id_count = first_int(
+        *(as_int(value) for value in official_probe_set_unique_values["official_missing_probe_id_count"])
+    )
+    official_duplicate_probe_ids = ";".join(official_probe_set_unique_values["official_duplicate_probe_ids"])
+    official_expected_z = first_text(*official_probe_set_unique_values["official_expected_z"])
+    official_expected_z_tolerance = first_text(*official_probe_set_unique_values["official_expected_z_tolerance"])
+    official_z_match_count = first_int(
+        *(as_int(value) for value in official_probe_set_unique_values["official_z_match_count"])
+    )
+    official_z_mismatch_count = first_int(
+        *(as_int(value) for value in official_probe_set_unique_values["official_z_mismatch_count"])
+    )
+    if official_probe_set_row_count is None:
+        official_probe_set_reasons.append("missing_official_probe_set_row_count")
+    if official_expected_row_count is not None and official_probe_set_row_count != official_expected_row_count:
+        official_probe_set_reasons.append(
+            f"official_row_count_{official_probe_set_row_count}_does_not_match_expected_{official_expected_row_count}"
+        )
+    if official_probe_ids_unique == "false":
+        official_probe_set_reasons.append("official_probe_ids_not_unique")
+    if official_missing_probe_id_count and official_missing_probe_id_count > 0:
+        official_probe_set_reasons.append(f"official_missing_probe_id_count:{official_missing_probe_id_count}")
+    if official_duplicate_probe_ids:
+        official_probe_set_reasons.append(f"official_duplicate_probe_ids:{official_duplicate_probe_ids}")
+    if official_z_mismatch_count and official_z_mismatch_count > 0:
+        official_probe_set_reasons.append(f"official_z_mismatch_count:{official_z_mismatch_count}")
+    official_probe_set_gate = "pass" if not official_probe_set_reasons else "not_recorded_or_fail"
 
     u_mae = mean(abs_errors)
     u_rmse = rmse(errors)
@@ -3066,6 +3135,17 @@ def main() -> int:
             "official_measurement_count": official_measurement_count,
             "official_probe_coverage_ratio": fmt(official_probe_coverage_ratio),
             "missing_official_probe_count": missing_official_probe_count,
+            "official_probe_set_gate": official_probe_set_gate,
+            "official_probe_set_gate_reasons": ";".join(official_probe_set_reasons),
+            "official_probe_set_row_count": fmt(official_probe_set_row_count),
+            "official_expected_row_count": fmt(official_expected_row_count),
+            "official_probe_ids_unique": official_probe_ids_unique,
+            "official_missing_probe_id_count": fmt(official_missing_probe_id_count),
+            "official_duplicate_probe_ids": official_duplicate_probe_ids,
+            "official_expected_z_m": official_expected_z,
+            "official_expected_z_tolerance_m": official_expected_z_tolerance,
+            "official_z_match_count": fmt(official_z_match_count),
+            "official_z_mismatch_count": fmt(official_z_mismatch_count),
             "mean_probe_distance_m": fmt(mean(distances)),
             "max_probe_distance_m": fmt(max(distances) if distances else None),
             "max_official_coordinate_delta_m": fmt(max_coordinate_delta),

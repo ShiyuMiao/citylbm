@@ -45,6 +45,12 @@ def passing_native_audit():
         "probe_audit_row_count": 80,
         "probe_audit_valid_row_count": 80,
         "official_probe_coverage_ratio": 1.0,
+        "official_probe_set_gate": "pass",
+        "official_probe_set_row_count": 80,
+        "official_expected_row_count": 80,
+        "official_probe_ids_unique": True,
+        "official_expected_z_m": "2",
+        "official_z_mismatch_count": 0,
         "probe_source_time_steps_match_runtime": True,
         "probe_source_steps_strictly_increasing": True,
         "probe_source_step_spacing_uniform": True,
@@ -101,6 +107,8 @@ def main() -> int:
     bad["component_source_vtk_sha256_match_runtime"] = False
     bad["component_sensitivity_probe_audit_sha256_matches_current"] = False
     bad["component_sensitivity_hash_traceability_gate"] = "fail"
+    bad["official_probe_set_gate"] = "fail"
+    bad["official_z_mismatch_count"] = 1
     failed = module.native_probe_component_traceability_status(
         bad,
         min_avg_step_span=20000,
@@ -117,6 +125,8 @@ def main() -> int:
         "component_source_window_gate_not_pass:fail",
         "component_sensitivity_probe_audit_sha256_matches_current_not_true:False",
         "component_sensitivity_hash_traceability_gate_not_pass:fail",
+        "official_probe_set_gate_not_pass:fail",
+        "official_z_mismatch_count_not_zero:1",
     ]:
         if expected not in reasons:
             raise AssertionError(reasons)

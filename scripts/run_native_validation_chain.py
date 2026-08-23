@@ -82,6 +82,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-avg-step-span", type=int, default=20000, help="Minimum solver-step span covered by the averaged final VTK window.")
     parser.add_argument("--pattern", default="u-*.vtk", help="VTK glob pattern.")
     parser.add_argument("--probe-tolerance", type=float, default=0.0, help="Max nearest-node probe distance in meters. 0 disables failure by tolerance.")
+    parser.add_argument("--expected-probe-row-count", type=int, default=0, help="Expected official rows after case/wind filtering. 0 disables the probe-set count gate.")
+    parser.add_argument("--expected-probe-z", default="", help="Expected official probe height in meters, e.g. 2.0 for AIJ Case E.")
+    parser.add_argument("--expected-probe-z-tolerance", type=float, default=1.0e-6, help="Absolute tolerance in meters for --expected-probe-z.")
     parser.add_argument(
         "--compared-component",
         choices=["speed_ratio", "streamwise_ratio", "speed", "streamwise_velocity", "u", "v", "w"],
@@ -703,6 +706,17 @@ def main() -> int:
             "--velocity-scale",
             str(args.velocity_scale),
         ]
+        if args.expected_probe_row_count > 0:
+            probe_cmd.extend(["--expected-row-count", str(args.expected_probe_row_count)])
+        if str(args.expected_probe_z).strip():
+            probe_cmd.extend(
+                [
+                    "--expected-z",
+                    str(args.expected_probe_z),
+                    "--expected-z-tolerance",
+                    str(args.expected_probe_z_tolerance),
+                ]
+            )
         manifest["Steps"].append(run_step("probe_vtk_points", probe_cmd))
         write_manifest(manifest_path, manifest)
 

@@ -151,6 +151,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `probe_vtk_points.py` now records the VTK physical grid extent for every sampled probe and hard-fails probes outside
   that extent before nearest/trilinear interpolation, so incorrect STL scale, `domain_origin` or RS coordinate
   transforms cannot be hidden by clamping samples to the VTK boundary.
+- `probe_vtk_points.py` now supports official probe-set gates (`--expected-row-count`, `--expected-z`) and
+  `validation_metrics_from_probe_audit.py` carries the resulting `official_probe_set_*` evidence. AIJ Case E `ac + N`
+  post-processing can now fail before metrics if the filtered official subset is not exactly the 80 pedestrian-height
+  `z=2.0 m` probes, preventing partial, wrong-condition or wrong-height RS comparisons from being interpreted as
+  validation accuracy.
 - `case_metadata.json`, the native baseline manifest and validation metrics now record the geometry-unit assumption,
   building count/height and a geometry-scale evidence gate. The metadata explicitly states that CityLBM expects real-scale
   meter geometry and that the official AIJ Case E `BD_caseE.stl` model-scale geometry must be scaled by 250 before
