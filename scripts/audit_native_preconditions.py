@@ -2150,6 +2150,40 @@ def main() -> int:
     paper_boundary_source_gate = str(boundary_source_audit.get("paper_grade_boundary_source_gate") or "").strip().lower()
     boundary_source_equivalent = as_bool(boundary_source_audit.get("boundary_source_wind_tunnel_equivalent"))
     boundary_source_simplified = as_bool(boundary_source_audit.get("boundary_source_simplified"))
+    boundary_source_method_class = str(boundary_source_audit.get("boundary_source_method_class") or "").strip()
+    boundary_source_has_paper_grade_outlet = as_bool(boundary_source_audit.get("has_paper_grade_outlet_source"))
+    boundary_source_has_paper_grade_side_top = as_bool(boundary_source_audit.get("has_paper_grade_side_top_source"))
+    boundary_source_has_paper_grade_rough_wall = as_bool(boundary_source_audit.get("has_paper_grade_rough_wall_source"))
+    boundary_source_has_paper_grade_development = as_bool(
+        boundary_source_audit.get("has_paper_grade_development_source")
+    )
+    boundary_source_has_non_reflecting_outlet_method = as_bool(
+        boundary_source_audit.get("has_non_reflecting_outlet_method")
+    )
+    boundary_source_has_non_reflecting_outlet_state = as_bool(
+        boundary_source_audit.get("has_non_reflecting_outlet_state_evidence")
+    )
+    boundary_source_has_periodic_side_top_method = as_bool(
+        boundary_source_audit.get("has_periodic_side_top_method")
+    )
+    boundary_source_has_periodic_pair_mapping = as_bool(
+        boundary_source_audit.get("has_periodic_pair_mapping_evidence")
+    )
+    boundary_source_has_rough_wall_function_method = as_bool(
+        boundary_source_audit.get("has_rough_wall_function_method")
+    )
+    boundary_source_has_rough_wall_parameter = as_bool(
+        boundary_source_audit.get("has_rough_wall_parameter_evidence")
+    )
+    boundary_source_has_rough_wall_action = as_bool(
+        boundary_source_audit.get("has_rough_wall_action_evidence")
+    )
+    boundary_source_has_precursor_recycling_method = as_bool(
+        boundary_source_audit.get("has_precursor_or_recycling_boundary_method")
+    )
+    boundary_source_has_precursor_recycling_field = as_bool(
+        boundary_source_audit.get("has_precursor_or_recycling_boundary_field_evidence")
+    )
     boundary_source_missing_paper_evidence = split_scalar_list(
         boundary_source_audit.get("missing_paper_grade_source_evidence")
     )
@@ -2919,8 +2953,22 @@ def main() -> int:
         **inlet_correlation_window_check,
         "boundary_source_gate": boundary_source_gate,
         "paper_grade_boundary_source_gate": paper_boundary_source_gate,
+        "boundary_source_method_class": boundary_source_method_class,
         "boundary_source_wind_tunnel_equivalent": boundary_source_equivalent,
         "boundary_source_simplified": boundary_source_simplified,
+        "boundary_source_has_paper_grade_outlet_source": boundary_source_has_paper_grade_outlet,
+        "boundary_source_has_paper_grade_side_top_source": boundary_source_has_paper_grade_side_top,
+        "boundary_source_has_paper_grade_rough_wall_source": boundary_source_has_paper_grade_rough_wall,
+        "boundary_source_has_paper_grade_development_source": boundary_source_has_paper_grade_development,
+        "boundary_source_has_non_reflecting_outlet_method": boundary_source_has_non_reflecting_outlet_method,
+        "boundary_source_has_non_reflecting_outlet_state_evidence": boundary_source_has_non_reflecting_outlet_state,
+        "boundary_source_has_periodic_side_top_method": boundary_source_has_periodic_side_top_method,
+        "boundary_source_has_periodic_pair_mapping_evidence": boundary_source_has_periodic_pair_mapping,
+        "boundary_source_has_rough_wall_function_method": boundary_source_has_rough_wall_function_method,
+        "boundary_source_has_rough_wall_parameter_evidence": boundary_source_has_rough_wall_parameter,
+        "boundary_source_has_rough_wall_action_evidence": boundary_source_has_rough_wall_action,
+        "boundary_source_has_precursor_or_recycling_boundary_method": boundary_source_has_precursor_recycling_method,
+        "boundary_source_has_precursor_or_recycling_boundary_field_evidence": boundary_source_has_precursor_recycling_field,
         "boundary_source_missing_paper_grade_source_evidence": boundary_source_missing_paper_evidence,
         "boundary_source_missing_paper_grade_source_evidence_csv": ";".join(boundary_source_missing_paper_evidence),
         **boundary_source_hash_check,

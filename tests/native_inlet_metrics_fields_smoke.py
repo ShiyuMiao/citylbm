@@ -130,6 +130,31 @@ def main() -> int:
                         "boundary_source_simplified_not_false:True;"
                         "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail"
                     ),
+                    "boundary_source_gate": "fail",
+                    "paper_grade_boundary_source_gate": "fail",
+                    "boundary_source_method_class": "simplified_type_e_box",
+                    "boundary_source_wind_tunnel_equivalent": False,
+                    "boundary_source_simplified": True,
+                    "boundary_source_setup_cpp_sha256_matches_current": False,
+                    "boundary_source_missing_paper_grade_source_evidence_csv": (
+                        "non_reflecting_or_validated_outlet_state;"
+                        "side_top_boundary_pair_mapping;"
+                        "rough_wall_or_wall_function_action;"
+                        "precursor_or_recycling_development_field"
+                    ),
+                    "boundary_source_has_paper_grade_outlet_source": False,
+                    "boundary_source_has_paper_grade_side_top_source": False,
+                    "boundary_source_has_paper_grade_rough_wall_source": False,
+                    "boundary_source_has_paper_grade_development_source": False,
+                    "boundary_source_has_non_reflecting_outlet_method": False,
+                    "boundary_source_has_non_reflecting_outlet_state_evidence": False,
+                    "boundary_source_has_periodic_side_top_method": False,
+                    "boundary_source_has_periodic_pair_mapping_evidence": False,
+                    "boundary_source_has_rough_wall_function_method": False,
+                    "boundary_source_has_rough_wall_parameter_evidence": False,
+                    "boundary_source_has_rough_wall_action_evidence": False,
+                    "boundary_source_has_precursor_or_recycling_boundary_method": False,
+                    "boundary_source_has_precursor_or_recycling_boundary_field_evidence": False,
                     "boundary_runtime_source_time_steps_match_runtime": False,
                     "boundary_runtime_source_steps_strictly_increasing": True,
                     "boundary_runtime_source_step_spacing_uniform": True,
@@ -283,6 +308,31 @@ def main() -> int:
             "boundary_source_simplified_not_false:True;"
             "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail"
         ),
+        "native_boundary_source_gate": "fail",
+        "native_paper_grade_boundary_source_gate": "fail",
+        "native_boundary_source_method_class": "simplified_type_e_box",
+        "native_boundary_source_wind_tunnel_equivalent": "false",
+        "native_boundary_source_simplified": "true",
+        "native_boundary_source_setup_cpp_sha256_matches_current": "false",
+        "native_boundary_source_missing_paper_grade_source_evidence": (
+            "non_reflecting_or_validated_outlet_state;"
+            "side_top_boundary_pair_mapping;"
+            "rough_wall_or_wall_function_action;"
+            "precursor_or_recycling_development_field"
+        ),
+        "native_boundary_source_has_paper_grade_outlet_source": "false",
+        "native_boundary_source_has_paper_grade_side_top_source": "false",
+        "native_boundary_source_has_paper_grade_rough_wall_source": "false",
+        "native_boundary_source_has_paper_grade_development_source": "false",
+        "native_boundary_source_has_non_reflecting_outlet_method": "false",
+        "native_boundary_source_has_non_reflecting_outlet_state_evidence": "false",
+        "native_boundary_source_has_periodic_side_top_method": "false",
+        "native_boundary_source_has_periodic_pair_mapping_evidence": "false",
+        "native_boundary_source_has_rough_wall_function_method": "false",
+        "native_boundary_source_has_rough_wall_parameter_evidence": "false",
+        "native_boundary_source_has_rough_wall_action_evidence": "false",
+        "native_boundary_source_has_precursor_or_recycling_boundary_method": "false",
+        "native_boundary_source_has_precursor_or_recycling_boundary_field_evidence": "false",
         "native_boundary_runtime_source_time_steps_match_runtime": "false",
         "native_boundary_runtime_source_steps_strictly_increasing": "true",
         "native_boundary_runtime_source_step_spacing_uniform": "true",
