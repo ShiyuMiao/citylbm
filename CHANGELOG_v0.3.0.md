@@ -84,6 +84,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now adds `native_inlet_precondition_traceability`, requiring native FluidX3D U/k profile,
   correlation, AF CSV hash, VTK hash and final-window step-span evidence before a native baseline or systematic-bias
   interpretation can pass. Legacy summary-only native audits remain diagnostic.
+- Native inlet traceability now also requires source-method evidence that the inlet is paper-grade and distribution
+  consistent. A native run can no longer pass this gate with only preserved U/k profiles if the inlet remains STG-lite,
+  uncorrelated random forcing or any other macroscopic velocity-field-only route.
 - `audit_inlet_source.py` now fails the base inlet-source gate when a setup only names an advanced digital-filter,
   SEM, precursor or recycling method but lacks distribution-function reconstruction, filter state, eddy population or
   recycled-field evidence. This prevents old diagnostic setups from being misread as valid turbulent-inlet sources.

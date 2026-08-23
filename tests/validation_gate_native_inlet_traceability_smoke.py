@@ -46,6 +46,14 @@ def passing_native_audit():
         "inlet_source_has_streamwise_clipping_control": True,
         "inlet_source_streamwise_clipping_enabled": False,
         "inlet_source_has_legacy_hardcoded_streamwise_clipping": False,
+        "paper_grade_inlet_source_gate": "pass",
+        "inlet_source_distribution_route_gate": "pass",
+        "inlet_source_distribution_consistent": True,
+        "inlet_source_has_distribution_function_write": True,
+        "inlet_source_has_inlet_distribution_reconstruction": True,
+        "inlet_source_velocity_field_only": False,
+        "inlet_source_has_uncorrelated_random_inlet": False,
+        "inlet_source_method_class": "digital_filter_distribution_consistent",
         "expected_uref_mps": 3.928296,
         "actual_uref_mps": 3.928296,
         "expected_zref_m": 15.9,
@@ -139,6 +147,36 @@ def main() -> int:
         raise AssertionError(missing_tke_failed)
     if "inlet_tke_gate_not_pass:missing" not in missing_tke_failed["reasons"]:
         raise AssertionError(missing_tke_failed["reasons"])
+
+    velocity_only_source = copy.deepcopy(passing_native_audit())
+    velocity_only_source.update(
+        {
+            "paper_grade_inlet_source_gate": "fail",
+            "inlet_source_distribution_route_gate": "fail",
+            "inlet_source_distribution_consistent": False,
+            "inlet_source_has_distribution_function_write": False,
+            "inlet_source_has_inlet_distribution_reconstruction": False,
+            "inlet_source_velocity_field_only": True,
+            "inlet_source_method_class": "stg_lite_correlated_velocity_field_only",
+        }
+    )
+    velocity_only_failed = module.native_inlet_precondition_traceability_status(
+        velocity_only_source,
+        min_avg_step_span=20000,
+    )
+    if velocity_only_failed["ok"]:
+        raise AssertionError(velocity_only_failed)
+    for reason in [
+        "paper_grade_inlet_source_gate_not_pass:fail",
+        "inlet_source_distribution_route_gate_not_pass:fail",
+        "inlet_source_distribution_consistent_not_true:False",
+        "inlet_source_has_distribution_function_write_not_true:False",
+        "inlet_source_has_inlet_distribution_reconstruction_not_true:False",
+        "inlet_source_velocity_field_only_not_false:True",
+        "inlet_source_method_class_not_paper_grade:stg_lite_correlated_velocity_field_only",
+    ]:
+        if reason not in velocity_only_failed["reasons"]:
+            raise AssertionError(velocity_only_failed["reasons"])
 
     stg_refresh_bad = copy.deepcopy(passing_native_audit())
     stg_refresh_bad.update(

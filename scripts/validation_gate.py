@@ -2252,6 +2252,60 @@ def native_inlet_precondition_traceability_status(
         if value is not False:
             reasons.append(f"{key}_not_false:{value if value is not None else 'missing'}")
 
+    for key in [
+        "paper_grade_inlet_source_gate",
+        "inlet_source_distribution_route_gate",
+    ]:
+        value = str(get_any(native_preconditions_audit, [key]) or "").strip().lower()
+        if value != "pass":
+            reasons.append(f"{key}_not_pass:{value or 'missing'}")
+
+    for key in [
+        "inlet_source_distribution_consistent",
+        "inlet_source_has_distribution_function_write",
+        "inlet_source_has_inlet_distribution_reconstruction",
+    ]:
+        value = as_bool(get_any(native_preconditions_audit, [key]))
+        if value is not True:
+            reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+
+    for key in [
+        "inlet_source_velocity_field_only",
+        "inlet_source_has_uncorrelated_random_inlet",
+    ]:
+        value = as_bool(get_any(native_preconditions_audit, [key]))
+        if value is not False:
+            reasons.append(f"{key}_not_false:{value if value is not None else 'missing'}")
+
+    source_method_class = str(
+        get_any(native_preconditions_audit, ["inlet_source_method_class"]) or ""
+    ).strip().lower()
+    supported_source_method = any(
+        token in source_method_class
+        for token in [
+            "digital_filter",
+            "dfm",
+            "sem",
+            "synthetic_eddy_distribution_consistent",
+            "precursor",
+            "recycling_rescaling",
+        ]
+    ) and not any(
+        token in source_method_class
+        for token in [
+            "diagnostic",
+            "velocity_field_only",
+            "macroscopic_velocity",
+            "stg_lite",
+            "stg-lite",
+            "uncorrelated",
+        ]
+    )
+    if not source_method_class:
+        reasons.append("inlet_source_method_class_missing")
+    elif not supported_source_method:
+        reasons.append(f"inlet_source_method_class_not_paper_grade:{source_method_class}")
+
     inlet_method_text = " ".join(
         str(native_preconditions_audit.get(key) or "").lower()
         for key in [
