@@ -334,7 +334,7 @@ def main() -> int:
         implementation_source,
         r"synthetic_eddy_count\s*=\s*(\d+)",
     )
-    has_native_synthetic_eddy_evidence = (
+    has_native_synthetic_eddy_structure_evidence = (
         synthetic_eddy_selected
         and has_native_synthetic_eddy_function
         and has_native_turbulent_wind_function
@@ -342,7 +342,15 @@ def main() -> int:
         and has_native_synthetic_eddy_population
         and has_native_synthetic_eddy_shape
     )
-    has_stg_function = "applysyntheticturbulentinlet" in implementation_source_lower or has_native_synthetic_eddy_evidence
+    has_native_synthetic_eddy_temporal_refresh_evidence = (
+        has_native_synthetic_eddy_structure_evidence
+        and has_native_synthetic_eddy_refresh
+    )
+    has_native_synthetic_eddy_evidence = has_native_synthetic_eddy_temporal_refresh_evidence
+    has_stg_function = (
+        "applysyntheticturbulentinlet" in implementation_source_lower
+        or has_native_synthetic_eddy_structure_evidence
+    )
     has_stg_refresh_loop = (
         count_regex(implementation_source, r"applySyntheticTurbulentInlet\s*\(") >= 2
         or (has_native_apply_inlet_function and has_native_synthetic_eddy_refresh)
@@ -861,6 +869,12 @@ def main() -> int:
         reasons.append("digital_filter_source_missing_filter_kernel")
     if has_digital_filter and digital_filter_selected and not has_digital_filter_state:
         reasons.append("digital_filter_source_missing_spatiotemporal_filter_state")
+    if (
+        synthetic_eddy_selected
+        and has_native_synthetic_eddy_structure_evidence
+        and not has_native_synthetic_eddy_temporal_refresh_evidence
+    ):
+        reasons.append("native_synthetic_eddy_missing_refresh_or_digital_filter_update")
     if has_sem and not has_sem_eddy_population:
         reasons.append("sem_source_missing_eddy_population")
     if has_precursor and not has_precursor_recycling_field:
@@ -948,6 +962,12 @@ def main() -> int:
         paper_gate_reasons.append("source_missing_turbulent_length_scale_evidence")
     if synthetic_requested and not has_reynolds_stress_tensor_evidence:
         paper_gate_reasons.append("source_missing_reynolds_stress_tensor_evidence")
+    if (
+        synthetic_eddy_selected
+        and has_native_synthetic_eddy_structure_evidence
+        and not has_native_synthetic_eddy_temporal_refresh_evidence
+    ):
+        paper_gate_reasons.append("native_synthetic_eddy_missing_refresh_or_digital_filter_update")
     paper_gate = "pass" if not paper_gate_reasons else "fail"
 
     report: Dict[str, Any] = {
@@ -974,6 +994,9 @@ def main() -> int:
         "has_origin_aware_profile_height": has_origin_aware_profile_height,
         "has_synthetic_inlet_function": has_stg_function,
         "has_synthetic_inlet_refresh_loop": has_stg_refresh_loop,
+        "native_synthetic_eddy_evidence_requires_refresh": True,
+        "has_native_synthetic_eddy_structure_evidence": has_native_synthetic_eddy_structure_evidence,
+        "has_native_synthetic_eddy_temporal_refresh_evidence": has_native_synthetic_eddy_temporal_refresh_evidence,
         "has_native_synthetic_eddy_evidence": has_native_synthetic_eddy_evidence,
         "has_native_synthetic_eddy_function": has_native_synthetic_eddy_function,
         "has_native_turbulent_wind_function": has_native_turbulent_wind_function,

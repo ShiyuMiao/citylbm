@@ -807,6 +807,82 @@ void recycling_rescaling_inlet(uint t_step) {
         if "source_velocity_field_only" not in precursor_velocity_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(precursor_velocity_report["paper_grade_inlet_source_gate_reasons"])
 
+        native_claim_metadata = root / "case_metadata_native_synthetic_eddy_velocity_only.json"
+        write_text(
+            native_claim_metadata,
+            json.dumps(
+                {
+                    "SyntheticTurbulentInletMethod": "synthetic-eddy",
+                    "SyntheticTurbulentInletDistributionTreatment": "velocity_field_only",
+                    "SyntheticEddy": {"Enabled": True},
+                },
+                indent=2,
+            ),
+        )
+        native_structure_no_refresh_setup = root / "native_structure_no_refresh_setup.cpp"
+        native_structure_no_refresh_out = root / "native_structure_no_refresh_audit.json"
+        write_text(
+            native_structure_no_refresh_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+const uint synthetic_eddy_count = 256u;
+const float synthetic_eddy_lx_cells = 8.0f;
+float compactCosine(float r) { return r; }
+auto updateSyntheticEddyPlane = [](uint step) { return step; };
+auto turbulentWind = [](uint x, uint y, uint z, uint step) {
+    const float sigma = sqrtf(0.6666667f * profile_k_lbm[0]);
+    const float white_noise = 2.0f * random() - 1.0f;
+    return float3(profile_u_lbm[0] + sigma * white_noise, 0.0f, 0.0f);
+};
+auto applyInlet = [](uint current) {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            float3 u_in = turbulentWind(0u, 0u, n, current);
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+        }
+    }
+};
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > 5u ? 5u : remaining;
+    applyInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        native_structure_no_refresh_code, native_structure_no_refresh_report = run_audit(
+            native_structure_no_refresh_setup,
+            native_claim_metadata,
+            native_structure_no_refresh_out,
+        )
+        if native_structure_no_refresh_code == 0:
+            raise AssertionError("native synthetic-eddy symbols without refresh unexpectedly passed")
+        if native_structure_no_refresh_report["inlet_source_gate"] != "fail":
+            raise AssertionError(native_structure_no_refresh_report)
+        if not native_structure_no_refresh_report["has_native_synthetic_eddy_structure_evidence"]:
+            raise AssertionError(native_structure_no_refresh_report)
+        if native_structure_no_refresh_report["has_native_synthetic_eddy_temporal_refresh_evidence"]:
+            raise AssertionError(native_structure_no_refresh_report)
+        if native_structure_no_refresh_report["has_native_synthetic_eddy_evidence"]:
+            raise AssertionError(native_structure_no_refresh_report)
+        if not native_structure_no_refresh_report["has_uncorrelated_random_inlet"]:
+            raise AssertionError(native_structure_no_refresh_report)
+        if native_structure_no_refresh_report["inlet_source_turbulent_inflow_fidelity_class"] != "uncorrelated_rms_velocity_field_only":
+            raise AssertionError(native_structure_no_refresh_report["inlet_source_turbulent_inflow_fidelity_class"])
+        if "native_synthetic_eddy_missing_refresh_or_digital_filter_update" not in native_structure_no_refresh_report[
+            "inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(native_structure_no_refresh_report["inlet_source_gate_reasons"])
+        if "source_uncorrelated_rms_velocity_field_only" not in native_structure_no_refresh_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(native_structure_no_refresh_report["paper_grade_inlet_source_gate_reasons"])
+
         sem_no_distribution_write_setup = root / "sem_no_distribution_write_setup.cpp"
         sem_no_distribution_write_out = root / "sem_no_distribution_write_audit.json"
         write_text(
