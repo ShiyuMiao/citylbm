@@ -104,6 +104,7 @@ def main() -> int:
             "synthetic_temporal_sampling_gate",
             "synthetic_expected_final_window_refresh_count",
             "inlet_source_has_k_driven_three_component_stg",
+            "inlet_source_has_temporal_filter_state",
             "boundary_runtime_side_top_normal_leakage_gate",
         ]:
             if field not in report["required_critical_fields"]:

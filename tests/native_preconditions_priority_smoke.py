@@ -142,6 +142,7 @@ def main() -> int:
         "has_three_component_fluctuation_evidence": True,
         "has_k_driven_three_component_stg": True,
         "has_component_phase_decorrelation": True,
+        "has_temporal_filter_state": True,
         "has_mean_preserving_inlet_correction": True,
         "has_layerwise_mean_preserving_inlet_correction": True,
         "has_streamwise_clipping_control": True,
@@ -208,6 +209,7 @@ def main() -> int:
             "metadata_length_scale_gate": "diagnostic_only_missing_official_or_precursor_length_scale",
             "has_reynolds_stress_tensor_evidence": False,
             "reynolds_stress_treatment": "documented_isotropic_k_only",
+            "has_temporal_filter_state": False,
             "streamwise_clipping_enabled": True,
             "paper_grade_inlet_source_gate_reasons": [
                 "source_not_distribution_consistent",
@@ -258,6 +260,7 @@ def main() -> int:
         "inlet_source_metadata_length_scale_gate_not_pass:diagnostic_only_missing_official_or_precursor_length_scale",
         "inlet_source_has_reynolds_stress_tensor_evidence_not_true:False",
         "inlet_source_reynolds_stress_treatment_not_full_tensor:documented_isotropic_k_only",
+        "inlet_source_has_temporal_filter_state_not_true:False",
         "inlet_source_streamwise_clipping_enabled_not_false:True",
         "inlet_source_setup_cpp_sha256_matches_current_not_true:False",
         "inlet_profile_af_csv_sha256_matches_expected_not_true",

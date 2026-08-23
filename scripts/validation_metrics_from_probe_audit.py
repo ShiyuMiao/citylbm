@@ -265,6 +265,7 @@ TEMPLATE_FIELDS = [
     "inlet_source_has_three_component_fluctuation_evidence",
     "inlet_source_has_k_driven_three_component_stg",
     "inlet_source_has_component_phase_decorrelation",
+    "inlet_source_has_temporal_filter_state",
     "inlet_source_has_mean_preserving_inlet_correction",
     "inlet_source_has_layerwise_mean_preserving_inlet_correction",
     "inlet_source_spectral_mode_count",
@@ -457,6 +458,7 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_has_three_component_fluctuation_evidence",
     "native_inlet_source_has_k_driven_three_component_stg",
     "native_inlet_source_has_component_phase_decorrelation",
+    "native_inlet_source_has_temporal_filter_state",
     "native_inlet_source_has_mean_preserving_inlet_correction",
     "native_inlet_source_has_layerwise_mean_preserving_inlet_correction",
     "native_inlet_source_has_streamwise_clipping_control",
@@ -2241,6 +2243,9 @@ def main() -> int:
             "inlet_source_has_component_phase_decorrelation": first_bool_text(
                 inlet_source_audit.get("has_component_phase_decorrelation")
             ),
+            "inlet_source_has_temporal_filter_state": first_bool_text(
+                inlet_source_audit.get("has_temporal_filter_state")
+            ),
             "inlet_source_has_mean_preserving_inlet_correction": first_bool_text(
                 inlet_source_audit.get("has_mean_preserving_inlet_correction")
             ),
@@ -2662,6 +2667,9 @@ def main() -> int:
             ),
             "native_inlet_source_has_component_phase_decorrelation": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_component_phase_decorrelation")
+            ),
+            "native_inlet_source_has_temporal_filter_state": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_temporal_filter_state")
             ),
             "native_inlet_source_has_mean_preserving_inlet_correction": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_mean_preserving_inlet_correction")

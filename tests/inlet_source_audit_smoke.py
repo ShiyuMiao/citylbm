@@ -360,6 +360,8 @@ const float profile_origin_z_m = 0.0f;
 const int citylbm_stg_mode_count = 64;
 const float citylbm_stg_corr_cells = 8.0f;
 const uint citylbm_stg_update_interval = 5u;
+const float citylbm_stg_temporal_ar1_rho = 0.85f;
+const float citylbm_stg_temporal_ar1_innovation_scale = sqrtf(1.0f - citylbm_stg_temporal_ar1_rho * citylbm_stg_temporal_ar1_rho);
 const float citylbm_stg_max_fraction = 0.5f;
 const float citylbm_stg_min_streamwise_fraction = 0.0f;
 const uint Nz = 16u;
@@ -377,9 +379,15 @@ float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
     float k_lbm = interpolate_profile_k(profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f);
     float sigma = sqrtf(0.6666667f * k_lbm);
     float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);
+    uint citylbm_stg_prev_t_step = t_step > citylbm_stg_update_interval ? t_step - citylbm_stg_update_interval : t_step;
+    float citylbm_stg_temporal_rho = citylbm_stg_prev_t_step == t_step ? 0.0f : citylbm_stg_temporal_ar1_rho;
+    float citylbm_stg_temporal_innovation = citylbm_stg_prev_t_step == t_step ? 1.0f : citylbm_stg_temporal_ar1_innovation_scale;
     float advected_x = (float)x - dir_x * mean_mag * (float)t_step;
     float advected_y = (float)y - dir_y * mean_mag * (float)t_step;
     float advected_z = (float)z_cell - dir_z * mean_mag * (float)t_step;
+    float prev_advected_x = (float)x - dir_x * mean_mag * (float)citylbm_stg_prev_t_step;
+    float prev_advected_y = (float)y - dir_y * mean_mag * (float)citylbm_stg_prev_t_step;
+    float prev_advected_z = (float)z_cell - dir_z * mean_mag * (float)citylbm_stg_prev_t_step;
     float fluct_x = 0.0f, fluct_y = 0.0f, fluct_z = 0.0f;
     for(int m=0; m<citylbm_stg_mode_count; m++) {
         float kx = citylbm_mode_wave(m, 0);
@@ -392,9 +400,10 @@ float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
         float ak = ax*kx + ay*ky + az*kz;
         if(kk > 1.0e-12f) { ax -= ak*kx/kk; ay -= ak*ky/kk; az -= ak*kz/kk; }
         float phase = kx * advected_x + ky * advected_y + kz * advected_z;
-        float wave_x = sinf(phase + citylbm_mode_phase(m, 0));
-        float wave_y = sinf(phase + citylbm_mode_phase(m, 1));
-        float wave_z = sinf(phase + citylbm_mode_phase(m, 2));
+        float previous_phase = kx * prev_advected_x + ky * prev_advected_y + kz * prev_advected_z;
+        float wave_x = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 0)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 0));
+        float wave_y = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 1)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 1));
+        float wave_z = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 2)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 2));
         fluct_x += ax * wave_x;
         fluct_y += ay * wave_y;
         fluct_z += az * wave_z;
@@ -453,7 +462,7 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(spectral_report)
         if spectral_report["paper_grade_inlet_source_gate"] != "fail":
             raise AssertionError(spectral_report)
-        if spectral_report["synthetic_inlet_correlation_model"] != "spectral_taylor_projected_velocity_field_only":
+        if spectral_report["synthetic_inlet_correlation_model"] != "spectral_taylor_temporal_filtered_projected_velocity_field_only":
             raise AssertionError(spectral_report["synthetic_inlet_correlation_model"])
         if not spectral_report["has_three_component_velocity_write"]:
             raise AssertionError(spectral_report)
@@ -462,6 +471,8 @@ for(uint remaining=100u; remaining>0u; ) {
         if not spectral_report["has_k_driven_three_component_stg"]:
             raise AssertionError(spectral_report)
         if not spectral_report["has_component_phase_decorrelation"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_temporal_filter_state"]:
             raise AssertionError(spectral_report)
         if not spectral_report["has_mean_preserving_inlet_correction"]:
             raise AssertionError(spectral_report)
@@ -478,17 +489,61 @@ for(uint remaining=100u; remaining>0u; ) {
         if spectral_report["has_legacy_hardcoded_streamwise_clipping"] is not False:
             raise AssertionError(spectral_report)
 
+        missing_temporal_setup = root / "missing_temporal_setup.cpp"
+        missing_temporal_out = root / "missing_temporal_audit.json"
+        missing_temporal_text = spectral_setup.read_text(encoding="utf-8").replace(
+            """const float citylbm_stg_temporal_ar1_rho = 0.85f;
+const float citylbm_stg_temporal_ar1_innovation_scale = sqrtf(1.0f - citylbm_stg_temporal_ar1_rho * citylbm_stg_temporal_ar1_rho);
+""",
+            "",
+        ).replace(
+            """    uint citylbm_stg_prev_t_step = t_step > citylbm_stg_update_interval ? t_step - citylbm_stg_update_interval : t_step;
+    float citylbm_stg_temporal_rho = citylbm_stg_prev_t_step == t_step ? 0.0f : citylbm_stg_temporal_ar1_rho;
+    float citylbm_stg_temporal_innovation = citylbm_stg_prev_t_step == t_step ? 1.0f : citylbm_stg_temporal_ar1_innovation_scale;
+""",
+            "",
+        ).replace(
+            """    float prev_advected_x = (float)x - dir_x * mean_mag * (float)citylbm_stg_prev_t_step;
+    float prev_advected_y = (float)y - dir_y * mean_mag * (float)citylbm_stg_prev_t_step;
+    float prev_advected_z = (float)z_cell - dir_z * mean_mag * (float)citylbm_stg_prev_t_step;
+""",
+            "",
+        ).replace(
+            """        float previous_phase = kx * prev_advected_x + ky * prev_advected_y + kz * prev_advected_z;
+        float wave_x = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 0)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 0));
+        float wave_y = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 1)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 1));
+        float wave_z = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 2)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 2));""",
+            """        float wave_x = sinf(phase + citylbm_mode_phase(m, 0));
+        float wave_y = sinf(phase + citylbm_mode_phase(m, 1));
+        float wave_z = sinf(phase + citylbm_mode_phase(m, 2));""",
+        )
+        write_text(missing_temporal_setup, missing_temporal_text)
+        missing_temporal_code, missing_temporal_report = run_audit(
+            missing_temporal_setup,
+            metadata,
+            missing_temporal_out,
+        )
+        if missing_temporal_code == 0:
+            raise AssertionError("STG without temporal filter state unexpectedly passed")
+        if missing_temporal_report["has_temporal_filter_state"]:
+            raise AssertionError(missing_temporal_report)
+        if "synthetic_inlet_missing_temporal_filter_state" not in missing_temporal_report[
+            "inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(missing_temporal_report["inlet_source_gate_reasons"])
+
         correlated_phase_setup = root / "correlated_phase_setup.cpp"
         correlated_phase_out = root / "correlated_phase_audit.json"
         correlated_text = spectral_setup.read_text(encoding="utf-8").replace(
-            """float phase = kx * advected_x + ky * advected_y + kz * advected_z;
-        float wave_x = sinf(phase + citylbm_mode_phase(m, 0));
-        float wave_y = sinf(phase + citylbm_mode_phase(m, 1));
-        float wave_z = sinf(phase + citylbm_mode_phase(m, 2));
+            """        float previous_phase = kx * prev_advected_x + ky * prev_advected_y + kz * prev_advected_z;
+        float wave_x = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 0)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 0));
+        float wave_y = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 1)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 1));
+        float wave_z = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 2)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 2));
         fluct_x += ax * wave_x;
         fluct_y += ay * wave_y;
         fluct_z += az * wave_z;""",
-            """float wave = sinf(kx * advected_x + ky * advected_y + kz * advected_z);
+            """        float previous_phase = kx * prev_advected_x + ky * prev_advected_y + kz * prev_advected_z;
+        float wave = citylbm_stg_temporal_rho * sinf(previous_phase) + citylbm_stg_temporal_innovation * sinf(phase);
         fluct_x += ax * wave;
         fluct_y += ay * wave;
         fluct_z += az * wave;""",

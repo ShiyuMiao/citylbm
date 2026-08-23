@@ -523,12 +523,32 @@ def main() -> int:
         and has_three_component_fluctuation_evidence
     )
     has_component_phase_decorrelation = (
-        has_regex(implementation_source, r"\bwave_x\s*=\s*sinf\s*\(")
-        and has_regex(implementation_source, r"\bwave_y\s*=\s*sinf\s*\(")
-        and has_regex(implementation_source, r"\bwave_z\s*=\s*sinf\s*\(")
+        has_regex(implementation_source, r"\bwave_x\s*=.*sinf\s*\(")
+        and has_regex(implementation_source, r"\bwave_y\s*=.*sinf\s*\(")
+        and has_regex(implementation_source, r"\bwave_z\s*=.*sinf\s*\(")
         and has_regex(implementation_source, r"citylbm_mode_phase\s*\(\s*m\s*,\s*0\s*\)")
         and has_regex(implementation_source, r"citylbm_mode_phase\s*\(\s*m\s*,\s*1\s*\)")
         and has_regex(implementation_source, r"citylbm_mode_phase\s*\(\s*m\s*,\s*2\s*\)")
+    ) or has_native_synthetic_eddy_evidence
+    has_temporal_filter_state = (
+        contains_any(
+            implementation_source,
+            [
+                "citylbm_stg_temporal_ar1_rho",
+                "citylbm_stg_temporal_ar1_innovation_scale",
+                "deterministic_ar1_phase_blend",
+            ],
+        )
+        and contains_any(
+            implementation_source,
+            [
+                "citylbm_stg_prev_t_step",
+                "previous_phase",
+                "prev_advected_x",
+                "prev_advected_y",
+                "prev_advected_z",
+            ],
+        )
     ) or has_native_synthetic_eddy_evidence
     has_length_scale = contains_any(
         implementation_source,
@@ -712,6 +732,8 @@ def main() -> int:
         synthetic_correlation_model = "digital_filter_distribution_consistent"
     elif has_distribution_consistent_sem:
         synthetic_correlation_model = "synthetic_eddy_distribution_consistent"
+    elif has_spectral_modes and has_taylor_advection and has_transverse_projection and has_temporal_filter_state:
+        synthetic_correlation_model = "spectral_taylor_temporal_filtered_projected_velocity_field_only"
     elif has_spectral_modes and has_taylor_advection and has_transverse_projection:
         synthetic_correlation_model = "spectral_taylor_projected_velocity_field_only"
     elif has_native_synthetic_eddy_evidence and has_taylor_advection:
@@ -822,6 +844,8 @@ def main() -> int:
         reasons.append("synthetic_inlet_missing_k_driven_three_component_stg_evidence")
     if synthetic_requested and stg_lite_velocity_source and not has_component_phase_decorrelation:
         reasons.append("synthetic_inlet_missing_component_phase_decorrelation")
+    if synthetic_requested and stg_lite_velocity_source and not has_temporal_filter_state:
+        reasons.append("synthetic_inlet_missing_temporal_filter_state")
     if synthetic_requested and stg_lite_velocity_source and not has_update_interval:
         reasons.append("synthetic_inlet_missing_update_interval")
     if synthetic_requested and stg_lite_velocity_source and has_update_interval and not has_update_interval_run_control:
@@ -908,6 +932,7 @@ def main() -> int:
         "has_three_component_fluctuation_evidence": has_three_component_fluctuation_evidence,
         "has_k_driven_three_component_stg": has_k_driven_three_component_stg,
         "has_component_phase_decorrelation": has_component_phase_decorrelation,
+        "has_temporal_filter_state": has_temporal_filter_state,
         "has_distribution_function_write": has_distribution_write,
         "distribution_function_write_count": distribution_evidence["distribution_write_count"],
         "has_inlet_distribution_reconstruction": has_inlet_distribution_reconstruction,

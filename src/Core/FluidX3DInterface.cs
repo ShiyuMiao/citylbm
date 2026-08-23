@@ -2406,6 +2406,7 @@ namespace CityLBM.Solver
             sb.AppendLine("    // Temporal evolution uses Taylor frozen-turbulence advection along the local mean wind.");
             sb.AppendLine("    // Per-mode fluctuation vectors are projected normal to their wave vector to reduce non-physical divergence.");
             sb.AppendLine("    // Component-specific deterministic phases reduce artificial u/v/w cross-correlation under the isotropic k assumption.");
+            sb.AppendLine("    // A deterministic AR(1)-style phase blend reduces refresh-to-refresh jumps without introducing random state.");
             sb.AppendLine("    // This is a diagnostic approximation, not a full digital-filter/SEM/precursor inlet with Reynolds-stress tensors.");
             sb.AppendLine("    // It updates macroscopic inlet velocity fields only; distribution functions are not reconstructed here.");
             sb.AppendLine("    // Each refresh subtracts the perturbation mean per inlet z_cell so finite-mode/capped fluctuations preserve the AF mean profile by height.");
@@ -2414,6 +2415,8 @@ namespace CityLBM.Solver
             sb.AppendLine($"    const float citylbm_stg_max_fraction = {maxFrac.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float citylbm_stg_min_streamwise_fraction = {minStreamwiseFrac.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const uint citylbm_stg_update_interval = {updateInterval}u;");
+            sb.AppendLine("    const float citylbm_stg_temporal_ar1_rho = 0.850000f;");
+            sb.AppendLine("    const float citylbm_stg_temporal_ar1_innovation_scale = sqrtf(1.0f - citylbm_stg_temporal_ar1_rho * citylbm_stg_temporal_ar1_rho);");
             sb.AppendLine($"    const int citylbm_stg_mode_count = {modeCount};");
             sb.AppendLine("    // Target component RMS follows isotropic k: sigma=sqrt(2k/3).");
             sb.AppendLine("    // Per-component constants are precomputed from the deterministic projected modes so finite mode counts preserve the target RMS more closely than a single sqrt(6/M) approximation.");
@@ -2441,9 +2444,15 @@ namespace CityLBM.Solver
             sb.AppendLine("        float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);");
             sb.AppendLine("        float cap = citylbm_stg_max_fraction * (mean_mag > 1.0e-6f ? mean_mag : 1.0e-6f);");
             sb.AppendLine("        if(sigma > cap) sigma = cap;");
+            sb.AppendLine("        uint citylbm_stg_prev_t_step = t_step > citylbm_stg_update_interval ? t_step - citylbm_stg_update_interval : t_step;");
+            sb.AppendLine("        float citylbm_stg_temporal_rho = citylbm_stg_prev_t_step == t_step ? 0.0f : citylbm_stg_temporal_ar1_rho;");
+            sb.AppendLine("        float citylbm_stg_temporal_innovation = citylbm_stg_prev_t_step == t_step ? 1.0f : citylbm_stg_temporal_ar1_innovation_scale;");
             sb.AppendLine("        float advected_x = (float)x - dir_x * mean_mag * (float)t_step;");
             sb.AppendLine("        float advected_y = (float)y - dir_y * mean_mag * (float)t_step;");
             sb.AppendLine("        float advected_z = (float)z_cell - dir_z * mean_mag * (float)t_step;");
+            sb.AppendLine("        float prev_advected_x = (float)x - dir_x * mean_mag * (float)citylbm_stg_prev_t_step;");
+            sb.AppendLine("        float prev_advected_y = (float)y - dir_y * mean_mag * (float)citylbm_stg_prev_t_step;");
+            sb.AppendLine("        float prev_advected_z = (float)z_cell - dir_z * mean_mag * (float)citylbm_stg_prev_t_step;");
             sb.AppendLine("        float fluct_x = 0.0f, fluct_y = 0.0f, fluct_z = 0.0f;");
             sb.AppendLine("        for(int m=0; m<citylbm_stg_mode_count; m++) {");
             sb.AppendLine("            float kx = citylbm_mode_wave(m, 0);");
@@ -2458,9 +2467,10 @@ namespace CityLBM.Solver
             sb.AppendLine("            float aa = sqrtf(ax*ax + ay*ay + az*az);");
             sb.AppendLine("            if(aa > 1.0e-6f) { ax /= aa; ay /= aa; az /= aa; }");
             sb.AppendLine("            float phase = kx * advected_x + ky * advected_y + kz * advected_z;");
-            sb.AppendLine("            float wave_x = sinf(phase + citylbm_mode_phase(m, 0));");
-            sb.AppendLine("            float wave_y = sinf(phase + citylbm_mode_phase(m, 1));");
-            sb.AppendLine("            float wave_z = sinf(phase + citylbm_mode_phase(m, 2));");
+            sb.AppendLine("            float previous_phase = kx * prev_advected_x + ky * prev_advected_y + kz * prev_advected_z;");
+            sb.AppendLine("            float wave_x = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 0)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 0));");
+            sb.AppendLine("            float wave_y = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 1)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 1));");
+            sb.AppendLine("            float wave_z = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 2)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 2));");
             sb.AppendLine("            fluct_x += ax * wave_x;");
             sb.AppendLine("            fluct_y += ay * wave_y;");
             sb.AppendLine("            fluct_z += az * wave_z;");
@@ -2765,10 +2775,10 @@ namespace CityLBM.Solver
                         ? "not_blocked"
                         : GetSyntheticTurbulentInletBlockedReason(scene, settings),
                     SyntheticTurbulentInletMethod = syntheticActive
-                        ? "STG-lite deterministic divergence-reduced spectral modes with isotropic k and Taylor frozen-turbulence advection; not digital-filter, precursor, or Reynolds-stress inflow"
+                        ? "STG-lite deterministic divergence-reduced spectral modes with isotropic k, Taylor frozen-turbulence advection and deterministic AR(1) refresh-to-refresh phase blending; not digital-filter, precursor, or Reynolds-stress inflow"
                         : "none",
                     SyntheticTurbulentInletTemporalTreatment = syntheticActive
-                        ? "Taylor frozen-turbulence phase advection by local mean LBM velocity along the wind vector"
+                        ? "Taylor frozen-turbulence phase advection by local mean LBM velocity along the wind vector plus deterministic_ar1_phase_blend_rho_0.85_between_refreshes"
                         : "none",
                     SyntheticTurbulentInletDivergenceTreatment = syntheticActive
                         ? "per-mode fluctuation amplitudes projected normal to synthetic wave vectors"
@@ -3380,7 +3390,7 @@ namespace CityLBM.Solver
                             ? "diagnostic_streamwise_lower_bound_enabled"
                             : "disabled_no_streamwise_clipping_of_k_perturbations",
                         SyntheticTurbulentInletTemporalTreatment = IsSyntheticTurbulentInletActive(scene, settings)
-                            ? "Taylor frozen-turbulence phase advection by local mean LBM velocity along the wind vector"
+                            ? "Taylor frozen-turbulence phase advection by local mean LBM velocity along the wind vector plus deterministic_ar1_phase_blend_rho_0.85_between_refreshes"
                             : "none",
                         InletDistributionTreatment = IsSyntheticTurbulentInletActive(scene, settings)
                             ? "velocity_field_only_no_distribution_function_reconstruction"
@@ -3577,10 +3587,10 @@ namespace CityLBM.Solver
                 Key = "inlet_turbulence_k",
                 Status = syntheticActive ? "partial" : (hasK ? "risk" : "fail"),
                 Evidence = syntheticActive
-                    ? $"AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet with {settings.SyntheticTurbulenceModeCount} spectral modes, per-component RMS normalization from k, Taylor frozen-turbulence advection, TYPE_E inlet refreshes in batch/graphics modes and velocity-field-only treatment."
+                    ? $"AF k column is present and STG-lite inlet is requested; setup.cpp will emit syntheticTurbulentInlet/applySyntheticTurbulentInlet with {settings.SyntheticTurbulenceModeCount} spectral modes, per-component RMS normalization from k, Taylor frozen-turbulence advection, deterministic AR(1) refresh-to-refresh phase blending, TYPE_E inlet refreshes in batch/graphics modes and velocity-field-only treatment."
                     : (hasK ? "AF k column is present but only metadata/profile arrays are guaranteed." : "No usable k column found in CustomWindProfile."),
                 Risk = syntheticActive
-                    ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and frozen-turbulence advection, uses {settings.SyntheticTurbulenceModeCount} spectral modes and correlation length {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m) with source '{lengthScaleSource}', streamwise clipping fraction {settings.SyntheticTurbulenceMinStreamwiseFraction:F3}, and does not reconstruct distribution functions."
+                    ? $"STG-lite is not a full digital-filter/precursor/Reynolds-stress inlet, assumes isotropic turbulence and frozen-turbulence advection with deterministic AR(1) phase blending, uses {settings.SyntheticTurbulenceModeCount} spectral modes and correlation length {settings.SyntheticTurbulenceCorrelationCells:F3} cells ({settings.SyntheticTurbulenceCorrelationCells * grid.Dx:F3} m) with source '{lengthScaleSource}', streamwise clipping fraction {settings.SyntheticTurbulenceMinStreamwiseFraction:F3}, and does not reconstruct distribution functions."
                     : "Missing or inactive turbulent inlet can cause systematic underprediction of pedestrian-level velocity ratios.",
                 RequiredNextAction = syntheticActive
                     ? "Run empty-tunnel and building native FluidX3D baselines proving downstream U/k preservation and replace/user-justify the inlet length scale before paper claims."
