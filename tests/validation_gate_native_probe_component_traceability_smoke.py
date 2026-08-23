@@ -53,6 +53,12 @@ def passing_native_audit():
         "official_z_mismatch_count": 0,
         "probe_official_height_gate": "pass",
         "probe_official_height_gate_reasons_csv": "",
+        "probe_official_coordinate_delta_count": 80,
+        "probe_official_coordinate_delta_source": "current_official_csv_recomputed",
+        "probe_official_coordinate_delta_recomputed_count": 80,
+        "probe_official_coordinate_delta_recompute_error": "",
+        "probe_max_official_coordinate_delta_m": 0.0,
+        "probe_max_official_coordinate_delta_threshold_m": 1.0e-6,
         "probe_source_time_steps_match_runtime": True,
         "probe_source_steps_strictly_increasing": True,
         "probe_source_step_spacing_uniform": True,
@@ -103,6 +109,58 @@ def main() -> int:
     )
     if not ok["ok"]:
         raise AssertionError(ok)
+
+    missing_coordinate_closure = copy.deepcopy(passing_native_audit())
+    for key in [
+        "probe_official_coordinate_delta_count",
+        "probe_official_coordinate_delta_source",
+        "probe_official_coordinate_delta_recomputed_count",
+        "probe_max_official_coordinate_delta_m",
+        "probe_max_official_coordinate_delta_threshold_m",
+    ]:
+        missing_coordinate_closure.pop(key, None)
+    missing_coordinate_status = module.native_probe_component_traceability_status(
+        missing_coordinate_closure,
+        min_avg_step_span=20000,
+    )
+    if missing_coordinate_status["ok"]:
+        raise AssertionError(missing_coordinate_status)
+    for expected in [
+        "probe_official_coordinate_delta_count_missing",
+        "probe_official_coordinate_delta_source_not_current_official_csv_recomputed:missing",
+        "probe_official_coordinate_delta_recomputed_count_missing",
+        "probe_max_official_coordinate_delta_m_missing",
+        "probe_max_official_coordinate_delta_threshold_m_missing",
+    ]:
+        if expected not in missing_coordinate_status["reasons"]:
+            raise AssertionError(missing_coordinate_status)
+
+    stale_coordinate_source = copy.deepcopy(passing_native_audit())
+    stale_coordinate_source.update(
+        {
+            "probe_official_coordinate_delta_count": 79,
+            "probe_official_coordinate_delta_source": "probe_audit_only",
+            "probe_official_coordinate_delta_recomputed_count": 0,
+            "probe_official_coordinate_delta_recompute_error": "official_csv_not_provided",
+            "probe_max_official_coordinate_delta_m": 0.25,
+            "probe_max_official_coordinate_delta_threshold_m": 1.0e-6,
+        }
+    )
+    stale_coordinate_status = module.native_probe_component_traceability_status(
+        stale_coordinate_source,
+        min_avg_step_span=20000,
+    )
+    if stale_coordinate_status["ok"]:
+        raise AssertionError(stale_coordinate_status)
+    for expected in [
+        "probe_official_coordinate_delta_count_mismatch:79_of_80",
+        "probe_official_coordinate_delta_source_not_current_official_csv_recomputed:probe_audit_only",
+        "probe_official_coordinate_delta_recomputed_count_mismatch:0_of_80",
+        "probe_official_coordinate_delta_recompute_error_present:official_csv_not_provided",
+        "probe_max_official_coordinate_delta_above_threshold:0.25>1e-06",
+    ]:
+        if expected not in stale_coordinate_status["reasons"]:
+            raise AssertionError(stale_coordinate_status)
 
     missing_official_set = copy.deepcopy(passing_native_audit())
     for key in [

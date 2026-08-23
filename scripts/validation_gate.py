@@ -2574,6 +2574,63 @@ def native_probe_component_traceability_status(
         reasons.append("official_z_mismatch_count_missing")
     elif official_z_mismatch_count != 0:
         reasons.append(f"official_z_mismatch_count_not_zero:{official_z_mismatch_count}")
+    expected_coordinate_count = None
+    for candidate_count in [official_probe_set_row_count, official_expected_row_count, valid_row_count]:
+        if candidate_count is not None:
+            expected_coordinate_count = candidate_count
+            break
+    coordinate_delta_count = as_int(
+        get_any(native_preconditions_audit, ["probe_official_coordinate_delta_count"])
+    )
+    coordinate_recomputed_count = as_int(
+        get_any(native_preconditions_audit, ["probe_official_coordinate_delta_recomputed_count"])
+    )
+    coordinate_delta_source = str(
+        get_any(native_preconditions_audit, ["probe_official_coordinate_delta_source"]) or ""
+    ).strip().lower()
+    coordinate_recompute_error = str(
+        get_any(native_preconditions_audit, ["probe_official_coordinate_delta_recompute_error"]) or ""
+    ).strip()
+    max_coordinate_delta = as_float(
+        get_any(native_preconditions_audit, ["probe_max_official_coordinate_delta_m"])
+    )
+    max_coordinate_delta_threshold = as_float(
+        get_any(native_preconditions_audit, ["probe_max_official_coordinate_delta_threshold_m"])
+    )
+    if coordinate_delta_count is None:
+        reasons.append("probe_official_coordinate_delta_count_missing")
+    elif expected_coordinate_count is not None and coordinate_delta_count != expected_coordinate_count:
+        reasons.append(
+            "probe_official_coordinate_delta_count_mismatch:"
+            f"{coordinate_delta_count}_of_{expected_coordinate_count}"
+        )
+    if coordinate_delta_source != "current_official_csv_recomputed":
+        reasons.append(
+            "probe_official_coordinate_delta_source_not_current_official_csv_recomputed:"
+            f"{coordinate_delta_source or 'missing'}"
+        )
+    if coordinate_recomputed_count is None:
+        reasons.append("probe_official_coordinate_delta_recomputed_count_missing")
+    elif expected_coordinate_count is not None and coordinate_recomputed_count != expected_coordinate_count:
+        reasons.append(
+            "probe_official_coordinate_delta_recomputed_count_mismatch:"
+            f"{coordinate_recomputed_count}_of_{expected_coordinate_count}"
+        )
+    if coordinate_recompute_error:
+        reasons.append(f"probe_official_coordinate_delta_recompute_error_present:{coordinate_recompute_error}")
+    if max_coordinate_delta is None:
+        reasons.append("probe_max_official_coordinate_delta_m_missing")
+    if max_coordinate_delta_threshold is None:
+        reasons.append("probe_max_official_coordinate_delta_threshold_m_missing")
+    if (
+        max_coordinate_delta is not None
+        and max_coordinate_delta_threshold is not None
+        and max_coordinate_delta > max_coordinate_delta_threshold
+    ):
+        reasons.append(
+            "probe_max_official_coordinate_delta_above_threshold:"
+            f"{max_coordinate_delta}>{max_coordinate_delta_threshold}"
+        )
 
     for key in [
         "probe_source_time_steps_match_runtime",
