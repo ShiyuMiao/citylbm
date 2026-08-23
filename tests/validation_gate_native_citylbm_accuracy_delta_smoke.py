@@ -218,19 +218,28 @@ def main() -> int:
                 "U_regression_intercept": 0.26,
             },
         )
-        native_bad_passed = run_delta_audit(city, native_bad, preconditions, out)
-        if native_bad_passed.returncode != 0:
-            raise AssertionError((native_bad_passed.returncode, native_bad_passed.stdout, native_bad_passed.stderr))
+        native_bad_failed = run_delta_audit(city, native_bad, preconditions, out)
+        if native_bad_failed.returncode == 0:
+            raise AssertionError((native_bad_failed.returncode, native_bad_failed.stdout, native_bad_failed.stderr))
         native_bad_report = json.loads(out.read_text(encoding="utf-8"))
+        if native_bad_report["native_citylbm_accuracy_delta_gate"] != "fail":
+            raise AssertionError(native_bad_report)
         if native_bad_report["native_accuracy_gate"] != "fail":
             raise AssertionError(native_bad_report)
         if native_bad_report["accuracy_interpretation"] != "citylbm_matches_native_but_native_protocol_or_physics_limited":
+            raise AssertionError(native_bad_report)
+        if native_bad_report["citylbm_additional_error_flag"] is not False:
+            raise AssertionError(native_bad_report)
+        if not any(
+            reason.startswith("native_accuracy_gate_not_pass")
+            for reason in native_bad_report["native_citylbm_accuracy_delta_gate_reasons"]
+        ):
             raise AssertionError(native_bad_report)
         native_bad_status = gate_module.native_citylbm_accuracy_delta_status(
             native_bad_report,
             default_gate_args(),
         )
-        if not native_bad_status["ok"]:
+        if native_bad_status["ok"]:
             raise AssertionError(native_bad_status)
 
         write_metrics(

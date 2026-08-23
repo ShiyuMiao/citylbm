@@ -326,6 +326,13 @@ def main() -> int:
         native_accuracy_gate = "fail"
         native_accuracy_reasons.append("native_u_r2_not_publishable")
 
+    if native_accuracy_gate != "pass":
+        reasons.append(f"native_accuracy_gate_not_pass:{native_accuracy_gate}")
+        reasons.extend(
+            f"native_accuracy_gate_reason:{reason}"
+            for reason in native_accuracy_reasons
+        )
+
     delta_gate = "pass" if not reasons else "fail"
     citylbm_additional_error = bool(citylbm_delta_reasons)
     if citylbm_additional_error:

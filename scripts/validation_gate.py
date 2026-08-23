@@ -3179,8 +3179,13 @@ def native_citylbm_accuracy_delta_status(
     native_accuracy_gate = str(
         get_any(native_citylbm_accuracy_delta_audit, ["native_accuracy_gate"]) or ""
     ).strip().lower()
-    if native_accuracy_gate not in {"pass", "fail"}:
-        reasons.append(f"native_accuracy_gate_missing_or_invalid:{native_accuracy_gate or 'missing'}")
+    if native_accuracy_gate != "pass":
+        reasons.append(f"native_accuracy_gate_not_pass:{native_accuracy_gate or 'missing'}")
+        for reason in as_string_list(
+            get_any(native_citylbm_accuracy_delta_audit, ["native_accuracy_gate_reasons"])
+        ):
+            if reason and reason != "native_accuracy_metrics_within_thresholds":
+                reasons.append(f"native_accuracy_gate_reason:{reason}")
 
     interpretation = str(
         get_any(native_citylbm_accuracy_delta_audit, ["accuracy_interpretation"]) or ""
