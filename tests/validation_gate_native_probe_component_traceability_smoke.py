@@ -69,6 +69,7 @@ def passing_native_audit():
         "component_normalization_gate": "pass",
         "component_sensitivity_gate": "pass",
         "normalization_scale_gate": "pass",
+        "streamwise_sign_gate": "pass",
         "component_source_window_gate": "pass",
         "component_source_time_steps": "20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000",
         "component_source_step_span": 20000,
@@ -106,6 +107,7 @@ def main() -> int:
     bad["probe_out_of_tolerance_count"] = 2
     bad["probe_source_vtk_sha256_match_runtime"] = False
     bad["component_source_window_gate"] = "fail"
+    bad["streamwise_sign_gate"] = "fail"
     bad["component_source_step_span"] = 3000
     bad["component_source_time_steps_match_runtime"] = False
     bad["component_source_vtk_sha256_match_runtime"] = False
@@ -133,6 +135,7 @@ def main() -> int:
         "component_source_step_hash_pairs_match_runtime_not_true:False",
         "probe_source_step_hash_pairs_match_runtime_not_true:False",
         "component_source_window_gate_not_pass:fail",
+        "streamwise_sign_gate_not_pass:fail",
         "component_sensitivity_probe_audit_sha256_matches_current_not_true:False",
         "component_sensitivity_hash_traceability_gate_not_pass:fail",
         "official_probe_set_gate_not_pass:fail",

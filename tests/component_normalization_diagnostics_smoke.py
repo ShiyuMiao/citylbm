@@ -88,8 +88,10 @@ def main() -> int:
         official = root / "official.csv"
         wrong_component_probe = root / "wrong_component_probe.csv"
         scale_like_probe = root / "scale_like_probe.csv"
+        reversed_streamwise_probe = root / "reversed_streamwise_probe.csv"
         wrong_component_report = root / "wrong_component.json"
         scale_like_report = root / "scale_like.json"
+        reversed_streamwise_report = root / "reversed_streamwise.json"
 
         write_text(vtk_a, "frame 1000\n")
         write_text(vtk_b, "frame 1100\n")
@@ -129,7 +131,7 @@ def main() -> int:
             ("P3", "0.6", "0.396"),
         ]:
             row = base_probe_row(probe_id, vtk_a, vtk_b)
-            row.update({"speed_ratio": low_speed})
+            row.update({"speed_ratio": low_speed, "streamwise_ratio": low_speed})
             scale_rows.append(row)
         write_csv(scale_like_probe, scale_rows)
 
@@ -147,6 +149,39 @@ def main() -> int:
             for reason in scale_like["normalization_scale_gate_reasons"]
         ):
             raise AssertionError(scale_like["normalization_scale_gate_reasons"])
+
+        reversed_rows = []
+        for probe_id, official_value, reversed_streamwise in [
+            ("P1", "1.0", "-1.0"),
+            ("P2", "0.8", "-0.8"),
+            ("P3", "0.6", "-0.6"),
+        ]:
+            row = base_probe_row(probe_id, vtk_a, vtk_b)
+            row.update({"speed_ratio": official_value, "streamwise_ratio": reversed_streamwise})
+            reversed_rows.append(row)
+        write_csv(reversed_streamwise_probe, reversed_rows)
+
+        reversed_streamwise = run_audit(
+            reversed_streamwise_probe,
+            official,
+            reversed_streamwise_report,
+            expected=2,
+        )
+        if reversed_streamwise["component_sensitivity_gate"] != "pass":
+            raise AssertionError(reversed_streamwise["component_sensitivity_gate_reasons"])
+        if reversed_streamwise["normalization_scale_gate"] != "pass":
+            raise AssertionError(reversed_streamwise["normalization_scale_gate_reasons"])
+        if reversed_streamwise["streamwise_sign_gate"] != "fail":
+            raise AssertionError(reversed_streamwise["streamwise_sign_gate"])
+        if reversed_streamwise["component_normalization_gate"] != "fail":
+            raise AssertionError(reversed_streamwise["component_normalization_gate"])
+        if abs(float(reversed_streamwise["streamwise_negative_fraction"]) - 1.0) > 1.0e-12:
+            raise AssertionError(reversed_streamwise["streamwise_negative_fraction"])
+        if not any(
+            "suggests_wind_vector_or_component_sign_error" in reason
+            for reason in reversed_streamwise["streamwise_sign_gate_reasons"]
+        ):
+            raise AssertionError(reversed_streamwise["streamwise_sign_gate_reasons"])
 
     print("component_normalization_diagnostics_smoke passed")
     return 0

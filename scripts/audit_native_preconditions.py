@@ -2926,6 +2926,7 @@ def main() -> int:
     component_gate = str(component_sensitivity_audit.get("component_normalization_gate") or "").strip().lower()
     component_sensitivity_gate = str(component_sensitivity_audit.get("component_sensitivity_gate") or "").strip().lower()
     normalization_scale_gate = str(component_sensitivity_audit.get("normalization_scale_gate") or "").strip().lower()
+    streamwise_sign_gate = str(component_sensitivity_audit.get("streamwise_sign_gate") or "").strip().lower()
     component_source_window_gate = str(component_sensitivity_audit.get("component_source_window_gate") or "").strip().lower()
     component_sensitivity_gate_reasons_csv = ";".join(
         str(reason)
@@ -2935,6 +2936,11 @@ def main() -> int:
     normalization_scale_gate_reasons_csv = ";".join(
         str(reason)
         for reason in component_sensitivity_audit.get("normalization_scale_gate_reasons", [])
+        if str(reason).strip()
+    )
+    streamwise_sign_gate_reasons_csv = ";".join(
+        str(reason)
+        for reason in component_sensitivity_audit.get("streamwise_sign_gate_reasons", [])
         if str(reason).strip()
     )
     component_source_steps = parse_int_list(component_sensitivity_audit.get("component_source_time_steps"))
@@ -2963,6 +2969,8 @@ def main() -> int:
         reasons.append("component_sensitivity_gate_not_pass")
     if normalization_scale_gate != "pass":
         reasons.append("normalization_scale_gate_not_pass")
+    if streamwise_sign_gate != "pass":
+        reasons.append("streamwise_sign_gate_not_pass")
     if component_source_window_gate != "pass":
         reasons.append("component_source_window_gate_not_pass")
     if not component_source_steps_match_runtime:
@@ -3235,6 +3243,13 @@ def main() -> int:
         "normalization_scale_gate": normalization_scale_gate,
         "normalization_scale_gate_reasons": component_sensitivity_audit.get("normalization_scale_gate_reasons", []),
         "normalization_scale_gate_reasons_csv": normalization_scale_gate_reasons_csv,
+        "streamwise_sign_gate": streamwise_sign_gate,
+        "streamwise_sign_gate_reasons": component_sensitivity_audit.get("streamwise_sign_gate_reasons", []),
+        "streamwise_sign_gate_reasons_csv": streamwise_sign_gate_reasons_csv,
+        "streamwise_negative_fraction": component_sensitivity_audit.get("streamwise_negative_fraction"),
+        "streamwise_mean_ratio": component_sensitivity_audit.get("streamwise_mean_ratio"),
+        "streamwise_sign_valid_n": component_sensitivity_audit.get("streamwise_sign_valid_n"),
+        "streamwise_negative_count": component_sensitivity_audit.get("streamwise_negative_count"),
         "component_selected_component": component_sensitivity_audit.get("selected_component"),
         "component_selected_component_source": component_sensitivity_audit.get("selected_component_source"),
         "component_best_component_by_rmse": component_sensitivity_audit.get("best_component_by_rmse"),
@@ -3471,6 +3486,7 @@ def main() -> int:
         "component_normalization_gate": component_gate,
         "component_sensitivity_gate": component_sensitivity_gate,
         "normalization_scale_gate": normalization_scale_gate,
+        "streamwise_sign_gate": streamwise_sign_gate,
         "component_source_window_gate": component_source_window_gate,
         "component_source_window_gate_reasons": component_sensitivity_audit.get(
             "component_source_window_gate_reasons", []

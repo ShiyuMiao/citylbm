@@ -405,6 +405,11 @@ TEMPLATE_FIELDS = [
     "native_component_sensitivity_gate_reasons",
     "native_component_normalization_scale_gate",
     "native_component_normalization_scale_gate_reasons",
+    "native_component_streamwise_sign_gate",
+    "native_component_streamwise_sign_gate_reasons",
+    "native_component_streamwise_negative_fraction",
+    "native_component_streamwise_mean_ratio",
+    "native_component_streamwise_sign_valid_n",
     "native_component_selected_component",
     "native_component_selected_component_source",
     "native_component_best_component_by_rmse",
@@ -655,6 +660,12 @@ TEMPLATE_FIELDS = [
     "component_normalization_gate",
     "component_sensitivity_gate",
     "normalization_scale_gate",
+    "streamwise_sign_gate",
+    "streamwise_sign_gate_reasons",
+    "streamwise_negative_fraction",
+    "streamwise_mean_ratio",
+    "streamwise_sign_valid_n",
+    "streamwise_negative_count",
     "best_component_by_rmse",
     "selected_component_rmse_ratio",
     "selected_component_bias_ratio",
@@ -2554,6 +2565,22 @@ def main() -> int:
                 native_preconditions_audit, "normalization_scale_gate_reasons_csv"
             )
             or audit_list_field(native_preconditions_audit, "normalization_scale_gate_reasons"),
+            "native_component_streamwise_sign_gate": audit_gate(
+                native_preconditions_audit, "streamwise_sign_gate"
+            ),
+            "native_component_streamwise_sign_gate_reasons": audit_field(
+                native_preconditions_audit, "streamwise_sign_gate_reasons_csv"
+            )
+            or audit_list_field(native_preconditions_audit, "streamwise_sign_gate_reasons"),
+            "native_component_streamwise_negative_fraction": fmt(
+                audit_float(native_preconditions_audit, "streamwise_negative_fraction")
+            ),
+            "native_component_streamwise_mean_ratio": fmt(
+                audit_float(native_preconditions_audit, "streamwise_mean_ratio")
+            ),
+            "native_component_streamwise_sign_valid_n": fmt(
+                audit_int(native_preconditions_audit, "streamwise_sign_valid_n")
+            ),
             "native_component_selected_component": audit_field(
                 native_preconditions_audit, "component_selected_component"
             ),
@@ -3190,6 +3217,18 @@ def main() -> int:
             "component_normalization_gate": audit_gate(component_sensitivity_audit, "component_normalization_gate"),
             "component_sensitivity_gate": audit_gate(component_sensitivity_audit, "component_sensitivity_gate"),
             "normalization_scale_gate": audit_gate(component_sensitivity_audit, "normalization_scale_gate"),
+            "streamwise_sign_gate": audit_gate(component_sensitivity_audit, "streamwise_sign_gate"),
+            "streamwise_sign_gate_reasons": ";".join(
+                str(reason) for reason in component_sensitivity_audit.get("streamwise_sign_gate_reasons", [])
+            )
+            if isinstance(component_sensitivity_audit.get("streamwise_sign_gate_reasons"), list)
+            else str(component_sensitivity_audit.get("streamwise_sign_gate_reasons", "")),
+            "streamwise_negative_fraction": fmt(
+                audit_float(component_sensitivity_audit, "streamwise_negative_fraction")
+            ),
+            "streamwise_mean_ratio": fmt(audit_float(component_sensitivity_audit, "streamwise_mean_ratio")),
+            "streamwise_sign_valid_n": fmt(audit_int(component_sensitivity_audit, "streamwise_sign_valid_n")),
+            "streamwise_negative_count": fmt(audit_int(component_sensitivity_audit, "streamwise_negative_count")),
             "best_component_by_rmse": audit_field(component_sensitivity_audit, "best_component_by_rmse"),
             "selected_component_rmse_ratio": fmt(audit_float(component_sensitivity_audit, "selected_component_rmse")),
             "selected_component_bias_ratio": fmt(audit_float(component_sensitivity_audit, "selected_component_bias")),

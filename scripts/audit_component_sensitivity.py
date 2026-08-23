@@ -66,6 +66,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-best-scale-deviation", type=float, default=0.20)
     parser.add_argument("--min-scale-improvement-ratio", type=float, default=0.25)
     parser.add_argument("--min-bias-scale-improvement-ratio", type=float, default=0.25)
+    parser.add_argument(
+        "--max-negative-streamwise-fraction",
+        type=float,
+        default=0.75,
+        help="Fail direction sign audit when more than this fraction of valid streamwise ratios are negative.",
+    )
+    parser.add_argument(
+        "--streamwise-sign-mean-threshold",
+        type=float,
+        default=-0.05,
+        help="Fail direction sign audit only when mean streamwise ratio is below this threshold too.",
+    )
+    parser.add_argument(
+        "--min-streamwise-sign-sample-count",
+        type=int,
+        default=1,
+        help="Minimum finite streamwise_ratio samples required for the direction sign audit.",
+    )
     return parser.parse_args()
 
 
@@ -479,6 +497,58 @@ def probe_row_failed(row: Dict[str, str]) -> bool:
     return as_bool(get_value(row, "failed")) is True or as_bool(get_value(row, "out_of_tolerance")) is True
 
 
+def streamwise_sign_summary(
+    probe_rows: Sequence[Dict[str, str]],
+    max_negative_fraction: float,
+    mean_threshold: float,
+    min_sample_count: int,
+) -> Dict[str, Any]:
+    values: List[float] = []
+    missing_count = 0
+    for row in probe_rows:
+        if probe_row_failed(row):
+            continue
+        value = as_float(get_value(row, "streamwise_ratio"))
+        if value is None:
+            missing_count += 1
+            continue
+        values.append(value)
+
+    valid_count = len(values)
+    negative_count = sum(1 for value in values if value < 0.0)
+    negative_fraction = negative_count / valid_count if valid_count else None
+    mean_streamwise = mean(values)
+    reasons: List[str] = []
+    if valid_count <= 0:
+        reasons.append("streamwise_ratio_missing_for_direction_sign_check")
+    if valid_count < min_sample_count:
+        reasons.append(f"streamwise_sign_sample_count_{valid_count}_below_minimum_{min_sample_count}")
+    if (
+        negative_fraction is not None
+        and mean_streamwise is not None
+        and negative_fraction > max_negative_fraction
+        and mean_streamwise < mean_threshold
+    ):
+        reasons.append(
+            f"negative_streamwise_fraction_{negative_fraction:.6g}_and_mean_{mean_streamwise:.6g}_suggests_wind_vector_or_component_sign_error"
+        )
+
+    return {
+        "streamwise_sign_gate": "pass" if not reasons else "fail",
+        "streamwise_sign_gate_reasons": reasons or ["streamwise_ratio_direction_sign_consistent"],
+        "streamwise_sign_valid_n": valid_count,
+        "streamwise_sign_missing_n": missing_count,
+        "streamwise_negative_count": negative_count,
+        "streamwise_negative_fraction": negative_fraction,
+        "streamwise_mean_ratio": mean_streamwise,
+        "streamwise_min_ratio": min(values) if values else None,
+        "streamwise_max_ratio": max(values) if values else None,
+        "max_negative_streamwise_fraction": max_negative_fraction,
+        "streamwise_sign_mean_threshold": mean_threshold,
+        "min_streamwise_sign_sample_count": min_sample_count,
+    }
+
+
 def probe_component_summary(probe_rows: Sequence[Dict[str, str]]) -> Dict[str, Any]:
     components = set()
     valid_count = 0
@@ -646,6 +716,12 @@ def main() -> int:
         probe_rows,
         args.selected_component,
     )
+    streamwise_sign = streamwise_sign_summary(
+        probe_rows,
+        args.max_negative_streamwise_fraction,
+        args.streamwise_sign_mean_threshold,
+        args.min_streamwise_sign_sample_count,
+    )
 
     metrics = [
         component_metrics(component, probe_rows, official_lookup, official_value_col, probe_id_col)
@@ -711,9 +787,15 @@ def main() -> int:
     component_gate = "pass" if not component_gate_reasons else "fail"
     normalization_gate = "pass" if not normalization_gate_reasons else "fail"
     source_window_gate = str(source_window.get("component_source_window_gate") or "").strip().lower()
+    streamwise_sign_gate = str(streamwise_sign.get("streamwise_sign_gate") or "").strip().lower()
     overall_gate = (
         "pass"
-        if component_gate == "pass" and normalization_gate == "pass" and source_window_gate == "pass"
+        if (
+            component_gate == "pass"
+            and normalization_gate == "pass"
+            and source_window_gate == "pass"
+            and streamwise_sign_gate == "pass"
+        )
         else "fail"
     )
     report = {
@@ -744,6 +826,7 @@ def main() -> int:
         **component_summary,
         **source_window,
         "best_component_by_rmse": best["component"],
+        **streamwise_sign,
         "selected_component_rmse": selected.get("RMSE"),
         "selected_component_bias": selected_bias,
         "selected_component_scaled_bias": selected_scaled_bias,
@@ -792,7 +875,7 @@ def main() -> int:
             for row in metrics:
                 writer.writerow({field: fmt(row.get(field)) for field in fields})
     print(
-        "component_normalization_gate={gate}; selected={selected}; best={best}; improvement={improvement}; scale={scale}; bias={bias}; scaled_bias={scaled_bias}".format(
+        "component_normalization_gate={gate}; selected={selected}; best={best}; improvement={improvement}; scale={scale}; bias={bias}; scaled_bias={scaled_bias}; streamwise_sign_gate={streamwise}".format(
             gate=overall_gate,
             selected=selected_component,
             best=best["component"],
@@ -800,6 +883,7 @@ def main() -> int:
             scale=selected_scale,
             bias=selected_bias,
             scaled_bias=selected_scaled_bias,
+            streamwise=streamwise_sign_gate,
         )
     )
     return 0 if overall_gate == "pass" else 2

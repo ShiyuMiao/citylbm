@@ -118,6 +118,7 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "component_normalization_gate",
     "component_sensitivity_gate",
     "normalization_scale_gate",
+    "streamwise_sign_gate",
     "synthetic_temporal_sampling_gate",
     "synthetic_mode_count",
     "synthetic_update_interval",
@@ -2541,6 +2542,7 @@ def native_probe_component_traceability_status(
         "component_normalization_gate",
         "component_sensitivity_gate",
         "normalization_scale_gate",
+        "streamwise_sign_gate",
         "component_source_window_gate",
         "component_sensitivity_hash_traceability_gate",
     ]:
@@ -5752,6 +5754,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_preconditions_normalization_scale_gate = str(
         get_any(native_preconditions_audit, ["normalization_scale_gate"]) or ""
     ).strip().lower()
+    native_preconditions_streamwise_sign_gate = str(
+        get_any(native_preconditions_audit, ["streamwise_sign_gate"]) or ""
+    ).strip().lower()
     native_preconditions_id = str(
         get_any(native_preconditions_audit, ["baseline_id", "BaselineId"]) or ""
     ).strip()
@@ -5829,6 +5834,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"component_normalization_gate={native_preconditions_component_gate or 'missing'}; "
             f"component_sensitivity_gate={native_preconditions_component_sensitivity_gate or 'missing'}; "
             f"normalization_scale_gate={native_preconditions_normalization_scale_gate or 'missing'}; "
+            f"streamwise_sign_gate={native_preconditions_streamwise_sign_gate or 'missing'}; "
             f"component_source_window_gate={get_any(native_preconditions_audit, ['component_source_window_gate']) or 'missing'}; "
             f"component_sensitivity_hash_traceability_gate={get_any(native_preconditions_audit, ['component_sensitivity_hash_traceability_gate']) or 'missing'}; "
             f"component_sensitivity_probe_audit_sha256_matches_current={get_any(native_preconditions_audit, ['component_sensitivity_probe_audit_sha256_matches_current'])}; "
@@ -5958,6 +5964,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and native_preconditions_component_gate == "pass"
         and native_preconditions_component_sensitivity_gate == "pass"
         and native_preconditions_normalization_scale_gate == "pass"
+        and native_preconditions_streamwise_sign_gate == "pass"
         and native_precondition_closure_gate == "pass"
         and native_precondition_failed_stage_count == 0
     )
@@ -6004,6 +6011,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"component_normalization_gate={native_preconditions_component_gate or 'missing'}; "
             f"component_sensitivity_gate={native_preconditions_component_sensitivity_gate or 'missing'}; "
             f"normalization_scale_gate={native_preconditions_normalization_scale_gate or 'missing'}; "
+            f"streamwise_sign_gate={native_preconditions_streamwise_sign_gate or 'missing'}; "
             f"native_precondition_closure_gate={native_precondition_closure_gate or 'missing'}; "
             f"native_precondition_failed_stage_count={native_precondition_failed_stage_count}; "
             f"native_precondition_failed_stage_keys={native_precondition_failed_stage_keys or 'none'}; "
@@ -6090,6 +6098,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_preconditions_component_normalization_gate={native_preconditions_component_gate or 'missing'}; "
             f"native_preconditions_component_sensitivity_gate={native_preconditions_component_sensitivity_gate or 'missing'}; "
             f"native_preconditions_normalization_scale_gate={native_preconditions_normalization_scale_gate or 'missing'}; "
+            f"native_preconditions_streamwise_sign_gate={native_preconditions_streamwise_sign_gate or 'missing'}; "
             f"native_preconditions_id={native_preconditions_id or 'missing'}; "
             f"native_preconditions_id_matches={native_preconditions_id_matches}; "
             f"native_preconditions_manifest_sha256={native_preconditions_manifest_sha256 or 'missing'}; "
@@ -6702,6 +6711,22 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     normalization_scale_gate = str(
         component_sensitivity_audit.get("normalization_scale_gate") or ""
     ).strip().lower()
+    streamwise_sign_gate = str(
+        component_sensitivity_audit.get("streamwise_sign_gate") or ""
+    ).strip().lower()
+    streamwise_sign_reasons_raw = component_sensitivity_audit.get("streamwise_sign_gate_reasons")
+    streamwise_sign_reasons = (
+        [str(value) for value in streamwise_sign_reasons_raw]
+        if isinstance(streamwise_sign_reasons_raw, list)
+        else [str(streamwise_sign_reasons_raw)]
+        if streamwise_sign_reasons_raw
+        else []
+    )
+    streamwise_negative_fraction = as_float(
+        component_sensitivity_audit.get("streamwise_negative_fraction")
+    )
+    streamwise_mean_ratio = as_float(component_sensitivity_audit.get("streamwise_mean_ratio"))
+    streamwise_sign_valid_n = as_int(component_sensitivity_audit.get("streamwise_sign_valid_n"))
     selected_component = str(
         component_sensitivity_audit.get("selected_component")
         or ""
@@ -6861,6 +6886,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and component_normalization_gate == "pass"
         and component_sensitivity_gate == "pass"
         and normalization_scale_gate == "pass"
+        and streamwise_sign_gate == "pass"
         and component_source_window_gate == "pass"
         and component_probe_hash_matches
         and component_official_hash_matches
@@ -6876,6 +6902,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"component_normalization_gate={component_normalization_gate or 'missing'}; "
             f"component_sensitivity_gate={component_sensitivity_gate or 'missing'}; "
             f"normalization_scale_gate={normalization_scale_gate or 'missing'}; "
+            f"streamwise_sign_gate={streamwise_sign_gate or 'missing'}; "
+            f"streamwise_sign_reasons={';'.join(streamwise_sign_reasons) or 'missing'}; "
+            f"streamwise_negative_fraction={streamwise_negative_fraction}; "
+            f"streamwise_mean_ratio={streamwise_mean_ratio}; "
+            f"streamwise_sign_valid_n={streamwise_sign_valid_n}; "
             f"component_source_window_gate={component_source_window_gate or 'missing'}; "
             f"component_source_window_reasons={';'.join(component_source_window_reasons) or 'missing'}; "
             f"component_source_time_steps={component_sensitivity_audit.get('component_source_time_steps') or 'missing'}; "
@@ -6928,11 +6959,12 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"metrics_component_normalization_gate={get_any(metrics, ['component_normalization_gate', 'ComponentNormalizationGate']) or 'ignored'}; "
             f"metrics_component_sensitivity_gate={get_any(metrics, ['component_sensitivity_gate', 'ComponentSensitivityGate']) or 'ignored'}; "
             f"metrics_normalization_scale_gate={get_any(metrics, ['normalization_scale_gate', 'NormalizationScaleGate']) or 'ignored'}; "
+            f"metrics_streamwise_sign_gate={get_any(metrics, ['streamwise_sign_gate', 'StreamwiseSignGate']) or 'ignored'}; "
             f"audit={component_sensitivity_audit_path or 'missing'}; "
             f"audit_exists={component_sensitivity_audit_exists}; "
             f"metrics_component_sensitivity_audit={metric_component_sensitivity_audit or 'ignored'}"
         ),
-        "Run scripts/audit_component_sensitivity.py and fix speed_ratio/streamwise_ratio/component selection or Uref/SI conversion before interpreting systematic bias.",
+        "Run scripts/audit_component_sensitivity.py and fix speed_ratio/streamwise_ratio/component selection, wind-vector sign or Uref/SI conversion before interpreting systematic bias.",
     )
 
     valid_n = as_int(get_any(metrics, ["valid_n", "ValidN"]))

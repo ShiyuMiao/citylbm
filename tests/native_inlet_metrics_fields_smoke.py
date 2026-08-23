@@ -209,6 +209,14 @@ def main() -> int:
                     "normalization_scale_gate_reasons_csv": (
                         "best_fit_scale_1.25_suggests_uref_or_unit_error"
                     ),
+                    "streamwise_sign_gate": "fail",
+                    "streamwise_sign_gate_reasons_csv": (
+                        "negative_streamwise_fraction_1_and_mean_-0.8_suggests_wind_vector_or_component_sign_error"
+                    ),
+                    "streamwise_negative_fraction": 1.0,
+                    "streamwise_mean_ratio": -0.8,
+                    "streamwise_sign_valid_n": 80,
+                    "streamwise_negative_count": 80,
                     "component_selected_component": "speed_ratio",
                     "component_selected_component_source": "valid_probe_rows",
                     "component_best_component_by_rmse": "speed_ratio",
@@ -438,6 +446,13 @@ def main() -> int:
         "native_component_normalization_scale_gate_reasons": (
             "best_fit_scale_1.25_suggests_uref_or_unit_error"
         ),
+        "native_component_streamwise_sign_gate": "fail",
+        "native_component_streamwise_sign_gate_reasons": (
+            "negative_streamwise_fraction_1_and_mean_-0.8_suggests_wind_vector_or_component_sign_error"
+        ),
+        "native_component_streamwise_negative_fraction": "1",
+        "native_component_streamwise_mean_ratio": "-0.8",
+        "native_component_streamwise_sign_valid_n": "80",
         "native_component_selected_component": "speed_ratio",
         "native_component_selected_component_source": "valid_probe_rows",
         "native_component_best_component_by_rmse": "speed_ratio",

@@ -413,6 +413,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 - Component/Uref sensitivity audit: selected compared component, best RMSE component, selected/best RMSE, best-fit
   normalization scale, scaled-improvement ratio and `component_normalization_gate`. A failing audit means speed-ratio
   versus streamwise-ratio selection or Uref/SI conversion must be fixed before interpreting physical-model error.
+  The same audit now reports `streamwise_sign_gate`, `streamwise_negative_fraction` and `streamwise_mean_ratio`; a
+  failing sign gate means the wind vector or velocity-component sign must be fixed before any Case E accuracy claim.
   The audit's `probe_audit_sha256` and `official_sha256` must match the current probe audit CSV and official RS table
   used by the final gate.
 - Metrics input-hash traceability: `validation_metrics.csv` must include `probe_mapping_table_sha256` and

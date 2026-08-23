@@ -472,6 +472,9 @@ selection, source-step monotonicity, uniform-spacing fields and selected-plane s
 metrics row.
 It also fails when more than 5% of sampled inlet velocities project opposite to the declared wind vector, which catches
 wind-sign and streamwise-component mistakes before AF/profile or probe errors are interpreted.
+The probe/component sensitivity audit additionally reports `streamwise_sign_gate`, `streamwise_negative_fraction` and
+`streamwise_mean_ratio`. A failing `streamwise_sign_gate` is a hard protocol failure even if `speed_ratio` errors look
+small, because the declared wind vector or compared velocity component may be reversed.
 The gate also checks that `validation_metrics.csv` was built from the same `probe_audit.csv` and official RS table
 passed on the command line by comparing `probe_mapping_table_sha256` and `official_measurement_sha256`.
 The command intentionally omits `--allow-velocity-only-inlet`; add that flag only for explicitly labelled diagnostic
