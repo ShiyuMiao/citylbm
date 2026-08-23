@@ -47,6 +47,11 @@ def passing_native_audit():
         "boundary_equivalence_supported": True,
         "boundary_evidence_class_supported": True,
         "boundary_condition_fields_supported": True,
+        "boundary_source_method_class": "wind_tunnel_equivalent_boundary_source",
+        "boundary_source_has_paper_grade_outlet_source": True,
+        "boundary_source_has_paper_grade_side_top_source": True,
+        "boundary_source_has_paper_grade_rough_wall_source": True,
+        "boundary_source_has_paper_grade_development_source": True,
         "boundary_source_missing_paper_grade_source_evidence": "",
         "boundary_missing_evidence_fields": "",
         "boundary_unsupported_condition_fields": "",
@@ -95,6 +100,11 @@ def main() -> int:
 
     bad = copy.deepcopy(passing_native_audit())
     bad["boundary_source_simplified"] = True
+    bad["boundary_source_method_class"] = "simplified_type_e_box"
+    bad["boundary_source_has_paper_grade_outlet_source"] = False
+    bad["boundary_source_has_paper_grade_side_top_source"] = False
+    bad["boundary_source_has_paper_grade_rough_wall_source"] = False
+    bad["boundary_source_has_paper_grade_development_source"] = False
     bad["boundary_evidence_metadata_sha256_matches_current"] = False
     bad["boundary_required_support_fields_missing_or_false"] = "roughness_treatment_supported"
     bad["boundary_evidence_wind_direction"] = "S"
@@ -107,6 +117,11 @@ def main() -> int:
         raise AssertionError(failed)
     for expected in [
         "boundary_source_simplified_not_false:True",
+        "boundary_source_method_class_not_wind_tunnel_equivalent:simplified_type_e_box",
+        "boundary_source_has_paper_grade_outlet_source_not_true:False",
+        "boundary_source_has_paper_grade_side_top_source_not_true:False",
+        "boundary_source_has_paper_grade_rough_wall_source_not_true:False",
+        "boundary_source_has_paper_grade_development_source_not_true:False",
         "boundary_evidence_metadata_sha256_matches_current_not_true:False",
         "boundary_required_support_fields_missing_or_false_not_empty:roughness_treatment_supported",
         "boundary_evidence_wind_direction_mismatch:S!=N",

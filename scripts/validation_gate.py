@@ -2598,6 +2598,24 @@ def native_boundary_traceability_status(
             f"boundary_source_simplified_not_false:{simplified if simplified is not None else 'missing'}"
         )
 
+    source_method_class = str(
+        get_any(native_preconditions_audit, ["boundary_source_method_class"]) or ""
+    ).strip().lower()
+    if source_method_class != "wind_tunnel_equivalent_boundary_source":
+        reasons.append(
+            f"boundary_source_method_class_not_wind_tunnel_equivalent:{source_method_class or 'missing'}"
+        )
+
+    for key in [
+        "boundary_source_has_paper_grade_outlet_source",
+        "boundary_source_has_paper_grade_side_top_source",
+        "boundary_source_has_paper_grade_rough_wall_source",
+        "boundary_source_has_paper_grade_development_source",
+    ]:
+        value = as_bool(get_any(native_preconditions_audit, [key]))
+        if value is not True:
+            reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+
     boundary_runtime_steps, boundary_runtime_steps_error = parsed_step_list_value(
         get_any(native_preconditions_audit, ["boundary_runtime_source_time_steps", "boundary_runtime_source_time_steps_csv"]),
         "boundary_runtime_source_time_steps_missing",

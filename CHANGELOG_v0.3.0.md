@@ -96,6 +96,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `validation_gate.py` now adds `native_boundary_traceability`, requiring native FluidX3D boundary-source code,
   AIJ-equivalent boundary evidence, current metadata hash, boundary evidence file hashes, supported outlet/side/top/
   floor/roughness/fetch fields and case/wind identity before boundary-sensitive bias can be interpreted.
+- Native boundary traceability now directly rechecks the generated-source method class and the four required paper-grade
+  boundary-source evidence booleans: outlet, side/top, rough-wall and precursor/recycling development-field evidence.
+  A wrongly promoted simplified `TYPE_E` box can no longer pass by carrying only a copied `paper_grade_boundary_source_gate=pass`.
 - Native validation now includes `boundary_runtime_audit.json`, a final-window VTK boundary-face check for inlet,
   outlet, lateral and top streamwise velocity preservation against the AF profile. This is runtime evidence for
   boundary contamination, not a substitute for wind-tunnel-equivalent outlet/side/top/floor/roughness source evidence.
