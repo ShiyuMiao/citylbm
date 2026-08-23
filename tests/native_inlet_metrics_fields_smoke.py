@@ -73,6 +73,8 @@ def main() -> int:
         read_vtk_audit.write_text(
             json.dumps(
                 {
+                    "time_averaging_gate": "diagnostic_only",
+                    "time_averaging_fidelity_class": "nonstationary_final_window",
                     "final_window_stationarity_gate": "diagnostic_only",
                     "final_window_stationarity_gate_reasons_csv": (
                         "final_window_mean_speed_drift_above_threshold"
@@ -125,6 +127,7 @@ def main() -> int:
                 {
                     "native_preconditions_gate": "fail",
                     "native_preconditions_time_average_gate": "fail",
+                    "time_averaging_fidelity_class": "short_diagnostic_average_window",
                     "strict_native_run_gate": "fail",
                     "strict_native_run_gate_reasons_csv": (
                         "time_averaging_gate_not_pass:diagnostic_only;"
@@ -392,7 +395,9 @@ def main() -> int:
         "native_inlet_correlation_source_step_hash_pairs_match_runtime": "false",
         "native_inlet_correlation_source_step_span": "2000",
         "native_inlet_correlation_minimum_step_span": "20000",
+        "time_averaging_fidelity_class": "nonstationary_final_window",
         "native_preconditions_time_average_evidence_gate": "fail",
+        "native_preconditions_time_averaging_fidelity_class": "short_diagnostic_average_window",
         "native_preconditions_time_average_evidence_gate_reasons": (
             "runtime_average_window_frame_count_4_below_minimum_40;"
             "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"

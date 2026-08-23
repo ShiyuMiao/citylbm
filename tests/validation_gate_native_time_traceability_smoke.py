@@ -26,6 +26,7 @@ def passing_native_audit():
     hashes = [f"{index:064x}" for index in range(1, len(steps) + 1)]
     return {
         "native_preconditions_time_average_gate": "pass",
+        "time_averaging_fidelity_class": "paper_grade_final_window_average",
         "strict_native_run_gate": "pass",
         "strict_native_run_gate_reasons": ["native_run_artifacts_pass_strict_evidence_gates"],
         "planned_frame_count_min": 40,
@@ -89,6 +90,7 @@ def main() -> int:
             "runtime_average_step_span_shortfall_reason": (
                 "runtime_average_step_span_3000_below_minimum_20000"
             ),
+            "time_averaging_fidelity_class": "short_diagnostic_average_window",
         }
     )
     failed = module.native_time_averaging_traceability_status(
@@ -104,6 +106,7 @@ def main() -> int:
         "runtime_source_frame_count_below_40",
         "runtime_source_step_span_below_20000",
         "runtime_average_window_shortfall_reason_present:runtime_average_window_frame_count_4_below_minimum_40",
+        "time_averaging_fidelity_class_not_paper_grade:short_diagnostic_average_window",
     ):
         if expected not in reasons:
             raise AssertionError((expected, reasons))
@@ -118,6 +121,7 @@ def main() -> int:
                 "final_window_stationarity_gate_not_pass:diagnostic_only",
             ],
             "runtime_final_window_stationarity_gate": "diagnostic_only",
+            "time_averaging_fidelity_class": "nonstationary_final_window",
             "runtime_final_window_mean_speed_drift_ratio": 0.08,
             "runtime_final_window_stationarity_gate_reasons": [
                 "final_window_mean_speed_drift_ratio_above_threshold"
@@ -137,6 +141,7 @@ def main() -> int:
         "strict_native_run_gate_not_pass:fail",
         "strict_native_run_gate_reason_present:time_averaging_gate_not_pass:diagnostic_only",
         "runtime_final_window_stationarity_gate_not_pass:diagnostic_only",
+        "time_averaging_fidelity_class_not_paper_grade:nonstationary_final_window",
         "runtime_final_window_stationarity_gate_reasons_present:final_window_mean_speed_drift_ratio_above_threshold",
     ):
         if expected not in drifting_reasons:
@@ -149,6 +154,7 @@ def main() -> int:
             "runtime_source_vtk_sha256": [f"{index:064x}" for index in range(1, 39)],
             "runtime_source_vtk_sha256_count": 38,
             "runtime_source_vtk_sha256_unique_count": 37,
+            "time_averaging_fidelity_class": "stale_or_nonfinal_average_window",
         }
     )
     stale_failed = module.native_time_averaging_traceability_status(
@@ -162,6 +168,7 @@ def main() -> int:
     for expected in (
         "runtime_selected_last_window_not_true:False",
         "runtime_source_vtk_sha256_count_below_40",
+        "time_averaging_fidelity_class_not_paper_grade:stale_or_nonfinal_average_window",
         "runtime_source_vtk_sha256_count_mismatch_frame_count",
         "runtime_source_vtk_sha256_unique_count_mismatch_hash_count",
     ):

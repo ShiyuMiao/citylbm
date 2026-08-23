@@ -53,6 +53,7 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "requested_time_steps",
     "requested_vtk_save_interval",
     "requested_vtk_frame_count",
+    "time_averaging_fidelity_class",
     "Uref_mps",
     "Zref_m",
     "compared_component",
@@ -2924,6 +2925,9 @@ def native_time_averaging_traceability_status(
     runtime_stationarity_gate = str(
         get_any(native_preconditions_audit, ["runtime_final_window_stationarity_gate"]) or ""
     ).strip().lower()
+    time_averaging_fidelity_class = str(
+        get_any(native_preconditions_audit, ["time_averaging_fidelity_class"]) or ""
+    ).strip().lower()
     runtime_mean_speed_statistics_source = str(
         get_any(
             native_preconditions_audit,
@@ -3010,6 +3014,10 @@ def native_time_averaging_traceability_status(
             reasons.append(f"{key}_present:{','.join(values)}")
     if runtime_stationarity_gate != "pass":
         reasons.append(f"runtime_final_window_stationarity_gate_not_pass:{runtime_stationarity_gate or 'missing'}")
+    if time_averaging_fidelity_class != "paper_grade_final_window_average":
+        reasons.append(
+            f"time_averaging_fidelity_class_not_paper_grade:{time_averaging_fidelity_class or 'missing'}"
+        )
     if runtime_mean_speed_statistics_source != "sampled_vtk":
         reasons.append(
             "runtime_mean_speed_statistics_source_not_sampled_vtk:"
@@ -3034,6 +3042,7 @@ def native_time_averaging_traceability_status(
         "runtime_source_step_span": runtime_span,
         "runtime_source_step_span_from_time_steps": runtime_span_from_steps,
         "runtime_final_window_stationarity_gate": runtime_stationarity_gate,
+        "time_averaging_fidelity_class": time_averaging_fidelity_class,
         "strict_native_run_gate": strict_native_run_gate,
         "runtime_mean_speed_statistics_source": runtime_mean_speed_statistics_source,
         "runtime_mean_speed_statistics_cli_override": runtime_mean_speed_statistics_cli_override,
@@ -6034,6 +6043,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"runtime_source_vtk_sha256_unique_count={native_time_traceability['runtime_source_vtk_sha256_unique_count']}; "
             f"planned_final_window_step_span={native_time_traceability['planned_final_window_step_span']}; "
             f"runtime_final_window_stationarity_gate={native_time_traceability['runtime_final_window_stationarity_gate'] or 'missing'}; "
+            f"time_averaging_fidelity_class={native_time_traceability['time_averaging_fidelity_class'] or 'missing'}; "
             f"runtime_final_window_mean_speed_drift_ratio={native_time_traceability['runtime_final_window_mean_speed_drift_ratio']}; "
             f"runtime_max_final_window_mean_speed_drift_ratio={get_any(native_preconditions_audit, ['runtime_max_final_window_mean_speed_drift_ratio'])}; "
             f"required_min_avg_frames={args.min_avg_frames}; "

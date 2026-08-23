@@ -1281,6 +1281,31 @@ def build_final_window_frame_count_gate(
     }
 
 
+def classify_time_averaging_fidelity(
+    *,
+    time_average_gate: str,
+    runtime_final_window_frame_count_gate: str,
+    stationarity_gate: str,
+    runtime_selected_last_window: Optional[bool],
+    runtime_average_shortfall_reason: str,
+    runtime_step_shortfall_reason: str,
+) -> str:
+    if (
+        time_average_gate == "pass"
+        and runtime_final_window_frame_count_gate == "pass"
+        and stationarity_gate == "pass"
+        and runtime_selected_last_window is True
+    ):
+        return "paper_grade_final_window_average"
+    if runtime_average_shortfall_reason or runtime_step_shortfall_reason:
+        return "short_diagnostic_average_window"
+    if runtime_selected_last_window is not True:
+        return "stale_or_nonfinal_average_window"
+    if stationarity_gate and stationarity_gate != "pass":
+        return "nonstationary_final_window"
+    return "incomplete_time_averaging_evidence"
+
+
 def build_inlet_equivalence_evidence_reasons(
     *,
     inlet_source_audit: Dict[str, Any],
@@ -2392,6 +2417,14 @@ def main() -> int:
         min_avg_frames=args.min_avg_frames,
     )
     time_average_gate = "pass" if not time_average_evidence_reasons else "fail"
+    time_averaging_fidelity_class = classify_time_averaging_fidelity(
+        time_average_gate=time_average_gate,
+        runtime_final_window_frame_count_gate=runtime_final_window_frame_count_gate["gate"],
+        stationarity_gate=stationarity_gate,
+        runtime_selected_last_window=runtime_selected_last_window,
+        runtime_average_shortfall_reason=runtime_average_shortfall_reason,
+        runtime_step_shortfall_reason=runtime_step_shortfall_reason,
+    )
     if time_average_gate != "pass":
         reasons.append("native_time_average_evidence_gate_not_pass")
 
@@ -3510,6 +3543,7 @@ def main() -> int:
         "strict_native_run_gate_reasons": strict_native_run_reasons,
         "strict_native_run_gate_reasons_csv": ";".join(strict_native_run_reasons),
         "native_preconditions_time_average_evidence_gate": time_average_gate,
+        "time_averaging_fidelity_class": time_averaging_fidelity_class,
         "native_preconditions_time_average_evidence_gate_reasons": time_average_evidence_reasons,
         "native_preconditions_time_average_evidence_gate_reasons_csv": ";".join(time_average_evidence_reasons),
         "native_preconditions_lbm_stability_gate": lbm_stability_gate,

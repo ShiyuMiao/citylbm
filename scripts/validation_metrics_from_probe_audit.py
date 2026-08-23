@@ -61,6 +61,7 @@ TEMPLATE_FIELDS = [
     "source_steps_strictly_increasing",
     "source_step_spacing_uniform",
     "time_averaging_gate",
+    "time_averaging_fidelity_class",
     "time_averaging_gate_reasons",
     "mean_speed_mps",
     "mean_speed_stddev_mps",
@@ -369,6 +370,7 @@ TEMPLATE_FIELDS = [
     "native_preconditions_gate_reasons",
     "native_preconditions_protocol_identity_gate",
     "native_preconditions_time_average_gate",
+    "native_preconditions_time_averaging_fidelity_class",
     "native_preconditions_strict_native_run_gate",
     "native_preconditions_strict_native_run_gate_reasons",
     "native_preconditions_time_average_evidence_gate",
@@ -1324,6 +1326,29 @@ def first_bool_text(*values: Any) -> str:
     return ""
 
 
+def infer_time_averaging_fidelity_class(
+    *,
+    time_averaging_gate: str,
+    averaged_frame_shortfall: Optional[int],
+    source_step_span_shortfall: Optional[int],
+    selected_last_window: Optional[bool],
+    final_window_stationarity_gate: str,
+) -> str:
+    gate = str(time_averaging_gate or "").strip().lower()
+    stationarity = str(final_window_stationarity_gate or "").strip().lower()
+    if gate == "pass" and selected_last_window is True and stationarity in {"", "pass"}:
+        return "paper_grade_final_window_average"
+    if (averaged_frame_shortfall is not None and averaged_frame_shortfall > 0) or (
+        source_step_span_shortfall is not None and source_step_span_shortfall > 0
+    ):
+        return "short_diagnostic_average_window"
+    if selected_last_window is not True:
+        return "stale_or_nonfinal_average_window"
+    if stationarity and stationarity != "pass":
+        return "nonstationary_final_window"
+    return "incomplete_time_averaging_evidence"
+
+
 def main() -> int:
     args = parse_args()
     probe_path = Path(args.probe_audit).resolve()
@@ -1835,6 +1860,16 @@ def main() -> int:
         audit_list_field(read_vtk_audit, "final_window_stationarity_gate_reasons"),
         audit_list_field(inlet_profile_audit, "final_window_stationarity_gate_reasons"),
     )
+    time_averaging_fidelity_class = first_text(
+        read_vtk_audit.get("time_averaging_fidelity_class"),
+        inlet_profile_audit.get("time_averaging_fidelity_class"),
+    ) or infer_time_averaging_fidelity_class(
+        time_averaging_gate=time_averaging_gate,
+        averaged_frame_shortfall=averaged_frame_shortfall,
+        source_step_span_shortfall=source_step_span_shortfall,
+        selected_last_window=selected_last_window,
+        final_window_stationarity_gate=final_window_stationarity_gate,
+    )
     final_window_mean_speed_drift_ratio = first_float(
         audit_float(read_vtk_audit, "final_window_mean_speed_drift_ratio"),
         audit_float(inlet_profile_audit, "final_window_mean_speed_drift_ratio"),
@@ -1924,6 +1959,7 @@ def main() -> int:
             "source_steps_strictly_increasing": source_steps_strictly_increasing,
             "source_step_spacing_uniform": source_step_spacing_uniform,
             "time_averaging_gate": time_averaging_gate,
+            "time_averaging_fidelity_class": time_averaging_fidelity_class,
             "time_averaging_gate_reasons": time_averaging_gate_reasons,
             "mean_speed_mps": fmt(mean_speed),
             "mean_speed_stddev_mps": fmt(mean_speed_stddev),
@@ -2477,6 +2513,9 @@ def main() -> int:
             ),
             "native_preconditions_time_average_gate": audit_gate(
                 native_preconditions_audit, "native_preconditions_time_average_gate"
+            ),
+            "native_preconditions_time_averaging_fidelity_class": audit_field(
+                native_preconditions_audit, "time_averaging_fidelity_class"
             ),
             "native_preconditions_strict_native_run_gate": audit_gate(
                 native_preconditions_audit, "strict_native_run_gate"
