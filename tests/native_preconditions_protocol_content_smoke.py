@@ -23,7 +23,7 @@ def load_audit_module():
 def protocol(module, overrides=None) -> dict:
     overrides = overrides or {}
     return {
-        "Gate": "paper_grade_candidate",
+        "Gate": "ready_for_validation_run",
         "Items": [
             {
                 "Key": key,
@@ -74,6 +74,20 @@ def main() -> int:
     ]:
         if expected not in incomplete["reasons"]:
             raise AssertionError((expected, incomplete))
+
+    bad_gate = protocol(module)
+    bad_gate["Gate"] = "not_paper_grade"
+    bad_gate_audit = module.audit_protocol_content(bad_gate)
+    if bad_gate_audit["gate"] != "fail":
+        raise AssertionError(bad_gate_audit)
+    if "validation_protocol_audit_gate_not_paper_grade:not_paper_grade" not in bad_gate_audit["reasons"]:
+        raise AssertionError(bad_gate_audit)
+
+    missing_gate = protocol(module)
+    missing_gate.pop("Gate")
+    missing_gate_audit = module.audit_protocol_content(missing_gate)
+    if "validation_protocol_audit_gate_missing" not in missing_gate_audit["reasons"]:
+        raise AssertionError(missing_gate_audit)
 
     priorities = module.build_native_diagnostic_priority(
         [

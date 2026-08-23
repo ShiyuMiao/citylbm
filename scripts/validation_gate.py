@@ -43,6 +43,13 @@ REQUIRED_PROTOCOL_ITEM_KEYS = [
     "grid_resolution",
 ]
 
+PAPER_GRADE_PROTOCOL_AUDIT_GATES = {
+    "pass",
+    "paper_grade",
+    "paper_grade_candidate",
+    "ready_for_validation_run",
+}
+
 NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "case",
     "wind_direction",
@@ -874,6 +881,7 @@ def audit_protocol_content(
         if str(item.get("Key") or item.get("key") or "").strip()
     }
     required = list(required_keys)
+    audit_gate = str(audit.get("Gate") or audit.get("gate") or "").strip().lower()
     missing = [key for key in required if key not in statuses]
     missing_status = [key for key in required if key in statuses and not statuses[key]]
     failed = [key for key, status in statuses.items() if status == "fail"]
@@ -887,11 +895,16 @@ def audit_protocol_content(
     reasons.extend(f"validation_protocol_item_fail:{key}" for key in failed)
     reasons.extend(f"validation_protocol_item_risk:{key}" for key in risk)
     reasons.extend(f"validation_protocol_item_partial:{key}" for key in partial)
+    if not audit_gate:
+        reasons.append("validation_protocol_audit_gate_missing")
+    elif audit_gate not in PAPER_GRADE_PROTOCOL_AUDIT_GATES:
+        reasons.append(f"validation_protocol_audit_gate_not_paper_grade:{audit_gate}")
     return {
         "ok": not reasons,
         "item_count": len(items),
         "required_item_count": len(required),
-        "audit_gate": str(audit.get("Gate") or audit.get("gate") or ""),
+        "audit_gate": audit_gate,
+        "allowed_audit_gates": sorted(PAPER_GRADE_PROTOCOL_AUDIT_GATES),
         "missing_keys": missing,
         "missing_status_keys": missing_status,
         "failed_keys": failed,

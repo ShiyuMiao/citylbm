@@ -62,6 +62,13 @@ REQUIRED_PROTOCOL_ITEM_KEYS = [
     "grid_resolution",
 ]
 
+PAPER_GRADE_PROTOCOL_AUDIT_GATES = {
+    "pass",
+    "paper_grade",
+    "paper_grade_candidate",
+    "ready_for_validation_run",
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -184,6 +191,7 @@ def audit_validation_protocol(path: Path) -> Dict[str, Any]:
     audit = json_load(path)
     items = protocol_items(audit)
     by_key = {protocol_item_key(item): protocol_item_status(item) for item in items if protocol_item_key(item)}
+    audit_gate = str(audit.get("Gate") or audit.get("gate") or "").strip().lower()
     missing_keys = [key for key in REQUIRED_PROTOCOL_ITEM_KEYS if key not in by_key]
     empty_status_keys = [key for key in REQUIRED_PROTOCOL_ITEM_KEYS if key in by_key and not by_key[key]]
     fail_keys = [key for key, status in by_key.items() if status == "fail"]
@@ -197,6 +205,10 @@ def audit_validation_protocol(path: Path) -> Dict[str, Any]:
     reasons.extend(f"validation_protocol_item_fail:{key}" for key in fail_keys)
     reasons.extend(f"validation_protocol_item_risk:{key}" for key in risk_keys)
     reasons.extend(f"validation_protocol_item_partial:{key}" for key in partial_keys)
+    if not audit_gate:
+        reasons.append("validation_protocol_audit_gate_missing")
+    elif audit_gate not in PAPER_GRADE_PROTOCOL_AUDIT_GATES:
+        reasons.append(f"validation_protocol_audit_gate_not_paper_grade:{audit_gate}")
     return {
         "Path": str(path.resolve()),
         "Exists": path.is_file(),
@@ -204,7 +216,8 @@ def audit_validation_protocol(path: Path) -> Dict[str, Any]:
         "Gate": "pass" if not reasons else "diagnostic_only",
         "Reasons": reasons,
         "ReasonsCsv": ";".join(reasons),
-        "AuditGate": str(audit.get("Gate") or audit.get("gate") or ""),
+        "AuditGate": audit_gate,
+        "AllowedAuditGates": sorted(PAPER_GRADE_PROTOCOL_AUDIT_GATES),
         "ItemCount": len(items),
         "RequiredItemKeys": REQUIRED_PROTOCOL_ITEM_KEYS,
         "Statuses": by_key,

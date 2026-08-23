@@ -24,7 +24,7 @@ def load_gate_module():
 def protocol(module, status_overrides: Optional[dict] = None) -> dict:
     overrides = status_overrides or {}
     return {
-        "Gate": "paper_grade_candidate",
+        "Gate": "ready_for_validation_run",
         "Items": [
             {
                 "Key": key,
@@ -75,6 +75,20 @@ def main() -> int:
     ]:
         if expected not in incomplete["reasons"]:
             raise AssertionError((expected, incomplete))
+
+    bad_gate = protocol(module)
+    bad_gate["Gate"] = "diagnostic_only"
+    bad_gate_result = module.audit_protocol_content(bad_gate)
+    if bad_gate_result["ok"]:
+        raise AssertionError(bad_gate_result)
+    if "validation_protocol_audit_gate_not_paper_grade:diagnostic_only" not in bad_gate_result["reasons"]:
+        raise AssertionError(bad_gate_result)
+
+    missing_gate = protocol(module)
+    missing_gate.pop("Gate")
+    missing_gate_result = module.audit_protocol_content(missing_gate)
+    if "validation_protocol_audit_gate_missing" not in missing_gate_result["reasons"]:
+        raise AssertionError(missing_gate_result)
 
     gates = []
     module.add_gate(

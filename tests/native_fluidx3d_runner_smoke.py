@@ -63,7 +63,7 @@ def validation_protocol_audit(status_overrides: dict | None = None) -> dict:
     status_overrides = status_overrides or {}
     return {
         "SchemaVersion": 1,
-        "Gate": "paper_grade_candidate",
+        "Gate": "ready_for_validation_run",
         "Items": [
             {"Key": key, "Status": status_overrides.get(key, status), "Evidence": "smoke"}
             for key, status in PROTOCOL_STATUSES.items()
@@ -277,6 +277,41 @@ def main() -> int:
         ]:
             if reason not in incomplete_protocol["RunnerGate"]["Reasons"]:
                 raise AssertionError(incomplete_protocol["RunnerGate"])
+
+        bad_gate_case = temp / "bad_gate_case"
+        create_case(bad_gate_case)
+        bad_gate_audit = validation_protocol_audit()
+        bad_gate_audit["Gate"] = "not_paper_grade"
+        write(bad_gate_case / "validation_protocol_audit.json", json.dumps(bad_gate_audit, indent=2))
+        bad_gate_manifest = temp / "bad_gate" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(bad_gate_case),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(bad_gate_manifest),
+                "--baseline-id",
+                "smoke-casea-native-bad-protocol-gate",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+            ],
+            expected_returncode=2,
+        )
+        bad_gate = load_json(bad_gate_manifest)
+        if "validation_protocol_audit_gate_not_paper_grade:not_paper_grade" not in bad_gate["RunnerGate"]["Reasons"]:
+            raise AssertionError(bad_gate["RunnerGate"])
 
         slow_refresh_case = temp / "slow_refresh_case"
         create_case(slow_refresh_case)
