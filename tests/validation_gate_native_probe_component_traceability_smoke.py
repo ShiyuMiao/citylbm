@@ -51,6 +51,8 @@ def passing_native_audit():
         "official_probe_ids_unique": True,
         "official_expected_z_m": "2",
         "official_z_mismatch_count": 0,
+        "probe_official_height_gate": "pass",
+        "probe_official_height_gate_reasons_csv": "",
         "probe_source_time_steps_match_runtime": True,
         "probe_source_steps_strictly_increasing": True,
         "probe_source_step_spacing_uniform": True,
@@ -113,6 +115,8 @@ def main() -> int:
     bad["component_sensitivity_hash_traceability_gate"] = "fail"
     bad["official_probe_set_gate"] = "fail"
     bad["official_z_mismatch_count"] = 1
+    bad["probe_official_height_gate"] = "fail"
+    bad["probe_official_height_gate_reasons_csv"] = "official_z_mismatch_count:1"
     failed = module.native_probe_component_traceability_status(
         bad,
         min_avg_step_span=20000,
@@ -133,6 +137,8 @@ def main() -> int:
         "component_sensitivity_hash_traceability_gate_not_pass:fail",
         "official_probe_set_gate_not_pass:fail",
         "official_z_mismatch_count_not_zero:1",
+        "probe_official_height_gate_not_pass:fail",
+        "probe_official_height_gate:official_z_mismatch_count:1",
     ]:
         if expected not in reasons:
             raise AssertionError(reasons)

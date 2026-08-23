@@ -34,6 +34,39 @@ def main() -> int:
         raise AssertionError("reason token did not normalize component labels")
     if module.count_reason("probe_uref_mismatch_count", 80) != "probe_uref_mismatch_count_80":
         raise AssertionError("count reason did not preserve the failing row count")
+    passing_height_gate = module.build_probe_official_height_gate(
+        official_expected_z="2",
+        official_z_match_count=80,
+        official_z_mismatch_count=0,
+        official_probe_set_row_count=80,
+    )
+    if passing_height_gate["gate"] != "pass":
+        raise AssertionError(passing_height_gate)
+    missing_height_gate = module.build_probe_official_height_gate(
+        official_expected_z="",
+        official_z_match_count=None,
+        official_z_mismatch_count=None,
+        official_probe_set_row_count=80,
+    )
+    for expected_reason in [
+        "official_expected_z_missing",
+        "official_z_match_count_missing",
+        "official_z_mismatch_count_missing",
+    ]:
+        if expected_reason not in missing_height_gate["reasons"]:
+            raise AssertionError(missing_height_gate)
+    mismatched_height_gate = module.build_probe_official_height_gate(
+        official_expected_z="2",
+        official_z_match_count=79,
+        official_z_mismatch_count=1,
+        official_probe_set_row_count=80,
+    )
+    for expected_reason in [
+        "official_z_mismatch_count:1",
+        "official_z_match_count_79_does_not_match_official_row_count_80",
+    ]:
+        if expected_reason not in mismatched_height_gate["reasons"]:
+            raise AssertionError(mismatched_height_gate)
 
     source_window_reasons = []
     source_window = module.append_source_window_reasons(

@@ -476,6 +476,8 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_recommended_next_action",
     "native_probe_component_equivalence_gate",
     "native_probe_component_equivalence_gate_reasons",
+    "native_probe_official_height_gate",
+    "native_probe_official_height_gate_reasons",
     "native_probe_compared_component_values",
     "native_probe_expected_compared_component",
     "native_probe_compared_component_mismatch_reason",
@@ -685,6 +687,8 @@ TEMPLATE_FIELDS = [
     "missing_official_probe_count",
     "official_probe_set_gate",
     "official_probe_set_gate_reasons",
+    "official_probe_height_gate",
+    "official_probe_height_gate_reasons",
     "official_probe_set_row_count",
     "official_expected_row_count",
     "official_probe_ids_unique",
@@ -1523,6 +1527,24 @@ def main() -> int:
     if official_z_mismatch_count and official_z_mismatch_count > 0:
         official_probe_set_reasons.append(f"official_z_mismatch_count:{official_z_mismatch_count}")
     official_probe_set_gate = "pass" if not official_probe_set_reasons else "not_recorded_or_fail"
+    official_probe_height_reasons: List[str] = []
+    if not official_expected_z:
+        official_probe_height_reasons.append("official_expected_z_missing")
+    if official_z_match_count is None:
+        official_probe_height_reasons.append("official_z_match_count_missing")
+    if official_z_mismatch_count is None:
+        official_probe_height_reasons.append("official_z_mismatch_count_missing")
+    elif official_z_mismatch_count > 0:
+        official_probe_height_reasons.append(f"official_z_mismatch_count:{official_z_mismatch_count}")
+    if (
+        official_probe_set_row_count is not None
+        and official_z_match_count is not None
+        and official_z_match_count != official_probe_set_row_count
+    ):
+        official_probe_height_reasons.append(
+            f"official_z_match_count_{official_z_match_count}_does_not_match_official_row_count_{official_probe_set_row_count}"
+        )
+    official_probe_height_gate = "pass" if not official_probe_height_reasons else "not_recorded_or_fail"
 
     u_mae = mean(abs_errors)
     u_rmse = rmse(errors)
@@ -2729,6 +2751,12 @@ def main() -> int:
             "native_probe_component_equivalence_gate_reasons": audit_field(
                 native_preconditions_audit, "native_probe_component_equivalence_gate_reasons_csv"
             ),
+            "native_probe_official_height_gate": audit_gate(
+                native_preconditions_audit, "probe_official_height_gate"
+            ),
+            "native_probe_official_height_gate_reasons": audit_field(
+                native_preconditions_audit, "probe_official_height_gate_reasons_csv"
+            ),
             "native_probe_compared_component_values": audit_field(
                 native_preconditions_audit, "probe_audit_compared_components_csv"
             ),
@@ -3198,6 +3226,8 @@ def main() -> int:
             "missing_official_probe_count": missing_official_probe_count,
             "official_probe_set_gate": official_probe_set_gate,
             "official_probe_set_gate_reasons": ";".join(official_probe_set_reasons),
+            "official_probe_height_gate": official_probe_height_gate,
+            "official_probe_height_gate_reasons": ";".join(official_probe_height_reasons),
             "official_probe_set_row_count": fmt(official_probe_set_row_count),
             "official_expected_row_count": fmt(official_expected_row_count),
             "official_probe_ids_unique": official_probe_ids_unique,

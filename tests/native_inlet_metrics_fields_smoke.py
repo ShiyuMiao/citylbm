@@ -196,6 +196,8 @@ def main() -> int:
                         "probe_uref_mismatch_count_80;"
                         "normalization_scale_gate_not_pass:fail"
                     ),
+                    "probe_official_height_gate": "fail",
+                    "probe_official_height_gate_reasons_csv": "official_z_mismatch_count:80",
                     "component_source_time_steps_match_runtime": False,
                     "component_source_steps_strictly_increasing": True,
                     "component_source_step_spacing_uniform": True,
@@ -323,6 +325,12 @@ def main() -> int:
             row = next(csv.DictReader(handle))
 
     expected = {
+        "official_probe_height_gate": "not_recorded_or_fail",
+        "official_probe_height_gate_reasons": (
+            "official_expected_z_missing;"
+            "official_z_match_count_missing;"
+            "official_z_mismatch_count_missing"
+        ),
         "native_inlet_profile_audit": "run/inlet_profile_audit.json",
         "native_inlet_profile_gate": "fail",
         "native_inlet_u_profile_gate": "pass",
@@ -417,6 +425,8 @@ def main() -> int:
             "probe_uref_mismatch_count_80;"
             "normalization_scale_gate_not_pass:fail"
         ),
+        "native_probe_official_height_gate": "fail",
+        "native_probe_official_height_gate_reasons": "official_z_mismatch_count:80",
         "native_probe_component_source_time_steps_match_runtime": "false",
         "native_probe_component_source_steps_strictly_increasing": "true",
         "native_probe_component_source_step_spacing_uniform": "true",

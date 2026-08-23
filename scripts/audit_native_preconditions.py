@@ -813,6 +813,36 @@ def count_reason(label: str, count: int) -> str:
     return f"{label}_{count}"
 
 
+def build_probe_official_height_gate(
+    official_expected_z: Any,
+    official_z_match_count: Optional[int],
+    official_z_mismatch_count: Optional[int],
+    official_probe_set_row_count: Optional[int],
+) -> Dict[str, Any]:
+    reasons: List[str] = []
+    if not str(official_expected_z or "").strip():
+        reasons.append("official_expected_z_missing")
+    if official_z_match_count is None:
+        reasons.append("official_z_match_count_missing")
+    if official_z_mismatch_count is None:
+        reasons.append("official_z_mismatch_count_missing")
+    elif official_z_mismatch_count > 0:
+        reasons.append(f"official_z_mismatch_count:{official_z_mismatch_count}")
+    if (
+        official_probe_set_row_count is not None
+        and official_z_match_count is not None
+        and official_z_match_count != official_probe_set_row_count
+    ):
+        reasons.append(
+            f"official_z_match_count_{official_z_match_count}_does_not_match_official_row_count_{official_probe_set_row_count}"
+        )
+    return {
+        "gate": "pass" if not reasons else "fail",
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+    }
+
+
 def split_scalar_list(value: Any, separators: Tuple[str, ...] = (",", ";")) -> List[str]:
     if value is None:
         return []
@@ -2621,6 +2651,14 @@ def main() -> int:
     if official_z_mismatch_count and official_z_mismatch_count > 0:
         official_probe_set_reasons.append(f"official_z_mismatch_count:{official_z_mismatch_count}")
     official_probe_set_gate = "pass" if not official_probe_set_reasons else "fail"
+    probe_official_height = build_probe_official_height_gate(
+        official_expected_z,
+        official_z_match_count,
+        official_z_mismatch_count,
+        official_probe_set_row_count,
+    )
+    probe_official_height_gate = probe_official_height["gate"]
+    probe_official_height_reasons = probe_official_height["reasons"]
     compared_components = {
         row_value(row, "compared_component", "ComparedComponent")
         for row in valid_probe_rows
@@ -2634,6 +2672,14 @@ def main() -> int:
         reasons.append("probe_audit_has_no_valid_rows")
     if failed_probe_rows:
         reasons.append("probe_audit_has_failed_rows")
+    if official_probe_set_gate != "pass":
+        reasons.append("official_probe_set_gate_not_pass")
+        for reason in official_probe_set_reasons:
+            reasons.append(f"official_probe_set_gate:{reason}")
+    if probe_official_height_gate != "pass":
+        reasons.append("probe_official_height_gate_not_pass")
+        for reason in probe_official_height_reasons:
+            reasons.append(f"probe_official_height_gate:{reason}")
     if expected_component and compared_components != {expected_component}:
         reasons.append("probe_compared_component_mismatch")
         compared_component_mismatch_reason = (
@@ -3374,6 +3420,9 @@ def main() -> int:
         "official_probe_id_count": len(official_probe_ids),
         "official_probe_set_gate": official_probe_set_gate,
         "official_probe_set_gate_reasons": official_probe_set_reasons,
+        "probe_official_height_gate": probe_official_height_gate,
+        "probe_official_height_gate_reasons": probe_official_height_reasons,
+        "probe_official_height_gate_reasons_csv": ";".join(probe_official_height_reasons),
         "official_probe_set_row_count": official_probe_set_row_count,
         "official_expected_row_count": official_expected_row_count,
         "official_probe_ids_unique": official_probe_ids_unique,
