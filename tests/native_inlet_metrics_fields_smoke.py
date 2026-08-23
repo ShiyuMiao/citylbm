@@ -125,6 +125,16 @@ def main() -> int:
                         "runtime_average_window_frame_count_4_below_minimum_40;"
                         "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
                     ),
+                    "planned_synthetic_inlet_sampling_gate": "diagnostic_only",
+                    "planned_synthetic_inlet_sampling_gate_reasons_csv": (
+                        "planned_stg_refresh_count_40_below_minimum_200"
+                    ),
+                    "planned_synthetic_inlet_sampling_active": True,
+                    "planned_synthetic_inlet_update_interval": 100,
+                    "planned_synthetic_inlet_final_window_step_span": 4000,
+                    "planned_synthetic_inlet_refresh_count": 40,
+                    "planned_synthetic_inlet_metadata_expected_refresh_count": 390,
+                    "planned_synthetic_inlet_minimum_refresh_count": 200,
                     "native_boundary_equivalence_gate": "fail",
                     "native_boundary_equivalence_gate_reasons_csv": (
                         "boundary_source_simplified_not_false:True;"
@@ -325,6 +335,16 @@ def main() -> int:
             "runtime_average_window_frame_count_4_below_minimum_40;"
             "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
         ),
+        "native_preconditions_planned_synthetic_inlet_sampling_gate": "diagnostic_only",
+        "native_preconditions_planned_synthetic_inlet_sampling_gate_reasons": (
+            "planned_stg_refresh_count_40_below_minimum_200"
+        ),
+        "native_preconditions_planned_synthetic_inlet_sampling_active": "true",
+        "native_preconditions_planned_synthetic_inlet_update_interval": "100",
+        "native_preconditions_planned_synthetic_inlet_final_window_step_span": "4000",
+        "native_preconditions_planned_synthetic_inlet_refresh_count": "40",
+        "native_preconditions_planned_synthetic_inlet_metadata_expected_refresh_count": "390",
+        "native_preconditions_planned_synthetic_inlet_minimum_refresh_count": "200",
         "native_boundary_equivalence_gate": "fail",
         "native_boundary_equivalence_gate_reasons": (
             "boundary_source_simplified_not_false:True;"

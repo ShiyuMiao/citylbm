@@ -139,6 +139,9 @@ def build_native_diagnostic_priority(reasons: List[str]) -> List[Dict[str, Any]]
                 "rms",
                 "method_class",
                 "correlation",
+                "synthetic",
+                "stg",
+                "refresh",
                 "streamwise",
                 "clipping",
             ],
@@ -1784,6 +1787,36 @@ def main() -> int:
         reasons.append("planned_vtk_frame_count_below_minimum")
         reasons.append(planned_frame_shortfall_reason)
 
+    synthetic_sampling = manifest.get("PlannedSyntheticInletSamplingGate", {})
+    if not isinstance(synthetic_sampling, dict):
+        synthetic_sampling = {}
+    planned_synthetic_gate = str(synthetic_sampling.get("Gate") or "").strip().lower()
+    planned_synthetic_reasons = split_scalar_list(synthetic_sampling.get("Reasons"))
+    if not planned_synthetic_reasons:
+        planned_synthetic_reasons = split_scalar_list(synthetic_sampling.get("ReasonsCsv"))
+    planned_synthetic_requested = as_bool(synthetic_sampling.get("SyntheticInletRequested"))
+    planned_synthetic_injected = as_bool(synthetic_sampling.get("SyntheticInletInjected"))
+    planned_synthetic_active = as_bool(synthetic_sampling.get("SyntheticInletActive"))
+    planned_synthetic_update_interval = as_int(synthetic_sampling.get("UpdateInterval"))
+    planned_synthetic_final_window_span = as_int(synthetic_sampling.get("FinalWindowStepSpan"))
+    planned_synthetic_refresh_count = as_int(synthetic_sampling.get("ComputedRefreshCount"))
+    planned_synthetic_metadata_expected_refresh_count = as_int(
+        synthetic_sampling.get("MetadataExpectedRefreshCount")
+    )
+    planned_synthetic_minimum_refresh_count = as_int(synthetic_sampling.get("MinimumRefreshCount"))
+    metadata_synthetic_requested = as_bool(metadata.get("SyntheticTurbulentInletRequested"))
+    metadata_synthetic_injected = as_bool(metadata.get("SyntheticTurbulentInletInjected"))
+    metadata_synthetic_active = metadata_synthetic_requested is True or metadata_synthetic_injected is True
+    if synthetic_sampling:
+        if planned_synthetic_gate not in {"pass", "not_applicable"}:
+            reasons.append(f"planned_synthetic_inlet_sampling_gate_not_pass:{planned_synthetic_gate or 'missing'}")
+            for reason in planned_synthetic_reasons:
+                reasons.append(f"planned_synthetic_inlet_sampling_reason:{reason}")
+        if metadata_synthetic_active and planned_synthetic_gate == "not_applicable":
+            reasons.append("planned_synthetic_inlet_sampling_not_applicable_for_active_metadata")
+    elif metadata_synthetic_active:
+        reasons.append("planned_synthetic_inlet_sampling_gate_missing")
+
     runtime_pattern = str(runtime_audit.get("vtk_pattern") or "").strip()
     if not runtime_audit:
         reasons.append("runtime_audit_missing")
@@ -2881,6 +2914,17 @@ def main() -> int:
         "native_preconditions_time_average_evidence_gate": time_average_gate,
         "native_preconditions_time_average_evidence_gate_reasons": time_average_evidence_reasons,
         "native_preconditions_time_average_evidence_gate_reasons_csv": ";".join(time_average_evidence_reasons),
+        "planned_synthetic_inlet_sampling_gate": planned_synthetic_gate,
+        "planned_synthetic_inlet_sampling_gate_reasons": planned_synthetic_reasons,
+        "planned_synthetic_inlet_sampling_gate_reasons_csv": ";".join(planned_synthetic_reasons),
+        "planned_synthetic_inlet_sampling_active": planned_synthetic_active,
+        "planned_synthetic_inlet_sampling_requested": planned_synthetic_requested,
+        "planned_synthetic_inlet_sampling_injected": planned_synthetic_injected,
+        "planned_synthetic_inlet_update_interval": planned_synthetic_update_interval,
+        "planned_synthetic_inlet_final_window_step_span": planned_synthetic_final_window_span,
+        "planned_synthetic_inlet_refresh_count": planned_synthetic_refresh_count,
+        "planned_synthetic_inlet_metadata_expected_refresh_count": planned_synthetic_metadata_expected_refresh_count,
+        "planned_synthetic_inlet_minimum_refresh_count": planned_synthetic_minimum_refresh_count,
         "inlet_source_audit": str(inlet_source_audit_path) if inlet_source_audit_path else "",
         "inlet_profile_audit": str(inlet_profile_audit_path) if inlet_profile_audit_path else "",
         "inlet_correlation_audit": str(inlet_correlation_audit_path) if inlet_correlation_audit_path else "",

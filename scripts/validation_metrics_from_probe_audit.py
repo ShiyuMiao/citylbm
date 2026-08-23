@@ -362,6 +362,14 @@ TEMPLATE_FIELDS = [
     "native_preconditions_time_average_gate",
     "native_preconditions_time_average_evidence_gate",
     "native_preconditions_time_average_evidence_gate_reasons",
+    "native_preconditions_planned_synthetic_inlet_sampling_gate",
+    "native_preconditions_planned_synthetic_inlet_sampling_gate_reasons",
+    "native_preconditions_planned_synthetic_inlet_sampling_active",
+    "native_preconditions_planned_synthetic_inlet_update_interval",
+    "native_preconditions_planned_synthetic_inlet_final_window_step_span",
+    "native_preconditions_planned_synthetic_inlet_refresh_count",
+    "native_preconditions_planned_synthetic_inlet_metadata_expected_refresh_count",
+    "native_preconditions_planned_synthetic_inlet_minimum_refresh_count",
     "native_preconditions_expected_uref_mps",
     "native_preconditions_actual_uref_mps",
     "native_preconditions_expected_zref_m",
@@ -2305,6 +2313,31 @@ def main() -> int:
             ),
             "native_preconditions_time_average_evidence_gate_reasons": audit_field(
                 native_preconditions_audit, "native_preconditions_time_average_evidence_gate_reasons_csv"
+            ),
+            "native_preconditions_planned_synthetic_inlet_sampling_gate": audit_gate(
+                native_preconditions_audit, "planned_synthetic_inlet_sampling_gate"
+            ),
+            "native_preconditions_planned_synthetic_inlet_sampling_gate_reasons": audit_field(
+                native_preconditions_audit, "planned_synthetic_inlet_sampling_gate_reasons_csv"
+            )
+            or audit_list_field(native_preconditions_audit, "planned_synthetic_inlet_sampling_gate_reasons"),
+            "native_preconditions_planned_synthetic_inlet_sampling_active": first_bool_text(
+                native_preconditions_audit.get("planned_synthetic_inlet_sampling_active")
+            ),
+            "native_preconditions_planned_synthetic_inlet_update_interval": fmt(
+                audit_int(native_preconditions_audit, "planned_synthetic_inlet_update_interval")
+            ),
+            "native_preconditions_planned_synthetic_inlet_final_window_step_span": fmt(
+                audit_int(native_preconditions_audit, "planned_synthetic_inlet_final_window_step_span")
+            ),
+            "native_preconditions_planned_synthetic_inlet_refresh_count": fmt(
+                audit_int(native_preconditions_audit, "planned_synthetic_inlet_refresh_count")
+            ),
+            "native_preconditions_planned_synthetic_inlet_metadata_expected_refresh_count": fmt(
+                audit_int(native_preconditions_audit, "planned_synthetic_inlet_metadata_expected_refresh_count")
+            ),
+            "native_preconditions_planned_synthetic_inlet_minimum_refresh_count": fmt(
+                audit_int(native_preconditions_audit, "planned_synthetic_inlet_minimum_refresh_count")
             ),
             "native_preconditions_expected_uref_mps": fmt(
                 audit_float(native_preconditions_audit, "expected_uref_mps")
