@@ -73,7 +73,16 @@ def validation_protocol_audit() -> dict:
 def create_case(root: Path) -> None:
     write(root / "src" / "setup.cpp", "// case setup\n")
     write(root / "src" / "defines.hpp", "// case defines\n")
-    write(root / "case_metadata.json", json.dumps({"AijCase": "CaseA", "WindDirection": "N"}, indent=2))
+    metadata = {
+        "AijCase": "CaseA",
+        "WindDirection": "N",
+        "SyntheticTurbulentInletRequested": True,
+        "SyntheticTurbulentInletInjected": True,
+        "SyntheticTurbulenceUpdateInterval": 100,
+        "SyntheticTurbulenceMinimumRecommendedRefreshes": 200,
+        "SyntheticTurbulenceExpectedFinalWindowRefreshCount": 390,
+    }
+    write(root / "case_metadata.json", json.dumps(metadata, indent=2))
     write(root / "domain_origin.json", json.dumps({"origin": [0, 0, 0]}, indent=2))
     write(root / "validation_protocol_audit.json", json.dumps(validation_protocol_audit(), indent=2))
     write(root / "buildings.stl", "solid smoke\nendsolid smoke\n")
@@ -123,6 +132,10 @@ def main() -> int:
             raise AssertionError(dry["ValidationProtocolAuditGate"])
         if dry["ValidationProtocolAuditGate"]["Statuses"]["inlet_distribution_consistency"] != "risk":
             raise AssertionError(dry["ValidationProtocolAuditGate"])
+        if dry["PlannedSyntheticInletSamplingGate"]["Gate"] != "pass":
+            raise AssertionError(dry["PlannedSyntheticInletSamplingGate"])
+        if dry["PlannedSyntheticInletSamplingGate"]["ComputedRefreshCount"] != 390:
+            raise AssertionError(dry["PlannedSyntheticInletSamplingGate"])
         if dry["Install"]["Performed"] is not False:
             raise AssertionError(dry["Install"])
         if (source_root / "src" / "setup.cpp").read_text(encoding="utf-8") != "// original native setup\n":
@@ -209,6 +222,51 @@ def main() -> int:
             raise AssertionError(short["RunnerGate"])
         if "planned_final_window_step_span_4000_below_minimum_20000" not in short["RunnerGate"]["Reasons"]:
             raise AssertionError(short["RunnerGate"])
+        if "planned_stg_refresh_count_40_below_minimum_200" not in short["RunnerGate"]["Reasons"]:
+            raise AssertionError(short["RunnerGate"])
+        if "metadata_stg_refresh_count_390_does_not_match_computed_40" not in short["RunnerGate"]["Reasons"]:
+            raise AssertionError(short["RunnerGate"])
+
+        slow_refresh_case = temp / "slow_refresh_case"
+        create_case(slow_refresh_case)
+        slow_metadata_path = slow_refresh_case / "case_metadata.json"
+        slow_metadata = load_json(slow_metadata_path)
+        slow_metadata["SyntheticTurbulenceUpdateInterval"] = 500
+        slow_metadata["SyntheticTurbulenceExpectedFinalWindowRefreshCount"] = 78
+        write(slow_metadata_path, json.dumps(slow_metadata, indent=2))
+        slow_refresh_manifest = temp / "slow_refresh" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(slow_refresh_case),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(slow_refresh_manifest),
+                "--baseline-id",
+                "smoke-casea-native-slow-stg-refresh",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+            ],
+            expected_returncode=2,
+        )
+        slow_refresh = load_json(slow_refresh_manifest)
+        if slow_refresh["PlannedVtkScheduleGate"]["Gate"] != "pass":
+            raise AssertionError(slow_refresh["PlannedVtkScheduleGate"])
+        if slow_refresh["PlannedSyntheticInletSamplingGate"]["Gate"] != "diagnostic_only":
+            raise AssertionError(slow_refresh["PlannedSyntheticInletSamplingGate"])
+        if "planned_stg_refresh_count_78_below_minimum_200" not in slow_refresh["RunnerGate"]["Reasons"]:
+            raise AssertionError(slow_refresh["RunnerGate"])
 
         missing_protocol_case = temp / "missing_protocol_case"
         create_case(missing_protocol_case)

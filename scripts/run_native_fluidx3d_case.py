@@ -87,6 +87,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--average-last-n", type=int, default=40, help="Required final VTK averaging-window frame count.")
     parser.add_argument("--min-vtk-frames", type=int, default=40, help="Minimum planned VTK frames for strict validation.")
     parser.add_argument("--min-vtk-step-span", type=int, default=20000, help="Minimum planned final-window solver-step span.")
+    parser.add_argument("--min-stg-refreshes", type=int, default=200, help="Minimum planned synthetic-inlet refreshes in the final averaging window.")
     parser.add_argument("--output-dir", default="", help="Directory to inspect for u-*.vtk after run.")
     parser.add_argument("--vtk-pattern", default="u-*.vtk", help="VTK glob pattern.")
     return parser.parse_args()
@@ -116,6 +117,51 @@ def json_load(path: Path) -> Dict[str, Any]:
     with path.open("r", encoding="utf-8-sig") as handle:
         data = json.load(handle)
     return data if isinstance(data, dict) else {}
+
+
+def as_bool(value: Any) -> Optional[bool]:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return None
+    text = str(value).strip().lower()
+    if text in {"true", "1", "yes", "y", "on"}:
+        return True
+    if text in {"false", "0", "no", "n", "off"}:
+        return False
+    return None
+
+
+def as_int(value: Any) -> Optional[int]:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        try:
+            parsed = float(str(value).strip())
+        except (TypeError, ValueError):
+            return None
+        if not parsed.is_integer():
+            return None
+        return int(parsed)
+
+
+def metadata_value(metadata: Dict[str, Any], keys: Sequence[str]) -> Any:
+    for key in keys:
+        if key in metadata:
+            return metadata.get(key)
+    return None
+
+
+def metadata_bool(metadata: Dict[str, Any], keys: Sequence[str]) -> Optional[bool]:
+    return as_bool(metadata_value(metadata, keys))
+
+
+def metadata_int(metadata: Dict[str, Any], keys: Sequence[str]) -> Optional[int]:
+    return as_int(metadata_value(metadata, keys))
 
 
 def protocol_items(audit: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -439,6 +485,63 @@ def audit_planned_vtk_schedule(
     }
 
 
+def audit_planned_synthetic_inlet_sampling(
+    metadata: Dict[str, Any],
+    final_window_step_span: Optional[int],
+    default_min_refreshes: int,
+) -> Dict[str, Any]:
+    requested = metadata_bool(metadata, ["SyntheticTurbulentInletRequested", "SyntheticTurbulenceRequested"])
+    injected = metadata_bool(metadata, ["SyntheticTurbulentInletInjected", "SyntheticTurbulenceInjected"])
+    active = requested is True or injected is True
+    update_interval = metadata_int(metadata, ["SyntheticTurbulenceUpdateInterval", "SyntheticTurbulentInletUpdateInterval"])
+    metadata_minimum = metadata_int(metadata, ["SyntheticTurbulenceMinimumRecommendedRefreshes"])
+    minimum_refreshes = metadata_minimum if metadata_minimum is not None and metadata_minimum > 0 else max(default_min_refreshes, 0)
+    metadata_expected = metadata_int(metadata, ["SyntheticTurbulenceExpectedFinalWindowRefreshCount"])
+    computed_refreshes: Optional[int] = None
+    reasons: List[str] = []
+
+    if not active:
+        return {
+            "Gate": "not_applicable",
+            "Reasons": [],
+            "ReasonsCsv": "",
+            "SyntheticInletRequested": requested,
+            "SyntheticInletInjected": injected,
+            "SyntheticInletActive": False,
+            "UpdateInterval": update_interval,
+            "FinalWindowStepSpan": final_window_step_span,
+            "ComputedRefreshCount": computed_refreshes,
+            "MetadataExpectedRefreshCount": metadata_expected,
+            "MinimumRefreshCount": minimum_refreshes,
+        }
+
+    if update_interval is None or update_interval <= 0:
+        reasons.append("synthetic_inlet_update_interval_missing_or_invalid")
+    elif final_window_step_span is None:
+        reasons.append("planned_stg_final_window_step_span_unavailable")
+    else:
+        computed_refreshes = final_window_step_span // update_interval
+        if computed_refreshes < minimum_refreshes:
+            reasons.append(f"planned_stg_refresh_count_{computed_refreshes}_below_minimum_{minimum_refreshes}")
+
+    if metadata_expected is not None and computed_refreshes is not None and metadata_expected != computed_refreshes:
+        reasons.append(f"metadata_stg_refresh_count_{metadata_expected}_does_not_match_computed_{computed_refreshes}")
+
+    return {
+        "Gate": "pass" if not reasons else "diagnostic_only",
+        "Reasons": reasons,
+        "ReasonsCsv": ";".join(reasons),
+        "SyntheticInletRequested": requested,
+        "SyntheticInletInjected": injected,
+        "SyntheticInletActive": True,
+        "UpdateInterval": update_interval,
+        "FinalWindowStepSpan": final_window_step_span,
+        "ComputedRefreshCount": computed_refreshes,
+        "MetadataExpectedRefreshCount": metadata_expected,
+        "MinimumRefreshCount": minimum_refreshes,
+    }
+
+
 def runner_gate(reasons: Iterable[str]) -> Dict[str, Any]:
     reason_list = [reason for reason in reasons if reason]
     return {
@@ -552,6 +655,13 @@ def main() -> int:
     )
     if vtk_schedule["Gate"] != "pass":
         reasons.extend(str(reason) for reason in vtk_schedule["Reasons"])
+    synthetic_sampling = audit_planned_synthetic_inlet_sampling(
+        metadata,
+        vtk_schedule["FinalWindowStepSpan"],
+        args.min_stg_refreshes,
+    )
+    if synthetic_sampling["Gate"] == "diagnostic_only":
+        reasons.extend(str(reason) for reason in synthetic_sampling["Reasons"])
 
     source_validation = validate_source_root(source_root)
     required_files = collect_required_files(source_root, case_dir)
@@ -585,9 +695,11 @@ def main() -> int:
             "ExpectedFinalWindowStepSpan": vtk_schedule["FinalWindowStepSpan"],
             "MinimumValidationAverageFrames": args.min_vtk_frames,
             "MinimumValidationAverageStepSpan": args.min_vtk_step_span,
+            "MinimumSyntheticInletRefreshes": args.min_stg_refreshes,
             "VtkPattern": args.vtk_pattern,
         },
         "PlannedVtkScheduleGate": vtk_schedule,
+        "PlannedSyntheticInletSamplingGate": synthetic_sampling,
         "OutputDir": str(output_dir),
         "VtkPattern": args.vtk_pattern,
         "VtkFiles": vtk_records,
