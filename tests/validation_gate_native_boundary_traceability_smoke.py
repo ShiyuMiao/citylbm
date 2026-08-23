@@ -48,6 +48,10 @@ def passing_native_audit():
         "boundary_evidence_class_supported": True,
         "boundary_condition_fields_supported": True,
         "boundary_source_method_class": "wind_tunnel_equivalent_boundary_source",
+        "boundary_source_fidelity_class": "wind_tunnel_equivalent_complete",
+        "boundary_source_has_complete_wind_tunnel_evidence": True,
+        "boundary_source_has_empty_advanced_method_stub_only": False,
+        "boundary_source_advanced_code_evidence": True,
         "boundary_source_has_paper_grade_outlet_source": True,
         "boundary_source_has_paper_grade_side_top_source": True,
         "boundary_source_has_paper_grade_rough_wall_source": True,
@@ -101,6 +105,9 @@ def main() -> int:
     bad = copy.deepcopy(passing_native_audit())
     bad["boundary_source_simplified"] = True
     bad["boundary_source_method_class"] = "simplified_type_e_box"
+    bad["boundary_source_fidelity_class"] = "simplified_type_e_box"
+    bad["boundary_source_has_complete_wind_tunnel_evidence"] = False
+    bad["boundary_source_advanced_code_evidence"] = False
     bad["boundary_source_has_paper_grade_outlet_source"] = False
     bad["boundary_source_has_paper_grade_side_top_source"] = False
     bad["boundary_source_has_paper_grade_rough_wall_source"] = False
@@ -118,6 +125,9 @@ def main() -> int:
     for expected in [
         "boundary_source_simplified_not_false:True",
         "boundary_source_method_class_not_wind_tunnel_equivalent:simplified_type_e_box",
+        "boundary_source_fidelity_class_not_paper_grade:simplified_type_e_box",
+        "boundary_source_has_complete_wind_tunnel_evidence_not_true:False",
+        "boundary_source_advanced_code_evidence_not_true:False",
         "boundary_source_has_paper_grade_outlet_source_not_true:False",
         "boundary_source_has_paper_grade_side_top_source_not_true:False",
         "boundary_source_has_paper_grade_rough_wall_source_not_true:False",

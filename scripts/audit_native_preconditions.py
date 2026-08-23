@@ -1525,6 +1525,12 @@ def build_boundary_equivalence_evidence_reasons(
     paper_source_gate = str(boundary_source_audit.get("paper_grade_boundary_source_gate") or "").strip().lower()
     source_equivalent = as_bool(boundary_source_audit.get("boundary_source_wind_tunnel_equivalent"))
     source_simplified = as_bool(boundary_source_audit.get("boundary_source_simplified"))
+    source_fidelity_class = str(boundary_source_audit.get("boundary_source_fidelity_class") or "").strip()
+    source_complete_evidence = as_bool(
+        boundary_source_audit.get("boundary_source_has_complete_wind_tunnel_evidence")
+    )
+    source_stub_only = as_bool(boundary_source_audit.get("boundary_source_has_empty_advanced_method_stub_only"))
+    source_advanced_code_evidence = as_bool(boundary_source_audit.get("boundary_source_advanced_code_evidence"))
     source_missing_paper_evidence = split_scalar_list(
         boundary_source_audit.get("missing_paper_grade_source_evidence")
     )
@@ -1539,6 +1545,20 @@ def build_boundary_equivalence_evidence_reasons(
         evidence_reasons.append(f"boundary_source_wind_tunnel_equivalent_not_true:{source_equivalent}")
     if source_simplified is not False:
         evidence_reasons.append(f"boundary_source_simplified_not_false:{source_simplified}")
+    if source_fidelity_class != "wind_tunnel_equivalent_complete":
+        evidence_reasons.append(
+            f"boundary_source_fidelity_class_not_paper_grade:{source_fidelity_class or 'missing'}"
+        )
+    if source_complete_evidence is not True:
+        evidence_reasons.append(
+            f"boundary_source_has_complete_wind_tunnel_evidence_not_true:{source_complete_evidence}"
+        )
+    if source_stub_only is not False:
+        evidence_reasons.append(
+            f"boundary_source_has_empty_advanced_method_stub_only_not_false:{source_stub_only}"
+        )
+    if source_advanced_code_evidence is not True:
+        evidence_reasons.append(f"boundary_source_advanced_code_evidence_not_true:{source_advanced_code_evidence}")
     for field in source_missing_paper_evidence:
         evidence_reasons.append(f"boundary_source_missing_paper_grade_evidence:{field}")
     if source_hash_matches is not True:
@@ -2634,6 +2654,16 @@ def main() -> int:
     boundary_source_equivalent = as_bool(boundary_source_audit.get("boundary_source_wind_tunnel_equivalent"))
     boundary_source_simplified = as_bool(boundary_source_audit.get("boundary_source_simplified"))
     boundary_source_method_class = str(boundary_source_audit.get("boundary_source_method_class") or "").strip()
+    boundary_source_fidelity_class = str(boundary_source_audit.get("boundary_source_fidelity_class") or "").strip()
+    boundary_source_has_complete_wind_tunnel_evidence = as_bool(
+        boundary_source_audit.get("boundary_source_has_complete_wind_tunnel_evidence")
+    )
+    boundary_source_has_empty_advanced_method_stub_only = as_bool(
+        boundary_source_audit.get("boundary_source_has_empty_advanced_method_stub_only")
+    )
+    boundary_source_advanced_code_evidence = as_bool(
+        boundary_source_audit.get("boundary_source_advanced_code_evidence")
+    )
     boundary_source_has_paper_grade_outlet = as_bool(boundary_source_audit.get("has_paper_grade_outlet_source"))
     boundary_source_has_paper_grade_side_top = as_bool(boundary_source_audit.get("has_paper_grade_side_top_source"))
     boundary_source_has_paper_grade_rough_wall = as_bool(boundary_source_audit.get("has_paper_grade_rough_wall_source"))
@@ -2680,6 +2710,14 @@ def main() -> int:
         reasons.append("boundary_source_not_wind_tunnel_equivalent")
     if boundary_source_simplified is True:
         reasons.append("boundary_source_simplified")
+    if boundary_source_fidelity_class != "wind_tunnel_equivalent_complete":
+        reasons.append(f"boundary_source_fidelity_class_not_paper_grade_{boundary_source_fidelity_class or 'missing'}")
+    if boundary_source_has_complete_wind_tunnel_evidence is not True:
+        reasons.append("boundary_source_has_complete_wind_tunnel_evidence_not_true")
+    if boundary_source_has_empty_advanced_method_stub_only is True:
+        reasons.append("boundary_source_has_empty_advanced_method_stub_only")
+    if boundary_source_advanced_code_evidence is not True:
+        reasons.append("boundary_source_advanced_code_evidence_not_true")
     for field in boundary_source_missing_paper_evidence:
         reasons.append(f"boundary_source_missing_paper_grade_evidence_{field}")
     boundary_source_hash_check = append_setup_hash_reason(reasons, "boundary_source", boundary_source_audit, setup_sha)
@@ -3636,6 +3674,10 @@ def main() -> int:
         "boundary_source_gate": boundary_source_gate,
         "paper_grade_boundary_source_gate": paper_boundary_source_gate,
         "boundary_source_method_class": boundary_source_method_class,
+        "boundary_source_fidelity_class": boundary_source_fidelity_class,
+        "boundary_source_has_complete_wind_tunnel_evidence": boundary_source_has_complete_wind_tunnel_evidence,
+        "boundary_source_has_empty_advanced_method_stub_only": boundary_source_has_empty_advanced_method_stub_only,
+        "boundary_source_advanced_code_evidence": boundary_source_advanced_code_evidence,
         "boundary_source_wind_tunnel_equivalent": boundary_source_equivalent,
         "boundary_source_simplified": boundary_source_simplified,
         "boundary_source_has_paper_grade_outlet_source": boundary_source_has_paper_grade_outlet,

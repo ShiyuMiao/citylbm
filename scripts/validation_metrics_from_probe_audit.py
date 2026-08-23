@@ -165,6 +165,9 @@ TEMPLATE_FIELDS = [
     "paper_grade_boundary_source_gate",
     "paper_grade_boundary_source_gate_reasons",
     "boundary_source_method_class",
+    "boundary_source_fidelity_class",
+    "boundary_source_has_complete_wind_tunnel_evidence",
+    "boundary_source_has_empty_advanced_method_stub_only",
     "boundary_source_coherent",
     "boundary_source_simplified",
     "boundary_source_wind_tunnel_equivalent",
@@ -533,6 +536,9 @@ TEMPLATE_FIELDS = [
     "native_boundary_source_gate",
     "native_paper_grade_boundary_source_gate",
     "native_boundary_source_method_class",
+    "native_boundary_source_fidelity_class",
+    "native_boundary_source_has_complete_wind_tunnel_evidence",
+    "native_boundary_source_has_empty_advanced_method_stub_only",
     "native_boundary_source_wind_tunnel_equivalent",
     "native_boundary_source_simplified",
     "native_boundary_source_setup_cpp_sha256_matches_current",
@@ -2044,6 +2050,13 @@ def main() -> int:
             if isinstance(boundary_source_audit.get("paper_grade_boundary_source_gate_reasons"), list)
             else audit_field(boundary_source_audit, "paper_grade_boundary_source_gate_reasons_csv"),
             "boundary_source_method_class": audit_field(boundary_source_audit, "boundary_source_method_class"),
+            "boundary_source_fidelity_class": audit_field(boundary_source_audit, "boundary_source_fidelity_class"),
+            "boundary_source_has_complete_wind_tunnel_evidence": first_bool_text(
+                boundary_source_audit.get("boundary_source_has_complete_wind_tunnel_evidence")
+            ),
+            "boundary_source_has_empty_advanced_method_stub_only": first_bool_text(
+                boundary_source_audit.get("boundary_source_has_empty_advanced_method_stub_only")
+            ),
             "boundary_source_coherent": first_bool_text(boundary_source_audit.get("boundary_source_coherent")),
             "boundary_source_simplified": first_bool_text(boundary_source_audit.get("boundary_source_simplified")),
             "boundary_source_wind_tunnel_equivalent": first_bool_text(
@@ -2948,6 +2961,15 @@ def main() -> int:
             ),
             "native_boundary_source_method_class": audit_field(
                 native_preconditions_audit, "boundary_source_method_class"
+            ),
+            "native_boundary_source_fidelity_class": audit_field(
+                native_preconditions_audit, "boundary_source_fidelity_class"
+            ),
+            "native_boundary_source_has_complete_wind_tunnel_evidence": first_bool_text(
+                native_preconditions_audit.get("boundary_source_has_complete_wind_tunnel_evidence")
+            ),
+            "native_boundary_source_has_empty_advanced_method_stub_only": first_bool_text(
+                native_preconditions_audit.get("boundary_source_has_empty_advanced_method_stub_only")
             ),
             "native_boundary_source_wind_tunnel_equivalent": first_bool_text(
                 native_preconditions_audit.get("boundary_source_wind_tunnel_equivalent")

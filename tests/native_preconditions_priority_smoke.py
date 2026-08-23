@@ -402,6 +402,10 @@ def main() -> int:
         "paper_grade_boundary_source_gate": "pass",
         "boundary_source_wind_tunnel_equivalent": True,
         "boundary_source_simplified": False,
+        "boundary_source_fidelity_class": "wind_tunnel_equivalent_complete",
+        "boundary_source_has_complete_wind_tunnel_evidence": True,
+        "boundary_source_has_empty_advanced_method_stub_only": False,
+        "boundary_source_advanced_code_evidence": True,
         "missing_paper_grade_source_evidence": [],
     }
     passing_boundary_protocol = {
@@ -454,6 +458,9 @@ def main() -> int:
             "paper_grade_boundary_source_gate": "fail",
             "boundary_source_wind_tunnel_equivalent": False,
             "boundary_source_simplified": True,
+            "boundary_source_fidelity_class": "simplified_type_e_box",
+            "boundary_source_has_complete_wind_tunnel_evidence": False,
+            "boundary_source_advanced_code_evidence": False,
             "missing_paper_grade_source_evidence": ["floor_roughness_source"],
         }
     )
@@ -491,6 +498,9 @@ def main() -> int:
         "paper_grade_boundary_source_gate_not_pass:fail",
         "boundary_source_wind_tunnel_equivalent_not_true:False",
         "boundary_source_simplified_not_false:True",
+        "boundary_source_fidelity_class_not_paper_grade:simplified_type_e_box",
+        "boundary_source_has_complete_wind_tunnel_evidence_not_true:False",
+        "boundary_source_advanced_code_evidence_not_true:False",
         "boundary_source_missing_paper_grade_evidence:floor_roughness_source",
         "boundary_source_setup_cpp_sha256_matches_current_not_true:False",
         "boundary_protocol_gate_not_pass:fail",

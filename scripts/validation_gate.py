@@ -86,6 +86,9 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "wall_roughness_treatment",
     "boundary_evidence_class",
     "boundary_source_method_class",
+    "boundary_source_fidelity_class",
+    "boundary_source_has_complete_wind_tunnel_evidence",
+    "boundary_source_has_empty_advanced_method_stub_only",
     "native_preconditions_strict_native_run_gate",
     "requested_vtk_frame_gate",
     "run_freshness_gate",
@@ -2648,6 +2651,8 @@ def native_boundary_traceability_status(
 
     for key in [
         "boundary_source_wind_tunnel_equivalent",
+        "boundary_source_has_complete_wind_tunnel_evidence",
+        "boundary_source_advanced_code_evidence",
         "boundary_source_setup_cpp_sha256_matches_current",
         "boundary_evidence_metadata_sha256_matches_current",
         "boundary_evidence_files_all_hashed",
@@ -2671,6 +2676,20 @@ def native_boundary_traceability_status(
     if source_method_class != "wind_tunnel_equivalent_boundary_source":
         reasons.append(
             f"boundary_source_method_class_not_wind_tunnel_equivalent:{source_method_class or 'missing'}"
+        )
+
+    source_fidelity_class = str(
+        get_any(native_preconditions_audit, ["boundary_source_fidelity_class"]) or ""
+    ).strip().lower()
+    if source_fidelity_class != "wind_tunnel_equivalent_complete":
+        reasons.append(
+            f"boundary_source_fidelity_class_not_paper_grade:{source_fidelity_class or 'missing'}"
+        )
+
+    stub_only = as_bool(get_any(native_preconditions_audit, ["boundary_source_has_empty_advanced_method_stub_only"]))
+    if stub_only is not False:
+        reasons.append(
+            f"boundary_source_has_empty_advanced_method_stub_only_not_false:{stub_only if stub_only is not None else 'missing'}"
         )
 
     for key in [
@@ -4087,6 +4106,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     boundary_source_method_class = str(
         get_any(boundary_source_audit, ["boundary_source_method_class"]) or ""
     ).strip()
+    boundary_source_fidelity_class = str(
+        get_any(boundary_source_audit, ["boundary_source_fidelity_class"]) or ""
+    ).strip()
+    boundary_source_complete_wind_tunnel_evidence = as_bool(
+        get_any(boundary_source_audit, ["boundary_source_has_complete_wind_tunnel_evidence"])
+    )
+    boundary_source_empty_stub_only = as_bool(
+        get_any(boundary_source_audit, ["boundary_source_has_empty_advanced_method_stub_only"])
+    )
     boundary_source_coherent = as_bool(
         get_any(boundary_source_audit, ["boundary_source_coherent"])
     )
@@ -4248,6 +4276,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         boundary_source_evidence_ok
         and paper_grade_boundary_source_gate == "pass"
         and boundary_source_wind_tunnel_equivalent is True
+        and boundary_source_fidelity_class == "wind_tunnel_equivalent_complete"
+        and boundary_source_complete_wind_tunnel_evidence is True
+        and boundary_source_empty_stub_only is False
         and boundary_source_simplified is not True
         and boundary_source_advanced_code_evidence is True
         and boundary_source_comment_stripped_code_audit is True
@@ -4268,6 +4299,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_source_evidence_ok={boundary_source_evidence_ok}; "
             f"paper_grade_boundary_source_ok={paper_grade_boundary_source_ok}; "
             f"source_method_class={boundary_source_method_class or 'missing'}; "
+            f"source_fidelity_class={boundary_source_fidelity_class or 'missing'}; "
+            f"source_complete_wind_tunnel_evidence={boundary_source_complete_wind_tunnel_evidence}; "
+            f"source_empty_stub_only={boundary_source_empty_stub_only}; "
             f"source_coherent={boundary_source_coherent}; "
             f"source_simplified={boundary_source_simplified}; "
             f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
@@ -5761,6 +5795,15 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_preconditions_boundary_equivalent = as_bool(
         get_any(native_preconditions_audit, ["boundary_source_wind_tunnel_equivalent"])
     )
+    native_preconditions_boundary_fidelity_class = str(
+        get_any(native_preconditions_audit, ["boundary_source_fidelity_class"]) or ""
+    ).strip()
+    native_preconditions_boundary_complete_evidence = as_bool(
+        get_any(native_preconditions_audit, ["boundary_source_has_complete_wind_tunnel_evidence"])
+    )
+    native_preconditions_boundary_empty_stub_only = as_bool(
+        get_any(native_preconditions_audit, ["boundary_source_has_empty_advanced_method_stub_only"])
+    )
     native_preconditions_boundary_simplified = as_bool(
         get_any(native_preconditions_audit, ["boundary_source_simplified"])
     )
@@ -5930,6 +5973,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_source_gate={native_preconditions_boundary_source_gate or 'missing'}; "
             f"paper_grade_boundary_source_gate={native_preconditions_paper_boundary_gate or 'missing'}; "
             f"boundary_source_wind_tunnel_equivalent={native_preconditions_boundary_equivalent}; "
+            f"boundary_source_fidelity_class={native_preconditions_boundary_fidelity_class or 'missing'}; "
+            f"boundary_source_has_complete_wind_tunnel_evidence={native_preconditions_boundary_complete_evidence}; "
+            f"boundary_source_has_empty_advanced_method_stub_only={native_preconditions_boundary_empty_stub_only}; "
             f"boundary_source_simplified={native_preconditions_boundary_simplified}; "
             f"boundary_source_setup_cpp_sha256_matches_current={get_any(native_preconditions_audit, ['boundary_source_setup_cpp_sha256_matches_current'])}; "
             f"boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
@@ -6013,6 +6059,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and native_preconditions_boundary_source_gate == "pass"
         and native_preconditions_paper_boundary_gate == "pass"
         and native_preconditions_boundary_equivalent is True
+        and native_preconditions_boundary_fidelity_class == "wind_tunnel_equivalent_complete"
+        and native_preconditions_boundary_complete_evidence is True
+        and native_preconditions_boundary_empty_stub_only is False
         and native_preconditions_boundary_simplified is False
         and native_preconditions_boundary_protocol_gate == "pass"
         and native_preconditions_boundary_evidence_gate == "pass"
@@ -6063,6 +6112,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_source_gate={native_preconditions_boundary_source_gate or 'missing'}; "
             f"paper_grade_boundary_source_gate={native_preconditions_paper_boundary_gate or 'missing'}; "
             f"boundary_source_wind_tunnel_equivalent={native_preconditions_boundary_equivalent}; "
+            f"boundary_source_fidelity_class={native_preconditions_boundary_fidelity_class or 'missing'}; "
+            f"boundary_source_has_complete_wind_tunnel_evidence={native_preconditions_boundary_complete_evidence}; "
+            f"boundary_source_has_empty_advanced_method_stub_only={native_preconditions_boundary_empty_stub_only}; "
             f"boundary_source_simplified={native_preconditions_boundary_simplified}; "
             f"boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
             f"boundary_evidence_gate={native_preconditions_boundary_evidence_gate or 'missing'}; "
@@ -6149,6 +6201,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_preconditions_boundary_source_gate={native_preconditions_boundary_source_gate or 'missing'}; "
             f"native_preconditions_paper_grade_boundary_source_gate={native_preconditions_paper_boundary_gate or 'missing'}; "
             f"native_preconditions_boundary_source_wind_tunnel_equivalent={native_preconditions_boundary_equivalent}; "
+            f"native_preconditions_boundary_source_fidelity_class={native_preconditions_boundary_fidelity_class or 'missing'}; "
+            f"native_preconditions_boundary_source_has_complete_wind_tunnel_evidence={native_preconditions_boundary_complete_evidence}; "
+            f"native_preconditions_boundary_source_has_empty_advanced_method_stub_only={native_preconditions_boundary_empty_stub_only}; "
             f"native_preconditions_boundary_source_simplified={native_preconditions_boundary_simplified}; "
             f"native_preconditions_boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
             f"native_preconditions_boundary_evidence_gate={native_preconditions_boundary_evidence_gate or 'missing'}; "

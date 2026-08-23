@@ -423,8 +423,36 @@ def main() -> int:
     )
     no_slip_solid_only = has_ground_no_slip and has_building_voxel_solid and not has_rough_wall_function
 
-    if not missing_paper_grade_source_evidence:
+    source_boundary_coherent = (
+        has_type_e_symbol
+        and has_type_s_symbol
+        and type_e_assignment_count > 0
+        and type_s_assignment_count > 0
+        and has_ground_no_slip
+        and has_building_voxel_solid
+    )
+    source_advanced_code_evidence = (
+        has_paper_grade_outlet_source
+        and has_paper_grade_side_top_source
+        and has_paper_grade_rough_wall_source
+        and has_paper_grade_development_source
+        and not has_empty_advanced_method_stub
+    )
+    has_complete_wind_tunnel_boundary_source = (
+        source_advanced_code_evidence
+        and source_boundary_coherent
+        and not missing_paper_grade_source_evidence
+    )
+    has_empty_advanced_boundary_method_stub_only = (
+        not missing_paper_grade_source_evidence and has_empty_advanced_method_stub
+    )
+
+    if has_complete_wind_tunnel_boundary_source:
         source_class = "wind_tunnel_equivalent_boundary_source"
+    elif has_empty_advanced_boundary_method_stub_only:
+        source_class = "advanced_boundary_empty_stub_only"
+    elif not missing_paper_grade_source_evidence and not source_boundary_coherent:
+        source_class = "advanced_boundary_without_coherent_type_e_type_s_setup"
     elif has_precursor_or_recycling:
         source_class = "precursor_or_recycling_boundary_partial"
     elif has_non_reflecting_outlet and (has_periodic_side_top or has_rough_wall_function):
@@ -445,22 +473,22 @@ def main() -> int:
     else:
         source_class = "none"
 
-    source_boundary_coherent = (
-        has_type_e_symbol
-        and has_type_s_symbol
-        and type_e_assignment_count > 0
-        and type_s_assignment_count > 0
-        and has_ground_no_slip
-        and has_building_voxel_solid
-    )
-    source_wind_tunnel_equivalent = source_class == "wind_tunnel_equivalent_boundary_source"
-    source_advanced_code_evidence = (
-        has_paper_grade_outlet_source
-        and has_paper_grade_side_top_source
-        and has_paper_grade_rough_wall_source
-        and has_paper_grade_development_source
-        and not has_empty_advanced_method_stub
-    )
+    if has_complete_wind_tunnel_boundary_source:
+        source_fidelity_class = "wind_tunnel_equivalent_complete"
+    elif has_empty_advanced_boundary_method_stub_only:
+        source_fidelity_class = "advanced_boundary_empty_stub_only"
+    elif source_class == "advanced_boundary_without_coherent_type_e_type_s_setup":
+        source_fidelity_class = "advanced_boundary_without_coherent_type_e_type_s_setup"
+    elif source_class in {
+        "precursor_or_recycling_boundary_partial",
+        "advanced_boundary_source_evidence",
+        "named_boundary_method_without_field_evidence",
+    }:
+        source_fidelity_class = "advanced_boundary_incomplete"
+    else:
+        source_fidelity_class = source_class
+
+    source_wind_tunnel_equivalent = has_complete_wind_tunnel_boundary_source
     source_simplified = source_class in {
         "simplified_type_e_box",
         "partial_type_e_boundary_source",
@@ -512,6 +540,12 @@ def main() -> int:
     paper_reasons: List[str] = []
     if not source_wind_tunnel_equivalent:
         paper_reasons.append("boundary_source_not_wind_tunnel_equivalent")
+    if source_fidelity_class != "wind_tunnel_equivalent_complete":
+        paper_reasons.append(f"boundary_source_fidelity_class_not_paper_grade:{source_fidelity_class}")
+    if not source_advanced_code_evidence:
+        paper_reasons.append("boundary_source_missing_advanced_code_evidence")
+    if not source_boundary_coherent:
+        paper_reasons.append("boundary_source_not_coherent_type_e_type_s_setup")
     if source_simplified:
         paper_reasons.append("boundary_source_simplified_type_e_or_solid_only")
     if no_slip_solid_only:
@@ -590,6 +624,9 @@ def main() -> int:
         "all_boundary_implementation_evidence_uses_comment_stripped_code": True,
         "comments_contain_boundary_tokens": comments_contain_boundary_tokens,
         "boundary_source_advanced_code_evidence": source_advanced_code_evidence,
+        "boundary_source_fidelity_class": source_fidelity_class,
+        "boundary_source_has_complete_wind_tunnel_evidence": has_complete_wind_tunnel_boundary_source,
+        "boundary_source_has_empty_advanced_method_stub_only": has_empty_advanced_boundary_method_stub_only,
         "has_boundary_source_comment": has_boundary_source_comment,
         "boundary_source_method_class": source_class,
         "boundary_source_coherent": source_boundary_coherent,

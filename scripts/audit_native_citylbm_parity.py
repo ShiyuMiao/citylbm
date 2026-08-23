@@ -52,6 +52,9 @@ TEXT_FIELDS = [
     "wall_roughness_treatment",
     "boundary_evidence_class",
     "boundary_source_method_class",
+    "boundary_source_fidelity_class",
+    "boundary_source_has_complete_wind_tunnel_evidence",
+    "boundary_source_has_empty_advanced_method_stub_only",
 ]
 
 GATE_FIELDS = [
@@ -176,6 +179,9 @@ CRITICAL_PARITY_FIELDS = [
     "wall_roughness_treatment",
     "boundary_evidence_class",
     "boundary_source_method_class",
+    "boundary_source_fidelity_class",
+    "boundary_source_has_complete_wind_tunnel_evidence",
+    "boundary_source_has_empty_advanced_method_stub_only",
     "requested_vtk_frame_gate",
     "run_freshness_gate",
     "time_averaging_gate",
