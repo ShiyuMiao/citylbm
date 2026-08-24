@@ -60,6 +60,40 @@ def main() -> int:
     if "Replace STG-lite or prove inlet equivalence" not in item["next_action"]:
         raise AssertionError(item)
 
+    critical_evidence = (
+        "systematic bias is present, but prerequisite gates are not closed: "
+        "native-CityLBM paired accuracy delta=FAIL; grid sensitivity=FAIL. "
+        "Treat the current result as protocol/physics debugging evidence, not solver-accuracy validation."
+    )
+    critical_blockers = module.extract_systematic_prerequisite_blocker_list(critical_evidence)
+    if critical_blockers != [
+        "native-CityLBM paired accuracy delta=FAIL",
+        "grid sensitivity=FAIL",
+    ]:
+        raise AssertionError(critical_blockers)
+    critical_priorities = module.build_diagnostic_priority(
+        [
+            {
+                "key": "systematic_bias_interpretation",
+                "status": module.FAIL,
+                "evidence": critical_evidence,
+                "required_next_action": "Close all prerequisite evidence gates.",
+            }
+        ],
+        {},
+    )
+    critical_item = next(
+        priority
+        for priority in critical_priorities
+        if priority["key"] == "systematic_bias_interpretation"
+    )
+    if "native-CityLBM paired accuracy delta=FAIL" not in critical_item["reason"]:
+        raise AssertionError(critical_item)
+    if "grid sensitivity=FAIL" not in critical_item["reason"]:
+        raise AssertionError(critical_item)
+    if "grid-sensitivity gates" not in critical_item["next_action"]:
+        raise AssertionError(critical_item)
+
     if not module.allow_systematic_root_cause_interpretation(True, []):
         raise AssertionError("Closed prerequisites should allow root-cause interpretation.")
     if module.allow_solver_accuracy_interpretation(True, True, []):
