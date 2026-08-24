@@ -116,6 +116,13 @@ and the missing Reynolds-stress/precursor/U-k preservation evidence.
 The post-run validation chain separately requires `Run.Requested=true`, `Run.Gate=pass` and `ActualVtkOutputGate=pass`
 before `NativeBaselineGateFromManifest` can pass. A preflight-only manifest is therefore configuration evidence, not a
 native FluidX3D accuracy baseline.
+The native run manifest must also prove case-to-source parity. `scripts/run_native_fluidx3d_case.py` records
+`PreInstallNativeSourceFiles`, `EffectiveRunSourceFiles`, `PreInstallCaseToSourceParityGate`,
+`PostInstallCaseToSourceParityGate` and `CaseToRunSourceParityGate`. A strict build/run must either use `-Install` in
+the same invocation or start from a source tree whose `src/setup.cpp` and `src/defines.hpp` hashes already match the
+current generated case. Otherwise the runner blocks execution with
+`execution_requested_without_install_or_case_source_parity`, because stale FluidX3D source files would make the Case A
+error uninterpretable.
 
 ## Inputs
 
@@ -349,6 +356,8 @@ native FluidX3D accuracy baseline.
 - FluidX3D source path and source hash or commit.
 - CityLBM `native_fluidx3d_baseline_manifest.json` with `NativeFluidX3DPathExplicitlyProvided=true` and a passing
   `NativeFluidX3DSourceValidation` record.
+- `CaseToRunSourceParityGate=pass`, with `setup.cpp` and `defines.hpp` hashes showing that the current generated Case A
+  case was the source actually installed or already present in the native FluidX3D tree.
 - `setup.cpp`, `defines.hpp`, `buildings.stl`, run log and postprocess script hashes.
 - `dx`, lattice dimensions, `tau`, target Reynolds number, velocity set and LES/subgrid settings.
 - `grid_sensitivity_audit.json`, including `grid_sensitivity_gate`, `grid_sensitivity_run_count`,

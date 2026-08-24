@@ -172,6 +172,12 @@ def main() -> int:
                 raise AssertionError(dry_accuracy_gate)
         if dry["Install"]["Performed"] is not False:
             raise AssertionError(dry["Install"])
+        if dry["PreInstallNativeSourceFiles"][0]["Role"] != "Pre-install Native FluidX3D original setup":
+            raise AssertionError(dry["PreInstallNativeSourceFiles"])
+        if dry["PreInstallCaseToSourceParityGate"]["Gate"] != "diagnostic_only":
+            raise AssertionError(dry["PreInstallCaseToSourceParityGate"])
+        if dry["CaseToRunSourceParityGate"]["Gate"] != "diagnostic_only":
+            raise AssertionError(dry["CaseToRunSourceParityGate"])
         if (source_root / "src" / "setup.cpp").read_text(encoding="utf-8") != "// original native setup\n":
             raise AssertionError("dry-run modified source setup.cpp")
         roles = {record["Role"] for record in dry["RequiredSourceFiles"]}
@@ -302,12 +308,65 @@ def main() -> int:
             raise AssertionError(installed["RunnerGate"])
         if installed["Install"]["Performed"] is not True:
             raise AssertionError(installed["Install"])
+        if installed["PostInstallCaseToSourceParityGate"]["Gate"] != "pass":
+            raise AssertionError(installed["PostInstallCaseToSourceParityGate"])
+        if installed["CaseToRunSourceParityGate"]["Gate"] != "pass":
+            raise AssertionError(installed["CaseToRunSourceParityGate"])
+        effective = {record["Role"]: record for record in installed["EffectiveRunSourceFiles"]}
+        if effective["Effective FluidX3D setup"]["Sha256"] != sha256_file(case_dir / "src" / "setup.cpp"):
+            raise AssertionError(effective["Effective FluidX3D setup"])
         if len(installed["Install"]["Backups"]) != 2:
             raise AssertionError(installed["Install"])
         if (source_root / "src" / "setup.cpp").read_text(encoding="utf-8") != "// case setup\n":
             raise AssertionError("install did not replace setup.cpp")
         if not (install_manifest.parent / "native_source_backups").exists():
             raise AssertionError("backup directory was not created")
+
+        stale_source_root = temp / "FluidX3D_stale_source"
+        stale_case = temp / "stale_case"
+        create_source(stale_source_root)
+        create_case(stale_case)
+        stale_manifest = temp / "stale" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(stale_case),
+                "--fluidx3d-source",
+                str(stale_source_root),
+                "--out",
+                str(stale_manifest),
+                "--baseline-id",
+                "smoke-casea-native-stale-source",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+                "--build",
+            ],
+            expected_returncode=2,
+        )
+        stale = load_json(stale_manifest)
+        if stale["PreExecutionGate"]["Gate"] != "diagnostic_only":
+            raise AssertionError(stale["PreExecutionGate"])
+        if stale["Build"]["Gate"] != "blocked":
+            raise AssertionError(stale["Build"])
+        for reason in [
+            "execution_requested_without_install_or_case_source_parity",
+            "pre_install_case_source_parity:case_setup_hash_mismatch_source",
+            "pre_install_case_source_parity:case_defines_hash_mismatch_source",
+        ]:
+            if reason not in stale["RunnerGate"]["Reasons"]:
+                raise AssertionError(stale["RunnerGate"])
+        if (stale_source_root / "src" / "setup.cpp").read_text(encoding="utf-8") != "// original native setup\n":
+            raise AssertionError("stale-source preflight unexpectedly modified setup.cpp")
 
         citylbm_layout_source = temp / "FluidX3D_citylbm_layout"
         citylbm_layout_case = temp / "citylbm_layout_case"

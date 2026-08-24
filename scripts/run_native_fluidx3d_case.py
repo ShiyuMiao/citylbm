@@ -471,6 +471,57 @@ def collect_required_files(source_root: Path, case_dir: Path, validation_protoco
     return records
 
 
+def collect_native_source_files(source_root: Path, prefix: str) -> List[Dict[str, Any]]:
+    return [path_record(f"{prefix} {role}", source_root / rel) for role, rel in REQUIRED_SOURCE_FILES]
+
+
+def collect_effective_run_source_files(source_root: Path) -> List[Dict[str, Any]]:
+    roles = [
+        ("Effective FluidX3D setup", Path("src") / "setup.cpp"),
+        ("Effective FluidX3D defines", Path("src") / "defines.hpp"),
+        ("Effective FluidX3D lbm.hpp", Path("src") / "lbm.hpp"),
+        ("Effective FluidX3D lbm.cpp", Path("src") / "lbm.cpp"),
+    ]
+    return [path_record(role, source_root / rel) for role, rel in roles]
+
+
+def audit_case_to_source_parity(case_dir: Path, source_root: Path) -> Dict[str, Any]:
+    pairs = [
+        ("setup", first_existing_path(case_dir, [Path("src") / "setup.cpp", Path("setup.cpp")]), source_root / "src" / "setup.cpp"),
+        ("defines", first_existing_path(case_dir, [Path("src") / "defines.hpp", Path("defines.hpp")]), source_root / "src" / "defines.hpp"),
+    ]
+    records: List[Dict[str, Any]] = []
+    reasons: List[str] = []
+    for role, case_path, source_path in pairs:
+        case_exists = case_path is not None and case_path.is_file()
+        source_exists = source_path.is_file()
+        case_hash = sha256(case_path) if case_exists and case_path is not None else ""
+        source_hash = sha256(source_path) if source_exists else ""
+        match = bool(case_hash and source_hash and case_hash == source_hash)
+        if not case_exists:
+            reasons.append(f"case_{role}_missing")
+        if not source_exists:
+            reasons.append(f"source_{role}_missing")
+        if case_exists and source_exists and not match:
+            reasons.append(f"case_{role}_hash_mismatch_source")
+        records.append(
+            {
+                "Role": role,
+                "CasePath": str(case_path.resolve()) if case_path is not None else "",
+                "CaseSha256": case_hash,
+                "SourcePath": str(source_path.resolve()),
+                "SourceSha256": source_hash,
+                "Match": match,
+            }
+        )
+    return {
+        "Gate": "pass" if not reasons else "diagnostic_only",
+        "Reasons": reasons,
+        "ReasonsCsv": ";".join(reasons),
+        "Pairs": records,
+    }
+
+
 def read_case_value(metadata: Dict[str, Any], keys: Sequence[str]) -> str:
     for key in keys:
         value = metadata.get(key)
@@ -1045,6 +1096,8 @@ def main() -> int:
     expected_case = args.expected_aij_case.strip()
     expected_wind = args.expected_wind_direction.strip()
     source_validation = validate_source_root(source_root)
+    pre_install_native_source_files = collect_native_source_files(source_root, "Pre-install")
+    pre_install_case_source_parity = audit_case_to_source_parity(case_dir, source_root)
 
     reasons: List[str] = []
     if not case_dir.is_dir():
@@ -1093,6 +1146,9 @@ def main() -> int:
     )
     if synthetic_sampling["Gate"] == "diagnostic_only":
         reasons.extend(str(reason) for reason in synthetic_sampling["Reasons"])
+    if (args.build or args.run) and not args.install and pre_install_case_source_parity["Gate"] != "pass":
+        reasons.append("execution_requested_without_install_or_case_source_parity")
+        reasons.extend(f"pre_install_case_source_parity:{reason}" for reason in pre_install_case_source_parity["Reasons"])
 
     pre_execution_gate = runner_gate(reasons)
     execution_requested = args.install or args.build or args.run
@@ -1118,6 +1174,12 @@ def main() -> int:
         else:
             install_record["Gate"] = "fail"
             reasons.append("install_requested_but_preflight_failed")
+
+    post_install_case_source_parity = audit_case_to_source_parity(case_dir, source_root)
+    case_to_run_source_parity = post_install_case_source_parity if args.install else pre_install_case_source_parity
+    if args.install and install_record["Gate"] == "pass" and post_install_case_source_parity["Gate"] != "pass":
+        reasons.append("post_install_case_source_parity_failed")
+        reasons.extend(f"post_install_case_source_parity:{reason}" for reason in post_install_case_source_parity["Reasons"])
 
     msbuild = find_msbuild(args.msbuild)
     command = build_command(source_root, msbuild, args.configuration, args.platform)
@@ -1188,6 +1250,7 @@ def main() -> int:
 
     source_validation = validate_source_root(source_root)
     required_files = collect_required_files(source_root, case_dir, validation_protocol_path)
+    effective_run_source_files = collect_effective_run_source_files(source_root)
     baseline_id = args.baseline_id.strip() or f"native-fluidx3d-{case_label or 'case'}-{wind_label or 'wind'}-{utc_now()}"
     manifest = {
         "Schema": "citylbm.native_fluidx3d_run_manifest.v1",
@@ -1212,6 +1275,11 @@ def main() -> int:
         "EffectiveWindDirectionSource": identity["WindDirectionSource"],
         "ExpectedAijCase": expected_case,
         "ExpectedWindDirection": expected_wind,
+        "PreInstallNativeSourceFiles": pre_install_native_source_files,
+        "EffectiveRunSourceFiles": effective_run_source_files,
+        "PreInstallCaseToSourceParityGate": pre_install_case_source_parity,
+        "PostInstallCaseToSourceParityGate": post_install_case_source_parity,
+        "CaseToRunSourceParityGate": case_to_run_source_parity,
         "RequiredSourceFiles": required_files,
         "ValidationProtocolAuditGate": validation_protocol,
         "CaseMetadataPreconditionGate": metadata_preconditions,
