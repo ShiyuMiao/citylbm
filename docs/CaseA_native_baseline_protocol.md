@@ -457,10 +457,11 @@ diagnostic only even if selected plots look reasonable.
 hashes, BaselineId matching and the `native_fluidx3d_baseline` protocol item; metrics `native_baseline_gate=pass` is only
 ignored context.
 The JSON report also includes `diagnostic_priority`, which must be followed in order before changing physics parameters:
-first close coordinate/component/Uref/probe issues and the component/Uref sensitivity audit, then final-window time
-averaging, then AF `U/k` preservation, then turbulent-inlet method, length scale and correlation evidence, then
-boundary/roughness/blockage, then the native FluidX3D baseline, native/CityLBM parity and grid sensitivity, and only then interpret the
-remaining systematic bias as a physics/protocol problem.
+first close AF `U/k` preservation, generated-source inlet evidence, turbulent-inlet method, length-scale and correlation
+evidence; then close boundary/roughness/blockage; then prove a real final-window time average; then close
+coordinate/component/Uref/probe issues and the component/Uref sensitivity audit. LBM stability remains a hard evidence
+gate, but residual systematic bias is interpreted only after those protocol stages, the native FluidX3D baseline,
+native/CityLBM parity and grid sensitivity are closed.
 The inlet `U/k` audit follows the same final-window rule as the VTK/probe average: short, non-final or irregular
 source steps, or inlet-profile source steps that differ from the global averaged VTK window, fail before the result can
 be interpreted as solver accuracy. The inlet-profile and inlet-correlation audits must also cover at least

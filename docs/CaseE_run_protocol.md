@@ -524,11 +524,11 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   removes much of the error, audit Uref, velocity-unit conversion, compared component and wind-direction sign. If
   scaled RMSE remains large, audit inlet turbulence, boundary treatment, roughness and probe projection.
 - `validation_gate_report.json` `diagnostic_priority` ranks the next actions after a failed run. For SCI-grade Case E,
-  do not skip lower-rank failures: coordinate/component/Uref/probe closure plus component/Uref sensitivity precedes time averaging; time averaging
-  precedes inlet `U/k` preservation; inlet `U/k` preservation precedes turbulent-inlet method and length-scale claims;
-  inlet correlation evidence precedes boundary/roughness/blockage evidence; boundary/roughness/blockage evidence
-  precedes native baseline, native/CityLBM parity and grid-sensitivity evidence; only after those pass can a remaining
-  `-34 pp` style low bias be interpreted as a solver/protocol physics problem.
+  do not skip lower-rank failures: inlet `U/k` preservation, generated-source inlet evidence, turbulent-inlet method,
+  length-scale claims and inlet correlation evidence come first; boundary/roughness/blockage evidence comes second;
+  real final-window time averaging comes third; coordinate/component/Uref/probe closure plus component/Uref sensitivity
+  comes fourth; native baseline, native/CityLBM parity and grid-sensitivity evidence come after those gates. Only after
+  those pass can a remaining `-34 pp` style low bias be interpreted as a solver/protocol physics problem.
 
 ## Current v0.3.0 limitation
 

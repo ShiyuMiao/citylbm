@@ -550,9 +550,9 @@ def main() -> int:
     expected = [
         "turbulent_inlet_method_and_u_k_preservation",
         "boundary_roughness_blockage",
-        "lbm_stability_scaling",
         "time_averaging_stationarity",
         "coordinate_component_normalization",
+        "lbm_stability_scaling",
         "systematic_bias_after_prerequisites",
     ]
     if keys[:6] != expected:
@@ -574,9 +574,9 @@ def main() -> int:
     expected_closure_keys = [
         "turbulent_inlet_method_and_u_k_preservation",
         "boundary_roughness_blockage",
-        "lbm_stability_scaling",
         "time_averaging_stationarity",
         "coordinate_component_normalization",
+        "lbm_stability_scaling",
         "grid_resolution_and_systematic_bias",
     ]
     if closure["gate"] != "fail":

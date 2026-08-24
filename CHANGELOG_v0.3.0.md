@@ -634,9 +634,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   frames. The post-run chain still does not run CFD and must not be used to rebrand old VTK output as a fresh
   experiment.
 - `validation_gate.py` now writes `diagnostic_priority` to the JSON report and console output. Failed runs are triaged
-  in the required order: coordinate/component/Uref/probe evidence plus component/Uref sensitivity, time averaging, inlet
-  `U/k` preservation, generated-source inlet evidence, turbulent inlet method, length scale and correlation evidence, generated-source boundary evidence, boundary/roughness/blockage, native
-  FluidX3D baseline, native/CityLBM parity, grid sensitivity, then residual systematic-bias root cause.
+  in the required order: inlet `U/k` preservation, generated-source inlet evidence, turbulent inlet method, length scale
+  and correlation evidence, generated-source boundary evidence, boundary/roughness/blockage, final-window time averaging,
+  coordinate/component/Uref/probe evidence plus component/Uref sensitivity, native FluidX3D baseline, native/CityLBM
+  parity, grid sensitivity, then residual systematic-bias root cause.
 - `validation_gate.py` now independently rechecks component/Uref sensitivity numbers instead of trusting a copied
   `component_normalization_gate=pass`: if another velocity component materially reduces RMSE, or a best-fit scale far
   from 1.0 materially improves the selected component, the run remains diagnostic until component choice and Uref/SI
@@ -720,11 +721,15 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   A four-frame diagnostic window now carries a directly auditable 36-frame shortfall and step-span shortfall instead of
   only a generic time-averaging failure string.
 - `validation_gate.py` now adds a `systematic_bias_interpretation` gate. Large underprediction/overprediction cannot be
-  interpreted as native FluidX3D or CityLBM solver accuracy while coordinate/component/Uref, fresh VTK, time averaging,
-  inlet U/k, turbulent-inlet evidence, boundary evidence, native baseline, CityLBM parity or grid-sensitivity gates are
+  interpreted as native FluidX3D or CityLBM solver accuracy while inlet U/k, turbulent-inlet evidence, boundary evidence,
+  fresh VTK, time averaging, coordinate/component/Uref, native baseline, CityLBM parity or grid-sensitivity gates are
   still open.
 - The final `diagnostic_priority` now expands failed systematic-bias prerequisites and the native FluidX3D top blocker,
   so a large residual bias points to the exact open evidence gates before any solver-accuracy interpretation.
+- `audit_native_preconditions.py` now uses the same native-root-cause order requested for Case A debugging: turbulent
+  inlet first, AIJ-equivalent boundary/roughness second, real final-window time averaging third,
+  coordinate/component/Uref/probe closure fourth, LBM stability evidence fifth, and residual systematic bias only after
+  those prerequisites.
 - `validation_gate.py` now writes a structured `systematic_bias_diagnostic` block to the JSON report, including bias
   percentage points, threshold percentage points, best-fit scale, scaled-RMSE improvement and the exact open prerequisite
   blockers. This keeps large Case A/Case E underprediction from being interpreted through R2 alone.
