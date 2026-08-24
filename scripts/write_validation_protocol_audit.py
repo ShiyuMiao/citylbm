@@ -27,6 +27,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wind-direction-label", default="", help="Canonical wind direction label, e.g. N.")
     parser.add_argument("--wind-vector", default="", help="Wind unit vector, e.g. 1,0,0 or 0,-1,0.")
     parser.add_argument(
+        "--inlet-source-audit",
+        default="",
+        help="Optional inlet_source_audit.json from audit_inlet_source.py.",
+    )
+    parser.add_argument(
+        "--boundary-source-audit",
+        default="",
+        help="Optional boundary_source_audit.json from audit_boundary_source.py.",
+    )
+    parser.add_argument(
         "--patch-metadata-identity",
         action="store_true",
         help="Write explicit AijCase/WindDirection/WindDirectionUnitVector fields into case_metadata.json.",
@@ -120,7 +130,92 @@ def status_summary(items: Iterable[Dict[str, str]]) -> Tuple[str, List[str], Lis
     return gate, fail, risk, partial
 
 
-def protocol_items(metadata: Dict[str, Any], args: argparse.Namespace) -> List[Dict[str, str]]:
+def audit_status(value: Any) -> str:
+    return str(value or "").strip().lower()
+
+
+def summarize_inlet_audit(inlet_audit: Dict[str, Any]) -> Dict[str, Any]:
+    method_class = str(inlet_audit.get("inlet_source_method_class") or "").strip()
+    fidelity_class = str(inlet_audit.get("inlet_source_turbulent_inflow_fidelity_class") or "").strip()
+    paper_gate = audit_status(inlet_audit.get("paper_grade_inlet_source_gate"))
+    source_gate = audit_status(inlet_audit.get("inlet_source_gate"))
+    distribution_consistent = as_bool(inlet_audit.get("inlet_source_distribution_consistent"))
+    velocity_only = as_bool(inlet_audit.get("inlet_source_velocity_field_only"))
+    uncorrelated_rms = as_bool(inlet_audit.get("inlet_source_has_uncorrelated_rms_velocity_field_only"))
+    paper_methods = {
+        "digital_filter_distribution_consistent",
+        "synthetic_eddy_distribution_consistent",
+        "precursor_or_recycling",
+    }
+    paper_fidelity = {
+        "distribution_consistent_digital_filter",
+        "distribution_consistent_synthetic_eddy",
+        "distribution_consistent_precursor_or_recycling",
+    }
+    inlet_is_paper_grade = (
+        paper_gate == "pass"
+        and source_gate != "fail"
+        and distribution_consistent is True
+        and velocity_only is not True
+        and uncorrelated_rms is not True
+        and (method_class in paper_methods or fidelity_class in paper_fidelity)
+    )
+    inlet_is_velocity_only = (
+        velocity_only is True
+        or uncorrelated_rms is True
+        or distribution_consistent is False
+        or paper_gate == "fail"
+        or source_gate == "fail"
+    )
+    evidence = (
+        f"InletSourceGate={source_gate or 'missing'}; PaperGradeInletSourceGate={paper_gate or 'missing'}; "
+        f"MethodClass={method_class or 'missing'}; FidelityClass={fidelity_class or 'missing'}; "
+        f"DistributionConsistent={distribution_consistent}; VelocityFieldOnly={velocity_only}; "
+        f"UncorrelatedRmsVelocityFieldOnly={uncorrelated_rms}"
+    )
+    return {
+        "paper_grade": inlet_is_paper_grade,
+        "velocity_only_or_failed": inlet_is_velocity_only,
+        "evidence": evidence,
+    }
+
+
+def summarize_boundary_audit(boundary_audit: Dict[str, Any]) -> Dict[str, Any]:
+    source_gate = audit_status(boundary_audit.get("boundary_source_gate"))
+    paper_gate = audit_status(boundary_audit.get("paper_grade_boundary_source_gate"))
+    fidelity_class = str(boundary_audit.get("boundary_source_fidelity_class") or "").strip()
+    method_class = str(boundary_audit.get("boundary_source_method_class") or "").strip()
+    wind_tunnel_equivalent = as_bool(boundary_audit.get("boundary_source_wind_tunnel_equivalent"))
+    simplified = as_bool(boundary_audit.get("boundary_source_simplified"))
+    rough_wall = as_bool(boundary_audit.get("has_paper_grade_rough_wall_source"))
+    development = as_bool(boundary_audit.get("has_paper_grade_development_source"))
+    paper_grade = (
+        source_gate == "pass"
+        and paper_gate == "pass"
+        and wind_tunnel_equivalent is True
+        and simplified is not True
+        and fidelity_class == "wind_tunnel_equivalent_complete"
+    )
+    evidence = (
+        f"BoundarySourceGate={source_gate or 'missing'}; PaperGradeBoundarySourceGate={paper_gate or 'missing'}; "
+        f"MethodClass={method_class or 'missing'}; FidelityClass={fidelity_class or 'missing'}; "
+        f"WindTunnelEquivalent={wind_tunnel_equivalent}; Simplified={simplified}; "
+        f"RoughWallSource={rough_wall}; DevelopmentSource={development}"
+    )
+    return {
+        "paper_grade": paper_grade,
+        "rough_wall": rough_wall,
+        "development": development,
+        "evidence": evidence,
+    }
+
+
+def protocol_items(
+    metadata: Dict[str, Any],
+    args: argparse.Namespace,
+    inlet_audit: Optional[Dict[str, Any]] = None,
+    boundary_audit: Optional[Dict[str, Any]] = None,
+) -> List[Dict[str, str]]:
     official_af = str(get_any(metadata, ["OfficialAF", "official_af"]) or "").strip()
     official_af_hash = str(get_any(metadata, ["OfficialAFSha256", "official_af_sha256"]) or "").strip()
     official_rs_hash = str(get_any(metadata, ["OfficialRSSha256", "official_rs_sha256"]) or "").strip()
@@ -152,6 +247,81 @@ def protocol_items(metadata: Dict[str, Any], args: argparse.Namespace) -> List[D
     reconstruct_stress = as_bool(get_any(get_nested(metadata, "ReconstructInletStressDdf"), ["Enabled"]))
     preserve_boundary_fneq = as_bool(get_any(get_nested(metadata, "PreserveBoundaryFneq"), ["Enabled"]))
     reconstruct_boundary_ddf = as_bool(get_any(get_nested(metadata, "ReconstructBoundaryDdf"), ["Enabled"]))
+    inlet_summary = summarize_inlet_audit(inlet_audit) if inlet_audit else {}
+    boundary_summary = summarize_boundary_audit(boundary_audit) if boundary_audit else {}
+
+    if inlet_audit:
+        inlet_k_status = (
+            "pass"
+            if official_af_hash
+            and turbulence_method
+            and turbulence_scale is not None
+            and as_bool(inlet_audit.get("has_profile_k_lbm")) is True
+            else "fail"
+        )
+        inlet_k_evidence = (
+            f"TurbulenceMethod={turbulence_method or 'missing'}; TurbulenceScale={turbulence_scale}; "
+            f"OfficialAFSha256={official_af_hash or 'missing'}; "
+            f"HasProfileKLbm={as_bool(inlet_audit.get('has_profile_k_lbm'))}; "
+            f"HasKDrivenThreeComponentSTG={as_bool(inlet_audit.get('has_k_driven_three_component_stg'))}"
+        )
+        length_scale_status = "pass" if as_bool(inlet_audit.get("has_inlet_length_scale_evidence")) is True else "risk"
+        length_scale_evidence = (
+            f"HasInletLengthScaleEvidence={as_bool(inlet_audit.get('has_inlet_length_scale_evidence'))}; "
+            f"MetadataLengthScaleGate={inlet_audit.get('metadata_length_scale_gate') or 'missing'}"
+        )
+        stress_tensor_present = as_bool(inlet_audit.get("has_reynolds_stress_tensor_evidence"))
+        documented_isotropic = as_bool(inlet_audit.get("has_documented_isotropic_k_assumption"))
+        stress_status = "pass" if stress_tensor_present is True else "partial" if documented_isotropic is True else "risk"
+        stress_evidence = (
+            f"HasReynoldsStressTensorEvidence={stress_tensor_present}; "
+            f"HasDocumentedIsotropicKAssumption={documented_isotropic}; "
+            f"ReynoldsStressTreatment={inlet_audit.get('reynolds_stress_treatment') or 'missing'}"
+        )
+        distribution_status = (
+            "pass"
+            if inlet_summary.get("paper_grade") is True
+            else "fail"
+            if inlet_summary.get("velocity_only_or_failed") is True
+            else "risk"
+        )
+        distribution_evidence = str(inlet_summary.get("evidence") or "")
+    else:
+        inlet_k_status = "pass" if official_af_hash and turbulence_method and turbulence_scale is not None else "fail"
+        inlet_k_evidence = (
+            f"TurbulenceMethod={turbulence_method or 'missing'}; TurbulenceScale={turbulence_scale}; "
+            f"OfficialAFSha256={official_af_hash or 'missing'}"
+        )
+        length_scale_status = "risk" if turbulence_method else "fail"
+        length_scale_evidence = f"TurbulenceMethod={turbulence_method or 'missing'}; length-scale evidence is metadata-only at preflight."
+        stress_status = "risk" if turbulence_method else "fail"
+        stress_evidence = f"StressDdfReconstruction={reconstruct_stress}; turbulence source={turbulence_method or 'missing'}"
+        distribution_status = "risk" if reconstruct_stress or preserve_boundary_fneq or reconstruct_boundary_ddf else "fail"
+        distribution_evidence = (
+            f"ReconstructInletStressDdf={reconstruct_stress}; PreserveBoundaryFneq={preserve_boundary_fneq}; "
+            f"ReconstructBoundaryDdf={reconstruct_boundary_ddf}"
+        )
+
+    if boundary_audit:
+        boundary_status = "pass" if boundary_summary.get("paper_grade") is True else "fail"
+        boundary_evidence = str(boundary_summary.get("evidence") or "")
+        roughness_status = (
+            "pass"
+            if boundary_summary.get("rough_wall") is True and boundary_summary.get("development") is True
+            else "fail"
+        )
+        roughness_evidence = str(boundary_summary.get("evidence") or "")
+    else:
+        boundary_status = "pass" if boundary_admissible and boundary_documented else "fail"
+        boundary_evidence = (
+            f"BoundaryMode={get_any(metadata, ['BoundaryMode']) or 'missing'}; "
+            f"PaperBoundaryAdmissible={boundary_admissible}; BoundarySourceDocumented={boundary_documented}"
+        )
+        roughness_status = "pass" if roughness_admissible or precursor_admissible else "fail"
+        roughness_evidence = (
+            f"RoughnessPaperSourceAdmissible={roughness_admissible}; "
+            f"EquivalentPrecursorPaperAdmissible={precursor_admissible}"
+        )
 
     items: List[Dict[str, str]] = [
         item(
@@ -162,20 +332,20 @@ def protocol_items(metadata: Dict[str, Any], args: argparse.Namespace) -> List[D
         ),
         item(
             "inlet_turbulence_k",
-            "pass" if official_af_hash and turbulence_method and turbulence_scale is not None else "fail",
-            f"TurbulenceMethod={turbulence_method or 'missing'}; TurbulenceScale={turbulence_scale}; OfficialAFSha256={official_af_hash or 'missing'}",
+            inlet_k_status,
+            inlet_k_evidence,
             "Read and preserve AF k/TKE evidence before native baseline promotion.",
         ),
         item(
             "inlet_turbulence_length_scale",
-            "risk" if turbulence_method else "fail",
-            f"TurbulenceMethod={turbulence_method or 'missing'}; length-scale evidence is metadata-only at preflight.",
+            length_scale_status,
+            length_scale_evidence,
             "Prove length-scale/correlation from final-window inlet VTK or precursor evidence.",
         ),
         item(
             "inlet_reynolds_stress_tensor",
-            "risk" if turbulence_method else "fail",
-            f"StressDdfReconstruction={reconstruct_stress}; turbulence source={turbulence_method or 'missing'}",
+            stress_status,
+            stress_evidence,
             "Document Reynolds-stress assumption and prove distribution-consistent inlet treatment.",
         ),
         item(
@@ -186,8 +356,8 @@ def protocol_items(metadata: Dict[str, Any], args: argparse.Namespace) -> List[D
         ),
         item(
             "inlet_distribution_consistency",
-            "risk" if reconstruct_stress or preserve_boundary_fneq or reconstruct_boundary_ddf else "fail",
-            f"ReconstructInletStressDdf={reconstruct_stress}; PreserveBoundaryFneq={preserve_boundary_fneq}; ReconstructBoundaryDdf={reconstruct_boundary_ddf}",
+            distribution_status,
+            distribution_evidence,
             "Use distribution-consistent DFM/SEM/precursor evidence, not velocity-field-only perturbations.",
         ),
         item(
@@ -198,14 +368,14 @@ def protocol_items(metadata: Dict[str, Any], args: argparse.Namespace) -> List[D
         ),
         item(
             "boundary_conditions",
-            "pass" if boundary_admissible and boundary_documented else "fail",
-            f"BoundaryMode={get_any(metadata, ['BoundaryMode']) or 'missing'}; PaperBoundaryAdmissible={boundary_admissible}; BoundarySourceDocumented={boundary_documented}",
+            boundary_status,
+            boundary_evidence,
             "Archive AIJ-equivalent boundary source evidence for inlet/outlet/side/top/floor treatment.",
         ),
         item(
             "wall_roughness_model",
-            "pass" if roughness_admissible or precursor_admissible else "fail",
-            f"RoughnessPaperSourceAdmissible={roughness_admissible}; EquivalentPrecursorPaperAdmissible={precursor_admissible}",
+            roughness_status,
+            roughness_evidence,
             "Provide source-driven roughness layout or a passing equivalent precursor/recycling baseline.",
         ),
         item(
@@ -291,13 +461,21 @@ def main() -> int:
     metadata = read_json(metadata_path)
     if not metadata:
         raise SystemExit(f"metadata missing or empty: {metadata_path}")
+    inlet_audit_path = Path(args.inlet_source_audit).expanduser().resolve() if args.inlet_source_audit else None
+    boundary_audit_path = Path(args.boundary_source_audit).expanduser().resolve() if args.boundary_source_audit else None
+    inlet_audit = read_json(inlet_audit_path) if inlet_audit_path else {}
+    boundary_audit = read_json(boundary_audit_path) if boundary_audit_path else {}
+    if inlet_audit_path and not inlet_audit:
+        raise SystemExit(f"inlet source audit missing or empty: {inlet_audit_path}")
+    if boundary_audit_path and not boundary_audit:
+        raise SystemExit(f"boundary source audit missing or empty: {boundary_audit_path}")
 
     metadata_patched = False
     if args.patch_metadata_identity:
         metadata_patched = patch_metadata_identity(metadata_path, metadata, args)
         metadata = read_json(metadata_path)
 
-    items = protocol_items(metadata, args)
+    items = protocol_items(metadata, args, inlet_audit=inlet_audit, boundary_audit=boundary_audit)
     gate, fail_keys, risk_keys, partial_keys = status_summary(items)
     audit = {
         "Schema": "citylbm.validation_protocol_audit.v1",
@@ -307,6 +485,8 @@ def main() -> int:
         "Gate": gate,
         "CaseDir": str(case_dir),
         "CaseMetadataPath": str(metadata_path),
+        "InletSourceAuditPath": str(inlet_audit_path) if inlet_audit_path else "",
+        "BoundarySourceAuditPath": str(boundary_audit_path) if boundary_audit_path else "",
         "MetadataIdentityPatched": metadata_patched,
         "AijCase": args.case or metadata.get("AijCase") or metadata.get("Case") or "",
         "WindDirection": args.wind_direction_label or metadata.get("WindDirection") or "",

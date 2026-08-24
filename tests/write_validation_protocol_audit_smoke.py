@@ -82,6 +82,61 @@ def create_case(root: Path) -> None:
     write(root / "case_metadata.json", json.dumps(metadata, indent=2))
 
 
+def create_velocity_only_inlet_audit(path: Path) -> None:
+    audit = {
+        "schema": "citylbm.inlet_source_audit.v1",
+        "inlet_source_gate": "fail",
+        "paper_grade_inlet_source_gate": "fail",
+        "inlet_source_method_class": "stg_lite_velocity_field_only",
+        "inlet_source_turbulent_inflow_fidelity_class": "uncorrelated_rms_velocity_field_only",
+        "inlet_source_distribution_consistent": False,
+        "inlet_source_velocity_field_only": True,
+        "inlet_source_has_uncorrelated_rms_velocity_field_only": True,
+        "has_profile_k_lbm": True,
+        "has_k_driven_three_component_stg": True,
+        "has_inlet_length_scale_evidence": False,
+        "has_reynolds_stress_tensor_evidence": False,
+        "has_documented_isotropic_k_assumption": True,
+        "reynolds_stress_treatment": "documented_isotropic_k_only",
+    }
+    write(path, json.dumps(audit, indent=2))
+
+
+def create_paper_grade_inlet_audit(path: Path) -> None:
+    audit = {
+        "schema": "citylbm.inlet_source_audit.v1",
+        "inlet_source_gate": "pass",
+        "paper_grade_inlet_source_gate": "pass",
+        "inlet_source_method_class": "digital_filter_distribution_consistent",
+        "inlet_source_turbulent_inflow_fidelity_class": "distribution_consistent_digital_filter",
+        "inlet_source_distribution_consistent": True,
+        "inlet_source_velocity_field_only": False,
+        "inlet_source_has_uncorrelated_rms_velocity_field_only": False,
+        "has_profile_k_lbm": True,
+        "has_k_driven_three_component_stg": True,
+        "has_inlet_length_scale_evidence": True,
+        "has_reynolds_stress_tensor_evidence": True,
+        "has_documented_isotropic_k_assumption": False,
+        "reynolds_stress_treatment": "full_tensor_or_precursor_evidence",
+    }
+    write(path, json.dumps(audit, indent=2))
+
+
+def create_paper_grade_boundary_audit(path: Path) -> None:
+    audit = {
+        "schema": "citylbm.boundary_source_audit.v1",
+        "boundary_source_gate": "pass",
+        "paper_grade_boundary_source_gate": "pass",
+        "boundary_source_method_class": "wind_tunnel_equivalent_boundary_source",
+        "boundary_source_fidelity_class": "wind_tunnel_equivalent_complete",
+        "boundary_source_wind_tunnel_equivalent": True,
+        "boundary_source_simplified": False,
+        "has_paper_grade_rough_wall_source": True,
+        "has_paper_grade_development_source": True,
+    }
+    write(path, json.dumps(audit, indent=2))
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory() as raw:
         temp = Path(raw)
@@ -120,12 +175,76 @@ def main() -> int:
         for key in ["native_fluidx3d_baseline", "boundary_conditions", "wall_roughness_model", "systematic_bias_gate"]:
             if statuses[key] != "fail":
                 raise AssertionError((key, statuses))
+        if statuses["inlet_distribution_consistency"] != "fail":
+            raise AssertionError(statuses)
 
         metadata = load_json(case / "case_metadata.json")
         if metadata["AijCase"] != "CaseA" or metadata["WindDirection"] != "N":
             raise AssertionError(metadata)
         if metadata["WindDirectionUnitVector"] != [1.0, 0.0, 0.0]:
             raise AssertionError(metadata)
+
+        velocity_only_inlet = temp / "velocity_only_inlet_audit.json"
+        create_velocity_only_inlet_audit(velocity_only_inlet)
+        run_cmd(
+            [
+                sys.executable,
+                str(WRITER),
+                "--case-dir",
+                str(case),
+                "--case",
+                "CaseA",
+                "--wind-direction-label",
+                "N",
+                "--wind-vector",
+                "1,0,0",
+                "--inlet-source-audit",
+                str(velocity_only_inlet),
+            ]
+        )
+        velocity_only_audit = load_json(case / "validation_protocol_audit.json")
+        velocity_only_statuses = {item["Key"]: item["Status"] for item in velocity_only_audit["Items"]}
+        if velocity_only_statuses["inlet_distribution_consistency"] != "fail":
+            raise AssertionError(velocity_only_statuses)
+        if velocity_only_statuses["inlet_reynolds_stress_tensor"] != "partial":
+            raise AssertionError(velocity_only_statuses)
+
+        paper_grade_inlet = temp / "paper_grade_inlet_audit.json"
+        paper_grade_boundary = temp / "paper_grade_boundary_audit.json"
+        create_paper_grade_inlet_audit(paper_grade_inlet)
+        create_paper_grade_boundary_audit(paper_grade_boundary)
+        run_cmd(
+            [
+                sys.executable,
+                str(WRITER),
+                "--case-dir",
+                str(case),
+                "--case",
+                "CaseA",
+                "--wind-direction-label",
+                "N",
+                "--wind-vector",
+                "1,0,0",
+                "--inlet-source-audit",
+                str(paper_grade_inlet),
+                "--boundary-source-audit",
+                str(paper_grade_boundary),
+            ]
+        )
+        paper_audit = load_json(case / "validation_protocol_audit.json")
+        paper_statuses = {item["Key"]: item["Status"] for item in paper_audit["Items"]}
+        for key in [
+            "inlet_turbulence_k",
+            "inlet_turbulence_length_scale",
+            "inlet_reynolds_stress_tensor",
+            "inlet_distribution_consistency",
+            "boundary_conditions",
+            "wall_roughness_model",
+        ]:
+            if paper_statuses[key] != "pass":
+                raise AssertionError((key, paper_statuses, paper_audit))
+        if paper_audit["Gate"] != "diagnostic_only":
+            raise AssertionError(paper_audit)
 
         manifest = temp / "native_manifest.json"
         run_cmd(
@@ -164,12 +283,16 @@ def main() -> int:
                 raise AssertionError((forbidden, reasons))
         for expected in [
             "validation_protocol_audit_gate_not_paper_grade:diagnostic_only",
-            "validation_protocol_item_fail:boundary_conditions",
-            "validation_protocol_item_fail:wall_roughness_model",
             "validation_protocol_item_fail:native_fluidx3d_baseline",
         ]:
             if expected not in reasons:
                 raise AssertionError((expected, reasons))
+        for not_expected in [
+            "validation_protocol_item_fail:boundary_conditions",
+            "validation_protocol_item_fail:wall_roughness_model",
+        ]:
+            if not_expected in reasons:
+                raise AssertionError((not_expected, reasons))
         if result["SharedRunConditions"]["ComputedVtkFrameCount"] != 51:
             raise AssertionError(result["SharedRunConditions"])
 
