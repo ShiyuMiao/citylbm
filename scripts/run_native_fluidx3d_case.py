@@ -465,7 +465,27 @@ def collect_vtk_files(output_dir: Path, pattern: str) -> List[Dict[str, Any]]:
     if nested.exists():
         files.extend(sorted(nested.glob(pattern)))
     unique = {str(path.resolve()).lower(): path for path in files}
-    return [path_record("VTK velocity field", path) for path in unique.values() if path.is_file()]
+    records = [path_record("VTK velocity field", path) for path in unique.values() if path.is_file()]
+    for record in records:
+        record["SourceTimeStep"] = parse_vtk_time_step(Path(str(record.get("Path") or "")))
+    return sorted(
+        records,
+        key=lambda record: (
+            record["SourceTimeStep"] is None,
+            record["SourceTimeStep"] if record["SourceTimeStep"] is not None else 0,
+            str(record.get("Path") or ""),
+        ),
+    )
+
+
+def parse_vtk_time_step(path: Path) -> Optional[int]:
+    match = re.search(r"(\d+)(?=\.vtk$)", path.name.lower())
+    if match is None:
+        return None
+    try:
+        return int(match.group(1))
+    except ValueError:
+        return None
 
 
 def planned_frame_count(time_steps: Optional[int], save_interval: Optional[int]) -> Optional[int]:
@@ -539,11 +559,35 @@ def audit_planned_vtk_schedule(
 def audit_actual_vtk_output(
     vtk_records: Sequence[Dict[str, Any]],
     expected_frame_count: Optional[int],
+    expected_steps: Optional[Sequence[int]],
+    average_last_n: int,
     min_frames: int,
+    min_step_span: int,
     require_actual_output: bool,
 ) -> Dict[str, Any]:
     reasons: List[str] = []
     actual_count = len(vtk_records)
+    parsed_steps = [
+        int(record["SourceTimeStep"])
+        for record in vtk_records
+        if isinstance(record.get("SourceTimeStep"), int)
+    ]
+    unparsable_count = actual_count - len(parsed_steps)
+    sorted_steps = sorted(parsed_steps)
+    unique_step_count = len(set(sorted_steps))
+    source_steps_strictly_increasing = len(sorted_steps) == unique_step_count
+    selected_count = min(len(sorted_steps), max(average_last_n, 1))
+    selected_steps = sorted_steps[-selected_count:] if selected_count > 0 else []
+    source_step_span = selected_steps[-1] - selected_steps[0] if len(selected_steps) > 1 else 0
+    selected_diffs = [b - a for a, b in zip(selected_steps, selected_steps[1:])]
+    source_step_spacing_uniform = len(set(selected_diffs)) <= 1
+    source_step_spacing = selected_diffs[0] if source_step_spacing_uniform and selected_diffs else None
+    expected_step_list = list(expected_steps) if expected_steps is not None else None
+    expected_selected_steps = (
+        expected_step_list[-min(len(expected_step_list), max(average_last_n, 1)) :]
+        if expected_step_list
+        else None
+    )
     if not require_actual_output:
         return {
             "Gate": "not_applicable",
@@ -551,7 +595,10 @@ def audit_actual_vtk_output(
             "ReasonsCsv": "",
             "ActualFrameCount": actual_count,
             "ExpectedFrameCount": expected_frame_count,
+            "ExpectedSourceTimeSteps": expected_step_list,
+            "AverageLastN": average_last_n,
             "MinimumFrameCount": min_frames,
+            "MinimumStepSpan": min_step_span,
             "ActualOutputRequired": False,
         }
 
@@ -559,17 +606,43 @@ def audit_actual_vtk_output(
         reasons.append("actual_vtk_output_missing")
     if actual_count < min_frames:
         reasons.append(f"actual_vtk_frame_count_{actual_count}_below_minimum_{min_frames}")
+    if selected_count < min_frames:
+        reasons.append(f"actual_vtk_final_window_frame_count_{selected_count}_below_minimum_{min_frames}")
     if expected_frame_count is not None and actual_count != expected_frame_count:
         reasons.append(
             f"actual_vtk_frame_count_{actual_count}_does_not_match_expected_{expected_frame_count}"
         )
+    if unparsable_count:
+        reasons.append(f"actual_vtk_source_time_steps_unparseable_count_{unparsable_count}")
+    if not source_steps_strictly_increasing:
+        reasons.append("actual_vtk_source_time_steps_not_unique_or_strictly_increasing")
+    if selected_steps and source_step_span < min_step_span:
+        reasons.append(f"actual_vtk_final_window_step_span_{source_step_span}_below_minimum_{min_step_span}")
+    if expected_step_list is not None and sorted_steps != expected_step_list:
+        reasons.append("actual_vtk_source_time_steps_do_not_match_planned_schedule")
+    if expected_selected_steps is not None and selected_steps != expected_selected_steps:
+        reasons.append("actual_vtk_final_window_steps_do_not_match_planned_final_window")
     return {
         "Gate": "pass" if not reasons else "diagnostic_only",
         "Reasons": reasons,
         "ReasonsCsv": ";".join(reasons),
         "ActualFrameCount": actual_count,
         "ExpectedFrameCount": expected_frame_count,
+        "ActualSourceTimeSteps": sorted_steps,
+        "ActualSourceTimeStepsCsv": ";".join(str(step) for step in sorted_steps),
+        "ExpectedSourceTimeSteps": expected_step_list,
+        "SelectedFinalWindowTimeSteps": selected_steps,
+        "SelectedFinalWindowTimeStepsCsv": ";".join(str(step) for step in selected_steps),
+        "SelectedFinalWindowStepSpan": source_step_span,
+        "ExpectedSelectedFinalWindowTimeSteps": expected_selected_steps,
+        "SourceTimeStepUnparsableCount": unparsable_count,
+        "SourceTimeStepUniqueCount": unique_step_count,
+        "SourceStepsStrictlyIncreasing": source_steps_strictly_increasing,
+        "SourceStepSpacingUniform": source_step_spacing_uniform,
+        "SourceStepSpacing": source_step_spacing,
+        "AverageLastN": average_last_n,
         "MinimumFrameCount": min_frames,
+        "MinimumStepSpan": min_step_span,
         "ActualOutputRequired": True,
     }
 
@@ -750,7 +823,10 @@ def main() -> int:
     actual_vtk_output = audit_actual_vtk_output(
         vtk_records,
         vtk_schedule["ComputedFrameCount"],
+        planned_vtk_steps(args.time_steps, args.vtk_save_interval),
+        args.average_last_n,
         args.min_vtk_frames,
+        args.min_vtk_step_span,
         args.run or bool(args.output_dir.strip()),
     )
     if actual_vtk_output["Gate"] == "diagnostic_only":

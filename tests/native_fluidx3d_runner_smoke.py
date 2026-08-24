@@ -480,6 +480,57 @@ def main() -> int:
             raise AssertionError(partial_output_result["RunnerGate"])
         if "actual_vtk_frame_count_1_does_not_match_expected_40" not in partial_output_result["RunnerGate"]["Reasons"]:
             raise AssertionError(partial_output_result["RunnerGate"])
+        if "actual_vtk_final_window_frame_count_1_below_minimum_40" not in partial_output_result["RunnerGate"]["Reasons"]:
+            raise AssertionError(partial_output_result["RunnerGate"])
+        if "actual_vtk_final_window_step_span_0_below_minimum_20000" not in partial_output_result["RunnerGate"]["Reasons"]:
+            raise AssertionError(partial_output_result["RunnerGate"])
+        if partial_output_result["ActualVtkOutputGate"]["ActualSourceTimeSteps"] != [1000]:
+            raise AssertionError(partial_output_result["ActualVtkOutputGate"])
+
+        short_window_output = temp / "short_window_output"
+        for step in range(1000, 5000, 100):
+            write(short_window_output / f"u-{step:09d}.vtk", "# vtk DataFile Version 3.0\nsmoke\n")
+        short_window_output_manifest = temp / "short_window_output_manifest" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(case_dir),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(short_window_output_manifest),
+                "--baseline-id",
+                "smoke-casea-native-short-window-output",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+                "--output-dir",
+                str(short_window_output),
+            ],
+            expected_returncode=2,
+        )
+        short_window_output_result = load_json(short_window_output_manifest)
+        actual_gate = short_window_output_result["ActualVtkOutputGate"]
+        if actual_gate["ActualFrameCount"] != 40:
+            raise AssertionError(actual_gate)
+        if actual_gate["SelectedFinalWindowStepSpan"] != 3900:
+            raise AssertionError(actual_gate)
+        for reason in [
+            "actual_vtk_final_window_step_span_3900_below_minimum_20000",
+            "actual_vtk_source_time_steps_do_not_match_planned_schedule",
+            "actual_vtk_final_window_steps_do_not_match_planned_final_window",
+        ]:
+            if reason not in short_window_output_result["RunnerGate"]["Reasons"]:
+                raise AssertionError(short_window_output_result["RunnerGate"])
 
         missing_protocol_case = temp / "missing_protocol_case"
         create_case(missing_protocol_case)
