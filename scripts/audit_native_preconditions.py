@@ -2363,6 +2363,62 @@ def main() -> int:
     metadata_synthetic_requested = as_bool(metadata.get("SyntheticTurbulentInletRequested"))
     metadata_synthetic_injected = as_bool(metadata.get("SyntheticTurbulentInletInjected"))
     metadata_synthetic_active = metadata_synthetic_requested is True or metadata_synthetic_injected is True
+    metadata_synthetic_gate = str(metadata.get("SyntheticTurbulentInletTemporalSamplingGate") or "").strip().lower()
+    synthetic_sampling_source = "native_manifest"
+    if not synthetic_sampling and metadata_synthetic_active:
+        synthetic_sampling_source = "case_metadata_fallback"
+        planned_synthetic_requested = metadata_synthetic_requested
+        planned_synthetic_injected = metadata_synthetic_injected
+        planned_synthetic_active = metadata_synthetic_active
+        planned_synthetic_update_interval = as_int(metadata.get("SyntheticTurbulenceUpdateInterval"))
+        planned_synthetic_final_window_span = as_int(metadata.get("ExpectedPaperAverageStepSpan"))
+        planned_synthetic_metadata_expected_refresh_count = as_int(
+            metadata.get("SyntheticTurbulenceExpectedFinalWindowRefreshCount")
+        )
+        planned_synthetic_minimum_refresh_count = as_int(
+            metadata.get("SyntheticTurbulenceMinimumRecommendedRefreshes")
+        )
+        if (
+            planned_synthetic_final_window_span is not None
+            and planned_synthetic_update_interval is not None
+            and planned_synthetic_update_interval > 0
+        ):
+            planned_synthetic_refresh_count = (
+                planned_synthetic_final_window_span // planned_synthetic_update_interval
+            )
+        elif planned_synthetic_metadata_expected_refresh_count is not None:
+            planned_synthetic_refresh_count = planned_synthetic_metadata_expected_refresh_count
+
+        if metadata_synthetic_gate == "pass":
+            planned_synthetic_gate = "pass"
+        elif metadata_synthetic_gate in {"", "not_applicable"}:
+            planned_synthetic_gate = metadata_synthetic_gate or "missing"
+        else:
+            planned_synthetic_gate = "diagnostic_only"
+
+        if (
+            planned_synthetic_refresh_count is not None
+            and planned_synthetic_minimum_refresh_count is not None
+            and planned_synthetic_refresh_count < planned_synthetic_minimum_refresh_count
+        ):
+            planned_synthetic_reasons.append(
+                "planned_stg_refresh_count_"
+                f"{planned_synthetic_refresh_count}_below_minimum_{planned_synthetic_minimum_refresh_count}"
+            )
+        if (
+            planned_synthetic_metadata_expected_refresh_count is not None
+            and planned_synthetic_refresh_count is not None
+            and planned_synthetic_metadata_expected_refresh_count != planned_synthetic_refresh_count
+        ):
+            planned_synthetic_reasons.append(
+                "metadata_stg_refresh_count_"
+                f"{planned_synthetic_metadata_expected_refresh_count}_does_not_match_computed_"
+                f"{planned_synthetic_refresh_count}"
+            )
+        if metadata_synthetic_gate and metadata_synthetic_gate != "pass":
+            planned_synthetic_reasons.append(
+                f"metadata_synthetic_temporal_sampling_gate:{metadata_synthetic_gate}"
+            )
     if synthetic_sampling:
         if planned_synthetic_gate not in {"pass", "not_applicable"}:
             reasons.append(f"planned_synthetic_inlet_sampling_gate_not_pass:{planned_synthetic_gate or 'missing'}")
@@ -2371,7 +2427,12 @@ def main() -> int:
         if metadata_synthetic_active and planned_synthetic_gate == "not_applicable":
             reasons.append("planned_synthetic_inlet_sampling_not_applicable_for_active_metadata")
     elif metadata_synthetic_active:
-        reasons.append("planned_synthetic_inlet_sampling_gate_missing")
+        if planned_synthetic_gate not in {"pass", "not_applicable"}:
+            reasons.append(f"planned_synthetic_inlet_sampling_gate_not_pass:{planned_synthetic_gate or 'missing'}")
+            for reason in planned_synthetic_reasons:
+                reasons.append(f"planned_synthetic_inlet_sampling_reason:{reason}")
+        if not planned_synthetic_reasons and planned_synthetic_gate in {"", "missing"}:
+            reasons.append("planned_synthetic_inlet_sampling_gate_missing")
 
     runtime_pattern = str(runtime_audit.get("vtk_pattern") or "").strip()
     if not runtime_audit:
@@ -3756,6 +3817,7 @@ def main() -> int:
         "actual_vtk_expected_frame_count": actual_vtk_expected_frame_count,
         "actual_vtk_minimum_frame_count": actual_vtk_minimum_frame_count,
         "planned_synthetic_inlet_sampling_gate": planned_synthetic_gate,
+        "planned_synthetic_inlet_sampling_source": synthetic_sampling_source,
         "planned_synthetic_inlet_sampling_gate_reasons": planned_synthetic_reasons,
         "planned_synthetic_inlet_sampling_gate_reasons_csv": ";".join(planned_synthetic_reasons),
         "planned_synthetic_inlet_sampling_active": planned_synthetic_active,
