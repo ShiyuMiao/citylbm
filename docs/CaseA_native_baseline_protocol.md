@@ -64,6 +64,10 @@ Blocking checks:
 Decision: do not launch or promote the building run as paper-grade evidence until the boundary-equivalence and
 roughness/precursor gates are closed. A diagnostic override may be used for software debugging, but its metrics must not
 be migrated into CityLBM or reported as native FluidX3D accuracy.
+`scripts/run_native_fluidx3d_case.py` enforces this order with `PreExecutionGate`: validation protocol, metadata
+preconditions, planned VTK averaging span and synthetic-inlet refresh count are checked before native install/build/run.
+If the pre-execution gate is diagnostic-only, install/build/run are blocked by default. `--allow-diagnostic-execution`
+may be used only to debug the native workflow and must be recorded as non-paper-grade evidence.
 
 ## Inputs
 

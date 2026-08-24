@@ -750,6 +750,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `audit_inlet_source.py` now also detects C++ STL random generators such as `std::mt19937`,
   `std::normal_distribution` and `std::uniform_real_distribution` in inlet context, so RMS/k velocity perturbations
   built from those sources are classified as uncorrelated diagnostic inlet forcing.
+- `scripts/run_native_fluidx3d_case.py` now evaluates validation-protocol, metadata, planned VTK-window and synthetic
+  inlet refresh gates before any native install/build/run action. If that `PreExecutionGate` is diagnostic-only, the
+  runner blocks execution by default; `--allow-diagnostic-execution` is recorded as a debugging override and is not
+  paper-grade evidence.
 - 2026-08-24 native Case A empty-tunnel diagnostic `native_casea_strict_20260824_reconstruct_inlet_stress_novtk`
   tested the experimental inlet-stress/DDF reconstruction route without writing large VTK files. The strict empty-tunnel
   monitor rejected the run: `U_MAE/Uref=683.013%`, `k_MAE/target_mean=100.000%`, `k_bias/target_mean=-100.000%`.

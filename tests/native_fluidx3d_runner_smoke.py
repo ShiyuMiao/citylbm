@@ -522,6 +522,62 @@ def main() -> int:
             if reason not in diagnostic_metadata_result["RunnerGate"]["Reasons"]:
                 raise AssertionError(diagnostic_metadata_result["RunnerGate"])
 
+        blocked_execution_case = temp / "blocked_execution_case"
+        create_case(blocked_execution_case)
+        write(source_root / "src" / "setup.cpp", "// native preflight protected setup\n")
+        blocked_audit = validation_protocol_audit({"boundary_conditions": "risk"})
+        write(blocked_execution_case / "validation_protocol_audit.json", json.dumps(blocked_audit, indent=2))
+        blocked_execution_manifest = temp / "blocked_execution" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(blocked_execution_case),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(blocked_execution_manifest),
+                "--baseline-id",
+                "smoke-casea-native-blocked-execution",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+                "--install",
+                "--build",
+                "--run",
+            ],
+            expected_returncode=2,
+        )
+        blocked_execution = load_json(blocked_execution_manifest)
+        if blocked_execution["PreExecutionGate"]["Gate"] != "diagnostic_only":
+            raise AssertionError(blocked_execution["PreExecutionGate"])
+        if blocked_execution["Install"]["Gate"] != "blocked":
+            raise AssertionError(blocked_execution["Install"])
+        if blocked_execution["Build"]["Gate"] != "blocked":
+            raise AssertionError(blocked_execution["Build"])
+        if blocked_execution["Run"]["Gate"] != "blocked":
+            raise AssertionError(blocked_execution["Run"])
+        if blocked_execution["ActualVtkOutputGate"]["Gate"] != "not_applicable":
+            raise AssertionError(blocked_execution["ActualVtkOutputGate"])
+        if blocked_execution["Install"]["Performed"] is not False:
+            raise AssertionError(blocked_execution["Install"])
+        if (source_root / "src" / "setup.cpp").read_text(encoding="utf-8") != "// native preflight protected setup\n":
+            raise AssertionError("blocked preflight unexpectedly modified source setup.cpp")
+        if "execution_requested_but_preflight_gate_diagnostic_only" not in blocked_execution["RunnerGate"]["Reasons"]:
+            raise AssertionError(blocked_execution["RunnerGate"])
+        if "run_requested_but_executable_missing" in blocked_execution["RunnerGate"]["Reasons"]:
+            raise AssertionError(blocked_execution["RunnerGate"])
+        if "actual_vtk_output_missing" in blocked_execution["RunnerGate"]["Reasons"]:
+            raise AssertionError(blocked_execution["RunnerGate"])
+
         slow_refresh_case = temp / "slow_refresh_case"
         create_case(slow_refresh_case)
         slow_metadata_path = slow_refresh_case / "case_metadata.json"

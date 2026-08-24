@@ -400,6 +400,10 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
 
   The gate must pass before Case E is described as paper-grade validation. A failed gate means the run remains
   diagnostic, even if Rhino/Grasshopper visualization and screenshots are complete.
+  Native FluidX3D execution uses the same principle: `scripts/run_native_fluidx3d_case.py` writes `PreExecutionGate`
+  before install/build/run and blocks those actions by default when protocol, metadata, planned final-window averaging
+  or STG refresh checks are diagnostic-only. `--allow-diagnostic-execution` is a debugging override only and cannot
+  support SCI-grade Case E claims.
   By default, the gate fails CityLBM's current velocity-field-only STG-lite inlet because it does not reconstruct
   FluidX3D distribution functions. The optional `--allow-velocity-only-inlet` flag is reserved for explicitly labelled
   diagnostic sensitivity runs after an empty-tunnel `U/k` preservation check; do not use it for SCI-grade Case E claims.

@@ -104,6 +104,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-vtk-frames", type=int, default=40, help="Minimum planned VTK frames for strict validation.")
     parser.add_argument("--min-vtk-step-span", type=int, default=20000, help="Minimum planned final-window solver-step span.")
     parser.add_argument("--min-stg-refreshes", type=int, default=200, help="Minimum planned synthetic-inlet refreshes in the final averaging window.")
+    parser.add_argument(
+        "--allow-diagnostic-execution",
+        action="store_true",
+        help="Allow install/build/run even when strict preflight gates are diagnostic_only. Use only for debugging, never for paper-grade claims.",
+    )
     parser.add_argument("--output-dir", default="", help="Directory to inspect for u-*.vtk after run.")
     parser.add_argument("--vtk-pattern", default="u-*.vtk", help="VTK glob pattern.")
     return parser.parse_args()
@@ -970,13 +975,48 @@ def main() -> int:
     elif not identity_matches(expected_wind, wind_label):
         reasons.append(f"wind_direction_mismatch:{wind_label}")
 
-    install_record: Dict[str, Any] = {"Requested": args.install, "Performed": False, "Backups": [], "InstalledFiles": []}
+    vtk_schedule = audit_planned_vtk_schedule(
+        args.time_steps,
+        args.vtk_save_interval,
+        vtk_save_start_step,
+        args.expected_vtk_frame_count,
+        args.average_last_n,
+        args.min_vtk_frames,
+        args.min_vtk_step_span,
+    )
+    if vtk_schedule["Gate"] != "pass":
+        reasons.extend(str(reason) for reason in vtk_schedule["Reasons"])
+    synthetic_sampling = audit_planned_synthetic_inlet_sampling(
+        metadata,
+        vtk_schedule["FinalWindowStepSpan"],
+        args.min_stg_refreshes,
+    )
+    if synthetic_sampling["Gate"] == "diagnostic_only":
+        reasons.extend(str(reason) for reason in synthetic_sampling["Reasons"])
+
+    pre_execution_gate = runner_gate(reasons)
+    execution_requested = args.install or args.build or args.run
+    execution_allowed = pre_execution_gate["Gate"] == "pass" or args.allow_diagnostic_execution
+    if execution_requested and not execution_allowed:
+        reasons.append("execution_requested_but_preflight_gate_diagnostic_only")
+
+    install_record: Dict[str, Any] = {
+        "Requested": args.install,
+        "Performed": False,
+        "Backups": [],
+        "InstalledFiles": [],
+        "Gate": "not_requested",
+    }
     if args.install:
-        if source_validation["IsValid"] and case_dir.is_dir():
+        if not execution_allowed:
+            install_record["Gate"] = "blocked"
+        elif source_validation["IsValid"] and case_dir.is_dir():
             install_data = install_case(case_dir, source_root, out_path.parent / "native_source_backups")
             install_record.update(install_data)
             install_record["Performed"] = True
+            install_record["Gate"] = "pass"
         else:
+            install_record["Gate"] = "fail"
             reasons.append("install_requested_but_preflight_failed")
 
     msbuild = find_msbuild(args.msbuild)
@@ -993,7 +1033,9 @@ def main() -> int:
         "Gate": "not_requested",
     }
     if args.build:
-        if not command:
+        if not execution_allowed:
+            build_record["Gate"] = "blocked"
+        elif not command:
             build_record["Gate"] = "fail"
             reasons.append("build_requested_but_no_build_command")
         else:
@@ -1015,7 +1057,9 @@ def main() -> int:
         "Gate": "not_requested",
     }
     if args.run:
-        if exe_path is None or not exe_path.exists():
+        if not execution_allowed:
+            run_record["Gate"] = "blocked"
+        elif exe_path is None or not exe_path.exists():
             run_record["Gate"] = "fail"
             reasons.append("run_requested_but_executable_missing")
         else:
@@ -1025,20 +1069,10 @@ def main() -> int:
 
     output_dir = Path(args.output_dir).expanduser().resolve() if args.output_dir else case_dir
     vtk_records = collect_vtk_files(output_dir, args.vtk_pattern)
-    if args.run and not vtk_records:
+    actual_output_required = (args.run and run_record["Gate"] == "pass") or bool(args.output_dir.strip())
+    if args.run and run_record["Gate"] == "pass" and not vtk_records:
         reasons.append("run_requested_but_no_vtk_output_found")
 
-    vtk_schedule = audit_planned_vtk_schedule(
-        args.time_steps,
-        args.vtk_save_interval,
-        vtk_save_start_step,
-        args.expected_vtk_frame_count,
-        args.average_last_n,
-        args.min_vtk_frames,
-        args.min_vtk_step_span,
-    )
-    if vtk_schedule["Gate"] != "pass":
-        reasons.extend(str(reason) for reason in vtk_schedule["Reasons"])
     actual_vtk_output = audit_actual_vtk_output(
         vtk_records,
         vtk_schedule["ComputedFrameCount"],
@@ -1046,17 +1080,10 @@ def main() -> int:
         args.average_last_n,
         args.min_vtk_frames,
         args.min_vtk_step_span,
-        args.run or bool(args.output_dir.strip()),
+        actual_output_required,
     )
     if actual_vtk_output["Gate"] == "diagnostic_only":
         reasons.extend(str(reason) for reason in actual_vtk_output["Reasons"])
-    synthetic_sampling = audit_planned_synthetic_inlet_sampling(
-        metadata,
-        vtk_schedule["FinalWindowStepSpan"],
-        args.min_stg_refreshes,
-    )
-    if synthetic_sampling["Gate"] == "diagnostic_only":
-        reasons.extend(str(reason) for reason in synthetic_sampling["Reasons"])
 
     source_validation = validate_source_root(source_root)
     required_files = collect_required_files(source_root, case_dir)
@@ -1079,6 +1106,8 @@ def main() -> int:
         "RequiredSourceFiles": required_files,
         "ValidationProtocolAuditGate": validation_protocol,
         "CaseMetadataPreconditionGate": metadata_preconditions,
+        "PreExecutionGate": pre_execution_gate,
+        "DiagnosticExecutionOverrideAllowed": args.allow_diagnostic_execution,
         "Install": install_record,
         "Build": build_record,
         "Run": run_record,
