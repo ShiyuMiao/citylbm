@@ -745,6 +745,11 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
 - `audit_inlet_source.py` now also detects C++ STL random generators such as `std::mt19937`,
   `std::normal_distribution` and `std::uniform_real_distribution` in inlet context, so RMS/k velocity perturbations
   built from those sources are classified as uncorrelated diagnostic inlet forcing.
+- 2026-08-24 native Case A empty-tunnel diagnostic `native_casea_strict_20260824_reconstruct_inlet_stress_novtk`
+  tested the experimental inlet-stress/DDF reconstruction route without writing large VTK files. The strict empty-tunnel
+  monitor rejected the run: `U_MAE/Uref=683.013%`, `k_MAE/target_mean=100.000%`, `k_bias/target_mean=-100.000%`.
+  This route is therefore explicitly not promoted into CityLBM v0.3.0 and must be treated as a failed diagnostic, not
+  as a native FluidX3D baseline or a solver-accuracy result.
 
 ## Remaining scientific work
 

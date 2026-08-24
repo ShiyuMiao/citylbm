@@ -505,6 +505,11 @@ normalization or residual bias is interpreted.
   Use it only as a smoke-test executable unless its source, `setup.cpp` and build recipe are archived.
 - Historical Case A experiments in the old portable validation folder are useful diagnostic evidence, but they are not
   new v0.3.0 runs and must not be presented as fresh Case A or Case E results.
+- The 2026-08-24 no-VTK native diagnostic
+  `native_casea_strict_20260824_reconstruct_inlet_stress_novtk` tested inlet-stress/DDF reconstruction as a possible
+  fix for AF `k` decay. It failed the empty-tunnel gate with `U_MAE/Uref=683.013%`,
+  `k_MAE/target_mean=100.000%` and `k_bias/target_mean=-100.000%`. Do not migrate this route into CityLBM or interpret
+  it as evidence that native FluidX3D is accurate for Case A; it is a rejected diagnostic.
 
 ## Case E Dependency
 
