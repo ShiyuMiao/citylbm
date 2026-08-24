@@ -80,6 +80,16 @@ def main() -> int:
         and 'Status = "fail"' in protocol,
         "wall roughness treatment must remain a formal validation blocker",
     )
+    require(
+        'Key = "inlet_temporal_sampling"' in protocol
+        and 'expectedPaperAverageStgRefreshes >= PaperRecommendedStgRefreshes ? "partial" : "fail"' in protocol,
+        "insufficient STG temporal sampling must be a formal validation blocker, not risk",
+    )
+    require(
+        'Key = "time_averaging"' in protocol
+        and 'expectedFrames >= PaperRecommendedAveragingFrames && expectedPaperAverageStepSpan >= PaperRecommendedAverageStepSpan ? "partial" : "fail"' in protocol,
+        "short VTK time-averaging windows must be a formal validation blocker, not risk",
+    )
 
     print("validation_protocol_inlet_boundary_risk_smoke passed")
     return 0

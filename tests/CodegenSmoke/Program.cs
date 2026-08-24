@@ -159,6 +159,8 @@ namespace CityLBM.CodegenSmoke
                 Require(audit, "R11=R22=R33=2k/3");
                 Require(audit, "inlet_turbulence_length_scale");
                 Require(audit, "inlet_temporal_sampling");
+                Require(audit, "\"Key\": \"inlet_temporal_sampling\"");
+                Require(audit, "\"Status\": \"fail\"");
                 Require(audit, "expected to sample 128 inlet refreshes");
                 Require(audit, "recommended minimum=200");
                 Require(audit, "source='aij_length_scale_verified: smoke-test archived integral length evidence', gate=pass");
@@ -167,6 +169,8 @@ namespace CityLBM.CodegenSmoke
                 Require(audit, "LbmTau=");
                 Require(audit, "VelocitySet=D3Q19");
                 Require(audit, "ExpectedVtkFrameCount=10");
+                Require(audit, "\"Key\": \"time_averaging\"");
+                Require(audit, "\"Status\": \"fail\"");
                 Require(audit, "PaperRecommendedAveragingFrames=40");
                 Require(audit, "ExpectedPaperAverageStepSpan=900");
                 Require(audit, "ProfileOriginZM=-4.000");

@@ -3689,7 +3689,7 @@ namespace CityLBM.Solver
             {
                 Key = "inlet_temporal_sampling",
                 Status = syntheticActive
-                    ? (expectedPaperAverageStgRefreshes >= PaperRecommendedStgRefreshes ? "partial" : "risk")
+                    ? (expectedPaperAverageStgRefreshes >= PaperRecommendedStgRefreshes ? "partial" : "fail")
                     : "partial",
                 Evidence = syntheticActive
                     ? $"STG Update={settings.SyntheticTurbulenceUpdateInterval} steps; final {PaperRecommendedAveragingFrames}-frame average spans {expectedPaperAverageStepSpan} solver steps and is expected to sample {expectedPaperAverageStgRefreshes} inlet refreshes; recommended minimum={PaperRecommendedStgRefreshes}."
@@ -3755,7 +3755,7 @@ namespace CityLBM.Solver
             yield return new ValidationProtocolAuditItem
             {
                 Key = "time_averaging",
-                Status = expectedFrames >= PaperRecommendedAveragingFrames && expectedPaperAverageStepSpan >= PaperRecommendedAverageStepSpan ? "partial" : "risk",
+                Status = expectedFrames >= PaperRecommendedAveragingFrames && expectedPaperAverageStepSpan >= PaperRecommendedAverageStepSpan ? "partial" : "fail",
                 Evidence = $"TimeSteps={settings.TimeSteps}, SaveInterval={settings.SaveInterval}, ExpectedVtkFrameCount={expectedFrames}, PaperRecommendedAveragingFrames={PaperRecommendedAveragingFrames}, PaperRecommendedAverageStepSpan={PaperRecommendedAverageStepSpan}, ExpectedPaperAverageStepSpan={expectedPaperAverageStepSpan}.",
                 Risk = expectedFrames >= PaperRecommendedAveragingFrames && expectedPaperAverageStepSpan >= PaperRecommendedAverageStepSpan
                     ? "The planned saved-frame count and final-window step span satisfy the paper-grade preflight, but stationarity still must be proven from actual VTK/logs."
