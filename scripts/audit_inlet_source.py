@@ -328,7 +328,10 @@ def main() -> int:
     )
     has_native_synthetic_eddy_refresh = (
         has_regex(implementation_source, r"updateSyntheticEddyPlane\s*\(\s*t_step\s*\)")
-        and has_regex(implementation_source, r"updateDigitalFilter\s*\(\s*t_step\s*\)")
+        and (
+            has_regex(implementation_source, r"updateTemporalFilter\s*\(\s*t_step\s*\)")
+            or has_regex(implementation_source, r"updateDigitalFilter\s*\(\s*t_step\s*\)")
+        )
     )
     native_stg_mode_count = first_int_regex(
         implementation_source,

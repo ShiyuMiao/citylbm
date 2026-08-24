@@ -80,7 +80,10 @@ Generated configuration evidence:
 - `dx=0.006 m`, `tau=0.5003333333333333`, `UrefLbm=0.1`.
 - Turbulence method: `synthetic-eddy`, `SyntheticEddyCount=384`.
 - CityLBM STG-lite equivalent: set `Run Simulation / STG Modes=384` for the strict diagnostic baseline when runtime
-  allows; values below 32 are smoke-test-only and fail the generated-source inlet audit.
+  allows; values below 32 are smoke-test-only and fail the generated-source inlet audit. The v0.3.0 generated source
+  blends divergence-reduced spectral modes with compact synthetic eddies and a deterministic temporal filter state, but
+  the route is still velocity-field-only and cannot be promoted to paper-grade inlet evidence without distribution
+  reconstruction or native empty-tunnel U/k preservation evidence.
 - Averaging request: building `TimeSteps=60000`, `SpinupSteps=10000`, `SampleInterval=100`; estimated post-spinup
   probe samples `501`.
 - VTK request: `VtkSaveInterval=1000`, `VtkSaveStartStep=10000`; estimated post-spinup frames `51`.

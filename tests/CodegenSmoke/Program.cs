@@ -109,6 +109,13 @@ namespace CityLBM.CodegenSmoke
                 RequireNotContains(setup, "0.05f * (mean_mag");
                 Require(setup, "syntheticTurbulentInlet");
                 Require(setup, "applySyntheticTurbulentInlet");
+                Require(setup, "synthetic_eddy_count");
+                Require(setup, "updateSyntheticEddyPlane");
+                Require(setup, "updateTemporalFilter");
+                Require(setup, "turbulentWind");
+                Require(setup, "applyInlet");
+                Require(setup, "compactCosine");
+                Require(setup, "periodicDistance");
                 Require(setup, "GRAPHICS mode uses the same STG refresh loop as batch mode");
                 Require(setup, "steps_to_run = remaining < citylbm_stg_update_interval ? remaining : citylbm_stg_update_interval");
                 Require(setup, "if(lbm.flags[n] == TYPE_E &&");
@@ -209,7 +216,7 @@ namespace CityLBM.CodegenSmoke
                 Require(nativeManifest, "Native FluidX3D lbm.hpp");
                 Require(nativeManifest, "auto-detected paths are not sufficient evidence");
                 Require(nativeManifest, "aij_length_scale_verified: smoke-test archived integral length evidence");
-                Require(nativeManifest, "\"SyntheticTurbulentInletMethod\": \"STG-lite deterministic divergence-reduced spectral modes");
+                Require(nativeManifest, "\"SyntheticTurbulentInletMethod\": \"STG-lite plus synthetic_eddy velocity-field-only diagnostic inlet");
                 Require(nativeManifest, "\"SyntheticTurbulentInletDistributionTreatment\": \"velocity_field_only_no_distribution_function_reconstruction\"");
                 Require(nativeManifest, "\"InletDistributionFunctionReconstruction\": false");
                 Require(nativeManifest, "\"SyntheticTurbulentInletPaperGradeStatus\": \"diagnostic_only_until_distribution_reconstruction_reynolds_stress_or_precursor_evidence_and_native_u_k_correlation_gates_pass\"");

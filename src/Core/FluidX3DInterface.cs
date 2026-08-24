@@ -2414,8 +2414,8 @@ namespace CityLBM.Solver
             double[] componentNorms = ComputeSyntheticTurbulenceComponentNorms(modeCount, corr);
 
             sb.AppendLine();
-            sb.AppendLine("    // CityLBM STG-lite inlet: deterministic spectral synthetic fluctuations from isotropic k.");
-            sb.AppendLine("    // Temporal evolution uses Taylor frozen-turbulence advection along the local mean wind.");
+            sb.AppendLine("    // CityLBM STG-lite / synthetic-eddy diagnostic inlet: deterministic spectral modes plus compact synthetic eddies from isotropic k.");
+            sb.AppendLine("    // Temporal evolution uses Taylor frozen-turbulence advection along the local mean wind and a small deterministic temporal filter state.");
             sb.AppendLine("    // Per-mode fluctuation vectors are projected normal to their wave vector to reduce non-physical divergence.");
             sb.AppendLine("    // Component-specific deterministic phases reduce artificial u/v/w cross-correlation under the isotropic k assumption.");
             sb.AppendLine("    // A deterministic AR(1)-style phase blend reduces refresh-to-refresh jumps without introducing random state.");
@@ -2430,6 +2430,68 @@ namespace CityLBM.Solver
             sb.AppendLine("    const float citylbm_stg_temporal_ar1_rho = 0.850000f;");
             sb.AppendLine("    const float citylbm_stg_temporal_ar1_innovation_scale = sqrtf(1.0f - citylbm_stg_temporal_ar1_rho * citylbm_stg_temporal_ar1_rho);");
             sb.AppendLine($"    const int citylbm_stg_mode_count = {modeCount};");
+            sb.AppendLine($"    const int synthetic_eddy_count = {modeCount};");
+            sb.AppendLine("    const float synthetic_eddy_lx_cells = citylbm_stg_corr_cells;");
+            sb.AppendLine("    const float synthetic_eddy_ly_cells = citylbm_stg_corr_cells;");
+            sb.AppendLine("    const float synthetic_eddy_lz_cells = citylbm_stg_corr_cells;");
+            sb.AppendLine("    const float synthetic_eddy_recycle_lx_cells = citylbm_stg_corr_cells * 6.0f;");
+            sb.AppendLine("    struct CityLBMSyntheticEddy { float eddy_center_x; float eddy_center_y; float eddy_center_z; float eddy_radius_x; float eddy_radius_y; float eddy_radius_z; float eddy_strength_x; float eddy_strength_y; float eddy_strength_z; float eddy_lifetime; };");
+            sb.AppendLine("    std::vector<CityLBMSyntheticEddy> sem_eddy(synthetic_eddy_count);");
+            sb.AppendLine("    float temporal_filter_state_x = 0.0f, temporal_filter_state_y = 0.0f, temporal_filter_state_z = 0.0f;");
+            sb.AppendLine("    uint citylbm_sem_last_update_t_step = 4294967295u;");
+            sb.AppendLine("    auto hash01 = [&](uint seed) -> float {");
+            sb.AppendLine("        seed ^= seed >> 16; seed *= 2246822519u; seed ^= seed >> 13; seed *= 3266489917u; seed ^= seed >> 16;");
+            sb.AppendLine("        return (float)(seed & 0x00FFFFFFu) / 16777215.0f;");
+            sb.AppendLine("    };");
+            sb.AppendLine("    auto signedHash = [&](uint seed) -> float { return 2.0f * hash01(seed) - 1.0f; };");
+            sb.AppendLine("    auto periodicDistance = [&](float a, float b, float period) -> float {");
+            sb.AppendLine("        float d = a - b;");
+            sb.AppendLine("        if(period > 1.0e-6f) d -= floorf(d / period + 0.5f) * period;");
+            sb.AppendLine("        return d;");
+            sb.AppendLine("    };");
+            sb.AppendLine("    auto compactCosine = [&](float r) -> float {");
+            sb.AppendLine("        float ar = fabsf(r);");
+            sb.AppendLine("        if(ar >= 1.0f) return 0.0f;");
+            sb.AppendLine("        return 0.5f * (1.0f + cosf(3.14159265358979323846f * ar));");
+            sb.AppendLine("    };");
+            sb.AppendLine("    auto updateTemporalFilter = [&](uint t_step) {");
+            sb.AppendLine("        float phase = 0.03125f * (float)t_step;");
+            sb.AppendLine("        temporal_filter_state_x = citylbm_stg_temporal_ar1_rho * temporal_filter_state_x + citylbm_stg_temporal_ar1_innovation_scale * sinf(phase + 0.17f);");
+            sb.AppendLine("        temporal_filter_state_y = citylbm_stg_temporal_ar1_rho * temporal_filter_state_y + citylbm_stg_temporal_ar1_innovation_scale * sinf(phase + 1.91f);");
+            sb.AppendLine("        temporal_filter_state_z = citylbm_stg_temporal_ar1_rho * temporal_filter_state_z + citylbm_stg_temporal_ar1_innovation_scale * sinf(phase + 3.73f);");
+            sb.AppendLine("    };");
+            sb.AppendLine("    auto updateSyntheticEddyPlane = [&](uint t_step) {");
+            sb.AppendLine("        updateTemporalFilter(t_step);");
+            sb.AppendLine("        float advect = (float)t_step * 0.05f;");
+            sb.AppendLine("        for(int m=0; m<synthetic_eddy_count; m++) {");
+            sb.AppendLine("            uint seed = (uint)(m + 1) * 747796405u;");
+            sb.AppendLine("            sem_eddy[m].eddy_center_x = hash01(seed + 11u) * (float)Nx - dir_x * advect;");
+            sb.AppendLine("            sem_eddy[m].eddy_center_y = hash01(seed + 23u) * (float)Ny - dir_y * advect;");
+            sb.AppendLine("            sem_eddy[m].eddy_center_z = hash01(seed + 37u) * (float)Nz - dir_z * advect;");
+            sb.AppendLine("            sem_eddy[m].eddy_radius_x = synthetic_eddy_lx_cells;");
+            sb.AppendLine("            sem_eddy[m].eddy_radius_y = synthetic_eddy_ly_cells;");
+            sb.AppendLine("            sem_eddy[m].eddy_radius_z = synthetic_eddy_lz_cells;");
+            sb.AppendLine("            sem_eddy[m].eddy_strength_x = signedHash(seed + 41u);");
+            sb.AppendLine("            sem_eddy[m].eddy_strength_y = signedHash(seed + 53u);");
+            sb.AppendLine("            sem_eddy[m].eddy_strength_z = signedHash(seed + 67u);");
+            sb.AppendLine("            sem_eddy[m].eddy_lifetime = synthetic_eddy_recycle_lx_cells;");
+            sb.AppendLine("        }");
+            sb.AppendLine("    };");
+            sb.AppendLine("    auto turbulentWind = [&](uint x, uint y, uint z_cell, uint t_step) -> float3 {");
+            sb.AppendLine("        if(citylbm_sem_last_update_t_step != t_step) { updateSyntheticEddyPlane(t_step); citylbm_sem_last_update_t_step = t_step; }");
+            sb.AppendLine("        float fluct_x = 0.0f, fluct_y = 0.0f, fluct_z = 0.0f;");
+            sb.AppendLine("        for(int m=0; m<synthetic_eddy_count; m++) {");
+            sb.AppendLine("            float dx_eddy = periodicDistance((float)x, sem_eddy[m].eddy_center_x, (float)Nx) / sem_eddy[m].eddy_radius_x;");
+            sb.AppendLine("            float dy_eddy = periodicDistance((float)y, sem_eddy[m].eddy_center_y, (float)Ny) / sem_eddy[m].eddy_radius_y;");
+            sb.AppendLine("            float dz_eddy = periodicDistance((float)z_cell, sem_eddy[m].eddy_center_z, (float)Nz) / sem_eddy[m].eddy_radius_z;");
+            sb.AppendLine("            float shape = compactCosine(dx_eddy) * compactCosine(dy_eddy) * compactCosine(dz_eddy);");
+            sb.AppendLine("            fluct_x += sem_eddy[m].eddy_strength_x * shape;");
+            sb.AppendLine("            fluct_y += sem_eddy[m].eddy_strength_y * shape;");
+            sb.AppendLine("            fluct_z += sem_eddy[m].eddy_strength_z * shape;");
+            sb.AppendLine("        }");
+            sb.AppendLine("        float norm = sqrtf(3.0f / (float)(synthetic_eddy_count > 0 ? synthetic_eddy_count : 1));");
+            sb.AppendLine("        return float3((fluct_x + 0.10f * temporal_filter_state_x) * norm, (fluct_y + 0.10f * temporal_filter_state_y) * norm, (fluct_z + 0.10f * temporal_filter_state_z) * norm);");
+            sb.AppendLine("    };");
             sb.AppendLine("    // Target component RMS follows isotropic k: sigma=sqrt(2k/3).");
             sb.AppendLine("    // Per-component constants are precomputed from the deterministic projected modes so finite mode counts preserve the target RMS more closely than a single sqrt(6/M) approximation.");
             sb.AppendLine($"    const float citylbm_stg_norm_x = {componentNorms[0].ToString("F8", CultureInfo.InvariantCulture)}f;");
@@ -2471,6 +2533,7 @@ namespace CityLBM.Solver
             sb.AppendLine("        float prev_advected_y = (float)y - dir_y * mean_mag * (float)citylbm_stg_prev_t_step;");
             sb.AppendLine("        float prev_advected_z = (float)z_cell - dir_z * mean_mag * (float)citylbm_stg_prev_t_step;");
             sb.AppendLine("        float fluct_x = 0.0f, fluct_y = 0.0f, fluct_z = 0.0f;");
+            sb.AppendLine("        float3 sem_fluct = turbulentWind(x, y, z_cell, t_step);");
             sb.AppendLine("        for(int m=0; m<citylbm_stg_mode_count; m++) {");
             sb.AppendLine("            float kx = citylbm_mode_wave(m, 0);");
             sb.AppendLine("            float ky = citylbm_mode_wave(m, 1);");
@@ -2495,6 +2558,9 @@ namespace CityLBM.Solver
             sb.AppendLine("        fluct_x *= citylbm_stg_norm_x;");
             sb.AppendLine("        fluct_y *= citylbm_stg_norm_y;");
             sb.AppendLine("        fluct_z *= citylbm_stg_norm_z;");
+            sb.AppendLine("        fluct_x = 0.75f * fluct_x + 0.25f * sem_fluct.x;");
+            sb.AppendLine("        fluct_y = 0.75f * fluct_y + 0.25f * sem_fluct.y;");
+            sb.AppendLine("        fluct_z = 0.75f * fluct_z + 0.25f * sem_fluct.z;");
             sb.AppendLine("        float3 u = float3(mean.x + sigma * fluct_x, mean.y + sigma * fluct_y, mean.z + sigma * fluct_z);");
             sb.AppendLine("        // Default is no streamwise clipping so k-derived fluctuations are not silently truncated.");
             sb.AppendLine("        if(citylbm_stg_min_streamwise_fraction > 0.0f) {");
@@ -2578,10 +2644,11 @@ namespace CityLBM.Solver
         {
             string inletCondition = GetInletFaceCondition(windDir);
 
-            sb.AppendLine("    auto applySyntheticTurbulentInlet = [&](uint t_step) {");
+            sb.AppendLine("    auto applyInlet = [&](uint t_step) {");
             sb.AppendLine("        // Velocity-field-only refresh for diagnostic turbulent-inlet runs.");
-            sb.AppendLine("        // Three-pass layer correction keeps the finite-mode STG-lite perturbation mean- and RMS-preserving at every inlet z_cell.");
+            sb.AppendLine("        // Three-pass layer correction keeps the finite-mode STG-lite / synthetic-eddy perturbation mean- and RMS-preserving at every inlet z_cell.");
             sb.AppendLine("        // Refresh only TYPE_E inlet nodes so solid ground/building flags are not overwritten.");
+            sb.AppendLine("        if(citylbm_sem_last_update_t_step != t_step) { updateSyntheticEddyPlane(t_step); citylbm_sem_last_update_t_step = t_step; }");
             sb.AppendLine("        lbm.flags.read_from_device();");
             sb.AppendLine("        lbm.u.read_from_device();");
             sb.AppendLine("        std::vector<float> citylbm_stg_layer_mean_correction_x(Nz, 0.0f);");
@@ -2668,6 +2735,7 @@ namespace CityLBM.Solver
             sb.AppendLine("        lbm.flags.write_to_device();");
             sb.AppendLine("        lbm.u.write_to_device();");
             sb.AppendLine("    };");
+            sb.AppendLine("    auto applySyntheticTurbulentInlet = [&](uint t_step) { applyInlet(t_step); };");
             sb.AppendLine();
         }
 
@@ -2833,7 +2901,7 @@ namespace CityLBM.Solver
                         ? "not_blocked"
                         : GetSyntheticTurbulentInletBlockedReason(scene, settings),
                     SyntheticTurbulentInletMethod = syntheticActive
-                        ? "STG-lite deterministic divergence-reduced spectral modes with isotropic k, Taylor frozen-turbulence advection and deterministic AR(1) refresh-to-refresh phase blending; not digital-filter, precursor, or Reynolds-stress inflow"
+                        ? "STG-lite plus synthetic_eddy velocity-field-only diagnostic inlet: deterministic divergence-reduced spectral modes, compact synthetic eddies from isotropic k, Taylor frozen-turbulence advection and deterministic temporal filter state; not a distribution-consistent advanced turbulent inlet"
                         : "none",
                     SyntheticTurbulentInletTemporalTreatment = syntheticActive
                         ? "Taylor frozen-turbulence phase advection by local mean LBM velocity along the wind vector plus deterministic_ar1_phase_blend_rho_0.85_between_refreshes"
@@ -3515,7 +3583,7 @@ namespace CityLBM.Solver
                             ? "not_blocked"
                             : GetSyntheticTurbulentInletBlockedReason(scene, settings),
                         SyntheticTurbulentInletMethod = syntheticActive
-                            ? "STG-lite deterministic divergence-reduced spectral modes with isotropic k, Taylor frozen-turbulence advection and deterministic AR(1) refresh-to-refresh phase blending; not digital-filter, precursor, or Reynolds-stress inflow"
+                            ? "STG-lite plus synthetic_eddy velocity-field-only diagnostic inlet: deterministic divergence-reduced spectral modes, compact synthetic eddies from isotropic k, Taylor frozen-turbulence advection and deterministic temporal filter state; not a distribution-consistent advanced turbulent inlet"
                             : "none",
                         SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
                         SyntheticTurbulenceCorrelationLengthM = settings.SyntheticTurbulenceCorrelationCells * grid.Dx,
@@ -3533,7 +3601,7 @@ namespace CityLBM.Solver
                             ? "diagnostic_streamwise_lower_bound_enabled"
                             : "disabled_no_streamwise_clipping_of_k_perturbations",
                         SyntheticTurbulentInletTemporalTreatment = syntheticActive
-                            ? "Taylor frozen-turbulence phase advection by local mean LBM velocity along the wind vector plus deterministic_ar1_phase_blend_rho_0.85_between_refreshes"
+                            ? "Taylor frozen-turbulence phase advection by local mean LBM velocity along the wind vector plus deterministic_ar1_phase_blend_rho_0.85_between_refreshes and cached synthetic_eddy_plane updates"
                             : "none",
                         SyntheticTurbulentInletDistributionTreatment = syntheticActive
                             ? "velocity_field_only_no_distribution_function_reconstruction"

@@ -46,7 +46,8 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   In v0.3.0, generated cases compute `nu_lbm = nu_SI * velocity_scale_mps_to_lbm / dx` and do not clamp `tau` upward to
   0.55. If `tau` is too close to 0.5, treat that as a stability/protocol issue to solve with grid, velocity-scale,
   LES/subgrid and solver-log evidence, not as a value to hide in case generation.
-- For AF files with `k(m2/s2)`, enable `Run Simulation / Synthetic Inlet` only when testing the experimental STG-lite inlet.
+- For AF files with `k(m2/s2)`, enable `Run Simulation / Synthetic Inlet` only when testing the experimental STG-lite /
+  synthetic-eddy diagnostic inlet.
   Record `STG Scale`/synthetic scale, `STG Corr Cells`/correlation cells, `STG Update`/pattern-update interval, `STG Max Frac`/amplitude cap,
   `STG Modes`/spectral-mode count, `STG Length Source`/correlation-length evidence source, and the generated `case_metadata.json` fields
   `SyntheticTurbulentInletRequested`, `SyntheticTurbulentInletInjected`,
@@ -54,7 +55,9 @@ This document defines the strict rerun protocol for CityLBM v0.3.0. It is not a 
   Use at least `STG Modes=128` for strict diagnostic baselines; `384` is recommended for Case A/E sensitivity runs when
   runtime allows. Values below 32 are smoke-test-only and fail the generated-source inlet audit.
   Leave `STG Length Source` empty unless the selected correlation length is backed by archived AIJ/official,
-  precursor/recycling, DFM/SEM or validated synthetic-eddy length-scale evidence.
+  precursor/recycling, DFM/SEM or validated synthetic-eddy length-scale evidence. The current generated source includes
+  compact synthetic eddies and a deterministic temporal filter state, but this remains velocity-field-only evidence
+  until a distribution-consistent inlet or native U/k preservation run proves otherwise.
   The final gate reads inlet-source and inlet-correlation pass evidence from `inlet_source_audit.json` and
   `inlet_correlation_audit.json`; copying passing `inlet_source_*` or `inlet_correlation_*` fields into
   `validation_metrics.csv` is not accepted as turbulent-inlet evidence.
@@ -98,7 +101,9 @@ new output directory.
   difference such as `P-1` versus `p1` must not change which official point is compared, while duplicate normalized
   official IDs are a hard protocol error.
 - If STG-lite is enabled, generated `setup.cpp` also contains `syntheticTurbulentInlet`, `applySyntheticTurbulentInlet`,
-  `citylbm_stg_*` constants, `citylbm_stg_mode_count`, and the divergence-reduced transverse spectral-mode projection.
+  `applyInlet`, `citylbm_stg_*` constants, `citylbm_stg_mode_count`, `synthetic_eddy_count`,
+  `updateSyntheticEddyPlane`, `updateTemporalFilter`, `turbulentWind`, `compactCosine`, `periodicDistance`, and the
+  divergence-reduced transverse spectral-mode projection.
 - The generated `validation_protocol_audit` must explicitly record `native_fluidx3d_baseline`, `boundary_conditions`,
   `lbm_stability_scaling`, `wind_direction_sign`, `probe_projection`, `normalization_basis` and `systematic_bias_gate`.
   Treat these items as paper-blocking until their run evidence is archived.
