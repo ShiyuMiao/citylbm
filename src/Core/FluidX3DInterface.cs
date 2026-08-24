@@ -3396,6 +3396,22 @@ namespace CityLBM.Solver
                 double manifestBuildingHeightM = boundaryAudit.BuildingBoundsM == null ? 0.0 : boundaryAudit.BuildingBoundsM.Height;
                 var sourceValidation = ValidateFluidX3DSourcePath(out string sourceValidationMessage);
                 string baselineId = BuildNativeBaselineId(scene, requiredSourceFiles);
+                bool syntheticActive = IsSyntheticTurbulentInletActive(scene, settings);
+                bool inletDistributionFunctionReconstruction = false;
+                string[] missingPaperGradeInletEvidence = syntheticActive
+                    ? new[]
+                    {
+                        "measured_or_precursor_reynolds_stress_tensor",
+                        "inlet_distribution_function_reconstruction",
+                        "empty_tunnel_U_k_correlation_preservation_gate"
+                    }
+                    : new[]
+                    {
+                        "active_correlated_turbulent_inlet",
+                        "measured_or_precursor_reynolds_stress_tensor",
+                        "inlet_distribution_function_reconstruction",
+                        "empty_tunnel_U_k_correlation_preservation_gate"
+                    };
                 string[] missingPaperGradeBoundaryEvidence = new[]
                 {
                     "non_reflecting_or_validated_outlet_state",
@@ -3468,15 +3484,18 @@ namespace CityLBM.Solver
                         TurbulentPrandtlNumber = settings.EnableSmagorinskyLES ? settings.TurbulentPrandtlNumber : 0.0,
                         SolverStabilityWarnings = "not_available_until_solver_log_is_archived",
                         SyntheticTurbulentInletRequested = settings.EnableSyntheticTurbulentInlet,
-                        SyntheticTurbulentInletInjected = IsSyntheticTurbulentInletActive(scene, settings),
-                        SyntheticTurbulentInletBlockedReason = IsSyntheticTurbulentInletActive(scene, settings)
+                        SyntheticTurbulentInletInjected = syntheticActive,
+                        SyntheticTurbulentInletBlockedReason = syntheticActive
                             ? "not_blocked"
                             : GetSyntheticTurbulentInletBlockedReason(scene, settings),
+                        SyntheticTurbulentInletMethod = syntheticActive
+                            ? "STG-lite deterministic divergence-reduced spectral modes with isotropic k, Taylor frozen-turbulence advection and deterministic AR(1) refresh-to-refresh phase blending; not digital-filter, precursor, or Reynolds-stress inflow"
+                            : "none",
                         SyntheticTurbulenceCorrelationCells = settings.SyntheticTurbulenceCorrelationCells,
                         SyntheticTurbulenceCorrelationLengthM = settings.SyntheticTurbulenceCorrelationCells * grid.Dx,
                         SyntheticTurbulenceModeCount = settings.SyntheticTurbulenceModeCount,
                         SyntheticTurbulenceMinimumStrictBaselineModeCount = StrictBaselineSyntheticTurbulenceModes,
-                        SyntheticTurbulenceStrictModeCountGate = IsSyntheticTurbulentInletActive(scene, settings)
+                        SyntheticTurbulenceStrictModeCountGate = syntheticActive
                             ? (settings.SyntheticTurbulenceModeCount >= StrictBaselineSyntheticTurbulenceModes
                                 ? "pass"
                                 : "diagnostic_only_low_spectral_mode_count")
@@ -3487,12 +3506,21 @@ namespace CityLBM.Solver
                         SyntheticTurbulenceStreamwiseClippingTreatment = settings.SyntheticTurbulenceMinStreamwiseFraction > 0.0
                             ? "diagnostic_streamwise_lower_bound_enabled"
                             : "disabled_no_streamwise_clipping_of_k_perturbations",
-                        SyntheticTurbulentInletTemporalTreatment = IsSyntheticTurbulentInletActive(scene, settings)
+                        SyntheticTurbulentInletTemporalTreatment = syntheticActive
                             ? "Taylor frozen-turbulence phase advection by local mean LBM velocity along the wind vector plus deterministic_ar1_phase_blend_rho_0.85_between_refreshes"
                             : "none",
-                        InletDistributionTreatment = IsSyntheticTurbulentInletActive(scene, settings)
+                        SyntheticTurbulentInletDistributionTreatment = syntheticActive
                             ? "velocity_field_only_no_distribution_function_reconstruction"
                             : "not_active",
+                        InletDistributionTreatment = syntheticActive
+                            ? "velocity_field_only_no_distribution_function_reconstruction"
+                            : "not_active",
+                        InletDistributionFunctionReconstruction = inletDistributionFunctionReconstruction,
+                        SyntheticTurbulentInletPaperGradeStatus = syntheticActive
+                            ? "diagnostic_only_until_distribution_reconstruction_reynolds_stress_or_precursor_evidence_and_native_u_k_correlation_gates_pass"
+                            : "not_applicable",
+                        PaperGradeTurbulentInletPrerequisiteGate = "fail",
+                        PaperGradeTurbulentInletMissingEvidence = missingPaperGradeInletEvidence,
                         WallRoughnessTreatment = "ground/buildings TYPE_S no-slip; no FluidX3D rough-wall or wall-function boundary in v0.3.0",
                         BoundaryConditionSummary = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile),
                         BoundaryConditionMethodClass = "citylbm_type_e_box_simplified",

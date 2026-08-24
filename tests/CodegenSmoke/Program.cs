@@ -209,6 +209,14 @@ namespace CityLBM.CodegenSmoke
                 Require(nativeManifest, "Native FluidX3D lbm.hpp");
                 Require(nativeManifest, "auto-detected paths are not sufficient evidence");
                 Require(nativeManifest, "aij_length_scale_verified: smoke-test archived integral length evidence");
+                Require(nativeManifest, "\"SyntheticTurbulentInletMethod\": \"STG-lite deterministic divergence-reduced spectral modes");
+                Require(nativeManifest, "\"SyntheticTurbulentInletDistributionTreatment\": \"velocity_field_only_no_distribution_function_reconstruction\"");
+                Require(nativeManifest, "\"InletDistributionFunctionReconstruction\": false");
+                Require(nativeManifest, "\"SyntheticTurbulentInletPaperGradeStatus\": \"diagnostic_only_until_distribution_reconstruction_reynolds_stress_or_precursor_evidence_and_native_u_k_correlation_gates_pass\"");
+                Require(nativeManifest, "\"PaperGradeTurbulentInletPrerequisiteGate\": \"fail\"");
+                Require(nativeManifest, "measured_or_precursor_reynolds_stress_tensor");
+                Require(nativeManifest, "inlet_distribution_function_reconstruction");
+                Require(nativeManifest, "empty_tunnel_U_k_correlation_preservation_gate");
                 Require(metadata, "ClearanceChecks");
                 Require(metadata, "DomainContainsBuildings");
                 Require(metadata, "BlockageDiagnostics");

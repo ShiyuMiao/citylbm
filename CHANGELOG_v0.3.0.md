@@ -758,6 +758,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   prerequisite fields as blockers instead of silently accepting absent evidence. Native Case A/E metadata must explicitly
   record turbulent-inlet readiness, boundary readiness, inlet route, and boundary implementation/evidence booleans before
   install/build/run or final validation gates can move beyond diagnostic status.
+- `native_fluidx3d_baseline_manifest.json` now mirrors the generated case metadata's turbulent-inlet paper-grade
+  evidence: STG-lite method class, velocity-field-only distribution treatment, missing distribution-function
+  reconstruction, `PaperGradeTurbulentInletPrerequisiteGate=fail`, and the missing Reynolds-stress/precursor/U-k
+  preservation evidence are archived with the native baseline manifest instead of only in `case_metadata.json`.
 - `scripts/run_native_validation_chain.py` no longer promotes a native manifest to `native_baseline_gate=pass` unless
   the manifest also proves `PreExecutionGate=pass`, `Run.Requested=true`, `Run.Gate=pass` and
   `ActualVtkOutputGate=pass`. Dry-run/preflight manifests therefore cannot stand in for a real native FluidX3D baseline.

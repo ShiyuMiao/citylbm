@@ -71,6 +71,9 @@ may be used only to debug the native workflow and must be recorded as non-paper-
 Case metadata must explicitly record the paper-grade turbulent-inlet prerequisite, boundary prerequisite, inlet route,
 and boundary implementation/evidence booleans. Missing fields are now treated as blockers because absent metadata cannot
 prove AIJ-equivalent inlet or boundary conditions.
+The generated `native_fluidx3d_baseline_manifest.json` must carry the same turbulent-inlet evidence, including
+`PaperGradeTurbulentInletPrerequisiteGate`, the distribution treatment, the distribution-function reconstruction flag
+and the missing Reynolds-stress/precursor/U-k preservation evidence.
 The post-run validation chain separately requires `Run.Requested=true`, `Run.Gate=pass` and `ActualVtkOutputGate=pass`
 before `NativeBaselineGateFromManifest` can pass. A preflight-only manifest is therefore configuration evidence, not a
 native FluidX3D accuracy baseline.
