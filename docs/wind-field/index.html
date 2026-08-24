@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CityLBM | AIJ Case A Wind Field</title>
+  <style>
+    :root { --ink: #07111c; --panel: #0d1d2b; --line: #2c5470; --blue: #3aa6d6; --ice: #d9f4ff; --muted: #8caabb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--ice); background: radial-gradient(circle at 50% 10%, #163c57 0, var(--ink) 46rem); font: 15px/1.5 Georgia, "Noto Serif SC", serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 30px 0 42px; }
+    header { display: flex; justify-content: space-between; gap: 24px; align-items: end; border-bottom: 1px solid var(--line); padding-bottom: 20px; }
+    h1 { margin: 0; font: italic 700 clamp(32px, 6vw, 62px)/.95 "Trebuchet MS", sans-serif; letter-spacing: -.05em; }
+    h1 span { color: var(--blue); } .eyebrow { color: var(--blue); font: 700 11px/1 "Trebuchet MS", sans-serif; letter-spacing: .18em; text-transform: uppercase; }
+    .subtitle { margin: 10px 0 0; color: var(--muted); max-width: 660px; }
+    .status { max-width: 260px; color: var(--muted); font-size: 12px; text-align: right; }
+    .viewer { position: relative; height: min(70vh, 700px); min-height: 480px; margin-top: 24px; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(145deg, #0d2130, #07111c 66%); }
+    canvas { display: block; width: 100%; height: 100%; }
+    .legend, .readout { position: absolute; z-index: 1; background: rgba(7,17,28,.78); border: 1px solid rgba(140,170,187,.35); backdrop-filter: blur(8px); }
+    .legend { left: 18px; bottom: 18px; padding: 12px 14px; font: 12px/1.45 "Trebuchet MS", sans-serif; }
+    .scale { width: 130px; height: 8px; margin: 8px 0 4px; background: linear-gradient(90deg, #153d69, #39a7d7 52%, #e4f4ce); }
+    .readout { right: 18px; top: 18px; padding: 10px 12px; color: var(--muted); font: 12px/1.55 "Trebuchet MS", sans-serif; }
+    .readout b { color: var(--ice); font-weight: 600; }
+    footer { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 22px; color: var(--muted); font-size: 13px; }
+    footer strong { color: var(--ice); } a { color: var(--blue); } @media (max-width: 680px) { header, footer { display: block; } .status { margin-top: 18px; text-align: left; } .viewer { min-height: 420px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div><div class="eyebrow">CityLBM / archived field preview</div><h1>AIJ <span>Case A</span></h1><p class="subtitle">Three-dimensional, downsampled velocity vectors from the archived `u-000002000.vtk` snapshot.</p></div>
+      <p class="status">Historical diagnostic snapshot.<br>Not a time-averaged or publication-grade validation result.</p>
+    </header>
+    <section class="viewer" aria-label="Interactive Case A wind-field preview">
+      <div class="readout" id="readout">Loading field data...</div>
+      <div class="legend">VELOCITY MAGNITUDE<div class="scale"></div><span id="speed-range">Archive scale</span></div>
+    </section>
+    <footer><p><strong>Interaction</strong><br>Drag to orbit, scroll to zoom, right-drag to pan. Points encode sampled velocity magnitude; pale line segments show local flow direction.</p><p><strong>Boundary</strong><br>The archive lacks confirmed SI velocity scaling. Use this view for workflow communication and field inspection, not quantitative design or validation claims.</p></footer>
+  </main>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const viewer = document.querySelector('.viewer');
+    const readout = document.querySelector('#readout');
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); viewer.appendChild(renderer.domElement);
+    const scene = new THREE.Scene(); scene.fog = new THREE.Fog(0x07111c, 780, 1550);
+    const camera = new THREE.PerspectiveCamera(42, 1, 1, 4000); camera.position.set(670, 570, 700);
+    const controls = new OrbitControls(camera, renderer.domElement); controls.target.set(200, 0, 110); controls.enableDamping = true;
+    scene.add(new THREE.HemisphereLight(0xb7e9ff, 0x07111c, 1.8));
+    const grid = new THREE.GridHelper(800, 16, 0x2c5470, 0x193346); grid.position.set(200, 0, 0); scene.add(grid);
+
+    const colour = new THREE.Color();
+    const tint = (value, maximum) => colour.setHSL(.58 - Math.min(value / maximum, 1) * .34, .72, .24 + Math.min(value / maximum, 1) * .5);
+    const resize = () => { const { width, height } = viewer.getBoundingClientRect(); renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); };
+    new ResizeObserver(resize).observe(viewer); resize();
+
+    const data = await fetch('./data/aij-case-a-u-000002000-sampled.json').then(response => { if (!response.ok) throw new Error('Field data unavailable'); return response.json(); });
+    const maximum = data.max_speed_in_archive_scale;
+    const positions = [], colours = [], segments = [], segmentColours = [];
+    for (let index = 0; index < data.points.length; index += 1) {
+      const [x, y, z, u, v, w] = data.points[index]; const speed = Math.hypot(u, v, w); tint(speed, maximum);
+      positions.push(x, y, z); colours.push(colour.r, colour.g, colour.b);
+      if (index % 3 === 0) { const factor = 72 / Math.max(speed, 0.001); segments.push(x, y, z, x + u * factor, y + v * factor, z + w * factor); segmentColours.push(colour.r, colour.g, colour.b, colour.r, colour.g, colour.b); }
+    }
+    const field = new THREE.BufferGeometry(); field.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)); field.setAttribute('color', new THREE.Float32BufferAttribute(colours, 3));
+    scene.add(new THREE.Points(field, new THREE.PointsMaterial({ size: 5.5, sizeAttenuation: true, vertexColors: true, transparent: true, opacity: .82 })));
+    const flow = new THREE.BufferGeometry(); flow.setAttribute('position', new THREE.Float32BufferAttribute(segments, 3)); flow.setAttribute('color', new THREE.Float32BufferAttribute(segmentColours, 3));
+    scene.add(new THREE.LineSegments(flow, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: .38 })));
+    document.querySelector('#speed-range').textContent = `0 - ${maximum.toFixed(3)} (archive scale)`;
+    readout.innerHTML = `<b>${data.sample_count.toLocaleString()}</b> sampled vectors<br><b>${data.vtk_dimensions.join(' x ')}</b> source grid<br>stride <b>${data.sample_stride}</b> / ${data.source}`;
+    const render = () => { controls.update(); renderer.render(scene, camera); requestAnimationFrame(render); }; render();
+  </script>
+</body>
+</html>

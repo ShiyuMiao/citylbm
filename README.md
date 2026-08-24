@@ -1,9 +1,9 @@
-<table>
+<table align="center">
   <tr>
     <td width="112" valign="middle">
       <img src="assets/branding/citylbm-readme-icon.png" alt="CityLBM application icon" width="96">
     </td>
-    <td valign="middle">
+    <td valign="middle" align="center">
       <h1>CityLBM</h1>
       <strong>面向设计流程的城市风环境模拟工作流</strong><br>
       <em>Design-oriented urban wind simulation workflow</em>
@@ -11,7 +11,7 @@
   </tr>
 </table>
 
-<p>
+<p align="center">
   <a href="#中文介绍">中文</a> | <a href="#english-overview">English</a> | <a href="LICENSE">MIT License</a>
 </p>
 
@@ -58,6 +58,10 @@ AIJ Case A/E 的现有资产证明端到端工作流和诊断能力。短步数 
 
 AIJ Case A 的归档包包含 `u-000001000.vtk`、`u-000002000.vtk`、坐标映射、90 点采样脚本和既有对比表。文件结构、坐标换算、ParaView/Rhino 查看方式，以及速度单位与验证边界见 [`docs/RESULTS_AND_VTK_GUIDE.md`](docs/RESULTS_AND_VTK_GUIDE.md)。原始 VTK 体积较大，保留在本地验证档案而不直接纳入仓库。
 
+### 交互风场预览
+
+[`docs/wind-field`](docs/wind-field) 提供无需后端的 Three.js 浏览器预览：它加载由 Case A VTK 下采样生成的速度点与流向线段，可旋转查看三维风场。页面源码和生成脚本随仓库提交；启用静态站点托管后即可直接发布，原始 VTK 不会上传。
+
 ### 使用方式
 
 1. 按 [`INSTALL.md`](INSTALL.md) 安装 `CityLBM.gha` 及依赖。
@@ -94,6 +98,10 @@ Existing AIJ Case A/E assets demonstrate the end-to-end workflow and diagnostic 
 ### Results and VTK Guide
 
 The archived AIJ Case A package contains `u-000001000.vtk`, `u-000002000.vtk`, coordinate mapping, a 90-point sampling script, and an existing comparison workbook. See [`docs/RESULTS_AND_VTK_GUIDE.md`](docs/RESULTS_AND_VTK_GUIDE.md) for file structure, coordinate conversion, ParaView/Rhino inspection, velocity-unit limits, and validation boundaries. The raw VTK snapshots remain in the local validation archive because of their size.
+
+### Interactive Wind-Field Preview
+
+[`docs/wind-field`](docs/wind-field) contains a backend-free Three.js preview. It loads downsampled Case A velocity points and flow-direction segments for an orbitable 3D view. The page source and generation script are versioned with the repository; it is ready for static hosting without publishing the raw VTK.
 
 ### Usage
 
