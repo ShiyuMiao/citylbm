@@ -42,6 +42,20 @@ def main() -> int:
         "metadata must not overstate Type-E velocity initialization as paper-grade boundary equivalence",
     )
     require(
+        "BoundaryVelocityInitializationMethod = \"fixed_mean_velocity_equilibrium_for_all_TYPE_E_faces\"" in source,
+        "metadata must identify fixed-mean Type-E boundary velocity initialization explicitly",
+    )
+    require(
+        "BoundaryOutletTreatment = \"TYPE_E_fixed_mean_velocity_equilibrium_not_non_reflecting_or_validated_pressure_outlet\""
+        in source,
+        "metadata must identify the fixed-mean outlet treatment as non-paper-grade",
+    )
+    require(
+        "BoundarySideTopTreatment = \"TYPE_E_fixed_mean_velocity_equilibrium_not_periodic_or_wind_tunnel_equivalent\""
+        in source,
+        "metadata must identify the side/top treatment as non wind-tunnel-equivalent",
+    )
+    require(
         "boundary_velocity_initialization_metadata_paper_grade_status" in metrics,
         "metrics output must preserve the metadata paper-grade status",
     )

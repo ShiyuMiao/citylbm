@@ -116,6 +116,9 @@ void main_setup() {
         require(data.get("has_profile_type_e_velocity_initialization") is True, data)
         require(data.get("has_type_e_velocity_initialization_before_device_upload") is True, data)
         require(data.get("has_u_device_upload_after_type_e_velocity_initialization") is True, data)
+        require(data.get("has_fixed_mean_type_e_boundary_velocity") is True, data)
+        require(data.get("has_fixed_mean_outlet_lateral_top_treatment") is True, data)
+        require(data.get("fixed_mean_outlet_lateral_top_treatment_gate") == "diagnostic_only", data)
         require(data.get("has_paper_grade_outlet_source") is False, data)
         require(data.get("has_paper_grade_side_top_source") is False, data)
         require(data.get("has_paper_grade_rough_wall_source") is False, data)
@@ -128,6 +131,11 @@ void main_setup() {
         require(
             "non_reflecting_or_validated_outlet_state"
             in data.get("missing_paper_grade_source_evidence", []),
+            data,
+        )
+        require(
+            "outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary"
+            in data.get("paper_grade_boundary_source_gate_reasons", []),
             data,
         )
 

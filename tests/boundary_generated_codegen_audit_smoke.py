@@ -80,6 +80,9 @@ def main() -> int:
     require(data.get("has_type_e_velocity_initialization_before_device_upload") is True, data)
     require(data.get("has_flags_device_upload_after_type_e_velocity_initialization") is True, data)
     require(data.get("has_u_device_upload_after_type_e_velocity_initialization") is True, data)
+    require(data.get("has_fixed_mean_type_e_boundary_velocity") is True, data)
+    require(data.get("has_fixed_mean_outlet_lateral_top_treatment") is True, data)
+    require(data.get("fixed_mean_outlet_lateral_top_treatment_gate") == "diagnostic_only", data)
     require(data.get("has_paper_grade_outlet_source") is False, data)
     require(data.get("has_paper_grade_side_top_source") is False, data)
     require(data.get("has_paper_grade_rough_wall_source") is False, data)
@@ -92,6 +95,7 @@ def main() -> int:
         "boundary_source_missing_advanced_code_evidence",
         "boundary_source_simplified_type_e_or_solid_only",
         "ground_and_buildings_no_slip_without_rough_wall_or_precursor",
+        "outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary",
         "missing_non_reflecting_or_validated_outlet_state",
         "missing_side_top_boundary_pair_mapping",
         "missing_rough_wall_or_wall_function_action",

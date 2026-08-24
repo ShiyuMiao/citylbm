@@ -2182,6 +2182,9 @@ namespace CityLBM.Solver
             sb.AppendLine("    // CityLBM v0.3.0 validation fix: initialize all TYPE_E boundary velocities.");
             sb.AppendLine("    // Without this pass, outlet/lateral/top TYPE_E nodes can keep zero velocity after the boundary return path,");
             sb.AppendLine("    // which may add artificial damping and contribute to systematic speed-ratio underprediction.");
+            sb.AppendLine("    // BoundaryVelocityInitializationMethod: fixed_mean_velocity_equilibrium_for_all_TYPE_E_faces.");
+            sb.AppendLine("    // Outlet/lateral/top TYPE_E faces receive the mean profile velocity to avoid zero-speed damping.");
+            sb.AppendLine("    // This is a diagnostic damping mitigation, not a wind-tunnel-equivalent boundary model.");
             if (syntheticInletActive)
             {
                 sb.AppendLine("    // Synthetic turbulent inlet nodes keep the t=0 STG-lite velocity; only non-inlet TYPE_E faces use the mean profile.");
@@ -2936,6 +2939,12 @@ namespace CityLBM.Solver
                             : "all_TYPE_E_boundaries_initialized_from_height_varying_mean_profile_before_device_upload"),
                     BoundaryTypeEVelocityInitializationProfileAware = scene.WindProfile != WindProfileType.Uniform,
                     BoundaryTypeEVelocityInitializationDeviceUploadOrder = "lbm.flags_and_lbm.u_written_to_device_after_initialization_before_stl_voxelization",
+                    BoundaryVelocityInitializationMethod = "fixed_mean_velocity_equilibrium_for_all_TYPE_E_faces",
+                    BoundaryOutletTreatment = "TYPE_E_fixed_mean_velocity_equilibrium_not_non_reflecting_or_validated_pressure_outlet",
+                    BoundarySideTopTreatment = "TYPE_E_fixed_mean_velocity_equilibrium_not_periodic_or_wind_tunnel_equivalent",
+                    BoundaryRoughnessBoundaryTreatment = "TYPE_S_no_slip_only_no_rough_wall_or_wall_function_action",
+                    BoundaryDevelopmentTreatment = "none_no_precursor_or_recycling_development_field",
+                    BoundaryFixedMeanVelocityOutletRisk = "outlet_lateral_top_mean_velocity_equilibrium_may_damp_or_bias_pedestrian_level_velocities_requires_boundary_runtime_audit",
                     BoundaryVelocityInitializationPaperGradeStatus = "diagnostic_damping_mitigation_not_wind_tunnel_equivalent_boundary",
                     PaperGradeBoundaryPrerequisiteGate = "fail",
                     PaperGradeBoundaryMissingEvidence = missingPaperGradeBoundaryEvidence,
@@ -3496,6 +3505,12 @@ namespace CityLBM.Solver
                                 : "all_TYPE_E_boundaries_initialized_from_height_varying_mean_profile_before_device_upload"),
                         BoundaryTypeEVelocityInitializationProfileAware = scene.WindProfile != WindProfileType.Uniform,
                         BoundaryTypeEVelocityInitializationDeviceUploadOrder = "lbm.flags_and_lbm.u_written_to_device_after_initialization_before_stl_voxelization",
+                        BoundaryVelocityInitializationMethod = "fixed_mean_velocity_equilibrium_for_all_TYPE_E_faces",
+                        BoundaryOutletTreatment = "TYPE_E_fixed_mean_velocity_equilibrium_not_non_reflecting_or_validated_pressure_outlet",
+                        BoundarySideTopTreatment = "TYPE_E_fixed_mean_velocity_equilibrium_not_periodic_or_wind_tunnel_equivalent",
+                        BoundaryRoughnessBoundaryTreatment = "TYPE_S_no_slip_only_no_rough_wall_or_wall_function_action",
+                        BoundaryDevelopmentTreatment = "none_no_precursor_or_recycling_development_field",
+                        BoundaryFixedMeanVelocityOutletRisk = "outlet_lateral_top_mean_velocity_equilibrium_may_damp_or_bias_pedestrian_level_velocities_requires_boundary_runtime_audit",
                         BoundaryVelocityInitializationPaperGradeStatus = "diagnostic_damping_mitigation_not_wind_tunnel_equivalent_boundary",
                         PaperGradeBoundaryPrerequisiteGate = "fail",
                         PaperGradeBoundaryMissingEvidence = missingPaperGradeBoundaryEvidence,

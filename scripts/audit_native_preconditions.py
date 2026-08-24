@@ -1610,6 +1610,12 @@ def build_boundary_equivalence_evidence_reasons(
     )
     source_stub_only = as_bool(boundary_source_audit.get("boundary_source_has_empty_advanced_method_stub_only"))
     source_advanced_code_evidence = as_bool(boundary_source_audit.get("boundary_source_advanced_code_evidence"))
+    source_fixed_mean_outlet_lateral_top = as_bool(
+        boundary_source_audit.get("has_fixed_mean_outlet_lateral_top_treatment")
+    )
+    source_fixed_mean_outlet_lateral_top_gate = str(
+        boundary_source_audit.get("fixed_mean_outlet_lateral_top_treatment_gate") or ""
+    ).strip().lower()
     source_missing_paper_evidence = split_scalar_list(
         boundary_source_audit.get("missing_paper_grade_source_evidence")
     )
@@ -1638,6 +1644,8 @@ def build_boundary_equivalence_evidence_reasons(
         )
     if source_advanced_code_evidence is not True:
         evidence_reasons.append(f"boundary_source_advanced_code_evidence_not_true:{source_advanced_code_evidence}")
+    if source_fixed_mean_outlet_lateral_top is True or source_fixed_mean_outlet_lateral_top_gate == "diagnostic_only":
+        evidence_reasons.append("boundary_source_fixed_mean_outlet_lateral_top_treatment_diagnostic_only")
     for field in source_missing_paper_evidence:
         evidence_reasons.append(f"boundary_source_missing_paper_grade_evidence:{field}")
     if source_hash_matches is not True:
@@ -2805,6 +2813,12 @@ def main() -> int:
     boundary_source_advanced_code_evidence = as_bool(
         boundary_source_audit.get("boundary_source_advanced_code_evidence")
     )
+    boundary_source_has_fixed_mean_outlet_lateral_top = as_bool(
+        boundary_source_audit.get("has_fixed_mean_outlet_lateral_top_treatment")
+    )
+    boundary_source_fixed_mean_outlet_lateral_top_gate = str(
+        boundary_source_audit.get("fixed_mean_outlet_lateral_top_treatment_gate") or ""
+    ).strip().lower()
     boundary_source_has_paper_grade_outlet = as_bool(boundary_source_audit.get("has_paper_grade_outlet_source"))
     boundary_source_has_paper_grade_side_top = as_bool(boundary_source_audit.get("has_paper_grade_side_top_source"))
     boundary_source_has_paper_grade_rough_wall = as_bool(boundary_source_audit.get("has_paper_grade_rough_wall_source"))
@@ -2859,6 +2873,11 @@ def main() -> int:
         reasons.append("boundary_source_has_empty_advanced_method_stub_only")
     if boundary_source_advanced_code_evidence is not True:
         reasons.append("boundary_source_advanced_code_evidence_not_true")
+    if (
+        boundary_source_has_fixed_mean_outlet_lateral_top is True
+        or boundary_source_fixed_mean_outlet_lateral_top_gate == "diagnostic_only"
+    ):
+        reasons.append("boundary_source_fixed_mean_outlet_lateral_top_treatment_diagnostic_only")
     for field in boundary_source_missing_paper_evidence:
         reasons.append(f"boundary_source_missing_paper_grade_evidence_{field}")
     boundary_source_hash_check = append_setup_hash_reason(reasons, "boundary_source", boundary_source_audit, setup_sha)
@@ -3841,6 +3860,8 @@ def main() -> int:
         "boundary_source_has_complete_wind_tunnel_evidence": boundary_source_has_complete_wind_tunnel_evidence,
         "boundary_source_has_empty_advanced_method_stub_only": boundary_source_has_empty_advanced_method_stub_only,
         "boundary_source_advanced_code_evidence": boundary_source_advanced_code_evidence,
+        "boundary_source_has_fixed_mean_outlet_lateral_top_treatment": boundary_source_has_fixed_mean_outlet_lateral_top,
+        "boundary_source_fixed_mean_outlet_lateral_top_treatment_gate": boundary_source_fixed_mean_outlet_lateral_top_gate,
         "boundary_source_wind_tunnel_equivalent": boundary_source_equivalent,
         "boundary_source_simplified": boundary_source_simplified,
         "boundary_source_has_paper_grade_outlet_source": boundary_source_has_paper_grade_outlet,

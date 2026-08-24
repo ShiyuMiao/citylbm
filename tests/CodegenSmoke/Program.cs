@@ -115,6 +115,8 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "lbm.flags.read_from_device();");
                 Require(setup, "lbm.flags.write_to_device();");
                 Require(setup, "initialize all TYPE_E boundary velocities");
+                Require(setup, "fixed_mean_velocity_equilibrium_for_all_TYPE_E_faces");
+                Require(setup, "Outlet/lateral/top TYPE_E faces receive the mean profile velocity");
                 Require(setup, "if(lbm.flags[n] != TYPE_E) return;");
                 Require(setup, "float3 u_e = windProfile(z);");
                 Require(metadata, "divergence-reduced spectral modes");
@@ -218,6 +220,12 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "not matched to official AIJ wind-tunnel boundary/fetch/roughness evidence");
                 Require(metadata, "\"BoundaryConditionMethodClass\": \"citylbm_type_e_box_simplified\"");
                 Require(metadata, "\"BoundaryConditionPaperGradeStatus\": \"diagnostic_only_until_boundary_source_and_aij_protocol_evidence_pass\"");
+                Require(metadata, "\"BoundaryVelocityInitializationMethod\": \"fixed_mean_velocity_equilibrium_for_all_TYPE_E_faces\"");
+                Require(metadata, "\"BoundaryOutletTreatment\": \"TYPE_E_fixed_mean_velocity_equilibrium_not_non_reflecting_or_validated_pressure_outlet\"");
+                Require(metadata, "\"BoundarySideTopTreatment\": \"TYPE_E_fixed_mean_velocity_equilibrium_not_periodic_or_wind_tunnel_equivalent\"");
+                Require(metadata, "\"BoundaryRoughnessBoundaryTreatment\": \"TYPE_S_no_slip_only_no_rough_wall_or_wall_function_action\"");
+                Require(metadata, "\"BoundaryDevelopmentTreatment\": \"none_no_precursor_or_recycling_development_field\"");
+                Require(metadata, "\"BoundaryFixedMeanVelocityOutletRisk\"");
                 Require(metadata, "\"PaperGradeBoundaryPrerequisiteGate\": \"fail\"");
                 Require(metadata, "non_reflecting_or_validated_outlet_state");
                 Require(metadata, "side_top_boundary_pair_mapping_or_wind_tunnel_equivalence");
@@ -228,6 +236,8 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "\"BoundaryRoughWallFunctionImplemented\": false");
                 Require(audit, "BoundaryProtocolEvidenceGate=diagnostic_only_missing_aij_boundary_protocol_evidence");
                 Require(nativeManifest, "\"BoundaryConditionMethodClass\": \"citylbm_type_e_box_simplified\"");
+                Require(nativeManifest, "\"BoundaryVelocityInitializationMethod\": \"fixed_mean_velocity_equilibrium_for_all_TYPE_E_faces\"");
+                Require(nativeManifest, "\"BoundaryOutletTreatment\": \"TYPE_E_fixed_mean_velocity_equilibrium_not_non_reflecting_or_validated_pressure_outlet\"");
                 Require(nativeManifest, "\"PaperGradeBoundaryPrerequisiteGate\": \"fail\"");
                 Require(nativeManifest, "official_blockage_fetch_clearance_evidence");
 

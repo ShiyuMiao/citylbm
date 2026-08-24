@@ -121,6 +121,8 @@ def main() -> int:
     require(data.get("boundary_source_simplified") is True, data)
     require(data.get("boundary_source_has_complete_wind_tunnel_evidence") is False, data)
     require(data.get("boundary_source_advanced_code_evidence") is False, data)
+    require(data.get("boundary_source_has_fixed_mean_outlet_lateral_top_treatment") is True, data)
+    require(data.get("boundary_source_fixed_mean_outlet_lateral_top_treatment_gate") == "diagnostic_only", data)
     require(data.get("native_boundary_equivalence_gate") == "fail", data)
 
     for expected in [
@@ -130,6 +132,7 @@ def main() -> int:
         "boundary_source_fidelity_class_not_paper_grade_simplified_type_e_box",
         "boundary_source_has_complete_wind_tunnel_evidence_not_true",
         "boundary_source_advanced_code_evidence_not_true",
+        "boundary_source_fixed_mean_outlet_lateral_top_treatment_diagnostic_only",
         "boundary_source_missing_paper_grade_evidence_non_reflecting_or_validated_outlet_state",
         "boundary_source_missing_paper_grade_evidence_side_top_boundary_pair_mapping",
         "boundary_source_missing_paper_grade_evidence_rough_wall_or_wall_function_action",

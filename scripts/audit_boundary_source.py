@@ -187,6 +187,16 @@ def main() -> int:
     boundary_types_text = json.dumps(boundary_types, ensure_ascii=True) if isinstance(boundary_types, dict) else ""
     metadata_boundary_text = " ".join([boundary_summary, boundary_types_text]).lower()
     metadata_boundary_claim_text = strip_negated_boundary_claims(metadata_boundary_text)
+    boundary_velocity_treatment_text = " ".join(
+        str(metadata.get(key) or "")
+        for key in [
+            "BoundaryTypeEVelocityInitializationTreatment",
+            "BoundaryVelocityInitializationMethod",
+            "BoundaryOutletTreatment",
+            "BoundarySideTopTreatment",
+            "BoundaryFixedMeanVelocityOutletRisk",
+        ]
+    ).lower()
 
     has_equilibrium_boundaries = "equilibrium_boundaries" in lower
     has_type_e_define = "#define type_e" in lower or "type_e 0x02" in lower
@@ -205,6 +215,28 @@ def main() -> int:
     )
     has_profile_type_e_velocity_initialization = (
         has_type_e_velocity_initialization and type_e_velocity_initialization["profile"]
+    )
+    has_uniform_type_e_velocity_initialization = (
+        has_type_e_velocity_initialization and type_e_velocity_initialization["uniform"]
+    )
+    has_fixed_mean_type_e_boundary_velocity = (
+        has_type_e_velocity_initialization
+        and (has_profile_type_e_velocity_initialization or has_uniform_type_e_velocity_initialization)
+    )
+    fixed_mean_boundary_metadata = contains_any(
+        boundary_velocity_treatment_text,
+        [
+            "fixed_mean_velocity_equilibrium",
+            "all_type_e_boundaries_initialized",
+            "outlet_lateral_top_initialized",
+            "outlet_lateral_top_mean_velocity_equilibrium",
+        ],
+    )
+    has_fixed_mean_outlet_lateral_top_treatment = (
+        has_fixed_mean_type_e_boundary_velocity or fixed_mean_boundary_metadata
+    )
+    fixed_mean_outlet_lateral_top_treatment_gate = (
+        "diagnostic_only" if has_fixed_mean_outlet_lateral_top_treatment else "missing"
     )
     type_e_velocity_initialization_index = int(type_e_velocity_initialization["block_start_index"])
     flags_write_to_device_indices = find_all_indices(implementation_code, "lbm.flags.write_to_device()")
@@ -574,6 +606,10 @@ def main() -> int:
         paper_reasons.append("boundary_source_simplified_type_e_or_solid_only")
     if no_slip_solid_only:
         paper_reasons.append("ground_and_buildings_no_slip_without_rough_wall_or_precursor")
+    if has_fixed_mean_outlet_lateral_top_treatment and not has_non_reflecting_outlet:
+        paper_reasons.append(
+            "outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary"
+        )
     if source_class == "named_boundary_method_without_field_evidence":
         paper_reasons.append("boundary_method_named_without_concrete_state_or_field_evidence")
     if has_empty_advanced_method_stub:
@@ -613,9 +649,11 @@ def main() -> int:
         "has_flags_device_upload_after_type_e_velocity_initialization": has_flags_device_upload_after_type_e_velocity_initialization,
         "has_u_device_upload_after_type_e_velocity_initialization": has_u_device_upload_after_type_e_velocity_initialization,
         "has_profile_type_e_velocity_initialization": has_profile_type_e_velocity_initialization,
-        "has_uniform_type_e_velocity_initialization": (
-            has_type_e_velocity_initialization and type_e_velocity_initialization["uniform"]
-        ),
+        "has_uniform_type_e_velocity_initialization": has_uniform_type_e_velocity_initialization,
+        "has_fixed_mean_type_e_boundary_velocity": has_fixed_mean_type_e_boundary_velocity,
+        "fixed_mean_boundary_metadata": fixed_mean_boundary_metadata,
+        "has_fixed_mean_outlet_lateral_top_treatment": has_fixed_mean_outlet_lateral_top_treatment,
+        "fixed_mean_outlet_lateral_top_treatment_gate": fixed_mean_outlet_lateral_top_treatment_gate,
         "has_ground_no_slip": has_ground_no_slip,
         "has_building_voxel_solid": has_building_voxel_solid,
         "has_non_reflecting_outlet_evidence": has_non_reflecting_outlet,
