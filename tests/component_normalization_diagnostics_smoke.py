@@ -149,6 +149,11 @@ def main() -> int:
             for reason in scale_like["normalization_scale_gate_reasons"]
         ):
             raise AssertionError(scale_like["normalization_scale_gate_reasons"])
+        if (
+            "mean_sim_to_exp_ratio_0.66_below_0.8_suggests_systematic_underprediction"
+            not in scale_like["normalization_scale_gate_reasons"]
+        ):
+            raise AssertionError(scale_like["normalization_scale_gate_reasons"])
 
         reversed_rows = []
         for probe_id, official_value, reversed_streamwise in [

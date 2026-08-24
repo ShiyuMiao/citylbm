@@ -67,6 +67,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-scale-improvement-ratio", type=float, default=0.25)
     parser.add_argument("--min-bias-scale-improvement-ratio", type=float, default=0.25)
     parser.add_argument(
+        "--min-mean-sim-to-exp-ratio",
+        type=float,
+        default=0.80,
+        help="Fail normalization when selected mean simulated ratio is below this fraction of the official mean.",
+    )
+    parser.add_argument(
+        "--max-mean-sim-to-exp-ratio",
+        type=float,
+        default=1.20,
+        help="Fail normalization when selected mean simulated ratio is above this fraction of the official mean.",
+    )
+    parser.add_argument(
         "--max-negative-streamwise-fraction",
         type=float,
         default=0.75,
@@ -746,6 +758,7 @@ def main() -> int:
     selected_bias = as_float(selected.get("bias"))
     selected_scaled_bias = as_float(selected.get("scaled_bias"))
     selected_bias_reduction = as_float(selected.get("bias_abs_reduction_ratio"))
+    selected_mean_ratio = as_float(selected.get("mean_sim_to_exp_ratio"))
     component_gate_reasons: List[str] = list(selected_component_reasons)
     if not selected_component:
         component_gate_reasons.append("selected_component_missing")
@@ -770,6 +783,16 @@ def main() -> int:
     if best.get("valid_n", 0) != len(official_lookup):
         component_gate_reasons.append("best_component_valid_n_does_not_match_official_id_count")
     normalization_gate_reasons: List[str] = []
+    if selected_mean_ratio is None:
+        normalization_gate_reasons.append("selected_mean_sim_to_exp_ratio_missing")
+    elif selected_mean_ratio < args.min_mean_sim_to_exp_ratio:
+        normalization_gate_reasons.append(
+            f"mean_sim_to_exp_ratio_{selected_mean_ratio:.6g}_below_{args.min_mean_sim_to_exp_ratio:.6g}_suggests_systematic_underprediction"
+        )
+    elif selected_mean_ratio > args.max_mean_sim_to_exp_ratio:
+        normalization_gate_reasons.append(
+            f"mean_sim_to_exp_ratio_{selected_mean_ratio:.6g}_above_{args.max_mean_sim_to_exp_ratio:.6g}_suggests_systematic_overprediction"
+        )
     if selected_scale is not None and abs(selected_scale - 1.0) > args.max_best_scale_deviation:
         scale_explains_rmse = (
             selected_scaled_improvement is not None
@@ -834,6 +857,8 @@ def main() -> int:
         "selected_component_mean_sim": selected.get("mean_sim"),
         "selected_component_mean_exp": selected.get("mean_exp"),
         "selected_component_mean_sim_to_exp_ratio": selected.get("mean_sim_to_exp_ratio"),
+        "min_mean_sim_to_exp_ratio": args.min_mean_sim_to_exp_ratio,
+        "max_mean_sim_to_exp_ratio": args.max_mean_sim_to_exp_ratio,
         "best_component_rmse": best.get("RMSE"),
         "component_rmse_improvement_ratio": component_improvement,
         "selected_best_fit_scale_to_exp": selected_scale,
