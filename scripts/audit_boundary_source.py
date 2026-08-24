@@ -67,6 +67,22 @@ def has_regex(text: str, pattern: str) -> bool:
     return re.search(pattern, text, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL) is not None
 
 
+def find_all_indices(text: str, token: str) -> List[int]:
+    indices: List[int] = []
+    start = 0
+    while True:
+        index = text.find(token, start)
+        if index < 0:
+            return indices
+        indices.append(index)
+        start = index + len(token)
+
+
+def first_index_after(indices: Iterable[int], marker: int) -> int:
+    after = [index for index in indices if index > marker]
+    return min(after) if after else -1
+
+
 def strip_cpp_string_literals(text: str) -> str:
     return re.sub(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', '""', text)
 
@@ -190,9 +206,17 @@ def main() -> int:
     has_profile_type_e_velocity_initialization = (
         has_type_e_velocity_initialization and type_e_velocity_initialization["profile"]
     )
-    flags_write_to_device_index = implementation_code.find("lbm.flags.write_to_device()")
-    u_write_to_device_index = implementation_code.find("lbm.u.write_to_device()")
     type_e_velocity_initialization_index = int(type_e_velocity_initialization["block_start_index"])
+    flags_write_to_device_indices = find_all_indices(implementation_code, "lbm.flags.write_to_device()")
+    u_write_to_device_indices = find_all_indices(implementation_code, "lbm.u.write_to_device()")
+    flags_write_to_device_index = first_index_after(
+        flags_write_to_device_indices,
+        type_e_velocity_initialization_index,
+    )
+    u_write_to_device_index = first_index_after(
+        u_write_to_device_indices,
+        type_e_velocity_initialization_index,
+    )
     has_flags_device_upload_after_type_e_velocity_initialization = (
         has_type_e_velocity_initialization
         and flags_write_to_device_index >= 0
