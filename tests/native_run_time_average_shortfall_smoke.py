@@ -169,6 +169,66 @@ def main() -> int:
         if strict_result.returncode != 2:
             raise AssertionError(strict_result.stderr or strict_result.stdout)
 
+        mismatch_dir = tmp_dir / "native_run_mismatched_final_window"
+        mismatch_dir.mkdir()
+        mismatch_metadata = mismatch_dir / "case_metadata.json"
+        mismatch_metadata.write_text(
+            json.dumps(
+                {
+                    "TimeSteps": 80000,
+                    "SaveInterval": 1000,
+                    "ExpectedVtkFrameCount": 80,
+                }
+            ),
+            encoding="utf-8",
+        )
+        for step in range(1000, 41000, 1000):
+            write_vtk(mismatch_dir / f"u-{step:010d}.vtk", 1.0)
+        mismatch_out = tmp_dir / "native_run_mismatched_final_window_audit.json"
+        mismatch_result = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                str(mismatch_dir),
+                "--metadata",
+                str(mismatch_metadata),
+                "--out",
+                str(mismatch_out),
+                "--average-last-n",
+                "40",
+                "--min-avg-frames",
+                "40",
+                "--min-avg-step-span",
+                "20000",
+                "--time-steps",
+                "80000",
+                "--vtk-save-interval",
+                "1000",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        if mismatch_result.returncode != 0:
+            raise AssertionError(mismatch_result.stderr or mismatch_result.stdout)
+        mismatch_audit = json.loads(mismatch_out.read_text(encoding="utf-8"))
+        if mismatch_audit["requested_vtk_frame_gate"] != "pass":
+            raise AssertionError(mismatch_audit)
+        if mismatch_audit["time_averaging_gate"] != "diagnostic_only":
+            raise AssertionError(mismatch_audit)
+        if mismatch_audit["actual_final_window_match_gate"] != "diagnostic_only":
+            raise AssertionError(mismatch_audit)
+        if mismatch_audit["actual_final_window_matches_requested"] is not False:
+            raise AssertionError(mismatch_audit)
+        if mismatch_audit["requested_vtk_expected_final_window_time_steps"][0] != 41000:
+            raise AssertionError(mismatch_audit)
+        if mismatch_audit["source_time_steps"][0] != 1000:
+            raise AssertionError(mismatch_audit)
+        if "actual_final_window_time_steps_mismatch_requested" not in mismatch_audit["time_averaging_gate_reasons_csv"]:
+            raise AssertionError(mismatch_audit)
+
     print("native_run_time_average_shortfall_smoke passed")
     return 0
 

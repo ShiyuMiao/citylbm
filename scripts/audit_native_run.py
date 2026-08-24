@@ -668,6 +668,18 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
     )
     if requested_frame_preflight["requested_vtk_frame_gate"] != "pass":
         reasons.append("requested_vtk_frame_preflight_not_pass")
+    expected_final_window_steps = requested_frame_preflight[
+        "requested_vtk_expected_final_window_time_steps"
+    ]
+    actual_final_window_matches_requested = (
+        bool(expected_final_window_steps) and selected_steps == expected_final_window_steps
+    )
+    actual_final_window_match_reasons: List[str] = []
+    if not expected_final_window_steps:
+        actual_final_window_match_reasons.append("requested_final_window_time_steps_missing")
+    elif not actual_final_window_matches_requested:
+        actual_final_window_match_reasons.append("actual_final_window_time_steps_mismatch_requested")
+    reasons.extend(actual_final_window_match_reasons)
 
     log_audit = audit_solver_log(Path(args.solver_log).resolve() if args.solver_log else None)
     audit: Dict[str, Any] = {
@@ -690,6 +702,10 @@ def build_audit(args: argparse.Namespace) -> Dict[str, Any]:
         "requested_vtk_expected_final_window_time_steps": requested_frame_preflight["requested_vtk_expected_final_window_time_steps"],
         "requested_vtk_expected_final_window_time_steps_csv": requested_frame_preflight["requested_vtk_expected_final_window_time_steps_csv"],
         "requested_vtk_expected_final_window_step_span": requested_frame_preflight["requested_vtk_expected_final_window_step_span"],
+        "actual_final_window_matches_requested": actual_final_window_matches_requested,
+        "actual_final_window_match_gate": "pass" if actual_final_window_matches_requested else "diagnostic_only",
+        "actual_final_window_match_gate_reasons": actual_final_window_match_reasons,
+        "actual_final_window_match_gate_reasons_csv": ";".join(actual_final_window_match_reasons),
         "requested_vtk_averaging_window_shortfall": requested_frame_preflight["requested_vtk_averaging_window_shortfall"],
         "requested_vtk_expected_final_window_step_span_shortfall": requested_frame_preflight["requested_vtk_expected_final_window_step_span_shortfall"],
         "requested_vtk_minimum_step_span": requested_frame_preflight["requested_vtk_minimum_step_span"],
@@ -775,6 +791,7 @@ def build_strict_native_run_gate(audit: Dict[str, Any]) -> Dict[str, Any]:
     required_gates = {
         "run_freshness_gate": "pass",
         "requested_vtk_frame_gate": "pass",
+        "actual_final_window_match_gate": "pass",
         "time_averaging_gate": "pass",
         "final_window_stationarity_gate": "pass",
         "lbm_stability_gate": "solver_log_no_stability_warnings",
