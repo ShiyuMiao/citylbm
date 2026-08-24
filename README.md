@@ -1,17 +1,17 @@
-<p align="center">
-  <img src="assets/branding/citylbm-readme-icon.png" alt="CityLBM application icon" width="144">
-</p>
+<table>
+  <tr>
+    <td width="112" valign="middle">
+      <img src="assets/branding/citylbm-readme-icon.png" alt="CityLBM application icon" width="96">
+    </td>
+    <td valign="middle">
+      <h1>CityLBM</h1>
+      <strong>面向设计流程的城市风环境模拟工作流</strong><br>
+      <em>Design-oriented urban wind simulation workflow</em>
+    </td>
+  </tr>
+</table>
 
-<p align="center">
-  <img src="assets/branding/citylbm-readme-header.png" alt="CityLBM - Urban Wind Simulation" width="960">
-</p>
-
-<p align="center">
-  <strong>面向设计流程的城市风环境模拟工作流</strong><br>
-  <em>Design-oriented urban wind simulation workflow</em>
-</p>
-
-<p align="center">
+<p>
   <a href="#中文介绍">中文</a> | <a href="#english-overview">English</a> | <a href="LICENSE">MIT License</a>
 </p>
 
