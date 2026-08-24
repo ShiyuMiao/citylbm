@@ -551,6 +551,72 @@ def declared_paper_averaging_status(
     }
 
 
+def case_metadata_precondition_status(metadata: Dict[str, Any]) -> Dict[str, Any]:
+    reasons: List[str] = []
+    if not metadata:
+        reasons.append("case_metadata_missing")
+
+    inlet_gate = str(
+        get_any(metadata, ["PaperGradeTurbulentInletPrerequisiteGate"])
+        or ""
+    ).strip().lower()
+    if inlet_gate and inlet_gate != "pass":
+        reasons.append(f"paper_grade_turbulent_inlet_prerequisite_gate_not_pass:{inlet_gate}")
+
+    boundary_gate = str(
+        get_any(metadata, ["PaperGradeBoundaryPrerequisiteGate"])
+        or ""
+    ).strip().lower()
+    if boundary_gate and boundary_gate != "pass":
+        reasons.append(f"paper_grade_boundary_prerequisite_gate_not_pass:{boundary_gate}")
+
+    boundary_status = str(
+        get_any(metadata, ["BoundaryConditionPaperGradeStatus"])
+        or ""
+    ).strip().lower()
+    if boundary_status and boundary_status not in {"pass", "paper_grade", "wind_tunnel_equivalent"}:
+        reasons.append(f"boundary_condition_paper_grade_status_not_pass:{boundary_status}")
+
+    if as_bool(get_any(metadata, ["SyntheticTurbulentInletInjected"])) is True:
+        reconstructed = as_bool(get_any(metadata, ["InletDistributionFunctionReconstruction"]))
+        if reconstructed is not True:
+            reasons.append(
+                "synthetic_inlet_distribution_function_reconstruction_not_true:"
+                f"{reconstructed if reconstructed is not None else 'missing'}"
+            )
+
+    distribution_treatment = str(
+        get_any(metadata, ["SyntheticTurbulentInletDistributionTreatment"])
+        or ""
+    ).strip().lower()
+    if any(token in distribution_treatment for token in ["velocity_field_only", "no_distribution_function_reconstruction"]):
+        reasons.append(
+            "synthetic_inlet_distribution_treatment_not_paper_grade:"
+            f"{distribution_treatment}"
+        )
+
+    for key in [
+        "BoundaryNonReflectingOutletImplemented",
+        "BoundarySideTopWindTunnelEquivalentImplemented",
+        "BoundaryRoughWallFunctionImplemented",
+        "BoundaryPrecursorOrRecyclingImplemented",
+        "BoundaryBlockageFetchEvidenceArchived",
+    ]:
+        value = as_bool(get_any(metadata, [key]))
+        if value is False:
+            reasons.append(f"{key}_false")
+
+    return {
+        "ok": not reasons,
+        "inlet_gate": inlet_gate,
+        "boundary_gate": boundary_gate,
+        "boundary_status": boundary_status,
+        "distribution_treatment": distribution_treatment,
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+    }
+
+
 def normalized_column_key(value: str) -> str:
     return "".join(ch for ch in str(value).lower() if ch.isalnum())
 
@@ -742,6 +808,17 @@ def build_diagnostic_priority(gates: List[Dict[str, Any]], metrics: Dict[str, An
             protocol_gate,
             "The validation protocol audit is missing, empty or incomplete, so later inlet, boundary, averaging and bias diagnostics cannot be treated as a complete paper-grade evidence chain.",
             "Regenerate validation_protocol_audit.json from the current case and verify all required protocol items before interpreting CFD error metrics.",
+        )
+
+    metadata_preconditions_gate = by_key.get("case_metadata_preconditions")
+    if metadata_preconditions_gate is None or metadata_preconditions_gate.get("status") != PASS:
+        add_priority(
+            priorities,
+            0,
+            "case_metadata_preconditions",
+            metadata_preconditions_gate,
+            "The current case metadata explicitly records incomplete inlet distribution or boundary-condition prerequisites.",
+            "Regenerate the native run after paper-grade inlet distribution reconstruction and AIJ-equivalent boundary evidence are implemented, then rebuild case_metadata.json.",
         )
 
     source_gate = by_key.get("inlet_source_evidence")
@@ -3803,6 +3880,22 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"partial_keys={';'.join(protocol_content['partial_keys']) or 'none'}"
         ),
         "Regenerate validation_protocol_audit.json from the current case until all required protocol items are present with explicit statuses and no item is marked fail.",
+    )
+
+    metadata_preconditions = case_metadata_precondition_status(metadata)
+    add_gate(
+        gates,
+        "case_metadata_preconditions",
+        PASS if metadata_preconditions["ok"] else FAIL,
+        (
+            f"metadata={metadata_path or 'missing'}; "
+            f"paper_grade_turbulent_inlet_prerequisite_gate={metadata_preconditions['inlet_gate'] or 'missing'}; "
+            f"paper_grade_boundary_prerequisite_gate={metadata_preconditions['boundary_gate'] or 'missing'}; "
+            f"boundary_condition_paper_grade_status={metadata_preconditions['boundary_status'] or 'missing'}; "
+            f"synthetic_inlet_distribution_treatment={metadata_preconditions['distribution_treatment'] or 'missing'}; "
+            f"reasons={metadata_preconditions['reasons_csv'] or 'none'}"
+        ),
+        "Regenerate case_metadata.json from a run whose inlet distribution route, boundary source/runtime evidence and wind-tunnel protocol prerequisites are paper-grade before interpreting accuracy metrics.",
     )
 
     metrics_probe_audit_sha256 = str(
@@ -7536,6 +7629,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
 
     prerequisite_labels = {
         "validation_protocol_content": "validation protocol content",
+        "case_metadata_preconditions": "case metadata preconditions",
         "metrics_input_hash_traceability": "metrics hash traceability",
         "run_freshness": "fresh VTK inputs",
         "runtime_vtk_hash_traceability": "runtime VTK hash traceability",
