@@ -46,6 +46,8 @@ CityLBM 是一个面向 Rhino/Grasshopper 设计流程的城市风环境模拟�
 
 项目处于积极开发阶段。现有 AIJ Case A/E 资产证明端到端工作流和诊断能力；其中短步数 smoke run 与诊断结果不应被解释为论文级精度验证。正式准确性结论仍需要严格原生基线、入口和边界条件证据、充分时间平均以及网格收敛记录。
 
+v0.3.0 的交付边界见 [`docs/v0.3.0_validation_ready_status.md`](docs/v0.3.0_validation_ready_status.md)：它是验证就绪版本，不是已经完成的 Case A/E 论文级精度结果。
+
 ### 快速开始
 
 1. 按 [`INSTALL.md`](INSTALL.md) 将 `CityLBM.gha` 及其依赖安装到 Grasshopper Libraries 目录。
@@ -78,6 +80,8 @@ CityLBM is an urban wind-simulation workflow for Rhino and Grasshopper. It conne
 ### Validation Status
 
 CityLBM is under active academic development. Existing AIJ Case A/E assets demonstrate the end-to-end workflow and diagnostic capability. Short smoke runs and diagnostic outputs are not publication-grade accuracy validation. Final accuracy claims require a strict native baseline, inlet and boundary evidence, adequate time averaging, and documented grid convergence.
+
+See [`docs/v0.3.0_validation_ready_status.md`](docs/v0.3.0_validation_ready_status.md) for the v0.3.0 delivery boundary: it is validation-ready, not a completed Case A/E publication-grade accuracy result.
 
 ### Quick Start
 
