@@ -2762,6 +2762,9 @@ namespace CityLBM.Solver
                     WindProfile = scene.WindProfile.ToString(),
                     WindProfileCsvPath = scene.WindProfileCsvPath ?? "",
                     WindProfileCsvSha256 = windProfileCsvSha256,
+                    WindDirection = GetWindFromDirectionLabel(scene.WindDirection),
+                    WindFlowDirectionLabel = GetWindFlowDirectionLabel(scene.WindDirection),
+                    WindDirectionConvention = "WindDirection is the meteorological/AIJ from-direction label; WindDirectionUnitVector is the Rhino-world flow vector. Example: N wind uses vector (0,-1,0).",
                     ReferenceWindSpeedMps = scene.WindSpeed,
                     ReferenceHeightM = scene.ReferenceHeight,
                     ProfileScaleSpeedMps = GetProfileScaleSpeed(scene),
@@ -2919,9 +2922,9 @@ namespace CityLBM.Solver
                     WallRoughnessTreatment = "ground/buildings are voxelized TYPE_S no-slip; RoughnessLength shapes analytic mean profiles but is not a FluidX3D rough-wall or wall-function boundary in v0.3.0",
                     WindDirectionUnitVector = new
                     {
-                        X = scene.WindDirection.X,
-                        Y = scene.WindDirection.Y,
-                        Z = scene.WindDirection.Z
+                        X = NormalizeWindDirection(scene.WindDirection).X,
+                        Y = NormalizeWindDirection(scene.WindDirection).Y,
+                        Z = NormalizeWindDirection(scene.WindDirection).Z
                     },
                     InletVelocityTreatment = scene.WindProfile == WindProfileType.CustomTable
                         ? (syntheticActive
@@ -3025,6 +3028,26 @@ namespace CityLBM.Solver
                 return new Vector3d(1.0, 0.0, 0.0);
 
             return new Vector3d(direction.X / length, direction.Y / length, direction.Z / length);
+        }
+
+        internal static string GetWindFromDirectionLabel(Vector3d direction)
+        {
+            var dir = NormalizeWindDirection(direction);
+            const double eps = 1e-6;
+            string ns = dir.Y < -eps ? "N" : dir.Y > eps ? "S" : "";
+            string ew = dir.X > eps ? "W" : dir.X < -eps ? "E" : "";
+            string label = ns + ew;
+            return string.IsNullOrEmpty(label) ? "CalmOrVertical" : label;
+        }
+
+        internal static string GetWindFlowDirectionLabel(Vector3d direction)
+        {
+            var dir = NormalizeWindDirection(direction);
+            const double eps = 1e-6;
+            string ns = dir.Y < -eps ? "S" : dir.Y > eps ? "N" : "";
+            string ew = dir.X > eps ? "E" : dir.X < -eps ? "W" : "";
+            string label = ns + ew;
+            return string.IsNullOrEmpty(label) ? "CalmOrVertical" : label;
         }
 
         private static bool IsFinite(double value)
@@ -3461,11 +3484,14 @@ namespace CityLBM.Solver
                         WindProfile = scene.WindProfile.ToString(),
                         WindProfileCsvPath = scene.WindProfileCsvPath ?? "",
                         WindProfileCsvSha256 = ComputeOptionalFileSha256(scene.WindProfileCsvPath),
+                        WindDirection = GetWindFromDirectionLabel(scene.WindDirection),
+                        WindFlowDirectionLabel = GetWindFlowDirectionLabel(scene.WindDirection),
+                        WindDirectionConvention = "WindDirection is the meteorological/AIJ from-direction label; WindDirectionUnitVector is the Rhino-world flow vector. Example: N wind uses vector (0,-1,0).",
                         WindDirectionUnitVector = new
                         {
-                            X = scene.WindDirection.X,
-                            Y = scene.WindDirection.Y,
-                            Z = scene.WindDirection.Z
+                            X = NormalizeWindDirection(scene.WindDirection).X,
+                            Y = NormalizeWindDirection(scene.WindDirection).Y,
+                            Z = NormalizeWindDirection(scene.WindDirection).Z
                         },
                         ReferenceWindSpeedMps = scene.WindSpeed,
                         ReferenceHeightM = scene.ReferenceHeight,
