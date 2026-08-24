@@ -744,6 +744,13 @@ def component_sensitivity_input_hash_traceability(
     probe_matches: Optional[bool] = None
     official_matches: Optional[bool] = None
 
+    if not component_sensitivity_audit:
+        reasons.append("component_sensitivity_audit_missing")
+    if not probe_audit_sha256:
+        reasons.append("probe_audit_sha256_missing")
+    if not official_sha256:
+        reasons.append("official_measurement_sha256_missing")
+
     if component_sensitivity_audit and probe_audit_sha256:
         probe_matches = component_probe_sha == probe_audit_sha256
         if not component_probe_sha:
@@ -3497,6 +3504,7 @@ def main() -> int:
     ]:
         if value != "pass":
             native_probe_component_equivalence_reasons.append(f"{key}_not_pass:{value or 'missing'}")
+    native_probe_component_equivalence_reasons.extend(component_hash_traceability["reasons"])
     for key, value in [
         ("component_source_time_steps", component_sensitivity_audit.get("component_source_time_steps")),
         ("component_source_sha256", component_sensitivity_audit.get("component_source_sha256")),
