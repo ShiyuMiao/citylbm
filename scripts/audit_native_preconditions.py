@@ -49,6 +49,13 @@ REQUIRED_BOUNDARY_SUPPORT_FIELDS = [
     "side_top_boundary_check_supported",
 ]
 
+BOUNDARY_PROTOCOL_REQUIRED_CONTROLS = [
+    "document_aij_equivalent_inlet_outlet_side_top_and_floor_treatments",
+    "archive_non_empty_hashed_boundary_support_files",
+    "prove_clearance_blockage_fetch_and_roughness_evidence",
+    "prove_runtime_boundary_profile_preservation_on_same_final_window",
+]
+
 REQUIRED_PROTOCOL_ITEM_KEYS = [
     "inlet_mean_profile",
     "inlet_turbulence_k",
@@ -1821,6 +1828,60 @@ def build_boundary_equivalence_evidence_reasons(
     return evidence_reasons
 
 
+def build_boundary_protocol_interpretation_gate(
+    boundary_equivalence_gate: str,
+    boundary_equivalence_reasons: List[str],
+) -> Dict[str, Any]:
+    gate = "pass" if str(boundary_equivalence_gate or "").strip().lower() == "pass" else "fail"
+    reasons = [str(reason) for reason in boundary_equivalence_reasons if str(reason).strip()]
+    blocker = ""
+    if gate != "pass":
+        blocker = "boundary_protocol_evidence"
+        if any(
+            reason.startswith("boundary_source_") or reason.startswith("paper_grade_boundary_source_")
+            for reason in reasons
+        ):
+            blocker = "boundary_source_implementation"
+        elif any(
+            reason.startswith(prefix)
+            for reason in reasons
+            for prefix in [
+                "boundary_clearance_",
+                "boundary_blockage_",
+            ]
+        ):
+            blocker = "clearance_blockage_fetch_roughness"
+        elif any(reason.startswith("boundary_runtime_") for reason in reasons):
+            blocker = "boundary_runtime_preservation"
+        elif any(
+            reason.startswith(prefix)
+            for reason in reasons
+            for prefix in [
+                "boundary_protocol_",
+                "boundary_evidence_",
+                "boundary_run_identity_",
+                "boundary_missing_",
+                "boundary_unsupported_",
+                "boundary_condition_",
+                "boundary_required_support_",
+            ]
+        ):
+            blocker = "boundary_protocol_evidence"
+    return {
+        "gate": gate,
+        "allowed": gate == "pass",
+        "status": (
+            "wind_tunnel_equivalent_boundary_evidence_closed"
+            if gate == "pass"
+            else "blocked_until_aij_boundary_evidence_closed"
+        ),
+        "blocker": blocker,
+        "required_controls": list(BOUNDARY_PROTOCOL_REQUIRED_CONTROLS) if gate != "pass" else [],
+        "reason_count": len(reasons),
+        "reasons": reasons,
+    }
+
+
 def append_setup_hash_reason(reasons: List[str], label: str, audit: Dict[str, Any], setup_sha: str) -> Dict[str, Any]:
     audit_sha = str(audit.get("setup_cpp_sha256") or "").strip().lower()
     match = bool(audit_sha) and bool(setup_sha) and audit_sha == setup_sha
@@ -3185,6 +3246,10 @@ def main() -> int:
         min_avg_step_span=args.min_avg_step_span,
     )
     native_boundary_equivalence_gate = "pass" if not native_boundary_equivalence_reasons else "fail"
+    native_boundary_protocol_interpretation = build_boundary_protocol_interpretation_gate(
+        native_boundary_equivalence_gate,
+        native_boundary_equivalence_reasons,
+    )
     if native_boundary_equivalence_gate != "pass":
         reasons.append("native_boundary_equivalence_gate_not_pass")
 
@@ -4024,6 +4089,15 @@ def main() -> int:
         "native_boundary_equivalence_gate": native_boundary_equivalence_gate,
         "native_boundary_equivalence_gate_reasons": native_boundary_equivalence_reasons,
         "native_boundary_equivalence_gate_reasons_csv": ";".join(native_boundary_equivalence_reasons),
+        "native_boundary_protocol_interpretation_gate": native_boundary_protocol_interpretation["gate"],
+        "native_boundary_protocol_interpretation_allowed": native_boundary_protocol_interpretation["allowed"],
+        "native_boundary_protocol_interpretation_status": native_boundary_protocol_interpretation["status"],
+        "native_boundary_protocol_interpretation_blocker": native_boundary_protocol_interpretation["blocker"],
+        "native_boundary_protocol_required_controls": native_boundary_protocol_interpretation["required_controls"],
+        "native_boundary_protocol_required_controls_csv": ";".join(
+            native_boundary_protocol_interpretation["required_controls"]
+        ),
+        "native_boundary_protocol_interpretation_reason_count": native_boundary_protocol_interpretation["reason_count"],
         "boundary_protocol_gate": boundary_protocol_gate,
         "boundary_evidence_gate": boundary_evidence_gate,
         "boundary_run_identity_gate": boundary_run_identity_gate,

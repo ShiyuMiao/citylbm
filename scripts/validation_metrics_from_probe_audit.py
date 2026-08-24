@@ -557,6 +557,12 @@ TEMPLATE_FIELDS = [
     "native_probe_component_source_step_hash_pairs_match_runtime",
     "native_boundary_equivalence_gate",
     "native_boundary_equivalence_gate_reasons",
+    "native_boundary_protocol_interpretation_gate",
+    "native_boundary_protocol_interpretation_allowed",
+    "native_boundary_protocol_interpretation_status",
+    "native_boundary_protocol_interpretation_blocker",
+    "native_boundary_protocol_required_controls",
+    "native_boundary_protocol_interpretation_reason_count",
     "native_boundary_source_gate",
     "native_paper_grade_boundary_source_gate",
     "native_boundary_source_method_class",
@@ -3166,6 +3172,24 @@ def main() -> int:
             ),
             "native_boundary_equivalence_gate_reasons": audit_field(
                 native_preconditions_audit, "native_boundary_equivalence_gate_reasons_csv"
+            ),
+            "native_boundary_protocol_interpretation_gate": audit_gate(
+                native_preconditions_audit, "native_boundary_protocol_interpretation_gate"
+            ),
+            "native_boundary_protocol_interpretation_allowed": first_bool_text(
+                native_preconditions_audit.get("native_boundary_protocol_interpretation_allowed")
+            ),
+            "native_boundary_protocol_interpretation_status": audit_field(
+                native_preconditions_audit, "native_boundary_protocol_interpretation_status"
+            ),
+            "native_boundary_protocol_interpretation_blocker": audit_field(
+                native_preconditions_audit, "native_boundary_protocol_interpretation_blocker"
+            ),
+            "native_boundary_protocol_required_controls": audit_field(
+                native_preconditions_audit, "native_boundary_protocol_required_controls_csv"
+            ),
+            "native_boundary_protocol_interpretation_reason_count": audit_field(
+                native_preconditions_audit, "native_boundary_protocol_interpretation_reason_count"
             ),
             "native_boundary_source_gate": audit_gate(native_preconditions_audit, "boundary_source_gate"),
             "native_paper_grade_boundary_source_gate": audit_gate(

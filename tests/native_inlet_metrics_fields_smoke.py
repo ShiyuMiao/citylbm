@@ -181,6 +181,19 @@ def main() -> int:
                         "boundary_source_simplified_not_false:True;"
                         "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail"
                     ),
+                    "native_boundary_protocol_interpretation_gate": "fail",
+                    "native_boundary_protocol_interpretation_allowed": False,
+                    "native_boundary_protocol_interpretation_status": (
+                        "blocked_until_aij_boundary_evidence_closed"
+                    ),
+                    "native_boundary_protocol_interpretation_blocker": "boundary_source_implementation",
+                    "native_boundary_protocol_required_controls_csv": (
+                        "document_aij_equivalent_inlet_outlet_side_top_and_floor_treatments;"
+                        "archive_non_empty_hashed_boundary_support_files;"
+                        "prove_clearance_blockage_fetch_and_roughness_evidence;"
+                        "prove_runtime_boundary_profile_preservation_on_same_final_window"
+                    ),
+                    "native_boundary_protocol_interpretation_reason_count": 2,
                     "boundary_source_gate": "fail",
                     "paper_grade_boundary_source_gate": "fail",
                     "boundary_source_method_class": "simplified_type_e_box",
@@ -457,6 +470,17 @@ def main() -> int:
             "boundary_source_simplified_not_false:True;"
             "boundary_runtime_side_top_normal_leakage_gate_not_pass:fail"
         ),
+        "native_boundary_protocol_interpretation_gate": "fail",
+        "native_boundary_protocol_interpretation_allowed": "false",
+        "native_boundary_protocol_interpretation_status": "blocked_until_aij_boundary_evidence_closed",
+        "native_boundary_protocol_interpretation_blocker": "boundary_source_implementation",
+        "native_boundary_protocol_required_controls": (
+            "document_aij_equivalent_inlet_outlet_side_top_and_floor_treatments;"
+            "archive_non_empty_hashed_boundary_support_files;"
+            "prove_clearance_blockage_fetch_and_roughness_evidence;"
+            "prove_runtime_boundary_profile_preservation_on_same_final_window"
+        ),
+        "native_boundary_protocol_interpretation_reason_count": "2",
         "native_boundary_source_gate": "fail",
         "native_paper_grade_boundary_source_gate": "fail",
         "native_boundary_source_method_class": "simplified_type_e_box",

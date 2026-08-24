@@ -67,6 +67,27 @@ def main() -> int:
 
         require(data.get("native_preconditions_gate") == "fail", data)
         require(data.get("native_boundary_equivalence_gate") == "fail", data)
+        require(data.get("native_boundary_protocol_interpretation_gate") == "fail", data)
+        require(data.get("native_boundary_protocol_interpretation_allowed") is False, data)
+        require(
+            data.get("native_boundary_protocol_interpretation_status")
+            == "blocked_until_aij_boundary_evidence_closed",
+            data,
+        )
+        require(
+            data.get("native_boundary_protocol_interpretation_blocker") == "boundary_source_implementation",
+            data,
+        )
+        require(
+            data.get("native_boundary_protocol_required_controls_csv")
+            == (
+                "document_aij_equivalent_inlet_outlet_side_top_and_floor_treatments;"
+                "archive_non_empty_hashed_boundary_support_files;"
+                "prove_clearance_blockage_fetch_and_roughness_evidence;"
+                "prove_runtime_boundary_profile_preservation_on_same_final_window"
+            ),
+            data,
+        )
         require(data.get("boundary_source_setup_cpp_sha256_matches_current") is False, data)
 
         for expected in [
