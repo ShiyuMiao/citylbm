@@ -21,12 +21,12 @@
 
 | 场景与输入 / Scene | 仿真与数据 / Simulation | 可视化 / Visualization | 分析与辅助 / Analysis |
 | --- | --- | --- | --- |
-| <img src="src/Resources/Icons/CreateScene.png" width="42" alt="Create Scene"><br>Create Scene | <img src="src/Resources/Icons/RunSimulation.png" width="42" alt="Run Simulation"><br>Run Simulation | <img src="src/Resources/Icons/ReadVTK.png" width="42" alt="Read VTK"><br>Read VTK | <img src="src/Resources/Icons/validation.png" width="42" alt="Validation"><br>Validation |
-| <img src="src/Resources/Icons/AddBuildings.png" width="42" alt="Add Buildings"><br>Add Buildings | <img src="src/Resources/Icons/SimulationStats.png" width="42" alt="Simulation Stats"><br>Simulation Stats | <img src="src/Resources/Icons/VelocityVisualization.png" width="42" alt="Velocity Visualization"><br>Velocity View | <img src="src/Resources/Icons/Lawson.png" width="42" alt="Lawson"><br>Lawson |
-| <img src="src/Resources/Icons/WindCondition.png" width="42" alt="Wind Condition"><br>Wind Condition | <img src="src/Resources/Icons/GridGenerator.png" width="42" alt="Grid Generator"><br>Grid Generator | <img src="src/Resources/Icons/VTKCloudVisualization.png" width="42" alt="VTK Cloud"><br>VTK Cloud | <img src="src/Resources/Icons/DataProbe.png" width="42" alt="Data Probe"><br>Data Probe |
-| <img src="src/Resources/Icons/DomainSetup.png" width="42" alt="Domain Setup"><br>Domain Setup | <img src="src/Resources/Icons/AbsoluteDomain.png" width="42" alt="Absolute Domain"><br>Absolute Domain | <img src="src/Resources/Icons/SliceVisualization.png" width="42" alt="Slice Visualization"><br>Slice View | <img src="src/Resources/Icons/Streamlines.png" width="42" alt="Streamlines"><br>Streamlines |
-| <img src="src/Resources/Icons/DomainDesigner.png" width="42" alt="Domain Designer"><br>Domain Designer | <img src="src/Resources/Icons/WindSpeedGrid.png" width="42" alt="Wind Speed Grid"><br>Wind Speed Grid | <img src="src/Resources/Icons/VerticalSlice.png" width="42" alt="Vertical Slice"><br>Vertical Slice | <img src="src/Resources/Icons/Isosurface.png" width="42" alt="Isosurface"><br>Isosurface |
-| <img src="src/Resources/Icons/SceneInfo.png" width="42" alt="Scene Info"><br>Scene Info |  |  |  |
+| <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/CreateScene.png" width="42" alt="Create Scene"><br>Create Scene | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/RunSimulation.png" width="42" alt="Run Simulation"><br>Run Simulation | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/ReadVTK.png" width="42" alt="Read VTK"><br>Read VTK | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/validation.png" width="42" alt="Validation"><br>Validation |
+| <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/AddBuildings.png" width="42" alt="Add Buildings"><br>Add Buildings | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/SimulationStats.png" width="42" alt="Simulation Stats"><br>Simulation Stats | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/VelocityVisualization.png" width="42" alt="Velocity Visualization"><br>Velocity View | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/Lawson.png" width="42" alt="Lawson"><br>Lawson |
+| <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/WindCondition.png" width="42" alt="Wind Condition"><br>Wind Condition | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/GridGenerator.png" width="42" alt="Grid Generator"><br>Grid Generator | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/VTKCloudVisualization.png" width="42" alt="VTK Cloud"><br>VTK Cloud | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/DataProbe.png" width="42" alt="Data Probe"><br>Data Probe |
+| <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/DomainSetup.png" width="42" alt="Domain Setup"><br>Domain Setup | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/AbsoluteDomain.png" width="42" alt="Absolute Domain"><br>Absolute Domain | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/SliceVisualization.png" width="42" alt="Slice Visualization"><br>Slice View | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/Streamlines.png" width="42" alt="Streamlines"><br>Streamlines |
+| <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/DomainDesigner.png" width="42" alt="Domain Designer"><br>Domain Designer | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/WindSpeedGrid.png" width="42" alt="Wind Speed Grid"><br>Wind Speed Grid | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/VerticalSlice.png" width="42" alt="Vertical Slice"><br>Vertical Slice | <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/Isosurface.png" width="42" alt="Isosurface"><br>Isosurface |
+| <img src="https://raw.githubusercontent.com/ShiyuMiao/citylbm/main/assets/icons/SceneInfo.png" width="42" alt="Scene Info"><br>Scene Info |  |  |  |
 
 ---
 
@@ -53,6 +53,10 @@ CityLBM 是面向 Rhino/Grasshopper 参数化设计流程的城市风环境模�
 ### 当前验证边界
 
 AIJ Case A/E 的现有资产证明端到端工作流和诊断能力。短步数 smoke run、历史诊断结果或代码构建成功均不等同于论文级精度验证。正式准确性结论仍需要严格原生基线、入口和边界条件证据、充分时间平均、官方高度点位比对及网格收敛记录。
+
+### 成果与 VTK 解读
+
+AIJ Case A 的归档包包含 `u-000001000.vtk`、`u-000002000.vtk`、坐标映射、90 点采样脚本和既有对比表。文件结构、坐标换算、ParaView/Rhino 查看方式，以及速度单位与验证边界见 [`docs/RESULTS_AND_VTK_GUIDE.md`](docs/RESULTS_AND_VTK_GUIDE.md)。原始 VTK 体积较大，保留在本地验证档案而不直接纳入仓库。
 
 ### 使用方式
 
@@ -86,6 +90,10 @@ CityLBM is an urban wind-simulation workflow for Rhino and Grasshopper. It conne
 ### Validation Boundary
 
 Existing AIJ Case A/E assets demonstrate the end-to-end workflow and diagnostic capability. Short smoke runs, historic diagnostic outputs, or a successful code build are not publication-grade accuracy validation. Final accuracy claims require a strict native baseline, inlet and boundary evidence, adequate time averaging, official-height probe comparison, and documented grid convergence.
+
+### Results and VTK Guide
+
+The archived AIJ Case A package contains `u-000001000.vtk`, `u-000002000.vtk`, coordinate mapping, a 90-point sampling script, and an existing comparison workbook. See [`docs/RESULTS_AND_VTK_GUIDE.md`](docs/RESULTS_AND_VTK_GUIDE.md) for file structure, coordinate conversion, ParaView/Rhino inspection, velocity-unit limits, and validation boundaries. The raw VTK snapshots remain in the local validation archive because of their size.
 
 ### Usage
 
