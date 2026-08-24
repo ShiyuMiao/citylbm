@@ -72,6 +72,15 @@ INLET_TURBULENCE_REQUIRED_CONTROLS = [
     "archive_inlet_source_profile_correlation_hashes_for_the_same_final_window",
 ]
 
+TIME_AVERAGING_REQUIRED_CONTROLS = [
+    "save_required_final_window_vtk_frame_count",
+    "span_required_solver_steps_in_final_window",
+    "use_strictly_increasing_uniform_time_steps",
+    "select_last_runtime_window_for_probe_inlet_boundary_audits",
+    "prove_final_window_stationarity_gate_pass",
+    "archive_hashes_for_every_selected_final_window_vtk",
+]
+
 REQUIRED_PROTOCOL_ITEM_KEYS = [
     "inlet_mean_profile",
     "inlet_turbulence_k",
@@ -1313,6 +1322,65 @@ def build_time_average_evidence_reasons(
     if runtime_hash_unique_count != runtime_hash_count:
         evidence_reasons.append("runtime_source_vtk_hashes_not_unique")
     return evidence_reasons
+
+
+def build_time_averaging_interpretation_gate(
+    time_average_gate: str,
+    time_average_reasons: List[str],
+) -> Dict[str, Any]:
+    gate = "pass" if str(time_average_gate or "").strip().lower() == "pass" else "fail"
+    reasons = [str(reason) for reason in time_average_reasons if str(reason).strip()]
+    blocker = ""
+    if gate != "pass":
+        blocker = "time_averaging_evidence"
+        if any("runtime_audit_missing" in reason for reason in reasons):
+            blocker = "time_averaging_runtime_audit"
+        elif any(
+            token in reason
+            for reason in reasons
+            for token in [
+                "frame_count",
+                "average_window",
+                "hash_count",
+            ]
+        ):
+            blocker = "insufficient_final_window_frame_count"
+        elif any(
+            token in reason
+            for reason in reasons
+            for token in [
+                "step_span",
+                "time_steps",
+                "step_spacing",
+                "strictly_increasing",
+            ]
+        ):
+            blocker = "insufficient_final_window_step_span"
+        elif any(
+            token in reason
+            for reason in reasons
+            for token in [
+                "stationarity",
+                "drift",
+                "mean_speed",
+            ]
+        ):
+            blocker = "nonstationary_final_window"
+        elif any("selected_last_window" in reason for reason in reasons):
+            blocker = "final_window_selection"
+    return {
+        "gate": gate,
+        "allowed": gate == "pass",
+        "status": (
+            "final_window_time_average_evidence_closed"
+            if gate == "pass"
+            else "blocked_until_long_stationary_final_window_average_closed"
+        ),
+        "blocker": blocker,
+        "required_controls": list(TIME_AVERAGING_REQUIRED_CONTROLS) if gate != "pass" else [],
+        "reason_count": len(reasons),
+        "reasons": reasons,
+    }
 
 
 def build_final_window_frame_count_gate(
@@ -2853,6 +2921,10 @@ def main() -> int:
     )
     if time_average_gate != "pass":
         reasons.append("native_time_average_evidence_gate_not_pass")
+    native_time_averaging_interpretation = build_time_averaging_interpretation_gate(
+        time_average_gate,
+        time_average_evidence_reasons,
+    )
 
     expected_vector = parse_vector(args.wind_vector)
     actual_vector = shared_wind_vector(shared)
@@ -4042,6 +4114,15 @@ def main() -> int:
         "time_averaging_fidelity_class": time_averaging_fidelity_class,
         "native_preconditions_time_average_evidence_gate_reasons": time_average_evidence_reasons,
         "native_preconditions_time_average_evidence_gate_reasons_csv": ";".join(time_average_evidence_reasons),
+        "native_time_averaging_interpretation_gate": native_time_averaging_interpretation["gate"],
+        "native_time_averaging_interpretation_allowed": native_time_averaging_interpretation["allowed"],
+        "native_time_averaging_interpretation_status": native_time_averaging_interpretation["status"],
+        "native_time_averaging_interpretation_blocker": native_time_averaging_interpretation["blocker"],
+        "native_time_averaging_required_controls": native_time_averaging_interpretation["required_controls"],
+        "native_time_averaging_required_controls_csv": ";".join(
+            native_time_averaging_interpretation["required_controls"]
+        ),
+        "native_time_averaging_interpretation_reason_count": native_time_averaging_interpretation["reason_count"],
         "native_preconditions_lbm_stability_gate": lbm_stability_gate,
         "native_preconditions_lbm_stability_gate_reasons": lbm_stability_reasons,
         "native_preconditions_lbm_stability_gate_reasons_csv": ";".join(lbm_stability_reasons),

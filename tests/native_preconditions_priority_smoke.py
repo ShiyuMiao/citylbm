@@ -194,6 +194,24 @@ def main() -> int:
         if expected_reason not in short_time_reasons:
             raise AssertionError((expected_reason, short_time_reasons))
 
+    passing_time_interpretation = module.build_time_averaging_interpretation_gate("pass", [])
+    if passing_time_interpretation["gate"] != "pass" or passing_time_interpretation["allowed"] is not True:
+        raise AssertionError(passing_time_interpretation)
+    short_time_interpretation = module.build_time_averaging_interpretation_gate(
+        "fail",
+        short_time_reasons,
+    )
+    if short_time_interpretation["blocker"] != "insufficient_final_window_frame_count":
+        raise AssertionError(short_time_interpretation)
+    if short_time_interpretation["status"] != "blocked_until_long_stationary_final_window_average_closed":
+        raise AssertionError(short_time_interpretation)
+    stationarity_time_interpretation = module.build_time_averaging_interpretation_gate(
+        "fail",
+        ["runtime_final_window_stationarity_gate_not_pass:diagnostic_only"],
+    )
+    if stationarity_time_interpretation["blocker"] != "nonstationary_final_window":
+        raise AssertionError(stationarity_time_interpretation)
+
     passing_lbm_reasons = module.build_lbm_stability_reasons(
         target_velocity_lbm=0.08,
         estimated_mach=0.14,

@@ -388,6 +388,12 @@ TEMPLATE_FIELDS = [
     "native_preconditions_strict_native_run_gate_reasons",
     "native_preconditions_time_average_evidence_gate",
     "native_preconditions_time_average_evidence_gate_reasons",
+    "native_time_averaging_interpretation_gate",
+    "native_time_averaging_interpretation_allowed",
+    "native_time_averaging_interpretation_status",
+    "native_time_averaging_interpretation_blocker",
+    "native_time_averaging_required_controls",
+    "native_time_averaging_interpretation_reason_count",
     "native_preconditions_lbm_stability_gate",
     "native_preconditions_lbm_stability_gate_reasons",
     "native_preconditions_target_max_profile_velocity_lbm",
@@ -2692,6 +2698,24 @@ def main() -> int:
             ),
             "native_preconditions_time_average_evidence_gate_reasons": audit_field(
                 native_preconditions_audit, "native_preconditions_time_average_evidence_gate_reasons_csv"
+            ),
+            "native_time_averaging_interpretation_gate": audit_gate(
+                native_preconditions_audit, "native_time_averaging_interpretation_gate"
+            ),
+            "native_time_averaging_interpretation_allowed": first_bool_text(
+                native_preconditions_audit.get("native_time_averaging_interpretation_allowed")
+            ),
+            "native_time_averaging_interpretation_status": audit_field(
+                native_preconditions_audit, "native_time_averaging_interpretation_status"
+            ),
+            "native_time_averaging_interpretation_blocker": audit_field(
+                native_preconditions_audit, "native_time_averaging_interpretation_blocker"
+            ),
+            "native_time_averaging_required_controls": audit_field(
+                native_preconditions_audit, "native_time_averaging_required_controls_csv"
+            ),
+            "native_time_averaging_interpretation_reason_count": audit_field(
+                native_preconditions_audit, "native_time_averaging_interpretation_reason_count"
             ),
             "native_preconditions_lbm_stability_gate": audit_gate(
                 native_preconditions_audit, "native_preconditions_lbm_stability_gate"

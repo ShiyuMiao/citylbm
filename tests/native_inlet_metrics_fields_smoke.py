@@ -138,6 +138,23 @@ def main() -> int:
                         "runtime_average_window_frame_count_4_below_minimum_40;"
                         "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
                     ),
+                    "native_time_averaging_interpretation_gate": "fail",
+                    "native_time_averaging_interpretation_allowed": False,
+                    "native_time_averaging_interpretation_status": (
+                        "blocked_until_long_stationary_final_window_average_closed"
+                    ),
+                    "native_time_averaging_interpretation_blocker": (
+                        "insufficient_final_window_frame_count"
+                    ),
+                    "native_time_averaging_required_controls_csv": (
+                        "save_required_final_window_vtk_frame_count;"
+                        "span_required_solver_steps_in_final_window;"
+                        "use_strictly_increasing_uniform_time_steps;"
+                        "select_last_runtime_window_for_probe_inlet_boundary_audits;"
+                        "prove_final_window_stationarity_gate_pass;"
+                        "archive_hashes_for_every_selected_final_window_vtk"
+                    ),
+                    "native_time_averaging_interpretation_reason_count": 2,
                     "native_preconditions_lbm_stability_gate": "fail",
                     "native_preconditions_lbm_stability_gate_reasons_csv": (
                         "estimated_max_profile_mach_above_0.2:0.24;"
@@ -459,6 +476,21 @@ def main() -> int:
             "runtime_average_window_frame_count_4_below_minimum_40;"
             "runtime_final_window_stationarity_gate_not_pass:diagnostic_only"
         ),
+        "native_time_averaging_interpretation_gate": "fail",
+        "native_time_averaging_interpretation_allowed": "false",
+        "native_time_averaging_interpretation_status": (
+            "blocked_until_long_stationary_final_window_average_closed"
+        ),
+        "native_time_averaging_interpretation_blocker": "insufficient_final_window_frame_count",
+        "native_time_averaging_required_controls": (
+            "save_required_final_window_vtk_frame_count;"
+            "span_required_solver_steps_in_final_window;"
+            "use_strictly_increasing_uniform_time_steps;"
+            "select_last_runtime_window_for_probe_inlet_boundary_audits;"
+            "prove_final_window_stationarity_gate_pass;"
+            "archive_hashes_for_every_selected_final_window_vtk"
+        ),
+        "native_time_averaging_interpretation_reason_count": "2",
         "native_preconditions_lbm_stability_gate": "fail",
         "native_preconditions_lbm_stability_gate_reasons": (
             "estimated_max_profile_mach_above_0.2:0.24;"
