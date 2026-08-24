@@ -617,6 +617,25 @@ def main() -> int:
     has_reynolds_stress_full_tensor_source_evidence = (
         has_reynolds_stress_diagonal_source_evidence and has_reynolds_stress_offdiagonal_source_evidence
     )
+    reynolds_stress_diagonal_usage_patterns = [
+        r"\b(profile_r11_lbm|r11_profile)\s*\[[^\]]+\]",
+        r"\b(profile_r22_lbm|r22_profile)\s*\[[^\]]+\]",
+        r"\b(profile_r33_lbm|r33_profile)\s*\[[^\]]+\]",
+    ]
+    reynolds_stress_offdiagonal_usage_patterns = [
+        r"\b(profile_r12_lbm|r12_profile)\s*\[[^\]]+\]",
+        r"\b(profile_r13_lbm|r13_profile)\s*\[[^\]]+\]",
+        r"\b(profile_r23_lbm|r23_profile)\s*\[[^\]]+\]",
+    ]
+    has_reynolds_stress_diagonal_usage_evidence = all(
+        has_regex(implementation_source, pattern) for pattern in reynolds_stress_diagonal_usage_patterns
+    )
+    has_reynolds_stress_offdiagonal_usage_evidence = all(
+        has_regex(implementation_source, pattern) for pattern in reynolds_stress_offdiagonal_usage_patterns
+    )
+    has_reynolds_stress_full_tensor_usage_evidence = (
+        has_reynolds_stress_diagonal_usage_evidence and has_reynolds_stress_offdiagonal_usage_evidence
+    )
     reynolds_stress_metadata_lower = metadata_reynolds_stress_treatment.lower()
     metadata_documents_isotropic_k_only = contains_any(
         reynolds_stress_metadata_lower,
@@ -652,7 +671,7 @@ def main() -> int:
     )
     has_measured_or_precursor_reynolds_stress_tensor_evidence = (
         has_precursor_recycling_field
-        or (has_reynolds_stress_full_tensor_source_evidence and not metadata_documents_isotropic_k_only)
+        or (has_reynolds_stress_full_tensor_usage_evidence and not metadata_documents_isotropic_k_only)
     )
     has_reynolds_stress_tensor_evidence = (
         has_precursor_recycling_field or has_reynolds_stress_full_tensor_source_evidence
@@ -1014,6 +1033,12 @@ def main() -> int:
         reasons.append("precursor_recycling_method_missing_recycled_field_evidence")
     if has_reynolds_stress_tensor_metadata_claim and not has_reynolds_stress_tensor_evidence:
         reasons.append("metadata_claims_reynolds_stress_without_source_evidence")
+    if (
+        has_reynolds_stress_tensor_metadata_claim
+        and has_reynolds_stress_tensor_evidence
+        and not has_reynolds_stress_full_tensor_usage_evidence
+    ):
+        reasons.append("metadata_claims_reynolds_stress_without_tensor_usage_evidence")
 
     source_gate = "pass" if not reasons else "fail"
     paper_gate_reasons: List[str] = []
@@ -1030,6 +1055,8 @@ def main() -> int:
     if synthetic_requested and not has_measured_or_precursor_reynolds_stress_tensor_evidence:
         if has_isotropic_k_reynolds_stress_source_evidence:
             paper_gate_reasons.append("source_reynolds_stress_tensor_is_isotropic_k_assumption_only")
+        elif has_reynolds_stress_full_tensor_source_evidence and not has_reynolds_stress_full_tensor_usage_evidence:
+            paper_gate_reasons.append("source_reynolds_stress_tensor_declared_but_not_used_in_inlet")
         else:
             paper_gate_reasons.append("source_missing_measured_or_precursor_reynolds_stress_tensor_evidence")
     if (
@@ -1131,6 +1158,9 @@ def main() -> int:
         "has_reynolds_stress_diagonal_source_evidence": has_reynolds_stress_diagonal_source_evidence,
         "has_reynolds_stress_offdiagonal_source_evidence": has_reynolds_stress_offdiagonal_source_evidence,
         "has_reynolds_stress_full_tensor_source_evidence": has_reynolds_stress_full_tensor_source_evidence,
+        "has_reynolds_stress_diagonal_usage_evidence": has_reynolds_stress_diagonal_usage_evidence,
+        "has_reynolds_stress_offdiagonal_usage_evidence": has_reynolds_stress_offdiagonal_usage_evidence,
+        "has_reynolds_stress_full_tensor_usage_evidence": has_reynolds_stress_full_tensor_usage_evidence,
         "has_isotropic_k_reynolds_stress_source_evidence": has_isotropic_k_reynolds_stress_source_evidence,
         "has_measured_or_precursor_reynolds_stress_tensor_evidence": has_measured_or_precursor_reynolds_stress_tensor_evidence,
         "has_reynolds_stress_tensor_evidence": has_reynolds_stress_tensor_evidence,

@@ -251,6 +251,9 @@ TEMPLATE_FIELDS = [
     "inlet_source_has_reynolds_stress_diagonal_source_evidence",
     "inlet_source_has_reynolds_stress_offdiagonal_source_evidence",
     "inlet_source_has_reynolds_stress_full_tensor_source_evidence",
+    "inlet_source_has_reynolds_stress_diagonal_usage_evidence",
+    "inlet_source_has_reynolds_stress_offdiagonal_usage_evidence",
+    "inlet_source_has_reynolds_stress_full_tensor_usage_evidence",
     "inlet_source_has_reynolds_stress_tensor_evidence",
     "inlet_source_has_documented_isotropic_k_assumption",
     "inlet_source_reynolds_stress_treatment",
@@ -493,6 +496,9 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_has_reynolds_stress_diagonal_source_evidence",
     "native_inlet_source_has_reynolds_stress_offdiagonal_source_evidence",
     "native_inlet_source_has_reynolds_stress_full_tensor_source_evidence",
+    "native_inlet_source_has_reynolds_stress_diagonal_usage_evidence",
+    "native_inlet_source_has_reynolds_stress_offdiagonal_usage_evidence",
+    "native_inlet_source_has_reynolds_stress_full_tensor_usage_evidence",
     "native_inlet_source_has_three_component_velocity_write",
     "native_inlet_source_has_three_component_fluctuation_evidence",
     "native_inlet_source_has_k_driven_three_component_stg",
@@ -2389,6 +2395,15 @@ def main() -> int:
             "inlet_source_has_reynolds_stress_full_tensor_source_evidence": first_bool_text(
                 inlet_source_audit.get("has_reynolds_stress_full_tensor_source_evidence")
             ),
+            "inlet_source_has_reynolds_stress_diagonal_usage_evidence": first_bool_text(
+                inlet_source_audit.get("has_reynolds_stress_diagonal_usage_evidence")
+            ),
+            "inlet_source_has_reynolds_stress_offdiagonal_usage_evidence": first_bool_text(
+                inlet_source_audit.get("has_reynolds_stress_offdiagonal_usage_evidence")
+            ),
+            "inlet_source_has_reynolds_stress_full_tensor_usage_evidence": first_bool_text(
+                inlet_source_audit.get("has_reynolds_stress_full_tensor_usage_evidence")
+            ),
             "inlet_source_has_reynolds_stress_tensor_evidence": first_bool_text(
                 inlet_source_audit.get("has_reynolds_stress_tensor_evidence")
             ),
@@ -2961,6 +2976,15 @@ def main() -> int:
             ),
             "native_inlet_source_has_reynolds_stress_full_tensor_source_evidence": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_reynolds_stress_full_tensor_source_evidence")
+            ),
+            "native_inlet_source_has_reynolds_stress_diagonal_usage_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_reynolds_stress_diagonal_usage_evidence")
+            ),
+            "native_inlet_source_has_reynolds_stress_offdiagonal_usage_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_reynolds_stress_offdiagonal_usage_evidence")
+            ),
+            "native_inlet_source_has_reynolds_stress_full_tensor_usage_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_reynolds_stress_full_tensor_usage_evidence")
             ),
             "native_inlet_source_has_three_component_velocity_write": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_three_component_velocity_write")

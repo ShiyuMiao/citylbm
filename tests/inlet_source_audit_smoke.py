@@ -1033,6 +1033,69 @@ void applySyntheticTurbulentInlet(uint t_step) {
         ]:
             raise AssertionError(sem_metadata_claim_only_report["paper_grade_inlet_source_gate_reasons"])
 
+        sem_tensor_decl_only_setup = root / "sem_tensor_decl_only_setup.cpp"
+        sem_tensor_decl_only_out = root / "sem_tensor_decl_only_audit.json"
+        write_text(
+            sem_tensor_decl_only_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_r11_lbm[] = {0.000066f, 0.000133f};
+const float profile_r22_lbm[] = {0.000066f, 0.000133f};
+const float profile_r33_lbm[] = {0.000066f, 0.000133f};
+const float profile_r12_lbm[] = {0.0f, 0.0f};
+const float profile_r13_lbm[] = {0.0f, 0.0f};
+const float profile_r23_lbm[] = {0.0f, 0.0f};
+const float synthetic_eddy_length_scale = 4.0f;
+const float profile_origin_z_m = 0.0f;
+struct SemEddy { float eddy_center; float eddy_radius; float eddy_strength; float eddy_lifetime; };
+SemEddy sem_eddy[64];
+void sem_distribution(uint t_step) {
+    sem_eddy[0].eddy_center = 0.5f + 0.01f * (float)t_step;
+    sem_eddy[0].eddy_radius = synthetic_eddy_length_scale;
+    sem_eddy[0].eddy_strength = 0.25f;
+    sem_eddy[0].eddy_lifetime = 10.0f;
+}
+float calculate_f_eq(uint q, float rho, float ux, float uy, float uz) { return rho + ux + uy + uz + q; }
+void reconstructSyntheticEddyInletDistributions(uint n) {
+    if(flags[n]==TYPE_E) {
+        const float fluct_x = sem_eddy[0].eddy_strength;
+        const float ux = profile_u_lbm[0] + fluct_x;
+        lbm.u.x[n] = ux;
+        for(uint q=0u; q<19u; q++) {
+            lbm.f[n*19u+q] = calculate_f_eq(q, 1.0f, ux, 0.0f, 0.0f);
+        }
+    }
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    sem_distribution(t_step);
+    reconstructSyntheticEddyInletDistributions(0u);
+}
+""",
+        )
+        sem_tensor_decl_only_code, sem_tensor_decl_only_report = run_audit(
+            sem_tensor_decl_only_setup,
+            metadata_claim_only,
+            sem_tensor_decl_only_out,
+        )
+        if sem_tensor_decl_only_code == 0:
+            raise AssertionError("declared Reynolds tensor without inlet usage unexpectedly passed")
+        if sem_tensor_decl_only_report["has_reynolds_stress_full_tensor_source_evidence"] is not True:
+            raise AssertionError(sem_tensor_decl_only_report)
+        if sem_tensor_decl_only_report["has_reynolds_stress_full_tensor_usage_evidence"] is not False:
+            raise AssertionError(sem_tensor_decl_only_report)
+        if sem_tensor_decl_only_report["has_measured_or_precursor_reynolds_stress_tensor_evidence"] is not False:
+            raise AssertionError(sem_tensor_decl_only_report)
+        if "metadata_claims_reynolds_stress_without_tensor_usage_evidence" not in sem_tensor_decl_only_report[
+            "inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(sem_tensor_decl_only_report["inlet_source_gate_reasons"])
+        if "source_reynolds_stress_tensor_declared_but_not_used_in_inlet" not in sem_tensor_decl_only_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(sem_tensor_decl_only_report["paper_grade_inlet_source_gate_reasons"])
+
         sem_setup = root / "sem_setup.cpp"
         sem_out = root / "sem_audit.json"
         write_text(
@@ -1062,11 +1125,23 @@ void reconstructSyntheticEddyInletDistributions(uint n) {
     if(flags[n]==TYPE_E) {
         const uint z_cell = n;
         const float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f;
-        const float fluct_x = sem_eddy[0].eddy_strength;
+        const float r11 = profile_r11_lbm[0];
+        const float r22 = profile_r22_lbm[0];
+        const float r33 = profile_r33_lbm[0];
+        const float r12 = profile_r12_lbm[0];
+        const float r13 = profile_r13_lbm[0];
+        const float r23 = profile_r23_lbm[0];
+        const float fluct_x = sem_eddy[0].eddy_strength * sqrtf(r11);
+        const float fluct_y = sem_eddy[0].eddy_strength * (r12 + sqrtf(r22));
+        const float fluct_z = sem_eddy[0].eddy_strength * (r13 + r23 + sqrtf(r33));
         const float ux = profile_u_lbm[0] + z_m * 0.0f + fluct_x;
+        const float uy = fluct_y;
+        const float uz = fluct_z;
         lbm.u.x[n] = ux;
+        lbm.u.y[n] = uy;
+        lbm.u.z[n] = uz;
         for(uint q=0u; q<19u; q++) {
-            lbm.f[n*19u+q] = calculate_f_eq(q, 1.0f, ux, 0.0f, 0.0f);
+            lbm.f[n*19u+q] = calculate_f_eq(q, 1.0f, ux, uy, uz);
         }
     }
 }
@@ -1090,6 +1165,8 @@ void applySyntheticTurbulentInlet(uint t_step) {
         if sem_report["has_sem_eddy_update_evidence"] is not True:
             raise AssertionError(sem_report)
         if sem_report["has_sem_eddy_velocity_coupling_evidence"] is not True:
+            raise AssertionError(sem_report)
+        if sem_report["has_reynolds_stress_full_tensor_usage_evidence"] is not True:
             raise AssertionError(sem_report)
         if sem_report["reynolds_stress_treatment"] != "measured_or_precursor_full_tensor":
             raise AssertionError(sem_report["reynolds_stress_treatment"])

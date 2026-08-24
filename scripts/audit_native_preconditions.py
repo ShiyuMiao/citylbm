@@ -2629,6 +2629,15 @@ def main() -> int:
     inlet_has_reynolds_full_tensor_source = as_bool(
         inlet_source_audit.get("has_reynolds_stress_full_tensor_source_evidence")
     )
+    inlet_has_reynolds_diagonal_usage = as_bool(
+        inlet_source_audit.get("has_reynolds_stress_diagonal_usage_evidence")
+    )
+    inlet_has_reynolds_offdiagonal_usage = as_bool(
+        inlet_source_audit.get("has_reynolds_stress_offdiagonal_usage_evidence")
+    )
+    inlet_has_reynolds_full_tensor_usage = as_bool(
+        inlet_source_audit.get("has_reynolds_stress_full_tensor_usage_evidence")
+    )
     inlet_has_uncorrelated_random = as_bool(inlet_source_audit.get("has_uncorrelated_random_inlet"))
     inlet_uncorrelated_random_patterns = split_scalar_list(
         inlet_source_audit.get("uncorrelated_random_inlet_patterns")
@@ -3829,6 +3838,9 @@ def main() -> int:
         "inlet_source_has_reynolds_stress_diagonal_source_evidence": inlet_has_reynolds_diagonal_source,
         "inlet_source_has_reynolds_stress_offdiagonal_source_evidence": inlet_has_reynolds_offdiagonal_source,
         "inlet_source_has_reynolds_stress_full_tensor_source_evidence": inlet_has_reynolds_full_tensor_source,
+        "inlet_source_has_reynolds_stress_diagonal_usage_evidence": inlet_has_reynolds_diagonal_usage,
+        "inlet_source_has_reynolds_stress_offdiagonal_usage_evidence": inlet_has_reynolds_offdiagonal_usage,
+        "inlet_source_has_reynolds_stress_full_tensor_usage_evidence": inlet_has_reynolds_full_tensor_usage,
         "inlet_source_has_sem_eddy_update_evidence": as_bool(
             inlet_source_audit.get("has_sem_eddy_update_evidence")
         ),
