@@ -948,6 +948,59 @@ def audit_role(manifest: Dict[str, Any], manifest_path: Optional[Path], role: st
     }
 
 
+def manifest_case_to_run_source_parity(manifest: Dict[str, Any]) -> Dict[str, Any]:
+    parity = manifest.get("CaseToRunSourceParityGate", {})
+    reasons: List[str] = []
+    if not isinstance(parity, dict) or not parity:
+        return {
+            "gate": "fail",
+            "reasons": ["case_to_run_source_parity_gate_missing"],
+            "reasons_csv": "case_to_run_source_parity_gate_missing",
+            "manifest_gate": "",
+            "pairs": [],
+            "matched_pair_count": 0,
+            "required_pair_count": 2,
+        }
+
+    manifest_gate = str(parity.get("Gate") or parity.get("gate") or "").strip().lower()
+    if manifest_gate != "pass":
+        reasons.append(f"case_to_run_source_parity_gate_not_pass:{manifest_gate or 'missing'}")
+    for reason in split_scalar_list(parity.get("Reasons") or parity.get("reasons")):
+        reasons.append(f"case_to_run_source_parity_reason:{reason}")
+
+    raw_pairs = parity.get("Pairs") or parity.get("pairs") or []
+    pairs = [item for item in raw_pairs if isinstance(item, dict)] if isinstance(raw_pairs, list) else []
+    by_role = {str(item.get("Role") or item.get("role") or "").strip().lower(): item for item in pairs}
+    required_roles = ["setup", "defines"]
+    matched_pair_count = 0
+    for role in required_roles:
+        item = by_role.get(role)
+        if not item:
+            reasons.append(f"case_to_run_source_parity_pair_missing:{role}")
+            continue
+        case_sha = str(item.get("CaseSha256") or item.get("case_sha256") or "").strip().lower()
+        source_sha = str(item.get("SourceSha256") or item.get("source_sha256") or "").strip().lower()
+        match = as_bool(item.get("Match") if "Match" in item else item.get("match"))
+        if len(case_sha) != 64:
+            reasons.append(f"case_to_run_source_parity_case_sha_missing:{role}")
+        if len(source_sha) != 64:
+            reasons.append(f"case_to_run_source_parity_source_sha_missing:{role}")
+        if match is not True:
+            reasons.append(f"case_to_run_source_parity_pair_not_matched:{role}")
+        elif len(case_sha) == 64 and len(source_sha) == 64:
+            matched_pair_count += 1
+
+    return {
+        "gate": "pass" if not reasons else "fail",
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+        "manifest_gate": manifest_gate,
+        "pairs": pairs,
+        "matched_pair_count": matched_pair_count,
+        "required_pair_count": len(required_roles),
+    }
+
+
 def shared_wind_vector(shared: Dict[str, Any]) -> Optional[Tuple[float, float, float]]:
     raw = shared.get("WindDirectionUnitVector")
     if isinstance(raw, dict):
@@ -2453,6 +2506,10 @@ def main() -> int:
     failed_roles = [item["role"] for item in role_audits if item["gate"] != "pass"]
     if failed_roles:
         reasons.append("required_source_file_hash_gate_failed:" + ";".join(failed_roles))
+    source_parity_audit = manifest_case_to_run_source_parity(manifest)
+    if source_parity_audit["gate"] != "pass":
+        reasons.append("case_to_run_source_parity_gate_failed")
+        reasons.extend(str(reason) for reason in source_parity_audit["reasons"])
 
     setup_sha = sha256_file(setup_path)
     defines_sha = sha256_file(defines_path)
@@ -4543,6 +4600,13 @@ def main() -> int:
         "native_preconditions_metadata_sha256": metadata_sha,
         "native_preconditions_runtime_audit_sha256": runtime_audit_sha,
         "native_preconditions_protocol_audit_sha256": protocol_audit_sha,
+        "case_to_run_source_parity_gate": source_parity_audit["gate"],
+        "case_to_run_source_parity_gate_reasons": source_parity_audit["reasons"],
+        "case_to_run_source_parity_gate_reasons_csv": source_parity_audit["reasons_csv"],
+        "case_to_run_source_parity_manifest_gate": source_parity_audit["manifest_gate"],
+        "case_to_run_source_parity_matched_pair_count": source_parity_audit["matched_pair_count"],
+        "case_to_run_source_parity_required_pair_count": source_parity_audit["required_pair_count"],
+        "case_to_run_source_parity_pairs": source_parity_audit["pairs"],
         "validation_protocol_content_gate": protocol_content_audit["gate"],
         "validation_protocol_content_gate_reasons": protocol_content_audit["reasons"],
         "validation_protocol_content_gate_reasons_csv": protocol_content_audit["reasons_csv"],
