@@ -1189,27 +1189,86 @@ def paper_grade_inlet_method_pass(
     distribution_status: str,
     treatment_velocity_only: bool,
 ) -> bool:
-    return (
-        empty_tunnel_pass
-        and inlet_source_evidence_ok
-        and audit_paper_grade_inlet_source_gate == "pass"
-        and audit_inlet_source_distribution_consistent is True
-        and audit_inlet_source_velocity_field_only is not True
-        and audit_inlet_source_comment_stripped is True
-        and audit_has_uncorrelated_random_inlet is not True
-        and (
+    return not paper_grade_inlet_method_failure_reasons(
+        empty_tunnel_pass=empty_tunnel_pass,
+        inlet_source_evidence_ok=inlet_source_evidence_ok,
+        audit_paper_grade_inlet_source_gate=audit_paper_grade_inlet_source_gate,
+        audit_inlet_source_distribution_consistent=audit_inlet_source_distribution_consistent,
+        audit_inlet_source_velocity_field_only=audit_inlet_source_velocity_field_only,
+        audit_inlet_source_comment_stripped=audit_inlet_source_comment_stripped,
+        audit_has_uncorrelated_random_inlet=audit_has_uncorrelated_random_inlet,
+        audit_inlet_source_turbulent_inflow_fidelity_class=(
             audit_inlet_source_turbulent_inflow_fidelity_class
-            in {
-                "distribution_consistent_digital_filter",
-                "distribution_consistent_synthetic_eddy",
-                "distribution_consistent_precursor_or_recycling",
-            }
-        )
-        and paper_method_class_ok
-        and treatment_distribution_consistent
-        and distribution_status == "pass"
-        and not treatment_velocity_only
+        ),
+        paper_method_class_ok=paper_method_class_ok,
+        treatment_distribution_consistent=treatment_distribution_consistent,
+        distribution_status=distribution_status,
+        treatment_velocity_only=treatment_velocity_only,
     )
+
+
+def paper_grade_inlet_method_failure_reasons(
+    *,
+    empty_tunnel_pass: bool,
+    inlet_source_evidence_ok: bool,
+    audit_paper_grade_inlet_source_gate: str,
+    audit_inlet_source_distribution_consistent: Optional[bool],
+    audit_inlet_source_velocity_field_only: Optional[bool],
+    audit_inlet_source_comment_stripped: Optional[bool],
+    audit_has_uncorrelated_random_inlet: Optional[bool],
+    audit_inlet_source_turbulent_inflow_fidelity_class: str,
+    paper_method_class_ok: bool,
+    treatment_distribution_consistent: bool,
+    distribution_status: str,
+    treatment_velocity_only: bool,
+) -> List[str]:
+    reasons: List[str] = []
+    if not empty_tunnel_pass:
+        reasons.append("empty_tunnel_or_inlet_profile_not_pass")
+    if not inlet_source_evidence_ok:
+        reasons.append("inlet_source_evidence_not_ok")
+    if audit_paper_grade_inlet_source_gate != "pass":
+        reasons.append(
+            "audit_paper_grade_inlet_source_gate_not_pass:"
+            f"{audit_paper_grade_inlet_source_gate or 'missing'}"
+        )
+    if audit_inlet_source_distribution_consistent is not True:
+        reasons.append(
+            "audit_inlet_source_distribution_consistent_not_true:"
+            f"{audit_inlet_source_distribution_consistent if audit_inlet_source_distribution_consistent is not None else 'missing'}"
+        )
+    if audit_inlet_source_velocity_field_only is True:
+        reasons.append("audit_inlet_source_velocity_field_only_not_false:True")
+    elif audit_inlet_source_velocity_field_only is None:
+        reasons.append("audit_inlet_source_velocity_field_only_missing")
+    if audit_inlet_source_comment_stripped is not True:
+        reasons.append(
+            "audit_inlet_source_comment_stripped_not_true:"
+            f"{audit_inlet_source_comment_stripped if audit_inlet_source_comment_stripped is not None else 'missing'}"
+        )
+    if audit_has_uncorrelated_random_inlet is True:
+        reasons.append("audit_has_uncorrelated_random_inlet_not_false:True")
+    elif audit_has_uncorrelated_random_inlet is None:
+        reasons.append("audit_has_uncorrelated_random_inlet_missing")
+    allowed_fidelity = {
+        "distribution_consistent_digital_filter",
+        "distribution_consistent_synthetic_eddy",
+        "distribution_consistent_precursor_or_recycling",
+    }
+    if audit_inlet_source_turbulent_inflow_fidelity_class not in allowed_fidelity:
+        reasons.append(
+            "audit_inlet_source_turbulent_inflow_fidelity_class_not_paper_grade:"
+            f"{audit_inlet_source_turbulent_inflow_fidelity_class or 'missing'}"
+        )
+    if not paper_method_class_ok:
+        reasons.append("paper_method_class_not_supported")
+    if not treatment_distribution_consistent:
+        reasons.append("treatment_distribution_consistent_not_true")
+    if distribution_status != "pass":
+        reasons.append(f"inlet_distribution_status_not_pass:{distribution_status or 'missing'}")
+    if treatment_velocity_only:
+        reasons.append("treatment_velocity_only_not_false:True")
+    return reasons
 
 
 def stg_three_component_evidence_pass(
@@ -5686,7 +5745,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "Use a distribution-consistent DFM/SEM/precursor/recycling inlet and pass empty-tunnel U/k preservation; velocity-only STG-lite is diagnostic unless explicitly allowed.",
     )
 
-    paper_grade_inlet_pass = paper_grade_inlet_method_pass(
+    paper_grade_inlet_failure_reasons = paper_grade_inlet_method_failure_reasons(
         empty_tunnel_pass=empty_tunnel_pass,
         inlet_source_evidence_ok=inlet_source_evidence_ok,
         audit_paper_grade_inlet_source_gate=audit_paper_grade_inlet_source_gate,
@@ -5700,6 +5759,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         distribution_status=distribution_status,
         treatment_velocity_only=treatment_velocity_only,
     )
+    paper_grade_inlet_pass = not paper_grade_inlet_failure_reasons
     add_gate(
         gates,
         "paper_grade_inlet_method",
@@ -5737,6 +5797,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"distribution_consistent={treatment_distribution_consistent}; "
             f"empty_tunnel_or_inlet_profile_pass={empty_tunnel_pass}; "
             f"paper_grade_inlet_source_gate_reasons={paper_grade_inlet_source_reasons or 'none'}; "
+            f"paper_grade_inlet_method_failure_reasons={';'.join(paper_grade_inlet_failure_reasons) or 'none'}; "
             f"allow_velocity_only_inlet={args.allow_velocity_only_inlet}"
         ),
         (
