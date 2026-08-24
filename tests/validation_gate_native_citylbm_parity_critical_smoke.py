@@ -108,6 +108,9 @@ def main() -> int:
             "synthetic_temporal_sampling_gate",
             "synthetic_expected_final_window_refresh_count",
             "inlet_source_has_k_driven_three_component_stg",
+            "inlet_source_has_source_length_scale_evidence",
+            "inlet_source_has_metadata_length_scale_evidence",
+            "inlet_source_length_scale_evidence_basis",
             "inlet_source_has_temporal_filter_state",
             "source_time_steps",
             "source_step_span",
@@ -191,6 +194,37 @@ def main() -> int:
             raise AssertionError(bad_report)
         if "synthetic_temporal_sampling_gate" not in bad_report["missing_critical_fields"]:
             raise AssertionError(bad_report)
+
+        bad_length_basis = tmp_path / "native_missing_inlet_length_basis.csv"
+        bad_length_basis_out = tmp_path / "bad_length_basis_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_length_basis,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="inlet_source_length_scale_evidence_basis",
+        )
+        failed_length_basis = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_length_basis,
+            bad_length_basis_out,
+        )
+        if failed_length_basis.returncode == 0:
+            raise AssertionError(
+                (
+                    failed_length_basis.returncode,
+                    failed_length_basis.stdout,
+                    failed_length_basis.stderr,
+                )
+            )
+        bad_length_basis_report = json.loads(bad_length_basis_out.read_text(encoding="utf-8"))
+        if bad_length_basis_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_length_basis_report)
+        if (
+            "inlet_source_length_scale_evidence_basis"
+            not in bad_length_basis_report["missing_critical_fields"]
+        ):
+            raise AssertionError(bad_length_basis_report)
 
         bad_boundary = tmp_path / "native_missing_boundary_detail.csv"
         bad_boundary_out = tmp_path / "bad_boundary_native_citylbm_parity_audit.json"
