@@ -232,6 +232,115 @@ def audit_validation_protocol(path: Path) -> Dict[str, Any]:
     }
 
 
+def audit_case_metadata_preconditions(metadata: Dict[str, Any]) -> Dict[str, Any]:
+    reasons: List[str] = []
+
+    paper_inlet_gate = str(
+        metadata_value(
+            metadata,
+            [
+                "PaperGradeTurbulentInletPrerequisiteGate",
+                "PaperGradeInletPrerequisiteGate",
+                "PaperGradeInletMethodGate",
+            ],
+        )
+        or ""
+    ).strip().lower()
+    paper_boundary_gate = str(
+        metadata_value(
+            metadata,
+            [
+                "PaperGradeBoundaryPrerequisiteGate",
+                "PaperGradeBoundaryMethodGate",
+            ],
+        )
+        or ""
+    ).strip().lower()
+    inlet_distribution_reconstruction = metadata_bool(
+        metadata,
+        [
+            "InletDistributionFunctionReconstruction",
+            "SyntheticTurbulentInletDistributionFunctionReconstruction",
+        ],
+    )
+    synthetic_injected = metadata_bool(
+        metadata,
+        ["SyntheticTurbulentInletInjected", "SyntheticTurbulenceInjected"],
+    )
+    distribution_treatment = str(
+        metadata_value(
+            metadata,
+            [
+                "SyntheticTurbulentInletDistributionTreatment",
+                "InletDistributionTreatment",
+            ],
+        )
+        or ""
+    ).strip().lower()
+    inlet_paper_status = str(
+        metadata_value(
+            metadata,
+            [
+                "SyntheticTurbulentInletPaperGradeStatus",
+                "PaperGradeTurbulentInletStatus",
+            ],
+        )
+        or ""
+    ).strip().lower()
+    boundary_paper_status = str(
+        metadata_value(
+            metadata,
+            [
+                "BoundaryConditionPaperGradeStatus",
+                "BoundaryVelocityInitializationPaperGradeStatus",
+            ],
+        )
+        or ""
+    ).strip().lower()
+    boundary_non_reflecting = metadata_bool(metadata, ["BoundaryNonReflectingOutletImplemented"])
+    boundary_wind_tunnel = metadata_bool(metadata, ["BoundarySideTopWindTunnelEquivalentImplemented"])
+    boundary_rough_wall = metadata_bool(metadata, ["BoundaryRoughWallFunctionImplemented"])
+    boundary_precursor = metadata_bool(metadata, ["BoundaryPrecursorOrRecyclingImplemented"])
+    boundary_blockage_fetch = metadata_bool(metadata, ["BoundaryBlockageFetchEvidenceArchived"])
+
+    if paper_inlet_gate and paper_inlet_gate not in {"pass", "paper_grade", "ready_for_validation_run"}:
+        reasons.append(f"case_metadata_paper_grade_turbulent_inlet_prerequisite_not_pass:{paper_inlet_gate}")
+    if paper_boundary_gate and paper_boundary_gate not in {"pass", "paper_grade", "ready_for_validation_run"}:
+        reasons.append(f"case_metadata_paper_grade_boundary_prerequisite_not_pass:{paper_boundary_gate}")
+    if synthetic_injected is True and inlet_distribution_reconstruction is False:
+        reasons.append("case_metadata_synthetic_inlet_without_distribution_reconstruction")
+    if "velocity_field_only" in distribution_treatment or "no_distribution_function_reconstruction" in distribution_treatment:
+        reasons.append("case_metadata_inlet_distribution_treatment_velocity_field_only")
+    if inlet_paper_status and "diagnostic_only" in inlet_paper_status:
+        reasons.append("case_metadata_turbulent_inlet_status_diagnostic_only")
+    if boundary_paper_status and "diagnostic" in boundary_paper_status:
+        reasons.append("case_metadata_boundary_status_diagnostic_only")
+
+    boundary_fields = [
+        ("non_reflecting_outlet", boundary_non_reflecting),
+        ("side_top_wind_tunnel_equivalence", boundary_wind_tunnel),
+        ("rough_wall_function", boundary_rough_wall),
+        ("precursor_or_recycling", boundary_precursor),
+        ("blockage_fetch_evidence", boundary_blockage_fetch),
+    ]
+    for key, value in boundary_fields:
+        if value is False:
+            reasons.append(f"case_metadata_boundary_evidence_false:{key}")
+
+    return {
+        "Gate": "pass" if not reasons else "diagnostic_only",
+        "Reasons": reasons,
+        "ReasonsCsv": ";".join(reasons),
+        "PaperGradeTurbulentInletPrerequisiteGate": paper_inlet_gate,
+        "PaperGradeBoundaryPrerequisiteGate": paper_boundary_gate,
+        "SyntheticTurbulentInletInjected": synthetic_injected,
+        "InletDistributionFunctionReconstruction": inlet_distribution_reconstruction,
+        "SyntheticTurbulentInletDistributionTreatment": distribution_treatment,
+        "SyntheticTurbulentInletPaperGradeStatus": inlet_paper_status,
+        "BoundaryConditionPaperGradeStatus": boundary_paper_status,
+    }
+
+
 def path_record(role: str, path: Path) -> Dict[str, Any]:
     exists = path.exists() and path.is_file()
     return {
@@ -790,6 +899,7 @@ def main() -> int:
     metadata = json_load(metadata_path)
     case_label, wind_label = case_identity(metadata)
     validation_protocol = audit_validation_protocol(case_dir / "validation_protocol_audit.json")
+    metadata_preconditions = audit_case_metadata_preconditions(metadata)
     expected_case = args.expected_aij_case.strip()
     expected_wind = args.expected_wind_direction.strip()
     source_validation = validate_source_root(source_root)
@@ -809,6 +919,8 @@ def main() -> int:
             reasons.append(f"case_required_file_missing:{role}")
     if validation_protocol["Gate"] != "pass":
         reasons.extend(str(reason) for reason in validation_protocol["Reasons"])
+    if metadata_preconditions["Gate"] != "pass":
+        reasons.extend(str(reason) for reason in metadata_preconditions["Reasons"])
     if expected_case and not case_label:
         reasons.append("case_label_missing_in_metadata")
     elif not identity_matches(expected_case, case_label):
@@ -925,6 +1037,7 @@ def main() -> int:
         "ExpectedWindDirection": expected_wind,
         "RequiredSourceFiles": required_files,
         "ValidationProtocolAuditGate": validation_protocol,
+        "CaseMetadataPreconditionGate": metadata_preconditions,
         "Install": install_record,
         "Build": build_record,
         "Run": run_record,

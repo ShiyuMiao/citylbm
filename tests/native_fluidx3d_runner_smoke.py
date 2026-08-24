@@ -138,6 +138,8 @@ def main() -> int:
             raise AssertionError(dry["NativeFluidX3DSourceValidation"])
         if dry["ValidationProtocolAuditGate"]["Gate"] != "pass":
             raise AssertionError(dry["ValidationProtocolAuditGate"])
+        if dry["CaseMetadataPreconditionGate"]["Gate"] != "pass":
+            raise AssertionError(dry["CaseMetadataPreconditionGate"])
         if dry["ValidationProtocolAuditGate"]["Statuses"]["inlet_distribution_consistency"] != "pass":
             raise AssertionError(dry["ValidationProtocolAuditGate"])
         if dry["PlannedSyntheticInletSamplingGate"]["Gate"] != "pass":
@@ -406,6 +408,74 @@ def main() -> int:
         bad_gate = load_json(bad_gate_manifest)
         if "validation_protocol_audit_gate_not_paper_grade:not_paper_grade" not in bad_gate["RunnerGate"]["Reasons"]:
             raise AssertionError(bad_gate["RunnerGate"])
+
+        diagnostic_metadata_case = temp / "diagnostic_metadata_case"
+        create_case(diagnostic_metadata_case)
+        diagnostic_metadata_path = diagnostic_metadata_case / "case_metadata.json"
+        diagnostic_metadata = load_json(diagnostic_metadata_path)
+        diagnostic_metadata.update(
+            {
+                "PaperGradeTurbulentInletPrerequisiteGate": "fail",
+                "PaperGradeBoundaryPrerequisiteGate": "fail",
+                "InletDistributionFunctionReconstruction": False,
+                "SyntheticTurbulentInletDistributionTreatment": (
+                    "velocity_field_only_no_distribution_function_reconstruction"
+                ),
+                "SyntheticTurbulentInletPaperGradeStatus": (
+                    "diagnostic_only_until_distribution_reconstruction"
+                ),
+                "BoundaryConditionPaperGradeStatus": (
+                    "diagnostic_only_until_boundary_source_and_aij_protocol_evidence_pass"
+                ),
+                "BoundaryNonReflectingOutletImplemented": False,
+                "BoundarySideTopWindTunnelEquivalentImplemented": False,
+                "BoundaryRoughWallFunctionImplemented": False,
+                "BoundaryPrecursorOrRecyclingImplemented": False,
+                "BoundaryBlockageFetchEvidenceArchived": False,
+            }
+        )
+        write(diagnostic_metadata_path, json.dumps(diagnostic_metadata, indent=2))
+        diagnostic_metadata_manifest = temp / "diagnostic_metadata" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(diagnostic_metadata_case),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(diagnostic_metadata_manifest),
+                "--baseline-id",
+                "smoke-casea-native-diagnostic-metadata",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+            ],
+            expected_returncode=2,
+        )
+        diagnostic_metadata_result = load_json(diagnostic_metadata_manifest)
+        if diagnostic_metadata_result["ValidationProtocolAuditGate"]["Gate"] != "pass":
+            raise AssertionError(diagnostic_metadata_result["ValidationProtocolAuditGate"])
+        if diagnostic_metadata_result["CaseMetadataPreconditionGate"]["Gate"] != "diagnostic_only":
+            raise AssertionError(diagnostic_metadata_result["CaseMetadataPreconditionGate"])
+        for reason in [
+            "case_metadata_paper_grade_turbulent_inlet_prerequisite_not_pass:fail",
+            "case_metadata_paper_grade_boundary_prerequisite_not_pass:fail",
+            "case_metadata_synthetic_inlet_without_distribution_reconstruction",
+            "case_metadata_inlet_distribution_treatment_velocity_field_only",
+            "case_metadata_boundary_status_diagnostic_only",
+            "case_metadata_boundary_evidence_false:rough_wall_function",
+        ]:
+            if reason not in diagnostic_metadata_result["RunnerGate"]["Reasons"]:
+                raise AssertionError(diagnostic_metadata_result["RunnerGate"])
 
         slow_refresh_case = temp / "slow_refresh_case"
         create_case(slow_refresh_case)
