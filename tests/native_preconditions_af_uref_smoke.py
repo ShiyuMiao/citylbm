@@ -34,9 +34,12 @@ def main() -> int:
             json.dumps(
                 {
                     "inlet_source_gate": "pass",
-                    "paper_grade_inlet_source_gate": "pass",
-                    "inlet_source_distribution_consistent": True,
-                    "inlet_source_velocity_field_only": False,
+                    "paper_grade_inlet_source_gate": "fail",
+                    "inlet_source_distribution_route_gate": "fail",
+                    "inlet_source_distribution_consistent": False,
+                    "inlet_source_has_distribution_function_write": False,
+                    "inlet_source_has_inlet_distribution_reconstruction": False,
+                    "inlet_source_velocity_field_only": True,
                     "inlet_source_method_class": "stg_lite_correlated_velocity_field_only",
                     "inlet_source_turbulent_inflow_fidelity_class": "correlated_velocity_field_only",
                     "inlet_source_has_correlated_velocity_field_only": True,
@@ -55,7 +58,11 @@ def main() -> int:
                     "inlet_source_gate_reasons": [
                         "synthetic_inlet_uses_legacy_hardcoded_streamwise_clipping",
                     ],
-                    "paper_grade_inlet_source_gate_reasons": [],
+                    "paper_grade_inlet_source_gate_reasons": [
+                        "source_not_distribution_consistent",
+                        "source_velocity_field_only",
+                        "source_correlated_velocity_field_only_without_distribution_reconstruction",
+                    ],
                 },
                 indent=2,
             ),
@@ -94,6 +101,19 @@ def main() -> int:
             raise AssertionError(reasons)
         if "inlet_source_uses_legacy_hardcoded_streamwise_clipping" not in reasons:
             raise AssertionError(reasons)
+        for expected in [
+            "paper_grade_inlet_source_gate_not_pass",
+            "inlet_source_not_distribution_consistent",
+            "inlet_source_velocity_field_only",
+        ]:
+            if expected not in reasons:
+                raise AssertionError(reasons)
+        if report.get("inlet_source_method_class") != "stg_lite_correlated_velocity_field_only":
+            raise AssertionError(report.get("inlet_source_method_class"))
+        if report.get("inlet_source_turbulent_inflow_fidelity_class") != "correlated_velocity_field_only":
+            raise AssertionError(report.get("inlet_source_turbulent_inflow_fidelity_class"))
+        if report.get("inlet_source_has_correlated_velocity_field_only") is not True:
+            raise AssertionError(report)
         if report.get("af_uref_at_zref_mps") != 4.0:
             raise AssertionError(report.get("af_uref_at_zref_mps"))
         if report.get("inlet_source_has_streamwise_clipping_control") is not True:
