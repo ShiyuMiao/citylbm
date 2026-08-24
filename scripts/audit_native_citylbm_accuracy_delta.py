@@ -22,6 +22,7 @@ METRIC_FIELDS = [
     "U_RMSE_ratio",
     "U_bias_ratio",
     "U_R2",
+    "U_Pearson_r",
     "U_regression_slope",
     "U_regression_intercept",
     "U_mean_ratio_sim_to_exp",
@@ -48,6 +49,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-rmse-regression-delta", type=float, default=0.03)
     parser.add_argument("--max-abs-bias-regression-delta", type=float, default=0.03)
     parser.add_argument("--max-r2-drop", type=float, default=0.05)
+    parser.add_argument("--max-pearson-r-drop", type=float, default=0.05)
     parser.add_argument("--max-slope-delta", type=float, default=0.10)
     parser.add_argument("--max-intercept-delta", type=float, default=0.05)
     parser.add_argument("--max-k-rmse-regression-delta", type=float, default=0.10)
@@ -55,6 +57,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--native-max-u-rmse-ratio", type=float, default=0.30)
     parser.add_argument("--native-max-u-bias-ratio", type=float, default=0.15)
     parser.add_argument("--native-min-u-r2", type=float, default=0.70)
+    parser.add_argument("--native-min-u-pearson-r", type=float, default=0.70)
     parser.add_argument("--native-max-k-rmse-ratio", type=float, default=0.50)
     parser.add_argument("--native-max-k-bias-ratio", type=float, default=0.30)
     return parser.parse_args()
@@ -273,6 +276,8 @@ def main() -> int:
     native_bias = metric_pairs.get("U_bias_ratio", {}).get("native")
     city_r2 = metric_pairs.get("U_R2", {}).get("citylbm")
     native_r2 = metric_pairs.get("U_R2", {}).get("native")
+    city_pearson = metric_pairs.get("U_Pearson_r", {}).get("citylbm")
+    native_pearson = metric_pairs.get("U_Pearson_r", {}).get("native")
     city_slope = metric_pairs.get("U_regression_slope", {}).get("citylbm")
     native_slope = metric_pairs.get("U_regression_slope", {}).get("native")
     city_intercept = metric_pairs.get("U_regression_intercept", {}).get("citylbm")
@@ -289,6 +294,11 @@ def main() -> int:
         abs(city_bias) - abs(native_bias) if city_bias is not None and native_bias is not None else None
     )
     r2_drop = native_r2 - city_r2 if city_r2 is not None and native_r2 is not None else None
+    pearson_drop = (
+        native_pearson - city_pearson
+        if city_pearson is not None and native_pearson is not None
+        else None
+    )
     slope_delta = (
         abs(city_slope - native_slope)
         if city_slope is not None and native_slope is not None
@@ -325,6 +335,10 @@ def main() -> int:
         reason = f"citylbm_r2_drop_above_{args.max_r2_drop}"
         reasons.append(reason)
         citylbm_delta_reasons.append(reason)
+    if pearson_drop is not None and pearson_drop > args.max_pearson_r_drop:
+        reason = f"citylbm_pearson_r_drop_above_{args.max_pearson_r_drop}"
+        reasons.append(reason)
+        citylbm_delta_reasons.append(reason)
     if slope_delta is not None and slope_delta > args.max_slope_delta:
         reason = f"citylbm_slope_delta_above_{args.max_slope_delta}"
         reasons.append(reason)
@@ -359,6 +373,9 @@ def main() -> int:
     if native_r2 is None or native_r2 < args.native_min_u_r2:
         native_accuracy_gate = "fail"
         native_accuracy_reasons.append("native_u_r2_not_publishable")
+    if native_pearson is None or native_pearson < args.native_min_u_pearson_r:
+        native_accuracy_gate = "fail"
+        native_accuracy_reasons.append("native_u_pearson_r_not_publishable")
     if native_k_rmse is None or native_k_rmse > args.native_max_k_rmse_ratio:
         native_accuracy_gate = "fail"
         native_accuracy_reasons.append("native_k_rmse_not_publishable")
@@ -426,6 +443,7 @@ def main() -> int:
         "U_RMSE_delta_city_minus_native": rmse_regression_delta,
         "U_abs_bias_delta_city_minus_native": abs_bias_regression_delta,
         "U_R2_drop_native_minus_city": r2_drop,
+        "U_Pearson_r_drop_native_minus_city": pearson_drop,
         "U_slope_abs_delta": slope_delta,
         "U_intercept_abs_delta": intercept_delta,
         "k_RMSE_delta_city_minus_native": k_rmse_regression_delta,
@@ -434,6 +452,7 @@ def main() -> int:
             "max_rmse_regression_delta": args.max_rmse_regression_delta,
             "max_abs_bias_regression_delta": args.max_abs_bias_regression_delta,
             "max_r2_drop": args.max_r2_drop,
+            "max_pearson_r_drop": args.max_pearson_r_drop,
             "max_slope_delta": args.max_slope_delta,
             "max_intercept_delta": args.max_intercept_delta,
             "max_k_rmse_regression_delta": args.max_k_rmse_regression_delta,
@@ -441,6 +460,7 @@ def main() -> int:
             "native_max_u_rmse_ratio": args.native_max_u_rmse_ratio,
             "native_max_u_bias_ratio": args.native_max_u_bias_ratio,
             "native_min_u_r2": args.native_min_u_r2,
+            "native_min_u_pearson_r": args.native_min_u_pearson_r,
             "native_max_k_rmse_ratio": args.native_max_k_rmse_ratio,
             "native_max_k_bias_ratio": args.native_max_k_bias_ratio,
         },

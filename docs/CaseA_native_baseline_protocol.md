@@ -406,8 +406,8 @@ native FluidX3D accuracy baseline.
   The metrics row must also carry `inlet_correlation_source_time_steps`, `inlet_correlation_frame_count`,
   `inlet_correlation_selected_last_window`, `inlet_correlation_source_steps_strictly_increasing` and
   `inlet_correlation_source_step_spacing_uniform`.
-- Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, slope, intercept, max absolute error,
-  `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
+- Building probe metrics: `U_MAE_ratio`, `U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, `U_Pearson_r`, slope, intercept,
+  max absolute error, `U_best_fit_scale_to_exp`, scaled RMSE and `bias_diagnosis`.
 - Metrics input hashes: `validation_metrics.csv` must record `probe_mapping_table_sha256` matching the current
   `probe_audit.csv` and `official_measurement_sha256` matching the current official RS table passed to
   `validation_gate.py`.
@@ -506,7 +506,7 @@ record must archive `validation_gate_report.json`. The metrics row must include 
 `inlet_profile_gate=pass`, zero failed probes, bounded probe projection distance/tolerance, bounded mean-velocity bias/RMSE, and reported `k` bias/RMSE. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
 The paired `native_citylbm_accuracy_delta_audit.json` must compare both mean-flow and turbulence metrics:
-`U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, regression slope/intercept, `k_RMSE_ratio` and `k_bias_ratio`. A CityLBM run may
+`U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, `U_Pearson_r`, regression slope/intercept, `k_RMSE_ratio` and `k_bias_ratio`. A CityLBM run may
 only claim inherited native FluidX3D accuracy when native preconditions are closed, native U/k accuracy is publishable,
 and CityLBM adds no excess U or k error beyond the configured delta thresholds.
 `validation_gate.py` recomputes `native_baseline` from `native_fluidx3d_baseline_manifest.json`, required native source

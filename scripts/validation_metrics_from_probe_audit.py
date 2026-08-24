@@ -703,6 +703,7 @@ TEMPLATE_FIELDS = [
     "native_citylbm_U_RMSE_delta",
     "native_citylbm_U_abs_bias_delta",
     "native_citylbm_U_R2_drop",
+    "native_citylbm_U_Pearson_r_drop",
     "native_citylbm_U_slope_abs_delta",
     "native_citylbm_U_intercept_abs_delta",
     "native_citylbm_k_RMSE_delta",
@@ -804,6 +805,7 @@ TEMPLATE_FIELDS = [
     "U_RMSE_ratio",
     "U_bias_ratio",
     "U_R2",
+    "U_Pearson_r",
     "U_regression_slope",
     "U_regression_intercept",
     "U_max_abs_error",
@@ -1075,6 +1077,19 @@ def r2(sim: Sequence[float], exp: Sequence[float]) -> Optional[float]:
         return None
     ss_res = sum((s - e) ** 2 for s, e in zip(sim, exp))
     return 1.0 - ss_res / ss_tot
+
+
+def pearson_r(sim: Sequence[float], exp: Sequence[float]) -> Optional[float]:
+    if len(sim) < 2 or len(sim) != len(exp):
+        return None
+    sim_mean = sum(sim) / len(sim)
+    exp_mean = sum(exp) / len(exp)
+    sim_var = sum((value - sim_mean) ** 2 for value in sim)
+    exp_var = sum((value - exp_mean) ** 2 for value in exp)
+    denom = math.sqrt(sim_var * exp_var)
+    if denom <= 1.0e-15:
+        return None
+    return sum((s - sim_mean) * (e - exp_mean) for s, e in zip(sim, exp)) / denom
 
 
 def regression(sim: Sequence[float], exp: Sequence[float]) -> Tuple[Optional[float], Optional[float]]:
@@ -1733,6 +1748,7 @@ def main() -> int:
     u_rmse = rmse(errors)
     u_bias = mean(errors)
     u_r2 = r2(sim_values, exp_values)
+    u_pearson = pearson_r(sim_values, exp_values)
     slope, intercept = regression(sim_values, exp_values)
     max_abs = max(abs_errors) if abs_errors else None
     mean_sim = mean(sim_values)
@@ -3595,6 +3611,9 @@ def main() -> int:
             "native_citylbm_U_R2_drop": fmt(
                 audit_float(native_citylbm_accuracy_delta_audit, "U_R2_drop_native_minus_city")
             ),
+            "native_citylbm_U_Pearson_r_drop": fmt(
+                audit_float(native_citylbm_accuracy_delta_audit, "U_Pearson_r_drop_native_minus_city")
+            ),
             "native_citylbm_U_slope_abs_delta": fmt(
                 audit_float(native_citylbm_accuracy_delta_audit, "U_slope_abs_delta")
             ),
@@ -3740,6 +3759,7 @@ def main() -> int:
             "U_RMSE_ratio": fmt(u_rmse),
             "U_bias_ratio": fmt(u_bias),
             "U_R2": fmt(u_r2),
+            "U_Pearson_r": fmt(u_pearson),
             "U_regression_slope": fmt(slope),
             "U_regression_intercept": fmt(intercept),
             "U_max_abs_error": fmt(max_abs),

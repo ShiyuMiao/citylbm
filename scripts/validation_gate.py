@@ -295,6 +295,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-u-bias-ratio", type=float, default=0.15)
     parser.add_argument("--max-u-rmse-ratio", type=float, default=0.30)
     parser.add_argument("--min-u-r2", type=float, default=0.70)
+    parser.add_argument("--min-u-pearson-r", type=float, default=0.70)
     parser.add_argument("--min-slope", type=float, default=0.70)
     parser.add_argument("--max-slope", type=float, default=1.30)
     parser.add_argument("--max-intercept-abs", type=float, default=0.20)
@@ -334,6 +335,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-native-citylbm-rmse-delta", type=float, default=0.03)
     parser.add_argument("--max-native-citylbm-abs-bias-delta", type=float, default=0.03)
     parser.add_argument("--max-native-citylbm-r2-drop", type=float, default=0.05)
+    parser.add_argument("--max-native-citylbm-pearson-r-drop", type=float, default=0.05)
     parser.add_argument("--max-native-citylbm-slope-delta", type=float, default=0.10)
     parser.add_argument("--max-native-citylbm-intercept-delta", type=float, default=0.05)
     parser.add_argument("--max-native-citylbm-k-rmse-delta", type=float, default=0.10)
@@ -861,11 +863,13 @@ def mean_velocity_accuracy_failure_reasons(
     u_bias: Optional[float],
     u_rmse: Optional[float],
     u_r2: Optional[float],
+    u_pearson: Optional[float],
     slope: Optional[float],
     intercept: Optional[float],
     max_u_bias_ratio: float,
     max_u_rmse_ratio: float,
     min_u_r2: float,
+    min_u_pearson_r: float,
     min_slope: float,
     max_slope: float,
     max_intercept_abs: float,
@@ -883,6 +887,10 @@ def mean_velocity_accuracy_failure_reasons(
         reasons.append("U_R2_missing")
     elif u_r2 < min_u_r2:
         reasons.append(f"U_R2_below_{min_u_r2:g}:{u_r2:g}")
+    if u_pearson is None:
+        reasons.append("U_Pearson_r_missing")
+    elif u_pearson < min_u_pearson_r:
+        reasons.append(f"U_Pearson_r_below_{min_u_pearson_r:g}:{u_pearson:g}")
     if slope is None:
         reasons.append("U_regression_slope_missing")
     elif slope < min_slope or slope > max_slope:
@@ -4038,6 +4046,9 @@ def native_citylbm_accuracy_delta_status(
         "U_R2_drop_native_minus_city": as_float(
             get_any(native_citylbm_accuracy_delta_audit, ["U_R2_drop_native_minus_city"])
         ),
+        "U_Pearson_r_drop_native_minus_city": as_float(
+            get_any(native_citylbm_accuracy_delta_audit, ["U_Pearson_r_drop_native_minus_city"])
+        ),
         "U_slope_abs_delta": as_float(
             get_any(native_citylbm_accuracy_delta_audit, ["U_slope_abs_delta"])
         ),
@@ -4055,6 +4066,7 @@ def native_citylbm_accuracy_delta_status(
         "U_RMSE_delta_city_minus_native": args.max_native_citylbm_rmse_delta,
         "U_abs_bias_delta_city_minus_native": args.max_native_citylbm_abs_bias_delta,
         "U_R2_drop_native_minus_city": args.max_native_citylbm_r2_drop,
+        "U_Pearson_r_drop_native_minus_city": args.max_native_citylbm_pearson_r_drop,
         "U_slope_abs_delta": args.max_native_citylbm_slope_delta,
         "U_intercept_abs_delta": args.max_native_citylbm_intercept_delta,
         "k_RMSE_delta_city_minus_native": args.max_native_citylbm_k_rmse_delta,
@@ -4064,6 +4076,7 @@ def native_citylbm_accuracy_delta_status(
         "U_RMSE_delta_city_minus_native": "citylbm_rmse_regression_delta_above_threshold",
         "U_abs_bias_delta_city_minus_native": "citylbm_abs_bias_regression_delta_above_threshold",
         "U_R2_drop_native_minus_city": "citylbm_r2_drop_above_threshold",
+        "U_Pearson_r_drop_native_minus_city": "citylbm_pearson_r_drop_above_threshold",
         "U_slope_abs_delta": "citylbm_slope_delta_above_threshold",
         "U_intercept_abs_delta": "citylbm_intercept_delta_above_threshold",
         "k_RMSE_delta_city_minus_native": "citylbm_k_rmse_regression_delta_above_threshold",
@@ -7281,6 +7294,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"threshold <= {args.max_native_citylbm_abs_bias_delta}; "
             f"U_R2_drop_native_minus_city={accuracy_deltas['U_R2_drop_native_minus_city']}; "
             f"threshold <= {args.max_native_citylbm_r2_drop}; "
+            f"U_Pearson_r_drop_native_minus_city={accuracy_deltas['U_Pearson_r_drop_native_minus_city']}; "
+            f"threshold <= {args.max_native_citylbm_pearson_r_drop}; "
             f"U_slope_abs_delta={accuracy_deltas['U_slope_abs_delta']}; "
             f"threshold <= {args.max_native_citylbm_slope_delta}; "
             f"U_intercept_abs_delta={accuracy_deltas['U_intercept_abs_delta']}; "
@@ -8102,17 +8117,20 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     u_bias = as_float(get_any(metrics, ["U_bias_ratio", "U_bias_Uref", "U_bias"]))
     u_rmse = as_float(get_any(metrics, ["U_RMSE_ratio", "U_RMSE_Uref", "U_RMSE"]))
     u_r2 = as_float(get_any(metrics, ["U_R2", "R2"]))
+    u_pearson = as_float(get_any(metrics, ["U_Pearson_r", "Pearson_r", "U_correlation"]))
     slope = as_float(get_any(metrics, ["U_regression_slope", "slope"]))
     intercept = as_float(get_any(metrics, ["U_regression_intercept", "intercept"]))
     accuracy_failure_reasons = mean_velocity_accuracy_failure_reasons(
         u_bias=u_bias,
         u_rmse=u_rmse,
         u_r2=u_r2,
+        u_pearson=u_pearson,
         slope=slope,
         intercept=intercept,
         max_u_bias_ratio=args.max_u_bias_ratio,
         max_u_rmse_ratio=args.max_u_rmse_ratio,
         min_u_r2=args.min_u_r2,
+        min_u_pearson_r=args.min_u_pearson_r,
         min_slope=args.min_slope,
         max_slope=args.max_slope,
         max_intercept_abs=args.max_intercept_abs,
@@ -8124,10 +8142,11 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         PASS if accuracy_pass else FAIL,
         (
             f"U_bias_ratio={u_bias}; U_RMSE_ratio={u_rmse}; U_R2={u_r2}; "
+            f"U_Pearson_r={u_pearson}; "
             f"slope={slope}; intercept={intercept}; "
             f"failure_reasons={';'.join(accuracy_failure_reasons) or 'none'}"
         ),
-        "Do not promote to paper-grade validation until bias, RMSE, R2, slope and intercept all meet thresholds.",
+        "Do not promote to paper-grade validation until bias, RMSE, R2, Pearson r, slope and intercept all meet thresholds.",
     )
 
     k_bias_ratio = as_float(get_any(metrics, ["k_bias_ratio", "K_bias_ratio"]))
@@ -8375,6 +8394,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "max_native_citylbm_rmse_delta": args.max_native_citylbm_rmse_delta,
             "max_native_citylbm_abs_bias_delta": args.max_native_citylbm_abs_bias_delta,
             "max_native_citylbm_r2_drop": args.max_native_citylbm_r2_drop,
+            "max_native_citylbm_pearson_r_drop": args.max_native_citylbm_pearson_r_drop,
             "max_native_citylbm_slope_delta": args.max_native_citylbm_slope_delta,
             "max_native_citylbm_intercept_delta": args.max_native_citylbm_intercept_delta,
             "expected_compared_component": args.expected_compared_component,

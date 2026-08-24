@@ -103,6 +103,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-u-bias-ratio", type=float, default=0.20)
     parser.add_argument("--max-u-rmse-ratio", type=float, default=0.30)
     parser.add_argument("--min-u-r2", type=float, default=0.80)
+    parser.add_argument("--min-u-pearson-r", type=float, default=0.70)
     parser.add_argument("--min-slope", type=float, default=0.70)
     parser.add_argument("--max-slope", type=float, default=1.30)
     parser.add_argument("--max-intercept-abs", type=float, default=0.20)
@@ -124,6 +125,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-native-citylbm-rmse-delta", type=float, default=0.03)
     parser.add_argument("--max-native-citylbm-abs-bias-delta", type=float, default=0.03)
     parser.add_argument("--max-native-citylbm-r2-drop", type=float, default=0.05)
+    parser.add_argument("--max-native-citylbm-pearson-r-drop", type=float, default=0.05)
     parser.add_argument("--max-native-citylbm-slope-delta", type=float, default=0.10)
     parser.add_argument("--max-native-citylbm-intercept-delta", type=float, default=0.05)
     parser.add_argument("--max-native-citylbm-k-rmse-delta", type=float, default=0.10)
@@ -979,6 +981,8 @@ def main() -> int:
                 str(args.max_native_citylbm_abs_bias_delta),
                 "--max-r2-drop",
                 str(args.max_native_citylbm_r2_drop),
+                "--max-pearson-r-drop",
+                str(args.max_native_citylbm_pearson_r_drop),
                 "--max-slope-delta",
                 str(args.max_native_citylbm_slope_delta),
                 "--max-intercept-delta",
@@ -993,6 +997,8 @@ def main() -> int:
                 str(args.max_u_bias_ratio),
                 "--native-min-u-r2",
                 str(args.min_u_r2),
+                "--native-min-u-pearson-r",
+                str(args.min_u_pearson_r),
                 "--native-max-k-rmse-ratio",
                 str(args.max_k_rmse_ratio),
                 "--native-max-k-bias-ratio",
@@ -1045,6 +1051,8 @@ def main() -> int:
             str(args.max_u_rmse_ratio),
             "--min-u-r2",
             str(args.min_u_r2),
+            "--min-u-pearson-r",
+            str(args.min_u_pearson_r),
             "--min-slope",
             str(args.min_slope),
             "--max-slope",
@@ -1081,6 +1089,18 @@ def main() -> int:
             str(args.max_grid_rmse_change_ratio),
             "--max-grid-bias-change-ratio",
             str(args.max_grid_bias_change_ratio),
+            "--max-native-citylbm-rmse-delta",
+            str(args.max_native_citylbm_rmse_delta),
+            "--max-native-citylbm-abs-bias-delta",
+            str(args.max_native_citylbm_abs_bias_delta),
+            "--max-native-citylbm-r2-drop",
+            str(args.max_native_citylbm_r2_drop),
+            "--max-native-citylbm-pearson-r-drop",
+            str(args.max_native_citylbm_pearson_r_drop),
+            "--max-native-citylbm-slope-delta",
+            str(args.max_native_citylbm_slope_delta),
+            "--max-native-citylbm-intercept-delta",
+            str(args.max_native_citylbm_intercept_delta),
             "--max-native-citylbm-k-rmse-delta",
             str(args.max_native_citylbm_k_rmse_delta),
             "--max-native-citylbm-k-abs-bias-delta",

@@ -24,6 +24,7 @@ FIELDS = [
     "U_RMSE_ratio",
     "U_bias_ratio",
     "U_R2",
+    "U_Pearson_r",
     "U_regression_slope",
     "U_regression_intercept",
     "U_mean_ratio_sim_to_exp",
@@ -50,6 +51,7 @@ def write_metrics(path: Path, software: str, values: dict[str, float]) -> None:
         "U_RMSE_ratio": values["U_RMSE_ratio"],
         "U_bias_ratio": values["U_bias_ratio"],
         "U_R2": values["U_R2"],
+        "U_Pearson_r": values.get("U_Pearson_r", 0.85),
         "U_regression_slope": values["U_regression_slope"],
         "U_regression_intercept": values["U_regression_intercept"],
         "U_mean_ratio_sim_to_exp": values.get("U_mean_ratio_sim_to_exp", 1.0),
@@ -122,6 +124,7 @@ def default_gate_args() -> SimpleNamespace:
         max_native_citylbm_rmse_delta=0.03,
         max_native_citylbm_abs_bias_delta=0.03,
         max_native_citylbm_r2_drop=0.05,
+        max_native_citylbm_pearson_r_drop=0.05,
         max_native_citylbm_slope_delta=0.10,
         max_native_citylbm_intercept_delta=0.05,
         max_native_citylbm_k_rmse_delta=0.10,
@@ -135,6 +138,7 @@ def main() -> int:
         "U_RMSE_ratio": 0.20,
         "U_bias_ratio": -0.10,
         "U_R2": 0.80,
+        "U_Pearson_r": 0.86,
         "U_regression_slope": 0.95,
         "U_regression_intercept": 0.02,
         "k_RMSE_ratio": 0.20,
@@ -159,6 +163,7 @@ def main() -> int:
                 "U_RMSE_ratio": 0.215,
                 "U_bias_ratio": -0.11,
                 "U_R2": 0.78,
+                "U_Pearson_r": 0.84,
                 "U_regression_slope": 0.97,
                 "U_regression_intercept": 0.03,
                 "k_RMSE_ratio": 0.23,
@@ -183,9 +188,42 @@ def main() -> int:
             city,
             "citylbm",
             {
+                "U_RMSE_ratio": 0.215,
+                "U_bias_ratio": -0.11,
+                "U_R2": 0.78,
+                "U_Pearson_r": 0.75,
+                "U_regression_slope": 0.97,
+                "U_regression_intercept": 0.03,
+                "k_RMSE_ratio": 0.23,
+                "k_bias_ratio": -0.12,
+            },
+        )
+        pearson_failed = run_delta_audit(city, native, preconditions, out)
+        if pearson_failed.returncode == 0:
+            raise AssertionError((pearson_failed.returncode, pearson_failed.stdout, pearson_failed.stderr))
+        pearson_report = json.loads(out.read_text(encoding="utf-8"))
+        if pearson_report["citylbm_additional_error_flag"] is not True:
+            raise AssertionError(pearson_report)
+        if not any(
+            reason.startswith("citylbm_pearson_r_drop")
+            for reason in pearson_report["citylbm_additional_error_reasons"]
+        ):
+            raise AssertionError(pearson_report)
+        pearson_status = gate_module.native_citylbm_accuracy_delta_status(
+            pearson_report,
+            default_gate_args(),
+        )
+        if pearson_status["ok"]:
+            raise AssertionError(pearson_status)
+
+        write_metrics(
+            city,
+            "citylbm",
+            {
                 "U_RMSE_ratio": 0.30,
                 "U_bias_ratio": -0.20,
                 "U_R2": 0.60,
+                "U_Pearson_r": 0.70,
                 "U_regression_slope": 0.70,
                 "U_regression_intercept": 0.20,
                 "k_RMSE_ratio": 0.45,
@@ -215,6 +253,7 @@ def main() -> int:
                 "U_RMSE_ratio": 0.40,
                 "U_bias_ratio": -0.34,
                 "U_R2": 0.30,
+                "U_Pearson_r": 0.60,
                 "U_regression_slope": 0.55,
                 "U_regression_intercept": 0.25,
                 "k_RMSE_ratio": 0.80,
@@ -228,6 +267,7 @@ def main() -> int:
                 "U_RMSE_ratio": 0.41,
                 "U_bias_ratio": -0.35,
                 "U_R2": 0.29,
+                "U_Pearson_r": 0.59,
                 "U_regression_slope": 0.56,
                 "U_regression_intercept": 0.26,
                 "k_RMSE_ratio": 0.82,
@@ -265,6 +305,7 @@ def main() -> int:
                 "U_RMSE_ratio": 0.215,
                 "U_bias_ratio": -0.11,
                 "U_R2": 0.78,
+                "U_Pearson_r": 0.84,
                 "U_regression_slope": 0.97,
                 "U_regression_intercept": 0.03,
                 "k_RMSE_ratio": 0.23,
@@ -291,6 +332,7 @@ def main() -> int:
                 "U_RMSE_ratio": 0.215,
                 "U_bias_ratio": -0.11,
                 "U_R2": 0.78,
+                "U_Pearson_r": 0.84,
                 "U_regression_slope": 0.97,
                 "U_regression_intercept": 0.03,
                 "k_RMSE_ratio": 0.42,
