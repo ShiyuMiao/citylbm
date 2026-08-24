@@ -115,6 +115,18 @@ def main() -> int:
             "final_window_stationarity_gate",
             "native_preconditions_runtime_final_window_frame_count_gate",
             "native_preconditions_runtime_source_vtk_sha256_count",
+            "probe_mapping_table_sha256",
+            "probe_vtk_source_time_steps",
+            "probe_grid_extent_gate",
+            "max_official_coordinate_delta_m",
+            "official_probe_set_gate",
+            "official_probe_height_gate",
+            "component_sensitivity_probe_audit_sha256",
+            "component_source_window_gate",
+            "component_source_sha256",
+            "best_component_by_rmse",
+            "normalization_best_fit_scale",
+            "probe_uref_values",
             "boundary_runtime_side_top_normal_leakage_gate",
             "boundary_source_has_non_reflecting_outlet_method",
             "boundary_source_has_periodic_pair_mapping_evidence",
@@ -228,6 +240,52 @@ def main() -> int:
             raise AssertionError(bad_time_report)
         if "source_time_steps" not in bad_time_report["missing_critical_fields"]:
             raise AssertionError(bad_time_report)
+
+        bad_probe = tmp_path / "native_missing_probe_coordinate.csv"
+        bad_probe_out = tmp_path / "bad_probe_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_probe,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="max_official_coordinate_delta_m",
+        )
+        failed_probe = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_probe,
+            bad_probe_out,
+        )
+        if failed_probe.returncode == 0:
+            raise AssertionError((failed_probe.returncode, failed_probe.stdout, failed_probe.stderr))
+        bad_probe_report = json.loads(bad_probe_out.read_text(encoding="utf-8"))
+        if bad_probe_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_probe_report)
+        if "max_official_coordinate_delta_m" not in bad_probe_report["missing_critical_fields"]:
+            raise AssertionError(bad_probe_report)
+
+        bad_component = tmp_path / "native_missing_component_source_hash.csv"
+        bad_component_out = tmp_path / "bad_component_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_component,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="component_source_sha256",
+        )
+        failed_component = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_component,
+            bad_component_out,
+        )
+        if failed_component.returncode == 0:
+            raise AssertionError(
+                (failed_component.returncode, failed_component.stdout, failed_component.stderr)
+            )
+        bad_component_report = json.loads(bad_component_out.read_text(encoding="utf-8"))
+        if bad_component_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_component_report)
+        if "component_source_sha256" not in bad_component_report["missing_critical_fields"]:
+            raise AssertionError(bad_component_report)
 
     print("validation_gate_native_citylbm_parity_critical_smoke passed")
     return 0
