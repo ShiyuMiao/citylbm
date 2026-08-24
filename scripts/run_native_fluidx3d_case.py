@@ -478,6 +478,25 @@ def collect_vtk_files(output_dir: Path, pattern: str) -> List[Dict[str, Any]]:
     )
 
 
+def vtk_record_step_hash_pairs(vtk_records: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    pairs: List[Dict[str, Any]] = []
+    for record in vtk_records:
+        step = record.get("SourceTimeStep")
+        digest = str(record.get("Sha256") or "").strip().upper()
+        path = str(record.get("Path") or "").strip()
+        if not isinstance(step, int) or not digest:
+            continue
+        pairs.append(
+            {
+                "TimeStep": step,
+                "Sha256": digest,
+                "StepHash": f"{step}:{digest}",
+                "Path": path,
+            }
+        )
+    return sorted(pairs, key=lambda item: (int(item["TimeStep"]), str(item["Path"])))
+
+
 def parse_vtk_time_step(path: Path) -> Optional[int]:
     match = re.search(r"(\d+)(?=\.vtk$)", path.name.lower())
     if match is None:
@@ -567,21 +586,34 @@ def audit_actual_vtk_output(
 ) -> Dict[str, Any]:
     reasons: List[str] = []
     actual_count = len(vtk_records)
-    parsed_steps = [
-        int(record["SourceTimeStep"])
+    parsed_records = [
+        record
         for record in vtk_records
         if isinstance(record.get("SourceTimeStep"), int)
     ]
+    sorted_records = sorted(
+        parsed_records,
+        key=lambda record: (int(record["SourceTimeStep"]), str(record.get("Path") or "")),
+    )
+    parsed_steps = [int(record["SourceTimeStep"]) for record in sorted_records]
     unparsable_count = actual_count - len(parsed_steps)
-    sorted_steps = sorted(parsed_steps)
+    sorted_steps = parsed_steps
     unique_step_count = len(set(sorted_steps))
     source_steps_strictly_increasing = len(sorted_steps) == unique_step_count
     selected_count = min(len(sorted_steps), max(average_last_n, 1))
-    selected_steps = sorted_steps[-selected_count:] if selected_count > 0 else []
+    selected_records = sorted_records[-selected_count:] if selected_count > 0 else []
+    selected_steps = [int(record["SourceTimeStep"]) for record in selected_records]
     source_step_span = selected_steps[-1] - selected_steps[0] if len(selected_steps) > 1 else 0
     selected_diffs = [b - a for a, b in zip(selected_steps, selected_steps[1:])]
     source_step_spacing_uniform = len(set(selected_diffs)) <= 1
     source_step_spacing = selected_diffs[0] if source_step_spacing_uniform and selected_diffs else None
+    source_step_hash_pairs = vtk_record_step_hash_pairs(sorted_records)
+    selected_step_hash_pairs = vtk_record_step_hash_pairs(selected_records)
+    source_hashes = [str(item["Sha256"]) for item in source_step_hash_pairs]
+    selected_hashes = [str(item["Sha256"]) for item in selected_step_hash_pairs]
+    source_step_hash_csv = ";".join(str(item["StepHash"]) for item in source_step_hash_pairs)
+    selected_step_hash_csv = ";".join(str(item["StepHash"]) for item in selected_step_hash_pairs)
+    missing_hash_count = len(sorted_records) - len(source_hashes)
     expected_step_list = list(expected_steps) if expected_steps is not None else None
     expected_selected_steps = (
         expected_step_list[-min(len(expected_step_list), max(average_last_n, 1)) :]
@@ -595,7 +627,24 @@ def audit_actual_vtk_output(
             "ReasonsCsv": "",
             "ActualFrameCount": actual_count,
             "ExpectedFrameCount": expected_frame_count,
+            "ActualSourceTimeSteps": sorted_steps,
+            "ActualSourceTimeStepsCsv": ";".join(str(step) for step in sorted_steps),
+            "ActualSourceVtkSha256": source_hashes,
+            "ActualSourceVtkSha256Csv": ";".join(source_hashes),
+            "ActualSourceStepHashPairs": source_step_hash_pairs,
+            "ActualSourceStepHashPairsCsv": source_step_hash_csv,
+            "SelectedFinalWindowTimeSteps": selected_steps,
+            "SelectedFinalWindowTimeStepsCsv": ";".join(str(step) for step in selected_steps),
+            "SelectedFinalWindowVtkSha256": selected_hashes,
+            "SelectedFinalWindowVtkSha256Csv": ";".join(selected_hashes),
+            "SelectedFinalWindowStepHashPairs": selected_step_hash_pairs,
+            "SelectedFinalWindowStepHashPairsCsv": selected_step_hash_csv,
+            "SelectedFinalWindowStepSpan": source_step_span,
             "ExpectedSourceTimeSteps": expected_step_list,
+            "ExpectedSelectedFinalWindowTimeSteps": expected_selected_steps,
+            "SourceVtkSha256Count": len(source_hashes),
+            "SourceVtkSha256MissingCount": missing_hash_count,
+            "SelectedFinalWindowVtkSha256Count": len(selected_hashes),
             "AverageLastN": average_last_n,
             "MinimumFrameCount": min_frames,
             "MinimumStepSpan": min_step_span,
@@ -614,6 +663,12 @@ def audit_actual_vtk_output(
         )
     if unparsable_count:
         reasons.append(f"actual_vtk_source_time_steps_unparseable_count_{unparsable_count}")
+    if missing_hash_count:
+        reasons.append(f"actual_vtk_sha256_missing_count_{missing_hash_count}")
+    if len(source_hashes) != len(sorted_steps):
+        reasons.append(
+            f"actual_vtk_sha256_count_{len(source_hashes)}_does_not_match_parsed_time_steps_{len(sorted_steps)}"
+        )
     if not source_steps_strictly_increasing:
         reasons.append("actual_vtk_source_time_steps_not_unique_or_strictly_increasing")
     if selected_steps and source_step_span < min_step_span:
@@ -630,13 +685,24 @@ def audit_actual_vtk_output(
         "ExpectedFrameCount": expected_frame_count,
         "ActualSourceTimeSteps": sorted_steps,
         "ActualSourceTimeStepsCsv": ";".join(str(step) for step in sorted_steps),
+        "ActualSourceVtkSha256": source_hashes,
+        "ActualSourceVtkSha256Csv": ";".join(source_hashes),
+        "ActualSourceStepHashPairs": source_step_hash_pairs,
+        "ActualSourceStepHashPairsCsv": source_step_hash_csv,
         "ExpectedSourceTimeSteps": expected_step_list,
         "SelectedFinalWindowTimeSteps": selected_steps,
         "SelectedFinalWindowTimeStepsCsv": ";".join(str(step) for step in selected_steps),
+        "SelectedFinalWindowVtkSha256": selected_hashes,
+        "SelectedFinalWindowVtkSha256Csv": ";".join(selected_hashes),
+        "SelectedFinalWindowStepHashPairs": selected_step_hash_pairs,
+        "SelectedFinalWindowStepHashPairsCsv": selected_step_hash_csv,
         "SelectedFinalWindowStepSpan": source_step_span,
         "ExpectedSelectedFinalWindowTimeSteps": expected_selected_steps,
         "SourceTimeStepUnparsableCount": unparsable_count,
         "SourceTimeStepUniqueCount": unique_step_count,
+        "SourceVtkSha256Count": len(source_hashes),
+        "SourceVtkSha256MissingCount": missing_hash_count,
+        "SelectedFinalWindowVtkSha256Count": len(selected_hashes),
         "SourceStepsStrictlyIncreasing": source_steps_strictly_increasing,
         "SourceStepSpacingUniform": source_step_spacing_uniform,
         "SourceStepSpacing": source_step_spacing,

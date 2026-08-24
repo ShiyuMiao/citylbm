@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import subprocess
 import sys
 import tempfile
@@ -40,6 +41,10 @@ def write(path: Path, text: str) -> None:
 
 def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
 
 
 def run_cmd(args: list[str], expected_returncode: int = 0) -> subprocess.CompletedProcess[str]:
@@ -486,10 +491,18 @@ def main() -> int:
             raise AssertionError(partial_output_result["RunnerGate"])
         if partial_output_result["ActualVtkOutputGate"]["ActualSourceTimeSteps"] != [1000]:
             raise AssertionError(partial_output_result["ActualVtkOutputGate"])
+        partial_actual = partial_output_result["ActualVtkOutputGate"]
+        partial_hash = sha256_file(partial_output / "u-000001000.vtk")
+        if partial_actual["SelectedFinalWindowVtkSha256"] != [partial_hash]:
+            raise AssertionError(partial_actual)
+        if partial_actual["SelectedFinalWindowStepHashPairs"][0]["StepHash"] != f"1000:{partial_hash}":
+            raise AssertionError(partial_actual)
+        if partial_actual["SelectedFinalWindowVtkSha256Count"] != 1:
+            raise AssertionError(partial_actual)
 
         short_window_output = temp / "short_window_output"
         for step in range(1000, 5000, 100):
-            write(short_window_output / f"u-{step:09d}.vtk", "# vtk DataFile Version 3.0\nsmoke\n")
+            write(short_window_output / f"u-{step:09d}.vtk", f"# vtk DataFile Version 3.0\nsmoke {step}\n")
         short_window_output_manifest = temp / "short_window_output_manifest" / "native_fluidx3d_baseline_manifest.json"
         run_cmd(
             [
@@ -523,6 +536,22 @@ def main() -> int:
         if actual_gate["ActualFrameCount"] != 40:
             raise AssertionError(actual_gate)
         if actual_gate["SelectedFinalWindowStepSpan"] != 3900:
+            raise AssertionError(actual_gate)
+        if actual_gate["SourceVtkSha256Count"] != 40:
+            raise AssertionError(actual_gate)
+        if actual_gate["SelectedFinalWindowVtkSha256Count"] != 40:
+            raise AssertionError(actual_gate)
+        if len(actual_gate["SelectedFinalWindowStepHashPairs"]) != 40:
+            raise AssertionError(actual_gate)
+        first_selected_hash = sha256_file(short_window_output / "u-000001000.vtk")
+        last_selected_hash = sha256_file(short_window_output / "u-000004900.vtk")
+        if actual_gate["SelectedFinalWindowStepHashPairs"][0]["StepHash"] != f"1000:{first_selected_hash}":
+            raise AssertionError(actual_gate)
+        if actual_gate["SelectedFinalWindowStepHashPairs"][-1]["StepHash"] != f"4900:{last_selected_hash}":
+            raise AssertionError(actual_gate)
+        if actual_gate["SelectedFinalWindowVtkSha256"][0] != first_selected_hash:
+            raise AssertionError(actual_gate)
+        if actual_gate["SelectedFinalWindowVtkSha256"][-1] != last_selected_hash:
             raise AssertionError(actual_gate)
         for reason in [
             "actual_vtk_final_window_step_span_3900_below_minimum_20000",
