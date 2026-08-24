@@ -2654,6 +2654,7 @@ namespace CityLBM.Solver
             sb.AppendLine("                lbm.u.z[n] = u_in.z;");
             sb.AppendLine("            }");
             sb.AppendLine("        });");
+            sb.AppendLine("        lbm.flags.write_to_device();");
             sb.AppendLine("        lbm.u.write_to_device();");
             sb.AppendLine("    };");
             sb.AppendLine();

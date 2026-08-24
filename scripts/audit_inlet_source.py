@@ -601,9 +601,24 @@ def main() -> int:
     has_reynolds_stress_full_tensor_source_evidence = (
         has_reynolds_stress_diagonal_source_evidence and has_reynolds_stress_offdiagonal_source_evidence
     )
-    has_reynolds_stress_tensor_metadata_claim = contains_any(
-        metadata_reynolds_stress_treatment,
-        ["full_tensor", "reynolds_stress_tensor", "r11", "r22", "r33"],
+    reynolds_stress_metadata_lower = metadata_reynolds_stress_treatment.lower()
+    metadata_documents_isotropic_k_only = contains_any(
+        reynolds_stress_metadata_lower,
+        [
+            "isotropic_from_k",
+            "isotropic k",
+            "2k/3",
+            "2k_over_3",
+            "no measured reynolds-stress tensor",
+            "no reynolds stress tensor",
+        ],
+    )
+    has_reynolds_stress_tensor_metadata_claim = (
+        not metadata_documents_isotropic_k_only
+        and contains_any(
+            reynolds_stress_metadata_lower,
+            ["full_tensor", "reynolds_stress_tensor", "r11", "r22", "r33"],
+        )
     )
     has_reynolds_stress_tensor_evidence = (
         has_precursor_recycling_field or has_reynolds_stress_diagonal_source_evidence

@@ -106,6 +106,7 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "steps_to_run = remaining < citylbm_stg_update_interval ? remaining : citylbm_stg_update_interval");
                 Require(setup, "if(lbm.flags[n] == TYPE_E &&");
                 Require(setup, "lbm.flags.read_from_device();");
+                Require(setup, "lbm.flags.write_to_device();");
                 Require(setup, "initialize all TYPE_E boundary velocities");
                 Require(setup, "if(lbm.flags[n] != TYPE_E) return;");
                 Require(setup, "float3 u_e = windProfile(z);");

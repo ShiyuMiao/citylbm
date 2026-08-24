@@ -54,6 +54,7 @@ def main() -> int:
                 {
                     "SyntheticTurbulentInletMethod": "STG-lite",
                     "SyntheticTurbulentInletDistributionTreatment": "velocity_field_only",
+                    "InletReynoldsStressTreatment": "isotropic_from_k_only_R11_R22_R33_2k_over_3_R12_R13_R23_0; no measured Reynolds-stress tensor in AF table",
                     "SyntheticEddy": {"Enabled": True},
                 },
                 indent=2,
@@ -496,6 +497,12 @@ for(uint remaining=100u; remaining>0u; ) {
         if spectral_code == 0:
             raise AssertionError("velocity-field-only spectral STG unexpectedly passed paper gate")
         if spectral_report["inlet_source_gate"] != "pass":
+            raise AssertionError(spectral_report)
+        if spectral_report["metadata_reynolds_stress_treatment"] != "isotropic_from_k_only_R11_R22_R33_2k_over_3_R12_R13_R23_0; no measured Reynolds-stress tensor in AF table":
+            raise AssertionError(spectral_report)
+        if spectral_report["has_reynolds_stress_tensor_metadata_claim"]:
+            raise AssertionError(spectral_report)
+        if spectral_report["reynolds_stress_treatment"] != "documented_isotropic_k_only":
             raise AssertionError(spectral_report)
         if spectral_report["synthetic_inlet_spectral_mode_count_gate"] != "pass":
             raise AssertionError(spectral_report)
