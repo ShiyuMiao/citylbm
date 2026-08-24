@@ -250,6 +250,14 @@ def audit_validation_protocol(path: Path) -> Dict[str, Any]:
         "ReasonsCsv": ";".join(reasons),
         "AuditGate": audit_gate,
         "AllowedAuditGates": sorted(PAPER_GRADE_PROTOCOL_AUDIT_GATES),
+        "AijCase": str(audit.get("AijCase") or audit.get("AIJCase") or audit.get("Case") or "").strip(),
+        "WindDirection": str(
+            audit.get("WindDirection")
+            or audit.get("WindDirectionLabel")
+            or audit.get("wind_direction")
+            or ""
+        ).strip(),
+        "WindDirectionUnitVector": audit.get("WindDirectionUnitVector") or audit.get("wind_vector") or [],
         "ItemCount": len(items),
         "RequiredItemKeys": REQUIRED_PROTOCOL_ITEM_KEYS,
         "Statuses": by_key,
@@ -475,6 +483,21 @@ def case_identity(metadata: Dict[str, Any]) -> Tuple[str, str]:
     case = read_case_value(metadata, ["AijCase", "AIJCase", "case", "Case", "CaseName"])
     wind = read_case_value(metadata, ["WindDirection", "WindDirectionLabel", "wind_direction", "windDirection"])
     return case, wind
+
+
+def effective_identity(metadata_case: str, metadata_wind: str, validation_protocol: Dict[str, Any]) -> Dict[str, str]:
+    protocol_case = str(validation_protocol.get("AijCase") or "").strip()
+    protocol_wind = str(validation_protocol.get("WindDirection") or "").strip()
+    return {
+        "Case": metadata_case or protocol_case,
+        "CaseSource": "case_metadata" if metadata_case else "validation_protocol_audit" if protocol_case else "",
+        "WindDirection": metadata_wind or protocol_wind,
+        "WindDirectionSource": (
+            "case_metadata" if metadata_wind else "validation_protocol_audit" if protocol_wind else ""
+        ),
+        "ProtocolAijCase": protocol_case,
+        "ProtocolWindDirection": protocol_wind,
+    }
 
 
 def identity_token(value: str) -> str:
@@ -1012,6 +1035,7 @@ def main() -> int:
     metadata = json_load(metadata_path)
     case_label, wind_label = case_identity(metadata)
     validation_protocol = audit_validation_protocol(validation_protocol_path)
+    identity = effective_identity(case_label, wind_label, validation_protocol)
     metadata_preconditions = audit_case_metadata_preconditions(metadata)
     vtk_save_start_step = (
         args.vtk_save_start_step
@@ -1040,14 +1064,16 @@ def main() -> int:
         reasons.extend(str(reason) for reason in validation_protocol["Reasons"])
     if metadata_preconditions["Gate"] != "pass":
         reasons.extend(str(reason) for reason in metadata_preconditions["Reasons"])
-    if expected_case and not case_label:
+    effective_case_label = identity["Case"]
+    effective_wind_label = identity["WindDirection"]
+    if expected_case and not effective_case_label:
         reasons.append("case_label_missing_in_metadata")
-    elif not identity_matches(expected_case, case_label):
-        reasons.append(f"case_label_mismatch:{case_label}")
-    if expected_wind and not wind_label:
+    elif not identity_matches(expected_case, effective_case_label):
+        reasons.append(f"case_label_mismatch:{effective_case_label}")
+    if expected_wind and not effective_wind_label:
         reasons.append("wind_direction_missing_in_metadata")
-    elif not identity_matches(expected_wind, wind_label):
-        reasons.append(f"wind_direction_mismatch:{wind_label}")
+    elif not identity_matches(expected_wind, effective_wind_label):
+        reasons.append(f"wind_direction_mismatch:{effective_wind_label}")
 
     vtk_schedule = audit_planned_vtk_schedule(
         args.time_steps,
@@ -1178,6 +1204,12 @@ def main() -> int:
         "ValidationProtocolAuditSha256": sha256_or_empty(validation_protocol_path),
         "CaseMetadataAijCase": case_label,
         "CaseMetadataWindDirection": wind_label,
+        "ValidationProtocolAijCase": identity["ProtocolAijCase"],
+        "ValidationProtocolWindDirection": identity["ProtocolWindDirection"],
+        "EffectiveAijCase": effective_case_label,
+        "EffectiveAijCaseSource": identity["CaseSource"],
+        "EffectiveWindDirection": effective_wind_label,
+        "EffectiveWindDirectionSource": identity["WindDirectionSource"],
         "ExpectedAijCase": expected_case,
         "ExpectedWindDirection": expected_wind,
         "RequiredSourceFiles": required_files,

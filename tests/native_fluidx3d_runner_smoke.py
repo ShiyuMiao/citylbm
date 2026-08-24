@@ -69,6 +69,9 @@ def validation_protocol_audit(status_overrides: dict | None = None) -> dict:
     return {
         "SchemaVersion": 1,
         "Gate": "ready_for_validation_run",
+        "AijCase": "CaseA",
+        "WindDirection": "N",
+        "WindDirectionUnitVector": [1.0, 0.0, 0.0],
         "Items": [
             {"Key": key, "Status": status_overrides.get(key, status), "Evidence": "smoke"}
             for key, status in PROTOCOL_STATUSES.items()
@@ -838,6 +841,55 @@ def main() -> int:
             raise AssertionError(protocol_record)
         if protocol_record["Exists"] is not True:
             raise AssertionError(protocol_record)
+
+        sidecar_identity_case = temp / "sidecar_identity_case"
+        create_case(sidecar_identity_case)
+        (sidecar_identity_case / "validation_protocol_audit.json").unlink()
+        sidecar_identity_metadata_path = sidecar_identity_case / "case_metadata.json"
+        sidecar_identity_metadata = load_json(sidecar_identity_metadata_path)
+        sidecar_identity_metadata.pop("AijCase", None)
+        sidecar_identity_metadata.pop("WindDirection", None)
+        write(sidecar_identity_metadata_path, json.dumps(sidecar_identity_metadata, indent=2))
+        sidecar_identity_audit = temp / "sidecar_identity_audits" / "validation_protocol_audit.json"
+        write(sidecar_identity_audit, json.dumps(validation_protocol_audit(), indent=2))
+        sidecar_identity_manifest = temp / "sidecar_identity" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(sidecar_identity_case),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(sidecar_identity_manifest),
+                "--baseline-id",
+                "smoke-casea-native-sidecar-identity",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+                "--validation-protocol-audit",
+                str(sidecar_identity_audit),
+            ]
+        )
+        sidecar_identity_result = load_json(sidecar_identity_manifest)
+        if sidecar_identity_result["RunnerGate"]["Gate"] != "pass":
+            raise AssertionError(sidecar_identity_result["RunnerGate"])
+        if sidecar_identity_result["EffectiveAijCase"] != "CaseA":
+            raise AssertionError(sidecar_identity_result)
+        if sidecar_identity_result["EffectiveAijCaseSource"] != "validation_protocol_audit":
+            raise AssertionError(sidecar_identity_result)
+        if sidecar_identity_result["EffectiveWindDirection"] != "N":
+            raise AssertionError(sidecar_identity_result)
+        if sidecar_identity_result["EffectiveWindDirectionSource"] != "validation_protocol_audit":
+            raise AssertionError(sidecar_identity_result)
 
         empty_protocol_case = temp / "empty_protocol_case"
         create_case(empty_protocol_case)

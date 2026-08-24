@@ -37,8 +37,9 @@ Current repository command template:
 
 This default command writes a strict manifest/preflight only. It does not modify the native FluidX3D source tree and
 does not create a CFD accuracy result. `-ValidationProtocolAudit` is optional; use it when the protocol audit is kept as
-a sidecar in the run-evidence directory instead of inside the generated case directory. A real native baseline must be
-launched explicitly:
+a sidecar in the run-evidence directory instead of inside the generated case directory. When older generated cases lack
+explicit case or wind-direction metadata, the runner records the effective identity from the sidecar audit rather than
+requiring edits to the historical case package. A real native baseline must be launched explicitly:
 
 ```powershell
 .\run_native_casea_strict_gate.ps1 `
