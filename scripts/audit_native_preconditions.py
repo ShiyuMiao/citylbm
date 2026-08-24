@@ -1114,21 +1114,24 @@ def append_source_window_reasons(
     steps_match = bool(runtime_steps) and audit_steps == runtime_steps
     hashes_match = bool(runtime_hashes) and bool(audit_hashes) and set(audit_hashes) == set(runtime_hashes)
     step_hash_pairs_match = bool(runtime_step_hash_pairs) and audit_step_hash_pairs == runtime_step_hash_pairs
-    if audit:
-        if not runtime_steps:
-            reasons.append(f"{label}_runtime_source_time_steps_missing")
-        elif not audit_steps:
-            reasons.append(f"{label}_source_time_steps_missing")
-        elif not steps_match:
-            reasons.append(f"{label}_source_time_steps_mismatch")
-        if not runtime_hashes:
-            reasons.append(f"{label}_runtime_source_vtk_hashes_missing")
-        elif not audit_hashes:
-            reasons.append(f"{label}_source_vtk_hashes_missing")
-        elif not hashes_match:
-            reasons.append(f"{label}_source_vtk_hashes_mismatch")
-        if not step_hash_pairs_match:
-            reasons.append(f"{label}_source_step_hash_pairs_mismatch")
+    if not runtime_steps:
+        reasons.append(f"{label}_runtime_source_time_steps_missing")
+    if not audit_steps:
+        reasons.append(f"{label}_source_time_steps_missing")
+    elif runtime_steps and not steps_match:
+        reasons.append(f"{label}_source_time_steps_mismatch")
+    if not runtime_hashes:
+        reasons.append(f"{label}_runtime_source_vtk_hashes_missing")
+    if not audit_hashes:
+        reasons.append(f"{label}_source_vtk_hashes_missing")
+    elif runtime_hashes and not hashes_match:
+        reasons.append(f"{label}_source_vtk_hashes_mismatch")
+    if not runtime_step_hash_pairs:
+        reasons.append(f"{label}_runtime_source_step_hash_pairs_missing")
+    if not audit_step_hash_pairs:
+        reasons.append(f"{label}_source_step_hash_pairs_missing")
+    elif runtime_step_hash_pairs and not step_hash_pairs_match:
+        reasons.append(f"{label}_source_step_hash_pairs_mismatch")
     return {
         f"{label}_source_time_steps": audit_steps,
         f"{label}_source_time_steps_match_runtime": steps_match,
