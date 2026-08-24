@@ -107,11 +107,13 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "Default is no streamwise clipping");
                 Require(setup, "if(citylbm_stg_min_streamwise_fraction > 0.0f)");
                 RequireNotContains(setup, "0.05f * (mean_mag");
+                Require(setup, "#include <vector>");
                 Require(setup, "syntheticTurbulentInlet");
                 Require(setup, "applySyntheticTurbulentInlet");
                 Require(setup, "synthetic_eddy_count");
                 Require(setup, "updateSyntheticEddyPlane");
                 Require(setup, "updateTemporalFilter");
+                RequireNotContains(setup, "updateDigitalFilter");
                 Require(setup, "turbulentWind");
                 Require(setup, "applyInlet");
                 Require(setup, "compactCosine");
