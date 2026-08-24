@@ -110,6 +110,88 @@ def main() -> int:
     ]:
         raise AssertionError(blockers)
 
+    reasons = module.systematic_bias_failure_reasons(
+        systematic_bias_present=True,
+        inferred_systematic_bias=True,
+        inferred_systematic_direction="underprediction",
+        u_bias=-0.34,
+        max_u_bias_ratio=0.05,
+        best_scale=1.6,
+        max_best_scale_deviation=0.2,
+        scaled_improvement=0.45,
+        min_scaled_improvement_ratio=0.25,
+        failed_prerequisites=[
+            "time averaging and stationarity=FAIL",
+            "native FluidX3D baseline=FAIL",
+        ],
+        accuracy_failure_reasons=["U_R2_below_0.6:-0.2"],
+        prerequisites_closed=False,
+        root_cause_interpretation_allowed=False,
+        solver_accuracy_allowed=False,
+        solver_accuracy_blockers=[
+            "systematic_bias_present",
+            "mean_velocity_accuracy_failed",
+            "prerequisite_gates_open",
+        ],
+    )
+    expected_fragments = [
+        "systematic_bias_present",
+        "systematic_underprediction",
+        "U_bias_ratio_abs_above_0.05:-0.34",
+        "best_fit_scale_suggests_normalization_or_physics_gap:1.6;limit=0.2",
+        "scaled_improvement_suggests_scale_like_bias:0.45;limit=0.25",
+        "prerequisite_gates_open:time averaging and stationarity=FAIL;native FluidX3D baseline=FAIL",
+        "prerequisite_gate_open:time averaging and stationarity=FAIL",
+        "mean_velocity_accuracy_failed:U_R2_below_0.6:-0.2",
+        "solver_accuracy_interpretation_blocked:systematic_bias_present;mean_velocity_accuracy_failed;prerequisite_gates_open",
+        "root_cause_interpretation_blocked_until_prerequisites_close",
+    ]
+    for fragment in expected_fragments:
+        if fragment not in reasons:
+            raise AssertionError((fragment, reasons))
+
+    residual_reasons = module.systematic_bias_failure_reasons(
+        systematic_bias_present=True,
+        inferred_systematic_bias=True,
+        inferred_systematic_direction="underprediction",
+        u_bias=-0.12,
+        max_u_bias_ratio=0.05,
+        best_scale=1.0,
+        max_best_scale_deviation=0.2,
+        scaled_improvement=0.0,
+        min_scaled_improvement_ratio=0.25,
+        failed_prerequisites=[],
+        accuracy_failure_reasons=[],
+        prerequisites_closed=True,
+        root_cause_interpretation_allowed=True,
+        solver_accuracy_allowed=False,
+        solver_accuracy_blockers=["systematic_bias_present"],
+    )
+    if "residual_physics_or_protocol_bias_after_prerequisites_closed" not in residual_reasons:
+        raise AssertionError(residual_reasons)
+    if "prerequisite_gates_open:" in "|".join(residual_reasons):
+        raise AssertionError(residual_reasons)
+
+    clean_reasons = module.systematic_bias_failure_reasons(
+        systematic_bias_present=False,
+        inferred_systematic_bias=False,
+        inferred_systematic_direction="",
+        u_bias=0.01,
+        max_u_bias_ratio=0.05,
+        best_scale=None,
+        max_best_scale_deviation=0.2,
+        scaled_improvement=None,
+        min_scaled_improvement_ratio=0.25,
+        failed_prerequisites=[],
+        accuracy_failure_reasons=[],
+        prerequisites_closed=True,
+        root_cause_interpretation_allowed=False,
+        solver_accuracy_allowed=True,
+        solver_accuracy_blockers=[],
+    )
+    if clean_reasons:
+        raise AssertionError(clean_reasons)
+
     print("validation_gate_systematic_bias_blocker_smoke passed")
     return 0
 

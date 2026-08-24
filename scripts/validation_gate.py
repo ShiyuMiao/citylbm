@@ -757,6 +757,77 @@ def solver_accuracy_interpretation_blockers(
     return blockers
 
 
+def systematic_bias_failure_reasons(
+    *,
+    systematic_bias_present: bool,
+    inferred_systematic_bias: bool,
+    inferred_systematic_direction: str,
+    u_bias: Optional[float],
+    max_u_bias_ratio: float,
+    best_scale: Optional[float],
+    max_best_scale_deviation: float,
+    scaled_improvement: Optional[float],
+    min_scaled_improvement_ratio: float,
+    failed_prerequisites: List[str],
+    accuracy_failure_reasons: List[str],
+    prerequisites_closed: bool,
+    root_cause_interpretation_allowed: bool,
+    solver_accuracy_allowed: bool,
+    solver_accuracy_blockers: List[str],
+) -> List[str]:
+    reasons: List[str] = []
+    if (
+        not systematic_bias_present
+        and not inferred_systematic_bias
+        and solver_accuracy_allowed
+        and not accuracy_failure_reasons
+        and not failed_prerequisites
+    ):
+        return reasons
+    if systematic_bias_present:
+        reasons.append("systematic_bias_present")
+    if inferred_systematic_bias:
+        reasons.append("systematic_bias_inferred_from_U_bias")
+    if inferred_systematic_direction:
+        reasons.append(f"systematic_{inferred_systematic_direction}")
+    if u_bias is None:
+        reasons.append("U_bias_ratio_missing")
+    elif abs(u_bias) > max_u_bias_ratio:
+        reasons.append(f"U_bias_ratio_abs_above_{max_u_bias_ratio:g}:{u_bias:g}")
+    if best_scale is None:
+        reasons.append("best_fit_scale_to_exp_missing")
+    elif abs(best_scale - 1.0) > max_best_scale_deviation:
+        reasons.append(
+            "best_fit_scale_suggests_normalization_or_physics_gap:"
+            f"{best_scale:g};limit={max_best_scale_deviation:g}"
+        )
+    if (
+        scaled_improvement is not None
+        and scaled_improvement >= min_scaled_improvement_ratio
+    ):
+        reasons.append(
+            "scaled_improvement_suggests_scale_like_bias:"
+            f"{scaled_improvement:g};limit={min_scaled_improvement_ratio:g}"
+        )
+    if failed_prerequisites:
+        reasons.append("prerequisite_gates_open:" + ";".join(failed_prerequisites))
+        for blocker in failed_prerequisites:
+            reasons.append(f"prerequisite_gate_open:{blocker}")
+    if accuracy_failure_reasons:
+        reasons.append("mean_velocity_accuracy_failed:" + ";".join(accuracy_failure_reasons))
+    if solver_accuracy_blockers:
+        reasons.append(
+            "solver_accuracy_interpretation_blocked:" + ";".join(solver_accuracy_blockers)
+        )
+    if systematic_bias_present and prerequisites_closed:
+        reasons.append("residual_physics_or_protocol_bias_after_prerequisites_closed")
+    if systematic_bias_present and not root_cause_interpretation_allowed:
+        reasons.append("root_cause_interpretation_blocked_until_prerequisites_close")
+    if not solver_accuracy_allowed and not solver_accuracy_blockers:
+        reasons.append("solver_accuracy_interpretation_blocked")
+    return reasons
+
+
 def mean_velocity_accuracy_failure_reasons(
     *,
     u_bias: Optional[float],
@@ -8158,6 +8229,31 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     solver_accuracy_blockers = solver_accuracy_interpretation_blockers(
         systematic_bias_present, accuracy_pass, failed_prerequisites
     )
+    systematic_bias_reasons = systematic_bias_failure_reasons(
+        systematic_bias_present=systematic_bias_present,
+        inferred_systematic_bias=inferred_systematic_bias,
+        inferred_systematic_direction=inferred_systematic_direction,
+        u_bias=u_bias,
+        max_u_bias_ratio=args.max_u_bias_ratio,
+        best_scale=best_scale,
+        max_best_scale_deviation=args.max_normalization_best_scale_deviation,
+        scaled_improvement=scaled_improvement,
+        min_scaled_improvement_ratio=args.min_normalization_scaled_improvement_ratio,
+        failed_prerequisites=failed_prerequisites if systematic_bias_present else [],
+        accuracy_failure_reasons=accuracy_failure_reasons,
+        prerequisites_closed=prerequisites_closed,
+        root_cause_interpretation_allowed=root_cause_interpretation_allowed,
+        solver_accuracy_allowed=solver_accuracy_allowed,
+        solver_accuracy_blockers=solver_accuracy_blockers,
+    )
+    for gate in gates:
+        if gate.get("key") == "systematic_bias":
+            gate["evidence"] = (
+                str(gate.get("evidence") or "")
+                + "; failure_reasons="
+                + ("|".join(systematic_bias_reasons) if systematic_bias_reasons else "none")
+            )
+            break
     systematic_bias_diagnostic = {
         "present": systematic_bias_present,
         "flag": systematic_flag,
@@ -8177,6 +8273,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         "root_cause_interpretation_allowed": root_cause_interpretation_allowed,
         "solver_accuracy_interpretation_allowed": solver_accuracy_allowed,
         "solver_accuracy_interpretation_blockers": solver_accuracy_blockers,
+        "failure_reasons": systematic_bias_reasons,
         "mean_velocity_accuracy_pass": accuracy_pass,
         "mean_velocity_accuracy_failure_reasons": accuracy_failure_reasons,
         "interpretation_gate": interpretation_status,
