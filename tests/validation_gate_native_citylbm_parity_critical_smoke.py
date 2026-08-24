@@ -110,6 +110,11 @@ def main() -> int:
             "inlet_source_has_k_driven_three_component_stg",
             "inlet_source_has_temporal_filter_state",
             "boundary_runtime_side_top_normal_leakage_gate",
+            "boundary_source_has_non_reflecting_outlet_method",
+            "boundary_source_has_periodic_pair_mapping_evidence",
+            "boundary_source_has_rough_wall_action_evidence",
+            "boundary_source_has_precursor_or_recycling_boundary_field_evidence",
+            "boundary_source_missing_paper_grade_source_evidence",
         ]:
             if field not in report["required_critical_fields"]:
                 raise AssertionError((field, report["required_critical_fields"]))
@@ -168,6 +173,33 @@ def main() -> int:
             raise AssertionError(bad_report)
         if "synthetic_temporal_sampling_gate" not in bad_report["missing_critical_fields"]:
             raise AssertionError(bad_report)
+
+        bad_boundary = tmp_path / "native_missing_boundary_detail.csv"
+        bad_boundary_out = tmp_path / "bad_boundary_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_boundary,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="boundary_source_has_non_reflecting_outlet_method",
+        )
+        failed_boundary = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_boundary,
+            bad_boundary_out,
+        )
+        if failed_boundary.returncode == 0:
+            raise AssertionError(
+                (failed_boundary.returncode, failed_boundary.stdout, failed_boundary.stderr)
+            )
+        bad_boundary_report = json.loads(bad_boundary_out.read_text(encoding="utf-8"))
+        if bad_boundary_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_boundary_report)
+        if (
+            "boundary_source_has_non_reflecting_outlet_method"
+            not in bad_boundary_report["missing_critical_fields"]
+        ):
+            raise AssertionError(bad_boundary_report)
 
     print("validation_gate_native_citylbm_parity_critical_smoke passed")
     return 0
