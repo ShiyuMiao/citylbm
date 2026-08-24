@@ -67,6 +67,13 @@ namespace CityLBM.CodegenSmoke
                 string nativeManifest = File.ReadAllText(Path.Combine(caseDir, "native_fluidx3d_baseline_manifest.json"));
 
                 Require(setup, "profile_k_lbm[profile_count]");
+                Require(setup, "profile_r11_lbm[profile_count]");
+                Require(setup, "profile_r22_lbm[profile_count]");
+                Require(setup, "profile_r33_lbm[profile_count]");
+                Require(setup, "profile_r12_lbm[profile_count]");
+                Require(setup, "profile_r13_lbm[profile_count]");
+                Require(setup, "profile_r23_lbm[profile_count]");
+                Require(setup, "Reynolds-stress arrays are derived from the isotropic-k assumption");
                 Require(setup, "const float profile_origin_z_m = -4.00000000f;");
                 Require(setup, "float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * 2.00000000f;");
                 Require(setup, "citylbm_stg_mode_count");
@@ -137,6 +144,12 @@ namespace CityLBM.CodegenSmoke
                 Require(metadata, "empty_tunnel_U_k_correlation_preservation_gate");
                 Require(metadata, "\"InletReynoldsStressTensorAvailable\": false");
                 Require(metadata, "isotropic_from_k_only_R11_R22_R33_2k_over_3_R12_R13_R23_0");
+                Require(metadata, "\"InletReynoldsStressTensorSource\": \"isotropic_k_assumption_from_AF_k_column\"");
+                Require(metadata, "\"InletReynoldsStressTensorPaperGradeGate\": \"fail_requires_measured_or_precursor_tensor_and_distribution_consistent_inlet\"");
+                Require(metadata, "\"InletReynoldsStressComponents\"");
+                Require(metadata, "\"R11\": \"2k/3\"");
+                Require(metadata, "\"R12\": \"0\"");
+                Require(metadata, "\"InletReynoldsStressOffDiagonalTreatment\": \"R12=R13=R23=0 isotropic assumption\"");
                 Require(metadata, "\"ExpectedVtkFrameCount\": 10");
                 Require(metadata, "\"TimeAveragingRunGate\": \"smoke_only_too_few_frames_for_validation\"");
                 Require(metadata, "\"PaperRecommendedAveragingFrames\": 40");

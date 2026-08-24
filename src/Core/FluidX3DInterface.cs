@@ -2279,6 +2279,14 @@ namespace CityLBM.Solver
             sb.AppendLine("    const float profile_u_lbm[profile_count] = {" + JoinFloatArray(samples.Select(s => s.U * uScale)) + "};");
             sb.AppendLine("    const float profile_k_m2s2[profile_count] = {" + JoinFloatArray(samples.Select(s => s.HasK ? Math.Max(0.0, s.K) : 0.0)) + "};");
             sb.AppendLine("    const float profile_k_lbm[profile_count] = {" + JoinFloatArray(samples.Select(s => s.HasK ? Math.Max(0.0, s.K) * uScale * uScale : 0.0)) + "};");
+            sb.AppendLine("    // Reynolds-stress arrays are derived from the isotropic-k assumption: R11=R22=R33=2k/3 and R12=R13=R23=0.");
+            sb.AppendLine("    // They are traceability data for STG-lite diagnostics, not measured AIJ Reynolds-stress tensors.");
+            sb.AppendLine("    const float profile_r11_lbm[profile_count] = {" + JoinFloatArray(samples.Select(s => s.HasK ? (2.0 * Math.Max(0.0, s.K) / 3.0) * uScale * uScale : 0.0)) + "};");
+            sb.AppendLine("    const float profile_r22_lbm[profile_count] = {" + JoinFloatArray(samples.Select(s => s.HasK ? (2.0 * Math.Max(0.0, s.K) / 3.0) * uScale * uScale : 0.0)) + "};");
+            sb.AppendLine("    const float profile_r33_lbm[profile_count] = {" + JoinFloatArray(samples.Select(s => s.HasK ? (2.0 * Math.Max(0.0, s.K) / 3.0) * uScale * uScale : 0.0)) + "};");
+            sb.AppendLine("    const float profile_r12_lbm[profile_count] = {" + JoinFloatArray(samples.Select(_ => 0.0)) + "};");
+            sb.AppendLine("    const float profile_r13_lbm[profile_count] = {" + JoinFloatArray(samples.Select(_ => 0.0)) + "};");
+            sb.AppendLine("    const float profile_r23_lbm[profile_count] = {" + JoinFloatArray(samples.Select(_ => 0.0)) + "};");
             sb.AppendLine($"    const float citylbm_velocity_scale_lbm_to_mps = {(1.0 / uScale).ToString("F8", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float dir_x = {windDir.X.ToString("F6", CultureInfo.InvariantCulture)}f;");
             sb.AppendLine($"    const float dir_y = {windDir.Y.ToString("F6", CultureInfo.InvariantCulture)}f;");
@@ -2885,6 +2893,26 @@ namespace CityLBM.Solver
                     InletReynoldsStressTensorAvailable = inletReynoldsStressTensorAvailable,
                     InletReynoldsStressTreatment = inletReynoldsStressTreatment,
                     ReynoldsStressAssumption = hasK ? "isotropic k only; no Reynolds stress tensor is available from AF table" : "",
+                    InletReynoldsStressTensorSource = syntheticActive
+                        ? "isotropic_k_assumption_from_AF_k_column"
+                        : (hasK ? "metadata_only_isotropic_k_assumption_from_AF_k_column" : "none"),
+                    InletReynoldsStressTensorPaperGradeGate = syntheticActive
+                        ? "fail_requires_measured_or_precursor_tensor_and_distribution_consistent_inlet"
+                        : "not_applicable",
+                    InletReynoldsStressComponents = syntheticActive
+                        ? new
+                        {
+                            R11 = "2k/3",
+                            R22 = "2k/3",
+                            R33 = "2k/3",
+                            R12 = "0",
+                            R13 = "0",
+                            R23 = "0"
+                        }
+                        : null,
+                    InletReynoldsStressOffDiagonalTreatment = syntheticActive
+                        ? "R12=R13=R23=0 isotropic assumption"
+                        : "none",
                     WallRoughnessTreatment = "ground/buildings are voxelized TYPE_S no-slip; RoughnessLength shapes analytic mean profiles but is not a FluidX3D rough-wall or wall-function boundary in v0.3.0",
                     WindDirectionUnitVector = new
                     {

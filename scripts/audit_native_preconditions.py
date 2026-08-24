@@ -1382,6 +1382,9 @@ def build_inlet_equivalence_evidence_reasons(
     source_has_length_scale = as_bool(inlet_source_audit.get("has_inlet_length_scale_evidence"))
     source_length_gate = str(inlet_source_audit.get("metadata_length_scale_gate") or "").strip().lower()
     source_has_reynolds_tensor = as_bool(inlet_source_audit.get("has_reynolds_stress_tensor_evidence"))
+    source_has_measured_or_precursor_reynolds_tensor = as_bool(
+        inlet_source_audit.get("has_measured_or_precursor_reynolds_stress_tensor_evidence")
+    )
     source_reynolds_treatment = str(inlet_source_audit.get("reynolds_stress_treatment") or "").strip()
     source_has_three_component_write = as_bool(inlet_source_audit.get("has_three_component_velocity_write"))
     source_has_three_component_fluctuation = as_bool(
@@ -1461,7 +1464,18 @@ def build_inlet_equivalence_evidence_reasons(
         evidence_reasons.append(f"inlet_source_metadata_length_scale_gate_not_pass:{source_length_gate or 'missing'}")
     if source_has_reynolds_tensor is not True:
         evidence_reasons.append(f"inlet_source_has_reynolds_stress_tensor_evidence_not_true:{source_has_reynolds_tensor}")
-    if source_reynolds_treatment != "full_tensor_or_precursor_evidence":
+    if (
+        source_has_measured_or_precursor_reynolds_tensor is not True
+        and source_reynolds_treatment != "full_tensor_or_precursor_evidence"
+    ):
+        evidence_reasons.append(
+            "inlet_source_has_measured_or_precursor_reynolds_stress_tensor_evidence_not_true:"
+            f"{source_has_measured_or_precursor_reynolds_tensor}"
+        )
+    if source_reynolds_treatment not in {
+        "measured_or_precursor_full_tensor",
+        "full_tensor_or_precursor_evidence",
+    }:
         evidence_reasons.append(f"inlet_source_reynolds_stress_treatment_not_full_tensor:{source_reynolds_treatment or 'missing'}")
     for key, value in [
         ("inlet_source_has_three_component_velocity_write", source_has_three_component_write),

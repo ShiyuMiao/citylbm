@@ -620,9 +620,6 @@ def main() -> int:
             ["full_tensor", "reynolds_stress_tensor", "r11", "r22", "r33"],
         )
     )
-    has_reynolds_stress_tensor_evidence = (
-        has_precursor_recycling_field or has_reynolds_stress_diagonal_source_evidence
-    )
     has_documented_isotropic_k_assumption = contains_any(
         " ".join([implementation_source, metadata_reynolds_stress_treatment]),
         [
@@ -634,9 +631,21 @@ def main() -> int:
             "r12=r13=r23=0",
         ],
     )
+    has_isotropic_k_reynolds_stress_source_evidence = (
+        has_reynolds_stress_full_tensor_source_evidence and metadata_documents_isotropic_k_only
+    )
+    has_measured_or_precursor_reynolds_stress_tensor_evidence = (
+        has_precursor_recycling_field
+        or (has_reynolds_stress_full_tensor_source_evidence and not metadata_documents_isotropic_k_only)
+    )
+    has_reynolds_stress_tensor_evidence = (
+        has_precursor_recycling_field or has_reynolds_stress_full_tensor_source_evidence
+    )
     reynolds_stress_treatment = (
-        "full_tensor_or_precursor_evidence"
-        if has_reynolds_stress_tensor_evidence
+        "measured_or_precursor_full_tensor"
+        if has_measured_or_precursor_reynolds_stress_tensor_evidence
+        else "documented_isotropic_k_tensor_source"
+        if has_isotropic_k_reynolds_stress_source_evidence
         else "documented_isotropic_k_only"
         if has_documented_isotropic_k_assumption
         else "missing"
@@ -998,8 +1007,11 @@ def main() -> int:
         paper_gate_reasons.append("source_correlated_velocity_field_only_without_distribution_reconstruction")
     if synthetic_requested and not has_inlet_length_scale_evidence:
         paper_gate_reasons.append("source_missing_turbulent_length_scale_evidence")
-    if synthetic_requested and not has_reynolds_stress_tensor_evidence:
-        paper_gate_reasons.append("source_missing_reynolds_stress_tensor_evidence")
+    if synthetic_requested and not has_measured_or_precursor_reynolds_stress_tensor_evidence:
+        if has_isotropic_k_reynolds_stress_source_evidence:
+            paper_gate_reasons.append("source_reynolds_stress_tensor_is_isotropic_k_assumption_only")
+        else:
+            paper_gate_reasons.append("source_missing_measured_or_precursor_reynolds_stress_tensor_evidence")
     if (
         synthetic_eddy_selected
         and has_native_synthetic_eddy_structure_evidence
@@ -1097,7 +1109,12 @@ def main() -> int:
         "has_reynolds_stress_diagonal_source_evidence": has_reynolds_stress_diagonal_source_evidence,
         "has_reynolds_stress_offdiagonal_source_evidence": has_reynolds_stress_offdiagonal_source_evidence,
         "has_reynolds_stress_full_tensor_source_evidence": has_reynolds_stress_full_tensor_source_evidence,
+        "has_isotropic_k_reynolds_stress_source_evidence": has_isotropic_k_reynolds_stress_source_evidence,
+        "has_measured_or_precursor_reynolds_stress_tensor_evidence": has_measured_or_precursor_reynolds_stress_tensor_evidence,
         "has_reynolds_stress_tensor_evidence": has_reynolds_stress_tensor_evidence,
+        "reynolds_stress_tensor_paper_grade_gate": (
+            "pass" if has_measured_or_precursor_reynolds_stress_tensor_evidence else "fail"
+        ),
         "has_documented_isotropic_k_assumption": has_documented_isotropic_k_assumption,
         "reynolds_stress_treatment": reynolds_stress_treatment,
         "has_update_interval": has_update_interval,

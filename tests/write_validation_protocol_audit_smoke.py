@@ -115,9 +115,11 @@ def create_paper_grade_inlet_audit(path: Path) -> None:
         "has_profile_k_lbm": True,
         "has_k_driven_three_component_stg": True,
         "has_inlet_length_scale_evidence": True,
+        "has_reynolds_stress_full_tensor_source_evidence": True,
+        "has_measured_or_precursor_reynolds_stress_tensor_evidence": True,
         "has_reynolds_stress_tensor_evidence": True,
         "has_documented_isotropic_k_assumption": False,
-        "reynolds_stress_treatment": "full_tensor_or_precursor_evidence",
+        "reynolds_stress_treatment": "measured_or_precursor_full_tensor",
     }
     write(path, json.dumps(audit, indent=2))
 

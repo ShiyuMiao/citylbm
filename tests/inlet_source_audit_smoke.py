@@ -108,7 +108,7 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(random_report["inlet_source_gate_reasons"])
         if "Do not describe" not in random_report["recommended_next_action"]:
             raise AssertionError(random_report["recommended_next_action"])
-        if "source_missing_reynolds_stress_tensor_evidence" not in random_report["paper_grade_inlet_source_gate_reasons"]:
+        if "source_missing_measured_or_precursor_reynolds_stress_tensor_evidence" not in random_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(random_report["paper_grade_inlet_source_gate_reasons"])
         if random_report["has_three_component_fluctuation_evidence"]:
             raise AssertionError(random_report)
@@ -934,6 +934,9 @@ const float profile_k_lbm[] = {0.0001f, 0.0002f};
 const float profile_r11_lbm[] = {0.000066f, 0.000133f};
 const float profile_r22_lbm[] = {0.000066f, 0.000133f};
 const float profile_r33_lbm[] = {0.000066f, 0.000133f};
+const float profile_r12_lbm[] = {0.0f, 0.0f};
+const float profile_r13_lbm[] = {0.0f, 0.0f};
+const float profile_r23_lbm[] = {0.0f, 0.0f};
 const float synthetic_eddy_length_scale = 4.0f;
 const float profile_origin_z_m = 0.0f;
 struct SemEddy { float eddy_center; float eddy_radius; float eddy_strength; float eddy_lifetime; };
@@ -1025,7 +1028,7 @@ void applySyntheticTurbulentInlet(uint t_step) {
             "inlet_source_gate_reasons"
         ]:
             raise AssertionError(sem_metadata_claim_only_report["inlet_source_gate_reasons"])
-        if "source_missing_reynolds_stress_tensor_evidence" not in sem_metadata_claim_only_report[
+        if "source_missing_measured_or_precursor_reynolds_stress_tensor_evidence" not in sem_metadata_claim_only_report[
             "paper_grade_inlet_source_gate_reasons"
         ]:
             raise AssertionError(sem_metadata_claim_only_report["paper_grade_inlet_source_gate_reasons"])
@@ -1041,6 +1044,9 @@ const float profile_k_lbm[] = {0.0001f, 0.0002f};
 const float profile_r11_lbm[] = {0.000066f, 0.000133f};
 const float profile_r22_lbm[] = {0.000066f, 0.000133f};
 const float profile_r33_lbm[] = {0.000066f, 0.000133f};
+const float profile_r12_lbm[] = {0.0f, 0.0f};
+const float profile_r13_lbm[] = {0.0f, 0.0f};
+const float profile_r23_lbm[] = {0.0f, 0.0f};
 const float synthetic_eddy_length_scale = 4.0f;
 const float profile_origin_z_m = 0.0f;
 struct SemEddy { float eddy_center; float eddy_radius; float eddy_strength; float eddy_lifetime; };
@@ -1064,7 +1070,7 @@ void applySyntheticTurbulentInlet(uint t_step) {
 }
 """,
         )
-        sem_code, sem_report = run_audit(sem_setup, metadata, sem_out)
+        sem_code, sem_report = run_audit(sem_setup, metadata_claim_only, sem_out)
         if sem_code != 0:
             raise AssertionError(sem_report)
         if sem_report["paper_grade_inlet_source_gate"] != "pass":
@@ -1075,7 +1081,7 @@ void applySyntheticTurbulentInlet(uint t_step) {
             raise AssertionError(sem_report["inlet_source_turbulent_inflow_fidelity_class"])
         if sem_report["distribution_consistency_basis"] != "sem_eddy_population_distribution_reconstruction":
             raise AssertionError(sem_report["distribution_consistency_basis"])
-        if sem_report["reynolds_stress_treatment"] != "full_tensor_or_precursor_evidence":
+        if sem_report["reynolds_stress_treatment"] != "measured_or_precursor_full_tensor":
             raise AssertionError(sem_report["reynolds_stress_treatment"])
         if not sem_report["has_inlet_length_scale_evidence"]:
             raise AssertionError(sem_report)

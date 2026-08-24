@@ -93,6 +93,13 @@ def main() -> int:
     require(data.get("has_temporal_filter_state") is True, data)
     require(data.get("has_layerwise_rms_preserving_inlet_correction") is True, data)
     require(data.get("has_inlet_length_scale_evidence") is True, data)
+    require(data.get("has_reynolds_stress_diagonal_source_evidence") is True, data)
+    require(data.get("has_reynolds_stress_offdiagonal_source_evidence") is True, data)
+    require(data.get("has_reynolds_stress_full_tensor_source_evidence") is True, data)
+    require(data.get("has_isotropic_k_reynolds_stress_source_evidence") is True, data)
+    require(data.get("has_measured_or_precursor_reynolds_stress_tensor_evidence") is False, data)
+    require(data.get("reynolds_stress_tensor_paper_grade_gate") == "fail", data)
+    require(data.get("reynolds_stress_treatment") == "documented_isotropic_k_tensor_source", data)
     require(data.get("synthetic_inlet_spectral_mode_count") == 128, data)
     require(data.get("synthetic_inlet_spectral_mode_count_gate") == "pass", data)
     require(data.get("has_streamwise_clipping_control") is True, data)
@@ -105,7 +112,7 @@ def main() -> int:
         "source_not_distribution_consistent",
         "source_velocity_field_only",
         "source_correlated_velocity_field_only_without_distribution_reconstruction",
-        "source_missing_reynolds_stress_tensor_evidence",
+        "source_reynolds_stress_tensor_is_isotropic_k_assumption_only",
     ]:
         require(expected in paper_reasons, data)
 

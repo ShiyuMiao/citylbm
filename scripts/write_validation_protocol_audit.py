@@ -271,10 +271,24 @@ def protocol_items(
             f"MetadataLengthScaleGate={inlet_audit.get('metadata_length_scale_gate') or 'missing'}"
         )
         stress_tensor_present = as_bool(inlet_audit.get("has_reynolds_stress_tensor_evidence"))
+        measured_or_precursor_tensor = as_bool(
+            inlet_audit.get("has_measured_or_precursor_reynolds_stress_tensor_evidence")
+        )
+        full_tensor_source = as_bool(inlet_audit.get("has_reynolds_stress_full_tensor_source_evidence"))
+        isotropic_tensor_source = as_bool(inlet_audit.get("has_isotropic_k_reynolds_stress_source_evidence"))
         documented_isotropic = as_bool(inlet_audit.get("has_documented_isotropic_k_assumption"))
-        stress_status = "pass" if stress_tensor_present is True else "partial" if documented_isotropic is True else "risk"
+        stress_status = (
+            "pass"
+            if measured_or_precursor_tensor is True
+            else "partial"
+            if isotropic_tensor_source is True or full_tensor_source is True or documented_isotropic is True
+            else "risk"
+        )
         stress_evidence = (
             f"HasReynoldsStressTensorEvidence={stress_tensor_present}; "
+            f"HasMeasuredOrPrecursorTensorEvidence={measured_or_precursor_tensor}; "
+            f"HasFullTensorSourceEvidence={full_tensor_source}; "
+            f"HasIsotropicKTensorSourceEvidence={isotropic_tensor_source}; "
             f"HasDocumentedIsotropicKAssumption={documented_isotropic}; "
             f"ReynoldsStressTreatment={inlet_audit.get('reynolds_stress_treatment') or 'missing'}"
         )
