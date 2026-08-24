@@ -232,6 +232,22 @@ def main() -> int:
                         "inlet_source_velocity_field_only_not_false:True;"
                         "inlet_tke_gate_not_pass:fail"
                     ),
+                    "native_inlet_turbulence_interpretation_gate": "fail",
+                    "native_inlet_turbulence_interpretation_allowed": False,
+                    "native_inlet_turbulence_interpretation_status": (
+                        "blocked_until_distribution_consistent_turbulent_inlet_evidence_closed"
+                    ),
+                    "native_inlet_turbulence_interpretation_blocker": (
+                        "inlet_turbulence_source_implementation"
+                    ),
+                    "native_inlet_turbulence_required_controls_csv": (
+                        "use_distribution_consistent_digital_filter_sem_or_precursor_inlet;"
+                        "preserve_af_z_u_k_profiles_in_the_final_window;"
+                        "document_reynolds_stress_tensor_or_explicit_isotropic_k_assumption;"
+                        "prove_inlet_correlation_k_variance_and_tke_gates_pass;"
+                        "archive_inlet_source_profile_correlation_hashes_for_the_same_final_window"
+                    ),
+                    "native_inlet_turbulence_interpretation_reason_count": 2,
                     "native_probe_component_equivalence_gate": "fail",
                     "native_probe_component_equivalence_gate_reasons_csv": (
                         "probe_uref_mismatch_count_80;"
@@ -535,6 +551,20 @@ def main() -> int:
             "inlet_source_velocity_field_only_not_false:True;"
             "inlet_tke_gate_not_pass:fail"
         ),
+        "native_inlet_turbulence_interpretation_gate": "fail",
+        "native_inlet_turbulence_interpretation_allowed": "false",
+        "native_inlet_turbulence_interpretation_status": (
+            "blocked_until_distribution_consistent_turbulent_inlet_evidence_closed"
+        ),
+        "native_inlet_turbulence_interpretation_blocker": "inlet_turbulence_source_implementation",
+        "native_inlet_turbulence_required_controls": (
+            "use_distribution_consistent_digital_filter_sem_or_precursor_inlet;"
+            "preserve_af_z_u_k_profiles_in_the_final_window;"
+            "document_reynolds_stress_tensor_or_explicit_isotropic_k_assumption;"
+            "prove_inlet_correlation_k_variance_and_tke_gates_pass;"
+            "archive_inlet_source_profile_correlation_hashes_for_the_same_final_window"
+        ),
+        "native_inlet_turbulence_interpretation_reason_count": "2",
         "native_probe_component_equivalence_gate": "fail",
         "native_probe_component_equivalence_gate_reasons": (
             "probe_uref_mismatch_count_80;"

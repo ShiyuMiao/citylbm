@@ -64,6 +64,14 @@ PROBE_COMPONENT_REQUIRED_CONTROLS = [
     "rerun_component_sensitivity_on_the_same_vtk_window",
 ]
 
+INLET_TURBULENCE_REQUIRED_CONTROLS = [
+    "use_distribution_consistent_digital_filter_sem_or_precursor_inlet",
+    "preserve_af_z_u_k_profiles_in_the_final_window",
+    "document_reynolds_stress_tensor_or_explicit_isotropic_k_assumption",
+    "prove_inlet_correlation_k_variance_and_tke_gates_pass",
+    "archive_inlet_source_profile_correlation_hashes_for_the_same_final_window",
+]
+
 REQUIRED_PROTOCOL_ITEM_KEYS = [
     "inlet_mean_profile",
     "inlet_turbulence_k",
@@ -1890,6 +1898,78 @@ def build_boundary_protocol_interpretation_gate(
     }
 
 
+def build_inlet_turbulence_interpretation_gate(
+    inlet_equivalence_gate: str,
+    inlet_equivalence_reasons: List[str],
+) -> Dict[str, Any]:
+    gate = "pass" if str(inlet_equivalence_gate or "").strip().lower() == "pass" else "fail"
+    reasons = [str(reason) for reason in inlet_equivalence_reasons if str(reason).strip()]
+    blocker = ""
+    if gate != "pass":
+        blocker = "inlet_turbulence_evidence"
+        if any(
+            token in reason
+            for reason in reasons
+            for token in [
+                "inlet_source_",
+                "paper_grade_inlet_source_",
+                "inlet_distribution_route",
+                "inlet_synthetic_correlation_model",
+                "reynolds_stress",
+                "length_scale",
+            ]
+        ):
+            blocker = "inlet_turbulence_source_implementation"
+        elif any(
+            token in reason
+            for reason in reasons
+            for token in [
+                "inlet_profile_",
+                "inlet_u_profile",
+                "inlet_k_profile",
+                "af_csv",
+            ]
+        ):
+            blocker = "inlet_profile_u_k_preservation"
+        elif any(
+            token in reason
+            for reason in reasons
+            for token in [
+                "inlet_correlation",
+                "inlet_k_variance",
+                "inlet_tke",
+                "k_variance",
+                "tke",
+            ]
+        ):
+            blocker = "inlet_turbulence_statistics_preservation"
+        elif any(
+            token in reason
+            for reason in reasons
+            for token in [
+                "source_time_steps",
+                "source_step",
+                "sha256",
+                "window",
+                "frame_count",
+            ]
+        ):
+            blocker = "inlet_runtime_window_traceability"
+    return {
+        "gate": gate,
+        "allowed": gate == "pass",
+        "status": (
+            "distribution_consistent_turbulent_inlet_evidence_closed"
+            if gate == "pass"
+            else "blocked_until_distribution_consistent_turbulent_inlet_evidence_closed"
+        ),
+        "blocker": blocker,
+        "required_controls": list(INLET_TURBULENCE_REQUIRED_CONTROLS) if gate != "pass" else [],
+        "reason_count": len(reasons),
+        "reasons": reasons,
+    }
+
+
 def build_probe_component_interpretation_gate(
     probe_component_equivalence_gate: str,
     probe_component_equivalence_reasons: List[str],
@@ -3039,6 +3119,10 @@ def main() -> int:
         min_avg_step_span=args.min_avg_step_span,
     )
     native_inlet_equivalence_gate = "pass" if not native_inlet_equivalence_reasons else "fail"
+    native_inlet_turbulence_interpretation = build_inlet_turbulence_interpretation_gate(
+        native_inlet_equivalence_gate,
+        native_inlet_equivalence_reasons,
+    )
     if native_inlet_equivalence_gate != "pass":
         reasons.append("native_inlet_equivalence_gate_not_pass")
 
@@ -4060,6 +4144,15 @@ def main() -> int:
         "native_inlet_equivalence_gate": native_inlet_equivalence_gate,
         "native_inlet_equivalence_gate_reasons": native_inlet_equivalence_reasons,
         "native_inlet_equivalence_gate_reasons_csv": ";".join(native_inlet_equivalence_reasons),
+        "native_inlet_turbulence_interpretation_gate": native_inlet_turbulence_interpretation["gate"],
+        "native_inlet_turbulence_interpretation_allowed": native_inlet_turbulence_interpretation["allowed"],
+        "native_inlet_turbulence_interpretation_status": native_inlet_turbulence_interpretation["status"],
+        "native_inlet_turbulence_interpretation_blocker": native_inlet_turbulence_interpretation["blocker"],
+        "native_inlet_turbulence_required_controls": native_inlet_turbulence_interpretation["required_controls"],
+        "native_inlet_turbulence_required_controls_csv": ";".join(
+            native_inlet_turbulence_interpretation["required_controls"]
+        ),
+        "native_inlet_turbulence_interpretation_reason_count": native_inlet_turbulence_interpretation["reason_count"],
         "native_probe_component_equivalence_gate": native_probe_component_equivalence_gate,
         "probe_component_fidelity_class": probe_component_fidelity_class,
         "native_probe_component_equivalence_gate_reasons": native_probe_component_equivalence_reasons,

@@ -466,6 +466,12 @@ TEMPLATE_FIELDS = [
     "native_preconditions_official_measurement_sha256",
     "native_inlet_equivalence_gate",
     "native_inlet_equivalence_gate_reasons",
+    "native_inlet_turbulence_interpretation_gate",
+    "native_inlet_turbulence_interpretation_allowed",
+    "native_inlet_turbulence_interpretation_status",
+    "native_inlet_turbulence_interpretation_blocker",
+    "native_inlet_turbulence_required_controls",
+    "native_inlet_turbulence_interpretation_reason_count",
     "native_inlet_profile_audit",
     "native_inlet_profile_gate",
     "native_inlet_u_profile_gate",
@@ -2927,6 +2933,24 @@ def main() -> int:
             ),
             "native_inlet_equivalence_gate_reasons": audit_field(
                 native_preconditions_audit, "native_inlet_equivalence_gate_reasons_csv"
+            ),
+            "native_inlet_turbulence_interpretation_gate": audit_gate(
+                native_preconditions_audit, "native_inlet_turbulence_interpretation_gate"
+            ),
+            "native_inlet_turbulence_interpretation_allowed": first_bool_text(
+                native_preconditions_audit.get("native_inlet_turbulence_interpretation_allowed")
+            ),
+            "native_inlet_turbulence_interpretation_status": audit_field(
+                native_preconditions_audit, "native_inlet_turbulence_interpretation_status"
+            ),
+            "native_inlet_turbulence_interpretation_blocker": audit_field(
+                native_preconditions_audit, "native_inlet_turbulence_interpretation_blocker"
+            ),
+            "native_inlet_turbulence_required_controls": audit_field(
+                native_preconditions_audit, "native_inlet_turbulence_required_controls_csv"
+            ),
+            "native_inlet_turbulence_interpretation_reason_count": audit_field(
+                native_preconditions_audit, "native_inlet_turbulence_interpretation_reason_count"
             ),
             "native_inlet_profile_audit": audit_field(native_preconditions_audit, "inlet_profile_audit"),
             "native_inlet_profile_gate": audit_gate(native_preconditions_audit, "inlet_profile_gate"),

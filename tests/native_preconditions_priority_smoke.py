@@ -82,6 +82,27 @@ def main() -> int:
     )
     if source_window_probe_interpretation["blocker"] != "probe_component_window_traceability":
         raise AssertionError(source_window_probe_interpretation)
+    passing_inlet_interpretation = module.build_inlet_turbulence_interpretation_gate("pass", [])
+    if passing_inlet_interpretation["gate"] != "pass" or passing_inlet_interpretation["allowed"] is not True:
+        raise AssertionError(passing_inlet_interpretation)
+    source_inlet_interpretation = module.build_inlet_turbulence_interpretation_gate(
+        "fail",
+        ["inlet_source_velocity_field_only_not_false:True"],
+    )
+    if source_inlet_interpretation["blocker"] != "inlet_turbulence_source_implementation":
+        raise AssertionError(source_inlet_interpretation)
+    profile_inlet_interpretation = module.build_inlet_turbulence_interpretation_gate(
+        "fail",
+        ["inlet_k_profile_gate_not_pass:fail"],
+    )
+    if profile_inlet_interpretation["blocker"] != "inlet_profile_u_k_preservation":
+        raise AssertionError(profile_inlet_interpretation)
+    statistics_inlet_interpretation = module.build_inlet_turbulence_interpretation_gate(
+        "fail",
+        ["inlet_tke_gate_not_pass:fail"],
+    )
+    if statistics_inlet_interpretation["blocker"] != "inlet_turbulence_statistics_preservation":
+        raise AssertionError(statistics_inlet_interpretation)
 
     source_window_reasons = []
     source_window = module.append_source_window_reasons(
