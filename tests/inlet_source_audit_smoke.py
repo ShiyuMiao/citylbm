@@ -229,6 +229,54 @@ for(uint remaining=100u; remaining>0u; ) {
         if "distribution-consistent inlet" not in stl_random_report["recommended_next_action"]:
             raise AssertionError(stl_random_report["recommended_next_action"])
 
+        metadata_length_only = root / "metadata_length_only_case_metadata.json"
+        write_text(
+            metadata_length_only,
+            json.dumps(
+                {
+                    "SyntheticTurbulentInletMethod": "STG-lite",
+                    "SyntheticTurbulentInletDistributionTreatment": "velocity_field_only",
+                    "SyntheticTurbulentInletLengthScaleGate": "pass",
+                    "SyntheticEddy": {"Enabled": True},
+                },
+                indent=2,
+            ),
+        )
+        metadata_length_only_setup = root / "metadata_length_only_setup.cpp"
+        metadata_length_only_out = root / "metadata_length_only_audit.json"
+        write_text(
+            metadata_length_only_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+void applySyntheticTurbulentInlet(uint t_step) {
+    const float sigma = sqrt(2.0f * profile_k_lbm[0] / 3.0f);
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0] + sigma;
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+""",
+        )
+        _, metadata_length_only_report = run_audit(
+            metadata_length_only_setup,
+            metadata_length_only,
+            metadata_length_only_out,
+        )
+        if metadata_length_only_report["has_source_length_scale_evidence"] is not False:
+            raise AssertionError(metadata_length_only_report)
+        if metadata_length_only_report["has_metadata_length_scale_evidence"] is not True:
+            raise AssertionError(metadata_length_only_report)
+        if metadata_length_only_report["has_inlet_length_scale_evidence"] is not True:
+            raise AssertionError(metadata_length_only_report)
+        if metadata_length_only_report["inlet_length_scale_evidence_basis"] != "metadata_gate_only":
+            raise AssertionError(metadata_length_only_report["inlet_length_scale_evidence_basis"])
+
         dfm_metadata = root / "dfm_case_metadata.json"
         write_text(
             dfm_metadata,

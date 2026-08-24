@@ -688,7 +688,17 @@ def main() -> int:
         if has_documented_isotropic_k_assumption
         else "missing"
     )
-    has_inlet_length_scale_evidence = has_length_scale or metadata_length_scale_gate == "pass"
+    has_source_length_scale_evidence = has_length_scale
+    has_metadata_length_scale_evidence = metadata_length_scale_gate == "pass"
+    has_inlet_length_scale_evidence = has_source_length_scale_evidence or has_metadata_length_scale_evidence
+    if has_source_length_scale_evidence and has_metadata_length_scale_evidence:
+        inlet_length_scale_evidence_basis = "source_and_metadata_gate"
+    elif has_source_length_scale_evidence:
+        inlet_length_scale_evidence_basis = "source_code"
+    elif has_metadata_length_scale_evidence:
+        inlet_length_scale_evidence_basis = "metadata_gate_only"
+    else:
+        inlet_length_scale_evidence_basis = "missing"
     has_update_interval = (
         "citylbm_stg_update_interval" in implementation_source_lower
         or "inlet_update_interval" in implementation_source_lower
@@ -1155,7 +1165,10 @@ def main() -> int:
         "has_transverse_projection_evidence": has_transverse_projection,
         "has_length_scale_evidence": has_length_scale,
         "metadata_length_scale_gate": metadata_length_scale_gate,
+        "has_source_length_scale_evidence": has_source_length_scale_evidence,
+        "has_metadata_length_scale_evidence": has_metadata_length_scale_evidence,
         "has_inlet_length_scale_evidence": has_inlet_length_scale_evidence,
+        "inlet_length_scale_evidence_basis": inlet_length_scale_evidence_basis,
         "metadata_reynolds_stress_treatment": metadata_reynolds_stress_treatment,
         "has_reynolds_stress_tensor_metadata_claim": has_reynolds_stress_tensor_metadata_claim,
         "has_reynolds_stress_diagonal_source_evidence": has_reynolds_stress_diagonal_source_evidence,

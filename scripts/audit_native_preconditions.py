@@ -1480,6 +1480,9 @@ def build_inlet_equivalence_evidence_reasons(
         inlet_source_audit.get("has_type_e_equilibrium_boundary_route")
     )
     source_has_length_scale = as_bool(inlet_source_audit.get("has_inlet_length_scale_evidence"))
+    source_has_code_length_scale = as_bool(inlet_source_audit.get("has_source_length_scale_evidence"))
+    source_has_metadata_length_scale = as_bool(inlet_source_audit.get("has_metadata_length_scale_evidence"))
+    source_length_basis = str(inlet_source_audit.get("inlet_length_scale_evidence_basis") or "").strip()
     source_length_gate = str(inlet_source_audit.get("metadata_length_scale_gate") or "").strip().lower()
     source_has_reynolds_tensor = as_bool(inlet_source_audit.get("has_reynolds_stress_tensor_evidence"))
     source_has_measured_or_precursor_reynolds_tensor = as_bool(
@@ -1560,6 +1563,12 @@ def build_inlet_equivalence_evidence_reasons(
         evidence_reasons.append(f"inlet_source_method_class_not_paper_grade:{source_method_class}")
     if source_has_length_scale is not True:
         evidence_reasons.append(f"inlet_source_has_inlet_length_scale_evidence_not_true:{source_has_length_scale}")
+    if source_has_code_length_scale is False:
+        evidence_reasons.append("inlet_source_has_source_length_scale_evidence_not_true:False")
+    if source_has_metadata_length_scale is False:
+        evidence_reasons.append("inlet_source_has_metadata_length_scale_evidence_not_true:False")
+    if source_length_basis == "metadata_gate_only":
+        evidence_reasons.append("inlet_source_length_scale_evidence_basis_metadata_gate_only")
     if source_length_gate != "pass":
         evidence_reasons.append(f"inlet_source_metadata_length_scale_gate_not_pass:{source_length_gate or 'missing'}")
     if source_has_reynolds_tensor is not True:
@@ -4294,6 +4303,9 @@ def main() -> int:
         "inlet_source_has_three_component_fluctuation_evidence": inlet_has_three_component_fluctuation_evidence,
         "inlet_source_has_k_driven_three_component_stg": inlet_has_k_driven_three_component_stg,
         "inlet_source_has_component_phase_decorrelation": inlet_has_component_phase_decorrelation,
+        "inlet_source_has_source_length_scale_evidence": inlet_source_audit.get("has_source_length_scale_evidence"),
+        "inlet_source_has_metadata_length_scale_evidence": inlet_source_audit.get("has_metadata_length_scale_evidence"),
+        "inlet_source_length_scale_evidence_basis": inlet_source_audit.get("inlet_length_scale_evidence_basis", ""),
         "inlet_source_has_temporal_filter_state": inlet_has_temporal_filter_state,
         "inlet_source_has_mean_preserving_inlet_correction": inlet_has_mean_preserving_correction,
         "inlet_source_has_layerwise_mean_preserving_inlet_correction": inlet_has_layerwise_mean_preserving_correction,
