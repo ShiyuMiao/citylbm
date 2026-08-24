@@ -56,6 +56,14 @@ BOUNDARY_PROTOCOL_REQUIRED_CONTROLS = [
     "prove_runtime_boundary_profile_preservation_on_same_final_window",
 ]
 
+PROBE_COMPONENT_REQUIRED_CONTROLS = [
+    "match_all_official_probe_ids_and_coordinates",
+    "keep_probe_projection_distance_within_tolerance",
+    "compare_the_declared_streamwise_or_speed_component_consistently",
+    "verify_wind_vector_sign_and_uref_against_af_profile",
+    "rerun_component_sensitivity_on_the_same_vtk_window",
+]
+
 REQUIRED_PROTOCOL_ITEM_KEYS = [
     "inlet_mean_profile",
     "inlet_turbulence_k",
@@ -1877,6 +1885,77 @@ def build_boundary_protocol_interpretation_gate(
         ),
         "blocker": blocker,
         "required_controls": list(BOUNDARY_PROTOCOL_REQUIRED_CONTROLS) if gate != "pass" else [],
+        "reason_count": len(reasons),
+        "reasons": reasons,
+    }
+
+
+def build_probe_component_interpretation_gate(
+    probe_component_equivalence_gate: str,
+    probe_component_equivalence_reasons: List[str],
+) -> Dict[str, Any]:
+    gate = "pass" if str(probe_component_equivalence_gate or "").strip().lower() == "pass" else "fail"
+    reasons = [str(reason) for reason in probe_component_equivalence_reasons if str(reason).strip()]
+    blocker = ""
+    if gate != "pass":
+        blocker = "probe_component_evidence"
+        if any(
+            token in reason
+            for reason in reasons
+            for token in [
+                "official_probe",
+                "official_coordinate",
+                "probe_id",
+                "unmatched_official",
+                "missing_official",
+                "coordinate_delta",
+            ]
+        ):
+            blocker = "official_probe_mapping"
+        elif any(
+            token in reason
+            for reason in reasons
+            for token in [
+                "nearest_distance",
+                "tolerance",
+                "out_of_tolerance",
+                "projection",
+            ]
+        ):
+            blocker = "probe_projection"
+        elif any(
+            token in reason
+            for reason in reasons
+            for token in [
+                "source_time_steps",
+                "source_step",
+                "sha256",
+                "window",
+            ]
+        ):
+            blocker = "probe_component_window_traceability"
+        elif any(
+            token in reason
+            for reason in reasons
+            for token in [
+                "component",
+                "normalization",
+                "streamwise",
+                "wind_direction",
+                "uref",
+            ]
+        ):
+            blocker = "component_direction_or_normalization"
+    return {
+        "gate": gate,
+        "allowed": gate == "pass",
+        "status": (
+            "probe_component_coordinate_uref_evidence_closed"
+            if gate == "pass"
+            else "blocked_until_probe_component_coordinate_uref_evidence_closed"
+        ),
+        "blocker": blocker,
+        "required_controls": list(PROBE_COMPONENT_REQUIRED_CONTROLS) if gate != "pass" else [],
         "reason_count": len(reasons),
         "reasons": reasons,
     }
@@ -3760,6 +3839,10 @@ def main() -> int:
     native_probe_component_equivalence_gate = (
         "pass" if not native_probe_component_equivalence_reasons else "fail"
     )
+    native_probe_component_interpretation = build_probe_component_interpretation_gate(
+        native_probe_component_equivalence_gate,
+        native_probe_component_equivalence_reasons,
+    )
     probe_component_fidelity_class = classify_probe_component_fidelity(
         native_probe_component_equivalence_reasons
     )
@@ -3983,6 +4066,15 @@ def main() -> int:
         "native_probe_component_equivalence_gate_reasons_csv": ";".join(
             native_probe_component_equivalence_reasons
         ),
+        "native_probe_component_interpretation_gate": native_probe_component_interpretation["gate"],
+        "native_probe_component_interpretation_allowed": native_probe_component_interpretation["allowed"],
+        "native_probe_component_interpretation_status": native_probe_component_interpretation["status"],
+        "native_probe_component_interpretation_blocker": native_probe_component_interpretation["blocker"],
+        "native_probe_component_required_controls": native_probe_component_interpretation["required_controls"],
+        "native_probe_component_required_controls_csv": ";".join(
+            native_probe_component_interpretation["required_controls"]
+        ),
+        "native_probe_component_interpretation_reason_count": native_probe_component_interpretation["reason_count"],
         "inlet_source_gate": inlet_source_gate,
         "paper_grade_inlet_source_gate": paper_inlet_source_gate,
         "inlet_source_distribution_consistent": inlet_distribution_consistent,

@@ -529,6 +529,12 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_recommended_next_action",
     "native_probe_component_equivalence_gate",
     "native_probe_component_equivalence_gate_reasons",
+    "native_probe_component_interpretation_gate",
+    "native_probe_component_interpretation_allowed",
+    "native_probe_component_interpretation_status",
+    "native_probe_component_interpretation_blocker",
+    "native_probe_component_required_controls",
+    "native_probe_component_interpretation_reason_count",
     "native_probe_component_fidelity_class",
     "native_probe_official_height_gate",
     "native_probe_official_height_gate_reasons",
@@ -3094,6 +3100,24 @@ def main() -> int:
             ),
             "native_probe_component_equivalence_gate_reasons": audit_field(
                 native_preconditions_audit, "native_probe_component_equivalence_gate_reasons_csv"
+            ),
+            "native_probe_component_interpretation_gate": audit_gate(
+                native_preconditions_audit, "native_probe_component_interpretation_gate"
+            ),
+            "native_probe_component_interpretation_allowed": first_bool_text(
+                native_preconditions_audit.get("native_probe_component_interpretation_allowed")
+            ),
+            "native_probe_component_interpretation_status": audit_field(
+                native_preconditions_audit, "native_probe_component_interpretation_status"
+            ),
+            "native_probe_component_interpretation_blocker": audit_field(
+                native_preconditions_audit, "native_probe_component_interpretation_blocker"
+            ),
+            "native_probe_component_required_controls": audit_field(
+                native_preconditions_audit, "native_probe_component_required_controls_csv"
+            ),
+            "native_probe_component_interpretation_reason_count": audit_field(
+                native_preconditions_audit, "native_probe_component_interpretation_reason_count"
             ),
             "native_probe_component_fidelity_class": audit_field(
                 native_preconditions_audit, "probe_component_fidelity_class"

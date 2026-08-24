@@ -237,6 +237,22 @@ def main() -> int:
                         "probe_uref_mismatch_count_80;"
                         "normalization_scale_gate_not_pass:fail"
                     ),
+                    "native_probe_component_interpretation_gate": "fail",
+                    "native_probe_component_interpretation_allowed": False,
+                    "native_probe_component_interpretation_status": (
+                        "blocked_until_probe_component_coordinate_uref_evidence_closed"
+                    ),
+                    "native_probe_component_interpretation_blocker": (
+                        "component_direction_or_normalization"
+                    ),
+                    "native_probe_component_required_controls_csv": (
+                        "match_all_official_probe_ids_and_coordinates;"
+                        "keep_probe_projection_distance_within_tolerance;"
+                        "compare_the_declared_streamwise_or_speed_component_consistently;"
+                        "verify_wind_vector_sign_and_uref_against_af_profile;"
+                        "rerun_component_sensitivity_on_the_same_vtk_window"
+                    ),
+                    "native_probe_component_interpretation_reason_count": 2,
                     "probe_component_fidelity_class": "component_or_normalization_mismatch",
                     "probe_official_height_gate": "fail",
                     "probe_official_height_gate_reasons_csv": "official_z_mismatch_count:80",
@@ -524,6 +540,20 @@ def main() -> int:
             "probe_uref_mismatch_count_80;"
             "normalization_scale_gate_not_pass:fail"
         ),
+        "native_probe_component_interpretation_gate": "fail",
+        "native_probe_component_interpretation_allowed": "false",
+        "native_probe_component_interpretation_status": (
+            "blocked_until_probe_component_coordinate_uref_evidence_closed"
+        ),
+        "native_probe_component_interpretation_blocker": "component_direction_or_normalization",
+        "native_probe_component_required_controls": (
+            "match_all_official_probe_ids_and_coordinates;"
+            "keep_probe_projection_distance_within_tolerance;"
+            "compare_the_declared_streamwise_or_speed_component_consistently;"
+            "verify_wind_vector_sign_and_uref_against_af_profile;"
+            "rerun_component_sensitivity_on_the_same_vtk_window"
+        ),
+        "native_probe_component_interpretation_reason_count": "2",
         "native_probe_component_fidelity_class": "component_or_normalization_mismatch",
         "native_probe_official_height_gate": "fail",
         "native_probe_official_height_gate_reasons": "official_z_mismatch_count:80",

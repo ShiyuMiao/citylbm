@@ -67,6 +67,21 @@ def main() -> int:
     ]:
         if expected_reason not in mismatched_height_gate["reasons"]:
             raise AssertionError(mismatched_height_gate)
+    passing_probe_interpretation = module.build_probe_component_interpretation_gate("pass", [])
+    if passing_probe_interpretation["gate"] != "pass" or passing_probe_interpretation["allowed"] is not True:
+        raise AssertionError(passing_probe_interpretation)
+    coordinate_probe_interpretation = module.build_probe_component_interpretation_gate(
+        "fail",
+        ["probe_official_coordinate_delta_violation_count_80"],
+    )
+    if coordinate_probe_interpretation["blocker"] != "official_probe_mapping":
+        raise AssertionError(coordinate_probe_interpretation)
+    source_window_probe_interpretation = module.build_probe_component_interpretation_gate(
+        "fail",
+        ["component_source_step_hash_pairs_mismatch_runtime"],
+    )
+    if source_window_probe_interpretation["blocker"] != "probe_component_window_traceability":
+        raise AssertionError(source_window_probe_interpretation)
 
     source_window_reasons = []
     source_window = module.append_source_window_reasons(
