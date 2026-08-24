@@ -1271,6 +1271,160 @@ def paper_grade_inlet_method_failure_reasons(
     return reasons
 
 
+def paper_grade_boundary_failure_reasons(
+    *,
+    boundary_source_evidence_ok: bool,
+    paper_grade_boundary_source_gate: str,
+    boundary_source_method_class: str,
+    boundary_source_fidelity_class: str,
+    boundary_source_complete_wind_tunnel_evidence: Optional[bool],
+    boundary_source_empty_stub_only: Optional[bool],
+    boundary_source_simplified: Optional[bool],
+    boundary_source_wind_tunnel_equivalent: Optional[bool],
+    boundary_source_advanced_code_evidence: Optional[bool],
+    boundary_source_comment_stripped_code_audit: Optional[bool],
+    boundary_has_paper_grade_outlet_source: Optional[bool],
+    boundary_has_paper_grade_side_top_source: Optional[bool],
+    boundary_has_paper_grade_rough_wall_source: Optional[bool],
+    boundary_has_paper_grade_development_source: Optional[bool],
+    boundary_source_missing_paper_grade_evidence: Any,
+    boundary_external_ok: bool,
+    external_boundary_protocol_gate: str,
+    boundary_evidence_ok: bool,
+    external_boundary_audit_evidence_complete: bool,
+    boundary_evidence_supported: Optional[bool],
+    boundary_run_identity_gate: str,
+    boundary_evidence_metadata_hash_matches: Optional[bool],
+    external_boundary_condition_fields_supported: Optional[bool],
+    external_boundary_condition_support_values: Dict[str, Optional[bool]],
+    boundary_condition_fields_supported: Optional[bool],
+    boundary_condition_support_values: Dict[str, Optional[bool]],
+    boundary_clearance_ok: bool,
+    clearance_numeric_gate: str,
+    external_clearance_numeric_gate: str,
+    frontal_blockage: Optional[float],
+    max_frontal_blockage_ratio: float,
+) -> List[str]:
+    reasons: List[str] = []
+    if not boundary_source_evidence_ok:
+        reasons.append("boundary_source_evidence_not_ok")
+    if paper_grade_boundary_source_gate != "pass":
+        reasons.append(
+            "paper_grade_boundary_source_gate_not_pass:"
+            f"{paper_grade_boundary_source_gate or 'missing'}"
+        )
+    if boundary_source_method_class != "wind_tunnel_equivalent_boundary_source":
+        reasons.append(
+            "boundary_source_method_class_not_wind_tunnel_equivalent:"
+            f"{boundary_source_method_class or 'missing'}"
+        )
+    if boundary_source_fidelity_class != "wind_tunnel_equivalent_complete":
+        reasons.append(
+            "boundary_source_fidelity_class_not_paper_grade:"
+            f"{boundary_source_fidelity_class or 'missing'}"
+        )
+    if boundary_source_complete_wind_tunnel_evidence is not True:
+        reasons.append(
+            "boundary_source_has_complete_wind_tunnel_evidence_not_true:"
+            f"{boundary_source_complete_wind_tunnel_evidence if boundary_source_complete_wind_tunnel_evidence is not None else 'missing'}"
+        )
+    if boundary_source_empty_stub_only is not False:
+        reasons.append(
+            "boundary_source_has_empty_advanced_method_stub_only_not_false:"
+            f"{boundary_source_empty_stub_only if boundary_source_empty_stub_only is not None else 'missing'}"
+        )
+    if boundary_source_simplified is not False:
+        reasons.append(
+            "boundary_source_simplified_not_false:"
+            f"{boundary_source_simplified if boundary_source_simplified is not None else 'missing'}"
+        )
+    if boundary_source_wind_tunnel_equivalent is not True:
+        reasons.append(
+            "boundary_source_wind_tunnel_equivalent_not_true:"
+            f"{boundary_source_wind_tunnel_equivalent if boundary_source_wind_tunnel_equivalent is not None else 'missing'}"
+        )
+    if boundary_source_advanced_code_evidence is not True:
+        reasons.append(
+            "boundary_source_advanced_code_evidence_not_true:"
+            f"{boundary_source_advanced_code_evidence if boundary_source_advanced_code_evidence is not None else 'missing'}"
+        )
+    if boundary_source_comment_stripped_code_audit is not True:
+        reasons.append(
+            "boundary_source_comment_stripped_code_audit_not_true:"
+            f"{boundary_source_comment_stripped_code_audit if boundary_source_comment_stripped_code_audit is not None else 'missing'}"
+        )
+    for key, value in [
+        ("boundary_source_has_paper_grade_outlet_source", boundary_has_paper_grade_outlet_source),
+        ("boundary_source_has_paper_grade_side_top_source", boundary_has_paper_grade_side_top_source),
+        ("boundary_source_has_paper_grade_rough_wall_source", boundary_has_paper_grade_rough_wall_source),
+        ("boundary_source_has_paper_grade_development_source", boundary_has_paper_grade_development_source),
+    ]:
+        if value is not True:
+            reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
+    missing_source = as_string_list(boundary_source_missing_paper_grade_evidence)
+    if missing_source:
+        reasons.append(
+            "boundary_source_missing_paper_grade_source_evidence_not_empty:"
+            f"{','.join(missing_source)}"
+        )
+    if not boundary_external_ok:
+        reasons.append(
+            "external_boundary_protocol_gate_not_pass:"
+            f"{external_boundary_protocol_gate or 'missing'}"
+        )
+    if not boundary_evidence_ok:
+        reasons.append("boundary_evidence_not_ok")
+    if not external_boundary_audit_evidence_complete:
+        reasons.append("external_boundary_audit_evidence_complete_not_true")
+    if boundary_evidence_supported is not True:
+        reasons.append(
+            "boundary_equivalence_supported_not_true:"
+            f"{boundary_evidence_supported if boundary_evidence_supported is not None else 'missing'}"
+        )
+    if boundary_run_identity_gate != "pass":
+        reasons.append(
+            "boundary_run_identity_gate_not_pass:"
+            f"{boundary_run_identity_gate or 'missing'}"
+        )
+    if boundary_evidence_metadata_hash_matches is not True:
+        reasons.append(
+            "boundary_evidence_metadata_sha256_matches_current_not_true:"
+            f"{boundary_evidence_metadata_hash_matches if boundary_evidence_metadata_hash_matches is not None else 'missing'}"
+        )
+    if external_boundary_condition_fields_supported is not True:
+        reasons.append(
+            "external_boundary_condition_fields_supported_not_true:"
+            f"{external_boundary_condition_fields_supported if external_boundary_condition_fields_supported is not None else 'missing'}"
+        )
+    if boundary_condition_fields_supported is not True:
+        reasons.append(
+            "boundary_condition_fields_supported_not_true:"
+            f"{boundary_condition_fields_supported if boundary_condition_fields_supported is not None else 'missing'}"
+        )
+    for prefix, values in [
+        ("external_boundary_condition_support", external_boundary_condition_support_values),
+        ("boundary_condition_support", boundary_condition_support_values),
+    ]:
+        for key, value in sorted(values.items()):
+            if value is not True:
+                reasons.append(
+                    f"{prefix}_{key}_not_true:{value if value is not None else 'missing'}"
+                )
+    if not boundary_clearance_ok:
+        reasons.append(
+            "boundary_clearance_numeric_gate_not_pass:"
+            f"{clearance_numeric_gate or external_clearance_numeric_gate or 'missing'}"
+        )
+    if frontal_blockage is None:
+        reasons.append("frontal_blockage_ratio_missing")
+    elif frontal_blockage > max_frontal_blockage_ratio:
+        reasons.append(
+            "frontal_blockage_ratio_above_limit:"
+            f"{frontal_blockage}>{max_frontal_blockage_ratio}"
+        )
+    return reasons
+
+
 def stg_three_component_evidence_pass(
     *,
     required: bool,
@@ -4761,6 +4915,39 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and boundary_has_paper_grade_development_source is True
         and not boundary_source_missing_paper_grade_evidence
     )
+    paper_grade_boundary_reason_list = paper_grade_boundary_failure_reasons(
+        boundary_source_evidence_ok=boundary_source_evidence_ok,
+        paper_grade_boundary_source_gate=paper_grade_boundary_source_gate,
+        boundary_source_method_class=boundary_source_method_class,
+        boundary_source_fidelity_class=boundary_source_fidelity_class,
+        boundary_source_complete_wind_tunnel_evidence=boundary_source_complete_wind_tunnel_evidence,
+        boundary_source_empty_stub_only=boundary_source_empty_stub_only,
+        boundary_source_simplified=boundary_source_simplified,
+        boundary_source_wind_tunnel_equivalent=boundary_source_wind_tunnel_equivalent,
+        boundary_source_advanced_code_evidence=boundary_source_advanced_code_evidence,
+        boundary_source_comment_stripped_code_audit=boundary_source_comment_stripped_code_audit,
+        boundary_has_paper_grade_outlet_source=boundary_has_paper_grade_outlet_source,
+        boundary_has_paper_grade_side_top_source=boundary_has_paper_grade_side_top_source,
+        boundary_has_paper_grade_rough_wall_source=boundary_has_paper_grade_rough_wall_source,
+        boundary_has_paper_grade_development_source=boundary_has_paper_grade_development_source,
+        boundary_source_missing_paper_grade_evidence=boundary_source_missing_paper_grade_evidence,
+        boundary_external_ok=boundary_external_ok,
+        external_boundary_protocol_gate=external_boundary_protocol_gate,
+        boundary_evidence_ok=boundary_evidence_ok,
+        external_boundary_audit_evidence_complete=external_boundary_audit_evidence_complete,
+        boundary_evidence_supported=boundary_evidence_supported,
+        boundary_run_identity_gate=boundary_run_identity_gate,
+        boundary_evidence_metadata_hash_matches=boundary_evidence_metadata_hash_matches,
+        external_boundary_condition_fields_supported=external_boundary_condition_fields_supported,
+        external_boundary_condition_support_values=external_boundary_condition_support_values,
+        boundary_condition_fields_supported=boundary_condition_fields_supported,
+        boundary_condition_support_values=boundary_condition_support_values,
+        boundary_clearance_ok=boundary_clearance_ok,
+        clearance_numeric_gate=clearance_numeric_gate,
+        external_clearance_numeric_gate=external_clearance_numeric_gate,
+        frontal_blockage=frontal_blockage,
+        max_frontal_blockage_ratio=args.max_frontal_blockage_ratio,
+    )
     add_gate(
         gates,
         "boundary_source_evidence",
@@ -4807,6 +4994,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"current_setup_cpp_sha256={current_setup_cpp_sha256 or 'missing'}; "
             f"setup_hash_matches_current={boundary_source_setup_hash_matches}; "
             f"boundary_source_gate_reasons={boundary_source_reasons or 'none'}; "
+            f"paper_grade_boundary_failure_reasons={';'.join(paper_grade_boundary_reason_list) or 'none'}; "
             f"metrics_boundary_source_gate={get_any(metrics, ['boundary_source_gate', 'BoundarySourceGate']) or 'ignored'}; "
             f"metrics_paper_grade_boundary_source_gate={get_any(metrics, ['paper_grade_boundary_source_gate', 'PaperGradeBoundarySourceGate']) or 'ignored'}; "
             f"metrics_boundary_source_method_class={get_any(metrics, ['boundary_source_method_class', 'BoundarySourceMethodClass']) or 'ignored'}"
@@ -4882,6 +5070,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"external_clearance_numeric_gate={external_clearance_numeric_gate or 'missing'}; "
             f"clearance_numeric_gate_reasons={clearance_numeric_reasons or 'none'}; "
             f"paper_grade_boundary_source_gate_reasons={paper_grade_boundary_source_reasons or 'none'}; "
+            f"paper_grade_boundary_failure_reasons={';'.join(paper_grade_boundary_reason_list) or 'none'}; "
             f"missing_boundary_evidence_fields={external_boundary_missing_fields_text or 'none'}; "
             f"metrics_boundary_protocol_gate={get_any(metrics, ['boundary_protocol_gate', 'BoundaryProtocolGate']) or 'ignored'}; "
             f"metrics_boundary_evidence_gate={get_any(metrics, ['boundary_evidence_gate', 'BoundaryProtocolEvidenceGate']) or 'ignored'}; "

@@ -92,8 +92,132 @@ def pass_gate(module, key):
     }
 
 
+def passing_boundary_reason_kwargs() -> dict:
+    return {
+        "boundary_source_evidence_ok": True,
+        "paper_grade_boundary_source_gate": "pass",
+        "boundary_source_method_class": "wind_tunnel_equivalent_boundary_source",
+        "boundary_source_fidelity_class": "wind_tunnel_equivalent_complete",
+        "boundary_source_complete_wind_tunnel_evidence": True,
+        "boundary_source_empty_stub_only": False,
+        "boundary_source_simplified": False,
+        "boundary_source_wind_tunnel_equivalent": True,
+        "boundary_source_advanced_code_evidence": True,
+        "boundary_source_comment_stripped_code_audit": True,
+        "boundary_has_paper_grade_outlet_source": True,
+        "boundary_has_paper_grade_side_top_source": True,
+        "boundary_has_paper_grade_rough_wall_source": True,
+        "boundary_has_paper_grade_development_source": True,
+        "boundary_source_missing_paper_grade_evidence": "",
+        "boundary_external_ok": True,
+        "external_boundary_protocol_gate": "pass",
+        "boundary_evidence_ok": True,
+        "external_boundary_audit_evidence_complete": True,
+        "boundary_evidence_supported": True,
+        "boundary_run_identity_gate": "pass",
+        "boundary_evidence_metadata_hash_matches": True,
+        "external_boundary_condition_fields_supported": True,
+        "external_boundary_condition_support_values": {
+            "outlet_boundary_supported": True,
+            "roughness_treatment_supported": True,
+        },
+        "boundary_condition_fields_supported": True,
+        "boundary_condition_support_values": {
+            "side_top_boundary_supported": True,
+            "fetch_clearance_supported": True,
+        },
+        "boundary_clearance_ok": True,
+        "clearance_numeric_gate": "pass",
+        "external_clearance_numeric_gate": "pass",
+        "frontal_blockage": 0.02,
+        "max_frontal_blockage_ratio": 0.05,
+    }
+
+
 def main() -> int:
     module = load_gate_module()
+    boundary_reasons = module.paper_grade_boundary_failure_reasons(
+        **passing_boundary_reason_kwargs()
+    )
+    if boundary_reasons:
+        raise AssertionError(boundary_reasons)
+
+    simplified_boundary = passing_boundary_reason_kwargs()
+    simplified_boundary.update(
+        {
+            "boundary_source_evidence_ok": False,
+            "paper_grade_boundary_source_gate": "fail",
+            "boundary_source_method_class": "simplified_type_e_box",
+            "boundary_source_fidelity_class": "simplified_type_e_box",
+            "boundary_source_complete_wind_tunnel_evidence": False,
+            "boundary_source_simplified": True,
+            "boundary_source_wind_tunnel_equivalent": False,
+            "boundary_source_advanced_code_evidence": False,
+            "boundary_has_paper_grade_outlet_source": False,
+            "boundary_has_paper_grade_side_top_source": False,
+            "boundary_has_paper_grade_rough_wall_source": False,
+            "boundary_has_paper_grade_development_source": False,
+            "boundary_source_missing_paper_grade_evidence": (
+                "non_reflecting_or_validated_outlet_state;"
+                "rough_wall_or_floor_roughness_state;fetch_or_development_state"
+            ),
+            "boundary_external_ok": False,
+            "external_boundary_protocol_gate": "fail",
+            "boundary_evidence_ok": False,
+            "external_boundary_audit_evidence_complete": False,
+            "boundary_evidence_supported": False,
+            "boundary_run_identity_gate": "fail",
+            "boundary_evidence_metadata_hash_matches": False,
+            "external_boundary_condition_fields_supported": False,
+            "external_boundary_condition_support_values": {
+                "roughness_treatment_supported": False,
+            },
+            "boundary_condition_fields_supported": False,
+            "boundary_condition_support_values": {
+                "side_top_boundary_supported": False,
+            },
+            "boundary_clearance_ok": False,
+            "clearance_numeric_gate": "fail",
+            "frontal_blockage": 0.08,
+        }
+    )
+    failed_boundary_reasons = module.paper_grade_boundary_failure_reasons(
+        **simplified_boundary
+    )
+    for expected in [
+        "boundary_source_evidence_not_ok",
+        "paper_grade_boundary_source_gate_not_pass:fail",
+        "boundary_source_method_class_not_wind_tunnel_equivalent:simplified_type_e_box",
+        "boundary_source_fidelity_class_not_paper_grade:simplified_type_e_box",
+        "boundary_source_has_complete_wind_tunnel_evidence_not_true:False",
+        "boundary_source_simplified_not_false:True",
+        "boundary_source_wind_tunnel_equivalent_not_true:False",
+        "boundary_source_advanced_code_evidence_not_true:False",
+        "boundary_source_has_paper_grade_outlet_source_not_true:False",
+        "boundary_source_has_paper_grade_side_top_source_not_true:False",
+        "boundary_source_has_paper_grade_rough_wall_source_not_true:False",
+        "boundary_source_has_paper_grade_development_source_not_true:False",
+        (
+            "boundary_source_missing_paper_grade_source_evidence_not_empty:"
+            "non_reflecting_or_validated_outlet_state,"
+            "rough_wall_or_floor_roughness_state,fetch_or_development_state"
+        ),
+        "external_boundary_protocol_gate_not_pass:fail",
+        "boundary_evidence_not_ok",
+        "external_boundary_audit_evidence_complete_not_true",
+        "boundary_equivalence_supported_not_true:False",
+        "boundary_run_identity_gate_not_pass:fail",
+        "boundary_evidence_metadata_sha256_matches_current_not_true:False",
+        "external_boundary_condition_fields_supported_not_true:False",
+        "boundary_condition_fields_supported_not_true:False",
+        "external_boundary_condition_support_roughness_treatment_supported_not_true:False",
+        "boundary_condition_support_side_top_boundary_supported_not_true:False",
+        "boundary_clearance_numeric_gate_not_pass:fail",
+        "frontal_blockage_ratio_above_limit:0.08>0.05",
+    ]:
+        if expected not in failed_boundary_reasons:
+            raise AssertionError((expected, failed_boundary_reasons))
+
     ok = module.native_boundary_traceability_status(
         passing_native_audit(),
         expected_case="CaseE",
