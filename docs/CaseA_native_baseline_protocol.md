@@ -28,6 +28,7 @@ Current repository command template:
 .\run_native_casea_strict_gate.ps1 `
   -CaseDir "F:\path\to\generated\AIJ_CaseA_case" `
   -FluidX3DSource "F:\path\to\native\FluidX3D" `
+  -ValidationProtocolAudit "F:\path\to\validation_protocol_audit.json" `
   -TimeSteps 60000 `
   -VtkSaveInterval 1000 `
   -VtkSaveStartStep 10000 `
@@ -35,12 +36,15 @@ Current repository command template:
 ```
 
 This default command writes a strict manifest/preflight only. It does not modify the native FluidX3D source tree and
-does not create a CFD accuracy result. A real native baseline must be launched explicitly:
+does not create a CFD accuracy result. `-ValidationProtocolAudit` is optional; use it when the protocol audit is kept as
+a sidecar in the run-evidence directory instead of inside the generated case directory. A real native baseline must be
+launched explicitly:
 
 ```powershell
 .\run_native_casea_strict_gate.ps1 `
   -CaseDir "F:\path\to\generated\AIJ_CaseA_case" `
   -FluidX3DSource "F:\path\to\native\FluidX3D" `
+  -ValidationProtocolAudit "F:\path\to\validation_protocol_audit.json" `
   -TimeSteps 60000 `
   -VtkSaveInterval 1000 `
   -VtkSaveStartStep 10000 `

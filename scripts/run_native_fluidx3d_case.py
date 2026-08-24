@@ -80,6 +80,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--case-dir", required=True, help="CityLBM-generated native case directory.")
     parser.add_argument("--fluidx3d-source", required=True, help="Explicit native FluidX3D source root.")
     parser.add_argument("--out", required=True, help="Output native_fluidx3d_baseline_manifest.json path.")
+    parser.add_argument(
+        "--validation-protocol-audit",
+        default="",
+        help=(
+            "Optional validation_protocol_audit.json path. "
+            "Defaults to case_dir/validation_protocol_audit.json."
+        ),
+    )
     parser.add_argument("--baseline-id", default="", help="Stable ID for this native baseline.")
     parser.add_argument("--install", action="store_true", help="Replace FluidX3D src/setup.cpp and src/defines.hpp from case.")
     parser.add_argument("--build", action="store_true", help="Build the native FluidX3D source tree after install/preflight.")
@@ -439,14 +447,15 @@ def validate_source_root(source_root: Path) -> Dict[str, Any]:
     }
 
 
-def collect_required_files(source_root: Path, case_dir: Path) -> List[Dict[str, Any]]:
+def collect_required_files(source_root: Path, case_dir: Path, validation_protocol_path: Path) -> List[Dict[str, Any]]:
     records: List[Dict[str, Any]] = []
     for role, rel in REQUIRED_SOURCE_FILES:
         records.append(path_record(role, source_root / rel))
     for role, candidates in REQUIRED_CASE_FILE_CANDIDATES:
         records.append(case_file_record(role, case_dir, candidates))
     for role, rel in REQUIRED_CASE_FILES:
-        records.append(path_record(role, case_dir / rel))
+        path = validation_protocol_path if role == "Validation protocol audit" else case_dir / rel
+        records.append(path_record(role, path))
     for role, rel in OPTIONAL_CASE_FILES:
         record = optional_path_record(role, case_dir / rel)
         if record is not None:
@@ -995,9 +1004,14 @@ def main() -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     metadata_path = case_dir / "case_metadata.json"
+    validation_protocol_path = (
+        Path(args.validation_protocol_audit).expanduser().resolve()
+        if args.validation_protocol_audit.strip()
+        else case_dir / "validation_protocol_audit.json"
+    )
     metadata = json_load(metadata_path)
     case_label, wind_label = case_identity(metadata)
-    validation_protocol = audit_validation_protocol(case_dir / "validation_protocol_audit.json")
+    validation_protocol = audit_validation_protocol(validation_protocol_path)
     metadata_preconditions = audit_case_metadata_preconditions(metadata)
     vtk_save_start_step = (
         args.vtk_save_start_step
@@ -1019,7 +1033,8 @@ def main() -> int:
         if first_existing_path(case_dir, candidates) is None:
             reasons.append(f"case_required_file_missing:{role}")
     for role, rel in REQUIRED_CASE_FILES:
-        if not (case_dir / rel).is_file():
+        path = validation_protocol_path if role == "Validation protocol audit" else case_dir / rel
+        if not path.is_file():
             reasons.append(f"case_required_file_missing:{role}")
     if validation_protocol["Gate"] != "pass":
         reasons.extend(str(reason) for reason in validation_protocol["Reasons"])
@@ -1146,7 +1161,7 @@ def main() -> int:
     native_accuracy_gate = native_accuracy_evidence_gate(run_record, actual_vtk_output)
 
     source_validation = validate_source_root(source_root)
-    required_files = collect_required_files(source_root, case_dir)
+    required_files = collect_required_files(source_root, case_dir, validation_protocol_path)
     baseline_id = args.baseline_id.strip() or f"native-fluidx3d-{case_label or 'case'}-{wind_label or 'wind'}-{utc_now()}"
     manifest = {
         "Schema": "citylbm.native_fluidx3d_run_manifest.v1",
@@ -1159,6 +1174,8 @@ def main() -> int:
         "CaseDir": str(case_dir),
         "CaseMetadataPath": str(metadata_path.resolve()),
         "CaseMetadataSha256": sha256_or_empty(metadata_path),
+        "ValidationProtocolAuditPath": str(validation_protocol_path),
+        "ValidationProtocolAuditSha256": sha256_or_empty(validation_protocol_path),
         "CaseMetadataAijCase": case_label,
         "CaseMetadataWindDirection": wind_label,
         "ExpectedAijCase": expected_case,

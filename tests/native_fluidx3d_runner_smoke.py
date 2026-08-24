@@ -791,6 +791,54 @@ def main() -> int:
         if "case_required_file_missing:Validation protocol audit" not in missing_protocol["RunnerGate"]["Reasons"]:
             raise AssertionError(missing_protocol["RunnerGate"])
 
+        sidecar_protocol_case = temp / "sidecar_protocol_case"
+        create_case(sidecar_protocol_case)
+        (sidecar_protocol_case / "validation_protocol_audit.json").unlink()
+        sidecar_protocol = temp / "sidecar_audits" / "validation_protocol_audit.json"
+        write(sidecar_protocol, json.dumps(validation_protocol_audit(), indent=2))
+        sidecar_protocol_manifest = temp / "sidecar_protocol" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(sidecar_protocol_case),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(sidecar_protocol_manifest),
+                "--baseline-id",
+                "smoke-casea-native-sidecar-protocol",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "40000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "40",
+                "--validation-protocol-audit",
+                str(sidecar_protocol),
+            ]
+        )
+        sidecar_protocol_result = load_json(sidecar_protocol_manifest)
+        if sidecar_protocol_result["RunnerGate"]["Gate"] != "pass":
+            raise AssertionError(sidecar_protocol_result["RunnerGate"])
+        if sidecar_protocol_result["ValidationProtocolAuditPath"] != str(sidecar_protocol.resolve()):
+            raise AssertionError(sidecar_protocol_result["ValidationProtocolAuditPath"])
+        if sidecar_protocol_result["ValidationProtocolAuditSha256"] != sha256_file(sidecar_protocol):
+            raise AssertionError(sidecar_protocol_result["ValidationProtocolAuditSha256"])
+        sidecar_records = {
+            record["Role"]: record for record in sidecar_protocol_result["RequiredSourceFiles"]
+        }
+        protocol_record = sidecar_records["Validation protocol audit"]
+        if protocol_record["Path"] != str(sidecar_protocol.resolve()):
+            raise AssertionError(protocol_record)
+        if protocol_record["Exists"] is not True:
+            raise AssertionError(protocol_record)
+
         empty_protocol_case = temp / "empty_protocol_case"
         create_case(empty_protocol_case)
         write(empty_protocol_case / "validation_protocol_audit.json", json.dumps({"items": []}, indent=2))

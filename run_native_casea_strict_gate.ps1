@@ -7,6 +7,7 @@ param(
 
     [string]$OutDir = "",
     [string]$VtkOutputDir = "",
+    [string]$ValidationProtocolAudit = "",
     [string]$BaselineId = "",
     [string]$ExpectedWindDirection = "N",
     [int]$TimeSteps = 60000,
@@ -93,6 +94,10 @@ if (-not [string]::IsNullOrWhiteSpace($VtkOutputDir)) {
     $resolvedVtkOutputDir = (Resolve-Path -LiteralPath $VtkOutputDir).Path
     $args += @("--output-dir", $resolvedVtkOutputDir)
 }
+if (-not [string]::IsNullOrWhiteSpace($ValidationProtocolAudit)) {
+    $resolvedValidationProtocolAudit = (Resolve-Path -LiteralPath $ValidationProtocolAudit).Path
+    $args += @("--validation-protocol-audit", $resolvedValidationProtocolAudit)
+}
 if ($AllowDiagnosticExecution) {
     $args += "--allow-diagnostic-execution"
 }
@@ -100,6 +105,9 @@ if ($AllowDiagnosticExecution) {
 Write-Host "CityLBM native Case A strict gate"
 Write-Host "CaseDir: $resolvedCaseDir"
 Write-Host "FluidX3DSource: $resolvedFluidX3DSource"
+if (-not [string]::IsNullOrWhiteSpace($ValidationProtocolAudit)) {
+    Write-Host "ValidationProtocolAudit: $resolvedValidationProtocolAudit"
+}
 Write-Host "Manifest: $manifest"
 Write-Host "Execution switches: Install=$Install Build=$Build Run=$Run"
 
