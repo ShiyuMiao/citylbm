@@ -215,6 +215,7 @@ def main() -> int:
         {"path": str(path), "time_step": step_from_name(path), "sha256": sha256_file(path)}
         for path in files
     ]
+    source_vtk_hashes = [record["sha256"] for record in selected_vtk_files]
     frames = [read_vtk_metadata(path) for path in files]
     first = frames[0]
     for frame in frames[1:]:
@@ -328,6 +329,8 @@ def main() -> int:
         "source_first_time_step": source_steps[0] if source_steps else None,
         "source_last_time_step": source_steps[-1] if source_steps else None,
         "source_step_span": source_step_span,
+        "source_vtk_sha256": source_vtk_hashes,
+        "source_vtk_sha256_csv": ";".join(source_vtk_hashes),
         "source_steps_strictly_increasing": is_strictly_increasing(source_steps),
         "source_step_spacing_uniform": has_uniform_spacing(source_steps),
         "selected_last_window": is_last_window(source_steps, available_steps),

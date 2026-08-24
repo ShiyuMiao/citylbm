@@ -86,6 +86,15 @@ def main() -> int:
         require(data.get("max_side_top_normal_velocity_ratio") == 0.0, data)
         require(data.get("boundary_runtime_outlet_gate") == "pass", data)
         require(len(data.get("faces", [])) == 5, data)
+        source_hashes = data.get("source_vtk_sha256", [])
+        require(len(source_hashes) == 3, data)
+        require(all(isinstance(value, str) and len(value) == 64 for value in source_hashes), data)
+        require(data.get("source_vtk_sha256_csv") == ";".join(source_hashes), data)
+        selected_records = data.get("selected_vtk_files", [])
+        require(
+            [record.get("sha256") for record in selected_records] == source_hashes,
+            data,
+        )
         require(summary_csv.exists(), data)
 
         bad_vtk_dir = tmp_dir / "vtk_bad"
