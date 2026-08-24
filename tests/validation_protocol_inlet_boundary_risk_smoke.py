@@ -54,8 +54,8 @@ def main() -> int:
         "validation protocol must include inlet_distribution_consistency item",
     )
     require(
-        'Status = syntheticActive ? "risk" : (hasK ? "risk" : "fail")' in protocol,
-        "STG-lite inlet_distribution_consistency must remain risk, not pass",
+        'Status = "fail"' in protocol,
+        "STG-lite inlet_distribution_consistency must be a formal validation blocker, not pass/risk",
     )
     require(
         "does not reconstruct FluidX3D distribution functions" in protocol,
@@ -71,14 +71,14 @@ def main() -> int:
         "validation protocol must include boundary_conditions item",
     )
     require(
-        'Status = "risk"' in protocol
+        'Status = "fail"' in protocol
         and "simplified TYPE_E boundary treatment" in protocol,
-        "boundary_conditions must remain a risk until AIJ-equivalent boundary evidence is archived",
+        "boundary_conditions must remain a formal validation blocker until AIJ-equivalent boundary evidence is archived",
     )
     require(
         'Key = "wall_roughness_model"' in protocol
-        and 'Status = "risk"' in protocol,
-        "wall roughness treatment must remain a validation risk",
+        and 'Status = "fail"' in protocol,
+        "wall roughness treatment must remain a formal validation blocker",
     )
 
     print("validation_protocol_inlet_boundary_risk_smoke passed")

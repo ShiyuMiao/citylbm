@@ -172,9 +172,10 @@ namespace CityLBM.CodegenSmoke
                 Require(audit, "ProfileOriginZM=-4.000");
                 Require(audit, "\"Key\": \"native_fluidx3d_baseline\"");
                 Require(audit, "native_fluidx3d_baseline_manifest.json and native_preconditions_audit.json");
-                Require(audit, "traceable enough to start the paired native baseline workflow");
-                RequireNotContains(audit, "\"Key\": \"native_fluidx3d_baseline\",\r\n      \"Status\": \"risk\"");
-                RequireNotContains(audit, "\"Key\": \"native_fluidx3d_baseline\",\n      \"Status\": \"risk\"");
+                Require(audit, "no newly-run native FluidX3D solver manifest");
+                Require(audit, "Generated files only prove traceability");
+                RequireNotContains(audit, "\"Key\": \"native_fluidx3d_baseline\",\r\n      \"Status\": \"pass\"");
+                RequireNotContains(audit, "\"Key\": \"native_fluidx3d_baseline\",\n      \"Status\": \"pass\"");
                 Require(nativeManifest, "NativeFluidX3DPathExplicitlyProvided");
                 Require(nativeManifest, "NativeFluidX3DSourceValidation");
                 Require(nativeManifest, "\"PaperRecommendedAveragingFrames\": 40");

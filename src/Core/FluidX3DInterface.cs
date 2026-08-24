@@ -3705,7 +3705,7 @@ namespace CityLBM.Solver
             yield return new ValidationProtocolAuditItem
             {
                 Key = "inlet_distribution_consistency",
-                Status = syntheticActive ? "risk" : (hasK ? "risk" : "fail"),
+                Status = "fail",
                 Evidence = syntheticActive
                     ? "Generated setup refreshes inlet lbm.u but does not reconstruct FluidX3D distribution functions for the imposed turbulent fluctuation."
                     : (hasK ? "AF k is available, but no turbulent fluctuation is injected into the inlet." : "No k-driven inlet path is active."),
@@ -3716,16 +3716,16 @@ namespace CityLBM.Solver
             yield return new ValidationProtocolAuditItem
             {
                 Key = "native_fluidx3d_baseline",
-                Status = "pass",
-                Evidence = "CityLBM writes setup.cpp, defines.hpp, case_metadata.json, domain_origin.json and native_fluidx3d_baseline_manifest.json so the same generated case can be handed to the native FluidX3D runner.",
-                Risk = "This item only proves that the generated case is traceable enough to start the paired native baseline workflow; the native baseline result still must be proven by native runner, runtime, VTK, averaging and probe-mapping audits before paper-grade accuracy claims.",
+                Status = "fail",
+                Evidence = "CityLBM writes setup.cpp, defines.hpp, case_metadata.json, domain_origin.json and native_fluidx3d_baseline_manifest.json, but no newly-run native FluidX3D solver manifest, runtime log, VTK hashes or probe metrics are present at case-generation time.",
+                Risk = "Generated files only prove traceability. They are not a native FluidX3D baseline result and must not be counted as solver validation or paper-grade accuracy evidence.",
                 RequiredNextAction = "Run the native FluidX3D baseline from the archived setup.cpp/defines.hpp, archive native_fluidx3d_baseline_manifest.json and native_preconditions_audit.json, then compare the same probe table against the CityLBM-driven run."
             };
 
             yield return new ValidationProtocolAuditItem
             {
                 Key = "boundary_conditions",
-                Status = "risk",
+                Status = "fail",
                 Evidence = GetBoundaryConditionSummary(scene.WindDirection, scene.WindProfile) +
                     $" BoundaryProtocolAudit.Gate={boundaryAudit.Gate}; BoundaryProtocolEvidenceGate={boundaryAudit.ProtocolEvidenceGate}.",
                 Risk = boundaryClearanceOk
@@ -3737,7 +3737,7 @@ namespace CityLBM.Solver
             yield return new ValidationProtocolAuditItem
             {
                 Key = "wall_roughness_model",
-                Status = "risk",
+                Status = "fail",
                 Evidence = $"RoughnessLength={scene.RoughnessLength:F6} m; ground/buildings are generated as TYPE_S no-slip. Analytic roughness affects mean-profile generation only.",
                 Risk = "If the AIJ wind-tunnel floor roughness or approach-flow development is not represented as a boundary/precursor treatment, pedestrian-height speed ratios and k can be systematically biased.",
                 RequiredNextAction = "Before paper-grade claims, document the wind-tunnel floor treatment and either validate no-slip against the empty-tunnel U/k gate or implement a rough-wall/precursor/recycling boundary strategy."
