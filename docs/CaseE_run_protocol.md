@@ -250,6 +250,9 @@ new output directory.
   all pass. The resulting `strict_native_run_gate` must also propagate through
   `audit_native_preconditions.py`, `validation_metrics.csv` and `validation_gate_report.json`; a copied metrics row
   cannot override a failed strict native runtime audit.
+  `case_metadata.json` must also explicitly record paper-grade turbulent-inlet readiness, boundary readiness, the inlet
+  route, and each required boundary implementation/evidence boolean. Missing metadata fields are blockers, not implicit
+  proof that Case E used AIJ-equivalent inflow or boundary conditions.
   The script deterministically samples up to 20,000 points from the selected final VTK frames and computes
   `mean_speed_stddev_ratio` and `max_speed_stddev_ratio` from the real velocity time series. Manually supplied
   mean-speed, standard-deviation or stability-ratio values are recorded as `mean_speed_statistics_source=cli_override`

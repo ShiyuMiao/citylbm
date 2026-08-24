@@ -754,6 +754,10 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   inlet refresh gates before any native install/build/run action. If that `PreExecutionGate` is diagnostic-only, the
   runner blocks execution by default; `--allow-diagnostic-execution` is recorded as a debugging override and is not
   paper-grade evidence.
+- `scripts/run_native_fluidx3d_case.py` and `validation_gate.py` now treat missing paper-grade case-metadata
+  prerequisite fields as blockers instead of silently accepting absent evidence. Native Case A/E metadata must explicitly
+  record turbulent-inlet readiness, boundary readiness, inlet route, and boundary implementation/evidence booleans before
+  install/build/run or final validation gates can move beyond diagnostic status.
 - `scripts/run_native_validation_chain.py` no longer promotes a native manifest to `native_baseline_gate=pass` unless
   the manifest also proves `PreExecutionGate=pass`, `Run.Requested=true`, `Run.Gate=pass` and
   `ActualVtkOutputGate=pass`. Dry-run/preflight manifests therefore cannot stand in for a real native FluidX3D baseline.

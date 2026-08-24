@@ -324,11 +324,17 @@ def audit_case_metadata_preconditions(metadata: Dict[str, Any]) -> Dict[str, Any
     boundary_precursor = metadata_bool(metadata, ["BoundaryPrecursorOrRecyclingImplemented"])
     boundary_blockage_fetch = metadata_bool(metadata, ["BoundaryBlockageFetchEvidenceArchived"])
 
-    if paper_inlet_gate and paper_inlet_gate not in {"pass", "paper_grade", "ready_for_validation_run"}:
+    if not paper_inlet_gate:
+        reasons.append("case_metadata_paper_grade_turbulent_inlet_prerequisite_missing")
+    elif paper_inlet_gate not in {"pass", "paper_grade", "ready_for_validation_run"}:
         reasons.append(f"case_metadata_paper_grade_turbulent_inlet_prerequisite_not_pass:{paper_inlet_gate}")
-    if paper_boundary_gate and paper_boundary_gate not in {"pass", "paper_grade", "ready_for_validation_run"}:
+    if not paper_boundary_gate:
+        reasons.append("case_metadata_paper_grade_boundary_prerequisite_missing")
+    elif paper_boundary_gate not in {"pass", "paper_grade", "ready_for_validation_run"}:
         reasons.append(f"case_metadata_paper_grade_boundary_prerequisite_not_pass:{paper_boundary_gate}")
-    if synthetic_injected is True and inlet_distribution_reconstruction is False:
+    if synthetic_injected is None:
+        reasons.append("case_metadata_synthetic_turbulent_inlet_injected_missing")
+    if synthetic_injected is True and inlet_distribution_reconstruction is not True:
         reasons.append("case_metadata_synthetic_inlet_without_distribution_reconstruction")
     if "velocity_field_only" in distribution_treatment or "no_distribution_function_reconstruction" in distribution_treatment:
         reasons.append("case_metadata_inlet_distribution_treatment_velocity_field_only")
@@ -345,7 +351,9 @@ def audit_case_metadata_preconditions(metadata: Dict[str, Any]) -> Dict[str, Any
         ("blockage_fetch_evidence", boundary_blockage_fetch),
     ]
     for key, value in boundary_fields:
-        if value is False:
+        if value is None:
+            reasons.append(f"case_metadata_boundary_evidence_missing:{key}")
+        elif value is False:
             reasons.append(f"case_metadata_boundary_evidence_false:{key}")
 
     return {

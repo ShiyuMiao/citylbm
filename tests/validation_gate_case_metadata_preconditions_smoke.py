@@ -90,6 +90,26 @@ def main() -> int:
     if missing["ok"] or "case_metadata_missing" not in missing["reasons"]:
         raise AssertionError(missing)
 
+    incomplete = module.case_metadata_precondition_status(
+        {
+            "BoundaryConditionPaperGradeStatus": "paper_grade",
+            "BoundaryNonReflectingOutletImplemented": True,
+        }
+    )
+    if incomplete["ok"]:
+        raise AssertionError(incomplete)
+    for expected in [
+        "paper_grade_turbulent_inlet_prerequisite_gate_missing",
+        "paper_grade_boundary_prerequisite_gate_missing",
+        "synthetic_turbulent_inlet_injected_missing",
+        "BoundarySideTopWindTunnelEquivalentImplemented_missing",
+        "BoundaryRoughWallFunctionImplemented_missing",
+        "BoundaryPrecursorOrRecyclingImplemented_missing",
+        "BoundaryBlockageFetchEvidenceArchived_missing",
+    ]:
+        if expected not in incomplete["reasons"]:
+            raise AssertionError(incomplete["reasons"])
+
     gates = [
         pass_gate(module, "validation_protocol_content"),
         {

@@ -566,24 +566,33 @@ def case_metadata_precondition_status(metadata: Dict[str, Any]) -> Dict[str, Any
         get_any(metadata, ["PaperGradeTurbulentInletPrerequisiteGate"])
         or ""
     ).strip().lower()
-    if inlet_gate and inlet_gate != "pass":
+    if not inlet_gate:
+        reasons.append("paper_grade_turbulent_inlet_prerequisite_gate_missing")
+    elif inlet_gate != "pass":
         reasons.append(f"paper_grade_turbulent_inlet_prerequisite_gate_not_pass:{inlet_gate}")
 
     boundary_gate = str(
         get_any(metadata, ["PaperGradeBoundaryPrerequisiteGate"])
         or ""
     ).strip().lower()
-    if boundary_gate and boundary_gate != "pass":
+    if not boundary_gate:
+        reasons.append("paper_grade_boundary_prerequisite_gate_missing")
+    elif boundary_gate != "pass":
         reasons.append(f"paper_grade_boundary_prerequisite_gate_not_pass:{boundary_gate}")
 
     boundary_status = str(
         get_any(metadata, ["BoundaryConditionPaperGradeStatus"])
         or ""
     ).strip().lower()
-    if boundary_status and boundary_status not in {"pass", "paper_grade", "wind_tunnel_equivalent"}:
+    if not boundary_status:
+        reasons.append("boundary_condition_paper_grade_status_missing")
+    elif boundary_status not in {"pass", "paper_grade", "wind_tunnel_equivalent"}:
         reasons.append(f"boundary_condition_paper_grade_status_not_pass:{boundary_status}")
 
-    if as_bool(get_any(metadata, ["SyntheticTurbulentInletInjected"])) is True:
+    synthetic_injected = as_bool(get_any(metadata, ["SyntheticTurbulentInletInjected"]))
+    if synthetic_injected is None:
+        reasons.append("synthetic_turbulent_inlet_injected_missing")
+    if synthetic_injected is True:
         reconstructed = as_bool(get_any(metadata, ["InletDistributionFunctionReconstruction"]))
         if reconstructed is not True:
             reasons.append(
@@ -616,7 +625,9 @@ def case_metadata_precondition_status(metadata: Dict[str, Any]) -> Dict[str, Any
         "BoundaryBlockageFetchEvidenceArchived",
     ]:
         value = as_bool(get_any(metadata, [key]))
-        if value is False:
+        if value is None:
+            reasons.append(f"{key}_missing")
+        elif value is False:
             reasons.append(f"{key}_false")
 
     return {
