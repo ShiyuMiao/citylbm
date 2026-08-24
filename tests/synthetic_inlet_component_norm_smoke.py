@@ -25,6 +25,7 @@ def main() -> int:
         "citylbm_stg_temporal_ar1_rho",
         "citylbm_stg_temporal_ar1_innovation_scale",
         "citylbm_stg_prev_t_step",
+        "t_step >= citylbm_stg_update_interval",
         "previous_phase",
         "citylbm_stg_target_sigma",
         "SyntheticTurbulentInletComponentRmsNormalization",

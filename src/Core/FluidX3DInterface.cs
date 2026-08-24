@@ -2523,7 +2523,7 @@ namespace CityLBM.Solver
             sb.AppendLine("        float3 mean = windProfile(z_cell);");
             sb.AppendLine("        float sigma = citylbm_stg_target_sigma(z_cell, mean);");
             sb.AppendLine("        float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);");
-            sb.AppendLine("        uint citylbm_stg_prev_t_step = t_step > citylbm_stg_update_interval ? t_step - citylbm_stg_update_interval : t_step;");
+            sb.AppendLine("        uint citylbm_stg_prev_t_step = t_step >= citylbm_stg_update_interval ? t_step - citylbm_stg_update_interval : t_step;");
             sb.AppendLine("        float citylbm_stg_temporal_rho = citylbm_stg_prev_t_step == t_step ? 0.0f : citylbm_stg_temporal_ar1_rho;");
             sb.AppendLine("        float citylbm_stg_temporal_innovation = citylbm_stg_prev_t_step == t_step ? 1.0f : citylbm_stg_temporal_ar1_innovation_scale;");
             sb.AppendLine("        float advected_x = (float)x - dir_x * mean_mag * (float)t_step;");
