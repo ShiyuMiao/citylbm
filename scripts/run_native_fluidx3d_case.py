@@ -93,6 +93,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expected-wind-direction", default="", help="Expected wind direction label, e.g. N.")
     parser.add_argument("--time-steps", type=int, default=None, help="Planned solver steps recorded in SharedRunConditions.")
     parser.add_argument("--vtk-save-interval", type=int, default=None, help="Planned VTK save interval.")
+    parser.add_argument(
+        "--vtk-save-start-step",
+        type=int,
+        default=None,
+        help="First solver step planned for VTK output. If omitted, reads VtkOutput.SaveStartStep from case metadata when present.",
+    )
     parser.add_argument("--expected-vtk-frame-count", type=int, default=None, help="Planned VTK frame count.")
     parser.add_argument("--average-last-n", type=int, default=40, help="Required final VTK averaging-window frame count.")
     parser.add_argument("--min-vtk-frames", type=int, default=40, help="Minimum planned VTK frames for strict validation.")
@@ -172,6 +178,16 @@ def metadata_bool(metadata: Dict[str, Any], keys: Sequence[str]) -> Optional[boo
 
 def metadata_int(metadata: Dict[str, Any], keys: Sequence[str]) -> Optional[int]:
     return as_int(metadata_value(metadata, keys))
+
+
+def metadata_vtk_save_start_step(metadata: Dict[str, Any]) -> Optional[int]:
+    direct = metadata_int(metadata, ["VtkSaveStartStep", "vtk_save_start_step", "SaveStartStep"])
+    if direct is not None:
+        return direct
+    vtk_output = metadata.get("VtkOutput") or metadata.get("vtk_output")
+    if isinstance(vtk_output, dict):
+        return as_int(metadata_value(vtk_output, ["SaveStartStep", "save_start_step", "VtkSaveStartStep"]))
+    return None
 
 
 def protocol_items(audit: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -616,16 +632,30 @@ def parse_vtk_time_step(path: Path) -> Optional[int]:
         return None
 
 
-def planned_frame_count(time_steps: Optional[int], save_interval: Optional[int]) -> Optional[int]:
-    if time_steps is None or save_interval is None or time_steps <= 0 or save_interval <= 0:
+def planned_frame_count(
+    time_steps: Optional[int],
+    save_interval: Optional[int],
+    save_start_step: Optional[int] = None,
+) -> Optional[int]:
+    steps = planned_vtk_steps(time_steps, save_interval, save_start_step)
+    if steps is None:
         return None
-    return (time_steps + save_interval - 1) // save_interval
+    return len(steps)
 
 
-def planned_vtk_steps(time_steps: Optional[int], save_interval: Optional[int]) -> Optional[List[int]]:
+def planned_vtk_steps(
+    time_steps: Optional[int],
+    save_interval: Optional[int],
+    save_start_step: Optional[int] = None,
+) -> Optional[List[int]]:
     if time_steps is None or save_interval is None or time_steps <= 0 or save_interval <= 0:
         return None
-    steps = list(range(save_interval, time_steps + 1, save_interval))
+    if save_start_step is not None and save_start_step < 0:
+        return None
+    first_step = save_interval if save_start_step is None or save_start_step <= 0 else save_start_step
+    if first_step > time_steps:
+        return []
+    steps = list(range(first_step, time_steps + 1, save_interval))
     if not steps or steps[-1] != time_steps:
         steps.append(time_steps)
     return steps
@@ -634,9 +664,10 @@ def planned_vtk_steps(time_steps: Optional[int], save_interval: Optional[int]) -
 def planned_final_window_span(
     time_steps: Optional[int],
     save_interval: Optional[int],
+    save_start_step: Optional[int],
     average_last_n: int,
 ) -> Optional[int]:
-    saved_steps = planned_vtk_steps(time_steps, save_interval)
+    saved_steps = planned_vtk_steps(time_steps, save_interval, save_start_step)
     if not saved_steps:
         return None
     selected = min(len(saved_steps), max(average_last_n, 1))
@@ -648,18 +679,21 @@ def planned_final_window_span(
 def audit_planned_vtk_schedule(
     time_steps: Optional[int],
     save_interval: Optional[int],
+    save_start_step: Optional[int],
     expected_frame_count: Optional[int],
     average_last_n: int,
     min_frames: int,
     min_step_span: int,
 ) -> Dict[str, Any]:
-    computed_frame_count = planned_frame_count(time_steps, save_interval)
-    final_window_span = planned_final_window_span(time_steps, save_interval, average_last_n)
+    computed_frame_count = planned_frame_count(time_steps, save_interval, save_start_step)
+    final_window_span = planned_final_window_span(time_steps, save_interval, save_start_step, average_last_n)
     reasons: List[str] = []
     if time_steps is None or time_steps <= 0:
         reasons.append("time_steps_missing_or_invalid")
     if save_interval is None or save_interval <= 0:
         reasons.append("vtk_save_interval_missing_or_invalid")
+    if save_start_step is not None and save_start_step < 0:
+        reasons.append("vtk_save_start_step_invalid")
     if computed_frame_count is None:
         reasons.append("planned_vtk_frame_count_unavailable")
     elif computed_frame_count < min_frames:
@@ -677,6 +711,7 @@ def audit_planned_vtk_schedule(
         "Reasons": reasons,
         "ReasonsCsv": ";".join(reasons),
         "ComputedFrameCount": computed_frame_count,
+        "SaveStartStep": save_start_step,
         "AverageLastN": average_last_n,
         "MinimumFrameCount": min_frames,
         "FinalWindowStepSpan": final_window_span,
@@ -900,6 +935,11 @@ def main() -> int:
     case_label, wind_label = case_identity(metadata)
     validation_protocol = audit_validation_protocol(case_dir / "validation_protocol_audit.json")
     metadata_preconditions = audit_case_metadata_preconditions(metadata)
+    vtk_save_start_step = (
+        args.vtk_save_start_step
+        if args.vtk_save_start_step is not None
+        else metadata_vtk_save_start_step(metadata)
+    )
     expected_case = args.expected_aij_case.strip()
     expected_wind = args.expected_wind_direction.strip()
     source_validation = validate_source_root(source_root)
@@ -991,6 +1031,7 @@ def main() -> int:
     vtk_schedule = audit_planned_vtk_schedule(
         args.time_steps,
         args.vtk_save_interval,
+        vtk_save_start_step,
         args.expected_vtk_frame_count,
         args.average_last_n,
         args.min_vtk_frames,
@@ -1001,7 +1042,7 @@ def main() -> int:
     actual_vtk_output = audit_actual_vtk_output(
         vtk_records,
         vtk_schedule["ComputedFrameCount"],
-        planned_vtk_steps(args.time_steps, args.vtk_save_interval),
+        planned_vtk_steps(args.time_steps, args.vtk_save_interval, vtk_save_start_step),
         args.average_last_n,
         args.min_vtk_frames,
         args.min_vtk_step_span,
@@ -1044,6 +1085,7 @@ def main() -> int:
         "SharedRunConditions": {
             "TimeSteps": args.time_steps,
             "SaveInterval": args.vtk_save_interval,
+            "SaveStartStep": vtk_save_start_step,
             "ExpectedVtkFrameCount": args.expected_vtk_frame_count,
             "ComputedVtkFrameCount": vtk_schedule["ComputedFrameCount"],
             "AverageLastN": args.average_last_n,

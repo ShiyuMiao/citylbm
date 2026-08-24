@@ -208,6 +208,51 @@ def main() -> int:
         if nondiv["PlannedSyntheticInletSamplingGate"]["ComputedRefreshCount"] != 385:
             raise AssertionError(nondiv["PlannedSyntheticInletSamplingGate"])
 
+        save_start_case = temp / "save_start_case"
+        create_case(save_start_case)
+        save_start_metadata_path = save_start_case / "case_metadata.json"
+        save_start_metadata = load_json(save_start_metadata_path)
+        save_start_metadata["VtkOutput"] = {
+            "SaveIntervalSteps": 1000,
+            "SaveStartStep": 10000,
+            "EstimatedPostSpinupFrameCount": 51,
+        }
+        write(save_start_metadata_path, json.dumps(save_start_metadata, indent=2))
+        save_start_manifest = temp / "save_start" / "native_fluidx3d_baseline_manifest.json"
+        run_cmd(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--case-dir",
+                str(save_start_case),
+                "--fluidx3d-source",
+                str(source_root),
+                "--out",
+                str(save_start_manifest),
+                "--baseline-id",
+                "smoke-casea-native-save-start",
+                "--expected-aij-case",
+                "CaseA",
+                "--expected-wind-direction",
+                "N",
+                "--time-steps",
+                "60000",
+                "--vtk-save-interval",
+                "1000",
+                "--expected-vtk-frame-count",
+                "51",
+            ]
+        )
+        save_start = load_json(save_start_manifest)
+        if save_start["RunnerGate"]["Gate"] != "pass":
+            raise AssertionError(save_start["RunnerGate"])
+        if save_start["SharedRunConditions"]["SaveStartStep"] != 10000:
+            raise AssertionError(save_start["SharedRunConditions"])
+        if save_start["SharedRunConditions"]["ComputedVtkFrameCount"] != 51:
+            raise AssertionError(save_start["SharedRunConditions"])
+        if save_start["SharedRunConditions"]["ExpectedFinalWindowStepSpan"] != 39000:
+            raise AssertionError(save_start["SharedRunConditions"])
+
         install_manifest = temp / "install" / "native_fluidx3d_baseline_manifest.json"
         run_cmd(
             [
