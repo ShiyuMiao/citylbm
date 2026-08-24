@@ -343,6 +343,7 @@ TEMPLATE_FIELDS = [
     "inlet_spatial_finite_correlation_fraction",
     "inlet_correlation_frame_count",
     "inlet_correlation_source_time_steps",
+    "inlet_correlation_source_vtk_sha256",
     "inlet_correlation_source_step_span",
     "inlet_correlation_minimum_step_span",
     "inlet_correlation_selected_last_window",
@@ -352,6 +353,7 @@ TEMPLATE_FIELDS = [
     "inlet_profile_available_frame_count",
     "inlet_profile_frame_count",
     "inlet_profile_source_time_steps",
+    "inlet_profile_source_vtk_sha256",
     "inlet_profile_source_first_time_step",
     "inlet_profile_source_last_time_step",
     "inlet_profile_source_step_span",
@@ -470,6 +472,7 @@ TEMPLATE_FIELDS = [
     "native_inlet_k_profile_gate",
     "native_inlet_profile_time_averaging_gate",
     "native_inlet_profile_af_csv_sha256_matches_expected",
+    "native_inlet_profile_source_vtk_sha256",
     "native_inlet_profile_source_time_steps_match_runtime",
     "native_inlet_profile_source_vtk_sha256_match_runtime",
     "native_inlet_profile_source_step_hash_pairs_match_runtime",
@@ -484,6 +487,7 @@ TEMPLATE_FIELDS = [
     "native_inlet_tke_target_from_af_k",
     "native_inlet_tke_to_k_ratio",
     "native_inlet_mean_turbulent_kinetic_energy_from_components",
+    "native_inlet_correlation_source_vtk_sha256",
     "native_inlet_correlation_source_time_steps_match_runtime",
     "native_inlet_correlation_source_vtk_sha256_match_runtime",
     "native_inlet_correlation_source_step_hash_pairs_match_runtime",
@@ -2599,6 +2603,7 @@ def main() -> int:
             "inlet_spatial_finite_correlation_fraction": fmt(audit_float(inlet_correlation_audit, "spatial_finite_correlation_fraction")),
             "inlet_correlation_frame_count": fmt(audit_int(inlet_correlation_audit, "frame_count")),
             "inlet_correlation_source_time_steps": audit_source_steps(inlet_correlation_audit),
+            "inlet_correlation_source_vtk_sha256": audit_list_field(inlet_correlation_audit, "source_vtk_sha256"),
             "inlet_correlation_source_step_span": fmt(audit_int(inlet_correlation_audit, "source_step_span")),
             "inlet_correlation_minimum_step_span": fmt(audit_int(inlet_correlation_audit, "minimum_validation_average_step_span")),
             "inlet_correlation_selected_last_window": first_bool_text(inlet_correlation_audit.get("selected_last_window")),
@@ -2608,6 +2613,7 @@ def main() -> int:
             "inlet_profile_available_frame_count": fmt(audit_int(inlet_profile_audit, "available_frame_count")),
             "inlet_profile_frame_count": fmt(audit_int(inlet_profile_audit, "frame_count")),
             "inlet_profile_source_time_steps": audit_source_steps(inlet_profile_audit),
+            "inlet_profile_source_vtk_sha256": audit_list_field(inlet_profile_audit, "source_vtk_sha256"),
             "inlet_profile_source_first_time_step": fmt(audit_int(inlet_profile_audit, "source_first_time_step")),
             "inlet_profile_source_last_time_step": fmt(audit_int(inlet_profile_audit, "source_last_time_step")),
             "inlet_profile_source_step_span": fmt(audit_int(inlet_profile_audit, "source_step_span")),
@@ -2915,6 +2921,9 @@ def main() -> int:
             "native_inlet_profile_af_csv_sha256_matches_expected": first_bool_text(
                 native_preconditions_audit.get("inlet_profile_af_csv_sha256_matches_expected")
             ),
+            "native_inlet_profile_source_vtk_sha256": audit_list_field(
+                native_preconditions_audit, "inlet_profile_source_vtk_sha256"
+            ),
             "native_inlet_profile_source_time_steps_match_runtime": first_bool_text(
                 native_preconditions_audit.get("inlet_profile_source_time_steps_match_runtime")
             ),
@@ -2948,6 +2957,9 @@ def main() -> int:
             ),
             "native_inlet_mean_turbulent_kinetic_energy_from_components": fmt(
                 audit_float(native_preconditions_audit, "inlet_mean_turbulent_kinetic_energy_from_components")
+            ),
+            "native_inlet_correlation_source_vtk_sha256": audit_list_field(
+                native_preconditions_audit, "inlet_correlation_source_vtk_sha256"
             ),
             "native_inlet_correlation_source_time_steps_match_runtime": first_bool_text(
                 native_preconditions_audit.get("inlet_correlation_source_time_steps_match_runtime")
