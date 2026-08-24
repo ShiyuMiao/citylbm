@@ -647,6 +647,14 @@ def main() -> int:
         raise AssertionError(prescription)
     if prescription["accuracy_interpretation_allowed"] is not False:
         raise AssertionError(prescription)
+    if prescription["accuracy_interpretation_gate"] != "fail":
+        raise AssertionError(prescription)
+    if prescription["accuracy_interpretation_status"] != "blocked_until_native_preconditions_closed":
+        raise AssertionError(prescription)
+    if prescription["accuracy_interpretation_blocker"] != "turbulent_inlet_method_and_u_k_preservation":
+        raise AssertionError(prescription)
+    if prescription["accuracy_interpretation_required_experiment"] != "native_empty_tunnel_inlet_preservation_first":
+        raise AssertionError(prescription)
     if "Do not interpret probe accuracy yet" not in prescription["summary"]:
         raise AssertionError(prescription)
 
@@ -664,6 +672,10 @@ def main() -> int:
     if empty_prescription["experiment"] != "accuracy_interpretation_ready":
         raise AssertionError(empty_prescription)
     if empty_prescription["accuracy_interpretation_allowed"] is not True:
+        raise AssertionError(empty_prescription)
+    if empty_prescription["accuracy_interpretation_gate"] != "pass":
+        raise AssertionError(empty_prescription)
+    if empty_prescription["accuracy_interpretation_status"] != "allowed_after_native_preconditions_closed":
         raise AssertionError(empty_prescription)
 
     time_priority = next(item for item in priorities if item["key"] == "time_averaging_stationarity")

@@ -632,6 +632,11 @@ TEMPLATE_FIELDS = [
     "native_rerun_prescription_minimum_final_window",
     "native_rerun_prescription_accuracy_interpretation_allowed",
     "native_rerun_prescription_summary",
+    "native_accuracy_interpretation_gate",
+    "native_accuracy_interpretation_allowed",
+    "native_accuracy_interpretation_status",
+    "native_accuracy_interpretation_blocker",
+    "native_accuracy_interpretation_required_experiment",
     "native_precondition_closure_gate",
     "native_precondition_closed_stage_count",
     "native_precondition_failed_stage_count",
@@ -3372,6 +3377,21 @@ def main() -> int:
             ),
             "native_rerun_prescription_summary": audit_field(
                 native_preconditions_audit, "native_rerun_prescription_summary"
+            ),
+            "native_accuracy_interpretation_gate": audit_gate(
+                native_preconditions_audit, "native_accuracy_interpretation_gate"
+            ),
+            "native_accuracy_interpretation_allowed": first_bool_text(
+                native_preconditions_audit.get("native_accuracy_interpretation_allowed")
+            ),
+            "native_accuracy_interpretation_status": audit_field(
+                native_preconditions_audit, "native_accuracy_interpretation_status"
+            ),
+            "native_accuracy_interpretation_blocker": audit_field(
+                native_preconditions_audit, "native_accuracy_interpretation_blocker"
+            ),
+            "native_accuracy_interpretation_required_experiment": audit_field(
+                native_preconditions_audit, "native_accuracy_interpretation_required_experiment"
             ),
             "native_precondition_closure_gate": audit_gate(
                 native_preconditions_audit, "native_precondition_closure_gate"

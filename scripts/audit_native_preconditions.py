@@ -555,6 +555,11 @@ def build_native_rerun_prescription(
         if accuracy_allowed
         else f"Do not interpret probe accuracy yet. Next experiment: {experiment}. {top_diagnosis or top_action}"
     )
+    accuracy_status = (
+        "allowed_after_native_preconditions_closed"
+        if accuracy_allowed
+        else "blocked_until_native_preconditions_closed"
+    )
     return {
         "gate": "pass" if accuracy_allowed else "fail",
         "top_key": top_key,
@@ -567,6 +572,10 @@ def build_native_rerun_prescription(
             f"min_avg_step_span={min_avg_step_span}"
         ),
         "accuracy_interpretation_allowed": accuracy_allowed,
+        "accuracy_interpretation_gate": "pass" if accuracy_allowed else "fail",
+        "accuracy_interpretation_status": accuracy_status,
+        "accuracy_interpretation_blocker": top_key,
+        "accuracy_interpretation_required_experiment": experiment,
         "summary": summary,
     }
 
@@ -4226,6 +4235,13 @@ def main() -> int:
             "accuracy_interpretation_allowed"
         ],
         "native_rerun_prescription_summary": native_rerun_prescription["summary"],
+        "native_accuracy_interpretation_gate": native_rerun_prescription["accuracy_interpretation_gate"],
+        "native_accuracy_interpretation_allowed": native_rerun_prescription["accuracy_interpretation_allowed"],
+        "native_accuracy_interpretation_status": native_rerun_prescription["accuracy_interpretation_status"],
+        "native_accuracy_interpretation_blocker": native_rerun_prescription["accuracy_interpretation_blocker"],
+        "native_accuracy_interpretation_required_experiment": native_rerun_prescription[
+            "accuracy_interpretation_required_experiment"
+        ],
         "native_diagnostic_priority_order": [
             "validation_protocol_content",
             "turbulent_inlet_method_and_u_k_preservation",
