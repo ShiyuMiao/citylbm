@@ -1191,6 +1191,8 @@ def build_time_average_evidence_reasons(
     runtime_reported_time_average_gate: str,
     time_gate: str,
     requested_frame_gate: str,
+    final_window_frame_count_gate: str,
+    final_window_frame_count_reasons: List[str],
     stationarity_gate: str,
     stationarity_reasons: List[str],
     planned_frame_shortfall_reason: Optional[str],
@@ -1224,6 +1226,13 @@ def build_time_average_evidence_reasons(
         evidence_reasons.append(
             f"runtime_requested_vtk_frame_gate_not_pass:{requested_frame_gate or 'missing'}"
         )
+    if final_window_frame_count_gate != "pass":
+        evidence_reasons.append(
+            "runtime_final_window_frame_count_gate_not_pass:"
+            f"{final_window_frame_count_gate or 'missing'}"
+        )
+    for reason in final_window_frame_count_reasons:
+        evidence_reasons.append(f"runtime_final_window_frame_count_reason:{reason}")
     if stationarity_gate != "pass":
         evidence_reasons.append(
             f"runtime_final_window_stationarity_gate_not_pass:{stationarity_gate or 'missing'}"
@@ -2474,6 +2483,8 @@ def main() -> int:
         runtime_reported_time_average_gate=runtime_reported_time_average_gate,
         time_gate=time_gate,
         requested_frame_gate=requested_frame_gate,
+        final_window_frame_count_gate=runtime_final_window_frame_count_gate["gate"],
+        final_window_frame_count_reasons=runtime_final_window_frame_count_gate["reasons"],
         stationarity_gate=stationarity_gate,
         stationarity_reasons=stationarity_reasons,
         planned_frame_shortfall_reason=planned_frame_shortfall_reason,
