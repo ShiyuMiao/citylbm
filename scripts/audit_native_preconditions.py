@@ -2853,11 +2853,17 @@ def main() -> int:
     boundary_source_has_non_reflecting_outlet_state = as_bool(
         boundary_source_audit.get("has_non_reflecting_outlet_state_evidence")
     )
+    boundary_source_has_non_reflecting_outlet_application = as_bool(
+        boundary_source_audit.get("has_non_reflecting_outlet_application_evidence")
+    )
     boundary_source_has_periodic_side_top_method = as_bool(
         boundary_source_audit.get("has_periodic_side_top_method")
     )
     boundary_source_has_periodic_pair_mapping = as_bool(
         boundary_source_audit.get("has_periodic_pair_mapping_evidence")
+    )
+    boundary_source_has_periodic_side_top_application = as_bool(
+        boundary_source_audit.get("has_periodic_side_top_application_evidence")
     )
     boundary_source_has_rough_wall_function_method = as_bool(
         boundary_source_audit.get("has_rough_wall_function_method")
@@ -2868,11 +2874,17 @@ def main() -> int:
     boundary_source_has_rough_wall_action = as_bool(
         boundary_source_audit.get("has_rough_wall_action_evidence")
     )
+    boundary_source_has_rough_wall_application = as_bool(
+        boundary_source_audit.get("has_rough_wall_application_evidence")
+    )
     boundary_source_has_precursor_recycling_method = as_bool(
         boundary_source_audit.get("has_precursor_or_recycling_boundary_method")
     )
     boundary_source_has_precursor_recycling_field = as_bool(
         boundary_source_audit.get("has_precursor_or_recycling_boundary_field_evidence")
+    )
+    boundary_source_has_precursor_recycling_application = as_bool(
+        boundary_source_audit.get("has_precursor_or_recycling_boundary_application_evidence")
     )
     boundary_source_missing_paper_evidence = split_scalar_list(
         boundary_source_audit.get("missing_paper_grade_source_evidence")
@@ -3903,13 +3915,23 @@ def main() -> int:
         "boundary_source_has_paper_grade_development_source": boundary_source_has_paper_grade_development,
         "boundary_source_has_non_reflecting_outlet_method": boundary_source_has_non_reflecting_outlet_method,
         "boundary_source_has_non_reflecting_outlet_state_evidence": boundary_source_has_non_reflecting_outlet_state,
+        "boundary_source_has_non_reflecting_outlet_application_evidence": (
+            boundary_source_has_non_reflecting_outlet_application
+        ),
         "boundary_source_has_periodic_side_top_method": boundary_source_has_periodic_side_top_method,
         "boundary_source_has_periodic_pair_mapping_evidence": boundary_source_has_periodic_pair_mapping,
+        "boundary_source_has_periodic_side_top_application_evidence": (
+            boundary_source_has_periodic_side_top_application
+        ),
         "boundary_source_has_rough_wall_function_method": boundary_source_has_rough_wall_function_method,
         "boundary_source_has_rough_wall_parameter_evidence": boundary_source_has_rough_wall_parameter,
         "boundary_source_has_rough_wall_action_evidence": boundary_source_has_rough_wall_action,
+        "boundary_source_has_rough_wall_application_evidence": boundary_source_has_rough_wall_application,
         "boundary_source_has_precursor_or_recycling_boundary_method": boundary_source_has_precursor_recycling_method,
         "boundary_source_has_precursor_or_recycling_boundary_field_evidence": boundary_source_has_precursor_recycling_field,
+        "boundary_source_has_precursor_or_recycling_boundary_application_evidence": (
+            boundary_source_has_precursor_recycling_application
+        ),
         "boundary_source_missing_paper_grade_source_evidence": boundary_source_missing_paper_evidence,
         "boundary_source_missing_paper_grade_source_evidence_csv": ";".join(boundary_source_missing_paper_evidence),
         **boundary_source_hash_check,

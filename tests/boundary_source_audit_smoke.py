@@ -270,6 +270,74 @@ void main_setup() {
             advanced,
         )
 
+        advanced_defined_not_applied_setup = tmp_dir / "advanced_defined_not_applied_setup.cpp"
+        advanced_defined_not_applied_report = tmp_dir / "advanced_defined_not_applied_boundary_source_audit.json"
+        advanced_defined_not_applied_setup.write_text(
+            """
+float outlet_buffer[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+void non_reflecting_outlet(float sponge_strength, float convective_speed) {
+    outlet_buffer[0] = sponge_strength * convective_speed;
+}
+uint periodic_boundary(uint periodic_pair, uint wrap_index) {
+    return periodic_pair + wrap_index;
+}
+float rough_wall_function(float roughness_height, float friction_velocity) {
+    float wall_function_shear = roughness_height * friction_velocity;
+    return wall_function_shear;
+}
+float apply_rough_wall(float rough_wall_drag) {
+    float wall_shear_force = rough_wall_drag;
+    return wall_shear_force;
+}
+void precursor_boundary(float3 precursor_velocity, uint recycling_plane) {
+    outlet_buffer[1] = precursor_velocity.y + (float)recycling_plane;
+}
+void main_setup() {
+    parallel_for(lbm.get_N(), [&](ulong n) {
+        uint x=0u, y=0u, z=0u;
+        lbm.coordinates(n, x, y, z);
+        if(z == 0u) { lbm.flags[n] = TYPE_S; return; }
+        if(y == Ny-1u) { lbm.flags[n] = TYPE_E; return; }
+        if(x == 0u || x == Nx-1u || z == Nz-1u) { lbm.flags[n] = TYPE_E; return; }
+    });
+    lbm.voxelize_stl(get_exe_path()+"../buildings.stl", TYPE_S);
+}
+""",
+            encoding="utf-8",
+        )
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(audit_script),
+                "--setup",
+                str(advanced_defined_not_applied_setup),
+                "--metadata",
+                str(metadata),
+                "--out",
+                str(advanced_defined_not_applied_report),
+            ],
+            cwd=str(repo),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if completed.returncode == 0:
+            raise AssertionError("Defined but unapplied advanced boundary methods unexpectedly passed.")
+        unapplied = json.loads(advanced_defined_not_applied_report.read_text(encoding="utf-8"))
+        require(unapplied.get("boundary_source_gate") == "fail", unapplied)
+        require(unapplied.get("paper_grade_boundary_source_gate") == "fail", unapplied)
+        require(unapplied.get("has_non_reflecting_outlet_application_evidence") is False, unapplied)
+        require(unapplied.get("has_periodic_side_top_application_evidence") is False, unapplied)
+        require(unapplied.get("has_rough_wall_application_evidence") is False, unapplied)
+        require(unapplied.get("has_precursor_or_recycling_boundary_application_evidence") is False, unapplied)
+        for reason in [
+            "non_reflecting_boundary_source_missing_application_evidence",
+            "periodic_boundary_source_missing_application_evidence",
+            "rough_wall_boundary_source_missing_application_evidence",
+            "precursor_recycling_boundary_source_missing_application_evidence",
+        ]:
+            require(reason in unapplied.get("boundary_source_gate_reasons", []), unapplied)
+
         advanced_real_setup = tmp_dir / "advanced_real_setup.cpp"
         advanced_real_report = tmp_dir / "advanced_real_boundary_source_audit.json"
         advanced_real_setup.write_text(
@@ -344,6 +412,10 @@ void main_setup() {
         require(advanced.get("boundary_source_has_empty_advanced_method_stub_only") is False, advanced)
         require(advanced.get("has_empty_advanced_boundary_method_stub") is False, advanced)
         require(advanced.get("empty_advanced_boundary_method_stub_count") == 0, advanced)
+        require(advanced.get("has_non_reflecting_outlet_application_evidence") is True, advanced)
+        require(advanced.get("has_periodic_side_top_application_evidence") is True, advanced)
+        require(advanced.get("has_rough_wall_application_evidence") is True, advanced)
+        require(advanced.get("has_precursor_or_recycling_boundary_application_evidence") is True, advanced)
         require(advanced.get("missing_paper_grade_source_evidence") == [], advanced)
 
     print("boundary_source_audit_smoke passed")

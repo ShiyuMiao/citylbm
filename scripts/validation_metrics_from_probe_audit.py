@@ -177,13 +177,17 @@ TEMPLATE_FIELDS = [
     "boundary_source_comment_stripped_code_audit",
     "boundary_source_has_non_reflecting_outlet_method",
     "boundary_source_has_non_reflecting_outlet_state_evidence",
+    "boundary_source_has_non_reflecting_outlet_application_evidence",
     "boundary_source_has_periodic_side_top_method",
     "boundary_source_has_periodic_pair_mapping_evidence",
+    "boundary_source_has_periodic_side_top_application_evidence",
     "boundary_source_has_rough_wall_function_method",
     "boundary_source_has_rough_wall_parameter_evidence",
     "boundary_source_has_rough_wall_action_evidence",
+    "boundary_source_has_rough_wall_application_evidence",
     "boundary_source_has_precursor_or_recycling_boundary_method",
     "boundary_source_has_precursor_or_recycling_boundary_field_evidence",
+    "boundary_source_has_precursor_or_recycling_boundary_application_evidence",
     "boundary_source_has_empty_advanced_boundary_method_stub",
     "boundary_source_empty_advanced_boundary_method_stub_count",
     "boundary_source_has_paper_grade_outlet_source",
@@ -565,13 +569,17 @@ TEMPLATE_FIELDS = [
     "native_boundary_source_has_paper_grade_development_source",
     "native_boundary_source_has_non_reflecting_outlet_method",
     "native_boundary_source_has_non_reflecting_outlet_state_evidence",
+    "native_boundary_source_has_non_reflecting_outlet_application_evidence",
     "native_boundary_source_has_periodic_side_top_method",
     "native_boundary_source_has_periodic_pair_mapping_evidence",
+    "native_boundary_source_has_periodic_side_top_application_evidence",
     "native_boundary_source_has_rough_wall_function_method",
     "native_boundary_source_has_rough_wall_parameter_evidence",
     "native_boundary_source_has_rough_wall_action_evidence",
+    "native_boundary_source_has_rough_wall_application_evidence",
     "native_boundary_source_has_precursor_or_recycling_boundary_method",
     "native_boundary_source_has_precursor_or_recycling_boundary_field_evidence",
+    "native_boundary_source_has_precursor_or_recycling_boundary_application_evidence",
     "native_boundary_protocol_gate",
     "native_boundary_evidence_gate",
     "native_boundary_run_identity_gate",
@@ -2207,11 +2215,17 @@ def main() -> int:
             "boundary_source_has_non_reflecting_outlet_state_evidence": first_bool_text(
                 boundary_source_audit.get("has_non_reflecting_outlet_state_evidence")
             ),
+            "boundary_source_has_non_reflecting_outlet_application_evidence": first_bool_text(
+                boundary_source_audit.get("has_non_reflecting_outlet_application_evidence")
+            ),
             "boundary_source_has_periodic_side_top_method": first_bool_text(
                 boundary_source_audit.get("has_periodic_side_top_method")
             ),
             "boundary_source_has_periodic_pair_mapping_evidence": first_bool_text(
                 boundary_source_audit.get("has_periodic_pair_mapping_evidence")
+            ),
+            "boundary_source_has_periodic_side_top_application_evidence": first_bool_text(
+                boundary_source_audit.get("has_periodic_side_top_application_evidence")
             ),
             "boundary_source_has_rough_wall_function_method": first_bool_text(
                 boundary_source_audit.get("has_rough_wall_function_method")
@@ -2222,11 +2236,17 @@ def main() -> int:
             "boundary_source_has_rough_wall_action_evidence": first_bool_text(
                 boundary_source_audit.get("has_rough_wall_action_evidence")
             ),
+            "boundary_source_has_rough_wall_application_evidence": first_bool_text(
+                boundary_source_audit.get("has_rough_wall_application_evidence")
+            ),
             "boundary_source_has_precursor_or_recycling_boundary_method": first_bool_text(
                 boundary_source_audit.get("has_precursor_or_recycling_boundary_method")
             ),
             "boundary_source_has_precursor_or_recycling_boundary_field_evidence": first_bool_text(
                 boundary_source_audit.get("has_precursor_or_recycling_boundary_field_evidence")
+            ),
+            "boundary_source_has_precursor_or_recycling_boundary_application_evidence": first_bool_text(
+                boundary_source_audit.get("has_precursor_or_recycling_boundary_application_evidence")
             ),
             "boundary_source_has_empty_advanced_boundary_method_stub": first_bool_text(
                 boundary_source_audit.get("has_empty_advanced_boundary_method_stub")
@@ -3176,11 +3196,17 @@ def main() -> int:
             "native_boundary_source_has_non_reflecting_outlet_state_evidence": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_non_reflecting_outlet_state_evidence")
             ),
+            "native_boundary_source_has_non_reflecting_outlet_application_evidence": first_bool_text(
+                native_preconditions_audit.get("boundary_source_has_non_reflecting_outlet_application_evidence")
+            ),
             "native_boundary_source_has_periodic_side_top_method": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_periodic_side_top_method")
             ),
             "native_boundary_source_has_periodic_pair_mapping_evidence": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_periodic_pair_mapping_evidence")
+            ),
+            "native_boundary_source_has_periodic_side_top_application_evidence": first_bool_text(
+                native_preconditions_audit.get("boundary_source_has_periodic_side_top_application_evidence")
             ),
             "native_boundary_source_has_rough_wall_function_method": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_rough_wall_function_method")
@@ -3191,11 +3217,19 @@ def main() -> int:
             "native_boundary_source_has_rough_wall_action_evidence": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_rough_wall_action_evidence")
             ),
+            "native_boundary_source_has_rough_wall_application_evidence": first_bool_text(
+                native_preconditions_audit.get("boundary_source_has_rough_wall_application_evidence")
+            ),
             "native_boundary_source_has_precursor_or_recycling_boundary_method": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_precursor_or_recycling_boundary_method")
             ),
             "native_boundary_source_has_precursor_or_recycling_boundary_field_evidence": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_precursor_or_recycling_boundary_field_evidence")
+            ),
+            "native_boundary_source_has_precursor_or_recycling_boundary_application_evidence": first_bool_text(
+                native_preconditions_audit.get(
+                    "boundary_source_has_precursor_or_recycling_boundary_application_evidence"
+                )
             ),
             "native_boundary_protocol_gate": audit_gate(native_preconditions_audit, "boundary_protocol_gate"),
             "native_boundary_evidence_gate": audit_gate(native_preconditions_audit, "boundary_evidence_gate"),
