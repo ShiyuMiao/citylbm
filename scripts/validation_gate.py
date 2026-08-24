@@ -1425,6 +1425,173 @@ def paper_grade_boundary_failure_reasons(
     return reasons
 
 
+def component_normalization_failure_reasons(
+    *,
+    component_sensitivity_audit_exists: bool,
+    component_normalization_gate: str,
+    component_sensitivity_gate: str,
+    normalization_scale_gate: str,
+    streamwise_sign_gate: str,
+    streamwise_sign_reasons: List[str],
+    component_source_window_gate: str,
+    component_source_window_reasons: List[str],
+    component_probe_hash_matches: bool,
+    component_official_hash_matches: bool,
+    component_scope_case_ok: bool,
+    component_scope_wind_ok: bool,
+    component_official_filtered_row_count: Optional[int],
+    component_official_id_count: Optional[int],
+    component_valid_probe_id_count: Optional[int],
+    component_matched_valid_probe_id_count: Optional[int],
+    component_unmatched_valid_probe_id_count: Optional[int],
+    component_missing_official_probe_id_count: Optional[int],
+    component_official_probe_coverage_ratio: Optional[float],
+    valid_probe_components: List[str],
+    valid_probe_component_count: Optional[int],
+    valid_probe_missing_component_count: Optional[int],
+    selected_component: str,
+    selected_component_source: str,
+    best_component: str,
+    component_rmse_improvement: Optional[float],
+    max_component_rmse_improvement_ratio: float,
+    component_choice_not_explained: bool,
+    normalization_best_scale: Optional[float],
+    normalization_scaled_improvement: Optional[float],
+    max_normalization_best_scale_deviation: float,
+    min_normalization_scaled_improvement_ratio: float,
+    normalization_scale_not_explained: bool,
+) -> List[str]:
+    reasons: List[str] = []
+    if not component_sensitivity_audit_exists:
+        reasons.append("component_sensitivity_audit_missing")
+    for key, value in [
+        ("component_normalization_gate", component_normalization_gate),
+        ("component_sensitivity_gate", component_sensitivity_gate),
+        ("normalization_scale_gate", normalization_scale_gate),
+        ("streamwise_sign_gate", streamwise_sign_gate),
+        ("component_source_window_gate", component_source_window_gate),
+    ]:
+        if value != "pass":
+            reasons.append(f"{key}_not_pass:{value or 'missing'}")
+    for reason in streamwise_sign_reasons:
+        if reason:
+            reasons.append(f"streamwise_sign_gate:{reason}")
+    for reason in component_source_window_reasons:
+        if reason:
+            reasons.append(f"component_source_window_gate:{reason}")
+    if not component_probe_hash_matches:
+        reasons.append("component_probe_audit_sha256_mismatch_or_missing")
+    if not component_official_hash_matches:
+        reasons.append("component_official_sha256_mismatch_or_missing")
+    if not component_scope_case_ok:
+        reasons.append("component_scope_case_mismatch")
+    if not component_scope_wind_ok:
+        reasons.append("component_scope_wind_direction_mismatch")
+    for key, value in [
+        ("component_official_filtered_row_count", component_official_filtered_row_count),
+        ("component_official_id_count", component_official_id_count),
+        ("component_valid_probe_id_count", component_valid_probe_id_count),
+    ]:
+        if value is None:
+            reasons.append(f"{key}_missing")
+        elif value <= 0:
+            reasons.append(f"{key}_zero")
+    if (
+        component_matched_valid_probe_id_count is None
+        or component_valid_probe_id_count is None
+        or component_matched_valid_probe_id_count != component_valid_probe_id_count
+    ):
+        reasons.append(
+            "component_matched_valid_probe_id_count_mismatch:"
+            f"{component_matched_valid_probe_id_count}_of_{component_valid_probe_id_count}"
+        )
+    if (
+        component_matched_valid_probe_id_count is None
+        or component_official_id_count is None
+        or component_matched_valid_probe_id_count != component_official_id_count
+    ):
+        reasons.append(
+            "component_matched_official_id_count_mismatch:"
+            f"{component_matched_valid_probe_id_count}_of_{component_official_id_count}"
+        )
+    if component_unmatched_valid_probe_id_count is None:
+        reasons.append("component_unmatched_valid_probe_id_count_missing")
+    elif component_unmatched_valid_probe_id_count != 0:
+        reasons.append(
+            f"component_unmatched_valid_probe_id_count_not_zero:{component_unmatched_valid_probe_id_count}"
+        )
+    if component_missing_official_probe_id_count is None:
+        reasons.append("component_missing_official_probe_id_count_missing")
+    elif component_missing_official_probe_id_count != 0:
+        reasons.append(
+            f"component_missing_official_probe_id_count_not_zero:{component_missing_official_probe_id_count}"
+        )
+    if component_official_probe_coverage_ratio is None:
+        reasons.append("component_official_probe_coverage_ratio_missing")
+    elif abs(component_official_probe_coverage_ratio - 1.0) > 1.0e-12:
+        reasons.append(
+            f"component_official_probe_coverage_ratio_not_one:{component_official_probe_coverage_ratio}"
+        )
+    if valid_probe_component_count is None:
+        reasons.append("valid_probe_compared_component_count_missing")
+    elif component_valid_probe_id_count is not None and valid_probe_component_count != component_valid_probe_id_count:
+        reasons.append(
+            "valid_probe_compared_component_count_mismatch:"
+            f"{valid_probe_component_count}_of_{component_valid_probe_id_count}"
+        )
+    if valid_probe_missing_component_count is None:
+        reasons.append("valid_probe_missing_compared_component_count_missing")
+    elif valid_probe_missing_component_count != 0:
+        reasons.append(
+            f"valid_probe_missing_compared_component_count_not_zero:{valid_probe_missing_component_count}"
+        )
+    if len(set(valid_probe_components)) != 1:
+        reasons.append(
+            "valid_probe_compared_components_not_single:"
+            f"{','.join(valid_probe_components) or 'missing'}"
+        )
+    if not selected_component:
+        reasons.append("selected_component_missing")
+    if not selected_component_source:
+        reasons.append("selected_component_source_missing")
+    if not best_component:
+        reasons.append("best_component_by_rmse_missing")
+    if not component_choice_not_explained:
+        if selected_component and best_component and selected_component != best_component:
+            reasons.append(
+                "selected_component_not_best_by_rmse:"
+                f"{selected_component}!={best_component};improvement={component_rmse_improvement}"
+            )
+        elif component_rmse_improvement is None:
+            reasons.append("component_rmse_improvement_ratio_missing")
+        elif component_rmse_improvement >= max_component_rmse_improvement_ratio:
+            reasons.append(
+                "component_rmse_improvement_ratio_above_limit:"
+                f"{component_rmse_improvement}>={max_component_rmse_improvement_ratio}"
+            )
+        else:
+            reasons.append("component_choice_not_explained_false")
+    if not normalization_scale_not_explained:
+        if normalization_best_scale is None:
+            reasons.append("normalization_best_fit_scale_missing")
+        elif abs(normalization_best_scale - 1.0) > max_normalization_best_scale_deviation:
+            reasons.append(
+                "normalization_best_fit_scale_deviation_above_limit:"
+                f"{normalization_best_scale};limit={max_normalization_best_scale_deviation}"
+            )
+        if (
+            normalization_scaled_improvement is not None
+            and normalization_scaled_improvement >= min_normalization_scaled_improvement_ratio
+        ):
+            reasons.append(
+                "normalization_scaled_improvement_ratio_above_limit:"
+                f"{normalization_scaled_improvement}>={min_normalization_scaled_improvement_ratio}"
+            )
+        elif normalization_scaled_improvement is None:
+            reasons.append("normalization_scaled_improvement_ratio_missing")
+    return reasons
+
+
 def stg_three_component_evidence_pass(
     *,
     required: bool,
@@ -7676,6 +7843,41 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             or normalization_scaled_improvement < args.min_normalization_scaled_improvement_ratio
         )
     )
+    component_normalization_reason_list = component_normalization_failure_reasons(
+        component_sensitivity_audit_exists=component_sensitivity_audit_exists,
+        component_normalization_gate=component_normalization_gate,
+        component_sensitivity_gate=component_sensitivity_gate,
+        normalization_scale_gate=normalization_scale_gate,
+        streamwise_sign_gate=streamwise_sign_gate,
+        streamwise_sign_reasons=streamwise_sign_reasons,
+        component_source_window_gate=component_source_window_gate,
+        component_source_window_reasons=component_source_window_reasons,
+        component_probe_hash_matches=component_probe_hash_matches,
+        component_official_hash_matches=component_official_hash_matches,
+        component_scope_case_ok=component_scope_case_ok,
+        component_scope_wind_ok=component_scope_wind_ok,
+        component_official_filtered_row_count=component_official_filtered_row_count,
+        component_official_id_count=component_official_id_count,
+        component_valid_probe_id_count=component_valid_probe_id_count,
+        component_matched_valid_probe_id_count=component_matched_valid_probe_id_count,
+        component_unmatched_valid_probe_id_count=component_unmatched_valid_probe_id_count,
+        component_missing_official_probe_id_count=component_missing_official_probe_id_count,
+        component_official_probe_coverage_ratio=component_official_probe_coverage_ratio,
+        valid_probe_components=valid_probe_components,
+        valid_probe_component_count=valid_probe_component_count,
+        valid_probe_missing_component_count=valid_probe_missing_component_count,
+        selected_component=selected_component,
+        selected_component_source=selected_component_source,
+        best_component=best_component,
+        component_rmse_improvement=component_rmse_improvement,
+        max_component_rmse_improvement_ratio=args.max_component_rmse_improvement_ratio,
+        component_choice_not_explained=component_choice_not_explained,
+        normalization_best_scale=normalization_best_scale,
+        normalization_scaled_improvement=normalization_scaled_improvement,
+        max_normalization_best_scale_deviation=args.max_normalization_best_scale_deviation,
+        min_normalization_scaled_improvement_ratio=args.min_normalization_scaled_improvement_ratio,
+        normalization_scale_not_explained=normalization_scale_not_explained,
+    )
     component_normalization_pass = (
         component_sensitivity_audit_exists
         and component_normalization_gate == "pass"
@@ -7743,6 +7945,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"normalization_best_fit_scale={normalization_best_scale}; "
             f"normalization_scaled_improvement_ratio={normalization_scaled_improvement}; "
             f"normalization_scale_not_explained={normalization_scale_not_explained}; "
+            f"component_normalization_failure_reasons={';'.join(component_normalization_reason_list) or 'none'}; "
             f"component_probe_audit_sha256={component_probe_audit_sha256 or 'missing'}; "
             f"current_probe_audit_sha256={current_probe_audit_sha256 or 'missing'}; "
             f"component_probe_hash_matches={component_probe_hash_matches}; "

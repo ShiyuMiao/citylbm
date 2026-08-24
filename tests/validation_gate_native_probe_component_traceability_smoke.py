@@ -101,8 +101,114 @@ def pass_gate(module, key):
     }
 
 
+def passing_component_reason_kwargs() -> dict:
+    return {
+        "component_sensitivity_audit_exists": True,
+        "component_normalization_gate": "pass",
+        "component_sensitivity_gate": "pass",
+        "normalization_scale_gate": "pass",
+        "streamwise_sign_gate": "pass",
+        "streamwise_sign_reasons": [],
+        "component_source_window_gate": "pass",
+        "component_source_window_reasons": [],
+        "component_probe_hash_matches": True,
+        "component_official_hash_matches": True,
+        "component_scope_case_ok": True,
+        "component_scope_wind_ok": True,
+        "component_official_filtered_row_count": 80,
+        "component_official_id_count": 80,
+        "component_valid_probe_id_count": 80,
+        "component_matched_valid_probe_id_count": 80,
+        "component_unmatched_valid_probe_id_count": 0,
+        "component_missing_official_probe_id_count": 0,
+        "component_official_probe_coverage_ratio": 1.0,
+        "valid_probe_components": ["streamwise_ratio"],
+        "valid_probe_component_count": 80,
+        "valid_probe_missing_component_count": 0,
+        "selected_component": "streamwise_ratio",
+        "selected_component_source": "explicit",
+        "best_component": "streamwise_ratio",
+        "component_rmse_improvement": 0.0,
+        "max_component_rmse_improvement_ratio": 0.05,
+        "component_choice_not_explained": True,
+        "normalization_best_scale": 1.0,
+        "normalization_scaled_improvement": 0.0,
+        "max_normalization_best_scale_deviation": 0.10,
+        "min_normalization_scaled_improvement_ratio": 0.10,
+        "normalization_scale_not_explained": True,
+    }
+
+
 def main() -> int:
     module = load_gate_module()
+    component_reasons = module.component_normalization_failure_reasons(
+        **passing_component_reason_kwargs()
+    )
+    if component_reasons:
+        raise AssertionError(component_reasons)
+
+    component_problem = passing_component_reason_kwargs()
+    component_problem.update(
+        {
+            "component_sensitivity_audit_exists": False,
+            "component_normalization_gate": "fail",
+            "component_sensitivity_gate": "fail",
+            "normalization_scale_gate": "fail",
+            "streamwise_sign_gate": "fail",
+            "streamwise_sign_reasons": ["negative_streamwise_fraction_1.0_suggests_wind_vector_or_component_sign_error"],
+            "component_source_window_gate": "fail",
+            "component_source_window_reasons": ["source_step_span_below_minimum"],
+            "component_probe_hash_matches": False,
+            "component_official_hash_matches": False,
+            "component_scope_case_ok": False,
+            "component_scope_wind_ok": False,
+            "component_matched_valid_probe_id_count": 79,
+            "component_unmatched_valid_probe_id_count": 1,
+            "component_missing_official_probe_id_count": 1,
+            "component_official_probe_coverage_ratio": 0.9875,
+            "valid_probe_components": ["speed_ratio", "streamwise_ratio"],
+            "valid_probe_component_count": 79,
+            "valid_probe_missing_component_count": 1,
+            "selected_component": "speed_ratio",
+            "best_component": "streamwise_ratio",
+            "component_rmse_improvement": 0.30,
+            "component_choice_not_explained": False,
+            "normalization_best_scale": 1.35,
+            "normalization_scaled_improvement": 0.40,
+            "normalization_scale_not_explained": False,
+        }
+    )
+    component_failed_reasons = module.component_normalization_failure_reasons(
+        **component_problem
+    )
+    for expected in [
+        "component_sensitivity_audit_missing",
+        "component_normalization_gate_not_pass:fail",
+        "component_sensitivity_gate_not_pass:fail",
+        "normalization_scale_gate_not_pass:fail",
+        "streamwise_sign_gate_not_pass:fail",
+        "streamwise_sign_gate:negative_streamwise_fraction_1.0_suggests_wind_vector_or_component_sign_error",
+        "component_source_window_gate_not_pass:fail",
+        "component_source_window_gate:source_step_span_below_minimum",
+        "component_probe_audit_sha256_mismatch_or_missing",
+        "component_official_sha256_mismatch_or_missing",
+        "component_scope_case_mismatch",
+        "component_scope_wind_direction_mismatch",
+        "component_matched_valid_probe_id_count_mismatch:79_of_80",
+        "component_matched_official_id_count_mismatch:79_of_80",
+        "component_unmatched_valid_probe_id_count_not_zero:1",
+        "component_missing_official_probe_id_count_not_zero:1",
+        "component_official_probe_coverage_ratio_not_one:0.9875",
+        "valid_probe_compared_component_count_mismatch:79_of_80",
+        "valid_probe_missing_compared_component_count_not_zero:1",
+        "valid_probe_compared_components_not_single:speed_ratio,streamwise_ratio",
+        "selected_component_not_best_by_rmse:speed_ratio!=streamwise_ratio;improvement=0.3",
+        "normalization_best_fit_scale_deviation_above_limit:1.35;limit=0.1",
+        "normalization_scaled_improvement_ratio_above_limit:0.4>=0.1",
+    ]:
+        if expected not in component_failed_reasons:
+            raise AssertionError((expected, component_failed_reasons))
+
     ok = module.native_probe_component_traceability_status(
         passing_native_audit(),
         min_avg_step_span=20000,
