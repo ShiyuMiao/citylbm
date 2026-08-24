@@ -4044,6 +4044,7 @@ def main() -> int:
         ("component_normalization_gate", component_gate),
         ("component_sensitivity_gate", component_sensitivity_gate),
         ("normalization_scale_gate", normalization_scale_gate),
+        ("streamwise_sign_gate", streamwise_sign_gate),
         ("component_source_window_gate", component_source_window_gate),
         ("component_sensitivity_hash_traceability_gate", component_hash_traceability["gate"]),
     ]:
