@@ -3823,21 +3823,24 @@ def main() -> int:
     normalization_scale_gate = str(component_sensitivity_audit.get("normalization_scale_gate") or "").strip().lower()
     streamwise_sign_gate = str(component_sensitivity_audit.get("streamwise_sign_gate") or "").strip().lower()
     component_source_window_gate = str(component_sensitivity_audit.get("component_source_window_gate") or "").strip().lower()
-    component_sensitivity_gate_reasons_csv = ";".join(
-        str(reason)
+    component_sensitivity_gate_reasons = [
+        str(reason).strip()
         for reason in component_sensitivity_audit.get("component_sensitivity_gate_reasons", [])
         if str(reason).strip()
-    )
-    normalization_scale_gate_reasons_csv = ";".join(
-        str(reason)
+    ]
+    normalization_scale_gate_reasons = [
+        str(reason).strip()
         for reason in component_sensitivity_audit.get("normalization_scale_gate_reasons", [])
         if str(reason).strip()
-    )
-    streamwise_sign_gate_reasons_csv = ";".join(
-        str(reason)
+    ]
+    streamwise_sign_gate_reasons = [
+        str(reason).strip()
         for reason in component_sensitivity_audit.get("streamwise_sign_gate_reasons", [])
         if str(reason).strip()
-    )
+    ]
+    component_sensitivity_gate_reasons_csv = ";".join(component_sensitivity_gate_reasons)
+    normalization_scale_gate_reasons_csv = ";".join(normalization_scale_gate_reasons)
+    streamwise_sign_gate_reasons_csv = ";".join(streamwise_sign_gate_reasons)
     component_source_steps = parse_int_list(component_sensitivity_audit.get("component_source_time_steps"))
     component_source_hashes = parse_hash_list(component_sensitivity_audit.get("component_source_sha256"))
     component_source_step_hash_pairs = step_hash_pairs_from_steps_hashes(
@@ -3980,6 +3983,12 @@ def main() -> int:
     ]:
         if value != "pass":
             native_probe_component_equivalence_reasons.append(f"{key}_not_pass:{value or 'missing'}")
+    for reason in component_sensitivity_gate_reasons:
+        native_probe_component_equivalence_reasons.append(f"component_sensitivity_gate:{reason}")
+    for reason in normalization_scale_gate_reasons:
+        native_probe_component_equivalence_reasons.append(f"normalization_scale_gate:{reason}")
+    for reason in streamwise_sign_gate_reasons:
+        native_probe_component_equivalence_reasons.append(f"streamwise_sign_gate:{reason}")
     native_probe_component_equivalence_reasons.extend(component_hash_traceability["reasons"])
     for key, value in [
         ("component_source_time_steps", component_sensitivity_audit.get("component_source_time_steps")),

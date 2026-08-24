@@ -132,9 +132,13 @@ def main() -> int:
         write_json(
             component,
             {
-                "component_normalization_gate": "pass",
+                "component_normalization_gate": "fail",
                 "component_sensitivity_gate": "pass",
-                "normalization_scale_gate": "pass",
+                "normalization_scale_gate": "fail",
+                "normalization_scale_gate_reasons": [
+                    "best_fit_scale_1.515152_suggests_uref_or_unit_error",
+                    "scaled_rmse_improvement_0.420000_suggests_scale_like_error",
+                ],
                 "streamwise_sign_gate": "pass",
                 "component_source_window_gate": "fail",
                 "component_source_window_gate_reasons": ["source_window_mismatch"],
@@ -202,6 +206,10 @@ def main() -> int:
             "component_sensitivity_probe_audit_sha256_matches_current_not_true:False",
             "component_sensitivity_official_sha256_matches_current_not_true:False",
             "component_source_step_span_1000_below_minimum_2000",
+            "component_normalization_gate_not_pass:fail",
+            "normalization_scale_gate_not_pass:fail",
+            "normalization_scale_gate:best_fit_scale_1.515152_suggests_uref_or_unit_error",
+            "normalization_scale_gate:scaled_rmse_improvement_0.420000_suggests_scale_like_error",
             "component_source_window_gate_not_pass:fail",
             "component_sensitivity_hash_traceability_gate_not_pass:fail",
         ]:
