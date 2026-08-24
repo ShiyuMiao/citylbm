@@ -3380,6 +3380,10 @@ def main() -> int:
     )
     component_source_steps = parse_int_list(component_sensitivity_audit.get("component_source_time_steps"))
     component_source_hashes = parse_hash_list(component_sensitivity_audit.get("component_source_sha256"))
+    component_source_step_hash_pairs = step_hash_pairs_from_steps_hashes(
+        component_source_steps,
+        component_source_hashes,
+    )
     component_source_steps_match_runtime = bool(runtime_steps) and component_source_steps == runtime_steps
     component_source_hashes_match_runtime = (
         bool(runtime_hashes)
@@ -3387,11 +3391,9 @@ def main() -> int:
         and component_source_hashes == runtime_hashes
     )
     component_source_step_hash_pairs_match_runtime = (
-        bool(runtime_steps)
-        and bool(runtime_hashes)
-        and component_source_steps == runtime_steps
-        and component_source_hashes == runtime_hashes
-        and len(component_source_steps) == len(component_source_hashes)
+        bool(runtime_step_hash_pairs)
+        and bool(component_source_step_hash_pairs)
+        and component_source_step_hash_pairs == runtime_step_hash_pairs
     )
     component_source_steps_increasing = source_steps_strictly_increasing(component_source_steps)
     component_source_steps_uniform = source_steps_uniformly_spaced(component_source_steps)
@@ -3408,11 +3410,23 @@ def main() -> int:
         reasons.append("streamwise_sign_gate_not_pass")
     if component_source_window_gate != "pass":
         reasons.append("component_source_window_gate_not_pass")
-    if not component_source_steps_match_runtime:
+    if not runtime_steps:
+        reasons.append("component_runtime_source_time_steps_missing")
+    if not component_source_steps:
+        reasons.append("component_source_time_steps_missing")
+    elif runtime_steps and not component_source_steps_match_runtime:
         reasons.append("component_source_time_steps_mismatch_runtime")
-    if not component_source_hashes_match_runtime:
+    if not runtime_hashes:
+        reasons.append("component_runtime_source_vtk_hashes_missing")
+    if not component_source_hashes:
+        reasons.append("component_source_vtk_hashes_missing")
+    elif runtime_hashes and not component_source_hashes_match_runtime:
         reasons.append("component_source_vtk_hashes_mismatch_runtime")
-    if not component_source_step_hash_pairs_match_runtime:
+    if not runtime_step_hash_pairs:
+        reasons.append("component_runtime_source_step_hash_pairs_missing")
+    if not component_source_step_hash_pairs:
+        reasons.append("component_source_step_hash_pairs_missing")
+    elif runtime_step_hash_pairs and not component_source_step_hash_pairs_match_runtime:
         reasons.append("component_source_step_hash_pairs_mismatch_runtime")
 
     native_probe_component_equivalence_reasons: List[str] = []
@@ -3510,6 +3524,7 @@ def main() -> int:
     for key, value in [
         ("component_source_time_steps", component_sensitivity_audit.get("component_source_time_steps")),
         ("component_source_sha256", component_sensitivity_audit.get("component_source_sha256")),
+        ("component_source_step_hash_pairs", component_source_step_hash_pairs),
         ("probe_audit_sha256", probe_audit_sha),
         ("official_measurement_sha256", official_sha),
         ("component_sensitivity_probe_audit_sha256", component_hash_traceability["component_probe_audit_sha256"]),

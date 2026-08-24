@@ -58,7 +58,9 @@ def main() -> int:
             raise AssertionError(stale)
 
     missing = module.component_sensitivity_input_hash_traceability({}, probe_sha, official_sha)
-    if missing["gate"] != "pass":
+    if missing["gate"] != "fail":
+        raise AssertionError(missing)
+    if "component_sensitivity_audit_missing" not in missing["reasons"]:
         raise AssertionError(missing)
     if missing["probe_audit_sha256_matches_current"] is not None:
         raise AssertionError(missing)

@@ -74,6 +74,9 @@ def main() -> int:
         for expected in [
             "probe_audit_missing_or_empty",
             "component_sensitivity_audit_missing",
+            "component_source_time_steps_missing",
+            "component_source_sha256_missing",
+            "component_source_step_hash_pairs_missing",
             "probe_audit_sha256_missing",
             "official_measurement_sha256_missing",
             "component_sensitivity_probe_audit_sha256_missing",
