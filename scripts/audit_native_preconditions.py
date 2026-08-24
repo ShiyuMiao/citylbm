@@ -1781,13 +1781,12 @@ def build_boundary_equivalence_evidence_reasons(
 def append_setup_hash_reason(reasons: List[str], label: str, audit: Dict[str, Any], setup_sha: str) -> Dict[str, Any]:
     audit_sha = str(audit.get("setup_cpp_sha256") or "").strip().lower()
     match = bool(audit_sha) and bool(setup_sha) and audit_sha == setup_sha
-    if audit:
-        if not audit_sha:
-            reasons.append(f"{label}_setup_cpp_sha256_missing")
-        elif not setup_sha:
-            reasons.append(f"{label}_current_setup_cpp_missing")
-        elif not match:
-            reasons.append(f"{label}_setup_cpp_sha256_mismatch")
+    if not audit_sha:
+        reasons.append(f"{label}_setup_cpp_sha256_missing")
+    if not setup_sha:
+        reasons.append(f"{label}_current_setup_cpp_missing")
+    elif audit_sha and not match:
+        reasons.append(f"{label}_setup_cpp_sha256_mismatch")
     return {
         f"{label}_setup_cpp_sha256": audit_sha,
         f"{label}_setup_cpp_sha256_matches_current": match,
