@@ -260,6 +260,8 @@ TEMPLATE_FIELDS = [
     "inlet_source_has_digital_filter_state_evidence",
     "inlet_source_has_sem_evidence",
     "inlet_source_has_sem_eddy_population_evidence",
+    "inlet_source_has_sem_eddy_update_evidence",
+    "inlet_source_has_sem_eddy_velocity_coupling_evidence",
     "inlet_source_has_precursor_or_recycling_evidence",
     "inlet_source_has_precursor_recycling_field_evidence",
     "inlet_source_distribution_consistency_basis",
@@ -494,6 +496,8 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_has_three_component_velocity_write",
     "native_inlet_source_has_three_component_fluctuation_evidence",
     "native_inlet_source_has_k_driven_three_component_stg",
+    "native_inlet_source_has_sem_eddy_update_evidence",
+    "native_inlet_source_has_sem_eddy_velocity_coupling_evidence",
     "native_inlet_source_has_component_phase_decorrelation",
     "native_inlet_source_has_temporal_filter_state",
     "native_inlet_source_has_mean_preserving_inlet_correction",
@@ -2412,6 +2416,12 @@ def main() -> int:
             "inlet_source_has_sem_eddy_population_evidence": first_bool_text(
                 inlet_source_audit.get("has_sem_eddy_population_evidence")
             ),
+            "inlet_source_has_sem_eddy_update_evidence": first_bool_text(
+                inlet_source_audit.get("has_sem_eddy_update_evidence")
+            ),
+            "inlet_source_has_sem_eddy_velocity_coupling_evidence": first_bool_text(
+                inlet_source_audit.get("has_sem_eddy_velocity_coupling_evidence")
+            ),
             "inlet_source_has_precursor_or_recycling_evidence": first_bool_text(
                 inlet_source_audit.get("has_precursor_or_recycling_evidence")
             ),
@@ -2960,6 +2970,12 @@ def main() -> int:
             ),
             "native_inlet_source_has_k_driven_three_component_stg": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_k_driven_three_component_stg")
+            ),
+            "native_inlet_source_has_sem_eddy_update_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_sem_eddy_update_evidence")
+            ),
+            "native_inlet_source_has_sem_eddy_velocity_coupling_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_sem_eddy_velocity_coupling_evidence")
             ),
             "native_inlet_source_has_component_phase_decorrelation": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_component_phase_decorrelation")

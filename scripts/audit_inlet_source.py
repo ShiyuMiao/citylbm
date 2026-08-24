@@ -433,6 +433,20 @@ def main() -> int:
             "synthetic_eddy_lz_cells",
         ],
     )
+    has_sem_eddy_update_evidence = has_regex(
+        implementation_source,
+        r"\b(?:sem_eddy|semEddy)\s*\[[^\]]+\]\s*\.\s*(?:eddy_center|eddyCenter|eddy_radius|eddyRadius|eddy_strength|eddyStrength|eddy_lifetime|eddyLifetime)\s*=",
+    )
+    has_sem_eddy_velocity_coupling_evidence = (
+        has_regex(
+            implementation_source,
+            r"\b(?:fluct|u_in|ux|uy|uz)[A-Za-z0-9_]*\b[^;\n=]*=[^;\n]*(?:sem_eddy|semEddy)\s*\[[^\]]+\]\s*\.",
+        )
+        or has_regex(
+            implementation_source,
+            r"\b(?:fluct|u_in|ux|uy|uz)[A-Za-z0-9_]*\b\s*(?:\+=|-=|\*=|/=)[^;\n]*(?:sem_eddy|semEddy)\s*\[[^\]]+\]\s*\.",
+        )
+    )
     has_precursor = has_regex(
         implementation_source,
         r"\b\w*(precursor|recycling_rescaling|recyclingRescaling|recycle_rescale|recycleRescale)\w*\s*\(",
@@ -469,6 +483,8 @@ def main() -> int:
     has_distribution_consistent_sem = (
         has_sem
         and has_sem_eddy_population
+        and has_sem_eddy_update_evidence
+        and has_sem_eddy_velocity_coupling_evidence
         and has_inlet_distribution_reconstruction
     )
     has_distribution_consistent_precursor = (
@@ -922,6 +938,10 @@ def main() -> int:
         reasons.append("native_synthetic_eddy_missing_refresh_or_digital_filter_update")
     if has_sem and not has_sem_eddy_population:
         reasons.append("sem_source_missing_eddy_population")
+    if has_sem and not has_sem_eddy_update_evidence:
+        reasons.append("sem_source_missing_eddy_update_evidence")
+    if has_sem and not has_sem_eddy_velocity_coupling_evidence:
+        reasons.append("sem_source_missing_eddy_velocity_coupling_evidence")
     if has_precursor and not has_precursor_recycling_field:
         reasons.append("precursor_recycling_source_missing_recycled_field_evidence")
     if has_precursor and has_precursor_recycling_field and not has_inlet_distribution_reconstruction:
@@ -1079,6 +1099,8 @@ def main() -> int:
         "has_sem_evidence": has_sem,
         "has_sem_token": has_sem_token,
         "has_sem_eddy_population_evidence": has_sem_eddy_population,
+        "has_sem_eddy_update_evidence": has_sem_eddy_update_evidence,
+        "has_sem_eddy_velocity_coupling_evidence": has_sem_eddy_velocity_coupling_evidence,
         "has_precursor_or_recycling_evidence": has_precursor,
         "has_precursor_or_recycling_token": has_precursor_token,
         "has_precursor_recycling_field_evidence": has_precursor_recycling_field,

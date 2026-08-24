@@ -1051,13 +1051,19 @@ const float synthetic_eddy_length_scale = 4.0f;
 const float profile_origin_z_m = 0.0f;
 struct SemEddy { float eddy_center; float eddy_radius; float eddy_strength; float eddy_lifetime; };
 SemEddy sem_eddy[64];
-void sem_distribution(uint t_step) {}
+void sem_distribution(uint t_step) {
+    sem_eddy[0].eddy_center = 0.5f + 0.01f * (float)t_step;
+    sem_eddy[0].eddy_radius = synthetic_eddy_length_scale;
+    sem_eddy[0].eddy_strength = 0.25f * profile_r11_lbm[0];
+    sem_eddy[0].eddy_lifetime = 10.0f;
+}
 float calculate_f_eq(uint q, float rho, float ux, float uy, float uz) { return rho + ux + uy + uz + q; }
 void reconstructSyntheticEddyInletDistributions(uint n) {
     if(flags[n]==TYPE_E) {
         const uint z_cell = n;
         const float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f;
-        const float ux = profile_u_lbm[0] + z_m * 0.0f;
+        const float fluct_x = sem_eddy[0].eddy_strength;
+        const float ux = profile_u_lbm[0] + z_m * 0.0f + fluct_x;
         lbm.u.x[n] = ux;
         for(uint q=0u; q<19u; q++) {
             lbm.f[n*19u+q] = calculate_f_eq(q, 1.0f, ux, 0.0f, 0.0f);
@@ -1081,6 +1087,10 @@ void applySyntheticTurbulentInlet(uint t_step) {
             raise AssertionError(sem_report["inlet_source_turbulent_inflow_fidelity_class"])
         if sem_report["distribution_consistency_basis"] != "sem_eddy_population_distribution_reconstruction":
             raise AssertionError(sem_report["distribution_consistency_basis"])
+        if sem_report["has_sem_eddy_update_evidence"] is not True:
+            raise AssertionError(sem_report)
+        if sem_report["has_sem_eddy_velocity_coupling_evidence"] is not True:
+            raise AssertionError(sem_report)
         if sem_report["reynolds_stress_treatment"] != "measured_or_precursor_full_tensor":
             raise AssertionError(sem_report["reynolds_stress_treatment"])
         if not sem_report["has_inlet_length_scale_evidence"]:
