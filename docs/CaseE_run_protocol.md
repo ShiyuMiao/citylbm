@@ -404,6 +404,8 @@ python scripts\validation_gate.py <run_dir> --case CaseE --software citylbm --me
   before install/build/run and blocks those actions by default when protocol, metadata, planned final-window averaging
   or STG refresh checks are diagnostic-only. `--allow-diagnostic-execution` is a debugging override only and cannot
   support SCI-grade Case E claims.
+  The post-run chain also refuses to treat a native manifest as a baseline unless it records a requested, passing
+  FluidX3D run and a passing actual VTK-output gate. Preflight/dry-run manifests are allowed as setup evidence only.
   By default, the gate fails CityLBM's current velocity-field-only STG-lite inlet because it does not reconstruct
   FluidX3D distribution functions. The optional `--allow-velocity-only-inlet` flag is reserved for explicitly labelled
   diagnostic sensitivity runs after an empty-tunnel `U/k` preservation check; do not use it for SCI-grade Case E claims.

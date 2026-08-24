@@ -232,6 +232,44 @@ def native_baseline_gate_from_manifest(manifest: Dict[str, Any], manifest_path: 
     if not isinstance(source_validation, dict) or not json_bool(source_validation.get("IsValid")):
         return "native_fluidx3d_source_validation_failed"
 
+    if "PreExecutionGate" not in manifest:
+        return "native_pre_execution_gate_missing"
+    pre_execution_gate = manifest.get("PreExecutionGate")
+    if not isinstance(pre_execution_gate, dict):
+        return "native_pre_execution_gate_missing"
+    pre_execution_status = str(pre_execution_gate.get("Gate") or "").strip().lower()
+    if pre_execution_status != "pass":
+        return f"native_pre_execution_gate_not_pass:{pre_execution_status or 'missing'}"
+
+    if "RunnerGate" not in manifest:
+        return "native_runner_gate_missing"
+    runner_gate = manifest.get("RunnerGate")
+    if not isinstance(runner_gate, dict):
+        return "native_runner_gate_missing"
+    runner_status = str(runner_gate.get("Gate") or "").strip().lower()
+    if runner_status != "pass":
+        return f"native_runner_gate_not_pass:{runner_status or 'missing'}"
+
+    if "Run" not in manifest:
+        return "native_run_record_missing"
+    run_record = manifest.get("Run")
+    if not isinstance(run_record, dict):
+        return "native_run_record_missing"
+    if not json_bool(run_record.get("Requested")):
+        return "native_run_not_requested"
+    run_status = str(run_record.get("Gate") or "").strip().lower()
+    if run_status != "pass":
+        return f"native_run_gate_not_pass:{run_status or 'missing'}"
+
+    if "ActualVtkOutputGate" not in manifest:
+        return "native_actual_vtk_output_gate_missing"
+    actual_vtk_gate = manifest.get("ActualVtkOutputGate")
+    if not isinstance(actual_vtk_gate, dict):
+        return "native_actual_vtk_output_gate_missing"
+    actual_vtk_status = str(actual_vtk_gate.get("Gate") or "").strip().lower()
+    if actual_vtk_status != "pass":
+        return f"native_actual_vtk_output_gate_not_pass:{actual_vtk_status or 'missing'}"
+
     required_roles = {
         "Native FluidX3D original setup",
         "Native FluidX3D original defines",

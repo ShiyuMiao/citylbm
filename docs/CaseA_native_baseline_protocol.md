@@ -68,6 +68,9 @@ be migrated into CityLBM or reported as native FluidX3D accuracy.
 preconditions, planned VTK averaging span and synthetic-inlet refresh count are checked before native install/build/run.
 If the pre-execution gate is diagnostic-only, install/build/run are blocked by default. `--allow-diagnostic-execution`
 may be used only to debug the native workflow and must be recorded as non-paper-grade evidence.
+The post-run validation chain separately requires `Run.Requested=true`, `Run.Gate=pass` and `ActualVtkOutputGate=pass`
+before `NativeBaselineGateFromManifest` can pass. A preflight-only manifest is therefore configuration evidence, not a
+native FluidX3D accuracy baseline.
 
 ## Inputs
 

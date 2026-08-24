@@ -754,6 +754,9 @@ v0.3.0 is a validation-readiness branch. It fixes software issues that can creat
   inlet refresh gates before any native install/build/run action. If that `PreExecutionGate` is diagnostic-only, the
   runner blocks execution by default; `--allow-diagnostic-execution` is recorded as a debugging override and is not
   paper-grade evidence.
+- `scripts/run_native_validation_chain.py` no longer promotes a native manifest to `native_baseline_gate=pass` unless
+  the manifest also proves `PreExecutionGate=pass`, `Run.Requested=true`, `Run.Gate=pass` and
+  `ActualVtkOutputGate=pass`. Dry-run/preflight manifests therefore cannot stand in for a real native FluidX3D baseline.
 - 2026-08-24 native Case A empty-tunnel diagnostic `native_casea_strict_20260824_reconstruct_inlet_stress_novtk`
   tested the experimental inlet-stress/DDF reconstruction route without writing large VTK files. The strict empty-tunnel
   monitor rejected the run: `U_MAE/Uref=683.013%`, `k_MAE/target_mean=100.000%`, `k_bias/target_mean=-100.000%`.
