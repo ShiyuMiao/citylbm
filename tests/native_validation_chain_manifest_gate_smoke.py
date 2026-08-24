@@ -55,12 +55,32 @@ def create_source(root: Path) -> list[dict]:
 
 
 def complete_manifest(required_files: list[dict]) -> dict:
+    setup_record = next(record for record in required_files if record["Role"] == "Native FluidX3D original setup")
+    defines_record = next(record for record in required_files if record["Role"] == "Native FluidX3D original defines")
     return {
         "BaselineId": "native-fluidx3d-casea-smoke",
         "NativeFluidX3DPathExplicitlyProvided": True,
         "NativeFluidX3DSourceValidation": {"IsValid": True},
         "PreExecutionGate": {"Gate": "pass"},
         "RunnerGate": {"Gate": "pass"},
+        "CaseToRunSourceParityGate": {
+            "Gate": "pass",
+            "Reasons": [],
+            "Pairs": [
+                {
+                    "Role": "setup",
+                    "CaseSha256": setup_record["Sha256"],
+                    "SourceSha256": setup_record["Sha256"],
+                    "Match": True,
+                },
+                {
+                    "Role": "defines",
+                    "CaseSha256": defines_record["Sha256"],
+                    "SourceSha256": defines_record["Sha256"],
+                    "Match": True,
+                },
+            ],
+        },
         "Run": {"Requested": True, "Gate": "pass"},
         "ActualVtkOutputGate": {"Gate": "pass", "ActualFrameCount": 40},
         "RequiredSourceFiles": required_files,
@@ -108,6 +128,33 @@ def main() -> int:
             module,
             stale_or_short_vtk,
             "native_actual_vtk_output_gate_not_pass:diagnostic_only",
+            manifest_path,
+        )
+
+        missing_parity = copy.deepcopy(base)
+        missing_parity.pop("CaseToRunSourceParityGate")
+        assert_gate(
+            module,
+            missing_parity,
+            "native_case_to_run_source_parity_missing",
+            manifest_path,
+        )
+
+        diagnostic_parity = copy.deepcopy(base)
+        diagnostic_parity["CaseToRunSourceParityGate"]["Gate"] = "diagnostic_only"
+        assert_gate(
+            module,
+            diagnostic_parity,
+            "native_case_to_run_source_parity_not_pass:diagnostic_only",
+            manifest_path,
+        )
+
+        mismatched_parity = copy.deepcopy(base)
+        mismatched_parity["CaseToRunSourceParityGate"]["Pairs"][0]["Match"] = False
+        assert_gate(
+            module,
+            mismatched_parity,
+            "native_case_to_run_source_parity_pair_not_matched:setup",
             manifest_path,
         )
 

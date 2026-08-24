@@ -255,6 +255,34 @@ def native_baseline_gate_from_manifest(manifest: Dict[str, Any], manifest_path: 
     if runner_status != "pass":
         return f"native_runner_gate_not_pass:{runner_status or 'missing'}"
 
+    parity_gate = manifest.get("CaseToRunSourceParityGate")
+    if not isinstance(parity_gate, dict):
+        return "native_case_to_run_source_parity_missing"
+    parity_status = str(parity_gate.get("Gate") or "").strip().lower()
+    if parity_status != "pass":
+        return f"native_case_to_run_source_parity_not_pass:{parity_status or 'missing'}"
+    parity_pairs = parity_gate.get("Pairs")
+    if not isinstance(parity_pairs, list):
+        return "native_case_to_run_source_parity_pairs_missing"
+    by_role: Dict[str, Dict[str, Any]] = {}
+    for pair in parity_pairs:
+        if isinstance(pair, dict):
+            role = str(pair.get("Role") or "").strip().lower()
+            if role:
+                by_role[role] = pair
+    for role in ["setup", "defines"]:
+        pair = by_role.get(role)
+        if not pair:
+            return f"native_case_to_run_source_parity_pair_missing:{role}"
+        case_sha = str(pair.get("CaseSha256") or "").strip().lower()
+        source_sha = str(pair.get("SourceSha256") or "").strip().lower()
+        if len(case_sha) != 64:
+            return f"native_case_to_run_source_parity_case_sha_missing:{role}"
+        if len(source_sha) != 64:
+            return f"native_case_to_run_source_parity_source_sha_missing:{role}"
+        if not json_bool(pair.get("Match")):
+            return f"native_case_to_run_source_parity_pair_not_matched:{role}"
+
     if "Run" not in manifest:
         return "native_run_record_missing"
     run_record = manifest.get("Run")
