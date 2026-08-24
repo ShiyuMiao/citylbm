@@ -109,6 +109,12 @@ def main() -> int:
             "synthetic_expected_final_window_refresh_count",
             "inlet_source_has_k_driven_three_component_stg",
             "inlet_source_has_temporal_filter_state",
+            "source_time_steps",
+            "source_step_span",
+            "selected_last_window",
+            "final_window_stationarity_gate",
+            "native_preconditions_runtime_final_window_frame_count_gate",
+            "native_preconditions_runtime_source_vtk_sha256_count",
             "boundary_runtime_side_top_normal_leakage_gate",
             "boundary_source_has_non_reflecting_outlet_method",
             "boundary_source_has_periodic_pair_mapping_evidence",
@@ -200,6 +206,28 @@ def main() -> int:
             not in bad_boundary_report["missing_critical_fields"]
         ):
             raise AssertionError(bad_boundary_report)
+
+        bad_time = tmp_path / "native_missing_time_window.csv"
+        bad_time_out = tmp_path / "bad_time_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_time,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="source_time_steps",
+        )
+        failed_time = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_time,
+            bad_time_out,
+        )
+        if failed_time.returncode == 0:
+            raise AssertionError((failed_time.returncode, failed_time.stdout, failed_time.stderr))
+        bad_time_report = json.loads(bad_time_out.read_text(encoding="utf-8"))
+        if bad_time_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_time_report)
+        if "source_time_steps" not in bad_time_report["missing_critical_fields"]:
+            raise AssertionError(bad_time_report)
 
     print("validation_gate_native_citylbm_parity_critical_smoke passed")
     return 0
