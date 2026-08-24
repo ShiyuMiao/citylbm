@@ -82,6 +82,20 @@ def create_case(root: Path) -> None:
     write(root / "case_metadata.json", json.dumps(metadata, indent=2))
 
 
+def enable_rejected_stress_ddf(metadata_path: Path) -> None:
+    metadata = load_json(metadata_path)
+    metadata["ReconstructInletStressDdf"] = {"Enabled": True}
+    metadata["SyntheticEddy"] = {"DeviceSemStressDdf": True}
+    write(metadata_path, json.dumps(metadata, indent=2))
+
+
+def disable_rejected_stress_ddf(metadata_path: Path) -> None:
+    metadata = load_json(metadata_path)
+    metadata.pop("ReconstructInletStressDdf", None)
+    metadata.pop("SyntheticEddy", None)
+    write(metadata_path, json.dumps(metadata, indent=2))
+
+
 def create_velocity_only_inlet_audit(path: Path) -> None:
     audit = {
         "schema": "citylbm.inlet_source_audit.v1",
@@ -185,6 +199,30 @@ def main() -> int:
             raise AssertionError(metadata)
         if metadata["WindDirectionUnitVector"] != [1.0, 0.0, 0.0]:
             raise AssertionError(metadata)
+
+        enable_rejected_stress_ddf(case / "case_metadata.json")
+        run_cmd(
+            [
+                sys.executable,
+                str(WRITER),
+                "--case-dir",
+                str(case),
+                "--case",
+                "CaseA",
+                "--wind-direction-label",
+                "N",
+                "--wind-vector",
+                "1,0,0",
+            ]
+        )
+        stress_audit = load_json(case / "validation_protocol_audit.json")
+        stress_items = {item["Key"]: item for item in stress_audit["Items"]}
+        for key in ["inlet_reynolds_stress_tensor", "inlet_distribution_consistency"]:
+            if stress_items[key]["Status"] != "fail":
+                raise AssertionError((key, stress_items[key], stress_audit))
+            if "RejectedStressDdfDiagnostic=true" not in stress_items[key]["Evidence"]:
+                raise AssertionError((key, stress_items[key]))
+        disable_rejected_stress_ddf(case / "case_metadata.json")
 
         velocity_only_inlet = temp / "velocity_only_inlet_audit.json"
         create_velocity_only_inlet_audit(velocity_only_inlet)

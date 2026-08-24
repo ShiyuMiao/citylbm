@@ -34,6 +34,16 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="citylbm_missing_inlet_evidence_") as tmp:
         root = Path(tmp)
         report = root / "native_preconditions_audit.json"
+        (root / "case_metadata.json").write_text(
+            json.dumps(
+                {
+                    "ReconstructInletStressDdf": {"Enabled": True},
+                    "SyntheticEddy": {"DeviceSemStressDdf": True},
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
 
         audit = run_command(
             [
@@ -88,6 +98,8 @@ def main() -> int:
             "inlet_correlation_runtime_source_step_hash_pairs_missing",
             "inlet_correlation_source_step_hash_pairs_missing",
             "native_inlet_equivalence_gate_not_pass",
+            "rejected_stress_ddf_diagnostic_route:ReconstructInletStressDdf",
+            "rejected_stress_ddf_diagnostic_route:SyntheticEddy.DeviceSemStressDdf",
         ]:
             require(expected in gate_reasons, {"missing": expected, "reasons": gate_reasons})
 

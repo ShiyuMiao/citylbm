@@ -245,8 +245,10 @@ def protocol_items(
     roughness_admissible = as_bool(get_any(roughness, ["PaperSourceAdmissible", "paper_source_admissible"]))
     precursor_admissible = as_bool(get_any(precursor, ["PaperAdmissible", "paper_admissible"]))
     reconstruct_stress = as_bool(get_any(get_nested(metadata, "ReconstructInletStressDdf"), ["Enabled"]))
+    device_sem_stress = as_bool(get_any(get_nested(metadata, "SyntheticEddy"), ["DeviceSemStressDdf"]))
     preserve_boundary_fneq = as_bool(get_any(get_nested(metadata, "PreserveBoundaryFneq"), ["Enabled"]))
     reconstruct_boundary_ddf = as_bool(get_any(get_nested(metadata, "ReconstructBoundaryDdf"), ["Enabled"]))
+    rejected_stress_ddf = reconstruct_stress is True or device_sem_stress is True
     inlet_summary = summarize_inlet_audit(inlet_audit) if inlet_audit else {}
     boundary_summary = summarize_boundary_audit(boundary_audit) if boundary_audit else {}
 
@@ -290,7 +292,8 @@ def protocol_items(
             f"HasFullTensorSourceEvidence={full_tensor_source}; "
             f"HasIsotropicKTensorSourceEvidence={isotropic_tensor_source}; "
             f"HasDocumentedIsotropicKAssumption={documented_isotropic}; "
-            f"ReynoldsStressTreatment={inlet_audit.get('reynolds_stress_treatment') or 'missing'}"
+            f"ReynoldsStressTreatment={inlet_audit.get('reynolds_stress_treatment') or 'missing'}; "
+            f"ReconstructInletStressDdf={reconstruct_stress}; SyntheticEddy.DeviceSemStressDdf={device_sem_stress}"
         )
         distribution_status = (
             "pass"
@@ -309,11 +312,28 @@ def protocol_items(
         length_scale_status = "risk" if turbulence_method else "fail"
         length_scale_evidence = f"TurbulenceMethod={turbulence_method or 'missing'}; length-scale evidence is metadata-only at preflight."
         stress_status = "risk" if turbulence_method else "fail"
-        stress_evidence = f"StressDdfReconstruction={reconstruct_stress}; turbulence source={turbulence_method or 'missing'}"
-        distribution_status = "risk" if reconstruct_stress or preserve_boundary_fneq or reconstruct_boundary_ddf else "fail"
+        stress_evidence = (
+            f"ReconstructInletStressDdf={reconstruct_stress}; "
+            f"SyntheticEddy.DeviceSemStressDdf={device_sem_stress}; "
+            f"turbulence source={turbulence_method or 'missing'}"
+        )
+        distribution_status = "risk" if preserve_boundary_fneq or reconstruct_boundary_ddf else "fail"
         distribution_evidence = (
-            f"ReconstructInletStressDdf={reconstruct_stress}; PreserveBoundaryFneq={preserve_boundary_fneq}; "
+            f"ReconstructInletStressDdf={reconstruct_stress}; SyntheticEddy.DeviceSemStressDdf={device_sem_stress}; "
+            f"PreserveBoundaryFneq={preserve_boundary_fneq}; "
             f"ReconstructBoundaryDdf={reconstruct_boundary_ddf}"
+        )
+
+    if rejected_stress_ddf:
+        stress_status = "fail"
+        distribution_status = "fail"
+        rejected_evidence = (
+            "RejectedStressDdfDiagnostic=true; 2026-08-24 native Case A diagnostic showed velocity-field collapse; "
+            f"ReconstructInletStressDdf={reconstruct_stress}; SyntheticEddy.DeviceSemStressDdf={device_sem_stress}"
+        )
+        stress_evidence = f"{stress_evidence}; {rejected_evidence}" if stress_evidence else rejected_evidence
+        distribution_evidence = (
+            f"{distribution_evidence}; {rejected_evidence}" if distribution_evidence else rejected_evidence
         )
 
     if boundary_audit:

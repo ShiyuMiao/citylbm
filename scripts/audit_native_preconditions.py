@@ -2170,6 +2170,19 @@ def main() -> int:
     if protocol_content_audit["gate"] != "pass":
         reasons.extend(str(reason) for reason in protocol_content_audit["reasons"])
 
+    reconstruct_inlet_stress_ddf = None
+    reconstruct_inlet_stress = metadata.get("ReconstructInletStressDdf")
+    if isinstance(reconstruct_inlet_stress, dict):
+        reconstruct_inlet_stress_ddf = as_bool(reconstruct_inlet_stress.get("Enabled"))
+    device_sem_stress_ddf = None
+    synthetic_eddy = metadata.get("SyntheticEddy")
+    if isinstance(synthetic_eddy, dict):
+        device_sem_stress_ddf = as_bool(synthetic_eddy.get("DeviceSemStressDdf"))
+    if reconstruct_inlet_stress_ddf is True:
+        reasons.append("rejected_stress_ddf_diagnostic_route:ReconstructInletStressDdf")
+    if device_sem_stress_ddf is True:
+        reasons.append("rejected_stress_ddf_diagnostic_route:SyntheticEddy.DeviceSemStressDdf")
+
     shared = manifest.get("SharedRunConditions", {})
     if not isinstance(shared, dict):
         shared = {}
@@ -3624,6 +3637,8 @@ def main() -> int:
         "baseline_id": str(manifest.get("BaselineId") or "").strip(),
         "case": args.case,
         "software": args.software,
+        "reconstruct_inlet_stress_ddf": reconstruct_inlet_stress_ddf,
+        "device_sem_stress_ddf": device_sem_stress_ddf,
         "expected_wind_vector": args.wind_vector,
         "actual_wind_vector": actual_vector,
         "wind_vector_delta": wind_delta,

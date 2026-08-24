@@ -556,6 +556,12 @@ def case_metadata_precondition_status(metadata: Dict[str, Any]) -> Dict[str, Any
     if not metadata:
         reasons.append("case_metadata_missing")
 
+    def nested_bool(parent_key: str, child_key: str) -> Optional[bool]:
+        parent = metadata.get(parent_key)
+        if not isinstance(parent, dict):
+            return None
+        return as_bool(parent.get(child_key))
+
     inlet_gate = str(
         get_any(metadata, ["PaperGradeTurbulentInletPrerequisiteGate"])
         or ""
@@ -595,6 +601,13 @@ def case_metadata_precondition_status(metadata: Dict[str, Any]) -> Dict[str, Any
             f"{distribution_treatment}"
         )
 
+    reconstruct_inlet_stress_ddf = nested_bool("ReconstructInletStressDdf", "Enabled")
+    device_sem_stress_ddf = nested_bool("SyntheticEddy", "DeviceSemStressDdf")
+    if reconstruct_inlet_stress_ddf is True:
+        reasons.append("rejected_stress_ddf_diagnostic_route:ReconstructInletStressDdf")
+    if device_sem_stress_ddf is True:
+        reasons.append("rejected_stress_ddf_diagnostic_route:SyntheticEddy.DeviceSemStressDdf")
+
     for key in [
         "BoundaryNonReflectingOutletImplemented",
         "BoundarySideTopWindTunnelEquivalentImplemented",
@@ -612,6 +625,8 @@ def case_metadata_precondition_status(metadata: Dict[str, Any]) -> Dict[str, Any
         "boundary_gate": boundary_gate,
         "boundary_status": boundary_status,
         "distribution_treatment": distribution_treatment,
+        "reconstruct_inlet_stress_ddf": reconstruct_inlet_stress_ddf,
+        "device_sem_stress_ddf": device_sem_stress_ddf,
         "reasons": reasons,
         "reasons_csv": ";".join(reasons),
     }
