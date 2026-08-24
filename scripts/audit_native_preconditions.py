@@ -2327,6 +2327,18 @@ def main() -> int:
         for reason in native_runner_reasons:
             reasons.append(f"native_runner_reason:{reason}")
 
+    native_accuracy_gate_record = manifest.get("NativeAccuracyEvidenceGate", {})
+    if not isinstance(native_accuracy_gate_record, dict):
+        native_accuracy_gate_record = {}
+    native_accuracy_gate = str(native_accuracy_gate_record.get("Gate") or "").strip().lower()
+    native_accuracy_reasons = split_scalar_list(native_accuracy_gate_record.get("Reasons"))
+    if not native_accuracy_reasons:
+        native_accuracy_reasons = split_scalar_list(native_accuracy_gate_record.get("ReasonsCsv"))
+    if manifest and native_accuracy_gate != "pass":
+        reasons.append(f"native_accuracy_evidence_gate_not_pass:{native_accuracy_gate or 'missing'}")
+        for reason in native_accuracy_reasons:
+            reasons.append(f"native_accuracy_evidence_reason:{reason}")
+
     actual_vtk_output = manifest.get("ActualVtkOutputGate", {})
     if not isinstance(actual_vtk_output, dict):
         actual_vtk_output = {}
@@ -3809,6 +3821,9 @@ def main() -> int:
         "native_runner_gate": native_runner_gate,
         "native_runner_gate_reasons": native_runner_reasons,
         "native_runner_gate_reasons_csv": ";".join(native_runner_reasons),
+        "native_accuracy_evidence_gate": native_accuracy_gate,
+        "native_accuracy_evidence_gate_reasons": native_accuracy_reasons,
+        "native_accuracy_evidence_gate_reasons_csv": ";".join(native_accuracy_reasons),
         "actual_vtk_output_gate": actual_vtk_output_gate,
         "actual_vtk_output_gate_reasons": actual_vtk_output_reasons,
         "actual_vtk_output_gate_reasons_csv": ";".join(actual_vtk_output_reasons),

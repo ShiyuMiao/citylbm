@@ -22,7 +22,38 @@ Evidence type: `newly_run_preflight`, not a CFD result. The strict wrapper gener
 empty-tunnel and building cases from the official AF/RS inputs, then stopped before launching FluidX3D because
 paper-grade protocol gates remain open.
 
-Command:
+Current repository command template:
+
+```powershell
+.\run_native_casea_strict_gate.ps1 `
+  -CaseDir "F:\path\to\generated\AIJ_CaseA_case" `
+  -FluidX3DSource "F:\path\to\native\FluidX3D" `
+  -TimeSteps 60000 `
+  -VtkSaveInterval 1000 `
+  -VtkSaveStartStep 10000 `
+  -ExpectedVtkFrameCount 51
+```
+
+This default command writes a strict manifest/preflight only. It does not modify the native FluidX3D source tree and
+does not create a CFD accuracy result. A real native baseline must be launched explicitly:
+
+```powershell
+.\run_native_casea_strict_gate.ps1 `
+  -CaseDir "F:\path\to\generated\AIJ_CaseA_case" `
+  -FluidX3DSource "F:\path\to\native\FluidX3D" `
+  -TimeSteps 60000 `
+  -VtkSaveInterval 1000 `
+  -VtkSaveStartStep 10000 `
+  -ExpectedVtkFrameCount 51 `
+  -Install -Build -Run `
+  -VtkOutputDir "F:\path\to\native\FluidX3D\output"
+```
+
+The generated manifest now separates `RunnerGate` from `NativeAccuracyEvidenceGate`. `RunnerGate=pass` can mean that
+preflight passed; only `NativeAccuracyEvidenceGate=pass` means the invocation requested a native run and found a
+hash-traceable final VTK window suitable for downstream accuracy auditing.
+
+2026-08-14 legacy portable command:
 
 ```powershell
 .\run_native_casea_strict_gate.ps1 -Dx 0.006 -Tau 0.5003333333333333 -EmptyTimeSteps 30000 -EmptySpinupSteps 5000 -BuildingTimeSteps 60000 -BuildingSpinupSteps 10000 -SampleInterval 100 -InletDiagnosticInterval 100 -VtkSaveInterval 1000 -VtkSaveStartStep 10000 -TurbulenceMethod synthetic-eddy -SyntheticEddyCount 384 -BoundaryMode side_periodic_top_profile_e -RunBuildingIfEmptyPass -PreflightOnly -CaseTagPrefix native_casea_strict_20260814_preflight

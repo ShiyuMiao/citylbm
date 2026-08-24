@@ -81,6 +81,14 @@ def main() -> int:
     )
     require(data.get("native_preconditions_time_average_evidence_gate") == "fail", data)
     require(data.get("time_averaging_fidelity_class") == "short_diagnostic_average_window", data)
+    require(data.get("native_accuracy_evidence_gate") in {"", "fail"}, data)
+    require(
+        any(
+            str(reason).startswith("native_accuracy_evidence_gate_not_pass:")
+            for reason in reasons
+        ),
+        data,
+    )
     require(data.get("planned_synthetic_inlet_sampling_source") == "case_metadata_fallback", data)
     require(data.get("planned_synthetic_inlet_sampling_gate") == "diagnostic_only", data)
     require(data.get("planned_synthetic_inlet_sampling_active") is True, data)

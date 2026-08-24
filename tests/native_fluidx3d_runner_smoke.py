@@ -157,6 +157,16 @@ def main() -> int:
             raise AssertionError(dry["PlannedSyntheticInletSamplingGate"])
         if dry["ActualVtkOutputGate"]["Gate"] != "not_applicable":
             raise AssertionError(dry["ActualVtkOutputGate"])
+        dry_accuracy_gate = dry["NativeAccuracyEvidenceGate"]
+        if dry_accuracy_gate["Gate"] != "fail":
+            raise AssertionError(dry_accuracy_gate)
+        for reason in (
+            "native_run_not_requested",
+            "actual_vtk_output_not_required_by_this_invocation",
+            "actual_vtk_output_gate_not_pass:not_applicable",
+        ):
+            if reason not in dry_accuracy_gate["Reasons"]:
+                raise AssertionError(dry_accuracy_gate)
         if dry["Install"]["Performed"] is not False:
             raise AssertionError(dry["Install"])
         if (source_root / "src" / "setup.cpp").read_text(encoding="utf-8") != "// original native setup\n":
@@ -661,6 +671,13 @@ def main() -> int:
         partial_output_result = load_json(partial_output_manifest)
         if partial_output_result["ActualVtkOutputGate"]["Gate"] != "diagnostic_only":
             raise AssertionError(partial_output_result["ActualVtkOutputGate"])
+        partial_accuracy_gate = partial_output_result["NativeAccuracyEvidenceGate"]
+        if partial_accuracy_gate["Gate"] != "fail":
+            raise AssertionError(partial_accuracy_gate)
+        if "native_run_not_requested" not in partial_accuracy_gate["Reasons"]:
+            raise AssertionError(partial_accuracy_gate)
+        if "actual_vtk_output_gate_not_pass:diagnostic_only" not in partial_accuracy_gate["Reasons"]:
+            raise AssertionError(partial_accuracy_gate)
         if "actual_vtk_frame_count_1_below_minimum_40" not in partial_output_result["RunnerGate"]["Reasons"]:
             raise AssertionError(partial_output_result["RunnerGate"])
         if "actual_vtk_frame_count_1_does_not_match_expected_40" not in partial_output_result["RunnerGate"]["Reasons"]:

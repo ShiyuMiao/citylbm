@@ -936,6 +936,57 @@ def runner_gate(reasons: Iterable[str]) -> Dict[str, Any]:
     }
 
 
+def split_reasons(value: Any) -> List[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    return [part.strip() for part in str(value).split(";") if part.strip()]
+
+
+def native_accuracy_evidence_gate(
+    run_record: Dict[str, Any],
+    actual_vtk_output: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Gate native accuracy interpretation separately from dry-run preflight."""
+    reasons: List[str] = []
+
+    run_requested = bool(run_record.get("Requested"))
+    run_gate = str(run_record.get("Gate") or "").strip().lower()
+    actual_vtk_gate = str(actual_vtk_output.get("Gate") or "").strip().lower()
+    actual_output_required = actual_vtk_output.get("ActualOutputRequired") is True
+    actual_frame_count = as_int(actual_vtk_output.get("ActualFrameCount"))
+    selected_hash_count = as_int(actual_vtk_output.get("SelectedFinalWindowVtkSha256Count"))
+
+    if not run_requested:
+        reasons.append("native_run_not_requested")
+    elif run_gate != "pass":
+        reasons.append(f"native_run_gate_not_pass:{run_gate or 'missing'}")
+
+    if not actual_output_required:
+        reasons.append("actual_vtk_output_not_required_by_this_invocation")
+    if actual_vtk_gate != "pass":
+        reasons.append(f"actual_vtk_output_gate_not_pass:{actual_vtk_gate or 'missing'}")
+    for reason in split_reasons(actual_vtk_output.get("Reasons")):
+        reasons.append(f"actual_vtk_output_reason:{reason}")
+    if actual_frame_count is None or actual_frame_count <= 0:
+        reasons.append("actual_vtk_frame_count_missing_or_zero")
+    if selected_hash_count is None or selected_hash_count <= 0:
+        reasons.append("selected_final_window_vtk_hashes_missing")
+
+    return {
+        "Gate": "pass" if not reasons else "fail",
+        "Reasons": reasons or ["native_run_and_vtk_evidence_present"],
+        "ReasonsCsv": ";".join(reasons or ["native_run_and_vtk_evidence_present"]),
+        "RunRequested": run_requested,
+        "RunGate": run_gate,
+        "ActualVtkOutputRequired": actual_output_required,
+        "ActualVtkOutputGate": actual_vtk_gate,
+        "ActualFrameCount": actual_frame_count,
+        "SelectedFinalWindowVtkSha256Count": selected_hash_count,
+    }
+
+
 def main() -> int:
     args = parse_args()
     case_dir = Path(args.case_dir).expanduser().resolve()
@@ -1092,6 +1143,7 @@ def main() -> int:
     )
     if actual_vtk_output["Gate"] == "diagnostic_only":
         reasons.extend(str(reason) for reason in actual_vtk_output["Reasons"])
+    native_accuracy_gate = native_accuracy_evidence_gate(run_record, actual_vtk_output)
 
     source_validation = validate_source_root(source_root)
     required_files = collect_required_files(source_root, case_dir)
@@ -1134,6 +1186,7 @@ def main() -> int:
         },
         "PlannedVtkScheduleGate": vtk_schedule,
         "ActualVtkOutputGate": actual_vtk_output,
+        "NativeAccuracyEvidenceGate": native_accuracy_gate,
         "PlannedSyntheticInletSamplingGate": synthetic_sampling,
         "OutputDir": str(output_dir),
         "VtkPattern": args.vtk_pattern,
