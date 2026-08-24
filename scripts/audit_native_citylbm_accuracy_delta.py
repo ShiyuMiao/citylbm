@@ -25,6 +25,8 @@ METRIC_FIELDS = [
     "U_regression_slope",
     "U_regression_intercept",
     "U_mean_ratio_sim_to_exp",
+    "k_RMSE_ratio",
+    "k_bias_ratio",
 ]
 
 
@@ -48,9 +50,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-r2-drop", type=float, default=0.05)
     parser.add_argument("--max-slope-delta", type=float, default=0.10)
     parser.add_argument("--max-intercept-delta", type=float, default=0.05)
+    parser.add_argument("--max-k-rmse-regression-delta", type=float, default=0.10)
+    parser.add_argument("--max-k-abs-bias-regression-delta", type=float, default=0.10)
     parser.add_argument("--native-max-u-rmse-ratio", type=float, default=0.30)
     parser.add_argument("--native-max-u-bias-ratio", type=float, default=0.15)
     parser.add_argument("--native-min-u-r2", type=float, default=0.70)
+    parser.add_argument("--native-max-k-rmse-ratio", type=float, default=0.50)
+    parser.add_argument("--native-max-k-bias-ratio", type=float, default=0.30)
     return parser.parse_args()
 
 
@@ -271,6 +277,10 @@ def main() -> int:
     native_slope = metric_pairs.get("U_regression_slope", {}).get("native")
     city_intercept = metric_pairs.get("U_regression_intercept", {}).get("citylbm")
     native_intercept = metric_pairs.get("U_regression_intercept", {}).get("native")
+    city_k_rmse = metric_pairs.get("k_RMSE_ratio", {}).get("citylbm")
+    native_k_rmse = metric_pairs.get("k_RMSE_ratio", {}).get("native")
+    city_k_bias = metric_pairs.get("k_bias_ratio", {}).get("citylbm")
+    native_k_bias = metric_pairs.get("k_bias_ratio", {}).get("native")
 
     rmse_regression_delta = (
         city_rmse - native_rmse if city_rmse is not None and native_rmse is not None else None
@@ -287,6 +297,16 @@ def main() -> int:
     intercept_delta = (
         abs(city_intercept - native_intercept)
         if city_intercept is not None and native_intercept is not None
+        else None
+    )
+    k_rmse_regression_delta = (
+        city_k_rmse - native_k_rmse
+        if city_k_rmse is not None and native_k_rmse is not None
+        else None
+    )
+    k_abs_bias_regression_delta = (
+        abs(city_k_bias) - abs(native_k_bias)
+        if city_k_bias is not None and native_k_bias is not None
         else None
     )
 
@@ -313,6 +333,20 @@ def main() -> int:
         reason = f"citylbm_intercept_delta_above_{args.max_intercept_delta}"
         reasons.append(reason)
         citylbm_delta_reasons.append(reason)
+    if (
+        k_rmse_regression_delta is not None
+        and k_rmse_regression_delta > args.max_k_rmse_regression_delta
+    ):
+        reason = f"citylbm_k_rmse_regression_delta_above_{args.max_k_rmse_regression_delta}"
+        reasons.append(reason)
+        citylbm_delta_reasons.append(reason)
+    if (
+        k_abs_bias_regression_delta is not None
+        and k_abs_bias_regression_delta > args.max_k_abs_bias_regression_delta
+    ):
+        reason = f"citylbm_k_abs_bias_regression_delta_above_{args.max_k_abs_bias_regression_delta}"
+        reasons.append(reason)
+        citylbm_delta_reasons.append(reason)
 
     native_accuracy_gate = "pass"
     native_accuracy_reasons: List[str] = []
@@ -325,6 +359,12 @@ def main() -> int:
     if native_r2 is None or native_r2 < args.native_min_u_r2:
         native_accuracy_gate = "fail"
         native_accuracy_reasons.append("native_u_r2_not_publishable")
+    if native_k_rmse is None or native_k_rmse > args.native_max_k_rmse_ratio:
+        native_accuracy_gate = "fail"
+        native_accuracy_reasons.append("native_k_rmse_not_publishable")
+    if native_k_bias is None or abs(native_k_bias) > args.native_max_k_bias_ratio:
+        native_accuracy_gate = "fail"
+        native_accuracy_reasons.append("native_k_bias_not_publishable")
 
     if native_accuracy_gate != "pass":
         reasons.append(f"native_accuracy_gate_not_pass:{native_accuracy_gate}")
@@ -388,15 +428,21 @@ def main() -> int:
         "U_R2_drop_native_minus_city": r2_drop,
         "U_slope_abs_delta": slope_delta,
         "U_intercept_abs_delta": intercept_delta,
+        "k_RMSE_delta_city_minus_native": k_rmse_regression_delta,
+        "k_abs_bias_delta_city_minus_native": k_abs_bias_regression_delta,
         "thresholds": {
             "max_rmse_regression_delta": args.max_rmse_regression_delta,
             "max_abs_bias_regression_delta": args.max_abs_bias_regression_delta,
             "max_r2_drop": args.max_r2_drop,
             "max_slope_delta": args.max_slope_delta,
             "max_intercept_delta": args.max_intercept_delta,
+            "max_k_rmse_regression_delta": args.max_k_rmse_regression_delta,
+            "max_k_abs_bias_regression_delta": args.max_k_abs_bias_regression_delta,
             "native_max_u_rmse_ratio": args.native_max_u_rmse_ratio,
             "native_max_u_bias_ratio": args.native_max_u_bias_ratio,
             "native_min_u_r2": args.native_min_u_r2,
+            "native_max_k_rmse_ratio": args.native_max_k_rmse_ratio,
+            "native_max_k_bias_ratio": args.native_max_k_bias_ratio,
         },
         "recommended_next_action": (
             "If CityLBM adds error beyond the paired native run, inspect parameter transfer, setup.cpp generation, "

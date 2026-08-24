@@ -705,6 +705,8 @@ TEMPLATE_FIELDS = [
     "native_citylbm_U_R2_drop",
     "native_citylbm_U_slope_abs_delta",
     "native_citylbm_U_intercept_abs_delta",
+    "native_citylbm_k_RMSE_delta",
+    "native_citylbm_k_abs_bias_delta",
     "probe_mapping_table",
     "probe_mapping_table_sha256",
     "official_measurement_sha256",
@@ -3598,6 +3600,12 @@ def main() -> int:
             ),
             "native_citylbm_U_intercept_abs_delta": fmt(
                 audit_float(native_citylbm_accuracy_delta_audit, "U_intercept_abs_delta")
+            ),
+            "native_citylbm_k_RMSE_delta": fmt(
+                audit_float(native_citylbm_accuracy_delta_audit, "k_RMSE_delta_city_minus_native")
+            ),
+            "native_citylbm_k_abs_bias_delta": fmt(
+                audit_float(native_citylbm_accuracy_delta_audit, "k_abs_bias_delta_city_minus_native")
             ),
             "probe_mapping_table": str(probe_path),
             "probe_mapping_table_sha256": sha256_file(probe_path),

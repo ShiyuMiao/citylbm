@@ -336,6 +336,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-native-citylbm-r2-drop", type=float, default=0.05)
     parser.add_argument("--max-native-citylbm-slope-delta", type=float, default=0.10)
     parser.add_argument("--max-native-citylbm-intercept-delta", type=float, default=0.05)
+    parser.add_argument("--max-native-citylbm-k-rmse-delta", type=float, default=0.10)
+    parser.add_argument("--max-native-citylbm-k-abs-bias-delta", type=float, default=0.10)
     parser.add_argument("--expected-compared-component", default="", help="Require a specific Data Probe compared_component, e.g. speed_ratio or streamwise_ratio.")
     parser.add_argument("--expected-uref", type=float, default=None, help="Require the metrics/Data Probe Uref to match this value.")
     parser.add_argument("--uref-tolerance", type=float, default=1.0e-6)
@@ -4042,6 +4044,12 @@ def native_citylbm_accuracy_delta_status(
         "U_intercept_abs_delta": as_float(
             get_any(native_citylbm_accuracy_delta_audit, ["U_intercept_abs_delta"])
         ),
+        "k_RMSE_delta_city_minus_native": as_float(
+            get_any(native_citylbm_accuracy_delta_audit, ["k_RMSE_delta_city_minus_native"])
+        ),
+        "k_abs_bias_delta_city_minus_native": as_float(
+            get_any(native_citylbm_accuracy_delta_audit, ["k_abs_bias_delta_city_minus_native"])
+        ),
     }
     thresholds = {
         "U_RMSE_delta_city_minus_native": args.max_native_citylbm_rmse_delta,
@@ -4049,6 +4057,8 @@ def native_citylbm_accuracy_delta_status(
         "U_R2_drop_native_minus_city": args.max_native_citylbm_r2_drop,
         "U_slope_abs_delta": args.max_native_citylbm_slope_delta,
         "U_intercept_abs_delta": args.max_native_citylbm_intercept_delta,
+        "k_RMSE_delta_city_minus_native": args.max_native_citylbm_k_rmse_delta,
+        "k_abs_bias_delta_city_minus_native": args.max_native_citylbm_k_abs_bias_delta,
     }
     reason_names = {
         "U_RMSE_delta_city_minus_native": "citylbm_rmse_regression_delta_above_threshold",
@@ -4056,6 +4066,8 @@ def native_citylbm_accuracy_delta_status(
         "U_R2_drop_native_minus_city": "citylbm_r2_drop_above_threshold",
         "U_slope_abs_delta": "citylbm_slope_delta_above_threshold",
         "U_intercept_abs_delta": "citylbm_intercept_delta_above_threshold",
+        "k_RMSE_delta_city_minus_native": "citylbm_k_rmse_regression_delta_above_threshold",
+        "k_abs_bias_delta_city_minus_native": "citylbm_k_abs_bias_regression_delta_above_threshold",
     }
     for field, value in deltas.items():
         if value is None:

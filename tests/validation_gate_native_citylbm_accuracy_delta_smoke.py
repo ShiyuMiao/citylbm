@@ -27,6 +27,8 @@ FIELDS = [
     "U_regression_slope",
     "U_regression_intercept",
     "U_mean_ratio_sim_to_exp",
+    "k_RMSE_ratio",
+    "k_bias_ratio",
 ]
 
 
@@ -51,6 +53,8 @@ def write_metrics(path: Path, software: str, values: dict[str, float]) -> None:
         "U_regression_slope": values["U_regression_slope"],
         "U_regression_intercept": values["U_regression_intercept"],
         "U_mean_ratio_sim_to_exp": values.get("U_mean_ratio_sim_to_exp", 1.0),
+        "k_RMSE_ratio": values.get("k_RMSE_ratio", 0.20),
+        "k_bias_ratio": values.get("k_bias_ratio", -0.10),
     }
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=FIELDS)
@@ -120,6 +124,8 @@ def default_gate_args() -> SimpleNamespace:
         max_native_citylbm_r2_drop=0.05,
         max_native_citylbm_slope_delta=0.10,
         max_native_citylbm_intercept_delta=0.05,
+        max_native_citylbm_k_rmse_delta=0.10,
+        max_native_citylbm_k_abs_bias_delta=0.10,
     )
 
 
@@ -131,6 +137,8 @@ def main() -> int:
         "U_R2": 0.80,
         "U_regression_slope": 0.95,
         "U_regression_intercept": 0.02,
+        "k_RMSE_ratio": 0.20,
+        "k_bias_ratio": -0.10,
     }
 
     with tempfile.TemporaryDirectory(prefix="citylbm_accuracy_delta_") as tmp:
@@ -153,6 +161,8 @@ def main() -> int:
                 "U_R2": 0.78,
                 "U_regression_slope": 0.97,
                 "U_regression_intercept": 0.03,
+                "k_RMSE_ratio": 0.23,
+                "k_bias_ratio": -0.12,
             },
         )
         passed = run_delta_audit(city, native, preconditions, out)
@@ -178,6 +188,8 @@ def main() -> int:
                 "U_R2": 0.60,
                 "U_regression_slope": 0.70,
                 "U_regression_intercept": 0.20,
+                "k_RMSE_ratio": 0.45,
+                "k_bias_ratio": -0.28,
             },
         )
         failed = run_delta_audit(city, native, preconditions, out)
@@ -205,6 +217,8 @@ def main() -> int:
                 "U_R2": 0.30,
                 "U_regression_slope": 0.55,
                 "U_regression_intercept": 0.25,
+                "k_RMSE_ratio": 0.80,
+                "k_bias_ratio": -0.60,
             },
         )
         write_metrics(
@@ -216,6 +230,8 @@ def main() -> int:
                 "U_R2": 0.29,
                 "U_regression_slope": 0.56,
                 "U_regression_intercept": 0.26,
+                "k_RMSE_ratio": 0.82,
+                "k_bias_ratio": -0.61,
             },
         )
         native_bad_failed = run_delta_audit(city, native_bad, preconditions, out)
@@ -251,6 +267,8 @@ def main() -> int:
                 "U_R2": 0.78,
                 "U_regression_slope": 0.97,
                 "U_regression_intercept": 0.03,
+                "k_RMSE_ratio": 0.23,
+                "k_bias_ratio": -0.12,
             },
         )
         precondition_failed = run_delta_audit(city, native, failing_preconditions, out)
@@ -265,6 +283,31 @@ def main() -> int:
             raise AssertionError(precondition_report)
         if "native_preconditions_not_closed" not in precondition_report["native_citylbm_accuracy_delta_gate_reasons"]:
             raise AssertionError(precondition_report)
+
+        write_metrics(
+            city,
+            "citylbm",
+            {
+                "U_RMSE_ratio": 0.215,
+                "U_bias_ratio": -0.11,
+                "U_R2": 0.78,
+                "U_regression_slope": 0.97,
+                "U_regression_intercept": 0.03,
+                "k_RMSE_ratio": 0.42,
+                "k_bias_ratio": -0.31,
+            },
+        )
+        k_failed = run_delta_audit(city, native, preconditions, out)
+        if k_failed.returncode == 0:
+            raise AssertionError((k_failed.returncode, k_failed.stdout, k_failed.stderr))
+        k_report = json.loads(out.read_text(encoding="utf-8"))
+        if k_report["citylbm_additional_error_flag"] is not True:
+            raise AssertionError(k_report)
+        if not any(
+            reason.startswith("citylbm_k_")
+            for reason in k_report["citylbm_additional_error_reasons"]
+        ):
+            raise AssertionError(k_report)
 
     print("validation_gate_native_citylbm_accuracy_delta_smoke passed")
     return 0

@@ -107,6 +107,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-slope", type=float, default=1.30)
     parser.add_argument("--max-intercept-abs", type=float, default=0.20)
     parser.add_argument("--max-k-bias-ratio", type=float, default=0.30)
+    parser.add_argument("--max-k-rmse-ratio", type=float, default=0.50)
     parser.add_argument("--max-empty-tunnel-u-bias-ratio", type=float, default=0.10)
     parser.add_argument("--max-empty-tunnel-k-bias-ratio", type=float, default=0.30)
     parser.add_argument("--max-official-coordinate-delta-m", type=float, default=1.0e-6)
@@ -125,6 +126,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-native-citylbm-r2-drop", type=float, default=0.05)
     parser.add_argument("--max-native-citylbm-slope-delta", type=float, default=0.10)
     parser.add_argument("--max-native-citylbm-intercept-delta", type=float, default=0.05)
+    parser.add_argument("--max-native-citylbm-k-rmse-delta", type=float, default=0.10)
+    parser.add_argument("--max-native-citylbm-k-abs-bias-delta", type=float, default=0.10)
     parser.add_argument("--vtk-stability-sample-limit", type=int, default=20000)
     parser.add_argument(
         "--allow-velocity-only-inlet",
@@ -980,12 +983,20 @@ def main() -> int:
                 str(args.max_native_citylbm_slope_delta),
                 "--max-intercept-delta",
                 str(args.max_native_citylbm_intercept_delta),
+                "--max-k-rmse-regression-delta",
+                str(args.max_native_citylbm_k_rmse_delta),
+                "--max-k-abs-bias-regression-delta",
+                str(args.max_native_citylbm_k_abs_bias_delta),
                 "--native-max-u-rmse-ratio",
                 str(args.max_u_rmse_ratio),
                 "--native-max-u-bias-ratio",
                 str(args.max_u_bias_ratio),
                 "--native-min-u-r2",
                 str(args.min_u_r2),
+                "--native-max-k-rmse-ratio",
+                str(args.max_k_rmse_ratio),
+                "--native-max-k-bias-ratio",
+                str(args.max_k_bias_ratio),
             ]
             manifest["Steps"].append(run_step("audit_native_citylbm_accuracy_delta", accuracy_delta_cmd, allow_fail=True))
             write_manifest(manifest_path, manifest)
@@ -1042,6 +1053,8 @@ def main() -> int:
             str(args.max_intercept_abs),
             "--max-k-bias-ratio",
             str(args.max_k_bias_ratio),
+            "--max-k-rmse-ratio",
+            str(args.max_k_rmse_ratio),
             "--max-empty-tunnel-u-bias-ratio",
             str(args.max_empty_tunnel_u_bias_ratio),
             "--max-empty-tunnel-k-bias-ratio",
@@ -1068,6 +1081,10 @@ def main() -> int:
             str(args.max_grid_rmse_change_ratio),
             "--max-grid-bias-change-ratio",
             str(args.max_grid_bias_change_ratio),
+            "--max-native-citylbm-k-rmse-delta",
+            str(args.max_native_citylbm_k_rmse_delta),
+            "--max-native-citylbm-k-abs-bias-delta",
+            str(args.max_native_citylbm_k_abs_bias_delta),
             "--expected-compared-component",
             args.compared_component,
             "--expected-uref",

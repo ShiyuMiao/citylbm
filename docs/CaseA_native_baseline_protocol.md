@@ -505,6 +505,10 @@ record must archive `validation_gate_report.json`. The metrics row must include 
 `solver_stability_warnings=none`, `normalization_valid=true`, `wind_direction_valid=true`, at least 10 averaged source frames,
 `inlet_profile_gate=pass`, zero failed probes, bounded probe projection distance/tolerance, bounded mean-velocity bias/RMSE, and reported `k` bias/RMSE. If the gate returns `FAIL`, the run is
 diagnostic only even if selected plots look reasonable.
+The paired `native_citylbm_accuracy_delta_audit.json` must compare both mean-flow and turbulence metrics:
+`U_RMSE_ratio`, `U_bias_ratio`, `U_R2`, regression slope/intercept, `k_RMSE_ratio` and `k_bias_ratio`. A CityLBM run may
+only claim inherited native FluidX3D accuracy when native preconditions are closed, native U/k accuracy is publishable,
+and CityLBM adds no excess U or k error beyond the configured delta thresholds.
 `validation_gate.py` recomputes `native_baseline` from `native_fluidx3d_baseline_manifest.json`, required native source
 hashes, BaselineId matching and the `native_fluidx3d_baseline` protocol item; metrics `native_baseline_gate=pass` is only
 ignored context.
