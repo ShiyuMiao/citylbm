@@ -259,6 +259,7 @@ def main() -> int:
         "has_temporal_filter_state": True,
         "has_mean_preserving_inlet_correction": True,
         "has_layerwise_mean_preserving_inlet_correction": True,
+        "has_layerwise_rms_preserving_inlet_correction": True,
         "has_streamwise_clipping_control": True,
         "streamwise_clipping_enabled": False,
         "has_legacy_hardcoded_streamwise_clipping": False,
@@ -327,6 +328,7 @@ def main() -> int:
             "has_reynolds_stress_tensor_evidence": False,
             "reynolds_stress_treatment": "documented_isotropic_k_only",
             "has_temporal_filter_state": False,
+            "has_layerwise_rms_preserving_inlet_correction": False,
             "streamwise_clipping_enabled": True,
             "paper_grade_inlet_source_gate_reasons": [
                 "source_not_distribution_consistent",
@@ -380,6 +382,7 @@ def main() -> int:
         "inlet_source_has_reynolds_stress_tensor_evidence_not_true:False",
         "inlet_source_reynolds_stress_treatment_not_full_tensor:documented_isotropic_k_only",
         "inlet_source_has_temporal_filter_state_not_true:False",
+        "inlet_source_has_layerwise_rms_preserving_inlet_correction_not_true:False",
         "inlet_source_streamwise_clipping_enabled_not_false:True",
         "inlet_source_setup_cpp_sha256_matches_current_not_true:False",
         "inlet_profile_af_csv_sha256_matches_expected_not_true",

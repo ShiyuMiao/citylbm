@@ -273,6 +273,7 @@ TEMPLATE_FIELDS = [
     "inlet_source_has_temporal_filter_state",
     "inlet_source_has_mean_preserving_inlet_correction",
     "inlet_source_has_layerwise_mean_preserving_inlet_correction",
+    "inlet_source_has_layerwise_rms_preserving_inlet_correction",
     "inlet_source_spectral_mode_count",
     "inlet_source_spectral_mode_count_gate",
     "inlet_source_refresh_with_current_time",
@@ -497,6 +498,7 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_has_temporal_filter_state",
     "native_inlet_source_has_mean_preserving_inlet_correction",
     "native_inlet_source_has_layerwise_mean_preserving_inlet_correction",
+    "native_inlet_source_has_layerwise_rms_preserving_inlet_correction",
     "native_inlet_source_has_streamwise_clipping_control",
     "native_inlet_source_streamwise_min_fraction",
     "native_inlet_source_streamwise_clipping_enabled",
@@ -2447,6 +2449,9 @@ def main() -> int:
             "inlet_source_has_layerwise_mean_preserving_inlet_correction": first_bool_text(
                 inlet_source_audit.get("has_layerwise_mean_preserving_inlet_correction")
             ),
+            "inlet_source_has_layerwise_rms_preserving_inlet_correction": first_bool_text(
+                inlet_source_audit.get("has_layerwise_rms_preserving_inlet_correction")
+            ),
             "inlet_source_spectral_mode_count": audit_field(
                 inlet_source_audit, "synthetic_inlet_spectral_mode_count"
             ),
@@ -2967,6 +2972,9 @@ def main() -> int:
             ),
             "native_inlet_source_has_layerwise_mean_preserving_inlet_correction": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_layerwise_mean_preserving_inlet_correction")
+            ),
+            "native_inlet_source_has_layerwise_rms_preserving_inlet_correction": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_layerwise_rms_preserving_inlet_correction")
             ),
             "native_inlet_source_has_streamwise_clipping_control": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_streamwise_clipping_control")

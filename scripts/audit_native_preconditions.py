@@ -1375,6 +1375,9 @@ def build_inlet_equivalence_evidence_reasons(
     source_has_temporal_filter_state = as_bool(inlet_source_audit.get("has_temporal_filter_state"))
     source_has_mean_correction = as_bool(inlet_source_audit.get("has_mean_preserving_inlet_correction"))
     source_has_layer_correction = as_bool(inlet_source_audit.get("has_layerwise_mean_preserving_inlet_correction"))
+    source_has_layer_rms_correction = as_bool(
+        inlet_source_audit.get("has_layerwise_rms_preserving_inlet_correction")
+    )
     source_has_streamwise_clipping_control = as_bool(inlet_source_audit.get("has_streamwise_clipping_control"))
     source_streamwise_clipping_enabled = as_bool(inlet_source_audit.get("streamwise_clipping_enabled"))
     source_has_legacy_clipping = as_bool(inlet_source_audit.get("has_legacy_hardcoded_streamwise_clipping"))
@@ -1449,6 +1452,7 @@ def build_inlet_equivalence_evidence_reasons(
         ("inlet_source_has_temporal_filter_state", source_has_temporal_filter_state),
         ("inlet_source_has_mean_preserving_inlet_correction", source_has_mean_correction),
         ("inlet_source_has_layerwise_mean_preserving_inlet_correction", source_has_layer_correction),
+        ("inlet_source_has_layerwise_rms_preserving_inlet_correction", source_has_layer_rms_correction),
         ("inlet_source_has_streamwise_clipping_control", source_has_streamwise_clipping_control),
     ]:
         if value is not True:
@@ -2594,6 +2598,9 @@ def main() -> int:
     inlet_has_layerwise_mean_preserving_correction = as_bool(
         inlet_source_audit.get("has_layerwise_mean_preserving_inlet_correction")
     )
+    inlet_has_layerwise_rms_preserving_correction = as_bool(
+        inlet_source_audit.get("has_layerwise_rms_preserving_inlet_correction")
+    )
     inlet_has_streamwise_clipping_control = as_bool(
         inlet_source_audit.get("has_streamwise_clipping_control")
     )
@@ -2641,6 +2648,8 @@ def main() -> int:
         reasons.append("inlet_source_missing_mean_preserving_inlet_correction")
     if inlet_stg_evidence_required and inlet_has_layerwise_mean_preserving_correction is not True:
         reasons.append("inlet_source_missing_layerwise_mean_preserving_inlet_correction")
+    if inlet_stg_evidence_required and inlet_has_layerwise_rms_preserving_correction is not True:
+        reasons.append("inlet_source_missing_layerwise_rms_preserving_inlet_correction")
     if inlet_stg_evidence_required and inlet_has_streamwise_clipping_control is not True:
         reasons.append("inlet_source_missing_streamwise_clipping_control")
     if inlet_streamwise_clipping_enabled is True:
@@ -3748,6 +3757,7 @@ def main() -> int:
         "inlet_source_has_temporal_filter_state": inlet_has_temporal_filter_state,
         "inlet_source_has_mean_preserving_inlet_correction": inlet_has_mean_preserving_correction,
         "inlet_source_has_layerwise_mean_preserving_inlet_correction": inlet_has_layerwise_mean_preserving_correction,
+        "inlet_source_has_layerwise_rms_preserving_inlet_correction": inlet_has_layerwise_rms_preserving_correction,
         "inlet_source_has_streamwise_clipping_control": inlet_has_streamwise_clipping_control,
         "inlet_source_streamwise_min_fraction": inlet_streamwise_min_fraction,
         "inlet_source_streamwise_clipping_enabled": inlet_streamwise_clipping_enabled,

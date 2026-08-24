@@ -86,6 +86,7 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "inlet_source_has_temporal_filter_state",
     "inlet_source_has_mean_preserving_inlet_correction",
     "inlet_source_has_layerwise_mean_preserving_inlet_correction",
+    "inlet_source_has_layerwise_rms_preserving_inlet_correction",
     "inlet_source_has_streamwise_clipping_control",
     "inlet_source_streamwise_clipping_enabled",
     "inlet_source_has_legacy_hardcoded_streamwise_clipping",
