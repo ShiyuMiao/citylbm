@@ -107,6 +107,19 @@ def main() -> int:
             "streamwise_sign_gate",
             "synthetic_temporal_sampling_gate",
             "synthetic_expected_final_window_refresh_count",
+            "inlet_source_distribution_consistent",
+            "inlet_source_velocity_field_only",
+            "inlet_source_requires_distribution_reconstruction",
+            "inlet_synthetic_correlation_model",
+            "inlet_source_has_reynolds_stress_tensor_metadata_claim",
+            "inlet_source_has_reynolds_stress_diagonal_source_evidence",
+            "inlet_source_has_reynolds_stress_offdiagonal_source_evidence",
+            "inlet_source_has_reynolds_stress_full_tensor_source_evidence",
+            "inlet_source_has_reynolds_stress_diagonal_usage_evidence",
+            "inlet_source_has_reynolds_stress_offdiagonal_usage_evidence",
+            "inlet_source_has_reynolds_stress_full_tensor_usage_evidence",
+            "inlet_source_has_sem_eddy_update_evidence",
+            "inlet_source_has_sem_eddy_velocity_coupling_evidence",
             "inlet_source_has_k_driven_three_component_stg",
             "inlet_source_has_source_length_scale_evidence",
             "inlet_source_has_metadata_length_scale_evidence",
@@ -225,6 +238,31 @@ def main() -> int:
             not in bad_length_basis_report["missing_critical_fields"]
         ):
             raise AssertionError(bad_length_basis_report)
+
+        bad_sem = tmp_path / "native_missing_sem_coupling.csv"
+        bad_sem_out = tmp_path / "bad_sem_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_sem,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="inlet_source_has_sem_eddy_velocity_coupling_evidence",
+        )
+        failed_sem = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_sem,
+            bad_sem_out,
+        )
+        if failed_sem.returncode == 0:
+            raise AssertionError((failed_sem.returncode, failed_sem.stdout, failed_sem.stderr))
+        bad_sem_report = json.loads(bad_sem_out.read_text(encoding="utf-8"))
+        if bad_sem_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_sem_report)
+        if (
+            "inlet_source_has_sem_eddy_velocity_coupling_evidence"
+            not in bad_sem_report["missing_critical_fields"]
+        ):
+            raise AssertionError(bad_sem_report)
 
         bad_boundary = tmp_path / "native_missing_boundary_detail.csv"
         bad_boundary_out = tmp_path / "bad_boundary_native_citylbm_parity_audit.json"
