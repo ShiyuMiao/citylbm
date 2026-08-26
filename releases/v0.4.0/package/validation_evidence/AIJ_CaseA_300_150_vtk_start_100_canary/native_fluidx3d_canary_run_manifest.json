@@ -1,0 +1,1106 @@
+{
+  "Schema": "citylbm.native_fluidx3d_run_manifest.v1",
+  "GeneratedAtUtc": "2026-08-26T11:11:12.947947Z",
+  "BaselineId": "native-fluidx3d-CaseA-W-2026-08-26T11:11:12.947947Z",
+  "Gate": "required_before_paper_grade_accuracy_claim",
+  "NativeFluidX3DPathExplicitlyProvided": true,
+  "NativeFluidX3DSourcePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source",
+  "FluidX3DSolverWorkingDirectory": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd",
+  "NativeFluidX3DSourceValidation": {
+    "HasSolution": true,
+    "SolutionFiles": [
+      "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.sln"
+    ],
+    "HasMakefile": true,
+    "MakefilePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\makefile",
+    "HasCMakeLists": false,
+    "CMakeListsPath": "",
+    "HasSrcDirectory": true,
+    "HasSetupCpp": true,
+    "HasDefinesHpp": true,
+    "HasLbmHpp": true,
+    "HasLbmCpp": true,
+    "MissingRequiredItems": [],
+    "IsValid": true
+  },
+  "CaseDir": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case",
+  "CaseMetadataPath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\case_metadata.json",
+  "CaseMetadataSha256": "7782B984890992B677A93211CF46A9C59DFCA93239C186FDE8036499A7D0755B",
+  "ValidationProtocolAuditPath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\validation_protocol_audit.json",
+  "ValidationProtocolAuditSha256": "BB9BAC6FEC5292924E00311C3999EF058248C01B8EDDB2A683A1C5218024566D",
+  "InletSourceAuditPath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\inlet_source_audit.json",
+  "InletSourceAuditSha256": "CF5A3D4F1857A228E6B2EC387AD008FDF3204B75CD90D585711D7C7326A0093F",
+  "InletSourceAuditGate": {
+    "Gate": "diagnostic_only",
+    "Reasons": [
+      "paper_grade_inlet_source_gate_not_pass:fail",
+      "source_missing_turbulent_length_scale_evidence"
+    ],
+    "ReasonsCsv": "paper_grade_inlet_source_gate_not_pass:fail;source_missing_turbulent_length_scale_evidence",
+    "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\inlet_source_audit.json",
+    "Exists": true,
+    "Sha256": "CF5A3D4F1857A228E6B2EC387AD008FDF3204B75CD90D585711D7C7326A0093F",
+    "PaperGradeInletSourceGate": "fail"
+  },
+  "AutoInletSourceAudit": {
+    "Requested": false,
+    "Generated": false,
+    "Reason": "explicit_inlet_source_audit_path",
+    "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\inlet_source_audit.json"
+  },
+  "BoundarySourceAuditPath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\boundary_source_audit.json",
+  "BoundarySourceAuditSha256": "775A69C2E7096A6A133FB978207A56F181D77721405F2364756CA42973EE945A",
+  "BoundarySourceAuditGate": {
+    "Gate": "diagnostic_only",
+    "Reasons": [
+      "paper_grade_boundary_source_gate_not_pass:fail",
+      "boundary_source_not_wind_tunnel_equivalent",
+      "boundary_source_fidelity_class_not_paper_grade:diagnostic_profile_maintenance_buffer",
+      "boundary_source_missing_advanced_code_evidence",
+      "outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary",
+      "missing_non_reflecting_or_validated_outlet_state",
+      "missing_side_top_boundary_pair_mapping",
+      "missing_precursor_or_recycling_development_field"
+    ],
+    "ReasonsCsv": "paper_grade_boundary_source_gate_not_pass:fail;boundary_source_not_wind_tunnel_equivalent;boundary_source_fidelity_class_not_paper_grade:diagnostic_profile_maintenance_buffer;boundary_source_missing_advanced_code_evidence;outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary;missing_non_reflecting_or_validated_outlet_state;missing_side_top_boundary_pair_mapping;missing_precursor_or_recycling_development_field",
+    "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\boundary_source_audit.json",
+    "Exists": true,
+    "Sha256": "775A69C2E7096A6A133FB978207A56F181D77721405F2364756CA42973EE945A",
+    "BoundarySourceGate": "pass",
+    "PaperGradeBoundarySourceGate": "fail"
+  },
+  "AutoBoundarySourceAudit": {
+    "Requested": false,
+    "Generated": false,
+    "Reason": "explicit_boundary_source_audit_path",
+    "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\boundary_source_audit.json"
+  },
+  "CoordinateProbeProtocolAuditPath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\coordinate_probe_protocol_audit.json",
+  "CoordinateProbeProtocolAuditSha256": "D845ABC86A9795D02A097925315CDEA888523CF4F21A23DB749A0417011ED6E5",
+  "CoordinateProbeProtocolAuditGate": {
+    "Gate": "pass",
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\coordinate_probe_protocol_audit.json",
+    "Exists": true,
+    "Sha256": "D845ABC86A9795D02A097925315CDEA888523CF4F21A23DB749A0417011ED6E5",
+    "CoordinateProbeProtocolGate": "pass",
+    "LongCfdAllowed": true,
+    "DevelopmentAccelerationStage": "eligible_for_short_native_canary",
+    "DevelopmentAccelerationNextCfdScope": "short_native_canary_only"
+  },
+  "AutoCoordinateProbeProtocolAudit": {
+    "Requested": false,
+    "Generated": false,
+    "Reason": "explicit_coordinate_probe_protocol_audit_path",
+    "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\coordinate_probe_protocol_audit.json"
+  },
+  "InletCorrelationAuditPath": "",
+  "InletCorrelationAuditSha256": "",
+  "InletCorrelationAuditGate": {
+    "Gate": "not_applicable",
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "Path": "",
+    "Exists": false
+  },
+  "CaseMetadataAijCase": "CaseA",
+  "CaseMetadataWindDirection": "W",
+  "ValidationProtocolAijCase": "CaseA",
+  "ValidationProtocolWindDirection": "W",
+  "EffectiveAijCase": "CaseA",
+  "EffectiveAijCaseSource": "case_metadata",
+  "EffectiveWindDirection": "W",
+  "EffectiveWindDirectionSource": "case_metadata",
+  "ExpectedAijCase": "CaseA",
+  "ExpectedWindDirection": "W",
+  "PreInstallNativeSourceFiles": [
+    {
+      "Role": "Pre-install Native FluidX3D original setup",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\setup.cpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "0FA2A65063593F7AA81EE973F946E38BF42D9A09E5A8ED25094E9484D2F2AECB"
+    },
+    {
+      "Role": "Pre-install Native FluidX3D original defines",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "6C5DA8760507803814FCF4499EEBA25DCB22556FF43B647F47C96988AE602540"
+    },
+    {
+      "Role": "Pre-install Native FluidX3D lbm.hpp",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\lbm.hpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "AB2AA4F4C1C177952AD4462ADC7929041B3063E4CE9025AA28F05F5314A9D0AF"
+    },
+    {
+      "Role": "Pre-install Native FluidX3D lbm.cpp",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\lbm.cpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "E12D2F558E8B2885F80A40E76DAF5A6F56CBAE06A28206AB86F4D73EAFD8CA00"
+    }
+  ],
+  "EffectiveRunSourceFiles": [
+    {
+      "Role": "Effective FluidX3D setup",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\setup.cpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "981502A3542BCC5857A325C587F58A790996D35E1B66BF646F7DDE04F01083B4"
+    },
+    {
+      "Role": "Effective FluidX3D defines",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "136D490CD9874C985FFB5ABD8171F750610B743FE862499BA20FD3003AE5DDE2"
+    },
+    {
+      "Role": "Effective FluidX3D lbm.hpp",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\lbm.hpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "AB2AA4F4C1C177952AD4462ADC7929041B3063E4CE9025AA28F05F5314A9D0AF"
+    },
+    {
+      "Role": "Effective FluidX3D lbm.cpp",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\lbm.cpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "E12D2F558E8B2885F80A40E76DAF5A6F56CBAE06A28206AB86F4D73EAFD8CA00"
+    }
+  ],
+  "PreInstallCaseToSourceParityGate": {
+    "Gate": "diagnostic_only",
+    "Reasons": [
+      "case_setup_hash_mismatch_source",
+      "case_defines_hash_mismatch_source"
+    ],
+    "ReasonsCsv": "case_setup_hash_mismatch_source;case_defines_hash_mismatch_source",
+    "Notes": [],
+    "NotesCsv": "",
+    "Pairs": [
+      {
+        "Role": "setup",
+        "CasePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\setup.cpp",
+        "CaseSha256": "981502A3542BCC5857A325C587F58A790996D35E1B66BF646F7DDE04F01083B4",
+        "SourcePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\setup.cpp",
+        "SourceSha256": "0FA2A65063593F7AA81EE973F946E38BF42D9A09E5A8ED25094E9484D2F2AECB",
+        "Match": false,
+        "AllowedMismatch": false,
+        "PendingInstallOnly": false
+      },
+      {
+        "Role": "defines",
+        "CasePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\defines.hpp",
+        "CaseSha256": "F2B5AD0CBFA807485E7E2D7A42653540E8B1F6FA0A99DC9926EED68CFB226C29",
+        "SourcePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp",
+        "SourceSha256": "6C5DA8760507803814FCF4499EEBA25DCB22556FF43B647F47C96988AE602540",
+        "Match": false,
+        "AllowedMismatch": false,
+        "PendingInstallOnly": false
+      }
+    ]
+  },
+  "PostInstallCaseToSourceParityGate": {
+    "Gate": "pass",
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "Notes": [],
+    "NotesCsv": "",
+    "Pairs": [
+      {
+        "Role": "setup",
+        "CasePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\setup.cpp",
+        "CaseSha256": "981502A3542BCC5857A325C587F58A790996D35E1B66BF646F7DDE04F01083B4",
+        "SourcePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\setup.cpp",
+        "SourceSha256": "981502A3542BCC5857A325C587F58A790996D35E1B66BF646F7DDE04F01083B4",
+        "Match": true,
+        "AllowedMismatch": false,
+        "PendingInstallOnly": false
+      },
+      {
+        "Role": "defines",
+        "CasePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\defines.hpp",
+        "CaseSha256": "F2B5AD0CBFA807485E7E2D7A42653540E8B1F6FA0A99DC9926EED68CFB226C29",
+        "SourcePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp",
+        "SourceSha256": "F2B5AD0CBFA807485E7E2D7A42653540E8B1F6FA0A99DC9926EED68CFB226C29",
+        "Match": true,
+        "AllowedMismatch": false,
+        "PendingInstallOnly": false
+      }
+    ]
+  },
+  "CaseToRunSourceParityGate": {
+    "Gate": "pass",
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "Notes": [],
+    "NotesCsv": "",
+    "Pairs": [
+      {
+        "Role": "setup",
+        "CasePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\setup.cpp",
+        "CaseSha256": "981502A3542BCC5857A325C587F58A790996D35E1B66BF646F7DDE04F01083B4",
+        "SourcePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\setup.cpp",
+        "SourceSha256": "981502A3542BCC5857A325C587F58A790996D35E1B66BF646F7DDE04F01083B4",
+        "Match": true,
+        "AllowedMismatch": false,
+        "PendingInstallOnly": false
+      },
+      {
+        "Role": "defines",
+        "CasePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\defines.hpp",
+        "CaseSha256": "F2B5AD0CBFA807485E7E2D7A42653540E8B1F6FA0A99DC9926EED68CFB226C29",
+        "SourcePath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp",
+        "SourceSha256": "F2B5AD0CBFA807485E7E2D7A42653540E8B1F6FA0A99DC9926EED68CFB226C29",
+        "Match": true,
+        "AllowedMismatch": false,
+        "PendingInstallOnly": false
+      }
+    ]
+  },
+  "RequiredSourceFiles": [
+    {
+      "Role": "Native FluidX3D original setup",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\setup.cpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "981502A3542BCC5857A325C587F58A790996D35E1B66BF646F7DDE04F01083B4"
+    },
+    {
+      "Role": "Native FluidX3D original defines",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "136D490CD9874C985FFB5ABD8171F750610B743FE862499BA20FD3003AE5DDE2"
+    },
+    {
+      "Role": "Native FluidX3D lbm.hpp",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\lbm.hpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "AB2AA4F4C1C177952AD4462ADC7929041B3063E4CE9025AA28F05F5314A9D0AF"
+    },
+    {
+      "Role": "Native FluidX3D lbm.cpp",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\lbm.cpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "E12D2F558E8B2885F80A40E76DAF5A6F56CBAE06A28206AB86F4D73EAFD8CA00"
+    },
+    {
+      "Role": "FluidX3D setup",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\setup.cpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "981502A3542BCC5857A325C587F58A790996D35E1B66BF646F7DDE04F01083B4",
+      "CandidatePaths": [
+        "src/setup.cpp",
+        "setup.cpp"
+      ],
+      "SelectedRelativePath": "setup.cpp"
+    },
+    {
+      "Role": "FluidX3D defines",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\defines.hpp",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "F2B5AD0CBFA807485E7E2D7A42653540E8B1F6FA0A99DC9926EED68CFB226C29",
+      "CandidatePaths": [
+        "src/defines.hpp",
+        "defines.hpp"
+      ],
+      "SelectedRelativePath": "defines.hpp"
+    },
+    {
+      "Role": "Case metadata",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\case_metadata.json",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "7782B984890992B677A93211CF46A9C59DFCA93239C186FDE8036499A7D0755B"
+    },
+    {
+      "Role": "Domain origin",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\domain_origin.json",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "9F6EB23B3B406960FFD91CED0C61A20957D7DBFFF782E110AD85F45C6702B98C"
+    },
+    {
+      "Role": "Validation protocol audit",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\validation_protocol_audit.json",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "BB9BAC6FEC5292924E00311C3999EF058248C01B8EDDB2A683A1C5218024566D"
+    },
+    {
+      "Role": "Buildings STL",
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\buildings.stl",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "42F1CF1B1D63C237F839874D6800E8201CD27BE71CF370B6C4BC5F90EF34DC70"
+    }
+  ],
+  "ValidationProtocolAuditGate": {
+    "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\validation_protocol_audit.json",
+    "Exists": true,
+    "Sha256": "BB9BAC6FEC5292924E00311C3999EF058248C01B8EDDB2A683A1C5218024566D",
+    "Gate": "diagnostic_only",
+    "Reasons": [
+      "validation_protocol_prerun_item_fail:inlet_mean_profile",
+      "validation_protocol_prerun_item_fail:inlet_turbulence_k",
+      "validation_protocol_prerun_item_fail:boundary_conditions",
+      "validation_protocol_prerun_item_fail:wall_roughness_model",
+      "validation_protocol_prerun_item_risk:inlet_turbulence_length_scale",
+      "validation_protocol_prerun_gate_not_ready:diagnostic_only"
+    ],
+    "ReasonsCsv": "validation_protocol_prerun_item_fail:inlet_mean_profile;validation_protocol_prerun_item_fail:inlet_turbulence_k;validation_protocol_prerun_item_fail:boundary_conditions;validation_protocol_prerun_item_fail:wall_roughness_model;validation_protocol_prerun_item_risk:inlet_turbulence_length_scale;validation_protocol_prerun_gate_not_ready:diagnostic_only",
+    "AuditGate": "diagnostic_only",
+    "PaperGradeGate": "diagnostic_only",
+    "PreRunGate": "diagnostic_only",
+    "AllowedAuditGates": [
+      "paper_grade",
+      "paper_grade_candidate",
+      "pass",
+      "ready_for_validation_run"
+    ],
+    "AijCase": "CaseA",
+    "WindDirection": "W",
+    "WindDirectionUnitVector": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "ItemCount": 17,
+    "RequiredItemKeys": [
+      "inlet_mean_profile",
+      "inlet_turbulence_k",
+      "inlet_turbulence_length_scale",
+      "inlet_reynolds_stress_tensor",
+      "inlet_temporal_sampling",
+      "inlet_distribution_consistency",
+      "native_fluidx3d_baseline",
+      "boundary_conditions",
+      "wall_roughness_model",
+      "lbm_stability_scaling",
+      "time_averaging",
+      "wind_direction_sign",
+      "coordinate_transform",
+      "probe_projection",
+      "normalization_basis",
+      "systematic_bias_gate",
+      "grid_resolution"
+    ],
+    "Statuses": {
+      "inlet_mean_profile": "fail",
+      "inlet_turbulence_k": "fail",
+      "inlet_turbulence_length_scale": "risk",
+      "inlet_reynolds_stress_tensor": "pass",
+      "inlet_temporal_sampling": "pass",
+      "inlet_distribution_consistency": "pass",
+      "native_fluidx3d_baseline": "fail",
+      "boundary_conditions": "fail",
+      "wall_roughness_model": "fail",
+      "lbm_stability_scaling": "pass",
+      "time_averaging": "pass",
+      "wind_direction_sign": "pass",
+      "coordinate_transform": "pass",
+      "probe_projection": "pass",
+      "normalization_basis": "pass",
+      "systematic_bias_gate": "fail",
+      "grid_resolution": "risk"
+    },
+    "MissingKeys": [],
+    "EmptyStatusKeys": [],
+    "FailKeys": [
+      "inlet_mean_profile",
+      "inlet_turbulence_k",
+      "native_fluidx3d_baseline",
+      "boundary_conditions",
+      "wall_roughness_model",
+      "systematic_bias_gate"
+    ],
+    "RiskKeys": [
+      "inlet_turbulence_length_scale",
+      "grid_resolution"
+    ],
+    "PartialKeys": [],
+    "PreRunFailKeys": [
+      "inlet_mean_profile",
+      "inlet_turbulence_k",
+      "boundary_conditions",
+      "wall_roughness_model"
+    ],
+    "PreRunRiskKeys": [
+      "inlet_turbulence_length_scale"
+    ],
+    "PreRunPartialKeys": []
+  },
+  "CaseMetadataPreconditionGate": {
+    "Gate": "diagnostic_only",
+    "Reasons": [
+      "case_metadata_paper_grade_turbulent_inlet_prerequisite_not_pass:fail",
+      "case_metadata_paper_grade_boundary_prerequisite_not_pass:fail",
+      "case_metadata_turbulent_inlet_status_diagnostic_only",
+      "case_metadata_boundary_status_diagnostic_only",
+      "case_metadata_boundary_evidence_false:non_reflecting_outlet",
+      "case_metadata_boundary_evidence_false:side_top_wind_tunnel_equivalence",
+      "case_metadata_boundary_evidence_false:precursor_or_recycling",
+      "case_metadata_boundary_evidence_false:blockage_fetch_evidence"
+    ],
+    "ReasonsCsv": "case_metadata_paper_grade_turbulent_inlet_prerequisite_not_pass:fail;case_metadata_paper_grade_boundary_prerequisite_not_pass:fail;case_metadata_turbulent_inlet_status_diagnostic_only;case_metadata_boundary_status_diagnostic_only;case_metadata_boundary_evidence_false:non_reflecting_outlet;case_metadata_boundary_evidence_false:side_top_wind_tunnel_equivalence;case_metadata_boundary_evidence_false:precursor_or_recycling;case_metadata_boundary_evidence_false:blockage_fetch_evidence",
+    "PaperGradeTurbulentInletPrerequisiteGate": "fail",
+    "PaperGradeBoundaryPrerequisiteGate": "fail",
+    "SyntheticTurbulentInletInjected": true,
+    "InletDistributionFunctionReconstruction": true,
+    "SyntheticTurbulentInletDistributionTreatment": "fluidx3d_reconstruct_inlet_stress_ddf; refreshed on type_e inlet nodes in batch and graphics modes after macroscopic velocity update",
+    "SyntheticTurbulentInletPaperGradeStatus": "diagnostic_only_until_distribution_reconstruction_reynolds_stress_or_precursor_evidence_and_native_u_k_correlation_gates_pass",
+    "BoundaryConditionPaperGradeStatus": "diagnostic_only_until_boundary_source_and_aij_protocol_evidence_pass"
+  },
+  "CaseSetupSourcePreconditionGate": {
+    "Gate": "pass",
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "SetupPath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\setup.cpp",
+    "SetupSha256": "981502A3542BCC5857A325C587F58A790996D35E1B66BF646F7DDE04F01083B4",
+    "ExpectedTimeSteps": 300,
+    "ExpectedSaveInterval": 150,
+    "WindProfile": "customtable",
+    "CustomTableRequired": true,
+    "SyntheticRequested": true,
+    "SyntheticInjected": true
+  },
+  "OfficialInputPreconditionGate": {
+    "Gate": "diagnostic_only",
+    "Reasons": [
+      "official:official_csv_missing_for_requested_preflight"
+    ],
+    "ReasonsCsv": "official:official_csv_missing_for_requested_preflight",
+    "OfficialProbeAudit": {
+      "Gate": "diagnostic_only",
+      "Reasons": [
+        "official_csv_missing_for_requested_preflight"
+      ],
+      "ReasonsCsv": "official_csv_missing_for_requested_preflight",
+      "Path": "",
+      "Exists": false,
+      "Sha256": "",
+      "RowCount": 0,
+      "FilteredRowCount": 0,
+      "Columns": [],
+      "ProbeIdColumn": "",
+      "CaseColumn": "",
+      "WindDirectionColumn": "",
+      "AssumedSingleCaseFile": false,
+      "AssumedSingleWindFile": false,
+      "ZColumn": "",
+      "ExpectedCase": "CaseA",
+      "OfficialConditionFilter": "",
+      "EffectiveConditionFilter": "CaseA",
+      "ExpectedWindDirection": "W",
+      "OfficialWindFilter": "",
+      "EffectiveWindFilter": "W",
+      "ExpectedRowCount": 0,
+      "ExpectedZ": null,
+      "ExpectedZMin": null,
+      "ExpectedZMax": null,
+      "ExpectedZTolerance": 1e-06
+    },
+    "AfProfileAudit": {
+      "Gate": "pass",
+      "Reasons": [],
+      "ReasonsCsv": "",
+      "Path": "",
+      "Exists": false,
+      "Sha256": "",
+      "RowCount": 0,
+      "Columns": [],
+      "ZColumn": "",
+      "UColumn": "",
+      "KColumn": "",
+      "ValidKCount": 0,
+      "Zref": null,
+      "ExpectedUref": null,
+      "UrefFromAfAtZref": null,
+      "UrefAfTolerance": 1e-06,
+      "RequireK": false
+    },
+    "ExpectedWindVector": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "MetadataWindVector": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "ProtocolWindVector": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "EffectiveWindVector": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "WindVectorTolerance": 1e-06
+  },
+  "PreExecutionGate": {
+    "Gate": "diagnostic_only",
+    "Reasons": [
+      "validation_protocol_prerun_item_fail:inlet_mean_profile",
+      "validation_protocol_prerun_item_fail:inlet_turbulence_k",
+      "validation_protocol_prerun_item_fail:boundary_conditions",
+      "validation_protocol_prerun_item_fail:wall_roughness_model",
+      "validation_protocol_prerun_item_risk:inlet_turbulence_length_scale",
+      "validation_protocol_prerun_gate_not_ready:diagnostic_only",
+      "case_metadata_paper_grade_turbulent_inlet_prerequisite_not_pass:fail",
+      "case_metadata_paper_grade_boundary_prerequisite_not_pass:fail",
+      "case_metadata_turbulent_inlet_status_diagnostic_only",
+      "case_metadata_boundary_status_diagnostic_only",
+      "case_metadata_boundary_evidence_false:non_reflecting_outlet",
+      "case_metadata_boundary_evidence_false:side_top_wind_tunnel_equivalence",
+      "case_metadata_boundary_evidence_false:precursor_or_recycling",
+      "case_metadata_boundary_evidence_false:blockage_fetch_evidence",
+      "official:official_csv_missing_for_requested_preflight",
+      "paper_grade_inlet_source_gate_not_pass:fail",
+      "source_missing_turbulent_length_scale_evidence",
+      "paper_grade_boundary_source_gate_not_pass:fail",
+      "boundary_source_not_wind_tunnel_equivalent",
+      "boundary_source_fidelity_class_not_paper_grade:diagnostic_profile_maintenance_buffer",
+      "boundary_source_missing_advanced_code_evidence",
+      "outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary",
+      "missing_non_reflecting_or_validated_outlet_state",
+      "missing_side_top_boundary_pair_mapping",
+      "missing_precursor_or_recycling_development_field",
+      "planned_time_steps_300_below_minimum_flowthrough_steps_19368",
+      "planned_stg_refresh_count_0_below_minimum_200"
+    ],
+    "ReasonsCsv": "validation_protocol_prerun_item_fail:inlet_mean_profile;validation_protocol_prerun_item_fail:inlet_turbulence_k;validation_protocol_prerun_item_fail:boundary_conditions;validation_protocol_prerun_item_fail:wall_roughness_model;validation_protocol_prerun_item_risk:inlet_turbulence_length_scale;validation_protocol_prerun_gate_not_ready:diagnostic_only;case_metadata_paper_grade_turbulent_inlet_prerequisite_not_pass:fail;case_metadata_paper_grade_boundary_prerequisite_not_pass:fail;case_metadata_turbulent_inlet_status_diagnostic_only;case_metadata_boundary_status_diagnostic_only;case_metadata_boundary_evidence_false:non_reflecting_outlet;case_metadata_boundary_evidence_false:side_top_wind_tunnel_equivalence;case_metadata_boundary_evidence_false:precursor_or_recycling;case_metadata_boundary_evidence_false:blockage_fetch_evidence;official:official_csv_missing_for_requested_preflight;paper_grade_inlet_source_gate_not_pass:fail;source_missing_turbulent_length_scale_evidence;paper_grade_boundary_source_gate_not_pass:fail;boundary_source_not_wind_tunnel_equivalent;boundary_source_fidelity_class_not_paper_grade:diagnostic_profile_maintenance_buffer;boundary_source_missing_advanced_code_evidence;outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary;missing_non_reflecting_or_validated_outlet_state;missing_side_top_boundary_pair_mapping;missing_precursor_or_recycling_development_field;planned_time_steps_300_below_minimum_flowthrough_steps_19368;planned_stg_refresh_count_0_below_minimum_200"
+  },
+  "DiagnosticExecutionOverrideAllowed": true,
+  "Install": {
+    "Requested": true,
+    "Performed": true,
+    "Backups": [
+      {
+        "Role": "src/setup.cpp",
+        "Path": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\native_source_backups\\src\\setup.cpp",
+        "Sha256": "0FA2A65063593F7AA81EE973F946E38BF42D9A09E5A8ED25094E9484D2F2AECB"
+      },
+      {
+        "Role": "src/defines.hpp",
+        "Path": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\native_source_backups\\src\\defines.hpp",
+        "Sha256": "6C5DA8760507803814FCF4499EEBA25DCB22556FF43B647F47C96988AE602540"
+      }
+    ],
+    "InstalledFiles": [
+      {
+        "Source": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\setup.cpp",
+        "Target": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\setup.cpp",
+        "Sha256": "981502A3542BCC5857A325C587F58A790996D35E1B66BF646F7DDE04F01083B4",
+        "Role": "src/setup.cpp"
+      },
+      {
+        "Source": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\defines.hpp",
+        "Target": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp",
+        "Sha256": "F2B5AD0CBFA807485E7E2D7A42653540E8B1F6FA0A99DC9926EED68CFB226C29",
+        "Role": "src/defines.hpp"
+      },
+      {
+        "Source": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\case_metadata.json",
+        "Target": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\case_metadata.json",
+        "Sha256": "7782B984890992B677A93211CF46A9C59DFCA93239C186FDE8036499A7D0755B",
+        "Role": "case_metadata.json"
+      },
+      {
+        "Source": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\domain_origin.json",
+        "Target": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\domain_origin.json",
+        "Sha256": "9F6EB23B3B406960FFD91CED0C61A20957D7DBFFF782E110AD85F45C6702B98C",
+        "Role": "domain_origin.json"
+      },
+      {
+        "Source": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\buildings.stl",
+        "Target": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\buildings.stl",
+        "Sha256": "42F1CF1B1D63C237F839874D6800E8201CD27BE71CF370B6C4BC5F90EF34DC70",
+        "Role": "buildings.stl"
+      }
+    ],
+    "Gate": "pass"
+  },
+  "ReconstructionMacroAdaptation": {
+    "Requested": true,
+    "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\defines.hpp",
+    "Exists": true,
+    "Modified": false,
+    "Sha256Before": "F2B5AD0CBFA807485E7E2D7A42653540E8B1F6FA0A99DC9926EED68CFB226C29",
+    "Sha256After": "F2B5AD0CBFA807485E7E2D7A42653540E8B1F6FA0A99DC9926EED68CFB226C29",
+    "Capabilities": {
+      "SupportsInletStressDdf": false,
+      "SupportsEquilibriumDdf": true
+    },
+    "AppliedActions": [],
+    "Gate": "pass",
+    "Reasons": [],
+    "ReasonsCsv": ""
+  },
+  "WindowsSdkProjectPatch": {
+    "RequestedVersion": "10.0.26100.0",
+    "Gate": "pass",
+    "Files": [
+      {
+        "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj",
+        "Sha256Before": "0CE1610BBC378048E67D23D749C2CCE92FF5244DCE016A1F95B69FD5CBEDEBE9",
+        "Changed": false,
+        "Sha256After": "0CE1610BBC378048E67D23D749C2CCE92FF5244DCE016A1F95B69FD5CBEDEBE9"
+      }
+    ],
+    "Reasons": [],
+    "Modified": false
+  },
+  "BatchVtkGraphicsOverride": {
+    "Requested": true,
+    "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp",
+    "Exists": true,
+    "Modified": true,
+    "Sha256Before": "F2B5AD0CBFA807485E7E2D7A42653540E8B1F6FA0A99DC9926EED68CFB226C29",
+    "Sha256After": "136D490CD9874C985FFB5ABD8171F750610B743FE862499BA20FD3003AE5DDE2",
+    "DisabledMacros": [
+      "GRAPHICS",
+      "INTERACTIVE_GRAPHICS"
+    ],
+    "Gate": "pass"
+  },
+  "RuntimeWorkingDirectoryInputs": [
+    {
+      "Source": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\buildings.stl",
+      "Target": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\buildings.stl",
+      "Sha256": "42F1CF1B1D63C237F839874D6800E8201CD27BE71CF370B6C4BC5F90EF34DC70",
+      "Role": "solver_cwd/buildings.stl"
+    },
+    {
+      "Source": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\case_metadata.json",
+      "Target": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\case_metadata.json",
+      "Sha256": "7782B984890992B677A93211CF46A9C59DFCA93239C186FDE8036499A7D0755B",
+      "Role": "solver_cwd/case_metadata.json"
+    },
+    {
+      "Source": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\domain_origin.json",
+      "Target": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\domain_origin.json",
+      "Sha256": "9F6EB23B3B406960FFD91CED0C61A20957D7DBFFF782E110AD85F45C6702B98C",
+      "Role": "solver_cwd/domain_origin.json"
+    }
+  ],
+  "Build": {
+    "Requested": true,
+    "MSBuild": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe",
+    "WindowsSdkVersionRequested": "auto",
+    "WindowsSdkVersionResolved": "10.0.26100.0",
+    "Command": [
+      "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe",
+      "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.sln",
+      "/p:Configuration=Release",
+      "/p:Platform=x64",
+      "/p:PlatformToolset=v143",
+      "/p:WindowsTargetPlatformVersion=10.0.26100.0"
+    ],
+    "ReturnCode": 0,
+    "ElapsedSeconds": 8.734,
+    "Stdout": "适用于 .NET Framework MSBuild 版本 17.14.23+b0019275e\n生成启动时间为 2026/8/26 19:09:54。\n\n节点 1 上的项目“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.sln”(默认目标)。\nValidateSolutionConfiguration:\n  正在生成解决方案配置“Release|x64”。\n项目“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.sln”(1)正在节点 1 上生成“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj”(2) (默认目标)。\nC:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Microsoft\\VC\\v170\\Microsoft.CppBuild.targets(548,5): warning MSB8029: 中间目录或输出目录无法驻留在临时目录下，因为这可能会导致增量生成出现问题。 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。\nInitializeBuildStatus:\n  正在创建“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\FluidX3D.tlog\\unsuccessfulbuild”，因为已指定“AlwaysCreate”。\n  正在对“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\FluidX3D.tlog\\unsuccessfulbuild”执行 Touch 任务。\nClCompile:\n  C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX86\\x64\\CL.exe /c /IC:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\OpenCL\\include /Zi /nologo /W3 /WX- /diagnostics:column /sdl /MP /O2 /Oi /Ot /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /Qpar /fp:fast /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++17 /permissive- /Fo\"C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\\\\" /Fd\"C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\vc143.pdb\" /external:W3 /Gd /TP /wd26451 /wd6386 /FC /errorReport:queue src\\graphics.cpp src\\info.cpp src\\lbm.cpp src\\main.cpp src\\setup.cpp\n  graphics.cpp\n  info.cpp\n  lbm.cpp\n  main.cpp\n  setup.cpp\nC:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\setup.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\nC:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  (编译源文件“src/lbm.cpp”)\n  \nC:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  (编译源文件“src/graphics.cpp”)\n  \nC:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  (编译源文件“src/setup.cpp”)\n  \nC:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  (编译源文件“src/main.cpp”)\n  \nC:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  (编译源文件“src/info.cpp”)\n  \nC:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\setup.cpp(416,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\nResourceCompile:\n  所有输出均为最新。\nLink:\n  C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX86\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:\"C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\bin\\FluidX3D.exe\" /NOLOGO /LIBPATH:C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\OpenCL\\lib OpenCL.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:\"level='asInvoker' uiAccess='false'\" /manifest:embed /DEBUG:FULL /PDB:\"C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\bin\\FluidX3D.pdb\" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:\"C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\FluidX3D.iobj\" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:\"C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\bin\\FluidX3D.lib\" /MACHINE:X64 C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\resource.res\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\graphics.obj\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\info.obj\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\kernel.obj\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\lbm.obj\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\lodepng.obj\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\main.obj\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\setup.obj\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\shapes.obj\n  正在生成代码\n  10 of 3217 functions ( 0.3%) were compiled, the rest were copied from previous compilation.\n    0 functions were new in current compilation\n    11 functions had inline decision re-evaluated but remain unchanged\n  已完成代码的生成\n  FluidX3D.vcxproj -> C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\bin\\FluidX3D.exe\nFinalizeBuildStatus:\n  正在删除文件“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\FluidX3D.tlog\\unsuccessfulbuild”。\n  正在对“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\temp\\FluidX3D.tlog\\FluidX3D.lastbuildstate”执行 Touch 任务。\n已完成生成项目“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj”(默认目标)的操作。\n已完成生成项目“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.sln”(默认目标)的操作。\n\n已成功生成。\n\n“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.sln”(默认目标) (1) ->\n“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj”(默认目标) (2) ->\n(PrepareForBuild 目标) -> \n  C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Microsoft\\VC\\v170\\Microsoft.CppBuild.targets(548,5): warning MSB8029: 中间目录或输出目录无法驻留在临时目录下，因为这可能会导致增量生成出现问题。 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n\n\n“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.sln”(默认目标) (1) ->\n“C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj”(默认目标) (2) ->\n(ClCompile 目标) -> \n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\setup.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\defines.hpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n  C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\src\\setup.cpp(416,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\FluidX3D.vcxproj]\n\n    8 个警告\n    0 个错误\n\n已用时间 00:00:08.29\n",
+    "Stderr": "",
+    "TimedOut": false,
+    "Gate": "pass"
+  },
+  "Run": {
+    "Requested": true,
+    "Executable": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\bin\\FluidX3D.exe",
+    "ExecutableSha256": "278F6586093C901F74CC4EC3A005D62BE49DE1FB7A3E6CA974AA9521F33CF8AA",
+    "Command": [
+      "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_fluidx3d_source\\bin\\FluidX3D.exe"
+    ],
+    "ReturnCode": 0,
+    "ElapsedSeconds": 66.25,
+    "Stdout": ".-----------------------------------------------------------------------------.\n|                       ______________   ______________                       |\n|                       \\   ________  | |  ________   /                       |\n|                        \\  \\       | | | |       /  /                        |\n|                         \\  \\      | | | |      /  /                         |\n|                          \\  \\     | | | |     /  /                          |\n|                           \\  \\_.-\"  | |  \"-._/  /                           |\n|                            \\    _.-\" _ \"-._    /                            |\n|                             \\.-\" _.-\" \"-._ \"-./                             |\n|                               .-\"  .-\"-.  \"-.                               |\n|                               \\  v\"     \"v  /                               |\n|                                \\  \\     /  /                                |\n|                                 \\  \\   /  /                                 |\n|                                  \\  \\ /  /                                  |\n|                                   \\  '  /                                   |\n|                                    \\   /                                    |\n|                                     \\ /                FluidX3D Version 3.7 |\n|                                      '     Copyright (c) Dr. Moritz Lehmann |\n|-----------------------------------------------------------------------------|\n\n|----------------.------------------------------------------------------------|\n| Device ID    0 | NVIDIA GeForce RTX 3060 Laptop GPU                         |\n|----------------'------------------------------------------------------------|\n\n|----------------.------------------------------------------------------------|\n| Device ID      | 0                                                          |\n| Device Name    | NVIDIA GeForce RTX 3060 Laptop GPU                         |\n| Device Vendor  | NVIDIA Corporation                                         |\n| Device Driver  | 527.56 (Windows)                                           |\n| OpenCL Version | OpenCL C 3.0                                               |\n| Compute Units  | 30 at 1425 MHz (3840 cores, 10.944 TFLOPs/s)               |\n| Memory, Cache  | 6143 MB VRAM, 840 KB global / 48 KB local                  |\n| Buffer Limits  | 1535 MB global, 64 KB constant                             |\n|----------------'------------------------------------------------------------|\n\n| Info: OpenCL C code successfully compiled.                                  |\n\n| Info: Allocating memory. This may take a few seconds.                       |\n\n| Info: Loading \"buildings.stl\" with 12 triangles.                            |\n\n| Warning: Some boundary cells have non-zero velocity, but MOVING_BOUNDARIES  |\n|          is not enabled. If you intend to use moving boundaries, uncomment  |\n|          \"#define MOVING_BOUNDARIES\" in defines.hpp.                        |\n|-----------------.-----------------------------------------------------------|\n| Grid Resolution |                                547 x 280 x 160 = 24505600 |\n| Grid Domains    |                                             1 x 1 x 1 = 1 |\n| LBM Type        |                                     D3Q19 SRT (FP32/FP32) |\n| Memory Usage    |                                CPU 677 MB, GPU 1x 2452 MB |\n| Max Alloc Size  |                                                   1776 MB |\n| Time Steps      |                                                         0 |\n| Kin. Viscosity  |                                                0.00004717 |\n| Relaxation Time |                                                0.50014152 |\n| Reynolds Number |                                              Re < 7772136 |\n|---------.-------'-----.-----------.-------------------.---------------------|\n| MLUPs   | Bandwidth   | Steps/s   | Current Step      | Time Remaining      |\n\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 15s |\n|      25 |      4 GB/s |         1 |            0   0% |                 44s |\n|     164 |     27 GB/s |         7 |            2   8% |                 22s |\n|     280 |     46 GB/s |        11 |            4  16% |                 10s |\n|     421 |     69 GB/s |        17 |            7  28% |                  5s |\n|     642 |    106 GB/s |        26 |           11  44% |                  3s |\n|     877 |    145 GB/s |        36 |           16  64% |                  1s |\n|    1073 |    177 GB/s |        44 |           21  84% |                  0s |\n| Info: Step: 25 / 300                                                        |\n\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1198 |    198 GB/s |        49 |           25 100% |                  0s |\n|    1182 |    195 GB/s |        48 |           27   8% |                 43s |\n|    1201 |    198 GB/s |        49 |           30  20% |                 15s |\n|    1266 |    209 GB/s |        52 |           34  36% |                  7s |\n|    1328 |    219 GB/s |        54 |           38  52% |                  4s |\n|    1371 |    226 GB/s |        56 |           42  68% |                  2s |\n|    1469 |    242 GB/s |        60 |           47  88% |                  1s |\n| Info: Step: 50 / 300                                                        |\n\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50 100% |                  0s |\n|    1515 |    250 GB/s |        62 |           50   0% |               1m28s |\n|    1393 |    230 GB/s |        57 |           53  12% |                 28s |\n|    1291 |    213 GB/s |        53 |           55  20% |                 15s |\n|    1235 |    204 GB/s |        50 |           57  28% |                 10s |\n|    1291 |    213 GB/s |        53 |           61  44% |                  5s |\n|    1403 |    232 GB/s |        57 |           66  64% |                  2s |\n|    1496 |    247 GB/s |        61 |           71  84% |                  1s |\n| Info: Step: 75 / 300                                                        |\n\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1552 |    256 GB/s |        63 |           75 100% |                  0s |\n|    1478 |    244 GB/s |        60 |           77   8% |                 43s |\n|    1445 |    238 GB/s |        59 |           80  20% |                 15s |\n|    1468 |    242 GB/s |        60 |           84  36% |                  7s |\n|    1499 |    247 GB/s |        61 |           88  52% |                  4s |\n|    1511 |    249 GB/s |        62 |           92  68% |                  2s |\n|    1579 |    261 GB/s |        64 |           97  88% |                  1s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n| Info: File \"output/u-000000100.vtk\" saved.                                  |\n\n| Info: Step: 100 / 300                                                       |\n\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100 100% |                  0s |\n|    1622 |    268 GB/s |        66 |          100   0% |               3m08s |\n|    1500 |    247 GB/s |        61 |          101   4% |               3m09s |\n|    1361 |    224 GB/s |        56 |          103  12% |                 58s |\n|    1241 |    205 GB/s |        51 |          105  20% |                 32s |\n|    1162 |    192 GB/s |        47 |          107  28% |                 21s |\n|    1268 |    209 GB/s |        52 |          112  48% |                  9s |\n|    1360 |    224 GB/s |        56 |          116  64% |                  5s |\n|    1463 |    241 GB/s |        60 |          121  84% |                  2s |\n| Info: Step: 125 / 300                                                       |\n\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1526 |    252 GB/s |        62 |          125 100% |                  0s |\n|    1447 |    239 GB/s |        59 |          127   8% |                 43s |\n|    1415 |    234 GB/s |        58 |          130  20% |                 15s |\n|    1457 |    240 GB/s |        59 |          134  36% |                  7s |\n|    1511 |    249 GB/s |        62 |          139  56% |                  3s |\n|    1536 |    253 GB/s |        63 |          143  72% |                  2s |\n|    1601 |    264 GB/s |        65 |          148  92% |                  0s |\n| Info: Step: 150 / 300                                                       |\n\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1625 |    268 GB/s |        66 |          150 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          151   4% |               1m29s |\n|    1464 |    242 GB/s |        60 |          153  12% |                 28s |\n|    1364 |    225 GB/s |        56 |          155  20% |                 15s |\n|    1259 |    208 GB/s |        51 |          158  32% |                  8s |\n|    1350 |    223 GB/s |        55 |          162  48% |                  4s |\n|    1448 |    239 GB/s |        59 |          167  68% |                  2s |\n|    1534 |    253 GB/s |        63 |          172  88% |                  1s |\n| Info: Step: 175 / 300                                                       |\n\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175 100% |                  0s |\n|    1576 |    260 GB/s |        64 |          175   0% |               1m28s |\n|    1473 |    243 GB/s |        60 |          178  12% |                 27s |\n|    1454 |    240 GB/s |        59 |          182  28% |                 10s |\n|    1503 |    248 GB/s |        61 |          186  44% |                  5s |\n|    1560 |    257 GB/s |        64 |          191  64% |                  2s |\n|    1597 |    263 GB/s |        65 |          195  80% |                  1s |\n| Info: Step: 200 / 300                                                       |\n\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1650 |    272 GB/s |        67 |          200 100% |                  0s |\n|    1537 |    254 GB/s |        63 |          202   8% |                 43s |\n|    1448 |    239 GB/s |        59 |          204  16% |                 20s |\n|    1338 |    221 GB/s |        55 |          207  28% |                 10s |\n|    1279 |    211 GB/s |        52 |          209  36% |                  7s |\n|    1375 |    227 GB/s |        56 |          214  56% |                  3s |\n|    1466 |    242 GB/s |        60 |          219  76% |                  1s |\n|    1551 |    256 GB/s |        63 |          224  96% |                  0s |\n| Info: Step: 225 / 300                                                       |\n\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225 100% |                  0s |\n|    1557 |    257 GB/s |        64 |          225   0% |               1m28s |\n|    1474 |    243 GB/s |        60 |          227   8% |                 43s |\n|    1411 |    233 GB/s |        58 |          231  24% |                 12s |\n|    1468 |    242 GB/s |        60 |          235  40% |                  6s |\n|    1532 |    253 GB/s |        63 |          240  60% |                  3s |\n|    1568 |    259 GB/s |        64 |          244  76% |                  1s |\n|    1630 |    269 GB/s |        67 |          249  96% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n| Info: File \"output/u-000000250.vtk\" saved.                                  |\n\n| Info: Step: 250 / 300                                                       |\n\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250 100% |                  0s |\n|    1637 |    270 GB/s |        67 |          250   0% |               3m25s |\n|    1410 |    233 GB/s |        58 |          252   8% |               1m39s |\n|    1323 |    218 GB/s |        54 |          253  12% |               1m03s |\n|    1276 |    210 GB/s |        52 |          257  28% |                 22s |\n|    1366 |    225 GB/s |        56 |          261  44% |                 11s |\n|    1463 |    241 GB/s |        60 |          266  64% |                  5s |\n|    1537 |    254 GB/s |        63 |          271  84% |                  2s |\n| Info: Step: 275 / 300                                                       |\n\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275 100% |                  0s |\n|    1593 |    263 GB/s |        65 |          275   0% |               1m29s |\n|    1464 |    241 GB/s |        60 |          277   8% |                 43s |\n|    1326 |    219 GB/s |        54 |          280  20% |                 15s |\n|    1258 |    208 GB/s |        51 |          282  28% |                 10s |\n|    1332 |    220 GB/s |        54 |          286  44% |                  5s |\n|    1439 |    237 GB/s |        59 |          291  64% |                  2s |\n|    1521 |    251 GB/s |        62 |          296  84% |                  1s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n|    1582 |    261 GB/s |        65 |          300 100% |                  0s |\n| Info: File \"output/u-000000300.vtk\" saved.                                  |\n\n| Info: Step: 300 / 300                                                       |\n\n|---------'-------------'-----------'-------------------'---------------------|\n",
+    "Stderr": "",
+    "TimedOut": false,
+    "Gate": "pass"
+  },
+  "SharedRunConditions": {
+    "TimeSteps": 300,
+    "SaveInterval": 150,
+    "SaveStartStep": 100,
+    "ExpectedVtkFrameCount": 3,
+    "ComputedVtkFrameCount": 3,
+    "AverageLastN": 1,
+    "RecommendedAverageLastNForStepSpan": 1,
+    "RecommendedMinimumTimeStepsForCurrentSaveInterval": 100,
+    "ExpectedFinalWindowStepSpan": 0,
+    "MinimumValidationAverageFrames": 1,
+    "MinimumValidationAverageStepSpan": 0,
+    "MinimumSyntheticInletRefreshes": 200,
+    "MinimumFlowThroughCount": 3.0,
+    "RecommendedMinimumTimeStepsForFlowThrough": 19368,
+    "EstimatedOneFlowThroughSteps": 6456,
+    "PlannedFlowThroughCount": 0.046468401486988845,
+    "VtkPattern": "u-*.vtk"
+  },
+  "PlannedVtkScheduleGate": {
+    "Gate": "pass",
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "ComputedFrameCount": 3,
+    "SaveStartStep": 100,
+    "AverageLastN": 1,
+    "RecommendedAverageLastNForStepSpan": 1,
+    "RecommendedMinimumTimeStepsForCurrentSaveInterval": 100,
+    "AdaptiveAverageWindowPolicy": "increase AverageLastN when SaveInterval is too small for the minimum final-window step span",
+    "MinimumFrameCount": 1,
+    "FinalWindowStepSpan": 0,
+    "MinimumStepSpan": 0
+  },
+  "FlowThroughTimeGate": {
+    "Gate": "diagnostic_only",
+    "Reasons": [
+      "planned_time_steps_300_below_minimum_flowthrough_steps_19368"
+    ],
+    "ReasonsCsv": "planned_time_steps_300_below_minimum_flowthrough_steps_19368",
+    "GridDimensions": [
+      547,
+      280,
+      160
+    ],
+    "WindVector": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "DominantAxis": "x",
+    "DomainLengthCells": 547,
+    "ReferenceVelocityLbm": 0.08473584905660378,
+    "ReferenceVelocitySource": "reference_mps_times_velocity_scale_mps_to_lbm",
+    "EstimatedOneFlowThroughSteps": 6456,
+    "MinimumFlowThroughCount": 3.0,
+    "RecommendedMinimumTimeStepsForFlowThrough": 19368,
+    "PlannedFlowThroughCount": 0.046468401486988845
+  },
+  "OutputDiskSpaceGate": {
+    "Gate": "pass",
+    "Dimensions": [
+      547,
+      280,
+      160
+    ],
+    "FrameCount": 3,
+    "CellCount": 24505600,
+    "BytesPerFrame": 294067200,
+    "SafetyFactor": 1.05,
+    "EstimatedRequiredBytes": 926311680,
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "OutputDir": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\output",
+    "FreeBytes": 1790885888
+  },
+  "OutputDefinesPath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_canary_case\\defines.hpp",
+  "ActualVtkOutputGate": {
+    "Gate": "pass",
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "ActualFrameCount": 3,
+    "ExpectedFrameCount": 3,
+    "ActualSourceTimeSteps": [
+      100,
+      250,
+      300
+    ],
+    "ActualSourceTimeStepsCsv": "100;250;300",
+    "ActualSourceVtkSha256": [
+      "6E2A1A4BBDEAAE2B2C230393484E16D3A11CDCEB530668460D9D0F2690ED3900",
+      "DD4E6DEE1A118E2B5C1462B9B2B386FFF2C4AABDB33ED5F9942D60D6C35A16E9",
+      "ADAC72CE1016EDDD7EF1FFF95416A14E1CA17BAAE245FA721148DE2B188F6714"
+    ],
+    "ActualSourceVtkSha256Csv": "6E2A1A4BBDEAAE2B2C230393484E16D3A11CDCEB530668460D9D0F2690ED3900;DD4E6DEE1A118E2B5C1462B9B2B386FFF2C4AABDB33ED5F9942D60D6C35A16E9;ADAC72CE1016EDDD7EF1FFF95416A14E1CA17BAAE245FA721148DE2B188F6714",
+    "ActualSourceStepHashPairs": [
+      {
+        "TimeStep": 100,
+        "Sha256": "6E2A1A4BBDEAAE2B2C230393484E16D3A11CDCEB530668460D9D0F2690ED3900",
+        "StepHash": "100:6E2A1A4BBDEAAE2B2C230393484E16D3A11CDCEB530668460D9D0F2690ED3900",
+        "Path": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\output\\u-000000100.vtk"
+      },
+      {
+        "TimeStep": 250,
+        "Sha256": "DD4E6DEE1A118E2B5C1462B9B2B386FFF2C4AABDB33ED5F9942D60D6C35A16E9",
+        "StepHash": "250:DD4E6DEE1A118E2B5C1462B9B2B386FFF2C4AABDB33ED5F9942D60D6C35A16E9",
+        "Path": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\output\\u-000000250.vtk"
+      },
+      {
+        "TimeStep": 300,
+        "Sha256": "ADAC72CE1016EDDD7EF1FFF95416A14E1CA17BAAE245FA721148DE2B188F6714",
+        "StepHash": "300:ADAC72CE1016EDDD7EF1FFF95416A14E1CA17BAAE245FA721148DE2B188F6714",
+        "Path": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\output\\u-000000300.vtk"
+      }
+    ],
+    "ActualSourceStepHashPairsCsv": "100:6E2A1A4BBDEAAE2B2C230393484E16D3A11CDCEB530668460D9D0F2690ED3900;250:DD4E6DEE1A118E2B5C1462B9B2B386FFF2C4AABDB33ED5F9942D60D6C35A16E9;300:ADAC72CE1016EDDD7EF1FFF95416A14E1CA17BAAE245FA721148DE2B188F6714",
+    "ExpectedSourceTimeSteps": [
+      100,
+      250,
+      300
+    ],
+    "SelectedFinalWindowTimeSteps": [
+      300
+    ],
+    "SelectedFinalWindowTimeStepsCsv": "300",
+    "SelectedFinalWindowVtkSha256": [
+      "ADAC72CE1016EDDD7EF1FFF95416A14E1CA17BAAE245FA721148DE2B188F6714"
+    ],
+    "SelectedFinalWindowVtkSha256Csv": "ADAC72CE1016EDDD7EF1FFF95416A14E1CA17BAAE245FA721148DE2B188F6714",
+    "SelectedFinalWindowStepHashPairs": [
+      {
+        "TimeStep": 300,
+        "Sha256": "ADAC72CE1016EDDD7EF1FFF95416A14E1CA17BAAE245FA721148DE2B188F6714",
+        "StepHash": "300:ADAC72CE1016EDDD7EF1FFF95416A14E1CA17BAAE245FA721148DE2B188F6714",
+        "Path": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\output\\u-000000300.vtk"
+      }
+    ],
+    "SelectedFinalWindowStepHashPairsCsv": "300:ADAC72CE1016EDDD7EF1FFF95416A14E1CA17BAAE245FA721148DE2B188F6714",
+    "SelectedFinalWindowStepSpan": 0,
+    "ExpectedSelectedFinalWindowTimeSteps": [
+      300
+    ],
+    "SourceTimeStepUnparsableCount": 0,
+    "SourceTimeStepUniqueCount": 3,
+    "SourceVtkSha256Count": 3,
+    "SourceVtkSha256MissingCount": 0,
+    "SelectedFinalWindowVtkSha256Count": 1,
+    "VtkPayloadAudit": {
+      "100": {
+        "PayloadCheckable": true,
+        "PayloadComplete": true,
+        "PayloadExpectedBytes": 294067200,
+        "PayloadActualBytes": 294067200
+      },
+      "250": {
+        "PayloadCheckable": true,
+        "PayloadComplete": true,
+        "PayloadExpectedBytes": 294067200,
+        "PayloadActualBytes": 294067200
+      },
+      "300": {
+        "PayloadCheckable": true,
+        "PayloadComplete": true,
+        "PayloadExpectedBytes": 294067200,
+        "PayloadActualBytes": 294067200
+      }
+    },
+    "VtkPayloadIncompleteTimeSteps": [],
+    "SelectedFinalWindowPayloadAudit": {
+      "300": {
+        "PayloadCheckable": true,
+        "PayloadComplete": true,
+        "PayloadExpectedBytes": 294067200,
+        "PayloadActualBytes": 294067200
+      }
+    },
+    "SelectedFinalWindowPayloadIncompleteTimeSteps": [],
+    "SourceStepsStrictlyIncreasing": true,
+    "SourceStepSpacingUniform": true,
+    "SourceStepSpacing": null,
+    "AverageLastN": 1,
+    "MinimumFrameCount": 1,
+    "MinimumStepSpan": 0,
+    "ActualOutputRequired": true
+  },
+  "RuntimeInletDiagnosticsResolution": {
+    "Requested": true,
+    "Source": "argument",
+    "Raw": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_solver_cwd\\casea_full_reynolds_stress_tensor_inlet_turbulence_stats.csv",
+    "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_solver_cwd\\casea_full_reynolds_stress_tensor_inlet_turbulence_stats.csv",
+    "Candidates": [
+      "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_solver_cwd\\casea_full_reynolds_stress_tensor_inlet_turbulence_stats.csv"
+    ],
+    "Reason": "explicit_argument"
+  },
+  "RuntimeInletDiagnosticsGate": {
+    "Gate": "pass",
+    "Requested": true,
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "CsvPath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\preflight_codegen_canary\\diagnostic_solver_cwd\\casea_full_reynolds_stress_tensor_inlet_turbulence_stats.csv",
+    "CsvSha256": "BB44250688F9D48885F51FEA1AD5516A575EFD7C3B500BF71FF856B0FC38AEF5",
+    "AuditJsonPath": "",
+    "AuditJsonSha256": "",
+    "ParsedAudit": {
+      "RowCount": 42,
+      "ProfileCount": 3,
+      "ProfileIds": [
+        "0",
+        "1",
+        "2"
+      ],
+      "StepMin": 0,
+      "StepMax": 275,
+      "Columns": [
+        "step",
+        "profile_index",
+        "z_m",
+        "z_cell",
+        "target_U_mps",
+        "target_u_rms_mps",
+        "target_v_rms_mps",
+        "target_w_rms_mps",
+        "target_k_m2s2",
+        "target_r11_m2s2",
+        "target_r22_m2s2",
+        "target_r33_m2s2",
+        "target_r12_m2s2",
+        "target_r13_m2s2",
+        "target_r23_m2s2",
+        "mean_U_mps",
+        "mean_V_mps",
+        "mean_W_mps",
+        "u_rms_mps",
+        "v_rms_mps",
+        "w_rms_mps",
+        "k_m2s2",
+        "mean_x_mps",
+        "mean_y_mps",
+        "mean_z_mps",
+        "x_rms_mps",
+        "y_rms_mps",
+        "z_rms_mps",
+        "measured_r11_m2s2",
+        "measured_r22_m2s2",
+        "measured_r33_m2s2",
+        "measured_r12_m2s2",
+        "measured_r13_m2s2",
+        "measured_r23_m2s2",
+        "samples_y",
+        "effective_sample_z_cell",
+        "effective_sample_z_m"
+      ]
+    }
+  },
+  "NativeAccuracyEvidenceGate": {
+    "Gate": "pass",
+    "Reasons": [
+      "native_run_and_vtk_evidence_present"
+    ],
+    "ReasonsCsv": "native_run_and_vtk_evidence_present",
+    "RunRequested": true,
+    "RunGate": "pass",
+    "ActualVtkOutputRequired": true,
+    "ActualVtkOutputGate": "pass",
+    "ActualFrameCount": 3,
+    "SelectedFinalWindowVtkSha256Count": 1
+  },
+  "PaperUseGate": {
+    "Gate": "fail",
+    "PaperUsable": false,
+    "Reasons": [
+      "diagnostic_execution_override_used",
+      "official_input_gate_not_pass:diagnostic_only",
+      "official_input:official:official_csv_missing_for_requested_preflight",
+      "inlet_source_gate_not_pass:diagnostic_only",
+      "inlet_source:paper_grade_inlet_source_gate_not_pass:fail",
+      "inlet_source:source_missing_turbulent_length_scale_evidence",
+      "boundary_source_gate_not_pass:diagnostic_only",
+      "boundary_source:paper_grade_boundary_source_gate_not_pass:fail",
+      "boundary_source:boundary_source_not_wind_tunnel_equivalent",
+      "boundary_source:boundary_source_fidelity_class_not_paper_grade:diagnostic_profile_maintenance_buffer",
+      "boundary_source:boundary_source_missing_advanced_code_evidence",
+      "boundary_source:outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary",
+      "boundary_source:missing_non_reflecting_or_validated_outlet_state",
+      "boundary_source:missing_side_top_boundary_pair_mapping",
+      "boundary_source:missing_precursor_or_recycling_development_field",
+      "inlet_correlation_gate_not_pass:not_applicable",
+      "flow_through_time_gate_not_pass:diagnostic_only",
+      "flow_through_time:planned_time_steps_300_below_minimum_flowthrough_steps_19368",
+      "native_accuracy_evidence:native_run_and_vtk_evidence_present"
+    ],
+    "ReasonsCsv": "diagnostic_execution_override_used;official_input_gate_not_pass:diagnostic_only;official_input:official:official_csv_missing_for_requested_preflight;inlet_source_gate_not_pass:diagnostic_only;inlet_source:paper_grade_inlet_source_gate_not_pass:fail;inlet_source:source_missing_turbulent_length_scale_evidence;boundary_source_gate_not_pass:diagnostic_only;boundary_source:paper_grade_boundary_source_gate_not_pass:fail;boundary_source:boundary_source_not_wind_tunnel_equivalent;boundary_source:boundary_source_fidelity_class_not_paper_grade:diagnostic_profile_maintenance_buffer;boundary_source:boundary_source_missing_advanced_code_evidence;boundary_source:outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary;boundary_source:missing_non_reflecting_or_validated_outlet_state;boundary_source:missing_side_top_boundary_pair_mapping;boundary_source:missing_precursor_or_recycling_development_field;inlet_correlation_gate_not_pass:not_applicable;flow_through_time_gate_not_pass:diagnostic_only;flow_through_time:planned_time_steps_300_below_minimum_flowthrough_steps_19368;native_accuracy_evidence:native_run_and_vtk_evidence_present",
+    "Interpretation": "debug_or_diagnostic_only_do_not_use_for_r2_or_paper_accuracy_claim"
+  },
+  "PlannedSyntheticInletSamplingGate": {
+    "Gate": "diagnostic_only",
+    "Reasons": [
+      "planned_stg_refresh_count_0_below_minimum_200"
+    ],
+    "ReasonsCsv": "planned_stg_refresh_count_0_below_minimum_200",
+    "SyntheticInletRequested": true,
+    "SyntheticInletInjected": true,
+    "SyntheticInletActive": true,
+    "UpdateInterval": 25,
+    "FinalWindowStepSpan": 0,
+    "ComputedRefreshCount": 0,
+    "MetadataExpectedRefreshCount": 0,
+    "MinimumRefreshCount": 200
+  },
+  "OutputDir": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\output",
+  "VtkPattern": "u-*.vtk",
+  "VtkFiles": [
+    {
+      "Role": "VTK velocity field",
+      "Path": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\output\\u-000000100.vtk",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "6E2A1A4BBDEAAE2B2C230393484E16D3A11CDCEB530668460D9D0F2690ED3900",
+      "SourceTimeStep": 100
+    },
+    {
+      "Role": "VTK velocity field",
+      "Path": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\output\\u-000000250.vtk",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "DD4E6DEE1A118E2B5C1462B9B2B386FFF2C4AABDB33ED5F9942D60D6C35A16E9",
+      "SourceTimeStep": 250
+    },
+    {
+      "Role": "VTK velocity field",
+      "Path": "F:\\Grade2master2\\CITYLBM开发文件\\v0.2.1\\validation_runs\\casea_vtk_save_start_short_native_canary_20260826_final\\solver_cwd\\output\\u-000000300.vtk",
+      "Exists": true,
+      "HashAlgorithm": "SHA256",
+      "Sha256": "ADAC72CE1016EDDD7EF1FFF95416A14E1CA17BAAE245FA721148DE2B188F6714",
+      "SourceTimeStep": 300
+    }
+  ],
+  "VtkFileCount": 3,
+  "RunnerGate": {
+    "Gate": "diagnostic_only",
+    "Reasons": [
+      "validation_protocol_prerun_item_fail:inlet_mean_profile",
+      "validation_protocol_prerun_item_fail:inlet_turbulence_k",
+      "validation_protocol_prerun_item_fail:boundary_conditions",
+      "validation_protocol_prerun_item_fail:wall_roughness_model",
+      "validation_protocol_prerun_item_risk:inlet_turbulence_length_scale",
+      "validation_protocol_prerun_gate_not_ready:diagnostic_only",
+      "case_metadata_paper_grade_turbulent_inlet_prerequisite_not_pass:fail",
+      "case_metadata_paper_grade_boundary_prerequisite_not_pass:fail",
+      "case_metadata_turbulent_inlet_status_diagnostic_only",
+      "case_metadata_boundary_status_diagnostic_only",
+      "case_metadata_boundary_evidence_false:non_reflecting_outlet",
+      "case_metadata_boundary_evidence_false:side_top_wind_tunnel_equivalence",
+      "case_metadata_boundary_evidence_false:precursor_or_recycling",
+      "case_metadata_boundary_evidence_false:blockage_fetch_evidence",
+      "official:official_csv_missing_for_requested_preflight",
+      "paper_grade_inlet_source_gate_not_pass:fail",
+      "source_missing_turbulent_length_scale_evidence",
+      "paper_grade_boundary_source_gate_not_pass:fail",
+      "boundary_source_not_wind_tunnel_equivalent",
+      "boundary_source_fidelity_class_not_paper_grade:diagnostic_profile_maintenance_buffer",
+      "boundary_source_missing_advanced_code_evidence",
+      "outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary",
+      "missing_non_reflecting_or_validated_outlet_state",
+      "missing_side_top_boundary_pair_mapping",
+      "missing_precursor_or_recycling_development_field",
+      "planned_time_steps_300_below_minimum_flowthrough_steps_19368",
+      "planned_stg_refresh_count_0_below_minimum_200"
+    ],
+    "ReasonsCsv": "validation_protocol_prerun_item_fail:inlet_mean_profile;validation_protocol_prerun_item_fail:inlet_turbulence_k;validation_protocol_prerun_item_fail:boundary_conditions;validation_protocol_prerun_item_fail:wall_roughness_model;validation_protocol_prerun_item_risk:inlet_turbulence_length_scale;validation_protocol_prerun_gate_not_ready:diagnostic_only;case_metadata_paper_grade_turbulent_inlet_prerequisite_not_pass:fail;case_metadata_paper_grade_boundary_prerequisite_not_pass:fail;case_metadata_turbulent_inlet_status_diagnostic_only;case_metadata_boundary_status_diagnostic_only;case_metadata_boundary_evidence_false:non_reflecting_outlet;case_metadata_boundary_evidence_false:side_top_wind_tunnel_equivalence;case_metadata_boundary_evidence_false:precursor_or_recycling;case_metadata_boundary_evidence_false:blockage_fetch_evidence;official:official_csv_missing_for_requested_preflight;paper_grade_inlet_source_gate_not_pass:fail;source_missing_turbulent_length_scale_evidence;paper_grade_boundary_source_gate_not_pass:fail;boundary_source_not_wind_tunnel_equivalent;boundary_source_fidelity_class_not_paper_grade:diagnostic_profile_maintenance_buffer;boundary_source_missing_advanced_code_evidence;outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary;missing_non_reflecting_or_validated_outlet_state;missing_side_top_boundary_pair_mapping;missing_precursor_or_recycling_development_field;planned_time_steps_300_below_minimum_flowthrough_steps_19368;planned_stg_refresh_count_0_below_minimum_200"
+  }
+}

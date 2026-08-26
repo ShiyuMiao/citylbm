@@ -1,0 +1,1606 @@
+#!/usr/bin/env python3
+"""Smoke-test inlet source audit paper-grade classification."""
+
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+
+REPO = Path(__file__).resolve().parents[1]
+
+
+def write_text(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8", newline="\n")
+
+
+def run_audit(setup: Path, metadata: Path, out_json: Path, defines: Path | None = None) -> tuple[int, dict]:
+    command = [
+        sys.executable,
+        str(REPO / "scripts" / "audit_inlet_source.py"),
+        "--setup",
+        str(setup),
+        "--metadata",
+        str(metadata),
+        "--out",
+        str(out_json),
+    ]
+    if defines is not None:
+        command.extend(["--defines", str(defines)])
+    completed = subprocess.run(
+        command,
+        cwd=str(REPO),
+        text=True,
+        capture_output=True,
+    )
+    if not out_json.exists():
+        raise AssertionError(
+            f"audit did not write {out_json}\nSTDOUT:\n{completed.stdout}\nSTDERR:\n{completed.stderr}"
+        )
+    return completed.returncode, json.loads(out_json.read_text(encoding="utf-8"))
+
+
+def main() -> int:
+    with tempfile.TemporaryDirectory(prefix="citylbm_inlet_source_") as tmp:
+        root = Path(tmp)
+        metadata = root / "case_metadata.json"
+        write_text(
+            metadata,
+            json.dumps(
+                {
+                    "SyntheticTurbulentInletMethod": "STG-lite",
+                    "SyntheticTurbulentInletDistributionTreatment": "velocity_field_only",
+                    "InletReynoldsStressTreatment": "isotropic_from_k_only_R11_R22_R33_2k_over_3_R12_R13_R23_0; no measured Reynolds-stress tensor in AF table",
+                    "SyntheticEddy": {"Enabled": True},
+                },
+                indent=2,
+            ),
+        )
+
+        random_setup = root / "random_setup.cpp"
+        random_out = root / "random_audit.json"
+        write_text(
+            random_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+float windProfile(uint z_cell) {
+    const float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f;
+    return profile_u_lbm[0] + z_m * 0.0f;
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    const float sigma = sqrt(2.0f * profile_k_lbm[0] / 3.0f);
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            const float white_noise = 2.0f * random() - 1.0f;
+            lbm.u.x[n] = windProfile(n) + sigma * white_noise;
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > citylbm_stg_update_interval ? citylbm_stg_update_interval : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        random_code, random_report = run_audit(random_setup, metadata, random_out)
+        if random_code == 0:
+            raise AssertionError("uncorrelated random inlet unexpectedly passed")
+        if random_report["paper_grade_inlet_source_gate"] != "fail":
+            raise AssertionError(random_report["paper_grade_inlet_source_gate"])
+        if random_report["synthetic_inlet_correlation_model"] != "uncorrelated_random_rms_velocity_field_only":
+            raise AssertionError(random_report["synthetic_inlet_correlation_model"])
+        if random_report["inlet_source_turbulent_inflow_fidelity_class"] != "uncorrelated_rms_velocity_field_only":
+            raise AssertionError(random_report["inlet_source_turbulent_inflow_fidelity_class"])
+        if not random_report["inlet_source_has_uncorrelated_rms_velocity_field_only"]:
+            raise AssertionError(random_report)
+        if "synthetic_inlet_uses_uncorrelated_random_rms" not in random_report["inlet_source_gate_reasons"]:
+            raise AssertionError(random_report["inlet_source_gate_reasons"])
+        if "Do not describe" not in random_report["recommended_next_action"]:
+            raise AssertionError(random_report["recommended_next_action"])
+        if "source_missing_measured_or_precursor_reynolds_stress_tensor_evidence" not in random_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(random_report["paper_grade_inlet_source_gate_reasons"])
+        if random_report["development_acceleration_stage"] != "replace_uncorrelated_random_inlet_before_cfd":
+            raise AssertionError(random_report["development_acceleration_stage"])
+        if random_report["development_acceleration_runs_cfd_next"] is not False:
+            raise AssertionError(random_report)
+        if random_report["long_cfd_allowed_by_inlet_source_audit"] is not False:
+            raise AssertionError(random_report)
+        if random_report["has_three_component_fluctuation_evidence"]:
+            raise AssertionError(random_report)
+        if random_report["has_k_driven_three_component_stg"]:
+            raise AssertionError(random_report)
+
+        wind_metadata = root / "case_metadata_wind.json"
+        write_text(
+            wind_metadata,
+            json.dumps(
+                {
+                    "WindDirectionUnitVector": [1, 0, 0],
+                    "SyntheticTurbulentInletMethod": "none",
+                },
+                indent=2,
+            ),
+        )
+        wind_setup = root / "wind_mismatch_setup.cpp"
+        wind_out = root / "wind_mismatch_audit.json"
+        write_text(
+            wind_setup,
+            """
+const float dir_x = 0.000000f;
+const float dir_y = -1.000000f;
+const float dir_z = 0.000000f;
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_origin_z_m = 0.0f;
+float3 windProfile(uint z_cell) { return float3(dir_x * profile_u_lbm[0], dir_y * profile_u_lbm[0], dir_z * profile_u_lbm[0]); }
+""",
+        )
+        wind_code, wind_report = run_audit(wind_setup, wind_metadata, wind_out)
+        if wind_code == 0:
+            raise AssertionError("setup.cpp wind vector mismatch unexpectedly passed")
+        if wind_report["wind_vector_source_matches_metadata"]:
+            raise AssertionError(wind_report)
+        if wind_report["metadata_wind_vector"] != [1.0, 0.0, 0.0]:
+            raise AssertionError(wind_report)
+        if wind_report["setup_cpp_wind_vector"] != [0.0, -1.0, 0.0]:
+            raise AssertionError(wind_report)
+        if "setup_cpp_wind_vector_mismatch_metadata" not in wind_report["inlet_source_gate_reasons"]:
+            raise AssertionError(wind_report["inlet_source_gate_reasons"])
+
+        type_e_velocity_setup = root / "type_e_velocity_setup.cpp"
+        no_define_out = root / "type_e_velocity_no_define_audit.json"
+        equilibrium_defines = root / "defines.hpp"
+        with_define_out = root / "type_e_velocity_with_define_audit.json"
+        write_text(
+            type_e_velocity_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+void applySyntheticTurbulentInlet(uint t_step) {
+    for(uint n=0u; n<10u; n++) {
+        if(lbm.flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0];
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+    lbm.flags.write_to_device();
+    lbm.u.write_to_device();
+}
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > citylbm_stg_update_interval ? citylbm_stg_update_interval : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        no_define_code, no_define_report = run_audit(type_e_velocity_setup, metadata, no_define_out)
+        if no_define_code == 0:
+            raise AssertionError("TYPE_E velocity-only inlet without EQUILIBRIUM_BOUNDARIES unexpectedly passed")
+        if no_define_report["inlet_distribution_route"] != "velocity_field_only_without_equilibrium_boundary_define":
+            raise AssertionError(no_define_report)
+        if no_define_report["inlet_distribution_route_gate"] != "fail":
+            raise AssertionError(no_define_report)
+        if no_define_report["has_type_e_equilibrium_boundary_route"]:
+            raise AssertionError(no_define_report)
+
+        write_text(
+            equilibrium_defines,
+            """
+#pragma once
+#define D3Q19
+#define SRT
+#define EQUILIBRIUM_BOUNDARIES
+""",
+        )
+        with_define_code, with_define_report = run_audit(
+            type_e_velocity_setup,
+            metadata,
+            with_define_out,
+            equilibrium_defines,
+        )
+        if with_define_code == 0:
+            raise AssertionError("velocity-field STG with only equilibrium boundary route should not be paper-grade")
+        if with_define_report["has_equilibrium_boundaries_define"] is not True:
+            raise AssertionError(with_define_report)
+        if with_define_report["has_type_e_equilibrium_boundary_route"] is not True:
+            raise AssertionError(with_define_report)
+        if with_define_report["inlet_distribution_route"] != "fluidx3d_equilibrium_boundaries_type_e_from_preset_rho_u":
+            raise AssertionError(with_define_report["inlet_distribution_route"])
+        if with_define_report["inlet_distribution_route_gate"] != "pass":
+            raise AssertionError(with_define_report)
+        if with_define_report["inlet_source_distribution_consistent"]:
+            raise AssertionError(with_define_report)
+        if with_define_report["inlet_source_turbulent_inflow_fidelity_class"] != "velocity_field_only_without_correlation_evidence":
+            raise AssertionError(with_define_report["inlet_source_turbulent_inflow_fidelity_class"])
+        if "source_velocity_field_only" not in with_define_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(with_define_report["paper_grade_inlet_source_gate_reasons"])
+
+        reconstructed_setup = root / "type_e_reconstructed_stg_setup.cpp"
+        reconstructed_defines = root / "type_e_reconstructed_stg_defines.hpp"
+        reconstructed_out = root / "type_e_reconstructed_stg_audit.json"
+        write_text(
+            reconstructed_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_r11_lbm[] = {0.000066f, 0.000133f};
+const float profile_r22_lbm[] = {0.000066f, 0.000133f};
+const float profile_r33_lbm[] = {0.000066f, 0.000133f};
+const float profile_r12_lbm[] = {0.0f, 0.0f};
+const float profile_r13_lbm[] = {0.0f, 0.0f};
+const float profile_r23_lbm[] = {0.0f, 0.0f};
+const float profile_origin_z_m = 0.0f;
+const float citylbm_stg_corr_cells = 8.0f;
+const uint citylbm_stg_update_interval = 5u;
+const int citylbm_stg_mode_count = 128;
+const uint synthetic_eddy_count = 128u;
+float citylbm_mode_phase(int m, int c) { return 0.1f * (float)(m+c); }
+float citylbm_mode_wave(int m, int c) { return 1.0f / citylbm_stg_corr_cells; }
+float citylbm_mode_amplitude(int m, int c) { return 0.5f; }
+float3 windProfile(uint z_cell) { return float3(profile_u_lbm[0], 0.0f, 0.0f); }
+float citylbm_stg_target_sigma(uint z_cell, float3 mean) { return sqrtf(0.6666667f * profile_k_lbm[0]); }
+void updateTemporalFilter(uint t_step) {}
+void updateSyntheticEddyPlane(uint t_step) { updateTemporalFilter(t_step); }
+float3 turbulentWind(uint x, uint y, uint z, uint t_step) { return float3(0.0f, 0.0f, 0.0f); }
+float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
+    float3 mean = windProfile(z_cell);
+    float sigma = citylbm_stg_target_sigma(z_cell, mean);
+    float advected_x = (float)x - mean.x * (float)t_step;
+    float advected_y = (float)y;
+    float advected_z = (float)z_cell;
+    float prev_advected_x = advected_x - mean.x;
+    float prev_advected_y = advected_y;
+    float prev_advected_z = advected_z;
+    float fluct_x = 0.0f, fluct_y = 0.0f, fluct_z = 0.0f;
+    for(int m=0; m<citylbm_stg_mode_count; m++) {
+        float kx = citylbm_mode_wave(m, 0), ky = citylbm_mode_wave(m, 1), kz = citylbm_mode_wave(m, 2);
+        float ax = citylbm_mode_amplitude(m, 0), ay = citylbm_mode_amplitude(m, 1), az = citylbm_mode_amplitude(m, 2);
+        float kk = kx*kx + ky*ky + kz*kz;
+        float ak = ax*kx + ay*ky + az*kz;
+        if(kk > 0.0f) { ax -= ak*kx/kk; ay -= ak*ky/kk; az -= ak*kz/kk; }
+        float phase = kx * advected_x + ky * advected_y + kz * advected_z;
+        float previous_phase = kx * prev_advected_x + ky * prev_advected_y + kz * prev_advected_z;
+        fluct_x += sinf(previous_phase + citylbm_mode_phase(m, 0)) + sinf(phase + citylbm_mode_phase(m, 0));
+        fluct_y += sinf(previous_phase + citylbm_mode_phase(m, 1)) + sinf(phase + citylbm_mode_phase(m, 1));
+        fluct_z += sinf(previous_phase + citylbm_mode_phase(m, 2)) + sinf(phase + citylbm_mode_phase(m, 2));
+    }
+    return float3(mean.x + sigma * fluct_x, mean.y + sigma * fluct_y, mean.z + sigma * fluct_z);
+}
+void applyInlet(uint t_step) {
+    updateSyntheticEddyPlane(t_step);
+    for(ulong n=0u; n<10u; n++) {
+        uint x=0u, y=0u, z=0u;
+        if(lbm.flags[n]==TYPE_E) {
+            float3 u_in = syntheticTurbulentInlet(x, y, z, t_step);
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+        }
+    }
+    lbm.u.write_to_device();
+    lbm.reconstruct_inlet_stress_boundaries();
+}
+void applySyntheticTurbulentInlet(uint t_step) { applyInlet(t_step); }
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > citylbm_stg_update_interval ? citylbm_stg_update_interval : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        write_text(
+            reconstructed_defines,
+            """
+#pragma once
+#define D3Q19
+#define SRT
+#define EQUILIBRIUM_BOUNDARIES
+#define RECONSTRUCT_INLET_STRESS_DDF
+""",
+        )
+        reconstructed_code, reconstructed_report = run_audit(
+            reconstructed_setup,
+            metadata,
+            reconstructed_out,
+            reconstructed_defines,
+        )
+        if reconstructed_code == 0:
+            raise AssertionError("isotropic-k STG-lite should still fail paper gate without measured/precursor Reynolds stress")
+        if reconstructed_report["inlet_source_distribution_consistent"] is not True:
+            raise AssertionError(reconstructed_report)
+        if reconstructed_report["inlet_source_velocity_field_only"] is not False:
+            raise AssertionError(reconstructed_report)
+        if reconstructed_report["inlet_source_method_class"] != "stg_lite_correlated_type_e_inlet_stress_ddf_reconstructed":
+            raise AssertionError(reconstructed_report["inlet_source_method_class"])
+        if reconstructed_report["inlet_distribution_route"] != "fluidx3d_reconstruct_inlet_stress_boundaries":
+            raise AssertionError(reconstructed_report["inlet_distribution_route"])
+        if reconstructed_report["has_type_e_inlet_stress_reconstruction_route"] is not True:
+            raise AssertionError(reconstructed_report)
+        for cleared in [
+            "source_not_distribution_consistent",
+            "source_velocity_field_only",
+            "source_correlated_velocity_field_only_without_distribution_reconstruction",
+        ]:
+            if cleared in reconstructed_report["paper_grade_inlet_source_gate_reasons"]:
+                raise AssertionError(reconstructed_report["paper_grade_inlet_source_gate_reasons"])
+        if "source_reynolds_stress_tensor_is_isotropic_k_assumption_only" not in reconstructed_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(reconstructed_report["paper_grade_inlet_source_gate_reasons"])
+        expected_reconstructed_stage = (
+            "resolve_reynolds_stress_tensor_or_precursor_evidence"
+            if reconstructed_report["inlet_source_gate"] == "pass"
+            else "fix_inlet_source_evidence_before_cfd"
+        )
+        if reconstructed_report["development_acceleration_stage"] != expected_reconstructed_stage:
+            raise AssertionError(reconstructed_report["development_acceleration_stage"])
+        if reconstructed_report["development_acceleration_runs_cfd_next"] is not False:
+            raise AssertionError(reconstructed_report)
+        if reconstructed_report["long_cfd_allowed_by_inlet_source_audit"] is not False:
+            raise AssertionError(reconstructed_report)
+
+        diagonal_rms_metadata = root / "case_metadata_diagonal_rms.json"
+        write_text(
+            diagonal_rms_metadata,
+            json.dumps(
+                {
+                    "SyntheticTurbulentInletMethod": "synthetic-eddy",
+                    "SyntheticTurbulentInletDistributionTreatment": "synthetic_eddy_distribution_consistent",
+                    "PaperGradeInletMethodClass": "synthetic_eddy_distribution_consistent",
+                    "InletReynoldsStressTreatment": "measured_diagonal_rms_from_af; offdiagonal_covariances_missing",
+                    "SyntheticTurbulentInletLengthScaleGate": "pass",
+                    "SyntheticEddy": {"Enabled": True},
+                },
+                indent=2,
+            ),
+        )
+        diagonal_rms_setup = root / "diagonal_rms_setup.cpp"
+        diagonal_rms_defines = root / "diagonal_rms_defines.hpp"
+        diagonal_rms_out = root / "diagonal_rms_audit.json"
+        write_text(
+            diagonal_rms_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_u_rms_lbm[] = {0.004f, 0.005f};
+const float profile_v_rms_lbm[] = {0.003f, 0.004f};
+const float profile_w_rms_lbm[] = {0.002f, 0.003f};
+const float profile_k_lbm[] = {0.0000145f, 0.000025f};
+const float synthetic_eddy_lx_cells = 8.0f;
+const float profile_origin_z_m = 0.0f;
+const uint synthetic_eddy_count = 128u;
+float compactCosine(float r) { return r; }
+void updateTemporalFilter(uint t_step) {}
+void updateSyntheticEddyPlane(uint t_step) { updateTemporalFilter(t_step); }
+float3 turbulentWind(uint x, uint y, uint z, uint t_step) {
+    const float u_rms = profile_u_rms_lbm[0];
+    const float v_rms = profile_v_rms_lbm[0];
+    const float w_rms = profile_w_rms_lbm[0];
+    const float df_ru = 0.5f;
+    const float df_rv = 0.25f;
+    const float df_rw = 0.125f;
+    return float3(profile_u_lbm[0] + u_rms*df_ru, v_rms*df_rv, w_rms*df_rw);
+}
+void applyInlet(uint t_step) {
+    updateSyntheticEddyPlane(t_step);
+    for(ulong n=0u; n<10u; n++) {
+        if(lbm.flags[n]==TYPE_E) {
+            float3 u_in = turbulentWind(0u, 0u, 0u, t_step);
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+        }
+    }
+    lbm.u.write_to_device();
+    lbm.reconstruct_inlet_stress_boundaries();
+}
+void applySyntheticTurbulentInlet(uint t_step) { applyInlet(t_step); }
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > 5u ? 5u : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        write_text(
+            diagonal_rms_defines,
+            """
+#pragma once
+#define D3Q19
+#define SRT
+#define RECONSTRUCT_INLET_STRESS_DDF
+""",
+        )
+        diagonal_rms_code, diagonal_rms_report = run_audit(
+            diagonal_rms_setup,
+            diagonal_rms_metadata,
+            diagonal_rms_out,
+            diagonal_rms_defines,
+        )
+        if diagonal_rms_code == 0:
+            raise AssertionError("diagonal RMS without off-diagonal tensor unexpectedly passed")
+        if diagonal_rms_report["has_measured_diagonal_rms_source_evidence"] is not True:
+            raise AssertionError(diagonal_rms_report)
+        if diagonal_rms_report["has_measured_diagonal_rms_usage_evidence"] is not True:
+            raise AssertionError(diagonal_rms_report)
+        if diagonal_rms_report["has_measured_or_precursor_reynolds_stress_tensor_evidence"] is not False:
+            raise AssertionError(diagonal_rms_report)
+        if diagonal_rms_report["reynolds_stress_treatment"] != "measured_diagonal_rms_missing_offdiagonal":
+            raise AssertionError(diagonal_rms_report["reynolds_stress_treatment"])
+        if "source_has_measured_diagonal_rms_but_missing_offdiagonal_or_precursor_tensor" not in diagonal_rms_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(diagonal_rms_report["paper_grade_inlet_source_gate_reasons"])
+        if "source_missing_measured_or_precursor_reynolds_stress_tensor_evidence" in diagonal_rms_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(diagonal_rms_report["paper_grade_inlet_source_gate_reasons"])
+        expected_diagonal_rms_stage = (
+            "resolve_reynolds_stress_tensor_or_precursor_evidence"
+            if diagonal_rms_report["inlet_source_gate"] == "pass"
+            else "fix_distribution_consistent_inlet_source_before_cfd"
+        )
+        if diagonal_rms_report["development_acceleration_stage"] != expected_diagonal_rms_stage:
+            raise AssertionError(diagonal_rms_report["development_acceleration_stage"])
+        if diagonal_rms_report["development_acceleration_runs_cfd_next"] is not False:
+            raise AssertionError(diagonal_rms_report)
+
+        stl_random_setup = root / "stl_random_setup.cpp"
+        stl_random_out = root / "stl_random_audit.json"
+        write_text(
+            stl_random_setup,
+            """
+#include <random>
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+std::mt19937 rng(1234u);
+std::normal_distribution<float> gaussian_noise(0.0f, 1.0f);
+void applySyntheticTurbulentInlet(uint t_step) {
+    const float sigma = sqrt(2.0f * profile_k_lbm[0] / 3.0f);
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0] + sigma * gaussian_noise(rng);
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > citylbm_stg_update_interval ? citylbm_stg_update_interval : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        stl_random_code, stl_random_report = run_audit(stl_random_setup, metadata, stl_random_out)
+        if stl_random_code == 0:
+            raise AssertionError("STL random inlet unexpectedly passed")
+        if stl_random_report["synthetic_inlet_correlation_model"] != "uncorrelated_random_rms_velocity_field_only":
+            raise AssertionError(stl_random_report["synthetic_inlet_correlation_model"])
+        if "synthetic_inlet_uses_uncorrelated_random_rms" not in stl_random_report["inlet_source_gate_reasons"]:
+            raise AssertionError(stl_random_report["inlet_source_gate_reasons"])
+        random_patterns = ";".join(stl_random_report["uncorrelated_random_inlet_patterns"])
+        if "mt19937" not in random_patterns or "normal_distribution" not in random_patterns:
+            raise AssertionError(random_patterns)
+        if "distribution-consistent inlet" not in stl_random_report["recommended_next_action"]:
+            raise AssertionError(stl_random_report["recommended_next_action"])
+
+        metadata_length_only = root / "metadata_length_only_case_metadata.json"
+        write_text(
+            metadata_length_only,
+            json.dumps(
+                {
+                    "SyntheticTurbulentInletMethod": "STG-lite",
+                    "SyntheticTurbulentInletDistributionTreatment": "velocity_field_only",
+                    "SyntheticTurbulentInletLengthScaleGate": "pass",
+                    "SyntheticEddy": {"Enabled": True},
+                },
+                indent=2,
+            ),
+        )
+        metadata_length_only_setup = root / "metadata_length_only_setup.cpp"
+        metadata_length_only_out = root / "metadata_length_only_audit.json"
+        write_text(
+            metadata_length_only_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+void applySyntheticTurbulentInlet(uint t_step) {
+    const float sigma = sqrt(2.0f * profile_k_lbm[0] / 3.0f);
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0] + sigma;
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+""",
+        )
+        _, metadata_length_only_report = run_audit(
+            metadata_length_only_setup,
+            metadata_length_only,
+            metadata_length_only_out,
+        )
+        if metadata_length_only_report["has_source_length_scale_evidence"] is not False:
+            raise AssertionError(metadata_length_only_report)
+        if metadata_length_only_report["has_metadata_length_scale_evidence"] is not True:
+            raise AssertionError(metadata_length_only_report)
+        if metadata_length_only_report["has_inlet_length_scale_evidence"] is not True:
+            raise AssertionError(metadata_length_only_report)
+        if metadata_length_only_report["inlet_length_scale_evidence_basis"] != "metadata_gate_only":
+            raise AssertionError(metadata_length_only_report["inlet_length_scale_evidence_basis"])
+
+        dfm_metadata = root / "dfm_case_metadata.json"
+        write_text(
+            dfm_metadata,
+            json.dumps(
+                {
+                    "SyntheticTurbulentInletMethod": "digital-filter",
+                    "SyntheticTurbulentInletDistributionTreatment": "digital_filter_distribution_consistent",
+                    "PaperGradeInletMethodClass": "digital_filter_distribution_consistent",
+                    "SyntheticEddy": {"Enabled": True},
+                },
+                indent=2,
+            ),
+        )
+
+        comment_only_dfm_setup = root / "comment_only_dfm_setup.cpp"
+        comment_only_dfm_out = root / "comment_only_dfm_audit.json"
+        write_text(
+            comment_only_dfm_setup,
+            """
+// This comment claims a digital_filter / DFM / SEM inlet, but the code below
+// is only a mean-profile velocity assignment.
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+void applyMeanInletOnly() {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0];
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+""",
+        )
+        comment_dfm_code, comment_dfm_report = run_audit(
+            comment_only_dfm_setup,
+            dfm_metadata,
+            comment_only_dfm_out,
+        )
+        if comment_dfm_code == 0:
+            raise AssertionError("comment-only DFM/SEM claims unexpectedly passed")
+        if comment_dfm_report["has_digital_filter_token"]:
+            raise AssertionError(comment_dfm_report)
+        if comment_dfm_report["has_sem_token"]:
+            raise AssertionError(comment_dfm_report)
+        if comment_dfm_report["inlet_source_comment_stripped_code_audit"] is not True:
+            raise AssertionError(comment_dfm_report)
+        if "metadata_requests_turbulent_inlet_but_source_has_no_inlet_method" not in comment_dfm_report["inlet_source_gate_reasons"]:
+            raise AssertionError(comment_dfm_report["inlet_source_gate_reasons"])
+        if "source_not_distribution_consistent" not in comment_dfm_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(comment_dfm_report["paper_grade_inlet_source_gate_reasons"])
+
+        token_only_dfm_setup = root / "token_only_dfm_setup.cpp"
+        token_only_dfm_out = root / "token_only_dfm_audit.json"
+        write_text(
+            token_only_dfm_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+const int citylbm_digital_filter_mode = 1;
+void applyMeanInletOnly() {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0];
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+""",
+        )
+        token_dfm_code, token_dfm_report = run_audit(
+            token_only_dfm_setup,
+            dfm_metadata,
+            token_only_dfm_out,
+        )
+        if token_dfm_code == 0:
+            raise AssertionError("token-only digital-filter source unexpectedly passed")
+        if token_dfm_report["advanced_inlet_method_token_only"] is not True:
+            raise AssertionError(token_dfm_report)
+        if "advanced_inlet_method_tokens_without_code_evidence" not in token_dfm_report["inlet_source_gate_reasons"]:
+            raise AssertionError(token_dfm_report["inlet_source_gate_reasons"])
+        if "source_not_distribution_consistent" not in token_dfm_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(token_dfm_report["paper_grade_inlet_source_gate_reasons"])
+
+        named_dfm_setup = root / "named_dfm_setup.cpp"
+        named_dfm_out = root / "named_dfm_audit.json"
+        write_text(
+            named_dfm_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+void digital_filter_inlet(uint t_step) {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0];
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+""",
+        )
+        named_dfm_code, named_dfm_report = run_audit(
+            named_dfm_setup,
+            dfm_metadata,
+            named_dfm_out,
+        )
+        if named_dfm_code == 0:
+            raise AssertionError("named DFM without kernel/state/distribution unexpectedly passed")
+        if named_dfm_report["inlet_source_method_class"] != "named_method_without_distribution_evidence":
+            raise AssertionError(named_dfm_report["inlet_source_method_class"])
+        for expected_reason in [
+            "digital_filter_source_missing_filter_kernel",
+            "digital_filter_source_missing_spatiotemporal_filter_state",
+            "advanced_inlet_method_missing_distribution_evidence",
+        ]:
+            if expected_reason not in named_dfm_report["inlet_source_gate_reasons"]:
+                raise AssertionError(named_dfm_report["inlet_source_gate_reasons"])
+
+        spectral_setup = root / "spectral_setup.cpp"
+        spectral_out = root / "spectral_audit.json"
+        write_text(
+            spectral_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+const int citylbm_stg_mode_count = 128;
+const float citylbm_stg_corr_cells = 8.0f;
+const uint citylbm_stg_update_interval = 5u;
+const float citylbm_stg_temporal_ar1_rho = 0.85f;
+const float citylbm_stg_temporal_ar1_innovation_scale = sqrtf(1.0f - citylbm_stg_temporal_ar1_rho * citylbm_stg_temporal_ar1_rho);
+const float citylbm_stg_max_fraction = 0.5f;
+const float citylbm_stg_min_streamwise_fraction = 0.0f;
+const uint Nz = 16u;
+const float dir_x = 1.0f, dir_y = 0.0f, dir_z = 0.0f;
+float citylbm_mode_wave(int mode, int axis) { return (1.0f + mode + axis) / citylbm_stg_corr_cells; }
+float citylbm_mode_amplitude(int mode, int axis) { return 0.1f + mode + axis; }
+float citylbm_mode_phase(int mode, int component) { return 0.17320508f * (float)((mode + 1) * (component * 13 + 7)); }
+float3 windProfile(uint z_cell) {
+    const float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f;
+    return float3(profile_u_lbm[0] + z_m * 0.0f, 0.0f, 0.0f);
+}
+float interpolate_profile_k(float z_m) { return profile_k_lbm[0]; }
+float citylbm_stg_target_sigma(uint z_cell, float3 mean) {
+    float target_sigma = sqrtf(0.6666667f * interpolate_profile_k(profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f));
+    return target_sigma;
+}
+float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
+    float3 mean = windProfile(z_cell);
+    float sigma = citylbm_stg_target_sigma(z_cell, mean);
+    float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);
+    uint citylbm_stg_prev_t_step = t_step > citylbm_stg_update_interval ? t_step - citylbm_stg_update_interval : t_step;
+    float citylbm_stg_temporal_rho = citylbm_stg_prev_t_step == t_step ? 0.0f : citylbm_stg_temporal_ar1_rho;
+    float citylbm_stg_temporal_innovation = citylbm_stg_prev_t_step == t_step ? 1.0f : citylbm_stg_temporal_ar1_innovation_scale;
+    float advected_x = (float)x - dir_x * mean_mag * (float)t_step;
+    float advected_y = (float)y - dir_y * mean_mag * (float)t_step;
+    float advected_z = (float)z_cell - dir_z * mean_mag * (float)t_step;
+    float prev_advected_x = (float)x - dir_x * mean_mag * (float)citylbm_stg_prev_t_step;
+    float prev_advected_y = (float)y - dir_y * mean_mag * (float)citylbm_stg_prev_t_step;
+    float prev_advected_z = (float)z_cell - dir_z * mean_mag * (float)citylbm_stg_prev_t_step;
+    float fluct_x = 0.0f, fluct_y = 0.0f, fluct_z = 0.0f;
+    for(int m=0; m<citylbm_stg_mode_count; m++) {
+        float kx = citylbm_mode_wave(m, 0);
+        float ky = citylbm_mode_wave(m, 1);
+        float kz = citylbm_mode_wave(m, 2);
+        float ax = citylbm_mode_amplitude(m, 0);
+        float ay = citylbm_mode_amplitude(m, 1);
+        float az = citylbm_mode_amplitude(m, 2);
+        float kk = kx*kx + ky*ky + kz*kz;
+        float ak = ax*kx + ay*ky + az*kz;
+        if(kk > 1.0e-12f) { ax -= ak*kx/kk; ay -= ak*ky/kk; az -= ak*kz/kk; }
+        float phase = kx * advected_x + ky * advected_y + kz * advected_z;
+        float previous_phase = kx * prev_advected_x + ky * prev_advected_y + kz * prev_advected_z;
+        float wave_x = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 0)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 0));
+        float wave_y = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 1)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 1));
+        float wave_z = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 2)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 2));
+        fluct_x += ax * wave_x;
+        fluct_y += ay * wave_y;
+        fluct_z += az * wave_z;
+    }
+    return float3(mean.x + sigma * fluct_x, mean.y + sigma * fluct_y, mean.z + sigma * fluct_z);
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    std::vector<float> citylbm_stg_layer_mean_correction_x(Nz, 0.0f);
+    std::vector<float> citylbm_stg_layer_mean_correction_y(Nz, 0.0f);
+    std::vector<float> citylbm_stg_layer_mean_correction_z(Nz, 0.0f);
+    std::vector<ulong> citylbm_stg_layer_corrected_inlet_count(Nz, 0ull);
+    std::vector<float> citylbm_stg_layer_corrected_sum_sq_x(Nz, 0.0f);
+    std::vector<float> citylbm_stg_layer_corrected_sum_sq_y(Nz, 0.0f);
+    std::vector<float> citylbm_stg_layer_corrected_sum_sq_z(Nz, 0.0f);
+    std::vector<float> citylbm_stg_layer_rms_scale_x(Nz, 1.0f);
+    std::vector<float> citylbm_stg_layer_rms_scale_y(Nz, 1.0f);
+    std::vector<float> citylbm_stg_layer_rms_scale_z(Nz, 1.0f);
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            uint z = n;
+            float3 mean = windProfile(n);
+            float3 u_in = syntheticTurbulentInlet(0u, 0u, z, t_step);
+            citylbm_stg_layer_mean_correction_x[z] += u_in.x - mean.x;
+            citylbm_stg_layer_mean_correction_y[z] += u_in.y - mean.y;
+            citylbm_stg_layer_mean_correction_z[z] += u_in.z - mean.z;
+            citylbm_stg_layer_corrected_inlet_count[z]++;
+        }
+    }
+    for(uint z_layer=0u; z_layer<Nz; z_layer++) {
+        if(citylbm_stg_layer_corrected_inlet_count[z_layer] > 0ull) {
+            float inv_count = 1.0f / (float)citylbm_stg_layer_corrected_inlet_count[z_layer];
+            citylbm_stg_layer_mean_correction_x[z_layer] *= inv_count;
+            citylbm_stg_layer_mean_correction_y[z_layer] *= inv_count;
+            citylbm_stg_layer_mean_correction_z[z_layer] *= inv_count;
+        }
+    }
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            uint z = n;
+            float3 mean = windProfile(n);
+            float3 u_in = syntheticTurbulentInlet(0u, 0u, z, t_step);
+            float fluct_x = u_in.x - mean.x - citylbm_stg_layer_mean_correction_x[z];
+            float fluct_y = u_in.y - mean.y - citylbm_stg_layer_mean_correction_y[z];
+            float fluct_z = u_in.z - mean.z - citylbm_stg_layer_mean_correction_z[z];
+            citylbm_stg_layer_corrected_sum_sq_x[z] += fluct_x * fluct_x;
+            citylbm_stg_layer_corrected_sum_sq_y[z] += fluct_y * fluct_y;
+            citylbm_stg_layer_corrected_sum_sq_z[z] += fluct_z * fluct_z;
+        }
+    }
+    for(uint z_layer=0u; z_layer<Nz; z_layer++) {
+        if(citylbm_stg_layer_corrected_inlet_count[z_layer] > 1ull) {
+            float inv_count = 1.0f / (float)citylbm_stg_layer_corrected_inlet_count[z_layer];
+            float target_sigma = citylbm_stg_target_sigma(z_layer, windProfile(z_layer));
+            float rms_x = sqrtf(citylbm_stg_layer_corrected_sum_sq_x[z_layer] * inv_count);
+            citylbm_stg_layer_rms_scale_x[z_layer] = rms_x > 1.0e-12f ? target_sigma / rms_x : 1.0f;
+        }
+    }
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            uint z = n;
+            float3 mean = windProfile(z);
+            float3 u_in = syntheticTurbulentInlet(0u, 0u, z, t_step);
+            u_in.x = mean.x + (u_in.x - mean.x - citylbm_stg_layer_mean_correction_x[z]) * citylbm_stg_layer_rms_scale_x[z];
+            u_in.y = mean.y + (u_in.y - mean.y - citylbm_stg_layer_mean_correction_y[z]) * citylbm_stg_layer_rms_scale_y[z];
+            u_in.z = mean.z + (u_in.z - mean.z - citylbm_stg_layer_mean_correction_z[z]) * citylbm_stg_layer_rms_scale_z[z];
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+        }
+    }
+}
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > citylbm_stg_update_interval ? citylbm_stg_update_interval : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        spectral_code, spectral_report = run_audit(spectral_setup, metadata, spectral_out)
+        if spectral_code == 0:
+            raise AssertionError("velocity-field-only spectral STG unexpectedly passed paper gate")
+        if spectral_report["inlet_source_gate"] != "pass":
+            raise AssertionError(spectral_report)
+        if spectral_report["metadata_reynolds_stress_treatment"] != "isotropic_from_k_only_R11_R22_R33_2k_over_3_R12_R13_R23_0; no measured Reynolds-stress tensor in AF table":
+            raise AssertionError(spectral_report)
+        if spectral_report["has_reynolds_stress_tensor_metadata_claim"]:
+            raise AssertionError(spectral_report)
+        if spectral_report["reynolds_stress_treatment"] != "documented_isotropic_k_only":
+            raise AssertionError(spectral_report)
+        if spectral_report["synthetic_inlet_spectral_mode_count_gate"] != "pass":
+            raise AssertionError(spectral_report)
+        if spectral_report["paper_grade_inlet_source_gate"] != "fail":
+            raise AssertionError(spectral_report)
+        if spectral_report["synthetic_inlet_correlation_model"] != "spectral_taylor_temporal_filtered_projected_velocity_field_only":
+            raise AssertionError(spectral_report["synthetic_inlet_correlation_model"])
+        if spectral_report["inlet_source_turbulent_inflow_fidelity_class"] != "correlated_velocity_field_only":
+            raise AssertionError(spectral_report["inlet_source_turbulent_inflow_fidelity_class"])
+        if not spectral_report["inlet_source_has_correlated_velocity_field_only"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_three_component_velocity_write"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_three_component_fluctuation_evidence"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_k_driven_three_component_stg"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_component_phase_decorrelation"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_temporal_filter_state"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_mean_preserving_inlet_correction"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_layerwise_mean_preserving_inlet_correction"]:
+            raise AssertionError(spectral_report)
+        if not spectral_report["has_layerwise_rms_preserving_inlet_correction"]:
+            raise AssertionError(spectral_report)
+        if "source_velocity_field_only" not in spectral_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(spectral_report["paper_grade_inlet_source_gate_reasons"])
+        if "source_correlated_velocity_field_only_without_distribution_reconstruction" not in spectral_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(spectral_report["paper_grade_inlet_source_gate_reasons"])
+        if spectral_report["has_streamwise_clipping_control"] is not True:
+            raise AssertionError(spectral_report)
+        if abs(float(spectral_report["streamwise_min_fraction"]) - 0.0) > 1.0e-12:
+            raise AssertionError(spectral_report)
+        if spectral_report["streamwise_clipping_enabled"] is not False:
+            raise AssertionError(spectral_report)
+        if spectral_report["has_legacy_hardcoded_streamwise_clipping"] is not False:
+            raise AssertionError(spectral_report)
+
+        low_mode_setup = root / "low_mode_spectral_setup.cpp"
+        low_mode_out = root / "low_mode_spectral_audit.json"
+        low_mode_setup.write_text(
+            spectral_setup.read_text(encoding="utf-8").replace(
+                "const int citylbm_stg_mode_count = 128;",
+                "const int citylbm_stg_mode_count = 64;",
+            ),
+            encoding="utf-8",
+        )
+        low_mode_code, low_mode_report = run_audit(low_mode_setup, metadata, low_mode_out)
+        if low_mode_code == 0:
+            raise AssertionError("low-mode STG-lite unexpectedly passed")
+        if low_mode_report["inlet_source_gate"] != "fail":
+            raise AssertionError(low_mode_report)
+        if low_mode_report["synthetic_inlet_spectral_mode_count_gate"] != "diagnostic_only_low_spectral_mode_count":
+            raise AssertionError(low_mode_report)
+        if "synthetic_inlet_below_strict_baseline_spectral_modes" not in low_mode_report["inlet_source_gate_reasons"]:
+            raise AssertionError(low_mode_report["inlet_source_gate_reasons"])
+
+        missing_temporal_setup = root / "missing_temporal_setup.cpp"
+        missing_temporal_out = root / "missing_temporal_audit.json"
+        missing_temporal_text = spectral_setup.read_text(encoding="utf-8").replace(
+            """const float citylbm_stg_temporal_ar1_rho = 0.85f;
+const float citylbm_stg_temporal_ar1_innovation_scale = sqrtf(1.0f - citylbm_stg_temporal_ar1_rho * citylbm_stg_temporal_ar1_rho);
+""",
+            "",
+        ).replace(
+            """    uint citylbm_stg_prev_t_step = t_step > citylbm_stg_update_interval ? t_step - citylbm_stg_update_interval : t_step;
+    float citylbm_stg_temporal_rho = citylbm_stg_prev_t_step == t_step ? 0.0f : citylbm_stg_temporal_ar1_rho;
+    float citylbm_stg_temporal_innovation = citylbm_stg_prev_t_step == t_step ? 1.0f : citylbm_stg_temporal_ar1_innovation_scale;
+""",
+            "",
+        ).replace(
+            """    float prev_advected_x = (float)x - dir_x * mean_mag * (float)citylbm_stg_prev_t_step;
+    float prev_advected_y = (float)y - dir_y * mean_mag * (float)citylbm_stg_prev_t_step;
+    float prev_advected_z = (float)z_cell - dir_z * mean_mag * (float)citylbm_stg_prev_t_step;
+""",
+            "",
+        ).replace(
+            """        float previous_phase = kx * prev_advected_x + ky * prev_advected_y + kz * prev_advected_z;
+        float wave_x = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 0)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 0));
+        float wave_y = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 1)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 1));
+        float wave_z = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 2)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 2));""",
+            """        float wave_x = sinf(phase + citylbm_mode_phase(m, 0));
+        float wave_y = sinf(phase + citylbm_mode_phase(m, 1));
+        float wave_z = sinf(phase + citylbm_mode_phase(m, 2));""",
+        )
+        write_text(missing_temporal_setup, missing_temporal_text)
+        missing_temporal_code, missing_temporal_report = run_audit(
+            missing_temporal_setup,
+            metadata,
+            missing_temporal_out,
+        )
+        if missing_temporal_code == 0:
+            raise AssertionError("STG without temporal filter state unexpectedly passed")
+        if missing_temporal_report["has_temporal_filter_state"]:
+            raise AssertionError(missing_temporal_report)
+        if "synthetic_inlet_missing_temporal_filter_state" not in missing_temporal_report[
+            "inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(missing_temporal_report["inlet_source_gate_reasons"])
+
+        correlated_phase_setup = root / "correlated_phase_setup.cpp"
+        correlated_phase_out = root / "correlated_phase_audit.json"
+        correlated_text = spectral_setup.read_text(encoding="utf-8").replace(
+            """        float previous_phase = kx * prev_advected_x + ky * prev_advected_y + kz * prev_advected_z;
+        float wave_x = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 0)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 0));
+        float wave_y = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 1)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 1));
+        float wave_z = citylbm_stg_temporal_rho * sinf(previous_phase + citylbm_mode_phase(m, 2)) + citylbm_stg_temporal_innovation * sinf(phase + citylbm_mode_phase(m, 2));
+        fluct_x += ax * wave_x;
+        fluct_y += ay * wave_y;
+        fluct_z += az * wave_z;""",
+            """        float previous_phase = kx * prev_advected_x + ky * prev_advected_y + kz * prev_advected_z;
+        float wave = citylbm_stg_temporal_rho * sinf(previous_phase) + citylbm_stg_temporal_innovation * sinf(phase);
+        fluct_x += ax * wave;
+        fluct_y += ay * wave;
+        fluct_z += az * wave;""",
+        )
+        write_text(correlated_phase_setup, correlated_text)
+        correlated_phase_code, correlated_phase_report = run_audit(
+            correlated_phase_setup,
+            metadata,
+            correlated_phase_out,
+        )
+        if correlated_phase_code == 0:
+            raise AssertionError("single-phase three-component STG unexpectedly passed")
+        if correlated_phase_report["has_component_phase_decorrelation"]:
+            raise AssertionError(correlated_phase_report)
+        if "synthetic_inlet_missing_component_phase_decorrelation" not in correlated_phase_report[
+            "inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(correlated_phase_report["inlet_source_gate_reasons"])
+
+        legacy_clip_setup = root / "legacy_clip_setup.cpp"
+        legacy_clip_out = root / "legacy_clip_audit.json"
+        write_text(
+            legacy_clip_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+const int citylbm_stg_mode_count = 64;
+const float citylbm_stg_corr_cells = 8.0f;
+const uint citylbm_stg_update_interval = 5u;
+const float citylbm_stg_max_fraction = 0.5f;
+float3 windProfile(uint z_cell) { return float3(profile_u_lbm[0], 0.0f, 0.0f); }
+float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
+    float3 mean = windProfile(z_cell);
+    float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);
+    float min_streamwise = 0.05f * (mean_mag > 1.0e-12f ? mean_mag : 1.0f);
+    return float3(min_streamwise, 0.0f, 0.0f);
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            float3 u_in = syntheticTurbulentInlet(0u, 0u, n, t_step);
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+        }
+    }
+}
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > citylbm_stg_update_interval ? citylbm_stg_update_interval : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        legacy_clip_code, legacy_clip_report = run_audit(legacy_clip_setup, metadata, legacy_clip_out)
+        if legacy_clip_code == 0:
+            raise AssertionError("legacy streamwise clipping unexpectedly passed")
+        if legacy_clip_report["has_legacy_hardcoded_streamwise_clipping"] is not True:
+            raise AssertionError(legacy_clip_report)
+        if "synthetic_inlet_uses_legacy_hardcoded_streamwise_clipping" not in legacy_clip_report["inlet_source_gate_reasons"]:
+            raise AssertionError(legacy_clip_report["inlet_source_gate_reasons"])
+
+        face_mean_setup = root / "face_mean_setup.cpp"
+        face_mean_out = root / "face_mean_audit.json"
+        write_text(
+            face_mean_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+const int citylbm_stg_mode_count = 64;
+const float citylbm_stg_corr_cells = 8.0f;
+const uint citylbm_stg_update_interval = 5u;
+const float citylbm_stg_max_fraction = 0.5f;
+const float dir_x = 1.0f, dir_y = 0.0f, dir_z = 0.0f;
+float citylbm_mode_wave(int mode, int axis) { return (1.0f + mode + axis) / citylbm_stg_corr_cells; }
+float citylbm_mode_amplitude(int mode, int axis) { return 0.1f + mode + axis; }
+float3 windProfile(uint z_cell) { return float3(profile_u_lbm[0], 0.0f, 0.0f); }
+float interpolate_profile_k(float z_m) { return profile_k_lbm[0]; }
+float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
+    float3 mean = windProfile(z_cell);
+    float k_lbm = interpolate_profile_k(profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f);
+    float sigma = sqrtf(0.6666667f * k_lbm);
+    float mean_mag = sqrtf(mean.x*mean.x + mean.y*mean.y + mean.z*mean.z);
+    float advected_x = (float)x - dir_x * mean_mag * (float)t_step;
+    float advected_y = (float)y - dir_y * mean_mag * (float)t_step;
+    float advected_z = (float)z_cell - dir_z * mean_mag * (float)t_step;
+    float fluct_x = 0.0f, fluct_y = 0.0f, fluct_z = 0.0f;
+    for(int m=0; m<citylbm_stg_mode_count; m++) {
+        float kx = citylbm_mode_wave(m, 0);
+        float ky = citylbm_mode_wave(m, 1);
+        float kz = citylbm_mode_wave(m, 2);
+        float ax = citylbm_mode_amplitude(m, 0);
+        float ay = citylbm_mode_amplitude(m, 1);
+        float az = citylbm_mode_amplitude(m, 2);
+        float kk = kx*kx + ky*ky + kz*kz;
+        float ak = ax*kx + ay*ky + az*kz;
+        if(kk > 1.0e-12f) { ax -= ak*kx/kk; ay -= ak*ky/kk; az -= ak*kz/kk; }
+        float wave = sinf(kx * advected_x + ky * advected_y + kz * advected_z);
+        fluct_x += ax * wave;
+        fluct_y += ay * wave;
+        fluct_z += az * wave;
+    }
+    return float3(mean.x + sigma * fluct_x, mean.y + sigma * fluct_y, mean.z + sigma * fluct_z);
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    float3 citylbm_stg_mean_correction = float3(0.0f, 0.0f, 0.0f);
+    ulong citylbm_stg_corrected_inlet_count = 0ull;
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            float3 mean = windProfile(n);
+            float3 u_in = syntheticTurbulentInlet(0u, 0u, n, t_step);
+            citylbm_stg_mean_correction.x += u_in.x - mean.x;
+            citylbm_stg_mean_correction.y += u_in.y - mean.y;
+            citylbm_stg_mean_correction.z += u_in.z - mean.z;
+            citylbm_stg_corrected_inlet_count++;
+        }
+    }
+    if(citylbm_stg_corrected_inlet_count > 0ull) {
+        float inv_count = 1.0f / (float)citylbm_stg_corrected_inlet_count;
+        citylbm_stg_mean_correction.x *= inv_count;
+        citylbm_stg_mean_correction.y *= inv_count;
+        citylbm_stg_mean_correction.z *= inv_count;
+    }
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            float3 u_in = syntheticTurbulentInlet(0u, 0u, n, t_step);
+            u_in.x -= citylbm_stg_mean_correction.x;
+            u_in.y -= citylbm_stg_mean_correction.y;
+            u_in.z -= citylbm_stg_mean_correction.z;
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+        }
+    }
+}
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > citylbm_stg_update_interval ? citylbm_stg_update_interval : remaining;
+    applySyntheticTurbulentInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        face_mean_code, face_mean_report = run_audit(face_mean_setup, metadata, face_mean_out)
+        if face_mean_code == 0:
+            raise AssertionError("face-mean STG unexpectedly passed inlet source gate")
+        if face_mean_report["has_mean_preserving_inlet_correction"] is not True:
+            raise AssertionError(face_mean_report)
+        if face_mean_report["has_layerwise_mean_preserving_inlet_correction"] is not False:
+            raise AssertionError(face_mean_report)
+        if "synthetic_inlet_missing_layerwise_mean_preserving_inlet_correction" not in face_mean_report["inlet_source_gate_reasons"]:
+            raise AssertionError(face_mean_report["inlet_source_gate_reasons"])
+
+        named_recycling_setup = root / "named_recycling_setup.cpp"
+        named_recycling_out = root / "named_recycling_audit.json"
+        write_text(
+            named_recycling_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+void recycling_rescaling_inlet(uint t_step) {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            lbm.u.x[n] = profile_u_lbm[0];
+            lbm.u.y[n] = 0.0f;
+            lbm.u.z[n] = 0.0f;
+        }
+    }
+}
+""",
+        )
+        named_recycling_code, named_recycling_report = run_audit(
+            named_recycling_setup,
+            metadata,
+            named_recycling_out,
+        )
+        if named_recycling_code == 0:
+            raise AssertionError("named recycling inlet without recycled field unexpectedly passed")
+        if named_recycling_report["inlet_source_gate"] != "fail":
+            raise AssertionError(named_recycling_report)
+        if named_recycling_report["inlet_source_method_class"] != "named_method_without_precursor_recycling_field_evidence":
+            raise AssertionError(named_recycling_report["inlet_source_method_class"])
+        if "precursor_recycling_method_missing_recycled_field_evidence" not in named_recycling_report["inlet_source_gate_reasons"]:
+            raise AssertionError(named_recycling_report["inlet_source_gate_reasons"])
+
+        precursor_velocity_setup = root / "precursor_velocity_setup.cpp"
+        precursor_velocity_out = root / "precursor_velocity_audit.json"
+        write_text(
+            precursor_velocity_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+float3 recycling_buffer[16];
+void recycling_rescaling_inlet(uint t_step) {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            float3 u_in = recycling_buffer[n];
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+        }
+    }
+}
+""",
+        )
+        precursor_velocity_code, precursor_velocity_report = run_audit(
+            precursor_velocity_setup,
+            metadata,
+            precursor_velocity_out,
+        )
+        if precursor_velocity_code == 0:
+            raise AssertionError("precursor/recycling velocity-only inlet unexpectedly passed")
+        if precursor_velocity_report["inlet_source_method_class"] != "precursor_or_recycling_velocity_field_only":
+            raise AssertionError(precursor_velocity_report["inlet_source_method_class"])
+        if "precursor_recycling_source_missing_inlet_distribution_reconstruction" not in precursor_velocity_report["inlet_source_gate_reasons"]:
+            raise AssertionError(precursor_velocity_report["inlet_source_gate_reasons"])
+        if "source_velocity_field_only" not in precursor_velocity_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(precursor_velocity_report["paper_grade_inlet_source_gate_reasons"])
+
+        native_claim_metadata = root / "case_metadata_native_synthetic_eddy_velocity_only.json"
+        write_text(
+            native_claim_metadata,
+            json.dumps(
+                {
+                    "SyntheticTurbulentInletMethod": "synthetic-eddy",
+                    "SyntheticTurbulentInletDistributionTreatment": "velocity_field_only",
+                    "SyntheticEddy": {"Enabled": True},
+                },
+                indent=2,
+            ),
+        )
+        native_structure_no_refresh_setup = root / "native_structure_no_refresh_setup.cpp"
+        native_structure_no_refresh_out = root / "native_structure_no_refresh_audit.json"
+        write_text(
+            native_structure_no_refresh_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_origin_z_m = 0.0f;
+const uint synthetic_eddy_count = 256u;
+const float synthetic_eddy_lx_cells = 8.0f;
+float compactCosine(float r) { return r; }
+auto updateSyntheticEddyPlane = [](uint step) { return step; };
+auto turbulentWind = [](uint x, uint y, uint z, uint step) {
+    const float sigma = sqrtf(0.6666667f * profile_k_lbm[0]);
+    const float white_noise = 2.0f * random() - 1.0f;
+    return float3(profile_u_lbm[0] + sigma * white_noise, 0.0f, 0.0f);
+};
+auto applyInlet = [](uint current) {
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            float3 u_in = turbulentWind(0u, 0u, n, current);
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+        }
+    }
+};
+for(uint remaining=100u; remaining>0u; ) {
+    uint steps_to_run = remaining > 5u ? 5u : remaining;
+    applyInlet((uint)lbm.get_t());
+    lbm.run(steps_to_run);
+    remaining -= steps_to_run;
+}
+""",
+        )
+        native_structure_no_refresh_code, native_structure_no_refresh_report = run_audit(
+            native_structure_no_refresh_setup,
+            native_claim_metadata,
+            native_structure_no_refresh_out,
+        )
+        if native_structure_no_refresh_code == 0:
+            raise AssertionError("native synthetic-eddy symbols without refresh unexpectedly passed")
+        if native_structure_no_refresh_report["inlet_source_gate"] != "fail":
+            raise AssertionError(native_structure_no_refresh_report)
+        if not native_structure_no_refresh_report["has_native_synthetic_eddy_structure_evidence"]:
+            raise AssertionError(native_structure_no_refresh_report)
+        if native_structure_no_refresh_report["has_native_synthetic_eddy_temporal_refresh_evidence"]:
+            raise AssertionError(native_structure_no_refresh_report)
+        if native_structure_no_refresh_report["has_native_synthetic_eddy_evidence"]:
+            raise AssertionError(native_structure_no_refresh_report)
+        if not native_structure_no_refresh_report["has_uncorrelated_random_inlet"]:
+            raise AssertionError(native_structure_no_refresh_report)
+        if native_structure_no_refresh_report["inlet_source_turbulent_inflow_fidelity_class"] != "uncorrelated_rms_velocity_field_only":
+            raise AssertionError(native_structure_no_refresh_report["inlet_source_turbulent_inflow_fidelity_class"])
+        if "native_synthetic_eddy_missing_refresh_or_digital_filter_update" not in native_structure_no_refresh_report[
+            "inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(native_structure_no_refresh_report["inlet_source_gate_reasons"])
+        if "source_uncorrelated_rms_velocity_field_only" not in native_structure_no_refresh_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(native_structure_no_refresh_report["paper_grade_inlet_source_gate_reasons"])
+
+        sem_no_distribution_write_setup = root / "sem_no_distribution_write_setup.cpp"
+        sem_no_distribution_write_out = root / "sem_no_distribution_write_audit.json"
+        write_text(
+            sem_no_distribution_write_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_r11_lbm[] = {0.000066f, 0.000133f};
+const float profile_r22_lbm[] = {0.000066f, 0.000133f};
+const float profile_r33_lbm[] = {0.000066f, 0.000133f};
+const float profile_r12_lbm[] = {0.0f, 0.0f};
+const float profile_r13_lbm[] = {0.0f, 0.0f};
+const float profile_r23_lbm[] = {0.0f, 0.0f};
+const float synthetic_eddy_length_scale = 4.0f;
+const float profile_origin_z_m = 0.0f;
+struct SemEddy { float eddy_center; float eddy_radius; float eddy_strength; float eddy_lifetime; };
+SemEddy sem_eddy[64];
+void sem_distribution(uint t_step) {}
+float calculate_f_eq(uint q, float rho, float ux, float uy, float uz) { return rho + ux + uy + uz + q; }
+void reconstructSyntheticEddyInletDistributions(uint n) {
+    if(flags[n]==TYPE_E) {
+        const float ux = profile_u_lbm[0];
+        lbm.u.x[n] = ux;
+    }
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    sem_distribution(t_step);
+    reconstructSyntheticEddyInletDistributions(0u);
+}
+""",
+        )
+        sem_no_write_code, sem_no_write_report = run_audit(
+            sem_no_distribution_write_setup,
+            dfm_metadata,
+            sem_no_distribution_write_out,
+        )
+        if sem_no_write_code == 0:
+            raise AssertionError("SEM symbol-only inlet without distribution writes unexpectedly passed")
+        if sem_no_write_report["has_distribution_function_write"] is not False:
+            raise AssertionError(sem_no_write_report)
+        if sem_no_write_report["has_inlet_distribution_reconstruction"] is not False:
+            raise AssertionError(sem_no_write_report)
+        if sem_no_write_report["distribution_function_write_count"] != 0:
+            raise AssertionError(sem_no_write_report)
+        if "source_not_distribution_consistent" not in sem_no_write_report["paper_grade_inlet_source_gate_reasons"]:
+            raise AssertionError(sem_no_write_report["paper_grade_inlet_source_gate_reasons"])
+
+        metadata_claim_only = root / "case_metadata_full_tensor_claim_only.json"
+        write_text(
+            metadata_claim_only,
+            json.dumps(
+                {
+                    "SyntheticTurbulentInletMethod": "synthetic-eddy",
+                    "SyntheticTurbulentInletDistributionTreatment": "synthetic_eddy_distribution_consistent",
+                    "PaperGradeInletMethodClass": "synthetic_eddy_distribution_consistent",
+                    "InletReynoldsStressTreatment": "full_tensor_or_precursor_evidence",
+                    "SyntheticEddy": {"Enabled": True},
+                },
+                indent=2,
+            ),
+        )
+        sem_metadata_claim_only_setup = root / "sem_metadata_claim_only_setup.cpp"
+        sem_metadata_claim_only_out = root / "sem_metadata_claim_only_audit.json"
+        write_text(
+            sem_metadata_claim_only_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float synthetic_eddy_length_scale = 4.0f;
+const float profile_origin_z_m = 0.0f;
+struct SemEddy { float eddy_center; float eddy_radius; float eddy_strength; float eddy_lifetime; };
+SemEddy sem_eddy[64];
+void sem_distribution(uint t_step) {}
+float calculate_f_eq(uint q, float rho, float ux, float uy, float uz) { return rho + ux + uy + uz + q; }
+void reconstructSyntheticEddyInletDistributions(uint n) {
+    if(flags[n]==TYPE_E) {
+        const float ux = profile_u_lbm[0];
+        for(uint q=0u; q<19u; q++) {
+            lbm.f[n*19u+q] = calculate_f_eq(q, 1.0f, ux, 0.0f, 0.0f);
+        }
+    }
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    sem_distribution(t_step);
+    reconstructSyntheticEddyInletDistributions(0u);
+}
+""",
+        )
+        sem_metadata_claim_only_code, sem_metadata_claim_only_report = run_audit(
+            sem_metadata_claim_only_setup,
+            metadata_claim_only,
+            sem_metadata_claim_only_out,
+        )
+        if sem_metadata_claim_only_code == 0:
+            raise AssertionError("metadata-only Reynolds stress claim unexpectedly passed")
+        if not sem_metadata_claim_only_report["has_reynolds_stress_tensor_metadata_claim"]:
+            raise AssertionError(sem_metadata_claim_only_report)
+        if sem_metadata_claim_only_report["has_reynolds_stress_tensor_evidence"]:
+            raise AssertionError(sem_metadata_claim_only_report)
+        if "metadata_claims_reynolds_stress_without_source_evidence" not in sem_metadata_claim_only_report[
+            "inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(sem_metadata_claim_only_report["inlet_source_gate_reasons"])
+        if "source_missing_measured_or_precursor_reynolds_stress_tensor_evidence" not in sem_metadata_claim_only_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(sem_metadata_claim_only_report["paper_grade_inlet_source_gate_reasons"])
+
+        sem_tensor_decl_only_setup = root / "sem_tensor_decl_only_setup.cpp"
+        sem_tensor_decl_only_out = root / "sem_tensor_decl_only_audit.json"
+        write_text(
+            sem_tensor_decl_only_setup,
+            """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_r11_lbm[] = {0.000066f, 0.000133f};
+const float profile_r22_lbm[] = {0.000066f, 0.000133f};
+const float profile_r33_lbm[] = {0.000066f, 0.000133f};
+const float profile_r12_lbm[] = {0.0f, 0.0f};
+const float profile_r13_lbm[] = {0.0f, 0.0f};
+const float profile_r23_lbm[] = {0.0f, 0.0f};
+const float synthetic_eddy_length_scale = 4.0f;
+const float profile_origin_z_m = 0.0f;
+struct SemEddy { float eddy_center; float eddy_radius; float eddy_strength; float eddy_lifetime; };
+SemEddy sem_eddy[64];
+void sem_distribution(uint t_step) {
+    sem_eddy[0].eddy_center = 0.5f + 0.01f * (float)t_step;
+    sem_eddy[0].eddy_radius = synthetic_eddy_length_scale;
+    sem_eddy[0].eddy_strength = 0.25f;
+    sem_eddy[0].eddy_lifetime = 10.0f;
+}
+float calculate_f_eq(uint q, float rho, float ux, float uy, float uz) { return rho + ux + uy + uz + q; }
+void reconstructSyntheticEddyInletDistributions(uint n) {
+    if(flags[n]==TYPE_E) {
+        const float fluct_x = sem_eddy[0].eddy_strength;
+        const float ux = profile_u_lbm[0] + fluct_x;
+        lbm.u.x[n] = ux;
+        for(uint q=0u; q<19u; q++) {
+            lbm.f[n*19u+q] = calculate_f_eq(q, 1.0f, ux, 0.0f, 0.0f);
+        }
+    }
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    sem_distribution(t_step);
+    reconstructSyntheticEddyInletDistributions(0u);
+}
+""",
+        )
+        sem_tensor_decl_only_code, sem_tensor_decl_only_report = run_audit(
+            sem_tensor_decl_only_setup,
+            metadata_claim_only,
+            sem_tensor_decl_only_out,
+        )
+        if sem_tensor_decl_only_code == 0:
+            raise AssertionError("declared Reynolds tensor without inlet usage unexpectedly passed")
+        if sem_tensor_decl_only_report["has_reynolds_stress_full_tensor_source_evidence"] is not True:
+            raise AssertionError(sem_tensor_decl_only_report)
+        if sem_tensor_decl_only_report["has_reynolds_stress_full_tensor_usage_evidence"] is not False:
+            raise AssertionError(sem_tensor_decl_only_report)
+        if sem_tensor_decl_only_report["has_measured_or_precursor_reynolds_stress_tensor_evidence"] is not False:
+            raise AssertionError(sem_tensor_decl_only_report)
+        if "metadata_claims_reynolds_stress_without_tensor_usage_evidence" not in sem_tensor_decl_only_report[
+            "inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(sem_tensor_decl_only_report["inlet_source_gate_reasons"])
+        if "source_reynolds_stress_tensor_declared_but_not_used_in_inlet" not in sem_tensor_decl_only_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(sem_tensor_decl_only_report["paper_grade_inlet_source_gate_reasons"])
+
+        full_tensor_bad_rescale_setup = root / "full_tensor_bad_rescale_setup.cpp"
+        full_tensor_bad_rescale_out = root / "full_tensor_bad_rescale_audit.json"
+        write_text(
+            full_tensor_bad_rescale_setup,
+            """
+const bool profile_has_full_reynolds_stress_tensor = true;
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_r11_lbm[] = {0.000066f, 0.000133f};
+const float profile_r22_lbm[] = {0.000066f, 0.000133f};
+const float profile_r33_lbm[] = {0.000066f, 0.000133f};
+const float profile_r12_lbm[] = {-0.000010f, -0.000020f};
+const float profile_r13_lbm[] = {0.000002f, 0.000003f};
+const float profile_r23_lbm[] = {-0.000001f, -0.000002f};
+const float synthetic_eddy_length_scale = 4.0f;
+const float profile_origin_z_m = 0.0f;
+struct CityLBMReynoldsCholesky { float l11; float l21; float l22; float l31; float l32; float l33; };
+CityLBMReynoldsCholesky citylbm_stg_target_reynolds_cholesky(uint z) { return CityLBMReynoldsCholesky(); }
+float citylbm_stg_target_sigma(uint z_cell, float3 mean) { return sqrtf(profile_r11_lbm[0]); }
+float3 windProfile(uint z_cell) { return float3(profile_u_lbm[0], 0.0f, 0.0f); }
+float3 syntheticTurbulentInlet(uint x, uint y, uint z_cell, uint t_step) {
+    float fluct_x = profile_r11_lbm[0];
+    float fluct_y = profile_r12_lbm[0] + profile_r22_lbm[0];
+    float fluct_z = profile_r13_lbm[0] + profile_r23_lbm[0] + profile_r33_lbm[0];
+    CityLBMReynoldsCholesky l = citylbm_stg_target_reynolds_cholesky(z_cell);
+    float3 perturbation = float3(l.l11 * fluct_x, l.l21 * fluct_x + l.l22 * fluct_y, l.l31 * fluct_x + l.l32 * fluct_y + l.l33 * fluct_z);
+    return windProfile(z_cell) + perturbation;
+}
+void applyInlet(uint t_step) {
+    float citylbm_stg_layer_rms_scale_x[2] = {1.0f, 1.0f};
+    float citylbm_stg_layer_rms_scale_y[2] = {1.0f, 1.0f};
+    float citylbm_stg_layer_rms_scale_z[2] = {1.0f, 1.0f};
+    float citylbm_stg_layer_corrected_sum_sq_x[2] = {0.0f, 0.0f};
+    for(uint n=0u; n<10u; n++) {
+        if(flags[n]==TYPE_E) {
+            uint z = 0u;
+            float3 mean = windProfile(z);
+            float3 u_in = syntheticTurbulentInlet(0u, 0u, z, t_step);
+            u_in.x = mean.x + (u_in.x - mean.x) * citylbm_stg_layer_rms_scale_x[z];
+            u_in.y = mean.y + (u_in.y - mean.y) * citylbm_stg_layer_rms_scale_y[z];
+            u_in.z = mean.z + (u_in.z - mean.z) * citylbm_stg_layer_rms_scale_z[z];
+            lbm.u.x[n] = u_in.x;
+            lbm.u.y[n] = u_in.y;
+            lbm.u.z[n] = u_in.z;
+            for(uint q=0u; q<19u; q++) {
+                lbm.f[n*19u+q] = calculate_f_eq(q, 1.0f, u_in.x, u_in.y, u_in.z);
+            }
+        }
+    }
+}
+void applySyntheticTurbulentInlet(uint t_step) { applyInlet(t_step); }
+""",
+        )
+        full_tensor_bad_rescale_code, full_tensor_bad_rescale_report = run_audit(
+            full_tensor_bad_rescale_setup,
+            metadata_claim_only,
+            full_tensor_bad_rescale_out,
+        )
+        if full_tensor_bad_rescale_code == 0:
+            raise AssertionError("full tensor component RMS rescale unexpectedly passed")
+        if full_tensor_bad_rescale_report["has_full_tensor_component_rms_rescale_guard"] is not False:
+            raise AssertionError(full_tensor_bad_rescale_report)
+        if "full_tensor_component_rms_rescale_not_covariance_preserving" not in full_tensor_bad_rescale_report[
+            "inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(full_tensor_bad_rescale_report["inlet_source_gate_reasons"])
+        if "source_full_tensor_component_rms_rescale_not_covariance_preserving" not in full_tensor_bad_rescale_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(full_tensor_bad_rescale_report["paper_grade_inlet_source_gate_reasons"])
+
+        sem_setup = root / "sem_setup.cpp"
+        sem_no_diagnostics_setup = root / "sem_no_diagnostics_setup.cpp"
+        sem_no_diagnostics_out = root / "sem_no_diagnostics_audit.json"
+        sem_out = root / "sem_audit.json"
+        sem_source_without_diagnostics = """
+const float profile_z_m[] = {0.0f, 10.0f};
+const float profile_u_lbm[] = {0.01f, 0.02f};
+const float profile_k_lbm[] = {0.0001f, 0.0002f};
+const float profile_r11_lbm[] = {0.000066f, 0.000133f};
+const float profile_r22_lbm[] = {0.000066f, 0.000133f};
+const float profile_r33_lbm[] = {0.000066f, 0.000133f};
+const float profile_r12_lbm[] = {0.0f, 0.0f};
+const float profile_r13_lbm[] = {0.0f, 0.0f};
+const float profile_r23_lbm[] = {0.0f, 0.0f};
+const float synthetic_eddy_length_scale = 4.0f;
+const float profile_origin_z_m = 0.0f;
+struct SemEddy { float eddy_center; float eddy_radius; float eddy_strength; float eddy_lifetime; };
+SemEddy sem_eddy[64];
+void sem_distribution(uint t_step) {
+    sem_eddy[0].eddy_center = 0.5f + 0.01f * (float)t_step;
+    sem_eddy[0].eddy_radius = synthetic_eddy_length_scale;
+    sem_eddy[0].eddy_strength = 0.25f * profile_r11_lbm[0];
+    sem_eddy[0].eddy_lifetime = 10.0f;
+}
+float calculate_f_eq(uint q, float rho, float ux, float uy, float uz) { return rho + ux + uy + uz + q; }
+void reconstructSyntheticEddyInletDistributions(uint n) {
+    if(flags[n]==TYPE_E) {
+        const uint z_cell = n;
+        const float z_m = profile_origin_z_m + ((float)z_cell + 0.5f) * 1.0f;
+        const float r11 = profile_r11_lbm[0];
+        const float r22 = profile_r22_lbm[0];
+        const float r33 = profile_r33_lbm[0];
+        const float r12 = profile_r12_lbm[0];
+        const float r13 = profile_r13_lbm[0];
+        const float r23 = profile_r23_lbm[0];
+        const float fluct_x = sem_eddy[0].eddy_strength * sqrtf(r11);
+        const float fluct_y = sem_eddy[0].eddy_strength * (r12 + sqrtf(r22));
+        const float fluct_z = sem_eddy[0].eddy_strength * (r13 + r23 + sqrtf(r33));
+        const float ux = profile_u_lbm[0] + z_m * 0.0f + fluct_x;
+        const float uy = fluct_y;
+        const float uz = fluct_z;
+        lbm.u.x[n] = ux;
+        lbm.u.y[n] = uy;
+        lbm.u.z[n] = uz;
+        for(uint q=0u; q<19u; q++) {
+            lbm.f[n*19u+q] = calculate_f_eq(q, 1.0f, ux, uy, uz);
+        }
+    }
+}
+void applySyntheticTurbulentInlet(uint t_step) {
+    sem_distribution(t_step);
+    reconstructSyntheticEddyInletDistributions(0u);
+}
+"""
+        write_text(sem_no_diagnostics_setup, sem_source_without_diagnostics)
+        sem_no_diagnostics_code, sem_no_diagnostics_report = run_audit(
+            sem_no_diagnostics_setup,
+            metadata_claim_only,
+            sem_no_diagnostics_out,
+        )
+        if sem_no_diagnostics_code == 0:
+            raise AssertionError("SEM/full-tensor inlet without runtime diagnostics unexpectedly passed")
+        if sem_no_diagnostics_report["runtime_inlet_diagnostics_source_gate"] != "fail":
+            raise AssertionError(sem_no_diagnostics_report)
+        if "source_missing_runtime_inlet_diagnostics_csv_for_u_k_rms_preservation" not in sem_no_diagnostics_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(sem_no_diagnostics_report["paper_grade_inlet_source_gate_reasons"])
+        if sem_no_diagnostics_report["development_acceleration_stage"] != "add_runtime_inlet_diagnostics_before_long_cfd":
+            raise AssertionError(sem_no_diagnostics_report["development_acceleration_stage"])
+
+        write_text(
+            sem_setup,
+            sem_source_without_diagnostics
+            + """
+void writeSyntheticTurbulentInletDiagnostics(uint t_step) {
+    std::ofstream inlet_diag("casea_inlet_turbulence_stats.csv");
+    inlet_diag << "step,profile_index,z_m,target_U_mps,target_k_m2s2,target_r11_m2s2,target_r22_m2s2,target_r33_m2s2,target_r12_m2s2,target_r13_m2s2,target_r23_m2s2,mean_U_mps,mean_V_mps,mean_W_mps,u_rms_mps,v_rms_mps,w_rms_mps,k_m2s2,measured_r11_m2s2,measured_r22_m2s2,measured_r33_m2s2,measured_r12_m2s2,measured_r13_m2s2,measured_r23_m2s2,samples_y,effective_sample_z_m\\n";
+}
+""",
+        )
+        sem_code, sem_report = run_audit(sem_setup, metadata_claim_only, sem_out)
+        if sem_code != 0:
+            raise AssertionError(sem_report)
+        if sem_report["paper_grade_inlet_source_gate"] != "pass":
+            raise AssertionError(sem_report["paper_grade_inlet_source_gate"])
+        if sem_report["runtime_inlet_diagnostics_source_gate"] != "pass":
+            raise AssertionError(sem_report)
+        if sem_report["has_runtime_inlet_diagnostics_required_fields"] is not True:
+            raise AssertionError(sem_report)
+        if sem_report["inlet_source_method_class"] != "synthetic_eddy_distribution_consistent":
+            raise AssertionError(sem_report["inlet_source_method_class"])
+        if sem_report["inlet_source_turbulent_inflow_fidelity_class"] != "distribution_consistent_synthetic_eddy":
+            raise AssertionError(sem_report["inlet_source_turbulent_inflow_fidelity_class"])
+        if sem_report["distribution_consistency_basis"] != "sem_eddy_population_distribution_reconstruction":
+            raise AssertionError(sem_report["distribution_consistency_basis"])
+        if sem_report["has_sem_eddy_update_evidence"] is not True:
+            raise AssertionError(sem_report)
+        if sem_report["has_sem_eddy_velocity_coupling_evidence"] is not True:
+            raise AssertionError(sem_report)
+        if sem_report["has_reynolds_stress_full_tensor_usage_evidence"] is not True:
+            raise AssertionError(sem_report)
+        if sem_report["reynolds_stress_treatment"] != "measured_or_precursor_full_tensor":
+            raise AssertionError(sem_report["reynolds_stress_treatment"])
+        if not sem_report["has_inlet_length_scale_evidence"]:
+            raise AssertionError(sem_report)
+
+    print("inlet_source_audit_smoke passed")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

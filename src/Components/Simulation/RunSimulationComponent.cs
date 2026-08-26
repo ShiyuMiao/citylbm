@@ -1,0 +1,1188 @@
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Text;
+using System.Threading;
+using Grasshopper.Kernel;
+using CityLBM.Core;
+using CityLBM.Solver;
+using CityLBM.Utils;
+
+namespace CityLBM.Components.Simulation
+{
+    /// <summary>
+    /// 运行模拟组件（异步后台版）
+    ///
+    /// 工作模式：
+    ///   Mode 0 — 仅生成 Case 文件（Generate Only）
+    ///     输出 Case 目录路径和手动操作指南，用户自行编译运行 FluidX3D
+    ///
+    ///   Mode 1 — 自动部署 + 编译 + 运行（全自动，同步阻塞，适合短流程）
+    ///     需要提供 FluidX3D 源码路径，自动完成全流程
+    ///
+    ///   Mode 2 — 仅部署到 FluidX3D 源码（不编译）
+    ///
+    ///   Mode 3 — 全自动后台运行（异步，不弹窗，GH 内实时进度）【推荐】
+    ///     将编译和运行放到后台线程，GH 组件显示实时进度（0-100%）
+    ///     不弹出任何窗口，完全在后台执行，可随时通过 Cancel 取消
+    /// </summary>
+    public class RunSimulationComponent : GH_Component
+    {
+        // ── 异步状态 ──────────────────────────────────────────────────────
+        private CancellationTokenSource _cts;           // 当前运行的取消令牌
+        private SolverResult _asyncResult;             // 最终结果
+        private bool _asyncRunning;                    // 是否正在运行
+        private int  _asyncProgress;                   // 进度 0-100
+        private readonly List<string> _asyncLog = new List<string>();  // 实时日志
+        private readonly object _logLock = new object();
+        private string _lastSceneName = null;          // 上次运行/缓存的场景名，用于检测场景变化
+        private int _lastMode = -1;                   // 上次请求的运行模式
+
+        // ── 定时刷新（GH 组件不能直接跨线程刷新，需 ExpireSolution）─────
+        private System.Timers.Timer _refreshTimer;
+
+        // ── GH 加载保护 ───────────────────────────────────────────────────
+        private DateTime _componentCreatedAt = DateTime.Now;  // 组件创建时间
+        private static readonly TimeSpan GH_LOAD_GRACE_PERIOD = TimeSpan.FromSeconds(3);  // GH 加载宽限期
+
+        private const int MinimumValidationAveragingFrames = 40;
+        private const int MinimumValidationAveragingStepSpan = 20000;
+        private const int MinimumValidationStgRefreshes = 200;
+        private const int MinimumValidationStgModes = 128;
+
+        public RunSimulationComponent()
+            : base("Run Simulation", "Sim",
+                   "生成 FluidX3D Case 文件 / 自动编译运行模拟\n" +
+                   "Mode 3【推荐】：后台异步运行，GH 内实时显示进度，不弹窗",
+                   "CityLBM", "Simulation")
+        {
+        }
+
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        {
+            // 必填
+            pManager.AddGenericParameter("Scene", "S", "CityLBM 场景对象", GH_ParamAccess.item);
+            pManager.AddGenericParameter("Grid", "G", "笛卡尔网格", GH_ParamAccess.item);
+
+            // 可选：FluidX3D 源码路径
+            pManager.AddTextParameter("FluidX3D Path", "FX3D",
+                "FluidX3D source root for controlled validation. Required for Mode 1/2/3.\n" +
+                "Must contain FluidX3D.sln/Makefile/CMakeLists.txt and src/setup.cpp, src/defines.hpp, src/lbm.hpp, src/lbm.cpp.\n" +
+                "Leave empty only for Mode 0 case generation.",
+                GH_ParamAccess.item, "");
+
+            // 模式
+            pManager.AddIntegerParameter("Mode", "M",
+                "运行模式：\n" +
+                "  0 = 生成 Case 文件（若显式提供有效 FX3D 路径则部署 + 生成一键脚本）\n" +
+                "  1 = 自动部署 + 编译 + 运行（同步，GH 界面暂时无响应）\n" +
+                "  2 = 仅部署到 FluidX3D 源码（不编译）\n" +
+                "  3 = 全自动后台运行【推荐】（异步，不弹窗，GH 内实时显示进度）",
+                GH_ParamAccess.item, 3);
+
+            // 物理参数
+            pManager.AddNumberParameter("Wind Speed", "WS", "入口风速 (m/s)，0 = 使用 Scene 默认", GH_ParamAccess.item, 0.0);
+            pManager.AddNumberParameter("Viscosity", "nu", "运动粘度 (m²/s)", GH_ParamAccess.item, 1.5e-5);
+            pManager.AddIntegerParameter("Time Steps", "T", "Total solver steps. v0.3.0 validation preflight default is 40000; use lower values only for smoke tests.", GH_ParamAccess.item, 40000);
+            pManager.AddIntegerParameter("Save Interval", "SI", "VTK output interval in steps. v0.3.0 validation preflight default is 1000, producing about 40 frames for final-window averaging.", GH_ParamAccess.item, 1000);
+
+            // ── v0.2.0: Smagorinsky LES 亚格子模型参数 ──
+            pManager.AddBooleanParameter("Enable LES", "LES",
+                "启用 Smagorinsky LES 亚格子模型【v0.2.0 新增】\n" +
+                "提升高 Reynolds 数流动的模拟精度。\n" +
+                "默认关闭（BGK 模型）。",
+                GH_ParamAccess.item, false);
+            pManager.AddNumberParameter("Cs", "Cs",
+                "Smagorinsky 常数 Cs（默认 0.12，推荐范围 0.10~0.18）\n" +
+                "较小值：更少耗散但可能不稳定\n" +
+                "较大值：更多耗散但更稳定",
+                GH_ParamAccess.item, 0.12);
+            pManager.AddBooleanParameter("Synthetic Inlet", "STG",
+                "Experimental STG-lite inlet for CustomTable profiles with k.\n" +
+                "Uses bounded spectral perturbations from sigma=sqrt(2k/3).\n" +
+                "This is not a full digital-filter, precursor, or Reynolds-stress inlet.",
+                GH_ParamAccess.item, false);
+            pManager.AddNumberParameter("STG Scale", "STGS",
+                "Multiplier for sigma=sqrt(2k/3). Recommended initial range: 0.5-1.0.",
+                GH_ParamAccess.item, 1.0);
+            pManager.AddNumberParameter("STG Corr Cells", "LC",
+                "Approximate synthetic-eddy correlation length in lattice cells.",
+                GH_ParamAccess.item, 4.0);
+
+            // 触发 / 取消
+            pManager.AddBooleanParameter("Run", "Run", "True = 开始；若已运行中则重新启动", GH_ParamAccess.item, false);
+            pManager.AddBooleanParameter("Cancel", "Stop", "True = 取消当前后台运行", GH_ParamAccess.item, false);
+
+            // 全部可选（除 Scene 和 Grid）
+            pManager.AddIntegerParameter("STG Update", "STGU",
+                "LBM steps between STG-lite inlet-pattern updates. Smaller values add faster temporal variation; record this for validation.",
+                GH_ParamAccess.item, 25);
+            pManager.AddNumberParameter("STG Max Frac", "STGF",
+                "Upper bound for STG-lite sigma as a fraction of local mean speed. Validation default is 0.35.",
+                GH_ParamAccess.item, 0.35);
+            pManager.AddTextParameter("STG Length Source", "STGLs",
+                "Evidence tag for the STG correlation length source. Leave empty for diagnostic user-selected length.\n" +
+                "Accepted paper-gate tags include aij_length_scale_verified, official_length_scale_verified, " +
+                "precursor_length_scale, digital_filter_length_scale, synthetic_eddy_length_scale, sem_length_scale, " +
+                "dfm_length_scale, or validated_length_scale_model.",
+                GH_ParamAccess.item, "");
+            pManager.AddIntegerParameter("STG Modes", "STGM",
+                "Number of deterministic spectral modes used by the STG-lite inlet. Case A/E strict baselines can use 128-384; low values are diagnostic only.",
+                GH_ParamAccess.item, 128);
+            pManager.AddBooleanParameter("AIJ Validation Preset", "AIJ",
+                "True = apply the CityLBM AIJ validation preflight baseline: at least 40000 steps, save interval no larger than 1000, STG-lite enabled for CustomTable+k, 128 STG modes and 25-step STG updates. This accelerates development by blocking invalid long runs early; it is not paper-grade proof without archived length-scale, boundary and native parity evidence.",
+                GH_ParamAccess.item, false);
+            pManager.AddIntegerParameter("VTK Save Start", "VStart",
+                "First solver step allowed for VTK output. 0 preserves legacy output at Save Interval; use a positive value to skip spin-up and average only late frames.",
+                GH_ParamAccess.item, 0);
+
+            for (int i = 2; i <= 20; i++) pManager[i].Optional = true;
+        }
+
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        {
+            pManager.AddTextParameter("Case Dir",    "Dir",      "Case 文件目录",         GH_ParamAccess.item);
+            pManager.AddTextParameter("Output Dir",  "Out",      "VTK 输出目录",          GH_ParamAccess.item);
+            pManager.AddBooleanParameter("Success",  "OK",       "操作是否成功",          GH_ParamAccess.item);
+            pManager.AddTextParameter("Status",      "Status",   "当前状态信息",          GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Progress", "Pct",      "进度百分比（0-100）",   GH_ParamAccess.item);
+            pManager.AddTextParameter("Log",         "Log",      "实时运行日志",          GH_ParamAccess.item);
+        }
+
+        protected override void SolveInstance(IGH_DataAccess DA)
+        {
+            // ── 读取参数 ────────────────────────────────────────────────
+            GH_Scene ghScene = null;
+            GH_CartesianGrid ghGrid = null;
+            string fluidX3DPath = "";
+            int mode = 3;
+            double windSpeedOverride = 0.0;
+            double viscosity = 1.5e-5;
+            int timeSteps = 40000;
+            int saveInterval = 1000;
+            bool run = false;
+            bool cancel = false;
+            // ── v0.2.0: Smagorinsky LES 参数 ──
+            bool enableLES = false;
+            double smagorinskyCs = 0.12;
+            bool enableSyntheticInlet = false;
+            double syntheticScale = 1.0;
+            double syntheticCorrCells = 4.0;
+            int syntheticUpdateInterval = 25;
+            double syntheticMaxFraction = 0.35;
+            string syntheticLengthSource = "";
+            int syntheticModeCount = 128;
+            bool useAijValidationPreset = false;
+            int vtkSaveStartStep = 0;
+
+            if (!DA.GetData(0, ref ghScene)) return;
+            if (!DA.GetData(1, ref ghGrid)) return;
+            DA.GetData(2, ref fluidX3DPath);
+            DA.GetData(3, ref mode);
+            DA.GetData(4, ref windSpeedOverride);
+            DA.GetData(5, ref viscosity);
+            DA.GetData(6, ref timeSteps);
+            DA.GetData(7, ref saveInterval);
+            DA.GetData(8, ref enableLES);
+            DA.GetData(9, ref smagorinskyCs);
+            DA.GetData(10, ref enableSyntheticInlet);
+            DA.GetData(11, ref syntheticScale);
+            DA.GetData(12, ref syntheticCorrCells);
+            DA.GetData(13, ref run);
+            DA.GetData(14, ref cancel);
+            DA.GetData(15, ref syntheticUpdateInterval);
+            DA.GetData(16, ref syntheticMaxFraction);
+            DA.GetData(17, ref syntheticLengthSource);
+            DA.GetData(18, ref syntheticModeCount);
+            DA.GetData(19, ref useAijValidationPreset);
+            DA.GetData(20, ref vtkSaveStartStep);
+
+            // ── GH 加载期保护 ────────────────────────────────────────────
+            // 使用宽限期策略：组件创建后 3 秒内认为 GH 可能还在加载
+            // 这比检查 SolutionState 更可靠，因为后者在 GH 加载完成后仍可能返回 Process
+            if (DateTime.Now - _componentCreatedAt < GH_LOAD_GRACE_PERIOD)
+            {
+                double waitSec = (GH_LOAD_GRACE_PERIOD - (DateTime.Now - _componentCreatedAt)).TotalSeconds;
+                DA.SetData(0, "");           // Case Dir
+                DA.SetData(1, "");           // Output Dir
+                DA.SetData(2, false);        // Success
+                DA.SetData(3, $"[加载中] GH 初始化中，请等待 {waitSec:F1} 秒后再运行...");
+                DA.SetData(4, 0);            // Progress
+                DA.SetData(5, "");           // Log
+                // 触发一次刷新，让状态更新
+                ScheduleRefresh(500);
+                return;
+            }
+
+            // ── 取消操作 ─────────────────────────────────────────────────
+            if (cancel && _asyncRunning)
+            {
+                _cts?.Cancel();
+                // 注意：_asyncRunning 会在 completionCallback 中被重置为 false
+                // 这里不能立即重置，否则 GH 刷新时可能进入 Mode3 启动逻辑
+                DA.SetData(0, "");
+                DA.SetData(1, "");
+                DA.SetData(2, false);
+                DA.SetData(3, "正在取消...");
+                DA.SetData(4, _asyncProgress);
+                DA.SetData(5, GetCurrentLog());
+                return;
+            }
+            if (cancel)
+            {
+                DA.SetData(0, "");
+                DA.SetData(1, "");
+                DA.SetData(2, false);
+                DA.SetData(3, "当前无后台任务可取消。");
+                DA.SetData(4, _asyncProgress);
+                DA.SetData(5, GetCurrentLog());
+                return;
+            }
+
+            // ── 如果后台任务正在执行，无论 run 是否为 true，优先输出实时进度 ──
+            // 这避免了 run=true 时反复进入 Mode3 启动逻辑的问题
+            if (_asyncRunning)
+            {
+                string progressBar = GetProgressBar(_asyncProgress);
+                string stage = GetProgressStage(_asyncProgress);
+                string statusMsg = $"[{stage}]\n{progressBar} {_asyncProgress}%\n后台编译/运行中，请等待...";
+                
+                DA.SetData(0, "");
+                DA.SetData(1, "");
+                DA.SetData(2, false);
+                DA.SetData(3, statusMsg);
+                DA.SetData(4, _asyncProgress);
+                DA.SetData(5, GetCurrentLog());
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, $"{stage} {_asyncProgress}%");
+                return;
+            }
+
+            // ── 场景变化检测：场景名改变时自动清除旧缓存 ──
+            Core.Scene currentScene = ghScene?.Value;
+            string currentSceneName = currentScene?.Name ?? "";
+            if (_asyncResult != null && _lastSceneName != null
+                && (_lastSceneName != currentSceneName || _lastMode != mode))
+            {
+                // 场景已变化，旧结果不再有效
+                _asyncResult = null;
+                _asyncProgress = 0;
+                lock (_logLock) { _asyncLog.Clear(); }
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                    $"场景已变更（{_lastSceneName} → {currentSceneName}），旧模拟结果已清除。请重新运行。");
+            }
+
+            // ── 如果已有完成的异步结果且 run 仍为 true，保持输出结果 ──
+            // 这防止模拟完成后 GH 重新计算导致结果丢失
+            if (_asyncResult != null && _asyncResult.Success && run)
+            {
+                OutputAsyncResult(DA, _asyncResult);
+                return;
+            }
+
+            // ── 未触发 ───────────────────────────────────────────────────
+            if (!run)
+            {
+                if (_asyncResult != null)
+                {
+                    // 输出已完成的结果
+                    OutputAsyncResult(DA, _asyncResult);
+                }
+                else
+                {
+                    DA.SetData(2, false);
+                    DA.SetData(3, "将 Run 设为 True 以触发。Mode 3 = 后台运行（推荐，不弹窗）。");
+                    DA.SetData(4, 0);
+                }
+                return;
+            }
+
+            // ── 验证输入 ─────────────────────────────────────────────────
+            if (ghScene?.Value == null)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "场景对象无效");
+                return;
+            }
+            if (ghGrid?.Value == null)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "网格对象无效");
+                return;
+            }
+
+            Core.Scene scene = ghScene.Value;
+            CartesianGrid grid = ghGrid.Value;
+            if (double.IsNaN(windSpeedOverride) || double.IsInfinity(windSpeedOverride) || windSpeedOverride < 0.0)
+            {
+                string message = $"Wind Speed 输入无效: {windSpeedOverride}. 请使用非负有限数值或 0（使用场景默认值）。";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return;
+            }
+            if (double.IsNaN(viscosity) || double.IsInfinity(viscosity) || viscosity <= 0.0)
+            {
+                string message = $"Viscosity 输入无效: {viscosity}. 请使用大于 0 的有限数值。";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return;
+            }
+            if (windSpeedOverride > 0.0) scene.WindSpeed = windSpeedOverride;
+
+            // 记录当前场景名（用于检测场景变化，自动清除旧缓存）
+            _lastSceneName = scene.Name;
+            _lastMode = mode;
+
+            var settings = useAijValidationPreset
+                ? SimulationSettings.CreateAijValidationPreflightBaseline()
+                : new SimulationSettings();
+            settings.Viscosity = viscosity;
+            if (useAijValidationPreset)
+            {
+                settings.TimeSteps = Math.Max(settings.TimeSteps, timeSteps);
+                settings.SaveInterval = saveInterval > 0
+                    ? Math.Min(settings.SaveInterval, saveInterval)
+                    : settings.SaveInterval;
+                settings.VtkSaveStartStep = Math.Max(0, vtkSaveStartStep);
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                    "[v0.3.0] AIJ validation preset active: TimeSteps >= 40000, SaveInterval <= 1000, STG-lite enabled for CustomTable+k. Missing length-scale/boundary/native evidence will still block formal runs.");
+            }
+            else
+            {
+                settings.TimeSteps = timeSteps;
+                settings.SaveInterval = saveInterval;
+                settings.VtkSaveStartStep = Math.Max(0, vtkSaveStartStep);
+            }
+            settings.SetInletVelocity(scene.WindDirection, scene.WindSpeed);
+
+            // ── v0.2.0: Smagorinsky LES 模型参数传递 ──
+            if (enableLES)
+            {
+                settings.EnableSmagorinskyLES = true;
+                // 约束 Cs 在合理范围内 (0.05 ~ 0.25)
+                double cs = Math.Max(0.05, Math.Min(0.25, smagorinskyCs));
+                settings.SmagorinskyConstantCs = cs;
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                    $"[v0.2.0] 已启用 Smagorinsky LES 模型，Cs={cs:F3}");
+            }
+
+            if (enableSyntheticInlet || useAijValidationPreset)
+            {
+                settings.EnableSyntheticTurbulentInlet = true;
+                settings.SyntheticTurbulenceIntensityScale = Math.Max(0.0, Math.Min(2.0, syntheticScale));
+                settings.SyntheticTurbulenceCorrelationCells = Math.Max(1.0, Math.Min(64.0, syntheticCorrCells));
+                settings.SyntheticTurbulenceUpdateInterval = Math.Max(1, Math.Min(1000, syntheticUpdateInterval));
+                settings.SyntheticTurbulenceMaxFractionOfMean = Math.Max(0.05, Math.Min(0.80, syntheticMaxFraction));
+                settings.SyntheticTurbulenceLengthScaleSource = (syntheticLengthSource ?? "").Trim();
+                settings.SyntheticTurbulenceModeCount = Math.Max(4, Math.Min(1024, syntheticModeCount));
+                if (useAijValidationPreset)
+                {
+                    settings.SyntheticTurbulenceUpdateInterval = Math.Min(
+                        settings.SyntheticTurbulenceUpdateInterval,
+                        SimulationSettings.AijValidationBaselineSyntheticTurbulenceUpdateInterval);
+                    settings.SyntheticTurbulenceModeCount = Math.Max(
+                        settings.SyntheticTurbulenceModeCount,
+                        SimulationSettings.AijValidationBaselineSyntheticTurbulenceModeCount);
+                }
+                if (settings.SyntheticTurbulenceModeCount < MinimumValidationStgModes)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        $"[v0.3.0] STG-lite modes below {MinimumValidationStgModes} are diagnostic only for Case A/E validation; use {MinimumValidationStgModes}-384 before interpreting accuracy.");
+                }
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                    $"[v0.3.0] STG-lite inlet enabled for CustomTable+k. Modes={settings.SyntheticTurbulenceModeCount}, update={settings.SyntheticTurbulenceUpdateInterval}, cap={settings.SyntheticTurbulenceMaxFractionOfMean:F2}. Experimental; not full DFM/precursor/Reynolds-stress inflow.");
+            }
+            EmitInletEvidenceWarnings(scene, settings);
+
+            var solver = new FluidX3DInterface(fluidX3DPath);
+            mode = Math.Max(0, Math.Min(3, mode));
+            if (!ValidateRunWindow(DA, scene, settings, mode))
+            {
+                return;
+            }
+
+            switch (mode)
+            {
+                case 0:
+                    RunMode0_GenerateOnly(DA, solver, scene, grid, settings);
+                    break;
+                case 1:
+                    RunMode1_FullAuto(DA, solver, scene, grid, settings);
+                    break;
+                case 2:
+                    RunMode2_DeployOnly(DA, solver, scene, grid, settings);
+                    break;
+                case 3:
+                    RunMode3_AsyncBackground(DA, solver, scene, grid, settings);
+                    break;
+            }
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // Mode 0: 生成 Case 文件
+        // ────────────────────────────────────────────────────────────────
+        private void RunMode0_GenerateOnly(IGH_DataAccess DA,
+            FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
+        {
+            var result = solver.GenerateCaseOnly(scene, grid, settings);
+
+            DA.SetData(0, result.CaseDirectory ?? "");
+            DA.SetData(1, result.Success ? Path.Combine(result.CaseDirectory ?? "", "output") : "");
+            DA.SetData(2, result.Success);
+            DA.SetData(3, result.Success ? result.Instructions : $"生成失败：{result.ErrorMessage}");
+            DA.SetData(4, result.Success ? 100 : 0);
+            DA.SetData(5, result.Success ? result.Instructions : result.ErrorMessage);
+
+            if (result.Success)
+            {
+                string tip = result.AutoDeployed
+                    ? "[OK] Case 文件已生成并自动部署到 FluidX3D。双击 run_citylbm.bat 一键完成编译运行。"
+                    : "[OK] Case 文件已生成，请按照输出说明手动部署到 FluidX3D。";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, tip);
+            }
+            else
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, result.ErrorMessage);
+            }
+        }
+
+        private void EmitInletEvidenceWarnings(Core.Scene scene, SimulationSettings settings)
+        {
+            if (scene == null || scene.WindProfile != WindProfileType.CustomTable)
+                return;
+
+            bool hasRows = scene.CustomWindProfile != null && scene.CustomWindProfile.Count > 0;
+            bool completeK = HasCompleteCustomProfileK(scene);
+            if (hasRows && completeK && !settings.EnableSyntheticTurbulentInlet)
+            {
+                AddRuntimeMessage(
+                    GH_RuntimeMessageLevel.Warning,
+                    "[v0.3.0] CustomTable k column is complete, but Synthetic Inlet is off. k will be recorded and converted only; it will not create inlet turbulence in FluidX3D.");
+            }
+            else if (settings.EnableSyntheticTurbulentInlet && !completeK)
+            {
+                AddRuntimeMessage(
+                    GH_RuntimeMessageLevel.Warning,
+                    "[v0.3.0] Synthetic Inlet was requested but will be blocked unless every CustomTable row has k(m2/s2). Check case_metadata.json for SyntheticTurbulentInletBlockedReason.");
+            }
+            else if (settings.EnableSyntheticTurbulentInlet && completeK)
+            {
+                AddRuntimeMessage(
+                    GH_RuntimeMessageLevel.Warning,
+                    "[v0.3.0] STG-lite uses velocity-field inlet perturbations only. Treat results as diagnostic until inlet U/k preservation, native parity and distribution-consistent turbulence evidence are archived.");
+            }
+        }
+
+        private static bool HasCompleteCustomProfileK(Core.Scene scene)
+        {
+            if (scene == null || scene.CustomWindProfile == null || scene.CustomWindProfile.Count == 0)
+                return false;
+
+            foreach (var sample in scene.CustomWindProfile)
+            {
+                if (sample == null || !sample.HasK)
+                    return false;
+            }
+
+            return true;
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // Mode 1: 自动部署 + 编译 + 运行（同步，会阻塞 GH 界面）
+        // ────────────────────────────────────────────────────────────────
+        private bool RequireExplicitFluidX3DSourcePath(IGH_DataAccess DA, FluidX3DInterface solver, string modeName)
+        {
+            if (!solver.HasExplicitFluidX3DPath)
+            {
+                string message = modeName + " validation runs require an explicit FX3D input path. " +
+                                 "Auto-detected FluidX3D paths are disabled for v0.3.0 controlled baselines.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                DA.SetData(0, "");
+                DA.SetData(1, "");
+                DA.SetData(2, false);
+                DA.SetData(3, message);
+                DA.SetData(4, 0);
+                DA.SetData(5, "");
+                return false;
+            }
+
+            var validation = solver.ValidateFluidX3DSourcePath(out string validationMessage);
+            if (!validation.IsValid)
+            {
+                string message = modeName + " requires a complete native FluidX3D source tree at FX3D.\n" +
+                                 validationMessage + "\nPath: " + solver.FluidX3DPath;
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                DA.SetData(0, "");
+                DA.SetData(1, "");
+                DA.SetData(2, false);
+                DA.SetData(3, message);
+                DA.SetData(4, 0);
+                DA.SetData(5, "");
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool ValidateRunWindow(IGH_DataAccess DA, Core.Scene scene, SimulationSettings settings, int mode)
+        {
+            if (settings.TimeSteps <= 0)
+            {
+                string message = "Time Steps must be greater than 0.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            if (settings.SaveInterval <= 0)
+            {
+                string message = "Save Interval must be greater than 0 so VTK output and validation averaging can be audited.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            if (settings.SaveInterval > settings.TimeSteps)
+            {
+                string message = $"Save Interval ({settings.SaveInterval}) 大于 Time Steps ({settings.TimeSteps})，将仅产生 1 帧输出，难以完成有效平均。";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, message);
+            }
+
+            int expectedFrames = ExpectedVtkFrameCount(settings);
+            int requiredAverageFrames = RequiredAverageFramesForStepSpan(
+                settings.SaveInterval,
+                MinimumValidationAveragingFrames,
+                MinimumValidationAveragingStepSpan);
+            int expectedFinalWindowStepSpan = ExpectedFinalWindowStepSpan(settings, requiredAverageFrames);
+            bool customTable = scene != null && scene.WindProfile == WindProfileType.CustomTable;
+            bool syntheticRequestedForCustomTable = settings.EnableSyntheticTurbulentInlet && customTable;
+            bool completeK = HasCompleteCustomProfileK(scene);
+            bool syntheticActive = syntheticRequestedForCustomTable && completeK;
+            bool hasSupportedLengthScaleSource = HasSupportedSyntheticTurbulenceLengthScaleSource(settings.SyntheticTurbulenceLengthScaleSource);
+            int expectedFinalWindowStgRefreshes = ExpectedFinalWindowStgRefreshCount(settings, requiredAverageFrames);
+            if (mode == 0)
+            {
+                if (expectedFrames < requiredAverageFrames ||
+                    expectedFinalWindowStepSpan < MinimumValidationAveragingStepSpan)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        $"Mode 0 will generate a smoke/diagnostic case only: expected VTK frames={expectedFrames}, " +
+                        $"VTK save start={settings.VtkSaveStartStep}, adaptive average frames={requiredAverageFrames}, final-window step span={expectedFinalWindowStepSpan}; " +
+                        $"validation requires at least {MinimumValidationAveragingFrames} frames and enough saved frames to span " +
+                        $"{MinimumValidationAveragingStepSpan} steps.");
+                }
+                if (syntheticActive && expectedFinalWindowStgRefreshes < MinimumValidationStgRefreshes)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        $"Mode 0 will generate a diagnostic STG-lite case only: final-window STG refresh count={expectedFinalWindowStgRefreshes}; " +
+                        $"validation requires at least {MinimumValidationStgRefreshes} inlet refreshes in the averaged window.");
+                }
+                if (syntheticRequestedForCustomTable && !completeK)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        "Mode 0 will generate a diagnostic case only: Synthetic Inlet is requested but CustomTable does not have complete k(m2/s2) values.");
+                }
+                if (syntheticActive && !hasSupportedLengthScaleSource)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        "Mode 0 will generate a diagnostic STG-lite case only: STG Length Source is not an archived AIJ/official/precursor/DFM/SEM length-scale evidence tag.");
+                }
+                if (syntheticActive && settings.SyntheticTurbulenceModeCount < MinimumValidationStgModes)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        $"Mode 0 will generate a diagnostic STG-lite case only: STG Modes={settings.SyntheticTurbulenceModeCount}, minimum validation baseline={MinimumValidationStgModes}.");
+                }
+                return true;
+            }
+
+            if (expectedFrames < requiredAverageFrames ||
+                expectedFinalWindowStepSpan < MinimumValidationAveragingStepSpan)
+            {
+                string message =
+                    $"Mode {mode} validation run blocked: TimeSteps={settings.TimeSteps}, SaveInterval={settings.SaveInterval}, VtkSaveStartStep={settings.VtkSaveStartStep}, " +
+                    $"expected VTK frames={expectedFrames}, adaptive average frames={requiredAverageFrames}, " +
+                    $"final-window step span={expectedFinalWindowStepSpan}. " +
+                    $"Use at least {MinimumValidationAveragingFrames} frames and enough saved frames to span {MinimumValidationAveragingStepSpan} steps " +
+                    "for the final time-averaging window.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            if (syntheticRequestedForCustomTable && !completeK)
+            {
+                string message =
+                    $"Mode {mode} validation run blocked: Synthetic Inlet is requested for a CustomTable profile, " +
+                    "but the profile does not contain complete k(m2/s2) values. Use an AF table with z,U,k for every row, " +
+                    "or disable Synthetic Inlet and treat k as metadata only.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            if (syntheticActive && !hasSupportedLengthScaleSource)
+            {
+                string source = string.IsNullOrWhiteSpace(settings.SyntheticTurbulenceLengthScaleSource)
+                    ? "<empty>"
+                    : settings.SyntheticTurbulenceLengthScaleSource.Trim();
+                string message =
+                    $"Mode {mode} validation run blocked: Synthetic Inlet is active, but STG Length Source='{source}' " +
+                    "is not a supported archived length-scale evidence tag. Accepted tags include " +
+                    "aij_length_scale_verified, official_length_scale_verified, precursor_length_scale, " +
+                    "digital_filter_length_scale, synthetic_eddy_length_scale, sem_length_scale, dfm_length_scale, " +
+                    "or validated_length_scale_model. Mode 0 may still be used for diagnostic case generation.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            if (syntheticActive && settings.SyntheticTurbulenceModeCount < MinimumValidationStgModes)
+            {
+                string message =
+                    $"Mode {mode} validation run blocked: Synthetic Inlet is active but STG Modes={settings.SyntheticTurbulenceModeCount}. " +
+                    $"Use at least {MinimumValidationStgModes} modes before running a controlled validation baseline.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            if (syntheticActive && expectedFinalWindowStgRefreshes < MinimumValidationStgRefreshes)
+            {
+                string message =
+                    $"Mode {mode} validation run blocked: Synthetic Inlet is active but the final averaging window has only " +
+                    $"{expectedFinalWindowStgRefreshes} STG-lite refreshes. Use a smaller STG Update interval, more Time Steps, " +
+                    $"or a longer final averaging window so at least {MinimumValidationStgRefreshes} inlet-pattern refreshes are sampled.";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool HasSupportedSyntheticTurbulenceLengthScaleSource(string source)
+        {
+            if (string.IsNullOrWhiteSpace(source))
+                return false;
+
+            string text = source.ToLowerInvariant();
+            string[] tokens =
+            {
+                "aij_length_scale_verified",
+                "official_length_scale_verified",
+                "precursor_length_scale",
+                "recycling_length_scale",
+                "digital_filter_length_scale",
+                "digital-filter_length_scale",
+                "synthetic_eddy_length_scale",
+                "synthetic-eddy_length_scale",
+                "sem_length_scale",
+                "dfm_length_scale",
+                "validated_length_scale_model"
+            };
+
+            foreach (string token in tokens)
+            {
+                if (text.Contains(token))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static int ExpectedVtkFrameCount(SimulationSettings settings)
+        {
+            return ExpectedVtkSourceTimeSteps(settings).Count;
+        }
+
+        private static int ExpectedFinalWindowStepSpan(SimulationSettings settings, int averageFrameCount)
+        {
+            if (settings.SaveInterval <= 0 || settings.TimeSteps <= 0 || averageFrameCount <= 1)
+                return 0;
+
+            var savedSteps = ExpectedVtkSourceTimeSteps(settings);
+            int windowCount = Math.Min(averageFrameCount, savedSteps.Count);
+            if (windowCount <= 1)
+                return 0;
+
+            int firstIndex = savedSteps.Count - windowCount;
+            return savedSteps[savedSteps.Count - 1] - savedSteps[firstIndex];
+        }
+
+        private static List<int> ExpectedVtkSourceTimeSteps(SimulationSettings settings)
+        {
+            var savedSteps = new List<int>();
+            if (settings.SaveInterval <= 0 || settings.TimeSteps <= 0)
+                return savedSteps;
+
+            int firstStep = settings.VtkSaveStartStep > 0 ? settings.VtkSaveStartStep : settings.SaveInterval;
+            if (firstStep > settings.TimeSteps)
+                return savedSteps;
+
+            for (int step = firstStep; step <= settings.TimeSteps; step += settings.SaveInterval)
+                savedSteps.Add(step);
+
+            if (savedSteps.Count == 0 || savedSteps[savedSteps.Count - 1] != settings.TimeSteps)
+                savedSteps.Add(settings.TimeSteps);
+
+            return savedSteps;
+        }
+
+        private static int ExpectedFinalWindowStgRefreshCount(SimulationSettings settings, int averageFrameCount)
+        {
+            int span = ExpectedFinalWindowStepSpan(settings, averageFrameCount);
+            if (span <= 0 || settings.SyntheticTurbulenceUpdateInterval <= 0)
+                return 0;
+
+            return (int)Math.Floor(span / (double)settings.SyntheticTurbulenceUpdateInterval);
+        }
+
+        private static int RequiredAverageFramesForStepSpan(int saveInterval, int minFrames, int minStepSpan)
+        {
+            if (saveInterval <= 0 || minStepSpan <= 0)
+                return Math.Max(1, minFrames);
+
+            int framesForSpan = (int)Math.Ceiling(minStepSpan / (double)saveInterval) + 1;
+            return Math.Max(minFrames, framesForSpan);
+        }
+
+        private static void OutputValidationFailure(IGH_DataAccess DA, string message)
+        {
+            DA.SetData(0, "");
+            DA.SetData(1, "");
+            DA.SetData(2, false);
+            DA.SetData(3, message);
+            DA.SetData(4, 0);
+            DA.SetData(5, "");
+        }
+
+        private void RunMode1_FullAuto(IGH_DataAccess DA,
+            FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
+        {
+            if (!RequireExplicitFluidX3DSourcePath(DA, solver, "Mode 1"))
+            {
+                return;
+            }
+            
+            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, $"使用 FluidX3D 路径: {solver.FluidX3DPath}");
+
+            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                "开始完整流程（同步模式）：生成 → 部署 → 编译 → 运行...\n提示：使用 Mode 3 可避免界面卡顿。");
+
+            var result = solver.GenerateDeployBuildRun(scene, grid, settings);
+
+            DA.SetData(0, result.CaseDirectory ?? "");
+            DA.SetData(1, result.OutputDirectory ?? "");
+            DA.SetData(2, result.Success);
+            DA.SetData(4, result.Success ? 100 : 0);
+
+            string summary = result.Success
+                ? $"[OK] 模拟完成！耗时: {result.Duration.TotalMinutes:F1} 分钟\nVTK 输出: {result.OutputDirectory}"
+                : $"[X] 失败: {result.ErrorMessage}";
+
+            DA.SetData(3, summary);
+            DA.SetData(5, result.Log);
+
+            if (!result.Success)
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, result.ErrorMessage ?? "未知错误");
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // Mode 2: 仅部署
+        // ────────────────────────────────────────────────────────────────
+        private void RunMode2_DeployOnly(IGH_DataAccess DA,
+            FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
+        {
+            if (!RequireExplicitFluidX3DSourcePath(DA, solver, "Mode 2"))
+            {
+                return;
+            }
+            
+            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, $"使用 FluidX3D 路径: {solver.FluidX3DPath}");
+
+            string caseDir;
+            try { caseDir = solver.GenerateCase(scene, grid, settings); }
+            catch (Exception ex)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, $"生成 Case 失败: {ex.Message}");
+                DA.SetData(2, false); DA.SetData(3, $"生成 Case 失败: {ex.Message}");
+                return;
+            }
+
+            var deployResult = solver.DeployToFluidX3D(caseDir);
+            DA.SetData(0, caseDir);
+            DA.SetData(1, Path.Combine(solver.FluidX3DPath, "output"));
+            DA.SetData(2, deployResult.Success);
+            DA.SetData(4, deployResult.Success ? 100 : 0);
+
+            if (deployResult.Success)
+            {
+                string msg = deployResult.Message + "\n\n文件已部署，请手动编译并运行 FluidX3D：\n" +
+                             "  Visual Studio: Build → Release x64\n" +
+                             "  命令行: msbuild FluidX3D.sln /p:Configuration=Release /p:PlatformToolset=v143";
+                DA.SetData(3, msg);
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "[OK] 已部署到 FluidX3D 源码，请手动编译运行。");
+            }
+            else
+            {
+                DA.SetData(3, $"部署失败：{deployResult.ErrorMessage}");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, deployResult.ErrorMessage);
+            }
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // Mode 3: 全自动后台异步运行【推荐】
+        // 后台编译 + 后台运行，GH 内实时显示进度，不弹出任何窗口
+        // ────────────────────────────────────────────────────────────────
+        private void RunMode3_AsyncBackground(IGH_DataAccess DA,
+            FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
+        {
+            if (string.IsNullOrWhiteSpace(solver.FluidX3DPath))
+            {
+                string message = "Mode 3 使用外部求解器时要求提供 FX3D 路径。";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return;
+            }
+
+            if (!RequireExplicitFluidX3DSourcePath(DA, solver, "Mode 3"))
+            {
+                return;
+            }
+
+            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "使用 FluidX3D 路径: " + solver.FluidX3DPath);
+
+            // 双重保险：正常不应该到这里（已在 SolveInstance 顶部提前 return）
+            if (_asyncRunning)
+            {
+                string bar = GetProgressBar(_asyncProgress);
+                string stg = GetProgressStage(_asyncProgress);
+                DA.SetData(3, $"[{stg}]\n{bar} {_asyncProgress}%\n后台任务运行中...");
+                DA.SetData(4, _asyncProgress);
+                DA.SetData(5, GetCurrentLog());
+                return;
+            }
+
+            // 重置状态
+            _asyncResult = null;
+            _asyncRunning = true;
+            _asyncProgress = 0;
+            lock (_logLock) { _asyncLog.Clear(); }
+            StopRefreshTimer();
+
+            // 启动定时刷新（每 2 秒刷新一次 GH 组件）
+            StartRefreshTimer();
+
+            // 启动后台任务
+            _cts = solver.StartAsyncRun(
+                scene, grid, settings,
+                progressCallback: (msg, pct) =>
+                {
+                    lock (_logLock)
+                    {
+                        _asyncLog.Add(msg);
+                        // 只保留最近 200 行日志，防止内存膨胀
+                        if (_asyncLog.Count > 200) _asyncLog.RemoveAt(0);
+                    }
+                    if (pct >= 0) Interlocked.Exchange(ref _asyncProgress, pct);
+                },
+                completionCallback: result =>
+                {
+                    FinalizeAsyncRun(result);
+                }
+            );
+
+            // 立即输出"已启动"状态
+            DA.SetData(3, "[启动] 后台运行已启动，编译中...");
+            DA.SetData(4, 0);
+            DA.SetData(5, "正在初始化...");
+
+            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                "[Mode 3] 后台运行已启动，GH 组件将每 2 秒自动刷新进度。\n" +
+                "编译和求解完全在后台执行，不弹出任何窗口。\n" +
+                "将 Cancel 设为 True 可随时中止运行。");
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // Legacy bundled solver path retained only for source compatibility.
+        // v0.3.0 validation runs do not call this path; Mode 3 requires an explicit FluidX3D source tree.
+        // ────────────────────────────────────────────────────────────────
+        private void RunMode3_BundledSolver(IGH_DataAccess DA,
+            FluidX3DInterface solver, Core.Scene scene, CartesianGrid grid, SimulationSettings settings)
+        {
+            if (!solver.IsBundlerAvailable)
+            {
+                string message = "Mode 3 未检测到本地可用的 bundled solver，并且未提供有效 FX3D 路径。请填写 FluidX3D Path。";
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, message);
+                OutputValidationFailure(DA, message);
+                return;
+            }
+
+            if (_asyncRunning)
+            {
+                string bar = GetProgressBar(_asyncProgress);
+                DA.SetData(3, "[Bundled]\n" + bar + " " + _asyncProgress + "%\nRunning...");
+                DA.SetData(4, _asyncProgress);
+                DA.SetData(5, GetCurrentLog());
+                return;
+            }
+
+            _cts?.Dispose();
+            _asyncResult = null;
+            _asyncRunning = true;
+            _asyncProgress = 0;
+            lock (_logLock) { _asyncLog.Clear(); }
+            StopRefreshTimer();
+            StartRefreshTimer();
+            _cts = new System.Threading.CancellationTokenSource();
+            var token = _cts.Token;
+
+            string caseDir = "";
+            string outputDir = "";
+
+            var bgThread = new System.Threading.Thread(() =>
+            {
+                try
+                {
+                    lock (_logLock) { _asyncLog.Add("[Bundled] Starting..."); }
+                    Interlocked.Exchange(ref _asyncProgress, 2);
+
+                    var result = solver.RunWithBundledSolver(scene, grid, settings,
+                        progressCallback: (pct, msg) =>
+                        {
+                            lock (_logLock)
+                            {
+                                _asyncLog.Add("[Bundled " + pct + "%] " + msg);
+                                if (_asyncLog.Count > 200) _asyncLog.RemoveAt(0);
+                            }
+                            if (pct >= 0) Interlocked.Exchange(ref _asyncProgress, pct);
+                        },
+                        cancellationToken: token);
+
+                    caseDir = result.CaseDirectory;
+                    outputDir = result.OutputDirectory;
+                    _asyncResult = result;
+                }
+                catch (Exception ex)
+                {
+                    if (ex is OperationCanceledException)
+                    {
+                        _asyncResult = new SolverResult
+                        {
+                            Success = false,
+                            ErrorMessage = "用户取消了操作",
+                            CaseDirectory = caseDir,
+                            OutputDirectory = outputDir
+                        };
+                        lock (_logLock) { _asyncLog.Add("[Bundled] 已取消"); }
+                    }
+                    else
+                    {
+                        _asyncResult = new SolverResult
+                        {
+                            Success = false,
+                            ErrorMessage = "Bundled solver exception: " + ex.Message,
+                            CaseDirectory = caseDir,
+                            OutputDirectory = outputDir
+                        };
+                        lock (_logLock) { _asyncLog.Add("[ERROR] " + ex.Message); }
+                    }
+                }
+                finally
+                {
+                    FinalizeAsyncRun(_asyncResult);
+                }
+            })
+            { IsBackground = true, Name = "CityLBM_BundledSolver" };
+            bgThread.Start();
+
+            DA.SetData(3, "[启动] 后台运行已启动（Bundled 内置求解器），编译中...");
+            DA.SetData(4, 0);
+            DA.SetData(5, "正在初始化 Bundled 内置求解器...");
+            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                "[Legacy Bundled] Background run started from a compatibility-only path.\n" +
+                "GH component will auto-refresh every 2s.\n" +
+                "Set Cancel=True to abort.");
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // 输出异步结果（后台任务完成后调用）
+        // ────────────────────────────────────────────────────────────────
+        private void OutputAsyncResult(IGH_DataAccess DA, SolverResult result)
+        {
+            DA.SetData(0, result.CaseDirectory ?? "");
+            DA.SetData(1, result.OutputDirectory ?? "");
+            DA.SetData(2, result.Success);
+            DA.SetData(4, result.Success ? 100 : 0);
+
+            string status = result.Success
+                ? $"[OK] 模拟完成！耗时: {result.Duration.TotalMinutes:F1} 分钟\nVTK: {result.OutputDirectory}"
+                : $"[X] 失败: {result.ErrorMessage}";
+
+            DA.SetData(3, status);
+            DA.SetData(5, GetCurrentLog());
+
+            if (result.Success)
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, $"[OK] 模拟完成！耗时 {result.Duration.TotalMinutes:F1} 分钟");
+            else
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, result.ErrorMessage ?? "模拟失败");
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // 辅助：日志 / 定时刷新
+        // ────────────────────────────────────────────────────────────────
+        private string GetCurrentLog()
+        {
+            lock (_logLock)
+            {
+                // 添加时间戳和行号，确保每次返回的字符串都是新的对象
+                // 这样 Panel 会检测到变化并自动刷新
+                var sb = new StringBuilder();
+                for (int i = 0; i < _asyncLog.Count; i++)
+                {
+                    sb.AppendLine($"[{i + 1:D3}] {_asyncLog[i]}");
+                }
+                return sb.ToString();
+            }
+        }
+
+        /// <summary>
+        /// 生成可视化进度条字符串
+        /// </summary>
+        private string GetProgressBar(int progress)
+        {
+            const int barWidth = 20;
+            int filled = (int)Math.Round(progress / 100.0 * barWidth);
+            int empty = barWidth - filled;
+            
+            string bar = new string('█', filled) + new string('░', empty);
+            return $"[{bar}]";
+        }
+
+        /// <summary>
+        /// 根据进度百分比返回当前阶段描述
+        /// </summary>
+        private string GetProgressStage(int progress)
+        {
+            if (progress == 0) return "等待开始";
+            if (progress < 10) return "准备文件";
+            if (progress < 20) return "生成Case";
+            if (progress < 30) return "部署文件";
+            if (progress < 50) return "编译中...";
+            if (progress < 60) return "编译完成";
+            if (progress < 70) return "启动求解器";
+            if (progress < 95) return "模拟运行中";
+            if (progress < 100) return "收尾处理";
+            return "完成";
+        }
+
+        private void StartRefreshTimer()
+        {
+            if (_refreshTimer != null)
+            {
+                StopRefreshTimer();
+            }
+            _refreshTimer = new System.Timers.Timer(2000);  // 每 2 秒刷新
+            _refreshTimer.Elapsed += (s, e) => TriggerGHRefresh();
+            _refreshTimer.AutoReset = true;
+            _refreshTimer.Start();
+        }
+
+        private void FinalizeAsyncRun(SolverResult result)
+        {
+            result ??= new SolverResult
+            {
+                Success = false,
+                ErrorMessage = "异步运行异常终止，未返回结果。",
+                EndTime = DateTime.Now
+            };
+            _asyncResult = result;
+            _asyncRunning = false;
+            StopRefreshTimer();
+            _cts?.Dispose();
+            _cts = null;
+            TriggerGHRefresh();
+        }
+
+        private void StopRefreshTimer()
+        {
+            if (_refreshTimer != null)
+            {
+                _refreshTimer.Stop();
+                _refreshTimer.Dispose();
+                _refreshTimer = null;
+            }
+        }
+
+        /// <summary>
+        /// 延迟调度一次刷新（用于加载期保护等非定时场景）
+        /// </summary>
+        private void ScheduleRefresh(int delayMs)
+        {
+            var timer = new System.Timers.Timer(delayMs);
+            timer.Elapsed += (s, e) =>
+            {
+                timer.Dispose();
+                TriggerGHRefresh();
+            };
+            timer.AutoReset = false;
+            timer.Start();
+        }
+
+        private void TriggerGHRefresh()
+        {
+            // 安全刷新：使用 InvokeOnUiThread 在 UI 线程标记组件过期
+            // 宽限期保护已在 SolveInstance 中处理，这里不需要额外检查
+            try
+            {
+                Rhino.RhinoApp.InvokeOnUiThread((Action)(() =>
+                {
+                    try
+                    {
+                        // 标记自身过期
+                        ExpireSolution(false); // false = 非阻塞，仅标记过期
+                        
+                        // 强制刷新下游组件（包括 Panel）
+                        // 这样连接 Log/Status 的 Panel 会自动更新，无需手动触发
+                        var doc = OnPingDocument();
+                        if (doc != null)
+                        {
+                            foreach (var param in Params.Output)
+                            {
+                                foreach (var recipient in param.Recipients)
+                                {
+                                    if (recipient.Attributes?.Parent is IGH_Component recipientComponent)
+                                    {
+                                        recipientComponent.ExpireSolution(false);
+                                    }
+                                    else if (recipient.Attributes?.Parent is IGH_Param recipientParam)
+                                    {
+                                        recipientParam.ExpireSolution(false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch { /* 忽略所有边界情况 */ }
+                }));
+            }
+            catch { /* 忽略所有边界情况 */ }
+        }
+
+        public override void RemovedFromDocument(GH_Document document)
+        {
+            // 组件从文档移除时停止定时器，防止泄漏
+            StopRefreshTimer();
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
+            base.RemovedFromDocument(document);
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // 组件元信息
+        // ────────────────────────────────────────────────────────────────
+        protected override Bitmap Icon => IconLoader.Load("RunSimulation.png");
+
+        public override Guid ComponentGuid
+            => new Guid("F9A5B3E2-8C4D-4F7A-9B6E-2D5C7A8B9F1D");
+    }
+}

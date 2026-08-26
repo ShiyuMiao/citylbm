@@ -1,0 +1,286 @@
+{
+  "Schema": "citylbm.codegen_preflight_canary.v1",
+  "GeneratedAtUtc": "2026-08-26T07:11:10.107997Z",
+  "Purpose": "accelerate_citylbm_optimization_by_regenerating_current_codegen_and_running_no_cfd_gates",
+  "RepoRoot": "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1",
+  "CaseName": "casea_full_reynolds_stress_tensor",
+  "ExpectedAijCase": "CaseA",
+  "ExpectedWindDirection": "W",
+  "ExpectedWindVector": "1,0,0",
+  "OfficialConditionFilter": "",
+  "OfficialWindFilter": "",
+  "LengthScaleSource": "",
+  "LengthScaleSourceType": "official_aij",
+  "LengthScaleSourceNote": "",
+  "LengthScalePaperAdmissible": false,
+  "ExpectedProbeRowCount": 186,
+  "ExpectedProbeZ": null,
+  "ExpectedProbeZMin": 0.0,
+  "ExpectedProbeZMax": 0.3,
+  "ZRef": 0.16,
+  "ExpectedURef": 4.491,
+  "CaseDir": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor",
+  "ExternalCaseDir": false,
+  "FluidX3DSource": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\fake_fluidx3d_source_casea_full_reynolds_tensor",
+  "OutDir": "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826",
+  "QuickMode": false,
+  "SkippedBuild": true,
+  "SkippedCodegen": false,
+  "EvidenceFreshness": "case_regenerated_without_build",
+  "Gate": "diagnostic_only",
+  "Reasons": [
+    "paper_preflight_not_pass:diagnostic_only"
+  ],
+  "ReasonsCsv": "paper_preflight_not_pass:diagnostic_only",
+  "DiagnosticCanaryGate": {
+    "Gate": "pass",
+    "Purpose": "short_native_fluidx3d_canary_before_long_validation_run",
+    "EvidenceUseClass": {
+      "InletStressSourceType": "measured_diagonal_rms",
+      "InletStressGate": "diagnostic_only",
+      "InletStressPaperGradeGate": "fail",
+      "InletStressCanSupportPaperValidation": false,
+      "BoundaryCanSupportPaperValidation": false,
+      "ShortCanaryBoundaryGateSource": "DiagnosticDdfReconstructionRoute",
+      "ValidationCanSupportPaperValidation": false
+    },
+    "Interpretation": "Can start a short diagnostic native FluidX3D run; do not report accuracy as paper-grade.",
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "Limitations": [
+      "inlet_not_paper_grade:fail",
+      "inlet_reynolds_stress_diagonal_rms_only_missing_offdiagonal_covariances",
+      "boundary_not_paper_grade:fail",
+      "validation_not_paper_grade:diagnostic_only"
+    ],
+    "LimitationsCsv": "inlet_not_paper_grade:fail;inlet_reynolds_stress_diagonal_rms_only_missing_offdiagonal_covariances;boundary_not_paper_grade:fail;validation_not_paper_grade:diagnostic_only"
+  },
+  "ShortCanaryRouteCheckGate": "pass",
+  "ShortCanaryRouteCheckManifest": "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826\\short_canary_route_check.json",
+  "CustomProfileAfFidelityGate": "pass",
+  "CustomProfileAfFidelityManifest": "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826\\custom_profile_af_fidelity_audit.json",
+  "CodegenBuildEnvironmentGate": {
+    "Gate": "pass",
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "Warnings": [
+      "net48_reference_assemblies_not_found_in_standard_install_paths"
+    ],
+    "WarningsCsv": "net48_reference_assemblies_not_found_in_standard_install_paths",
+    "DotnetPath": "C:\\Program Files\\dotnet\\dotnet.EXE",
+    "RepoRoot": "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1",
+    "MeasuredPath": "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1",
+    "FreeBytes": 3003396096,
+    "TotalBytes": 1000202039296,
+    "MinimumRequiredFreeBytes": 134217728,
+    "WarningFreeBytes": 536870912,
+    "Net48ReferenceAssembliesPresent": false,
+    "Net48ReferenceAssembliesHint": "If dotnet build fails, install .NET Framework 4.8 Developer Pack/Targeting Pack or provide a repository-local reference-assemblies package."
+  },
+  "FreshCodegenCaseGate": {
+    "Gate": "pass",
+    "Required": true,
+    "Reasons": [],
+    "MetadataPath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\case_metadata.json",
+    "MetadataMTime": 1787728264.9568686,
+    "RunStartedAt": 1787728262.4578593
+  },
+  "ActualValidationGeometryGate": {
+    "Gate": "pass",
+    "Required": true,
+    "Reasons": [],
+    "ReasonsCsv": "",
+    "Warnings": [],
+    "WarningsCsv": "",
+    "CaseMetadataPath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\case_metadata.json",
+    "BuildingsStlPath": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\buildings.stl",
+    "BuildingsStlBytes": 684,
+    "StlSummary": {
+      "Exists": true,
+      "IsBinaryStl": true,
+      "TriangleCount": 12,
+      "Header": "AIJ Case A 1:1:2 box",
+      "Bounds": {
+        "MinX": -0.03999999910593033,
+        "MinY": -0.03999999910593033,
+        "MinZ": 0.0,
+        "MaxX": 0.03999999910593033,
+        "MaxY": 0.03999999910593033,
+        "MaxZ": 0.1599999964237213
+      },
+      "Extents": {
+        "X": 0.07999999821186066,
+        "Y": 0.07999999821186066,
+        "Z": 0.1599999964237213
+      }
+    },
+    "AijCase": "CaseA",
+    "CaseAStandardBoxGeometry": true,
+    "GeometryBuildingCount": 1,
+    "Nx": 547,
+    "Ny": 280,
+    "Nz": 160,
+    "Interpretation": "actual_geometry_ready_for_validation_preflight"
+  },
+  "PreflightGate": "diagnostic_only",
+  "NativePreflightPackManifest": "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826\\native_preflight_pack_manifest.json",
+  "NativeRunnerManifest": "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826\\native_fluidx3d_baseline_manifest.json",
+  "FreshCaseFiles": {
+    "setup_cpp": {
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\setup.cpp",
+      "Exists": true,
+      "IsFile": true,
+      "IsDirectory": false,
+      "MTimeUtc": "2026-08-26T07:11:04.915770Z"
+    },
+    "defines_hpp": {
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\defines.hpp",
+      "Exists": true,
+      "IsFile": true,
+      "IsDirectory": false,
+      "MTimeUtc": "2026-08-26T07:11:04.918766Z"
+    },
+    "case_metadata_json": {
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\case_metadata.json",
+      "Exists": true,
+      "IsFile": true,
+      "IsDirectory": false,
+      "MTimeUtc": "2026-08-26T07:11:05.933430Z"
+    },
+    "buildings_stl": {
+      "Path": "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\buildings.stl",
+      "Exists": true,
+      "IsFile": true,
+      "IsDirectory": false,
+      "MTimeUtc": "2026-08-26T07:11:04.922281Z"
+    }
+  },
+  "Steps": [
+    {
+      "Name": "dotnet_build_codegen_smoke",
+      "Command": [
+        "dotnet",
+        "build",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\tests\\CodegenSmoke\\CodegenSmoke.csproj",
+        "-c",
+        "Release"
+      ],
+      "ReturnCode": 1,
+      "ElapsedSeconds": 1.129,
+      "Stdout": "MSBuild version 17.3.2+561848881 for .NET\nC:\\Program Files\\dotnet\\sdk\\6.0.419\\Microsoft.Common.CurrentVersion.targets(93,5): error MSB4184: \u65e0\u6cd5\u8ba1\u7b97\u8868\u8fbe\u5f0f\u201c[Microsoft.Build.Utilities.ToolLocationHelper]::GetPlatformSDKLocation(Windows, 7.0)\u201d\u3002Access to the path 'C:\\Users\\MSY\\AppData\\Local\\Microsoft SDKs' is denied. [F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\tests\\CodegenSmoke\\CodegenSmoke.csproj]\n\n\u751f\u6210\u5931\u8d25\u3002\n\nC:\\Program Files\\dotnet\\sdk\\6.0.419\\Microsoft.Common.CurrentVersion.targets(93,5): error MSB4184: \u65e0\u6cd5\u8ba1\u7b97\u8868\u8fbe\u5f0f\u201c[Microsoft.Build.Utilities.ToolLocationHelper]::GetPlatformSDKLocation(Windows, 7.0)\u201d\u3002Access to the path 'C:\\Users\\MSY\\AppData\\Local\\Microsoft SDKs' is denied. [F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\tests\\CodegenSmoke\\CodegenSmoke.csproj]\n    0 \u4e2a\u8b66\u544a\n    1 \u4e2a\u9519\u8bef\n\n\u5df2\u7528\u65f6\u95f4 00:00:00.34\n",
+      "Stderr": ""
+    },
+    {
+      "Name": "run_codegen_smoke_exe",
+      "Command": [
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\tests\\CodegenSmoke\\bin\\Release\\net48\\CodegenSmoke.exe"
+      ],
+      "ReturnCode": 0,
+      "ElapsedSeconds": 1.422,
+      "Stdout": "Codegen smoke passed.\nC:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\stg_codegen_smoke\n",
+      "Stderr": ""
+    },
+    {
+      "Name": "audit_custom_profile_against_af",
+      "Command": [
+        "C:\\Users\\MSY\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\scripts\\audit_custom_profile_against_af.py",
+        "--metadata",
+        "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor\\case_metadata.json",
+        "--af-csv",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\citylbm_v0.2.0_portable\\validation\\native_fluidx3d_casea_strict_20260721\\official_data\\AF_caseA.csv",
+        "--out-json",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826\\custom_profile_af_fidelity_audit.json",
+        "--out-csv",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826\\custom_profile_af_fidelity_audit.csv",
+        "--require-k"
+      ],
+      "ReturnCode": 0,
+      "ElapsedSeconds": 0.214,
+      "Stdout": "",
+      "Stderr": ""
+    },
+    {
+      "Name": "check_short_canary_route",
+      "Command": [
+        "C:\\Users\\MSY\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\scripts\\check_short_canary_route.py",
+        "--case-dir",
+        "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor",
+        "--out",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826\\short_canary_route_check.json"
+      ],
+      "ReturnCode": 0,
+      "ElapsedSeconds": 0.476,
+      "Stdout": "short_canary_route_gate=pass; route=current_citylbm_stg_layerwise_type_e_route; elapsed_s=0.3202; out=F:\\Grade2master2\\CITYLBM\ufffd\ufffd\ufffd\ufffd\ufffd\u013c\ufffd\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826\\short_canary_route_check.json\n",
+      "Stderr": ""
+    },
+    {
+      "Name": "run_native_preflight_pack",
+      "Command": [
+        "C:\\Users\\MSY\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\scripts\\run_native_preflight_pack.py",
+        "--case-dir",
+        "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\casea_full_reynolds_stress_tensor",
+        "--fluidx3d-source",
+        "C:\\Users\\MSY\\AppData\\Local\\Temp\\CityLBM\\fake_fluidx3d_source_casea_full_reynolds_tensor",
+        "--out-dir",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826",
+        "--manifest-out",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826\\native_fluidx3d_baseline_manifest.json",
+        "--expected-aij-case",
+        "CaseA",
+        "--expected-wind-direction",
+        "W",
+        "--expected-wind-vector",
+        "1,0,0",
+        "--patch-metadata-identity",
+        "--time-steps",
+        "300",
+        "--vtk-save-interval",
+        "150",
+        "--expected-vtk-frame-count",
+        "2",
+        "--average-last-n",
+        "2",
+        "--min-vtk-frames",
+        "2",
+        "--min-vtk-step-span",
+        "150",
+        "--diagnostic-canary-time-steps",
+        "300",
+        "--diagnostic-canary-vtk-save-interval",
+        "150",
+        "--diagnostic-canary-average-last-n",
+        "2",
+        "--diagnostic-canary-min-vtk-frames",
+        "2",
+        "--diagnostic-canary-min-step-span",
+        "150",
+        "--allow-diagnostic",
+        "--official",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\citylbm_v0.2.0_portable\\validation\\native_fluidx3d_casea_strict_20260721\\official_data\\RS-caseA.csv",
+        "--af-csv",
+        "F:\\Grade2master2\\CITYLBM\u5f00\u53d1\u6587\u4ef6\\citylbm_v0.2.0_portable\\validation\\native_fluidx3d_casea_strict_20260721\\official_data\\AF_caseA.csv",
+        "--length-scale-source-type",
+        "official_aij",
+        "--expected-probe-row-count",
+        "186",
+        "--expected-probe-z-min",
+        "0.0",
+        "--expected-probe-z-max",
+        "0.3",
+        "--z-ref",
+        "0.16",
+        "--expected-uref",
+        "4.491",
+        "--require-af-k"
+      ],
+      "ReturnCode": 0,
+      "ElapsedSeconds": 4.349,
+      "Stdout": "native_preflight_pack_gate=diagnostic_only; manifest=F:\\Grade2master2\\CITYLBM\ufffd\ufffd\ufffd\ufffd\ufffd\u013c\ufffd\\v0.2.1\\validation_runs\\casea_full_af_codegen_300_150_preflight_20260826\\native_preflight_pack_manifest.json\nreasons=inlet_source:source_missing_turbulent_length_scale_evidence;inlet_reynolds_stress:measured_diagonal_rms_missing_off_diagonal_covariances_not_paper_grade_full_tensor;turbulence_length_scale:length_scale_source_file_missing;turbulence_length_scale:paper_admissible_review_flag_missing;boundary_source:boundary_source_not_wind_tunnel_equivalent;boundary_source:boundary_source_fidelity_class_not_paper_grade:advanced_boundary_incomplete;boundary_source:boundary_source_missing_advanced_code_evidence;boundary_source:outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary;boundary_source:boundary_method_named_without_concrete_state_or_field_evidence;boundary_source:missing_non_reflecting_or_validated_outlet_state;boundary_source:missing_side_top_boundary_pair_mapping;boundary_source:missing_precursor_or_recycling_development_field;boundary_protocol:boundary_evidence_gate_draft;boundary_protocol:boundary_evidence_class_todo: one of official_aij_documentation, wind_tunnel_protocol_matched, empty_tunnel_boundary_preservation, precursor_boundary, recycling_boundary, validated_boundary_model_unsupported;boundary_protocol:unsupported_boundary_condition_fields:inlet_boundary,outlet_boundary,lateral_boundary,top_boundary,ground_wall_treatment,roughness_treatment,floor_roughness_source,blockage_source,fetch_clearance_source,outlet_reflection_check,side_top_boundary_check;boundary_protocol:boundary_evidence_files_missing;boundary_protocol:metadata_boundary_evidence_gate_diagnostic_only_missing_aij_boundary_protocol_evidence;validation_protocol:gate_not_pass:diagnostic_only;native_runner:gate_not_pass:diagnostic_only;native_preconditions:source_missing_turbulent_length_scale_evidence;step_failed:audit_boundary_source:2;step_failed:audit_inlet_source:2;step_failed:audit_boundary_protocol:2;step_failed:build_inlet_reynolds_stress_evidence:2;step_failed:run_native_fluidx3d_case_preflight:2;step_failed:patch_diagnostic_fluidx3d_equilibrium_boundary_source:2;step_failed:audit_native_preconditions:2\n",
+      "Stderr": ""
+    }
+  ],
+  "NextAction": "Do not spend time on a long CFD run yet; fix the listed gate reasons first."
+}
