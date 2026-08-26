@@ -10,6 +10,7 @@
 - Added `VTK Save Start` scheduling support and a short native canary showing complete VTK output at steps `[100, 250, 300]`.
 - Recorded the current diagnostic result as non-publication-grade (`R2=-2.8714`, `RMSE ratio=3.4374`) and kept the remaining blockers explicit: insufficient flow-through/averaging, inlet `k` runtime preservation, boundary equivalence evidence and native precondition gates.
 - Preserved the final packaging checkpoint after stopping optimization: runtime inlet diagnostics, native/CityLBM parity and boundary runtime-window gates are now part of the v0.4.0 traceability chain.
+- Added the final RMS/k velocity-surrogate inlet gate before GitHub upload, so random RMS/k perturbations cannot be promoted as digital-filter, SEM, or precursor/recycling turbulent-inflow evidence.
 - Clarified that users can install the Grasshopper plugin and generate cases directly, but real solver runs still require a configured local FluidX3D source tree or executable environment.
 - Added `releases/v0.4.0` as a new release package without deleting previous release records.
 

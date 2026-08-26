@@ -104,13 +104,21 @@ for(uint remaining=100u; remaining>0u; ) {
             raise AssertionError(random_report["inlet_source_turbulent_inflow_fidelity_class"])
         if not random_report["inlet_source_has_uncorrelated_rms_velocity_field_only"]:
             raise AssertionError(random_report)
+        if not random_report["inlet_source_has_rms_k_velocity_surrogate"]:
+            raise AssertionError(random_report)
+        if random_report["inlet_source_rms_k_surrogate_gate"] != "fail":
+            raise AssertionError(random_report["inlet_source_rms_k_surrogate_gate"])
         if "synthetic_inlet_uses_uncorrelated_random_rms" not in random_report["inlet_source_gate_reasons"]:
             raise AssertionError(random_report["inlet_source_gate_reasons"])
         if "Do not describe" not in random_report["recommended_next_action"]:
             raise AssertionError(random_report["recommended_next_action"])
         if "source_missing_measured_or_precursor_reynolds_stress_tensor_evidence" not in random_report["paper_grade_inlet_source_gate_reasons"]:
             raise AssertionError(random_report["paper_grade_inlet_source_gate_reasons"])
-        if random_report["development_acceleration_stage"] != "replace_uncorrelated_random_inlet_before_cfd":
+        if "source_rms_k_velocity_surrogate_without_distribution_consistent_inlet" not in random_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(random_report["paper_grade_inlet_source_gate_reasons"])
+        if random_report["development_acceleration_stage"] != "replace_rms_k_velocity_surrogate_with_distribution_consistent_inlet":
             raise AssertionError(random_report["development_acceleration_stage"])
         if random_report["development_acceleration_runs_cfd_next"] is not False:
             raise AssertionError(random_report)
@@ -451,11 +459,11 @@ for(uint remaining=100u; remaining>0u; ) {
             "paper_grade_inlet_source_gate_reasons"
         ]:
             raise AssertionError(diagonal_rms_report["paper_grade_inlet_source_gate_reasons"])
-        expected_diagonal_rms_stage = (
-            "resolve_reynolds_stress_tensor_or_precursor_evidence"
-            if diagonal_rms_report["inlet_source_gate"] == "pass"
-            else "fix_distribution_consistent_inlet_source_before_cfd"
-        )
+        if diagonal_rms_report["inlet_source_has_rms_k_velocity_surrogate"] is not True:
+            raise AssertionError(diagonal_rms_report)
+        if diagonal_rms_report["inlet_source_rms_k_surrogate_gate"] != "fail":
+            raise AssertionError(diagonal_rms_report["inlet_source_rms_k_surrogate_gate"])
+        expected_diagonal_rms_stage = "replace_rms_k_velocity_surrogate_with_distribution_consistent_inlet"
         if diagonal_rms_report["development_acceleration_stage"] != expected_diagonal_rms_stage:
             raise AssertionError(diagonal_rms_report["development_acceleration_stage"])
         if diagonal_rms_report["development_acceleration_runs_cfd_next"] is not False:
@@ -501,6 +509,14 @@ for(uint remaining=100u; remaining>0u; ) {
         random_patterns = ";".join(stl_random_report["uncorrelated_random_inlet_patterns"])
         if "mt19937" not in random_patterns or "normal_distribution" not in random_patterns:
             raise AssertionError(random_patterns)
+        if stl_random_report["inlet_source_has_rms_k_velocity_surrogate"] is not True:
+            raise AssertionError(stl_random_report)
+        if stl_random_report["inlet_source_rms_k_surrogate_gate"] != "fail":
+            raise AssertionError(stl_random_report["inlet_source_rms_k_surrogate_gate"])
+        if "source_rms_k_velocity_surrogate_without_distribution_consistent_inlet" not in stl_random_report[
+            "paper_grade_inlet_source_gate_reasons"
+        ]:
+            raise AssertionError(stl_random_report["paper_grade_inlet_source_gate_reasons"])
         if "distribution-consistent inlet" not in stl_random_report["recommended_next_action"]:
             raise AssertionError(stl_random_report["recommended_next_action"])
 
@@ -551,6 +567,10 @@ void applySyntheticTurbulentInlet(uint t_step) {
             raise AssertionError(metadata_length_only_report)
         if metadata_length_only_report["inlet_length_scale_evidence_basis"] != "metadata_gate_only":
             raise AssertionError(metadata_length_only_report["inlet_length_scale_evidence_basis"])
+        if metadata_length_only_report["inlet_source_has_rms_k_velocity_surrogate"] is not True:
+            raise AssertionError(metadata_length_only_report)
+        if metadata_length_only_report["inlet_source_rms_k_surrogate_gate"] != "fail":
+            raise AssertionError(metadata_length_only_report["inlet_source_rms_k_surrogate_gate"])
 
         dfm_metadata = root / "dfm_case_metadata.json"
         write_text(

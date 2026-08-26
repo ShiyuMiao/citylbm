@@ -1685,6 +1685,15 @@ def build_inlet_equivalence_evidence_reasons(
     source_uncorrelated_rms_velocity_only = as_bool(
         inlet_source_audit.get("inlet_source_has_uncorrelated_rms_velocity_field_only")
     )
+    source_rms_k_velocity_surrogate = as_bool(
+        inlet_source_audit.get("inlet_source_has_rms_k_velocity_surrogate")
+    )
+    source_rms_k_surrogate_gate = str(
+        inlet_source_audit.get("inlet_source_rms_k_surrogate_gate") or ""
+    ).strip().lower()
+    source_rms_k_surrogate_reasons = split_scalar_list(
+        inlet_source_audit.get("inlet_source_rms_k_surrogate_reasons")
+    )
     source_correlation_model = str(inlet_source_audit.get("synthetic_inlet_correlation_model") or "").strip()
     source_distribution_route = str(inlet_source_audit.get("inlet_distribution_route") or "").strip()
     source_distribution_route_gate = str(inlet_source_audit.get("inlet_distribution_route_gate") or "").strip().lower()
@@ -1753,6 +1762,18 @@ def build_inlet_equivalence_evidence_reasons(
             "inlet_source_has_uncorrelated_rms_velocity_field_only_not_false:"
             f"{source_uncorrelated_rms_velocity_only}"
         )
+    if source_rms_k_surrogate_gate != "pass":
+        evidence_reasons.append(
+            f"inlet_source_rms_k_surrogate_gate_not_pass:{source_rms_k_surrogate_gate or 'missing'}"
+        )
+    if source_rms_k_velocity_surrogate is not False:
+        evidence_reasons.append(
+            "inlet_source_has_rms_k_velocity_surrogate_not_false:"
+            f"{source_rms_k_velocity_surrogate if source_rms_k_velocity_surrogate is not None else 'missing'}"
+        )
+    for reason in source_rms_k_surrogate_reasons:
+        if reason and reason != "not_rms_k_velocity_surrogate":
+            evidence_reasons.append(f"inlet_source_rms_k_surrogate_reason:{reason}")
     if source_correlation_model in {"uncorrelated_random_rms_velocity_field_only", "velocity_field_only_without_correlation_evidence"}:
         evidence_reasons.append(f"inlet_synthetic_correlation_model_not_paper_grade:{source_correlation_model}")
     if source_distribution_route_gate != "pass":
@@ -3282,6 +3303,15 @@ def main() -> int:
     inlet_has_uncorrelated_rms_velocity_only = as_bool(
         inlet_source_audit.get("inlet_source_has_uncorrelated_rms_velocity_field_only")
     )
+    inlet_has_rms_k_velocity_surrogate = as_bool(
+        inlet_source_audit.get("inlet_source_has_rms_k_velocity_surrogate")
+    )
+    inlet_rms_k_surrogate_gate = str(
+        inlet_source_audit.get("inlet_source_rms_k_surrogate_gate") or ""
+    ).strip().lower()
+    inlet_rms_k_surrogate_reasons = split_scalar_list(
+        inlet_source_audit.get("inlet_source_rms_k_surrogate_reasons")
+    )
     inlet_requires_distribution_reconstruction = as_bool(
         inlet_source_audit.get("inlet_source_requires_distribution_reconstruction")
     )
@@ -3450,6 +3480,13 @@ def main() -> int:
         or "synthetic_inlet_uses_uncorrelated_random_rms" in inlet_source_reasons
     ):
         reasons.append("inlet_source_uses_uncorrelated_random_rms")
+    if inlet_rms_k_surrogate_gate != "pass":
+        reasons.append("inlet_source_rms_k_surrogate_gate_not_pass")
+    if inlet_has_rms_k_velocity_surrogate is True:
+        reasons.append("inlet_source_has_rms_k_velocity_surrogate")
+    for reason in inlet_rms_k_surrogate_reasons:
+        if reason and reason != "not_rms_k_velocity_surrogate":
+            reasons.append(f"inlet_source_rms_k_surrogate_reason:{reason}")
     inlet_source_hash_check = append_setup_hash_reason(reasons, "inlet_source", inlet_source_audit, setup_sha)
 
     inlet_profile_gate = str(inlet_profile_audit.get("inlet_profile_gate") or "").strip().upper()
@@ -4675,6 +4712,10 @@ def main() -> int:
         "inlet_source_turbulent_inflow_fidelity_class": inlet_source_fidelity_class,
         "inlet_source_has_correlated_velocity_field_only": inlet_has_correlated_velocity_only,
         "inlet_source_has_uncorrelated_rms_velocity_field_only": inlet_has_uncorrelated_rms_velocity_only,
+        "inlet_source_has_rms_k_velocity_surrogate": inlet_has_rms_k_velocity_surrogate,
+        "inlet_source_rms_k_surrogate_gate": inlet_rms_k_surrogate_gate,
+        "inlet_source_rms_k_surrogate_reasons": inlet_rms_k_surrogate_reasons,
+        "inlet_source_rms_k_surrogate_reasons_csv": ";".join(inlet_rms_k_surrogate_reasons),
         "inlet_source_requires_distribution_reconstruction": inlet_requires_distribution_reconstruction,
         "inlet_synthetic_correlation_model": inlet_correlation_model,
         "inlet_source_distribution_route": inlet_distribution_route,

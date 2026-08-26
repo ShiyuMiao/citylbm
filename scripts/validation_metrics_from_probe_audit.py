@@ -295,6 +295,9 @@ TEMPLATE_FIELDS = [
     "inlet_source_has_uncorrelated_random_inlet",
     "inlet_source_has_correlated_velocity_field_only",
     "inlet_source_has_uncorrelated_rms_velocity_field_only",
+    "inlet_source_has_rms_k_velocity_surrogate",
+    "inlet_source_rms_k_surrogate_gate",
+    "inlet_source_rms_k_surrogate_reasons",
     "inlet_source_turbulent_inflow_fidelity_class",
     "inlet_source_uncorrelated_random_patterns",
     "inlet_source_correlation_model",
@@ -544,6 +547,9 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_has_uncorrelated_random_inlet",
     "native_inlet_source_has_correlated_velocity_field_only",
     "native_inlet_source_has_uncorrelated_rms_velocity_field_only",
+    "native_inlet_source_has_rms_k_velocity_surrogate",
+    "native_inlet_source_rms_k_surrogate_gate",
+    "native_inlet_source_rms_k_surrogate_reasons",
     "native_inlet_source_turbulent_inflow_fidelity_class",
     "native_inlet_source_uncorrelated_random_patterns",
     "native_inlet_source_recommended_next_action",
@@ -2588,6 +2594,15 @@ def main() -> int:
             "inlet_source_has_uncorrelated_rms_velocity_field_only": first_bool_text(
                 inlet_source_audit.get("inlet_source_has_uncorrelated_rms_velocity_field_only")
             ),
+            "inlet_source_has_rms_k_velocity_surrogate": first_bool_text(
+                inlet_source_audit.get("inlet_source_has_rms_k_velocity_surrogate")
+            ),
+            "inlet_source_rms_k_surrogate_gate": audit_gate(
+                inlet_source_audit, "inlet_source_rms_k_surrogate_gate"
+            ),
+            "inlet_source_rms_k_surrogate_reasons": audit_field(
+                inlet_source_audit, "inlet_source_rms_k_surrogate_reasons_csv"
+            ),
             "inlet_source_turbulent_inflow_fidelity_class": audit_field(
                 inlet_source_audit, "inlet_source_turbulent_inflow_fidelity_class"
             ),
@@ -3179,6 +3194,15 @@ def main() -> int:
             ),
             "native_inlet_source_has_uncorrelated_rms_velocity_field_only": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_uncorrelated_rms_velocity_field_only")
+            ),
+            "native_inlet_source_has_rms_k_velocity_surrogate": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_rms_k_velocity_surrogate")
+            ),
+            "native_inlet_source_rms_k_surrogate_gate": audit_gate(
+                native_preconditions_audit, "inlet_source_rms_k_surrogate_gate"
+            ),
+            "native_inlet_source_rms_k_surrogate_reasons": audit_field(
+                native_preconditions_audit, "inlet_source_rms_k_surrogate_reasons_csv"
             ),
             "native_inlet_source_turbulent_inflow_fidelity_class": audit_field(
                 native_preconditions_audit, "inlet_source_turbulent_inflow_fidelity_class"

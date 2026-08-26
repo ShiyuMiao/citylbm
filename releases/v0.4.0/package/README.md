@@ -59,6 +59,7 @@ v0.4.0 封装当前 Rhino 7 / Grasshopper 验证分支成果，停止继续向�
 - 最终封装检查点：停止继续精度优化后，保留 runtime inlet diagnostics、native/CityLBM parity 和 boundary runtime window 门禁补强；相关 smoke 测试用于证明发布脚本链可执行，不构成新的 CFD 精度结论。
 - v0.4.0 用户包可直接安装 Grasshopper 插件并生成案例；真实模拟仍需要用户在 `Run Simulation` 中指定本机可用的 FluidX3D 源码或求解器环境。
 - 2026-08-26 最终归档：本仓库保留当前 v0.4.0 封装成果并停止继续精度优化；后续论文级 Case A/E 精度结论应基于新的独立验证分支或运行记录追加，而不是覆盖本记录。
+- 2026-08-27 GitHub 上传检查点：追加 RMS/k 速度替代入口门禁，明确当前随机 RMS/k 扰动不能作为真实数字滤波、SEM 或 precursor/recycling 湍流入流证据；该补丁是证据边界收紧，不是新的精度优化。
 
 ### 快速开始
 
@@ -106,6 +107,7 @@ v0.4.0 packages the current Rhino 7 / Grasshopper validation branch and stops fu
 - Final packaging checkpoint: after stopping further accuracy optimization, v0.4.0 preserves the hardened runtime inlet diagnostics, native/CityLBM parity, and boundary runtime window gates. The related smoke tests confirm the release-script chain, not new CFD accuracy.
 - The v0.4.0 package can be installed directly in Grasshopper and can generate cases. Real solver execution still requires a local FluidX3D source tree or executable environment to be configured in `Run Simulation`.
 - Final archive on 2026-08-26: this repository preserves the current v0.4.0 package and stops further accuracy optimization in this line. Future publication-grade Case A/E claims should be added from a new independent validation branch or run record instead of overwriting this record.
+- GitHub upload checkpoint on 2026-08-27: the RMS/k velocity-surrogate inlet gate was added, making clear that random RMS/k perturbations are not evidence of a true digital-filter, SEM, or precursor/recycling turbulent inflow. This is evidence-boundary hardening, not a new accuracy optimization.
 
 ### Quick Start
 

@@ -1310,6 +1310,32 @@ def main() -> int:
             or synthetic_correlation_model == "uncorrelated_random_rms_velocity_field_only"
         )
     )
+    source_has_rms_k_velocity_surrogate = (
+        bool(synthetic_requested)
+        and source_velocity_only
+        and not source_distribution_consistent
+        and (
+            has_k_driven_three_component_stg
+            or has_measured_diagonal_rms_usage_evidence
+            or has_isotropic_k_reynolds_stress_source_evidence
+            or (has_k_profile and has_stg_function and has_velocity_field_write)
+        )
+    )
+    rms_k_velocity_surrogate_reasons: List[str] = []
+    if source_has_rms_k_velocity_surrogate:
+        if has_k_profile:
+            rms_k_velocity_surrogate_reasons.append("uses_profile_k_lbm")
+        if has_k_driven_three_component_stg:
+            rms_k_velocity_surrogate_reasons.append("k_driven_three_component_stg")
+        if has_measured_diagonal_rms_usage_evidence:
+            rms_k_velocity_surrogate_reasons.append("measured_diagonal_rms_velocity_field_usage")
+        if has_isotropic_k_reynolds_stress_source_evidence:
+            rms_k_velocity_surrogate_reasons.append("isotropic_k_reynolds_stress_surrogate")
+        if source_velocity_only:
+            rms_k_velocity_surrogate_reasons.append("velocity_field_only")
+        if not source_distribution_consistent:
+            rms_k_velocity_surrogate_reasons.append("not_distribution_consistent")
+    rms_k_velocity_surrogate_gate = "fail" if source_has_rms_k_velocity_surrogate else "pass"
     source_has_correlated_velocity_field_only = (
         source_velocity_only
         and not source_has_uncorrelated_rms_velocity_field_only
@@ -1459,6 +1485,8 @@ def main() -> int:
         paper_gate_reasons.append("source_velocity_field_only")
     if source_has_uncorrelated_rms_velocity_field_only:
         paper_gate_reasons.append("source_uncorrelated_rms_velocity_field_only")
+    if source_has_rms_k_velocity_surrogate:
+        paper_gate_reasons.append("source_rms_k_velocity_surrogate_without_distribution_consistent_inlet")
     if source_has_correlated_velocity_field_only:
         paper_gate_reasons.append("source_correlated_velocity_field_only_without_distribution_reconstruction")
     if synthetic_requested and not has_inlet_length_scale_evidence:
@@ -1489,7 +1517,10 @@ def main() -> int:
         paper_gate_reasons.append("source_missing_runtime_inlet_diagnostics_csv_for_u_k_rms_preservation")
     paper_gate = "pass" if not paper_gate_reasons else "fail"
     if source_gate != "pass":
-        if source_has_uncorrelated_rms_velocity_field_only:
+        if source_has_rms_k_velocity_surrogate:
+            development_stage = "replace_rms_k_velocity_surrogate_with_distribution_consistent_inlet"
+            development_reason = "The generated inlet still converts k/RMS into a velocity-field-only surrogate, so another CFD run would not isolate solver accuracy."
+        elif source_has_uncorrelated_rms_velocity_field_only:
             development_stage = "replace_uncorrelated_random_inlet_before_cfd"
             development_reason = "The generated inlet still looks like uncorrelated RMS noise, so another CFD run would not isolate solver accuracy."
         elif not source_distribution_consistent:
@@ -1502,7 +1533,10 @@ def main() -> int:
         development_runs_cfd_next = False
         development_next_cfd_scope = "none_until_source_gate_passes"
     elif paper_gate != "pass":
-        if any("reynolds_stress" in reason or "precursor" in reason or "offdiagonal" in reason for reason in paper_gate_reasons):
+        if any("rms_k_velocity_surrogate" in reason for reason in paper_gate_reasons):
+            development_stage = "replace_rms_k_velocity_surrogate_with_distribution_consistent_inlet"
+            development_reason = "The inlet source is code-consistent enough for diagnostics, but paper-grade CFD requires a distribution-consistent digital-filter, synthetic-eddy, precursor, or recycling inlet instead of a k/RMS velocity surrogate."
+        elif any("reynolds_stress" in reason or "precursor" in reason or "offdiagonal" in reason for reason in paper_gate_reasons):
             development_stage = "resolve_reynolds_stress_tensor_or_precursor_evidence"
             development_reason = "The inlet source is code-consistent enough for diagnostics, but paper-grade turbulent inflow still lacks full Reynolds-stress or precursor-equivalent evidence."
         elif any("length_scale" in reason for reason in paper_gate_reasons):
@@ -1696,6 +1730,12 @@ def main() -> int:
         "inlet_source_velocity_field_only": source_velocity_only,
         "inlet_source_has_correlated_velocity_field_only": source_has_correlated_velocity_field_only,
         "inlet_source_has_uncorrelated_rms_velocity_field_only": source_has_uncorrelated_rms_velocity_field_only,
+        "inlet_source_has_rms_k_velocity_surrogate": source_has_rms_k_velocity_surrogate,
+        "inlet_source_rms_k_surrogate_gate": rms_k_velocity_surrogate_gate,
+        "inlet_source_rms_k_surrogate_reasons": rms_k_velocity_surrogate_reasons or ["not_rms_k_velocity_surrogate"],
+        "inlet_source_rms_k_surrogate_reasons_csv": ";".join(
+            rms_k_velocity_surrogate_reasons or ["not_rms_k_velocity_surrogate"]
+        ),
         "inlet_source_requires_distribution_reconstruction": source_requires_distribution_reconstruction,
         "inlet_source_gate": source_gate,
         "inlet_source_gate_reasons": reasons or ["inlet_source_consistent_with_declared_metadata"],

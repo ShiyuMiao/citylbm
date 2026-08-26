@@ -59,6 +59,9 @@ def passing_native_audit():
         "inlet_source_turbulent_inflow_fidelity_class": "distribution_consistent_digital_filter",
         "inlet_source_has_correlated_velocity_field_only": False,
         "inlet_source_has_uncorrelated_rms_velocity_field_only": False,
+        "inlet_source_has_rms_k_velocity_surrogate": False,
+        "inlet_source_rms_k_surrogate_gate": "pass",
+        "inlet_source_rms_k_surrogate_reasons": ["not_rms_k_velocity_surrogate"],
         "native_inlet_equivalence_gate": "pass",
         "runtime_inlet_diagnostics_evidence_required": True,
         "runtime_inlet_diagnostics_evidence_required_basis": [
@@ -215,6 +218,13 @@ def main() -> int:
             "inlet_source_method_class": "stg_lite_correlated_velocity_field_only",
             "inlet_source_turbulent_inflow_fidelity_class": "correlated_velocity_field_only",
             "inlet_source_has_correlated_velocity_field_only": True,
+            "inlet_source_has_rms_k_velocity_surrogate": True,
+            "inlet_source_rms_k_surrogate_gate": "fail",
+            "inlet_source_rms_k_surrogate_reasons": [
+                "uses_profile_k_lbm",
+                "velocity_field_only",
+                "not_distribution_consistent",
+            ],
         }
     )
     velocity_only_failed = module.native_inlet_precondition_traceability_status(
@@ -233,6 +243,9 @@ def main() -> int:
         "inlet_source_method_class_not_paper_grade:stg_lite_correlated_velocity_field_only",
         "inlet_source_turbulent_inflow_fidelity_class_not_paper_grade:correlated_velocity_field_only",
         "inlet_source_has_correlated_velocity_field_only_not_false:True",
+        "inlet_source_has_rms_k_velocity_surrogate_not_false:True",
+        "inlet_source_rms_k_surrogate_gate_not_pass:fail",
+        "inlet_source_rms_k_surrogate_reason:uses_profile_k_lbm",
     ]:
         if reason not in velocity_only_failed["reasons"]:
             raise AssertionError(velocity_only_failed["reasons"])
