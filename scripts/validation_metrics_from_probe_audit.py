@@ -388,6 +388,14 @@ TEMPLATE_FIELDS = [
     "native_preconditions_strict_native_run_gate_reasons",
     "native_preconditions_time_average_evidence_gate",
     "native_preconditions_time_average_evidence_gate_reasons",
+    "native_preconditions_time_averaging_evidence_file_gate",
+    "native_preconditions_time_averaging_evidence_file_gate_reasons",
+    "native_preconditions_time_averaging_evidence_schema",
+    "native_preconditions_time_averaging_evidence_gate",
+    "native_preconditions_time_averaging_evidence_actual_vtk_output_gate",
+    "native_preconditions_time_averaging_evidence_bound",
+    "native_preconditions_time_averaging_evidence_selected_steps",
+    "native_preconditions_time_averaging_evidence_selected_hash_count",
     "native_time_averaging_interpretation_gate",
     "native_time_averaging_interpretation_allowed",
     "native_time_averaging_interpretation_status",
@@ -2712,6 +2720,30 @@ def main() -> int:
             ),
             "native_preconditions_time_average_evidence_gate_reasons": audit_field(
                 native_preconditions_audit, "native_preconditions_time_average_evidence_gate_reasons_csv"
+            ),
+            "native_preconditions_time_averaging_evidence_file_gate": audit_gate(
+                native_preconditions_audit, "time_averaging_evidence_file_gate"
+            ),
+            "native_preconditions_time_averaging_evidence_file_gate_reasons": audit_field(
+                native_preconditions_audit, "time_averaging_evidence_file_gate_reasons_csv"
+            ),
+            "native_preconditions_time_averaging_evidence_schema": audit_field(
+                native_preconditions_audit, "time_averaging_evidence_schema"
+            ),
+            "native_preconditions_time_averaging_evidence_gate": audit_gate(
+                native_preconditions_audit, "time_averaging_evidence_gate"
+            ),
+            "native_preconditions_time_averaging_evidence_actual_vtk_output_gate": audit_gate(
+                native_preconditions_audit, "time_averaging_evidence_actual_vtk_output_gate"
+            ),
+            "native_preconditions_time_averaging_evidence_bound": first_bool_text(
+                native_preconditions_audit.get("time_averaging_evidence_bound")
+            ),
+            "native_preconditions_time_averaging_evidence_selected_steps": audit_field(
+                native_preconditions_audit, "time_averaging_evidence_selected_final_window_time_steps_csv"
+            ),
+            "native_preconditions_time_averaging_evidence_selected_hash_count": fmt(
+                audit_int(native_preconditions_audit, "time_averaging_evidence_selected_final_window_vtk_sha256_count")
             ),
             "native_time_averaging_interpretation_gate": audit_gate(
                 native_preconditions_audit, "native_time_averaging_interpretation_gate"

@@ -133,13 +133,23 @@ def main() -> int:
             "runtime_inlet_diagnostics_steps_cover_runtime_window",
             "runtime_inlet_diagnostics_csv_sha256",
             "runtime_inlet_diagnostics_audit_json_sha256",
+            "native_inlet_equivalence_gate",
             "source_time_steps",
             "source_step_span",
             "selected_last_window",
             "final_window_stationarity_gate",
             "native_preconditions_runtime_final_window_frame_count_gate",
             "native_preconditions_runtime_source_vtk_sha256_count",
+            "native_preconditions_time_averaging_evidence_file_gate",
+            "native_preconditions_time_averaging_evidence_schema",
+            "native_preconditions_time_averaging_evidence_gate",
+            "native_preconditions_time_averaging_evidence_actual_vtk_output_gate",
+            "native_preconditions_time_averaging_evidence_bound",
+            "native_preconditions_time_averaging_evidence_selected_steps",
+            "native_preconditions_time_averaging_evidence_selected_hash_count",
             "probe_mapping_table_sha256",
+            "velocity_component",
+            "compared_component_unique_values",
             "probe_vtk_source_time_steps",
             "probe_grid_extent_gate",
             "max_official_coordinate_delta_m",
@@ -151,6 +161,19 @@ def main() -> int:
             "best_component_by_rmse",
             "normalization_best_fit_scale",
             "probe_uref_values",
+            "native_probe_component_equivalence_gate",
+            "native_probe_component_interpretation_gate",
+            "native_probe_official_height_gate",
+            "native_probe_max_official_coordinate_delta_m",
+            "native_probe_uref_mismatch_count",
+            "native_probe_out_of_tolerance_count",
+            "native_probe_component_source_step_hash_pairs_match_runtime",
+            "boundary_equivalence_supported",
+            "boundary_evidence_files_all_hashed",
+            "boundary_condition_fields_supported",
+            "roughness_treatment_supported",
+            "floor_roughness_source_supported",
+            "clearance_numeric_gate",
             "boundary_runtime_side_top_normal_leakage_gate",
             "boundary_source_has_non_reflecting_outlet_method",
             "boundary_source_has_periodic_pair_mapping_evidence",
@@ -276,6 +299,39 @@ def main() -> int:
         ):
             raise AssertionError(bad_sem_report)
 
+        bad_inlet_equivalence = tmp_path / "native_missing_inlet_equivalence.csv"
+        bad_inlet_equivalence_out = tmp_path / "bad_inlet_equivalence_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_inlet_equivalence,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="native_inlet_equivalence_gate",
+        )
+        failed_inlet_equivalence = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_inlet_equivalence,
+            bad_inlet_equivalence_out,
+        )
+        if failed_inlet_equivalence.returncode == 0:
+            raise AssertionError(
+                (
+                    failed_inlet_equivalence.returncode,
+                    failed_inlet_equivalence.stdout,
+                    failed_inlet_equivalence.stderr,
+                )
+            )
+        bad_inlet_equivalence_report = json.loads(
+            bad_inlet_equivalence_out.read_text(encoding="utf-8")
+        )
+        if bad_inlet_equivalence_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_inlet_equivalence_report)
+        if (
+            "native_inlet_equivalence_gate"
+            not in bad_inlet_equivalence_report["missing_critical_fields"]
+        ):
+            raise AssertionError(bad_inlet_equivalence_report)
+
         bad_boundary = tmp_path / "native_missing_boundary_detail.csv"
         bad_boundary_out = tmp_path / "bad_boundary_native_citylbm_parity_audit.json"
         write_metrics(
@@ -333,6 +389,161 @@ def main() -> int:
             not in bad_boundary_window_report["missing_critical_fields"]
         ):
             raise AssertionError(bad_boundary_window_report)
+
+        bad_time_evidence = tmp_path / "native_missing_time_evidence_file_gate.csv"
+        bad_time_evidence_out = tmp_path / "bad_time_evidence_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_time_evidence,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="native_preconditions_time_averaging_evidence_file_gate",
+        )
+        failed_time_evidence = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_time_evidence,
+            bad_time_evidence_out,
+        )
+        if failed_time_evidence.returncode == 0:
+            raise AssertionError(
+                (
+                    failed_time_evidence.returncode,
+                    failed_time_evidence.stdout,
+                    failed_time_evidence.stderr,
+                )
+            )
+        bad_time_evidence_report = json.loads(bad_time_evidence_out.read_text(encoding="utf-8"))
+        if bad_time_evidence_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_time_evidence_report)
+        if (
+            "native_preconditions_time_averaging_evidence_file_gate"
+            not in bad_time_evidence_report["missing_critical_fields"]
+        ):
+            raise AssertionError(bad_time_evidence_report)
+
+        bad_roughness_support = tmp_path / "native_missing_roughness_support.csv"
+        bad_roughness_support_out = tmp_path / "bad_roughness_support_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_roughness_support,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="roughness_treatment_supported",
+        )
+        failed_roughness_support = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_roughness_support,
+            bad_roughness_support_out,
+        )
+        if failed_roughness_support.returncode == 0:
+            raise AssertionError(
+                (
+                    failed_roughness_support.returncode,
+                    failed_roughness_support.stdout,
+                    failed_roughness_support.stderr,
+                )
+            )
+        bad_roughness_support_report = json.loads(
+            bad_roughness_support_out.read_text(encoding="utf-8")
+        )
+        if bad_roughness_support_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_roughness_support_report)
+        if (
+            "roughness_treatment_supported"
+            not in bad_roughness_support_report["missing_critical_fields"]
+        ):
+            raise AssertionError(bad_roughness_support_report)
+
+        bad_velocity_component = tmp_path / "native_missing_velocity_component.csv"
+        bad_velocity_component_out = tmp_path / "bad_velocity_component_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_velocity_component,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="velocity_component",
+        )
+        failed_velocity_component = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_velocity_component,
+            bad_velocity_component_out,
+        )
+        if failed_velocity_component.returncode == 0:
+            raise AssertionError(
+                (
+                    failed_velocity_component.returncode,
+                    failed_velocity_component.stdout,
+                    failed_velocity_component.stderr,
+                )
+            )
+        bad_velocity_component_report = json.loads(
+            bad_velocity_component_out.read_text(encoding="utf-8")
+        )
+        if bad_velocity_component_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_velocity_component_report)
+        if "velocity_component" not in bad_velocity_component_report["missing_critical_fields"]:
+            raise AssertionError(bad_velocity_component_report)
+
+        bad_native_probe_gate = tmp_path / "native_missing_probe_component_gate.csv"
+        bad_native_probe_gate_out = tmp_path / "bad_probe_component_gate_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_native_probe_gate,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="native_probe_component_equivalence_gate",
+        )
+        failed_native_probe_gate = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_native_probe_gate,
+            bad_native_probe_gate_out,
+        )
+        if failed_native_probe_gate.returncode == 0:
+            raise AssertionError(
+                (
+                    failed_native_probe_gate.returncode,
+                    failed_native_probe_gate.stdout,
+                    failed_native_probe_gate.stderr,
+                )
+            )
+        bad_native_probe_gate_report = json.loads(
+            bad_native_probe_gate_out.read_text(encoding="utf-8")
+        )
+        if bad_native_probe_gate_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_native_probe_gate_report)
+        if (
+            "native_probe_component_equivalence_gate"
+            not in bad_native_probe_gate_report["missing_critical_fields"]
+        ):
+            raise AssertionError(bad_native_probe_gate_report)
+
+        bad_clearance_gate = tmp_path / "native_missing_clearance_gate.csv"
+        bad_clearance_gate_out = tmp_path / "bad_clearance_gate_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_clearance_gate,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="clearance_numeric_gate",
+        )
+        failed_clearance_gate = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_clearance_gate,
+            bad_clearance_gate_out,
+        )
+        if failed_clearance_gate.returncode == 0:
+            raise AssertionError(
+                (
+                    failed_clearance_gate.returncode,
+                    failed_clearance_gate.stdout,
+                    failed_clearance_gate.stderr,
+                )
+            )
+        bad_clearance_gate_report = json.loads(bad_clearance_gate_out.read_text(encoding="utf-8"))
+        if bad_clearance_gate_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_clearance_gate_report)
+        if "clearance_numeric_gate" not in bad_clearance_gate_report["missing_critical_fields"]:
+            raise AssertionError(bad_clearance_gate_report)
 
         bad_time = tmp_path / "native_missing_time_window.csv"
         bad_time_out = tmp_path / "bad_time_native_citylbm_parity_audit.json"

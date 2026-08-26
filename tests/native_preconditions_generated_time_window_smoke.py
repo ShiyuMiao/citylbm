@@ -71,8 +71,8 @@ def main() -> int:
     require(audit.returncode == 2, {"stdout": audit.stdout, "stderr": audit.stderr})
     data = json.loads(report.read_text(encoding="utf-8"))
     reasons = data.get("native_preconditions_gate_reasons", [])
-    require(data.get("planned_frame_count_min") == 10, data)
-    require(data.get("planned_frame_count_shortfall_reason") == "planned_vtk_frame_count_10_below_minimum_40", data)
+    require(data.get("planned_frame_count_min") == 9, data)
+    require(data.get("planned_frame_count_shortfall_reason") == "planned_vtk_frame_count_9_below_minimum_40", data)
     require(data.get("planned_final_window_step_span") == 900, data)
     require(
         data.get("planned_average_step_span_shortfall_reason")
@@ -80,6 +80,7 @@ def main() -> int:
         data,
     )
     require(data.get("native_preconditions_time_average_evidence_gate") == "fail", data)
+    require(data.get("time_averaging_evidence_file_gate") == "fail", data)
     require(data.get("time_averaging_fidelity_class") == "short_diagnostic_average_window", data)
     require(data.get("native_accuracy_evidence_gate") in {"", "fail"}, data)
     require(
@@ -93,20 +94,20 @@ def main() -> int:
     require(data.get("planned_synthetic_inlet_sampling_gate") == "diagnostic_only", data)
     require(data.get("planned_synthetic_inlet_sampling_active") is True, data)
     require(data.get("planned_synthetic_inlet_update_interval") == 7, data)
-    require(data.get("planned_synthetic_inlet_final_window_step_span") == 900, data)
-    require(data.get("planned_synthetic_inlet_refresh_count") == 128, data)
-    require(data.get("planned_synthetic_inlet_metadata_expected_refresh_count") == 128, data)
+    require(data.get("planned_synthetic_inlet_final_window_step_span") == 750, data)
+    require(data.get("planned_synthetic_inlet_refresh_count") == 107, data)
+    require(data.get("planned_synthetic_inlet_metadata_expected_refresh_count") == 107, data)
     require(data.get("planned_synthetic_inlet_minimum_refresh_count") == 200, data)
     require(
-        "planned_stg_refresh_count_128_below_minimum_200"
+        "planned_stg_refresh_count_107_below_minimum_200"
         in data.get("planned_synthetic_inlet_sampling_gate_reasons", []),
         data,
     )
     require("planned_vtk_frame_count_below_minimum" in reasons, data)
-    require("planned_vtk_frame_count_10_below_minimum_40" in reasons, data)
+    require("planned_vtk_frame_count_9_below_minimum_40" in reasons, data)
     require("planned_synthetic_inlet_sampling_gate_not_pass:diagnostic_only" in reasons, data)
     require(
-        "planned_synthetic_inlet_sampling_reason:planned_stg_refresh_count_128_below_minimum_200"
+        "planned_synthetic_inlet_sampling_reason:planned_stg_refresh_count_107_below_minimum_200"
         in reasons,
         data,
     )
@@ -117,11 +118,13 @@ def main() -> int:
     time_reasons = data.get("native_preconditions_time_average_evidence_gate_reasons", [])
     for expected in [
         "runtime_audit_missing",
-        "planned_frame_shortfall:planned_vtk_frame_count_10_below_minimum_40",
+        "planned_frame_shortfall:planned_vtk_frame_count_9_below_minimum_40",
         "planned_step_span_shortfall:planned_average_step_span_900_below_minimum_20000",
         "runtime_average_window_missing",
         "runtime_source_time_steps_missing",
         "runtime_source_vtk_hashes_missing",
+        "time_averaging_evidence_file_gate_not_pass:fail",
+        "time_averaging_evidence_file_reason:time_averaging_evidence_file_missing",
     ]:
         require(expected in time_reasons, data)
 

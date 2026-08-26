@@ -131,6 +131,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--boundary-source-audit", help="boundary_source_audit.json from generated setup.cpp.")
     parser.add_argument("--boundary-protocol-audit", help="boundary_protocol_audit.json with AIJ-equivalent evidence.")
     parser.add_argument("--boundary-runtime-audit", help="boundary_runtime_audit.json from final-window VTK boundary faces.")
+    parser.add_argument("--time-averaging-evidence", help="time_averaging_evidence.json from the same final-window VTK schedule.")
     parser.add_argument("--probe-audit", help="probe_audit.csv used for metrics.")
     parser.add_argument("--component-sensitivity-audit", help="component_sensitivity_audit.json for component/Uref checks.")
     parser.add_argument("--official", help="Official RS/probe CSV used to recompute per-probe coordinate closure.")
@@ -675,6 +676,54 @@ def audit_protocol_content(
         "statuses": statuses,
         "reasons": reasons,
         "reasons_csv": ";".join(reasons),
+    }
+
+
+def audit_time_averaging_evidence_file(
+    path: Optional[Path],
+    evidence: Dict[str, Any],
+) -> Dict[str, Any]:
+    reasons: List[str] = []
+    if not path:
+        reasons.append("time_averaging_evidence_file_missing")
+    elif not path.exists():
+        reasons.append("time_averaging_evidence_file_not_found")
+    elif not path.is_file():
+        reasons.append("time_averaging_evidence_path_not_file")
+    elif not evidence:
+        reasons.append("time_averaging_evidence_file_empty_or_unreadable")
+
+    schema = str(evidence.get("Schema") or evidence.get("schema") or "").strip()
+    if evidence and schema != "citylbm.time_averaging_evidence.v1":
+        reasons.append(f"time_averaging_evidence_schema_unexpected:{schema or 'missing'}")
+
+    evidence_gate = str(evidence.get("Gate") or evidence.get("gate") or "").strip().lower()
+    if evidence and evidence_gate != "pass":
+        reasons.append(f"time_averaging_evidence_gate_not_pass:{evidence_gate or 'missing'}")
+
+    actual_gate_obj = evidence.get("ActualVtkOutputGate") if isinstance(evidence.get("ActualVtkOutputGate"), dict) else {}
+    actual_gate = str(actual_gate_obj.get("Gate") or actual_gate_obj.get("gate") or "").strip().lower()
+    if evidence and actual_gate != "pass":
+        reasons.append(f"time_averaging_evidence_actual_vtk_output_gate_not_pass:{actual_gate or 'missing'}")
+
+    selected_steps = actual_gate_obj.get("SelectedFinalWindowTimeSteps") or evidence.get("PlannedSelectedFinalWindowSteps")
+    selected_steps_csv = ""
+    if isinstance(selected_steps, list):
+        selected_steps_csv = ";".join(str(step) for step in selected_steps)
+    elif selected_steps is not None:
+        selected_steps_csv = str(selected_steps)
+
+    selected_hash_count = as_int(actual_gate_obj.get("SelectedFinalWindowVtkSha256Count"))
+    return {
+        "gate": "pass" if not reasons else "fail",
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+        "schema": schema,
+        "evidence_gate": evidence_gate,
+        "actual_vtk_output_gate": actual_gate,
+        "selected_final_window_time_steps_csv": selected_steps_csv,
+        "selected_final_window_vtk_sha256_count": selected_hash_count,
+        "bound": bool(path and path.exists() and evidence),
     }
 
 
@@ -1408,6 +1457,8 @@ def build_time_average_evidence_reasons(
     runtime_hash_count: int,
     runtime_hash_unique_count: int,
     min_avg_frames: int,
+    time_averaging_evidence_file_gate: str,
+    time_averaging_evidence_file_reasons: List[str],
 ) -> List[str]:
     evidence_reasons: List[str] = []
     if not runtime_audit_present:
@@ -1476,6 +1527,13 @@ def build_time_average_evidence_reasons(
         )
     if runtime_hash_unique_count != runtime_hash_count:
         evidence_reasons.append("runtime_source_vtk_hashes_not_unique")
+    if time_averaging_evidence_file_gate != "pass":
+        evidence_reasons.append(
+            "time_averaging_evidence_file_gate_not_pass:"
+            f"{time_averaging_evidence_file_gate or 'missing'}"
+        )
+    for reason in time_averaging_evidence_file_reasons:
+        evidence_reasons.append(f"time_averaging_evidence_file_reason:{reason}")
     return evidence_reasons
 
 
@@ -2566,6 +2624,7 @@ def main() -> int:
     boundary_source_audit_path = Path(args.boundary_source_audit).expanduser().resolve() if args.boundary_source_audit else find_first(run_dir, ["boundary_source_audit.json"])
     boundary_protocol_audit_path = Path(args.boundary_protocol_audit).expanduser().resolve() if args.boundary_protocol_audit else find_first(run_dir, ["boundary_protocol_audit.json"])
     boundary_runtime_audit_path = Path(args.boundary_runtime_audit).expanduser().resolve() if args.boundary_runtime_audit else find_first(run_dir, ["boundary_runtime_audit.json"])
+    time_averaging_evidence_path = Path(args.time_averaging_evidence).expanduser().resolve() if args.time_averaging_evidence else find_first(run_dir, ["time_averaging_evidence.json"])
     probe_audit_path = Path(args.probe_audit).expanduser().resolve() if args.probe_audit else find_first(run_dir, ["probe_audit.csv"])
     component_sensitivity_audit_path = Path(args.component_sensitivity_audit).expanduser().resolve() if args.component_sensitivity_audit else find_first(run_dir, ["component_sensitivity_audit.json"])
     official_path = Path(args.official).expanduser().resolve() if args.official else None
@@ -2583,6 +2642,11 @@ def main() -> int:
     boundary_source_audit = read_json(boundary_source_audit_path)
     boundary_protocol_audit = read_json(boundary_protocol_audit_path)
     boundary_runtime_audit = read_json(boundary_runtime_audit_path)
+    time_averaging_evidence = read_json(time_averaging_evidence_path)
+    time_averaging_evidence_file_gate = audit_time_averaging_evidence_file(
+        time_averaging_evidence_path,
+        time_averaging_evidence,
+    )
     validation_protocol_audit = read_json(protocol_audit_path)
     protocol_content_audit = audit_protocol_content(validation_protocol_audit)
     probe_rows = read_csv_rows(probe_audit_path)
@@ -3145,6 +3209,8 @@ def main() -> int:
         runtime_hash_count=runtime_hash_count,
         runtime_hash_unique_count=runtime_hash_unique_count,
         min_avg_frames=args.min_avg_frames,
+        time_averaging_evidence_file_gate=time_averaging_evidence_file_gate["gate"],
+        time_averaging_evidence_file_reasons=time_averaging_evidence_file_gate["reasons"],
     )
     time_average_evidence_reasons.extend(flow_through_time_evidence_reasons)
     time_average_gate = "pass" if not time_average_evidence_reasons else "fail"
@@ -4335,6 +4401,7 @@ def main() -> int:
         "defines_hpp": str(defines_path) if defines_path else "",
         "domain_origin": str(domain_origin_path) if domain_origin_path else "",
         "validation_protocol_audit": str(protocol_audit_path) if protocol_audit_path else "",
+        "time_averaging_evidence": str(time_averaging_evidence_path) if time_averaging_evidence_path else "",
         "baseline_id": str(manifest.get("BaselineId") or "").strip(),
         "case": args.case,
         "software": args.software,
@@ -4418,6 +4485,20 @@ def main() -> int:
         "time_averaging_fidelity_class": time_averaging_fidelity_class,
         "native_preconditions_time_average_evidence_gate_reasons": time_average_evidence_reasons,
         "native_preconditions_time_average_evidence_gate_reasons_csv": ";".join(time_average_evidence_reasons),
+        "time_averaging_evidence_sha256": sha256_file(time_averaging_evidence_path),
+        "time_averaging_evidence_file_gate": time_averaging_evidence_file_gate["gate"],
+        "time_averaging_evidence_file_gate_reasons": time_averaging_evidence_file_gate["reasons"],
+        "time_averaging_evidence_file_gate_reasons_csv": time_averaging_evidence_file_gate["reasons_csv"],
+        "time_averaging_evidence_schema": time_averaging_evidence_file_gate["schema"],
+        "time_averaging_evidence_gate": time_averaging_evidence_file_gate["evidence_gate"],
+        "time_averaging_evidence_actual_vtk_output_gate": time_averaging_evidence_file_gate["actual_vtk_output_gate"],
+        "time_averaging_evidence_bound": time_averaging_evidence_file_gate["bound"],
+        "time_averaging_evidence_selected_final_window_time_steps_csv": time_averaging_evidence_file_gate[
+            "selected_final_window_time_steps_csv"
+        ],
+        "time_averaging_evidence_selected_final_window_vtk_sha256_count": time_averaging_evidence_file_gate[
+            "selected_final_window_vtk_sha256_count"
+        ],
         "native_time_averaging_interpretation_gate": native_time_averaging_interpretation["gate"],
         "native_time_averaging_interpretation_allowed": native_time_averaging_interpretation["allowed"],
         "native_time_averaging_interpretation_status": native_time_averaging_interpretation["status"],

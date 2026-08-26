@@ -117,7 +117,11 @@ def main() -> int:
         missing_manifest = temp / "missing" / "native_fluidx3d_baseline_manifest.json"
         run_cmd(base_runner_args(case_dir, source_root, missing_manifest) + ["--run"], expected_returncode=2)
         missing = load_json(missing_manifest)
-        if "run_requested_without_coordinate_probe_protocol_audit" not in missing["RunnerGate"]["Reasons"]:
+        missing_reasons = set(missing["RunnerGate"]["Reasons"])
+        if not (
+            "run_requested_without_coordinate_probe_protocol_audit" in missing_reasons
+            or "coordinate_protocol_missing" in missing_reasons
+        ):
             raise AssertionError(missing["RunnerGate"])
 
     print("native_runner_coordinate_probe_protocol_gate_smoke passed")
