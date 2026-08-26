@@ -662,6 +662,25 @@ def main() -> int:
         "solid_only_boundary_source",
         "none",
     }
+    simplified_wind_tunnel_surrogate_reasons: List[str] = []
+    if source_simplified:
+        simplified_wind_tunnel_surrogate_reasons.append(f"source_class_is_simplified:{source_class}")
+    if simplified_type_e_box:
+        simplified_wind_tunnel_surrogate_reasons.append("simplified_type_e_box")
+    if no_slip_solid_only:
+        simplified_wind_tunnel_surrogate_reasons.append("no_slip_solid_only_without_rough_wall_or_precursor")
+    if has_fixed_mean_outlet_lateral_top_treatment and not has_non_reflecting_outlet:
+        simplified_wind_tunnel_surrogate_reasons.append(
+            "fixed_mean_outlet_lateral_top_without_non_reflecting_source"
+        )
+    if not source_wind_tunnel_equivalent:
+        simplified_wind_tunnel_surrogate_reasons.append("not_wind_tunnel_equivalent")
+    for missing_key in missing_paper_grade_source_evidence:
+        simplified_wind_tunnel_surrogate_reasons.append(f"missing_{missing_key}")
+    has_simplified_wind_tunnel_surrogate = bool(simplified_wind_tunnel_surrogate_reasons)
+    simplified_wind_tunnel_surrogate_gate = (
+        "fail" if has_simplified_wind_tunnel_surrogate else "pass"
+    )
 
     metadata_claims_advanced = any(
         token in metadata_boundary_claim_text
@@ -737,6 +756,12 @@ def main() -> int:
         paper_reasons.append("advanced_boundary_method_empty_stub_definition")
     for missing_key in missing_paper_grade_source_evidence:
         paper_reasons.append(f"missing_{missing_key}")
+    if simplified_wind_tunnel_surrogate_gate != "pass":
+        paper_reasons.append("boundary_source_simplified_wind_tunnel_surrogate_gate_not_pass")
+    if has_simplified_wind_tunnel_surrogate:
+        paper_reasons.append("boundary_source_has_simplified_wind_tunnel_surrogate")
+    for surrogate_reason in simplified_wind_tunnel_surrogate_reasons:
+        paper_reasons.append(f"boundary_source_simplified_wind_tunnel_surrogate_reason:{surrogate_reason}")
     paper_gate = "pass" if not paper_reasons else "fail"
 
     if source_gate != "pass":
@@ -765,10 +790,10 @@ def main() -> int:
             development_reason = "Boundary source has coherent TYPE_E/TYPE_S setup plus diagnostic rough-wall and profile-maintenance FORCE_FIELD buffers; use only a short canary to check numerical direction before paper-length runs."
             development_runs_cfd_next = True
             development_next_cfd_scope = "short_native_canary_only_no_paper_metrics"
-        elif source_simplified or has_fixed_mean_outlet_lateral_top_treatment:
-            development_stage = "replace_simplified_type_e_box_boundary_before_cfd"
+        elif simplified_wind_tunnel_surrogate_gate != "pass":
+            development_stage = "replace_simplified_wind_tunnel_surrogate_boundary_before_cfd"
             development_duration = "code_then_short_cfd"
-            development_reason = "The current source is a simplified TYPE_E box or fixed-mean outlet/lateral/top treatment, so long CFD would not address the protocol-level error."
+            development_reason = "The current source is a simplified wind-tunnel surrogate boundary, so long CFD would not address the protocol-level error."
             development_runs_cfd_next = False
             development_next_cfd_scope = "none_until_paper_grade_boundary_source_gate_passes"
         else:
@@ -878,6 +903,14 @@ def main() -> int:
         "boundary_source_method_class": source_class,
         "boundary_source_coherent": source_boundary_coherent,
         "boundary_source_simplified": source_simplified,
+        "boundary_source_has_simplified_wind_tunnel_surrogate": has_simplified_wind_tunnel_surrogate,
+        "boundary_source_simplified_wind_tunnel_surrogate_gate": simplified_wind_tunnel_surrogate_gate,
+        "boundary_source_simplified_wind_tunnel_surrogate_reasons": (
+            simplified_wind_tunnel_surrogate_reasons or ["not_simplified_wind_tunnel_surrogate"]
+        ),
+        "boundary_source_simplified_wind_tunnel_surrogate_reasons_csv": ";".join(
+            simplified_wind_tunnel_surrogate_reasons or ["not_simplified_wind_tunnel_surrogate"]
+        ),
         "boundary_source_wind_tunnel_equivalent": source_wind_tunnel_equivalent,
         "boundary_source_gate": source_gate,
         "boundary_source_gate_reasons": reasons or ["boundary_source_consistent_with_declared_metadata"],

@@ -233,6 +233,9 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "boundary_source_has_empty_advanced_method_stub_only",
     "boundary_source_wind_tunnel_equivalent",
     "boundary_source_simplified",
+    "boundary_source_has_simplified_wind_tunnel_surrogate",
+    "boundary_source_simplified_wind_tunnel_surrogate_gate",
+    "boundary_source_simplified_wind_tunnel_surrogate_reasons",
     "boundary_source_missing_paper_grade_source_evidence",
     "boundary_source_has_paper_grade_outlet_source",
     "boundary_source_has_paper_grade_side_top_source",
@@ -300,6 +303,7 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "boundary_evidence_gate",
     "boundary_source_gate",
     "paper_grade_boundary_source_gate",
+    "boundary_source_simplified_wind_tunnel_surrogate_gate",
     "boundary_runtime_gate",
     "boundary_runtime_traceability_gate",
     "boundary_runtime_profile_preservation_gate",
@@ -1481,6 +1485,9 @@ def paper_grade_boundary_failure_reasons(
     boundary_source_complete_wind_tunnel_evidence: Optional[bool],
     boundary_source_empty_stub_only: Optional[bool],
     boundary_source_simplified: Optional[bool],
+    boundary_source_has_simplified_wind_tunnel_surrogate: Optional[bool],
+    boundary_source_simplified_wind_tunnel_surrogate_gate: str,
+    boundary_source_simplified_wind_tunnel_surrogate_reasons: Any,
     boundary_source_wind_tunnel_equivalent: Optional[bool],
     boundary_source_advanced_code_evidence: Optional[bool],
     boundary_source_comment_stripped_code_audit: Optional[bool],
@@ -1539,6 +1546,18 @@ def paper_grade_boundary_failure_reasons(
             "boundary_source_simplified_not_false:"
             f"{boundary_source_simplified if boundary_source_simplified is not None else 'missing'}"
         )
+    if boundary_source_simplified_wind_tunnel_surrogate_gate != "pass":
+        reasons.append(
+            "boundary_source_simplified_wind_tunnel_surrogate_gate_not_pass:"
+            f"{boundary_source_simplified_wind_tunnel_surrogate_gate or 'missing'}"
+        )
+    if boundary_source_has_simplified_wind_tunnel_surrogate is not False:
+        reasons.append(
+            "boundary_source_has_simplified_wind_tunnel_surrogate_not_false:"
+            f"{boundary_source_has_simplified_wind_tunnel_surrogate if boundary_source_has_simplified_wind_tunnel_surrogate is not None else 'missing'}"
+        )
+    for surrogate_reason in as_string_list(boundary_source_simplified_wind_tunnel_surrogate_reasons):
+        reasons.append(f"boundary_source_simplified_wind_tunnel_surrogate_reason:{surrogate_reason}")
     if boundary_source_wind_tunnel_equivalent is not True:
         reasons.append(
             "boundary_source_wind_tunnel_equivalent_not_true:"
@@ -3611,6 +3630,7 @@ def native_boundary_traceability_status(
     for key in [
         "boundary_source_gate",
         "paper_grade_boundary_source_gate",
+        "boundary_source_simplified_wind_tunnel_surrogate_gate",
         "boundary_protocol_gate",
         "boundary_evidence_gate",
         "boundary_run_identity_gate",
@@ -3648,6 +3668,24 @@ def native_boundary_traceability_status(
         reasons.append(
             f"boundary_source_simplified_not_false:{simplified if simplified is not None else 'missing'}"
         )
+    has_simplified_surrogate = as_bool(
+        get_any(native_preconditions_audit, ["boundary_source_has_simplified_wind_tunnel_surrogate"])
+    )
+    if has_simplified_surrogate is not False:
+        reasons.append(
+            "boundary_source_has_simplified_wind_tunnel_surrogate_not_false:"
+            f"{has_simplified_surrogate if has_simplified_surrogate is not None else 'missing'}"
+        )
+    for surrogate_reason in as_string_list(
+        get_any(
+            native_preconditions_audit,
+            [
+                "boundary_source_simplified_wind_tunnel_surrogate_reasons_csv",
+                "boundary_source_simplified_wind_tunnel_surrogate_reasons",
+            ],
+        )
+    ):
+        reasons.append(f"boundary_source_simplified_wind_tunnel_surrogate_reason:{surrogate_reason}")
 
     source_method_class = str(
         get_any(native_preconditions_audit, ["boundary_source_method_class"]) or ""
@@ -5185,6 +5223,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     boundary_source_simplified = as_bool(
         get_any(boundary_source_audit, ["boundary_source_simplified"])
     )
+    boundary_source_has_simplified_surrogate = as_bool(
+        get_any(boundary_source_audit, ["boundary_source_has_simplified_wind_tunnel_surrogate"])
+    )
+    boundary_source_simplified_surrogate_gate = str(
+        get_any(boundary_source_audit, ["boundary_source_simplified_wind_tunnel_surrogate_gate"]) or ""
+    ).strip().lower()
+    boundary_source_simplified_surrogate_reasons = get_first_available(
+        get_any(boundary_source_audit, ["boundary_source_simplified_wind_tunnel_surrogate_reasons_csv"]),
+        get_any(boundary_source_audit, ["boundary_source_simplified_wind_tunnel_surrogate_reasons"]),
+    )
     boundary_source_wind_tunnel_equivalent = as_bool(
         get_any(boundary_source_audit, ["boundary_source_wind_tunnel_equivalent"])
     )
@@ -5344,6 +5392,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         and boundary_source_complete_wind_tunnel_evidence is True
         and boundary_source_empty_stub_only is False
         and boundary_source_simplified is not True
+        and boundary_source_has_simplified_surrogate is False
+        and boundary_source_simplified_surrogate_gate == "pass"
         and boundary_source_advanced_code_evidence is True
         and boundary_source_comment_stripped_code_audit is True
         and boundary_has_paper_grade_outlet_source is True
@@ -5360,6 +5410,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         boundary_source_complete_wind_tunnel_evidence=boundary_source_complete_wind_tunnel_evidence,
         boundary_source_empty_stub_only=boundary_source_empty_stub_only,
         boundary_source_simplified=boundary_source_simplified,
+        boundary_source_has_simplified_wind_tunnel_surrogate=boundary_source_has_simplified_surrogate,
+        boundary_source_simplified_wind_tunnel_surrogate_gate=boundary_source_simplified_surrogate_gate,
+        boundary_source_simplified_wind_tunnel_surrogate_reasons=boundary_source_simplified_surrogate_reasons,
         boundary_source_wind_tunnel_equivalent=boundary_source_wind_tunnel_equivalent,
         boundary_source_advanced_code_evidence=boundary_source_advanced_code_evidence,
         boundary_source_comment_stripped_code_audit=boundary_source_comment_stripped_code_audit,
@@ -5401,6 +5454,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"source_empty_stub_only={boundary_source_empty_stub_only}; "
             f"source_coherent={boundary_source_coherent}; "
             f"source_simplified={boundary_source_simplified}; "
+            f"source_has_simplified_wind_tunnel_surrogate={boundary_source_has_simplified_surrogate}; "
+            f"source_simplified_wind_tunnel_surrogate_gate={boundary_source_simplified_surrogate_gate or 'missing'}; "
+            f"source_simplified_wind_tunnel_surrogate_reasons={boundary_source_simplified_surrogate_reasons or 'none'}; "
             f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
             f"source_advanced_code_evidence={boundary_source_advanced_code_evidence}; "
             f"comment_stripped_code_audit={boundary_source_comment_stripped_code_audit}; "
@@ -5432,6 +5488,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"setup_hash_matches_current={boundary_source_setup_hash_matches}; "
             f"boundary_source_gate_reasons={boundary_source_reasons or 'none'}; "
             f"paper_grade_boundary_failure_reasons={';'.join(paper_grade_boundary_reason_list) or 'none'}; "
+            f"boundary_source_simplified_wind_tunnel_surrogate_gate={boundary_source_simplified_surrogate_gate or 'missing'}; "
             f"metrics_boundary_source_gate={get_any(metrics, ['boundary_source_gate', 'BoundarySourceGate']) or 'ignored'}; "
             f"metrics_paper_grade_boundary_source_gate={get_any(metrics, ['paper_grade_boundary_source_gate', 'PaperGradeBoundarySourceGate']) or 'ignored'}; "
             f"metrics_boundary_source_method_class={get_any(metrics, ['boundary_source_method_class', 'BoundarySourceMethodClass']) or 'ignored'}"
@@ -5453,6 +5510,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"paper_grade_boundary_source_gate={paper_grade_boundary_source_gate or 'missing'}; "
             f"source_method_class={boundary_source_method_class or 'missing'}; "
             f"source_simplified={boundary_source_simplified}; "
+            f"source_has_simplified_wind_tunnel_surrogate={boundary_source_has_simplified_surrogate}; "
+            f"source_simplified_wind_tunnel_surrogate_gate={boundary_source_simplified_surrogate_gate or 'missing'}; "
             f"source_wind_tunnel_equivalent={boundary_source_wind_tunnel_equivalent}; "
             f"source_advanced_code_evidence={boundary_source_advanced_code_evidence}; "
             f"comment_stripped_code_audit={boundary_source_comment_stripped_code_audit}; "
@@ -5508,6 +5567,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"clearance_numeric_gate_reasons={clearance_numeric_reasons or 'none'}; "
             f"paper_grade_boundary_source_gate_reasons={paper_grade_boundary_source_reasons or 'none'}; "
             f"paper_grade_boundary_failure_reasons={';'.join(paper_grade_boundary_reason_list) or 'none'}; "
+            f"boundary_source_simplified_wind_tunnel_surrogate_reasons={boundary_source_simplified_surrogate_reasons or 'none'}; "
             f"missing_boundary_evidence_fields={external_boundary_missing_fields_text or 'none'}; "
             f"metrics_boundary_protocol_gate={get_any(metrics, ['boundary_protocol_gate', 'BoundaryProtocolGate']) or 'ignored'}; "
             f"metrics_boundary_evidence_gate={get_any(metrics, ['boundary_evidence_gate', 'BoundaryProtocolEvidenceGate']) or 'ignored'}; "
@@ -6922,6 +6982,16 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     native_preconditions_boundary_simplified = as_bool(
         get_any(native_preconditions_audit, ["boundary_source_simplified"])
     )
+    native_preconditions_boundary_has_simplified_surrogate = as_bool(
+        get_any(native_preconditions_audit, ["boundary_source_has_simplified_wind_tunnel_surrogate"])
+    )
+    native_preconditions_boundary_simplified_surrogate_gate = str(
+        get_any(native_preconditions_audit, ["boundary_source_simplified_wind_tunnel_surrogate_gate"]) or ""
+    ).strip().lower()
+    native_preconditions_boundary_simplified_surrogate_reasons = get_first_available(
+        get_any(native_preconditions_audit, ["boundary_source_simplified_wind_tunnel_surrogate_reasons_csv"]),
+        get_any(native_preconditions_audit, ["boundary_source_simplified_wind_tunnel_surrogate_reasons"]),
+    )
     native_preconditions_boundary_protocol_gate = str(
         get_any(native_preconditions_audit, ["boundary_protocol_gate"]) or ""
     ).strip().lower()
@@ -7102,6 +7172,9 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_source_has_complete_wind_tunnel_evidence={native_preconditions_boundary_complete_evidence}; "
             f"boundary_source_has_empty_advanced_method_stub_only={native_preconditions_boundary_empty_stub_only}; "
             f"boundary_source_simplified={native_preconditions_boundary_simplified}; "
+            f"boundary_source_has_simplified_wind_tunnel_surrogate={native_preconditions_boundary_has_simplified_surrogate}; "
+            f"boundary_source_simplified_wind_tunnel_surrogate_gate={native_preconditions_boundary_simplified_surrogate_gate or 'missing'}; "
+            f"boundary_source_simplified_wind_tunnel_surrogate_reasons={native_preconditions_boundary_simplified_surrogate_reasons or 'none'}; "
             f"boundary_source_setup_cpp_sha256_matches_current={get_any(native_preconditions_audit, ['boundary_source_setup_cpp_sha256_matches_current'])}; "
             f"boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
             f"boundary_evidence_gate={native_preconditions_boundary_evidence_gate or 'missing'}; "
@@ -7251,6 +7324,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"boundary_source_has_complete_wind_tunnel_evidence={native_preconditions_boundary_complete_evidence}; "
             f"boundary_source_has_empty_advanced_method_stub_only={native_preconditions_boundary_empty_stub_only}; "
             f"boundary_source_simplified={native_preconditions_boundary_simplified}; "
+            f"boundary_source_has_simplified_wind_tunnel_surrogate={native_preconditions_boundary_has_simplified_surrogate}; "
+            f"boundary_source_simplified_wind_tunnel_surrogate_gate={native_preconditions_boundary_simplified_surrogate_gate or 'missing'}; "
             f"boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
             f"boundary_evidence_gate={native_preconditions_boundary_evidence_gate or 'missing'}; "
             f"boundary_runtime_gate={native_preconditions_boundary_runtime_gate or 'missing'}; "
@@ -7340,6 +7415,8 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"native_preconditions_boundary_source_has_complete_wind_tunnel_evidence={native_preconditions_boundary_complete_evidence}; "
             f"native_preconditions_boundary_source_has_empty_advanced_method_stub_only={native_preconditions_boundary_empty_stub_only}; "
             f"native_preconditions_boundary_source_simplified={native_preconditions_boundary_simplified}; "
+            f"native_preconditions_boundary_source_has_simplified_wind_tunnel_surrogate={native_preconditions_boundary_has_simplified_surrogate}; "
+            f"native_preconditions_boundary_source_simplified_wind_tunnel_surrogate_gate={native_preconditions_boundary_simplified_surrogate_gate or 'missing'}; "
             f"native_preconditions_boundary_protocol_gate={native_preconditions_boundary_protocol_gate or 'missing'}; "
             f"native_preconditions_boundary_evidence_gate={native_preconditions_boundary_evidence_gate or 'missing'}; "
             f"native_preconditions_boundary_runtime_gate={native_preconditions_boundary_runtime_gate or 'missing'}; "

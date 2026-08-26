@@ -1947,6 +1947,15 @@ def build_boundary_equivalence_evidence_reasons(
     paper_source_gate = str(boundary_source_audit.get("paper_grade_boundary_source_gate") or "").strip().lower()
     source_equivalent = as_bool(boundary_source_audit.get("boundary_source_wind_tunnel_equivalent"))
     source_simplified = as_bool(boundary_source_audit.get("boundary_source_simplified"))
+    source_has_simplified_surrogate = as_bool(
+        boundary_source_audit.get("boundary_source_has_simplified_wind_tunnel_surrogate")
+    )
+    source_simplified_surrogate_gate = str(
+        boundary_source_audit.get("boundary_source_simplified_wind_tunnel_surrogate_gate") or ""
+    ).strip().lower()
+    source_simplified_surrogate_reasons = split_scalar_list(
+        boundary_source_audit.get("boundary_source_simplified_wind_tunnel_surrogate_reasons")
+    )
     source_fidelity_class = str(boundary_source_audit.get("boundary_source_fidelity_class") or "").strip()
     source_complete_evidence = as_bool(
         boundary_source_audit.get("boundary_source_has_complete_wind_tunnel_evidence")
@@ -1973,6 +1982,16 @@ def build_boundary_equivalence_evidence_reasons(
         evidence_reasons.append(f"boundary_source_wind_tunnel_equivalent_not_true:{source_equivalent}")
     if source_simplified is not False:
         evidence_reasons.append(f"boundary_source_simplified_not_false:{source_simplified}")
+    if source_simplified_surrogate_gate != "pass":
+        evidence_reasons.append(
+            f"boundary_source_simplified_wind_tunnel_surrogate_gate_not_pass:{source_simplified_surrogate_gate or 'missing'}"
+        )
+    if source_has_simplified_surrogate is not False:
+        evidence_reasons.append(
+            f"boundary_source_has_simplified_wind_tunnel_surrogate_not_false:{source_has_simplified_surrogate}"
+        )
+    for surrogate_reason in source_simplified_surrogate_reasons:
+        evidence_reasons.append(f"boundary_source_simplified_wind_tunnel_surrogate_reason:{surrogate_reason}")
     if source_fidelity_class != "wind_tunnel_equivalent_complete":
         evidence_reasons.append(
             f"boundary_source_fidelity_class_not_paper_grade:{source_fidelity_class or 'missing'}"
@@ -3587,6 +3606,15 @@ def main() -> int:
     paper_boundary_source_gate = str(boundary_source_audit.get("paper_grade_boundary_source_gate") or "").strip().lower()
     boundary_source_equivalent = as_bool(boundary_source_audit.get("boundary_source_wind_tunnel_equivalent"))
     boundary_source_simplified = as_bool(boundary_source_audit.get("boundary_source_simplified"))
+    boundary_source_has_simplified_surrogate = as_bool(
+        boundary_source_audit.get("boundary_source_has_simplified_wind_tunnel_surrogate")
+    )
+    boundary_source_simplified_surrogate_gate = str(
+        boundary_source_audit.get("boundary_source_simplified_wind_tunnel_surrogate_gate") or ""
+    ).strip().lower()
+    boundary_source_simplified_surrogate_reasons = split_scalar_list(
+        boundary_source_audit.get("boundary_source_simplified_wind_tunnel_surrogate_reasons")
+    )
     boundary_source_method_class = str(boundary_source_audit.get("boundary_source_method_class") or "").strip()
     boundary_source_fidelity_class = str(boundary_source_audit.get("boundary_source_fidelity_class") or "").strip()
     boundary_source_has_complete_wind_tunnel_evidence = as_bool(
@@ -3662,6 +3690,12 @@ def main() -> int:
         reasons.append("boundary_source_not_wind_tunnel_equivalent")
     if boundary_source_simplified is True:
         reasons.append("boundary_source_simplified")
+    if boundary_source_simplified_surrogate_gate != "pass":
+        reasons.append("boundary_source_simplified_wind_tunnel_surrogate_gate_not_pass")
+    if boundary_source_has_simplified_surrogate is True:
+        reasons.append("boundary_source_has_simplified_wind_tunnel_surrogate")
+    for surrogate_reason in boundary_source_simplified_surrogate_reasons:
+        reasons.append(f"boundary_source_simplified_wind_tunnel_surrogate_reason_{surrogate_reason}")
     if boundary_source_fidelity_class != "wind_tunnel_equivalent_complete":
         reasons.append(f"boundary_source_fidelity_class_not_paper_grade_{boundary_source_fidelity_class or 'missing'}")
     if boundary_source_has_complete_wind_tunnel_evidence is not True:
@@ -4788,6 +4822,12 @@ def main() -> int:
         "boundary_source_fixed_mean_outlet_lateral_top_treatment_gate": boundary_source_fixed_mean_outlet_lateral_top_gate,
         "boundary_source_wind_tunnel_equivalent": boundary_source_equivalent,
         "boundary_source_simplified": boundary_source_simplified,
+        "boundary_source_has_simplified_wind_tunnel_surrogate": boundary_source_has_simplified_surrogate,
+        "boundary_source_simplified_wind_tunnel_surrogate_gate": boundary_source_simplified_surrogate_gate,
+        "boundary_source_simplified_wind_tunnel_surrogate_reasons": boundary_source_simplified_surrogate_reasons,
+        "boundary_source_simplified_wind_tunnel_surrogate_reasons_csv": ";".join(
+            boundary_source_simplified_surrogate_reasons
+        ),
         "boundary_source_has_paper_grade_outlet_source": boundary_source_has_paper_grade_outlet,
         "boundary_source_has_paper_grade_side_top_source": boundary_source_has_paper_grade_side_top,
         "boundary_source_has_paper_grade_rough_wall_source": boundary_source_has_paper_grade_rough_wall,

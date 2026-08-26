@@ -74,7 +74,7 @@ def main() -> int:
     )
     require(
         'Status = "fail"' in protocol
-        and "simplified TYPE_E boundary treatment" in protocol,
+        and "TYPE_E inlet/outlet/lateral/top plus the profile-maintenance buffer remains a simplified protocol" in protocol,
         "boundary_conditions must remain a formal validation blocker until AIJ-equivalent boundary evidence is archived",
     )
     require(

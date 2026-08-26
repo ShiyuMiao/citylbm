@@ -13,6 +13,7 @@
 - Added the final RMS/k velocity-surrogate inlet gate before GitHub upload, so random RMS/k perturbations cannot be promoted as digital-filter, SEM, or precursor/recycling turbulent-inflow evidence.
 - Clarified that users can install the Grasshopper plugin and generate cases directly, but real solver runs still require a configured local FluidX3D source tree or executable environment.
 - Added `releases/v0.4.0` as a new release package without deleting previous release records.
+- Archived the current v0.4.0 state as the GitHub `main` upload baseline while preserving earlier release records and directories.
 
 ## v0.3.0
 

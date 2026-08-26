@@ -108,6 +108,8 @@ void main_setup() {
         require(data.get("boundary_source_fidelity_class") == "simplified_type_e_box", data)
         require(data.get("boundary_source_coherent") is True, data)
         require(data.get("boundary_source_simplified") is True, data)
+        require(data.get("boundary_source_has_simplified_wind_tunnel_surrogate") is True, data)
+        require(data.get("boundary_source_simplified_wind_tunnel_surrogate_gate") == "fail", data)
         require(data.get("boundary_source_wind_tunnel_equivalent") is False, data)
         require(data.get("boundary_source_has_complete_wind_tunnel_evidence") is False, data)
         require(data.get("boundary_source_has_empty_advanced_method_stub_only") is False, data)
@@ -138,7 +140,7 @@ void main_setup() {
             in data.get("paper_grade_boundary_source_gate_reasons", []),
             data,
         )
-        require(data.get("development_acceleration_stage") == "replace_simplified_type_e_box_boundary_before_cfd", data)
+        require(data.get("development_acceleration_stage") == "replace_simplified_wind_tunnel_surrogate_boundary_before_cfd", data)
         require(data.get("development_acceleration_runs_cfd_next") is False, data)
         require(data.get("long_cfd_allowed_by_boundary_source_audit") is False, data)
 
@@ -419,6 +421,8 @@ void main_setup() {
         require(advanced.get("boundary_source_advanced_code_evidence") is True, advanced)
         require(advanced.get("boundary_source_has_complete_wind_tunnel_evidence") is True, advanced)
         require(advanced.get("boundary_source_has_empty_advanced_method_stub_only") is False, advanced)
+        require(advanced.get("boundary_source_has_simplified_wind_tunnel_surrogate") is False, advanced)
+        require(advanced.get("boundary_source_simplified_wind_tunnel_surrogate_gate") == "pass", advanced)
         require(advanced.get("has_empty_advanced_boundary_method_stub") is False, advanced)
         require(advanced.get("empty_advanced_boundary_method_stub_count") == 0, advanced)
         require(advanced.get("has_non_reflecting_outlet_application_evidence") is True, advanced)

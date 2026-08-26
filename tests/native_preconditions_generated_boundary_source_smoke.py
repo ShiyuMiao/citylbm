@@ -115,27 +115,30 @@ def main() -> int:
     require(data.get("boundary_source_setup_cpp_sha256_matches_current") is True, data)
     require(data.get("boundary_source_gate") == "pass", data)
     require(data.get("paper_grade_boundary_source_gate") == "fail", data)
-    require(data.get("boundary_source_method_class") == "simplified_type_e_box", data)
-    require(data.get("boundary_source_fidelity_class") == "simplified_type_e_box", data)
+    require(data.get("boundary_source_method_class") == "profile_maintenance_buffer_diagnostic", data)
+    require(data.get("boundary_source_fidelity_class") == "diagnostic_profile_maintenance_buffer", data)
     require(data.get("boundary_source_wind_tunnel_equivalent") is False, data)
-    require(data.get("boundary_source_simplified") is True, data)
+    require(data.get("boundary_source_simplified") is False, data)
+    require(data.get("boundary_source_has_simplified_wind_tunnel_surrogate") is True, data)
+    require(data.get("boundary_source_simplified_wind_tunnel_surrogate_gate") == "fail", data)
     require(data.get("boundary_source_has_complete_wind_tunnel_evidence") is False, data)
     require(data.get("boundary_source_advanced_code_evidence") is False, data)
     require(data.get("boundary_source_has_fixed_mean_outlet_lateral_top_treatment") is True, data)
-    require(data.get("boundary_source_fixed_mean_outlet_lateral_top_treatment_gate") == "diagnostic_only", data)
+    require(data.get("boundary_source_fixed_mean_outlet_lateral_top_treatment_gate") == "diagnostic_only_with_profile_maintenance_buffer", data)
     require(data.get("native_boundary_equivalence_gate") == "fail", data)
 
     for expected in [
         "paper_grade_boundary_source_gate_not_pass",
         "boundary_source_not_wind_tunnel_equivalent",
-        "boundary_source_simplified",
-        "boundary_source_fidelity_class_not_paper_grade_simplified_type_e_box",
+        "boundary_source_has_simplified_wind_tunnel_surrogate",
+        "boundary_source_simplified_wind_tunnel_surrogate_gate_not_pass",
+        "boundary_source_simplified_wind_tunnel_surrogate_reason_simplified_type_e_box",
+        "boundary_source_fidelity_class_not_paper_grade_diagnostic_profile_maintenance_buffer",
         "boundary_source_has_complete_wind_tunnel_evidence_not_true",
         "boundary_source_advanced_code_evidence_not_true",
         "boundary_source_fixed_mean_outlet_lateral_top_treatment_diagnostic_only",
         "boundary_source_missing_paper_grade_evidence_non_reflecting_or_validated_outlet_state",
         "boundary_source_missing_paper_grade_evidence_side_top_boundary_pair_mapping",
-        "boundary_source_missing_paper_grade_evidence_rough_wall_or_wall_function_action",
         "boundary_source_missing_paper_grade_evidence_precursor_or_recycling_development_field",
         "boundary_protocol_audit_missing",
         "boundary_runtime_audit_missing",
@@ -146,8 +149,10 @@ def main() -> int:
     for expected in [
         "paper_grade_boundary_source_gate_not_pass:fail",
         "boundary_source_wind_tunnel_equivalent_not_true:False",
-        "boundary_source_simplified_not_false:True",
-        "boundary_source_fidelity_class_not_paper_grade:simplified_type_e_box",
+        "boundary_source_has_simplified_wind_tunnel_surrogate_not_false:True",
+        "boundary_source_simplified_wind_tunnel_surrogate_gate_not_pass:fail",
+        "boundary_source_simplified_wind_tunnel_surrogate_reason:simplified_type_e_box",
+        "boundary_source_fidelity_class_not_paper_grade:diagnostic_profile_maintenance_buffer",
         "boundary_protocol_audit_missing",
         "boundary_runtime_audit_missing",
         "boundary_runtime_source_vtk_hash_count_0_below_minimum_40",

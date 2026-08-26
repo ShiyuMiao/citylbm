@@ -71,9 +71,11 @@ def main() -> int:
     data = json.loads(report.read_text(encoding="utf-8"))
     require(data.get("boundary_source_gate") == "pass", data)
     require(data.get("paper_grade_boundary_source_gate") == "fail", data)
-    require(data.get("boundary_source_method_class") == "simplified_type_e_box", data)
-    require(data.get("boundary_source_fidelity_class") == "simplified_type_e_box", data)
-    require(data.get("boundary_source_simplified") is True, data)
+    require(data.get("boundary_source_method_class") == "profile_maintenance_buffer_diagnostic", data)
+    require(data.get("boundary_source_fidelity_class") == "diagnostic_profile_maintenance_buffer", data)
+    require(data.get("boundary_source_simplified") is False, data)
+    require(data.get("boundary_source_has_simplified_wind_tunnel_surrogate") is True, data)
+    require(data.get("boundary_source_simplified_wind_tunnel_surrogate_gate") == "fail", data)
     require(data.get("boundary_source_wind_tunnel_equivalent") is False, data)
     require(data.get("boundary_source_has_complete_wind_tunnel_evidence") is False, data)
     require(data.get("boundary_source_advanced_code_evidence") is False, data)
@@ -82,29 +84,35 @@ def main() -> int:
     require(data.get("has_u_device_upload_after_type_e_velocity_initialization") is True, data)
     require(data.get("has_fixed_mean_type_e_boundary_velocity") is True, data)
     require(data.get("has_fixed_mean_outlet_lateral_top_treatment") is True, data)
-    require(data.get("fixed_mean_outlet_lateral_top_treatment_gate") == "diagnostic_only", data)
+    require(data.get("fixed_mean_outlet_lateral_top_treatment_gate") == "diagnostic_only_with_profile_maintenance_buffer", data)
     require(data.get("has_paper_grade_outlet_source") is False, data)
     require(data.get("has_paper_grade_side_top_source") is False, data)
-    require(data.get("has_paper_grade_rough_wall_source") is False, data)
+    require(data.get("has_paper_grade_rough_wall_source") is True, data)
     require(data.get("has_paper_grade_development_source") is False, data)
-    require(data.get("development_acceleration_stage") == "replace_simplified_type_e_box_boundary_before_cfd", data)
-    require(data.get("development_acceleration_runs_cfd_next") is False, data)
+    require(data.get("development_acceleration_stage") == "eligible_for_short_diagnostic_native_canary", data)
+    require(data.get("development_acceleration_runs_cfd_next") is True, data)
     require(data.get("long_cfd_allowed_by_boundary_source_audit") is False, data)
 
     paper_reasons = data.get("paper_grade_boundary_source_gate_reasons", [])
     for expected in [
         "boundary_source_not_wind_tunnel_equivalent",
-        "boundary_source_fidelity_class_not_paper_grade:simplified_type_e_box",
+        "boundary_source_fidelity_class_not_paper_grade:diagnostic_profile_maintenance_buffer",
         "boundary_source_missing_advanced_code_evidence",
-        "boundary_source_simplified_type_e_or_solid_only",
-        "ground_and_buildings_no_slip_without_rough_wall_or_precursor",
         "outlet_lateral_top_fixed_mean_velocity_equilibrium_not_validated_pressure_or_non_reflecting_boundary",
         "missing_non_reflecting_or_validated_outlet_state",
         "missing_side_top_boundary_pair_mapping",
-        "missing_rough_wall_or_wall_function_action",
         "missing_precursor_or_recycling_development_field",
+        "boundary_source_simplified_wind_tunnel_surrogate_gate_not_pass",
+        "boundary_source_has_simplified_wind_tunnel_surrogate",
     ]:
         require(expected in paper_reasons, data)
+    surrogate_reasons = data.get("boundary_source_simplified_wind_tunnel_surrogate_reasons", [])
+    for expected in [
+        "simplified_type_e_box",
+        "fixed_mean_outlet_lateral_top_without_non_reflecting_source",
+        "not_wind_tunnel_equivalent",
+    ]:
+        require(expected in surrogate_reasons, data)
 
     print("boundary_generated_codegen_audit_smoke passed")
     print(report)

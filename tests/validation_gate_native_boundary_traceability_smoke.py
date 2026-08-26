@@ -41,6 +41,9 @@ def passing_native_audit():
         "boundary_runtime_outlet_gate": "pass",
         "boundary_source_wind_tunnel_equivalent": True,
         "boundary_source_simplified": False,
+        "boundary_source_has_simplified_wind_tunnel_surrogate": False,
+        "boundary_source_simplified_wind_tunnel_surrogate_gate": "pass",
+        "boundary_source_simplified_wind_tunnel_surrogate_reasons": "",
         "boundary_source_setup_cpp_sha256_matches_current": True,
         "boundary_evidence_metadata_sha256_matches_current": True,
         "boundary_evidence_files_all_hashed": True,
@@ -101,6 +104,9 @@ def passing_boundary_reason_kwargs() -> dict:
         "boundary_source_complete_wind_tunnel_evidence": True,
         "boundary_source_empty_stub_only": False,
         "boundary_source_simplified": False,
+        "boundary_source_has_simplified_wind_tunnel_surrogate": False,
+        "boundary_source_simplified_wind_tunnel_surrogate_gate": "pass",
+        "boundary_source_simplified_wind_tunnel_surrogate_reasons": "",
         "boundary_source_wind_tunnel_equivalent": True,
         "boundary_source_advanced_code_evidence": True,
         "boundary_source_comment_stripped_code_audit": True,
@@ -151,6 +157,9 @@ def main() -> int:
             "boundary_source_fidelity_class": "simplified_type_e_box",
             "boundary_source_complete_wind_tunnel_evidence": False,
             "boundary_source_simplified": True,
+            "boundary_source_has_simplified_wind_tunnel_surrogate": True,
+            "boundary_source_simplified_wind_tunnel_surrogate_gate": "fail",
+            "boundary_source_simplified_wind_tunnel_surrogate_reasons": "simplified_type_e_box;not_wind_tunnel_equivalent",
             "boundary_source_wind_tunnel_equivalent": False,
             "boundary_source_advanced_code_evidence": False,
             "boundary_has_paper_grade_outlet_source": False,
@@ -191,6 +200,9 @@ def main() -> int:
         "boundary_source_fidelity_class_not_paper_grade:simplified_type_e_box",
         "boundary_source_has_complete_wind_tunnel_evidence_not_true:False",
         "boundary_source_simplified_not_false:True",
+        "boundary_source_simplified_wind_tunnel_surrogate_gate_not_pass:fail",
+        "boundary_source_has_simplified_wind_tunnel_surrogate_not_false:True",
+        "boundary_source_simplified_wind_tunnel_surrogate_reason:simplified_type_e_box",
         "boundary_source_wind_tunnel_equivalent_not_true:False",
         "boundary_source_advanced_code_evidence_not_true:False",
         "boundary_source_has_paper_grade_outlet_source_not_true:False",
@@ -228,6 +240,9 @@ def main() -> int:
 
     bad = copy.deepcopy(passing_native_audit())
     bad["boundary_source_simplified"] = True
+    bad["boundary_source_has_simplified_wind_tunnel_surrogate"] = True
+    bad["boundary_source_simplified_wind_tunnel_surrogate_gate"] = "fail"
+    bad["boundary_source_simplified_wind_tunnel_surrogate_reasons"] = "simplified_type_e_box;not_wind_tunnel_equivalent"
     bad["boundary_source_method_class"] = "simplified_type_e_box"
     bad["boundary_source_fidelity_class"] = "simplified_type_e_box"
     bad["boundary_source_has_complete_wind_tunnel_evidence"] = False
@@ -248,6 +263,9 @@ def main() -> int:
         raise AssertionError(failed)
     for expected in [
         "boundary_source_simplified_not_false:True",
+        "boundary_source_simplified_wind_tunnel_surrogate_gate_not_pass:fail",
+        "boundary_source_has_simplified_wind_tunnel_surrogate_not_false:True",
+        "boundary_source_simplified_wind_tunnel_surrogate_reason:simplified_type_e_box",
         "boundary_source_method_class_not_wind_tunnel_equivalent:simplified_type_e_box",
         "boundary_source_fidelity_class_not_paper_grade:simplified_type_e_box",
         "boundary_source_has_complete_wind_tunnel_evidence_not_true:False",

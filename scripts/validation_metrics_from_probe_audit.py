@@ -172,6 +172,9 @@ TEMPLATE_FIELDS = [
     "boundary_source_has_empty_advanced_method_stub_only",
     "boundary_source_coherent",
     "boundary_source_simplified",
+    "boundary_source_has_simplified_wind_tunnel_surrogate",
+    "boundary_source_simplified_wind_tunnel_surrogate_gate",
+    "boundary_source_simplified_wind_tunnel_surrogate_reasons",
     "boundary_source_wind_tunnel_equivalent",
     "boundary_source_advanced_code_evidence",
     "boundary_source_comment_stripped_code_audit",
@@ -603,6 +606,9 @@ TEMPLATE_FIELDS = [
     "native_boundary_source_has_empty_advanced_method_stub_only",
     "native_boundary_source_wind_tunnel_equivalent",
     "native_boundary_source_simplified",
+    "native_boundary_source_has_simplified_wind_tunnel_surrogate",
+    "native_boundary_source_simplified_wind_tunnel_surrogate_gate",
+    "native_boundary_source_simplified_wind_tunnel_surrogate_reasons",
     "native_boundary_source_setup_cpp_sha256_matches_current",
     "native_boundary_source_missing_paper_grade_source_evidence",
     "native_boundary_source_has_paper_grade_outlet_source",
@@ -2261,6 +2267,22 @@ def main() -> int:
             ),
             "boundary_source_coherent": first_bool_text(boundary_source_audit.get("boundary_source_coherent")),
             "boundary_source_simplified": first_bool_text(boundary_source_audit.get("boundary_source_simplified")),
+            "boundary_source_has_simplified_wind_tunnel_surrogate": first_bool_text(
+                boundary_source_audit.get("boundary_source_has_simplified_wind_tunnel_surrogate")
+            ),
+            "boundary_source_simplified_wind_tunnel_surrogate_gate": audit_gate(
+                boundary_source_audit, "boundary_source_simplified_wind_tunnel_surrogate_gate"
+            ),
+            "boundary_source_simplified_wind_tunnel_surrogate_reasons": ";".join(
+                str(reason)
+                for reason in boundary_source_audit.get(
+                    "boundary_source_simplified_wind_tunnel_surrogate_reasons", []
+                )
+            )
+            if isinstance(
+                boundary_source_audit.get("boundary_source_simplified_wind_tunnel_surrogate_reasons"), list
+            )
+            else audit_field(boundary_source_audit, "boundary_source_simplified_wind_tunnel_surrogate_reasons_csv"),
             "boundary_source_wind_tunnel_equivalent": first_bool_text(
                 boundary_source_audit.get("boundary_source_wind_tunnel_equivalent")
             ),
@@ -3354,6 +3376,15 @@ def main() -> int:
             ),
             "native_boundary_source_simplified": first_bool_text(
                 native_preconditions_audit.get("boundary_source_simplified")
+            ),
+            "native_boundary_source_has_simplified_wind_tunnel_surrogate": first_bool_text(
+                native_preconditions_audit.get("boundary_source_has_simplified_wind_tunnel_surrogate")
+            ),
+            "native_boundary_source_simplified_wind_tunnel_surrogate_gate": audit_gate(
+                native_preconditions_audit, "boundary_source_simplified_wind_tunnel_surrogate_gate"
+            ),
+            "native_boundary_source_simplified_wind_tunnel_surrogate_reasons": audit_field(
+                native_preconditions_audit, "boundary_source_simplified_wind_tunnel_surrogate_reasons_csv"
             ),
             "native_boundary_source_setup_cpp_sha256_matches_current": first_bool_text(
                 native_preconditions_audit.get("boundary_source_setup_cpp_sha256_matches_current")
