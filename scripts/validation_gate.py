@@ -193,6 +193,14 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "inlet_source_has_uncorrelated_random_inlet",
     "inlet_source_has_correlated_velocity_field_only",
     "inlet_source_has_uncorrelated_rms_velocity_field_only",
+    "runtime_inlet_diagnostics_evidence_required",
+    "runtime_inlet_diagnostics_evidence_required_basis_csv",
+    "runtime_inlet_diagnostics_evidence_gate",
+    "runtime_inlet_diagnostics_step_window_gate",
+    "runtime_inlet_diagnostics_selected_steps_csv",
+    "runtime_inlet_diagnostics_steps_cover_runtime_window",
+    "runtime_inlet_diagnostics_csv_sha256",
+    "runtime_inlet_diagnostics_audit_json_sha256",
     "wall_roughness_treatment",
     "boundary_evidence_class",
     "boundary_source_method_class",
@@ -215,6 +223,10 @@ NATIVE_CITYLBM_PARITY_CRITICAL_FIELDS = [
     "boundary_source_has_rough_wall_action_evidence",
     "boundary_source_has_precursor_or_recycling_boundary_method",
     "boundary_source_has_precursor_or_recycling_boundary_field_evidence",
+    "boundary_runtime_source_time_steps_csv",
+    "boundary_runtime_source_time_steps_match_runtime",
+    "boundary_runtime_source_vtk_sha256_match_runtime",
+    "boundary_runtime_source_step_hash_pairs_match_runtime",
     "native_preconditions_time_average_gate",
     "native_preconditions_time_average_evidence_gate",
     "native_preconditions_time_averaging_fidelity_class",
@@ -3056,10 +3068,48 @@ def native_inlet_precondition_traceability_status(
     for key in [
         "paper_grade_inlet_source_gate",
         "inlet_source_distribution_route_gate",
+        "native_inlet_equivalence_gate",
+        "runtime_inlet_diagnostics_evidence_gate",
+        "runtime_inlet_diagnostics_step_window_gate",
     ]:
         value = str(get_any(native_preconditions_audit, [key]) or "").strip().lower()
         if value != "pass":
             reasons.append(f"{key}_not_pass:{value or 'missing'}")
+
+    runtime_inlet_diagnostics_required = as_bool(
+        get_any(native_preconditions_audit, ["runtime_inlet_diagnostics_evidence_required"])
+    )
+    if runtime_inlet_diagnostics_required is not True:
+        reasons.append(
+            "runtime_inlet_diagnostics_evidence_required_not_true:"
+            f"{runtime_inlet_diagnostics_required if runtime_inlet_diagnostics_required is not None else 'missing'}"
+        )
+    runtime_inlet_diagnostics_basis = as_string_list(
+        get_any(
+            native_preconditions_audit,
+            [
+                "runtime_inlet_diagnostics_evidence_required_basis",
+                "runtime_inlet_diagnostics_evidence_required_basis_csv",
+            ],
+        )
+    )
+    if not runtime_inlet_diagnostics_basis:
+        reasons.append("runtime_inlet_diagnostics_evidence_required_basis_missing")
+    diagnostics_cover_runtime = as_bool(
+        get_any(native_preconditions_audit, ["runtime_inlet_diagnostics_steps_cover_runtime_window"])
+    )
+    if diagnostics_cover_runtime is not True:
+        reasons.append(
+            "runtime_inlet_diagnostics_steps_cover_runtime_window_not_true:"
+            f"{diagnostics_cover_runtime if diagnostics_cover_runtime is not None else 'missing'}"
+        )
+    for key in [
+        "runtime_inlet_diagnostics_csv_sha256",
+        "runtime_inlet_diagnostics_audit_json_sha256",
+    ]:
+        value = str(get_any(native_preconditions_audit, [key]) or "").strip()
+        if not value:
+            reasons.append(f"{key}_missing")
 
     for key in [
         "inlet_source_distribution_consistent",
@@ -6889,9 +6939,18 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_correlation_source_time_steps_match_runtime={get_any(native_preconditions_audit, ['inlet_correlation_source_time_steps_match_runtime'])}; "
             f"inlet_correlation_source_vtk_sha256_match_runtime={get_any(native_preconditions_audit, ['inlet_correlation_source_vtk_sha256_match_runtime'])}; "
             f"inlet_correlation_source_step_span={get_any(native_preconditions_audit, ['inlet_correlation_source_step_span'])}; "
+            f"native_inlet_equivalence_gate={get_any(native_preconditions_audit, ['native_inlet_equivalence_gate']) or 'missing'}; "
+            f"runtime_inlet_diagnostics_evidence_required={get_any(native_preconditions_audit, ['runtime_inlet_diagnostics_evidence_required'])}; "
+            f"runtime_inlet_diagnostics_evidence_required_basis={get_any(native_preconditions_audit, ['runtime_inlet_diagnostics_evidence_required_basis_csv']) or 'missing'}; "
+            f"runtime_inlet_diagnostics_evidence_gate={get_any(native_preconditions_audit, ['runtime_inlet_diagnostics_evidence_gate']) or 'missing'}; "
+            f"runtime_inlet_diagnostics_step_window_gate={get_any(native_preconditions_audit, ['runtime_inlet_diagnostics_step_window_gate']) or 'missing'}; "
+            f"runtime_inlet_diagnostics_selected_steps={get_any(native_preconditions_audit, ['runtime_inlet_diagnostics_selected_steps_csv']) or 'missing'}; "
+            f"runtime_inlet_diagnostics_steps_cover_runtime_window={get_any(native_preconditions_audit, ['runtime_inlet_diagnostics_steps_cover_runtime_window'])}; "
+            f"runtime_inlet_diagnostics_csv_sha256={get_any(native_preconditions_audit, ['runtime_inlet_diagnostics_csv_sha256']) or 'missing'}; "
+            f"runtime_inlet_diagnostics_audit_json_sha256={get_any(native_preconditions_audit, ['runtime_inlet_diagnostics_audit_json_sha256']) or 'missing'}; "
             f"required_min_avg_step_span={args.min_avg_step_span}"
         ),
-        "Regenerate native inlet profile and inlet correlation audits from the same runtime-selected final VTK window, with matching AF CSV hash, VTK hashes, increasing/uniform source steps and sufficient solver-step span.",
+        "Regenerate native inlet profile, inlet correlation and runtime inlet diagnostics audits from the same runtime-selected final VTK window, with matching AF CSV hash, VTK hashes, increasing/uniform source steps, sufficient solver-step span and hashed U/k/RMS runtime evidence.",
     )
     native_probe_traceability = native_probe_component_traceability_status(
         native_preconditions_audit,
@@ -7077,6 +7136,10 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             f"inlet_k_profile_gate={native_preconditions_inlet_k_profile_gate or 'missing'}; "
             f"inlet_correlation_gate={native_preconditions_inlet_correlation_gate or 'missing'}; "
             f"inlet_k_variance_gate={native_preconditions_inlet_k_variance_gate or 'missing'}; "
+            f"native_inlet_equivalence_gate={get_any(native_preconditions_audit, ['native_inlet_equivalence_gate']) or 'missing'}; "
+            f"runtime_inlet_diagnostics_evidence_gate={get_any(native_preconditions_audit, ['runtime_inlet_diagnostics_evidence_gate']) or 'missing'}; "
+            f"runtime_inlet_diagnostics_step_window_gate={get_any(native_preconditions_audit, ['runtime_inlet_diagnostics_step_window_gate']) or 'missing'}; "
+            f"runtime_inlet_diagnostics_csv_sha256={get_any(native_preconditions_audit, ['runtime_inlet_diagnostics_csv_sha256']) or 'missing'}; "
             f"native_inlet_traceability_ok={native_inlet_traceability['ok']}; "
             f"native_inlet_traceability_reasons={native_inlet_traceability['reasons_csv'] or 'none'}; "
             f"native_probe_traceability_ok={native_probe_traceability['ok']}; "

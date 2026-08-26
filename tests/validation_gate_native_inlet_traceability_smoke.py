@@ -59,6 +59,22 @@ def passing_native_audit():
         "inlet_source_turbulent_inflow_fidelity_class": "distribution_consistent_digital_filter",
         "inlet_source_has_correlated_velocity_field_only": False,
         "inlet_source_has_uncorrelated_rms_velocity_field_only": False,
+        "native_inlet_equivalence_gate": "pass",
+        "runtime_inlet_diagnostics_evidence_required": True,
+        "runtime_inlet_diagnostics_evidence_required_basis": [
+            "metadata_synthetic_active",
+            "inlet_source_synthetic_requested",
+        ],
+        "runtime_inlet_diagnostics_evidence_required_basis_csv": (
+            "metadata_synthetic_active;inlet_source_synthetic_requested"
+        ),
+        "runtime_inlet_diagnostics_evidence_gate": "pass",
+        "runtime_inlet_diagnostics_step_window_gate": "pass",
+        "runtime_inlet_diagnostics_selected_steps": [38000, 39000, 40000],
+        "runtime_inlet_diagnostics_selected_steps_csv": "38000;39000;40000",
+        "runtime_inlet_diagnostics_steps_cover_runtime_window": True,
+        "runtime_inlet_diagnostics_csv_sha256": "a" * 64,
+        "runtime_inlet_diagnostics_audit_json_sha256": "b" * 64,
         "expected_uref_mps": 3.928296,
         "actual_uref_mps": 3.928296,
         "expected_zref_m": 15.9,
@@ -152,6 +168,40 @@ def main() -> int:
         raise AssertionError(missing_tke_failed)
     if "inlet_tke_gate_not_pass:missing" not in missing_tke_failed["reasons"]:
         raise AssertionError(missing_tke_failed["reasons"])
+
+    missing_runtime_diag = copy.deepcopy(passing_native_audit())
+    missing_runtime_diag.update(
+        {
+            "native_inlet_equivalence_gate": "fail",
+            "runtime_inlet_diagnostics_evidence_required": True,
+            "runtime_inlet_diagnostics_evidence_required_basis": [],
+            "runtime_inlet_diagnostics_evidence_required_basis_csv": "",
+            "runtime_inlet_diagnostics_evidence_gate": "missing",
+            "runtime_inlet_diagnostics_step_window_gate": "missing",
+            "runtime_inlet_diagnostics_selected_steps": [],
+            "runtime_inlet_diagnostics_selected_steps_csv": "",
+            "runtime_inlet_diagnostics_steps_cover_runtime_window": None,
+            "runtime_inlet_diagnostics_csv_sha256": "",
+            "runtime_inlet_diagnostics_audit_json_sha256": "",
+        }
+    )
+    missing_runtime_failed = module.native_inlet_precondition_traceability_status(
+        missing_runtime_diag,
+        min_avg_step_span=20000,
+    )
+    if missing_runtime_failed["ok"]:
+        raise AssertionError(missing_runtime_failed)
+    for reason in [
+        "native_inlet_equivalence_gate_not_pass:fail",
+        "runtime_inlet_diagnostics_evidence_gate_not_pass:missing",
+        "runtime_inlet_diagnostics_step_window_gate_not_pass:missing",
+        "runtime_inlet_diagnostics_evidence_required_basis_missing",
+        "runtime_inlet_diagnostics_steps_cover_runtime_window_not_true:missing",
+        "runtime_inlet_diagnostics_csv_sha256_missing",
+        "runtime_inlet_diagnostics_audit_json_sha256_missing",
+    ]:
+        if reason not in missing_runtime_failed["reasons"]:
+            raise AssertionError(missing_runtime_failed["reasons"])
 
     velocity_only_source = copy.deepcopy(passing_native_audit())
     velocity_only_source.update(

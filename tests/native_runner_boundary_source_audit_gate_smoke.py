@@ -151,8 +151,14 @@ def main() -> int:
             expected_returncode=2,
         )
         missing_boundary = load_json(missing_boundary_manifest)
-        if "run_requested_without_boundary_source_audit" not in missing_boundary["RunnerGate"]["Reasons"]:
-            raise AssertionError(missing_boundary["RunnerGate"])
+        for reason in [
+            "boundary_source_gate_not_pass:fail",
+            "paper_grade_boundary_source_gate_not_pass:fail",
+            "run_requested_without_runtime_inlet_diagnostics_path",
+            "execution_requested_without_install_or_case_source_parity",
+        ]:
+            if reason not in missing_boundary["RunnerGate"]["Reasons"]:
+                raise AssertionError(missing_boundary["RunnerGate"])
         if missing_boundary["Run"]["Gate"] != "blocked":
             raise AssertionError(missing_boundary["Run"])
 

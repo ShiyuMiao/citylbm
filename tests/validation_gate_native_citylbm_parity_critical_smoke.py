@@ -125,6 +125,14 @@ def main() -> int:
             "inlet_source_has_metadata_length_scale_evidence",
             "inlet_source_length_scale_evidence_basis",
             "inlet_source_has_temporal_filter_state",
+            "runtime_inlet_diagnostics_evidence_required",
+            "runtime_inlet_diagnostics_evidence_required_basis_csv",
+            "runtime_inlet_diagnostics_evidence_gate",
+            "runtime_inlet_diagnostics_step_window_gate",
+            "runtime_inlet_diagnostics_selected_steps_csv",
+            "runtime_inlet_diagnostics_steps_cover_runtime_window",
+            "runtime_inlet_diagnostics_csv_sha256",
+            "runtime_inlet_diagnostics_audit_json_sha256",
             "source_time_steps",
             "source_step_span",
             "selected_last_window",
@@ -149,6 +157,10 @@ def main() -> int:
             "boundary_source_has_rough_wall_action_evidence",
             "boundary_source_has_precursor_or_recycling_boundary_field_evidence",
             "boundary_source_missing_paper_grade_source_evidence",
+            "boundary_runtime_source_time_steps_csv",
+            "boundary_runtime_source_time_steps_match_runtime",
+            "boundary_runtime_source_vtk_sha256_match_runtime",
+            "boundary_runtime_source_step_hash_pairs_match_runtime",
         ]:
             if field not in report["required_critical_fields"]:
                 raise AssertionError((field, report["required_critical_fields"]))
@@ -290,6 +302,37 @@ def main() -> int:
             not in bad_boundary_report["missing_critical_fields"]
         ):
             raise AssertionError(bad_boundary_report)
+
+        bad_boundary_window = tmp_path / "native_missing_boundary_window.csv"
+        bad_boundary_window_out = tmp_path / "bad_boundary_window_native_citylbm_parity_audit.json"
+        write_metrics(
+            bad_boundary_window,
+            "native-fluidx3d",
+            audit_module,
+            missing_field="boundary_runtime_source_step_hash_pairs_match_runtime",
+        )
+        failed_boundary_window = run_parity_audit(
+            REPO / "scripts" / "audit_native_citylbm_parity.py",
+            city,
+            bad_boundary_window,
+            bad_boundary_window_out,
+        )
+        if failed_boundary_window.returncode == 0:
+            raise AssertionError(
+                (
+                    failed_boundary_window.returncode,
+                    failed_boundary_window.stdout,
+                    failed_boundary_window.stderr,
+                )
+            )
+        bad_boundary_window_report = json.loads(bad_boundary_window_out.read_text(encoding="utf-8"))
+        if bad_boundary_window_report["critical_parity_field_gate"] != "fail":
+            raise AssertionError(bad_boundary_window_report)
+        if (
+            "boundary_runtime_source_step_hash_pairs_match_runtime"
+            not in bad_boundary_window_report["missing_critical_fields"]
+        ):
+            raise AssertionError(bad_boundary_window_report)
 
         bad_time = tmp_path / "native_missing_time_window.csv"
         bad_time_out = tmp_path / "bad_time_native_citylbm_parity_audit.json"

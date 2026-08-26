@@ -1124,6 +1124,98 @@ def parse_int_list(value: Any) -> List[int]:
     return output
 
 
+def first_present(mapping: Dict[str, Any], keys: List[str]) -> Any:
+    for key in keys:
+        value = mapping.get(key)
+        if value not in (None, ""):
+            return value
+    return None
+
+
+def runtime_inlet_diagnostics_parsed_audit(record: Dict[str, Any]) -> Dict[str, Any]:
+    for key in ["ParsedAudit", "Audit", "AuditSummary"]:
+        value = record.get(key)
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
+def runtime_inlet_diagnostics_steps(record: Dict[str, Any]) -> Tuple[List[int], Optional[int], Optional[int]]:
+    parsed = runtime_inlet_diagnostics_parsed_audit(record)
+    selected_steps = parse_int_list(
+        first_present(
+            parsed,
+            [
+                "SelectedSteps",
+                "selected_steps",
+                "selected_time_steps",
+                "SourceTimeSteps",
+                "source_time_steps",
+            ],
+        )
+        or first_present(
+            record,
+            [
+                "SelectedSteps",
+                "selected_steps",
+                "selected_time_steps",
+                "SourceTimeSteps",
+                "source_time_steps",
+            ],
+        )
+    )
+    step_min = as_int(
+        first_present(parsed, ["StepMin", "step_min", "SelectedStepMin", "selected_step_min"])
+        or first_present(record, ["StepMin", "step_min", "SelectedStepMin", "selected_step_min"])
+    )
+    step_max = as_int(
+        first_present(parsed, ["StepMax", "step_max", "SelectedStepMax", "selected_step_max"])
+        or first_present(record, ["StepMax", "step_max", "SelectedStepMax", "selected_step_max"])
+    )
+    if selected_steps:
+        step_min = min(selected_steps)
+        step_max = max(selected_steps)
+    return selected_steps, step_min, step_max
+
+
+def build_runtime_inlet_diagnostics_step_window_gate(
+    runtime_steps: List[int],
+    diagnostics_steps: List[int],
+    diagnostics_step_min: Optional[int],
+    diagnostics_step_max: Optional[int],
+) -> Dict[str, Any]:
+    reasons: List[str] = []
+    runtime_min = min(runtime_steps) if runtime_steps else None
+    runtime_max = max(runtime_steps) if runtime_steps else None
+    if not runtime_steps:
+        reasons.append("runtime_source_time_steps_missing")
+    if diagnostics_steps:
+        if diagnostics_steps != runtime_steps:
+            reasons.append(
+                "runtime_inlet_diagnostics_selected_steps_mismatch_runtime_window:"
+                f"{','.join(str(step) for step in diagnostics_steps)}_vs_{','.join(str(step) for step in runtime_steps)}"
+            )
+    else:
+        if diagnostics_step_min is None or diagnostics_step_max is None:
+            reasons.append("runtime_inlet_diagnostics_step_bounds_missing")
+        elif runtime_min is not None and runtime_max is not None:
+            if diagnostics_step_min > runtime_min or diagnostics_step_max < runtime_max:
+                reasons.append(
+                    "runtime_inlet_diagnostics_steps_do_not_cover_runtime_window:"
+                    f"{diagnostics_step_min}-{diagnostics_step_max}_vs_{runtime_min}-{runtime_max}"
+                )
+    return {
+        "gate": "pass" if not reasons else "fail",
+        "reasons": reasons,
+        "reasons_csv": ";".join(reasons),
+        "runtime_step_min": runtime_min,
+        "runtime_step_max": runtime_max,
+        "diagnostics_step_min": diagnostics_step_min,
+        "diagnostics_step_max": diagnostics_step_max,
+        "diagnostics_steps_cover_runtime_window": not reasons,
+    }
+
+
 def parse_hash_list(value: Any) -> List[str]:
     return [item.lower() for item in split_scalar_list(value) if item]
 
@@ -2741,7 +2833,9 @@ def main() -> int:
         runtime_inlet_diagnostics_reasons = split_scalar_list(runtime_inlet_diagnostics.get("ReasonsCsv"))
     runtime_inlet_diagnostics_requested = as_bool(runtime_inlet_diagnostics.get("Requested"))
     runtime_inlet_diagnostics_csv = str(runtime_inlet_diagnostics.get("CsvPath") or "").strip()
+    runtime_inlet_diagnostics_csv_sha = str(runtime_inlet_diagnostics.get("CsvSha256") or "").strip()
     runtime_inlet_diagnostics_audit_json = str(runtime_inlet_diagnostics.get("AuditJsonPath") or "").strip()
+    runtime_inlet_diagnostics_audit_json_sha = str(runtime_inlet_diagnostics.get("AuditJsonSha256") or "").strip()
     if runtime_inlet_diagnostics and runtime_inlet_diagnostics_gate not in {"pass", "not_applicable"}:
         reasons.append(f"runtime_inlet_diagnostics_gate_not_pass:{runtime_inlet_diagnostics_gate or 'missing'}")
         for reason in runtime_inlet_diagnostics_reasons:
@@ -2991,6 +3085,25 @@ def main() -> int:
         if not runtime_hashes:
             reasons.append("runtime_source_vtk_hashes_missing")
 
+    runtime_inlet_diagnostics_selected_steps, runtime_inlet_diagnostics_step_min, runtime_inlet_diagnostics_step_max = (
+        runtime_inlet_diagnostics_steps(runtime_inlet_diagnostics)
+    )
+    runtime_inlet_diagnostics_step_span = source_step_span_from_steps(runtime_inlet_diagnostics_selected_steps)
+    if runtime_inlet_diagnostics_step_span is None and (
+        runtime_inlet_diagnostics_step_min is not None
+        and runtime_inlet_diagnostics_step_max is not None
+        and runtime_inlet_diagnostics_step_max >= runtime_inlet_diagnostics_step_min
+    ):
+        runtime_inlet_diagnostics_step_span = (
+            runtime_inlet_diagnostics_step_max - runtime_inlet_diagnostics_step_min
+        )
+    runtime_inlet_diagnostics_step_window_gate = build_runtime_inlet_diagnostics_step_window_gate(
+        runtime_steps,
+        runtime_inlet_diagnostics_selected_steps,
+        runtime_inlet_diagnostics_step_min,
+        runtime_inlet_diagnostics_step_max,
+    )
+
     runtime_final_window_frame_count_gate = build_final_window_frame_count_gate(
         runtime_avg=runtime_avg,
         runtime_source_frame_count=runtime_source_frame_count,
@@ -3176,6 +3289,50 @@ def main() -> int:
         or "stg" in inlet_correlation_model.lower()
         or as_bool(inlet_source_audit.get("has_synthetic_inlet_function")) is True
     )
+    inlet_source_synthetic_requested = as_bool(inlet_source_audit.get("synthetic_inlet_requested"))
+    runtime_inlet_diagnostics_required_basis: List[str] = []
+    for basis, enabled in [
+        ("metadata_synthetic_active", metadata_synthetic_active),
+        ("planned_synthetic_inlet_active", planned_synthetic_active),
+        ("inlet_source_synthetic_requested", inlet_source_synthetic_requested),
+        ("inlet_stg_evidence_required", inlet_stg_evidence_required),
+        ("reconstruct_inlet_stress_ddf", reconstruct_inlet_stress_ddf),
+        ("device_sem_stress_ddf", device_sem_stress_ddf),
+    ]:
+        if enabled is True:
+            runtime_inlet_diagnostics_required_basis.append(basis)
+    runtime_inlet_diagnostics_evidence_required = bool(runtime_inlet_diagnostics_required_basis)
+    runtime_inlet_diagnostics_evidence_reasons: List[str] = []
+    if runtime_inlet_diagnostics_evidence_required:
+        if runtime_inlet_diagnostics_gate != "pass":
+            runtime_inlet_diagnostics_evidence_reasons.append(
+                f"runtime_inlet_diagnostics_gate_not_pass:{runtime_inlet_diagnostics_gate or 'missing'}"
+            )
+        if runtime_inlet_diagnostics_requested is not True:
+            runtime_inlet_diagnostics_evidence_reasons.append(
+                f"runtime_inlet_diagnostics_requested_not_true:{runtime_inlet_diagnostics_requested}"
+            )
+        if not runtime_inlet_diagnostics_csv:
+            runtime_inlet_diagnostics_evidence_reasons.append("runtime_inlet_diagnostics_csv_missing")
+        if not runtime_inlet_diagnostics_csv_sha:
+            runtime_inlet_diagnostics_evidence_reasons.append("runtime_inlet_diagnostics_csv_sha256_missing")
+        if runtime_inlet_diagnostics_step_window_gate["gate"] != "pass":
+            runtime_inlet_diagnostics_evidence_reasons.append(
+                "runtime_inlet_diagnostics_step_window_gate_not_pass:"
+                f"{runtime_inlet_diagnostics_step_window_gate['gate']}"
+            )
+            runtime_inlet_diagnostics_evidence_reasons.extend(
+                runtime_inlet_diagnostics_step_window_gate["reasons"]
+            )
+        for runtime_reason in runtime_inlet_diagnostics_reasons:
+            if runtime_reason:
+                runtime_inlet_diagnostics_evidence_reasons.append(
+                    f"runtime_inlet_diagnostics_reason:{runtime_reason}"
+                )
+    runtime_inlet_diagnostics_evidence_gate = (
+        "pass" if not runtime_inlet_diagnostics_evidence_reasons else "fail"
+    )
+    reasons.extend(runtime_inlet_diagnostics_evidence_reasons)
     inlet_source_reasons = split_scalar_list(inlet_source_audit.get("inlet_source_gate_reasons"))
     paper_inlet_source_reasons = split_scalar_list(inlet_source_audit.get("paper_grade_inlet_source_gate_reasons"))
     if not inlet_source_audit:
@@ -3314,6 +3471,7 @@ def main() -> int:
         min_avg_frames=args.min_avg_frames,
         min_avg_step_span=args.min_avg_step_span,
     )
+    native_inlet_equivalence_reasons.extend(runtime_inlet_diagnostics_evidence_reasons)
     native_inlet_equivalence_gate = "pass" if not native_inlet_equivalence_reasons else "fail"
     native_inlet_turbulence_interpretation = build_inlet_turbulence_interpretation_gate(
         native_inlet_equivalence_gate,
@@ -4304,9 +4462,34 @@ def main() -> int:
         "runtime_inlet_diagnostics_gate_reasons_csv": ";".join(runtime_inlet_diagnostics_reasons),
         "runtime_inlet_diagnostics_requested": runtime_inlet_diagnostics_requested,
         "runtime_inlet_diagnostics_csv": runtime_inlet_diagnostics_csv,
-        "runtime_inlet_diagnostics_csv_sha256": str(runtime_inlet_diagnostics.get("CsvSha256") or ""),
+        "runtime_inlet_diagnostics_csv_sha256": runtime_inlet_diagnostics_csv_sha,
         "runtime_inlet_diagnostics_audit_json": runtime_inlet_diagnostics_audit_json,
-        "runtime_inlet_diagnostics_audit_json_sha256": str(runtime_inlet_diagnostics.get("AuditJsonSha256") or ""),
+        "runtime_inlet_diagnostics_audit_json_sha256": runtime_inlet_diagnostics_audit_json_sha,
+        "runtime_inlet_diagnostics_selected_steps": runtime_inlet_diagnostics_selected_steps,
+        "runtime_inlet_diagnostics_selected_steps_csv": ";".join(
+            str(step) for step in runtime_inlet_diagnostics_selected_steps
+        ),
+        "runtime_inlet_diagnostics_step_min": runtime_inlet_diagnostics_step_min,
+        "runtime_inlet_diagnostics_step_max": runtime_inlet_diagnostics_step_max,
+        "runtime_inlet_diagnostics_step_span": runtime_inlet_diagnostics_step_span,
+        "runtime_inlet_diagnostics_steps_cover_runtime_window": (
+            runtime_inlet_diagnostics_step_window_gate["diagnostics_steps_cover_runtime_window"]
+        ),
+        "runtime_inlet_diagnostics_step_window_gate": runtime_inlet_diagnostics_step_window_gate["gate"],
+        "runtime_inlet_diagnostics_step_window_gate_reasons": runtime_inlet_diagnostics_step_window_gate["reasons"],
+        "runtime_inlet_diagnostics_step_window_gate_reasons_csv": (
+            runtime_inlet_diagnostics_step_window_gate["reasons_csv"]
+        ),
+        "runtime_inlet_diagnostics_evidence_required": runtime_inlet_diagnostics_evidence_required,
+        "runtime_inlet_diagnostics_evidence_required_basis": runtime_inlet_diagnostics_required_basis,
+        "runtime_inlet_diagnostics_evidence_required_basis_csv": ";".join(
+            runtime_inlet_diagnostics_required_basis
+        ),
+        "runtime_inlet_diagnostics_evidence_gate": runtime_inlet_diagnostics_evidence_gate,
+        "runtime_inlet_diagnostics_evidence_gate_reasons": runtime_inlet_diagnostics_evidence_reasons,
+        "runtime_inlet_diagnostics_evidence_gate_reasons_csv": ";".join(
+            runtime_inlet_diagnostics_evidence_reasons
+        ),
         "planned_synthetic_inlet_sampling_gate": planned_synthetic_gate,
         "planned_synthetic_inlet_sampling_source": synthetic_sampling_source,
         "planned_synthetic_inlet_sampling_gate_reasons": planned_synthetic_reasons,

@@ -97,6 +97,22 @@ def main() -> int:
             raise AssertionError(result["PaperUseGate"])
 
         preconditions = temp / "native_preconditions_audit.json"
+        write(
+            case_dir / "native_run_audit.json",
+            json.dumps(
+                {
+                    "source_time_steps": [1000, 2000, 3000],
+                    "source_step_span": 2000,
+                    "source_steps_strictly_increasing": True,
+                    "source_step_spacing_uniform": True,
+                    "selected_last_window": True,
+                    "source_vtk_sha256": ["a" * 64, "b" * 64, "c" * 64],
+                    "mean_speed_statistics_source": "sampled_vtk",
+                    "mean_speed_statistics_cli_override": False,
+                },
+                indent=2,
+            ),
+        )
         run_cmd(
             [
                 sys.executable,
@@ -117,6 +133,14 @@ def main() -> int:
         if precondition_result["runtime_inlet_diagnostics_requested"] is not True:
             raise AssertionError(precondition_result)
         if precondition_result["runtime_inlet_diagnostics_csv_sha256"] != gate["CsvSha256"]:
+            raise AssertionError(precondition_result)
+        if precondition_result["runtime_inlet_diagnostics_evidence_gate"] != "pass":
+            raise AssertionError(precondition_result)
+        if precondition_result["runtime_inlet_diagnostics_evidence_required"] is not True:
+            raise AssertionError(precondition_result)
+        if precondition_result["runtime_inlet_diagnostics_step_window_gate"] != "pass":
+            raise AssertionError(precondition_result)
+        if precondition_result["runtime_inlet_diagnostics_steps_cover_runtime_window"] is not True:
             raise AssertionError(precondition_result)
 
         auto_case_dir = temp / "auto_case"

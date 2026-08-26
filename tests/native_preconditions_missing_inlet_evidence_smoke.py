@@ -97,6 +97,13 @@ def main() -> int:
             "inlet_correlation_source_vtk_hashes_missing",
             "inlet_correlation_runtime_source_step_hash_pairs_missing",
             "inlet_correlation_source_step_hash_pairs_missing",
+            "runtime_inlet_diagnostics_gate_not_pass:missing",
+            "runtime_inlet_diagnostics_requested_not_true:None",
+            "runtime_inlet_diagnostics_csv_missing",
+            "runtime_inlet_diagnostics_csv_sha256_missing",
+            "runtime_inlet_diagnostics_step_window_gate_not_pass:fail",
+            "runtime_source_time_steps_missing",
+            "runtime_inlet_diagnostics_step_bounds_missing",
             "native_inlet_equivalence_gate_not_pass",
             "rejected_stress_ddf_diagnostic_route:ReconstructInletStressDdf",
             "rejected_stress_ddf_diagnostic_route:SyntheticEddy.DeviceSemStressDdf",
@@ -114,6 +121,13 @@ def main() -> int:
             "inlet_correlation_source_time_steps_match_runtime_not_true:False",
             "inlet_correlation_source_vtk_sha256_match_runtime_not_true:False",
             "inlet_correlation_source_step_hash_pairs_match_runtime_not_true:False",
+            "runtime_inlet_diagnostics_gate_not_pass:missing",
+            "runtime_inlet_diagnostics_requested_not_true:None",
+            "runtime_inlet_diagnostics_csv_missing",
+            "runtime_inlet_diagnostics_csv_sha256_missing",
+            "runtime_inlet_diagnostics_step_window_gate_not_pass:fail",
+            "runtime_source_time_steps_missing",
+            "runtime_inlet_diagnostics_step_bounds_missing",
         ]:
             require(expected in inlet_reasons, {"missing": expected, "reasons": inlet_reasons})
 

@@ -56,6 +56,7 @@ v0.4.0 封装当前 Rhino 7 / Grasshopper 验证分支成果，停止继续向�
 - Case A 已完成 full AF 表格输入的代码生成校验，`AF_caseA.csv` 的 24 行 `z, U, k` 被写入生成的 FluidX3D `setup.cpp` 和元数据。
 - 原生 FluidX3D Case A 300/150 诊断跑产生 2 个完整 VTK 帧，并完成 186 个官方测点的后处理审计；随后新增 `VTK Save Start=100` 的短 canary，验证保存调度可产生 `[100, 250, 300]` 三个完整 VTK 帧。
 - 当前诊断指标仍不作为发表级精度结论：`R2=-2.8714`，`Pearson=0.0163`，`RMSE ratio=3.4374`，主要阻塞包括步数/平均不足、入口 `k` 运行保持不足、边界协议证据不足和 native preconditions 未通过。
+- 最终封装检查点：停止继续精度优化后，保留 runtime inlet diagnostics、native/CityLBM parity 和 boundary runtime window 门禁补强；相关 smoke 测试用于证明发布脚本链可执行，不构成新的 CFD 精度结论。
 - v0.4.0 用户包可直接安装 Grasshopper 插件并生成案例；真实模拟仍需要用户在 `Run Simulation` 中指定本机可用的 FluidX3D 源码或求解器环境。
 
 ### 快速开始
@@ -101,6 +102,7 @@ v0.4.0 packages the current Rhino 7 / Grasshopper validation branch and stops fu
 - Case A full-AF code generation was verified: all 24 rows from `AF_caseA.csv` are emitted into FluidX3D `setup.cpp` and metadata.
 - A native FluidX3D Case A 300/150 diagnostic run produced 2 complete VTK frames and completed post-processing for 186 official probe points; a later `VTK Save Start=100` short canary verified the `[100, 250, 300]` three-frame output schedule.
 - The current diagnostic metrics are not publication-grade: `R2=-2.8714`, `Pearson=0.0163`, `RMSE ratio=3.4374`. Remaining blockers include insufficient run length/averaging, incomplete runtime preservation of inlet `k`, insufficient boundary protocol evidence, and failing native preconditions.
+- Final packaging checkpoint: after stopping further accuracy optimization, v0.4.0 preserves the hardened runtime inlet diagnostics, native/CityLBM parity, and boundary runtime window gates. The related smoke tests confirm the release-script chain, not new CFD accuracy.
 - The v0.4.0 package can be installed directly in Grasshopper and can generate cases. Real solver execution still requires a local FluidX3D source tree or executable environment to be configured in `Run Simulation`.
 
 ### Quick Start
