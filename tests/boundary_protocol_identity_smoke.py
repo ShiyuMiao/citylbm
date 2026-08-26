@@ -39,8 +39,13 @@ def write_metadata(path: Path, source_evidence_file: str = "") -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def evidence_payload(metadata_sha: str, case: str = "CaseE", wind: str = "N") -> dict:
-    return {
+def evidence_payload(
+    metadata_sha: str,
+    case: str = "CaseE",
+    wind: str = "N",
+    support_sha: str = "",
+) -> dict:
+    payload = {
         "boundary_evidence_gate": "pass",
         "boundary_evidence_class": "wind_tunnel_protocol_matched",
         "boundary_evidence_source": "wind_tunnel_protocol_matched sha256 documented",
@@ -65,6 +70,11 @@ def evidence_payload(metadata_sha: str, case: str = "CaseE", wind: str = "N") ->
         "outlet_reflection_check": "non_reflecting_checked sha256",
         "side_top_boundary_check": "reflection_checked sha256",
     }
+    if support_sha:
+        payload["boundary_evidence_files_sha256"] = {
+            "supporting_boundary_protocol.txt": support_sha,
+        }
+    return payload
 
 
 def run_audit(repo: Path, tmp_dir: Path, evidence: Path, report: Path) -> subprocess.CompletedProcess[str]:
@@ -118,15 +128,17 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix="citylbm_boundary_protocol_identity_") as tmp:
         tmp_dir = Path(tmp)
-        (tmp_dir / "supporting_boundary_protocol.txt").write_text(
+        support_file = tmp_dir / "supporting_boundary_protocol.txt"
+        support_file.write_text(
             "AIJ boundary protocol support for this run\n",
             encoding="utf-8",
         )
+        support_sha = hashlib.sha256(support_file.read_bytes()).hexdigest()
         metadata_sha = write_metadata(tmp_dir / "case_metadata.json")
 
         bad_evidence = tmp_dir / "bad_boundary_evidence.json"
         bad_evidence.write_text(
-            json.dumps(evidence_payload("0" * 64), indent=2),
+            json.dumps(evidence_payload("0" * 64, support_sha=support_sha), indent=2),
             encoding="utf-8",
         )
         bad_report = tmp_dir / "bad_boundary_protocol_audit.json"
@@ -142,7 +154,7 @@ def main() -> int:
 
         wrong_case_evidence = tmp_dir / "wrong_case_boundary_evidence.json"
         wrong_case_evidence.write_text(
-            json.dumps(evidence_payload(metadata_sha, case="CaseA"), indent=2),
+            json.dumps(evidence_payload(metadata_sha, case="CaseA", support_sha=support_sha), indent=2),
             encoding="utf-8",
         )
         wrong_case_report = tmp_dir / "wrong_case_boundary_protocol_audit.json"
@@ -157,7 +169,7 @@ def main() -> int:
         )
 
         simplified_evidence = tmp_dir / "simplified_boundary_evidence.json"
-        simplified_payload = evidence_payload(metadata_sha)
+        simplified_payload = evidence_payload(metadata_sha, support_sha=support_sha)
         simplified_payload.update(
             {
                 "outlet_boundary": "official TYPE_E free-outflow approximation sha256",
@@ -190,9 +202,33 @@ def main() -> int:
         )
         require(simplified_data.get("development_acceleration_runs_cfd_next") is False, simplified_data)
 
+        missing_hash_evidence = tmp_dir / "missing_hash_boundary_evidence.json"
+        missing_hash_evidence.write_text(
+            json.dumps(evidence_payload(metadata_sha), indent=2),
+            encoding="utf-8",
+        )
+        missing_hash_report = tmp_dir / "missing_hash_boundary_protocol_audit.json"
+        missing_hash = run_audit(repo, tmp_dir, missing_hash_evidence, missing_hash_report)
+        if missing_hash.returncode == 0:
+            raise AssertionError("Boundary support files must have declared SHA256 values in evidence JSON.")
+        missing_hash_data = json.loads(missing_hash_report.read_text(encoding="utf-8"))
+        require(missing_hash_data.get("boundary_protocol_gate") == "fail", missing_hash_data)
+        require(missing_hash_data.get("boundary_evidence_files_all_computed_sha256") is True, missing_hash_data)
+        require(missing_hash_data.get("boundary_evidence_files_all_hashed") is False, missing_hash_data)
+        require(
+            "boundary_evidence_files_declared_sha256_missing:supporting_boundary_protocol.txt"
+            in missing_hash_data.get("boundary_protocol_gate_reasons", []),
+            missing_hash_data,
+        )
+        require(
+            missing_hash_data.get("development_acceleration_stage") == "resolve_boundary_protocol_evidence_before_cfd",
+            missing_hash_data,
+        )
+        require(missing_hash_data.get("development_acceleration_runs_cfd_next") is False, missing_hash_data)
+
         good_evidence = tmp_dir / "good_boundary_evidence.json"
         good_evidence.write_text(
-            json.dumps(evidence_payload(metadata_sha), indent=2),
+            json.dumps(evidence_payload(metadata_sha, support_sha=support_sha), indent=2),
             encoding="utf-8",
         )
         good_report = tmp_dir / "good_boundary_protocol_audit.json"
@@ -209,14 +245,16 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix="citylbm_boundary_protocol_auto_") as tmp:
         tmp_dir = Path(tmp)
-        (tmp_dir / "supporting_boundary_protocol.txt").write_text(
+        support_file = tmp_dir / "supporting_boundary_protocol.txt"
+        support_file.write_text(
             "AIJ boundary protocol support for this run\n",
             encoding="utf-8",
         )
+        support_sha = hashlib.sha256(support_file.read_bytes()).hexdigest()
         metadata_sha = write_metadata(tmp_dir / "case_metadata.json", "auto_boundary_evidence.json")
         auto_evidence = tmp_dir / "auto_boundary_evidence.json"
         auto_evidence.write_text(
-            json.dumps(evidence_payload(metadata_sha), indent=2),
+            json.dumps(evidence_payload(metadata_sha, support_sha=support_sha), indent=2),
             encoding="utf-8",
         )
         auto_report = tmp_dir / "auto_boundary_protocol_audit.json"

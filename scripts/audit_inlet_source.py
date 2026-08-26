@@ -139,6 +139,40 @@ def first_float_regex(text: str, pattern: str) -> Optional[float]:
         return None
 
 
+def has_statement_coupling(text: str, field_tokens: Sequence[str], scale_tokens: Sequence[str]) -> bool:
+    lower_field_tokens = [token.lower() for token in field_tokens]
+    lower_scale_tokens = [token.lower() for token in scale_tokens]
+    for statement in text.split(";"):
+        lower = statement.lower()
+        if any(token in lower for token in lower_field_tokens) and any(
+            token in lower for token in lower_scale_tokens
+        ):
+            return True
+    return False
+
+
+def has_neighbor_stencil_access(text: str, array_tokens: Sequence[str]) -> bool:
+    """Detect whether a filter reads neighboring inlet-plane cells, not just the current cell."""
+    array_pattern = "|".join(re.escape(token) for token in array_tokens)
+    offset_tokens = r"\b(?:da|db|dy|dz|offset|kernel_offset|filter_offset|neighbor|wrapped)\b"
+    if has_regex(text, rf"\b(?:{array_pattern})\s*\[[^\]]*{offset_tokens}[^\]]*\]"):
+        return True
+
+    offset_vars: List[str] = []
+    declaration_pattern = re.compile(
+        r"\b(?:const\s+)?(?:uint|int|ulong|long|size_t|auto)\s+([A-Za-z_][A-Za-z0-9_]*)\s*="
+        r"\s*[^;]*(?:\bda\b|\bdb\b|\bdy\b|\bdz\b|\boffset\b|\bdigital_filter_radius\b)[^;]*;",
+        flags=re.IGNORECASE | re.MULTILINE | re.DOTALL,
+    )
+    for match in declaration_pattern.finditer(text):
+        offset_vars.append(match.group(1))
+
+    for var in offset_vars:
+        if has_regex(text, rf"\b(?:{array_pattern})\s*\[[^\]]*\b{re.escape(var)}\b[^\]]*\]"):
+            return True
+    return False
+
+
 def parse_metadata_vector(value: Any) -> List[float]:
     if isinstance(value, list):
         parsed: List[float] = []
@@ -621,6 +655,33 @@ def main() -> int:
         has_regex(implementation_source, r"\bauto\s+smoothPlane\s*=\s*\[\&\]\s*\(")
         and contains_any(implementation_source, ["digital_filter_radius", "digital_filter_alpha", "weight_sum"])
     )
+    has_digital_filter_spatial_stencil_evidence = (
+        has_legacy_digital_filter_kernel
+        and has_neighbor_stencil_access(
+            implementation_source,
+            ["raw", "raw_u", "raw_v", "raw_w", "white_noise", "unfiltered", "df_raw"],
+        )
+    ) or (
+        has_digital_filter_token
+        and contains_any(
+            implementation_source,
+            [
+                "spatial_filter",
+                "filter_stencil",
+                "stencil_radius",
+                "neighbor_weight",
+                "convolution_kernel",
+                "digital_filter_length_scale",
+                "digital_filter_lx_cells",
+                "digital_filter_ly_cells",
+                "digital_filter_lz_cells",
+            ],
+        )
+        and has_neighbor_stencil_access(
+            implementation_source,
+            ["raw", "raw_u", "raw_v", "raw_w", "white_noise", "unfiltered", "df_raw"],
+        )
+    )
     has_legacy_digital_filter_state = (
         has_regex(implementation_source, r"\bauto\s+updateDigitalFilter\s*=\s*\[\&\]\s*\(\s*uint\s+t_step\s*\)")
         and all(contains_any(implementation_source, [token]) for token in ["df_ru", "df_rv", "df_rw"])
@@ -649,6 +710,23 @@ def main() -> int:
             "filter_history",
         ],
     ) or has_legacy_digital_filter_state
+    has_digital_filter_velocity_coupling_evidence = (
+        has_statement_coupling(
+            implementation_source,
+            ["df_ru", "filtered_u", "filter_state_u", "inlet_fluctuation_u"],
+            ["u_rms", "profile_u_rms_lbm", "sigma_u", "r11", "sqrt"],
+        )
+        and has_statement_coupling(
+            implementation_source,
+            ["df_rv", "filtered_v", "filter_state_v", "inlet_fluctuation_v"],
+            ["v_rms", "profile_v_rms_lbm", "sigma_v", "r22", "sqrt"],
+        )
+        and has_statement_coupling(
+            implementation_source,
+            ["df_rw", "filtered_w", "filter_state_w", "inlet_fluctuation_w"],
+            ["w_rms", "profile_w_rms_lbm", "sigma_w", "r33", "sqrt"],
+        )
+    )
     has_sem = (
         has_regex(implementation_source, r"\b\w*(synthetic_eddy|syntheticEddy|sem_distribution|semDistribution)\w*\s*\(")
         or has_regex(implementation_source, r"\b(sem_eddy|semEddy|eddy_center|eddyCenter)\w*\s*(\[|=|\{)")
@@ -730,7 +808,9 @@ def main() -> int:
     has_distribution_consistent_digital_filter = (
         has_digital_filter
         and has_digital_filter_kernel
+        and has_digital_filter_spatial_stencil_evidence
         and has_digital_filter_state
+        and has_digital_filter_velocity_coupling_evidence
         and has_inlet_distribution_reconstruction
     )
     has_distribution_consistent_sem = (
@@ -1378,8 +1458,18 @@ def main() -> int:
         reasons.append("advanced_inlet_method_tokens_without_code_evidence")
     if has_digital_filter and digital_filter_selected and not has_digital_filter_kernel:
         reasons.append("digital_filter_source_missing_filter_kernel")
+    if has_digital_filter and digital_filter_selected and not has_digital_filter_spatial_stencil_evidence:
+        reasons.append("digital_filter_source_missing_spatial_neighbor_stencil")
     if has_digital_filter and digital_filter_selected and not has_digital_filter_state:
         reasons.append("digital_filter_source_missing_spatiotemporal_filter_state")
+    if (
+        has_digital_filter
+        and digital_filter_selected
+        and has_digital_filter_kernel
+        and has_digital_filter_state
+        and not has_digital_filter_velocity_coupling_evidence
+    ):
+        reasons.append("digital_filter_source_missing_filtered_velocity_coupling")
     if (
         synthetic_eddy_selected
         and has_native_synthetic_eddy_structure_evidence
@@ -1489,6 +1579,8 @@ def main() -> int:
         paper_gate_reasons.append("source_rms_k_velocity_surrogate_without_distribution_consistent_inlet")
     if source_has_correlated_velocity_field_only:
         paper_gate_reasons.append("source_correlated_velocity_field_only_without_distribution_reconstruction")
+    if digital_filter_selected and has_digital_filter and not has_digital_filter_spatial_stencil_evidence:
+        paper_gate_reasons.append("source_digital_filter_missing_spatial_neighbor_stencil")
     if synthetic_requested and not has_inlet_length_scale_evidence:
         paper_gate_reasons.append("source_missing_turbulent_length_scale_evidence")
     if synthetic_requested and not has_measured_or_precursor_reynolds_stress_tensor_evidence:
@@ -1632,7 +1724,9 @@ def main() -> int:
         "has_digital_filter_evidence": has_digital_filter,
         "has_digital_filter_token": has_digital_filter_token,
         "has_digital_filter_kernel_evidence": has_digital_filter_kernel,
+        "has_digital_filter_spatial_stencil_evidence": has_digital_filter_spatial_stencil_evidence,
         "has_digital_filter_state_evidence": has_digital_filter_state,
+        "has_digital_filter_velocity_coupling_evidence": has_digital_filter_velocity_coupling_evidence,
         "has_legacy_digital_filter_kernel_evidence": has_legacy_digital_filter_kernel,
         "has_legacy_digital_filter_state_evidence": has_legacy_digital_filter_state,
         "has_sem_evidence": has_sem,
@@ -1646,7 +1740,7 @@ def main() -> int:
         "distribution_consistency_basis": (
             "precursor_or_recycling_field"
             if has_distribution_consistent_precursor
-            else "digital_filter_kernel_state_distribution_reconstruction"
+            else "digital_filter_spatial_stencil_state_distribution_reconstruction"
             if has_distribution_consistent_digital_filter
             else "sem_eddy_population_distribution_reconstruction"
             if has_distribution_consistent_sem

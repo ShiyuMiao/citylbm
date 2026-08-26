@@ -31,6 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--uref", type=float, default=None)
     parser.add_argument("--official-rs", default="")
     parser.add_argument("--official-af", default="")
+    parser.add_argument("--domain-origin", default="")
     parser.add_argument(
         "--velocity-component-map",
         default="auto",
@@ -146,6 +147,89 @@ def resolve_path(text: str) -> str:
     return str(Path(text).expanduser().resolve())
 
 
+def read_domain_origin(path: Path) -> Dict[str, Any]:
+    if not path.is_file():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def resolve_domain_origin(args: argparse.Namespace, metadata_path: Path, metadata: Dict[str, Any]) -> Path:
+    candidates: List[str] = []
+    if args.domain_origin:
+        candidates.append(args.domain_origin)
+    for value in [
+        nested(metadata, "CoordinateProtocol", "ProbeProjection", "DomainOriginPath"),
+        nested(metadata, "CoordinateProtocol", "ProbeProjection", "DomainOriginJson"),
+        nested(metadata, "DomainOriginPath"),
+        nested(metadata, "DomainOriginJson"),
+        nested(metadata, "Validation", "DomainOriginPath"),
+    ]:
+        if value not in (None, ""):
+            candidates.append(str(value))
+    if args.case_dir:
+        candidates.append(str(Path(args.case_dir).expanduser().resolve() / "domain_origin.json"))
+    candidates.append(str(metadata_path.parent / "domain_origin.json"))
+    for raw in candidates:
+        path = Path(raw).expanduser()
+        if not path.is_absolute():
+            path = metadata_path.parent / path
+        resolved = path.resolve()
+        if resolved.is_file():
+            return resolved
+    raw = candidates[0] if candidates else ""
+    path = Path(raw).expanduser() if raw else Path("")
+    if raw and not path.is_absolute():
+        path = metadata_path.parent / path
+    return path.resolve() if raw else Path("")
+
+
+def as_vector3(value: Any) -> List[float]:
+    if isinstance(value, list) and len(value) >= 3:
+        try:
+            return [float(value[0]), float(value[1]), float(value[2])]
+        except (TypeError, ValueError):
+            return []
+    if isinstance(value, dict):
+        for keys in [("X", "Y", "Z"), ("x", "y", "z")]:
+            try:
+                return [float(value[key]) for key in keys]
+            except (KeyError, TypeError, ValueError):
+                continue
+    return []
+
+
+def domain_origin_values(path: Path) -> Dict[str, Any]:
+    data = read_domain_origin(path)
+    dx = None
+    for key in ["Dx", "dx", "DxM", "dx_m", "GridSpacingM", "grid_spacing_m"]:
+        if data.get(key) not in (None, ""):
+            try:
+                dx = float(data[key])
+                break
+            except (TypeError, ValueError):
+                pass
+    domain_min = as_vector3(data.get("DomainMin"))
+    if not domain_min:
+        domain_min = as_vector3(data.get("DomainOrigin"))
+    if not domain_min:
+        domain_min = as_vector3(data.get("Origin"))
+    if not domain_min:
+        try:
+            domain_min = [float(data[f"DomainMin{axis}"]) for axis in ["X", "Y", "Z"]]
+        except (KeyError, TypeError, ValueError):
+            domain_min = []
+    if not domain_min:
+        try:
+            domain_min = [float(data[f"DomainOrigin{axis}"]) for axis in ["X", "Y", "Z"]]
+        except (KeyError, TypeError, ValueError):
+            domain_min = []
+    return {"DxM": dx, "DomainMinM": domain_min}
+
+
 def setup_uses_magnitude(setup: Path) -> bool:
     if not setup.is_file():
         return False
@@ -246,6 +330,9 @@ def main() -> int:
     )
     official_rs_resolved = resolve_path(official_rs)
     official_af_resolved = resolve_path(official_af)
+    domain_origin_path = resolve_domain_origin(args, metadata_path, metadata)
+    domain_origin_path_text = str(domain_origin_path) if str(domain_origin_path) != "." else ""
+    domain_origin = domain_origin_values(domain_origin_path) if domain_origin_path_text else {"DxM": None, "DomainMinM": []}
     component = velocity_mapping(args, setup)
     protocol = {
         "Axes": axes_for_wind(wind_vector),
@@ -265,6 +352,10 @@ def main() -> int:
             "ProbeVolumeRadiusCells": 1,
             "ProbeZOffsetM": args.probe_z_offset,
             "ProbeCellCenterCoordinates": False,
+            "DomainOriginPath": domain_origin_path_text,
+            "DomainOriginSha256": sha256_file(domain_origin_path_text),
+            "DomainMinM": domain_origin["DomainMinM"],
+            "DxM": domain_origin["DxM"],
             "AvailableSamplingMethods": [
                 "raw_trilinear",
                 "fluid_weighted_trilinear",
@@ -286,6 +377,8 @@ def main() -> int:
             "OfficialProbeDataSha256": sha256_file(official_rs_resolved),
             "OfficialAF": official_af_resolved,
             "OfficialAFSha256": sha256_file(official_af_resolved),
+            "DomainOriginPath": domain_origin_path_text,
+            "DomainOriginSha256": sha256_file(domain_origin_path_text),
             "CoordinateProtocol": protocol,
             "CoordinateProbeProtocolBoundAtUtc": utc_now(),
             "CoordinateProbeProtocolBindingSource": {

@@ -457,6 +457,7 @@ def resolve_evidence_files(paths: List[str], evidence_path: Optional[Path], run_
                 empty.append(resolved_text)
             hashed.append(
                 {
+                    "raw_path": raw_path,
                     "path": resolved_text,
                     "size_bytes": size,
                     "sha256": hashlib.sha256(content).hexdigest(),
@@ -471,6 +472,99 @@ def resolve_evidence_files(paths: List[str], evidence_path: Optional[Path], run_
         "sha256": hashed,
         "all_exist": bool(paths) and not missing,
         "all_hashed": all_hashed,
+    }
+
+
+def normalize_hash_key(value: Any) -> str:
+    return str(value or "").strip().replace("\\", "/").lower()
+
+
+def normalize_sha256(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    if len(text) == 64 and all(char in "0123456789abcdef" for char in text):
+        return text
+    return ""
+
+
+def declared_evidence_file_hashes(evidence: Dict[str, Any]) -> Dict[str, str]:
+    raw = (
+        evidence.get("boundary_evidence_file_sha256")
+        or evidence.get("boundary_evidence_files_sha256")
+        or evidence.get("evidence_file_sha256")
+        or evidence.get("evidence_files_sha256")
+    )
+    declared: Dict[str, str] = {}
+    if isinstance(raw, dict):
+        for key, value in raw.items():
+            sha = normalize_sha256(value)
+            if sha:
+                declared[normalize_hash_key(key)] = sha
+                declared[normalize_hash_key(Path(str(key)).name)] = sha
+    elif isinstance(raw, list):
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            raw_path = first_non_empty(
+                item.get("path"),
+                item.get("file"),
+                item.get("name"),
+                item.get("raw_path"),
+            )
+            sha = normalize_sha256(
+                first_non_empty(
+                    item.get("sha256"),
+                    item.get("Sha256"),
+                    item.get("SHA256"),
+                    item.get("hash"),
+                )
+            )
+            if raw_path and sha:
+                declared[normalize_hash_key(raw_path)] = sha
+                declared[normalize_hash_key(Path(raw_path).name)] = sha
+    return declared
+
+
+def evidence_file_hash_declaration_status(
+    hashed_files: List[Dict[str, Any]], declared_hashes: Dict[str, str]
+) -> Dict[str, Any]:
+    missing: List[str] = []
+    mismatch: List[Dict[str, str]] = []
+    matched: List[Dict[str, str]] = []
+    for item in hashed_files:
+        raw_path = str(item.get("raw_path") or "")
+        resolved_path = str(item.get("path") or "")
+        actual = normalize_sha256(item.get("sha256"))
+        candidates = [
+            normalize_hash_key(raw_path),
+            normalize_hash_key(Path(raw_path).name),
+            normalize_hash_key(resolved_path),
+            normalize_hash_key(Path(resolved_path).name),
+        ]
+        expected = next((declared_hashes[key] for key in candidates if key in declared_hashes), "")
+        display_path = raw_path or resolved_path
+        if not expected:
+            missing.append(display_path)
+        elif expected != actual:
+            mismatch.append(
+                {
+                    "path": display_path,
+                    "declared_sha256": expected,
+                    "actual_sha256": actual,
+                }
+            )
+        else:
+            matched.append(
+                {
+                    "path": display_path,
+                    "sha256": actual,
+                }
+            )
+    return {
+        "declared": declared_hashes,
+        "matched": matched,
+        "missing": missing,
+        "mismatch": mismatch,
+        "all_declared_and_matched": bool(hashed_files) and not missing and not mismatch,
     }
 
 
@@ -560,6 +654,14 @@ def main() -> int:
         or evidence.get("supporting_files")
     )
     evidence_file_status = resolve_evidence_files(evidence_files, evidence_path, run_dir)
+    evidence_file_hash_status = evidence_file_hash_declaration_status(
+        evidence_file_status["sha256"],
+        declared_evidence_file_hashes(evidence),
+    )
+    evidence_files_all_hashed = (
+        evidence_file_status["all_hashed"]
+        and evidence_file_hash_status["all_declared_and_matched"]
+    )
     boundary_equivalence_basis = first_non_empty(
         evidence.get("boundary_equivalence_basis"),
         metadata.get("BoundaryEquivalenceBasis"),
@@ -601,7 +703,7 @@ def main() -> int:
         and boundary_equivalence_supported
         and boundary_evidence_class_supported
         and boundary_condition_fields_supported
-        and evidence_file_status["all_hashed"]
+        and evidence_files_all_hashed
         and clearance_numeric_gate_pass
         and run_identity_gate_pass
     )
@@ -642,6 +744,17 @@ def main() -> int:
             reasons.append("boundary_evidence_files_unreadable:" + ",".join(evidence_file_status["unreadable"]))
         if evidence_file_status["empty"]:
             reasons.append("boundary_evidence_files_empty:" + ",".join(evidence_file_status["empty"]))
+    if evidence_file_status["all_hashed"] and not evidence_file_hash_status["all_declared_and_matched"]:
+        if evidence_file_hash_status["missing"]:
+            reasons.append(
+                "boundary_evidence_files_declared_sha256_missing:"
+                + ",".join(evidence_file_hash_status["missing"])
+            )
+        if evidence_file_hash_status["mismatch"]:
+            reasons.append(
+                "boundary_evidence_files_declared_sha256_mismatch:"
+                + ",".join(item["path"] for item in evidence_file_hash_status["mismatch"])
+            )
     reasons.extend(clearance_reasons)
     if metadata_evidence_gate and metadata_evidence_gate != "pass" and not evidence_gate_pass:
         reasons.append(f"metadata_boundary_evidence_gate_{metadata_evidence_gate}")
@@ -671,7 +784,7 @@ def main() -> int:
         or not boundary_equivalence_supported
         or not boundary_evidence_class_supported
         or not evidence_file_status["all_exist"]
-        or not evidence_file_status["all_hashed"]
+        or not evidence_files_all_hashed
     ):
         development_stage = "resolve_boundary_protocol_evidence_before_cfd"
         development_duration = "minutes"
@@ -742,7 +855,12 @@ def main() -> int:
         "boundary_evidence_files_empty": evidence_file_status["empty"],
         "boundary_evidence_files_sha256": evidence_file_status["sha256"],
         "boundary_evidence_files_all_exist": evidence_file_status["all_exist"],
-        "boundary_evidence_files_all_hashed": evidence_file_status["all_hashed"],
+        "boundary_evidence_files_all_computed_sha256": evidence_file_status["all_hashed"],
+        "boundary_evidence_files_declared_sha256": evidence_file_hash_status["declared"],
+        "boundary_evidence_files_declared_sha256_matched": evidence_file_hash_status["matched"],
+        "boundary_evidence_files_declared_sha256_missing": evidence_file_hash_status["missing"],
+        "boundary_evidence_files_declared_sha256_mismatch": evidence_file_hash_status["mismatch"],
+        "boundary_evidence_files_all_hashed": evidence_files_all_hashed,
         "inlet_fetch_clearance_h": upstream_clearance_h,
         "downstream_clearance_h": downstream_clearance_h,
         "min_lateral_clearance_h": lateral_clearance_h,

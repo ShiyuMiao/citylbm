@@ -144,6 +144,9 @@ TEMPLATE_FIELDS = [
     "boundary_evidence_class",
     "boundary_evidence_class_supported",
     "boundary_evidence_files_all_exist",
+    "boundary_evidence_files_all_computed_sha256",
+    "boundary_evidence_files_declared_sha256_missing",
+    "boundary_evidence_files_declared_sha256_mismatch",
     "boundary_evidence_files_all_hashed",
     "boundary_condition_fields_supported",
     "boundary_condition_support_reasons",
@@ -181,16 +184,20 @@ TEMPLATE_FIELDS = [
     "boundary_source_has_non_reflecting_outlet_method",
     "boundary_source_has_non_reflecting_outlet_state_evidence",
     "boundary_source_has_non_reflecting_outlet_application_evidence",
+    "boundary_source_has_non_reflecting_outlet_face_application_evidence",
     "boundary_source_has_periodic_side_top_method",
     "boundary_source_has_periodic_pair_mapping_evidence",
     "boundary_source_has_periodic_side_top_application_evidence",
+    "boundary_source_has_periodic_side_top_face_application_evidence",
     "boundary_source_has_rough_wall_function_method",
     "boundary_source_has_rough_wall_parameter_evidence",
     "boundary_source_has_rough_wall_action_evidence",
     "boundary_source_has_rough_wall_application_evidence",
+    "boundary_source_has_rough_wall_ground_face_application_evidence",
     "boundary_source_has_precursor_or_recycling_boundary_method",
     "boundary_source_has_precursor_or_recycling_boundary_field_evidence",
     "boundary_source_has_precursor_or_recycling_boundary_application_evidence",
+    "boundary_source_has_precursor_or_recycling_boundary_inlet_face_application_evidence",
     "boundary_source_has_empty_advanced_boundary_method_stub",
     "boundary_source_empty_advanced_boundary_method_stub_count",
     "boundary_source_has_paper_grade_outlet_source",
@@ -267,7 +274,9 @@ TEMPLATE_FIELDS = [
     "inlet_source_metadata_reynolds_stress_treatment",
     "inlet_source_has_digital_filter_evidence",
     "inlet_source_has_digital_filter_kernel_evidence",
+    "inlet_source_has_digital_filter_spatial_stencil_evidence",
     "inlet_source_has_digital_filter_state_evidence",
+    "inlet_source_has_digital_filter_velocity_coupling_evidence",
     "inlet_source_has_sem_evidence",
     "inlet_source_has_sem_eddy_population_evidence",
     "inlet_source_has_sem_eddy_update_evidence",
@@ -533,6 +542,11 @@ TEMPLATE_FIELDS = [
     "native_inlet_source_has_reynolds_stress_diagonal_usage_evidence",
     "native_inlet_source_has_reynolds_stress_offdiagonal_usage_evidence",
     "native_inlet_source_has_reynolds_stress_full_tensor_usage_evidence",
+    "native_inlet_source_has_digital_filter_evidence",
+    "native_inlet_source_has_digital_filter_kernel_evidence",
+    "native_inlet_source_has_digital_filter_spatial_stencil_evidence",
+    "native_inlet_source_has_digital_filter_state_evidence",
+    "native_inlet_source_has_digital_filter_velocity_coupling_evidence",
     "native_inlet_source_has_three_component_velocity_write",
     "native_inlet_source_has_three_component_fluctuation_evidence",
     "native_inlet_source_has_k_driven_three_component_stg",
@@ -565,6 +579,14 @@ TEMPLATE_FIELDS = [
     "native_probe_component_required_controls",
     "native_probe_component_interpretation_reason_count",
     "native_probe_component_fidelity_class",
+    "native_coordinate_probe_protocol_audit",
+    "native_coordinate_probe_protocol_gate",
+    "native_coordinate_probe_protocol_reasons",
+    "native_coordinate_probe_domain_origin_valid",
+    "native_coordinate_probe_domain_origin_dx_m",
+    "native_coordinate_probe_domain_origin_min_m",
+    "native_coordinate_probe_domain_origin_sha256",
+    "native_coordinate_probe_projection_formula",
     "native_probe_official_height_gate",
     "native_probe_official_height_gate_reasons",
     "native_probe_compared_component_values",
@@ -618,16 +640,20 @@ TEMPLATE_FIELDS = [
     "native_boundary_source_has_non_reflecting_outlet_method",
     "native_boundary_source_has_non_reflecting_outlet_state_evidence",
     "native_boundary_source_has_non_reflecting_outlet_application_evidence",
+    "native_boundary_source_has_non_reflecting_outlet_face_application_evidence",
     "native_boundary_source_has_periodic_side_top_method",
     "native_boundary_source_has_periodic_pair_mapping_evidence",
     "native_boundary_source_has_periodic_side_top_application_evidence",
+    "native_boundary_source_has_periodic_side_top_face_application_evidence",
     "native_boundary_source_has_rough_wall_function_method",
     "native_boundary_source_has_rough_wall_parameter_evidence",
     "native_boundary_source_has_rough_wall_action_evidence",
     "native_boundary_source_has_rough_wall_application_evidence",
+    "native_boundary_source_has_rough_wall_ground_face_application_evidence",
     "native_boundary_source_has_precursor_or_recycling_boundary_method",
     "native_boundary_source_has_precursor_or_recycling_boundary_field_evidence",
     "native_boundary_source_has_precursor_or_recycling_boundary_application_evidence",
+    "native_boundary_source_has_precursor_or_recycling_boundary_inlet_face_application_evidence",
     "native_boundary_protocol_gate",
     "native_boundary_evidence_gate",
     "native_boundary_run_identity_gate",
@@ -736,6 +762,9 @@ TEMPLATE_FIELDS = [
     "probe_vtk_source_time_steps",
     "probe_vtk_source_step_span",
     "probe_vtk_minimum_step_span",
+    "probe_vtk_expected_source_step_hash_pairs",
+    "probe_vtk_source_step_hash_pairs",
+    "probe_vtk_source_step_hash_pair_set_count",
     "probe_vtk_source_hash_set_count",
     "probe_id_field",
     "probe_tolerance_m",
@@ -883,7 +912,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--official-value-column", default="", help="Official measured value column. Auto-detected when omitted.")
     parser.add_argument("--probe-id-column", default="probe_id")
     parser.add_argument("--sim-value-column", default="compared_value")
-    parser.add_argument("--u-ref", type=float, default=None, help="Reference velocity, used only for metadata checks.")
+    parser.add_argument(
+        "--u-ref",
+        type=float,
+        default=None,
+        help="Expected official/AF reference velocity required for protocol-ready normalization checks.",
+    )
     parser.add_argument("--u-ref-tolerance", type=float, default=1.0e-6)
     parser.add_argument("--z-ref", type=float, default=None)
     parser.add_argument("--dx", type=float, default=None)
@@ -1343,6 +1377,26 @@ def audit_source_steps(audit: Dict[str, Any]) -> str:
     return ""
 
 
+def normalized_hashes(text: Any) -> List[str]:
+    return [
+        part.strip().lower()
+        for part in str(text or "").replace(",", ";").split(";")
+        if part.strip()
+    ]
+
+
+def audit_source_hashes(audit: Dict[str, Any]) -> List[str]:
+    value = audit.get("source_vtk_sha256")
+    if isinstance(value, list):
+        return [str(item).strip().lower() for item in value if str(item).strip()]
+    if value not in (None, ""):
+        return normalized_hashes(value)
+    value = audit.get("source_vtk_sha256_csv")
+    if value not in (None, ""):
+        return normalized_hashes(value)
+    return []
+
+
 def audit_field(audit: Dict[str, Any], key: str) -> str:
     value = audit.get(key)
     if value not in (None, ""):
@@ -1370,6 +1424,14 @@ def normalize_source_steps_text(text: Any) -> str:
 def source_step_count(text: str) -> int:
     normalized = normalize_source_steps_text(text)
     return len([part for part in normalized.split(",") if part.strip()])
+
+
+def source_step_hash_pairs_text(steps_text: Any, hashes: Sequence[str]) -> str:
+    steps = [part.strip() for part in normalize_source_steps_text(steps_text).split(",") if part.strip()]
+    clean_hashes = [str(value).strip().lower() for value in hashes if str(value).strip()]
+    if not steps or len(steps) != len(clean_hashes):
+        return ""
+    return ";".join(f"{step}:{hash_value}" for step, hash_value in zip(steps, clean_hashes))
 
 
 def source_step_span_from_text(text: str) -> Optional[int]:
@@ -1541,6 +1603,10 @@ def main() -> int:
         source_time_steps = audit_source_steps(inlet_profile_audit)
     if not source_time_steps:
         source_time_steps = args.source_time_steps
+    source_vtk_hashes = audit_source_hashes(read_vtk_audit)
+    if not source_vtk_hashes:
+        source_vtk_hashes = audit_source_hashes(inlet_profile_audit)
+    expected_source_step_hash_pairs = source_step_hash_pairs_text(source_time_steps, source_vtk_hashes)
     minimum_average_step_span = first_int(
         audit_int(read_vtk_audit, "minimum_validation_average_step_span"),
         audit_int(inlet_profile_audit, "minimum_validation_average_step_span"),
@@ -1565,11 +1631,14 @@ def main() -> int:
     probe_source_step_spans: List[int] = []
     probe_minimum_step_spans: List[int] = []
     probe_source_hash_sets: List[str] = []
+    probe_source_step_hash_pair_sets: List[str] = []
     probe_missing_source_steps = 0
     probe_missing_source_step_spans = 0
     probe_missing_minimum_step_spans = 0
     probe_missing_source_hashes = 0
+    probe_missing_source_step_hash_pairs = 0
     probe_hash_count_mismatches = 0
+    probe_step_hash_pair_mismatches = 0
     probe_inside_grid_extent_count = 0
     probe_outside_grid_extent_count = 0
     probe_missing_grid_extent_count = 0
@@ -1662,17 +1731,20 @@ def main() -> int:
             probe_missing_minimum_step_spans += 1
         else:
             probe_minimum_step_spans.append(probe_minimum_step_span)
-        probe_source_hashes = [
-            part.strip()
-            for part in get_value(row, "vtk_source_sha256").replace(",", ";").split(";")
-            if part.strip()
-        ]
+        probe_source_hashes = normalized_hashes(get_value(row, "vtk_source_sha256"))
         if probe_source_hashes:
             probe_source_hash_sets.append(";".join(probe_source_hashes))
         else:
             probe_missing_source_hashes += 1
         if probe_source_steps and probe_source_hashes and len(probe_source_hashes) != source_step_count(probe_source_steps):
             probe_hash_count_mismatches += 1
+        probe_source_step_hash_pairs = source_step_hash_pairs_text(probe_source_steps, probe_source_hashes)
+        if probe_source_step_hash_pairs:
+            probe_source_step_hash_pair_sets.append(probe_source_step_hash_pairs)
+            if expected_source_step_hash_pairs and probe_source_step_hash_pairs != expected_source_step_hash_pairs:
+                probe_step_hash_pair_mismatches += 1
+        else:
+            probe_missing_source_step_hash_pairs += 1
         comparison_rows.append(
             {
                 "probe_id": probe_id,
@@ -1825,6 +1897,7 @@ def main() -> int:
     unique_probe_source_step_spans = sorted(set(probe_source_step_spans))
     unique_probe_minimum_step_spans = sorted(set(probe_minimum_step_spans))
     unique_probe_source_hash_sets = sorted(set(probe_source_hash_sets))
+    unique_probe_source_step_hash_pair_sets = sorted(set(probe_source_step_hash_pair_sets))
     expected_probe_source_steps = normalize_source_steps_text(source_time_steps)
     expected_probe_source_step_span = source_step_span_from_text(expected_probe_source_steps)
     probe_source_reasons: List[str] = []
@@ -1832,16 +1905,26 @@ def main() -> int:
         probe_source_reasons.append("missing_expected_source_time_steps")
     if expected_probe_source_step_span is None:
         probe_source_reasons.append("missing_expected_source_step_span")
+    if source_time_steps and not source_vtk_hashes:
+        probe_source_reasons.append("missing_expected_source_vtk_sha256")
+    if source_vtk_hashes and not expected_source_step_hash_pairs:
+        probe_source_reasons.append("missing_expected_source_step_hash_pairs")
     if probe_missing_source_steps:
         probe_source_reasons.append(f"missing_probe_source_steps:{probe_missing_source_steps}")
     if probe_missing_source_step_spans:
         probe_source_reasons.append(f"missing_probe_source_step_spans:{probe_missing_source_step_spans}")
     if probe_missing_minimum_step_spans:
         probe_source_reasons.append(f"missing_probe_minimum_step_spans:{probe_missing_minimum_step_spans}")
+    if probe_missing_source_step_hash_pairs:
+        probe_source_reasons.append(f"missing_probe_source_step_hash_pairs:{probe_missing_source_step_hash_pairs}")
     if len(unique_probe_source_steps) != 1:
         probe_source_reasons.append(f"mixed_probe_source_steps:{len(unique_probe_source_steps)}")
     elif expected_probe_source_steps and unique_probe_source_steps[0] != expected_probe_source_steps:
         probe_source_reasons.append("probe_source_steps_do_not_match_metrics_source_time_steps")
+    if len(unique_probe_source_step_hash_pair_sets) != 1:
+        probe_source_reasons.append(f"mixed_probe_source_step_hash_pairs:{len(unique_probe_source_step_hash_pair_sets)}")
+    elif expected_source_step_hash_pairs and unique_probe_source_step_hash_pair_sets[0] != expected_source_step_hash_pairs:
+        probe_source_reasons.append("probe_source_step_hash_pairs_do_not_match_metrics_source_window")
     if len(unique_probe_source_step_spans) != 1:
         probe_source_reasons.append(f"mixed_probe_source_step_spans:{len(unique_probe_source_step_spans)}")
     elif expected_probe_source_step_span is not None and unique_probe_source_step_spans[0] != expected_probe_source_step_span:
@@ -1856,6 +1939,8 @@ def main() -> int:
         probe_source_reasons.append(f"missing_probe_source_hashes:{probe_missing_source_hashes}")
     if probe_hash_count_mismatches:
         probe_source_reasons.append(f"probe_source_hash_count_mismatch:{probe_hash_count_mismatches}")
+    if probe_step_hash_pair_mismatches:
+        probe_source_reasons.append(f"probe_source_step_hash_pair_mismatch:{probe_step_hash_pair_mismatches}")
     if len(unique_probe_source_hash_sets) != 1:
         probe_source_reasons.append(f"mixed_probe_source_hash_sets:{len(unique_probe_source_hash_sets)}")
     probe_source_window_gate = "pass" if not probe_source_reasons else "fail"
@@ -1869,9 +1954,11 @@ def main() -> int:
         protocol_failures.append("fail_probe_vtk_source_window")
     if probe_grid_extent_gate != "pass":
         protocol_failures.append("fail_probe_vtk_grid_extent")
-    if args.u_ref is None and len(unique_probe_urefs) > 1:
-        protocol_failures.append("fail_mixed_probe_uref")
-    if args.u_ref is not None and probe_uref_mismatch_count > 0:
+    if args.u_ref is None:
+        protocol_failures.append("fail_missing_expected_uref")
+        if len(unique_probe_urefs) > 1:
+            protocol_failures.append("fail_mixed_probe_uref")
+    elif probe_uref_mismatch_count > 0:
         protocol_failures.append("fail_probe_uref_mismatch")
     if component_consistency_gate != "pass":
         protocol_failures.append(component_consistency_gate)
@@ -2219,6 +2306,20 @@ def main() -> int:
             "boundary_evidence_class": str(boundary_protocol_audit.get("boundary_evidence_class", "")),
             "boundary_evidence_class_supported": csv_bool(boundary_protocol_audit.get("boundary_evidence_class_supported")),
             "boundary_evidence_files_all_exist": csv_bool(boundary_protocol_audit.get("boundary_evidence_files_all_exist")),
+            "boundary_evidence_files_all_computed_sha256": csv_bool(
+                boundary_protocol_audit.get("boundary_evidence_files_all_computed_sha256")
+            ),
+            "boundary_evidence_files_declared_sha256_missing": ";".join(
+                str(path) for path in boundary_protocol_audit.get("boundary_evidence_files_declared_sha256_missing", [])
+            )
+            if isinstance(boundary_protocol_audit.get("boundary_evidence_files_declared_sha256_missing"), list)
+            else str(boundary_protocol_audit.get("boundary_evidence_files_declared_sha256_missing", "")),
+            "boundary_evidence_files_declared_sha256_mismatch": ";".join(
+                str(item.get("path", item))
+                for item in boundary_protocol_audit.get("boundary_evidence_files_declared_sha256_mismatch", [])
+            )
+            if isinstance(boundary_protocol_audit.get("boundary_evidence_files_declared_sha256_mismatch"), list)
+            else str(boundary_protocol_audit.get("boundary_evidence_files_declared_sha256_mismatch", "")),
             "boundary_evidence_files_all_hashed": csv_bool(boundary_protocol_audit.get("boundary_evidence_files_all_hashed")),
             "boundary_condition_fields_supported": csv_bool(boundary_protocol_audit.get("boundary_condition_fields_supported")),
             "boundary_condition_support_reasons": ";".join(
@@ -2301,6 +2402,9 @@ def main() -> int:
             "boundary_source_has_non_reflecting_outlet_application_evidence": first_bool_text(
                 boundary_source_audit.get("has_non_reflecting_outlet_application_evidence")
             ),
+            "boundary_source_has_non_reflecting_outlet_face_application_evidence": first_bool_text(
+                boundary_source_audit.get("has_non_reflecting_outlet_face_application_evidence")
+            ),
             "boundary_source_has_periodic_side_top_method": first_bool_text(
                 boundary_source_audit.get("has_periodic_side_top_method")
             ),
@@ -2309,6 +2413,9 @@ def main() -> int:
             ),
             "boundary_source_has_periodic_side_top_application_evidence": first_bool_text(
                 boundary_source_audit.get("has_periodic_side_top_application_evidence")
+            ),
+            "boundary_source_has_periodic_side_top_face_application_evidence": first_bool_text(
+                boundary_source_audit.get("has_periodic_side_top_face_application_evidence")
             ),
             "boundary_source_has_rough_wall_function_method": first_bool_text(
                 boundary_source_audit.get("has_rough_wall_function_method")
@@ -2322,6 +2429,9 @@ def main() -> int:
             "boundary_source_has_rough_wall_application_evidence": first_bool_text(
                 boundary_source_audit.get("has_rough_wall_application_evidence")
             ),
+            "boundary_source_has_rough_wall_ground_face_application_evidence": first_bool_text(
+                boundary_source_audit.get("has_rough_wall_ground_face_application_evidence")
+            ),
             "boundary_source_has_precursor_or_recycling_boundary_method": first_bool_text(
                 boundary_source_audit.get("has_precursor_or_recycling_boundary_method")
             ),
@@ -2330,6 +2440,9 @@ def main() -> int:
             ),
             "boundary_source_has_precursor_or_recycling_boundary_application_evidence": first_bool_text(
                 boundary_source_audit.get("has_precursor_or_recycling_boundary_application_evidence")
+            ),
+            "boundary_source_has_precursor_or_recycling_boundary_inlet_face_application_evidence": first_bool_text(
+                boundary_source_audit.get("has_precursor_or_recycling_boundary_inlet_face_application_evidence")
             ),
             "boundary_source_has_empty_advanced_boundary_method_stub": first_bool_text(
                 boundary_source_audit.get("has_empty_advanced_boundary_method_stub")
@@ -2525,8 +2638,14 @@ def main() -> int:
             "inlet_source_has_digital_filter_kernel_evidence": first_bool_text(
                 inlet_source_audit.get("has_digital_filter_kernel_evidence")
             ),
+            "inlet_source_has_digital_filter_spatial_stencil_evidence": first_bool_text(
+                inlet_source_audit.get("has_digital_filter_spatial_stencil_evidence")
+            ),
             "inlet_source_has_digital_filter_state_evidence": first_bool_text(
                 inlet_source_audit.get("has_digital_filter_state_evidence")
+            ),
+            "inlet_source_has_digital_filter_velocity_coupling_evidence": first_bool_text(
+                inlet_source_audit.get("has_digital_filter_velocity_coupling_evidence")
             ),
             "inlet_source_has_sem_evidence": first_bool_text(
                 inlet_source_audit.get("has_sem_evidence")
@@ -3166,6 +3285,21 @@ def main() -> int:
             "native_inlet_source_has_reynolds_stress_full_tensor_usage_evidence": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_reynolds_stress_full_tensor_usage_evidence")
             ),
+            "native_inlet_source_has_digital_filter_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_digital_filter_evidence")
+            ),
+            "native_inlet_source_has_digital_filter_kernel_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_digital_filter_kernel_evidence")
+            ),
+            "native_inlet_source_has_digital_filter_spatial_stencil_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_digital_filter_spatial_stencil_evidence")
+            ),
+            "native_inlet_source_has_digital_filter_state_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_digital_filter_state_evidence")
+            ),
+            "native_inlet_source_has_digital_filter_velocity_coupling_evidence": first_bool_text(
+                native_preconditions_audit.get("inlet_source_has_digital_filter_velocity_coupling_evidence")
+            ),
             "native_inlet_source_has_three_component_velocity_write": first_bool_text(
                 native_preconditions_audit.get("inlet_source_has_three_component_velocity_write")
             ),
@@ -3261,6 +3395,30 @@ def main() -> int:
             ),
             "native_probe_component_fidelity_class": audit_field(
                 native_preconditions_audit, "probe_component_fidelity_class"
+            ),
+            "native_coordinate_probe_protocol_audit": audit_field(
+                native_preconditions_audit, "coordinate_probe_protocol_audit"
+            ),
+            "native_coordinate_probe_protocol_gate": audit_gate(
+                native_preconditions_audit, "coordinate_probe_protocol_gate"
+            ),
+            "native_coordinate_probe_protocol_reasons": audit_field(
+                native_preconditions_audit, "coordinate_probe_protocol_gate_reasons_csv"
+            ),
+            "native_coordinate_probe_domain_origin_valid": first_bool_text(
+                native_preconditions_audit.get("coordinate_probe_domain_origin_valid")
+            ),
+            "native_coordinate_probe_domain_origin_dx_m": fmt(
+                audit_float(native_preconditions_audit, "coordinate_probe_domain_origin_dx_m")
+            ),
+            "native_coordinate_probe_domain_origin_min_m": audit_field(
+                native_preconditions_audit, "coordinate_probe_domain_origin_min_m_csv"
+            ),
+            "native_coordinate_probe_domain_origin_sha256": audit_field(
+                native_preconditions_audit, "coordinate_probe_domain_origin_sha256"
+            ),
+            "native_coordinate_probe_projection_formula": audit_field(
+                native_preconditions_audit, "coordinate_probe_projection_formula"
             ),
             "native_probe_official_height_gate": audit_gate(
                 native_preconditions_audit, "probe_official_height_gate"
@@ -3413,6 +3571,9 @@ def main() -> int:
             "native_boundary_source_has_non_reflecting_outlet_application_evidence": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_non_reflecting_outlet_application_evidence")
             ),
+            "native_boundary_source_has_non_reflecting_outlet_face_application_evidence": first_bool_text(
+                native_preconditions_audit.get("boundary_source_has_non_reflecting_outlet_face_application_evidence")
+            ),
             "native_boundary_source_has_periodic_side_top_method": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_periodic_side_top_method")
             ),
@@ -3421,6 +3582,9 @@ def main() -> int:
             ),
             "native_boundary_source_has_periodic_side_top_application_evidence": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_periodic_side_top_application_evidence")
+            ),
+            "native_boundary_source_has_periodic_side_top_face_application_evidence": first_bool_text(
+                native_preconditions_audit.get("boundary_source_has_periodic_side_top_face_application_evidence")
             ),
             "native_boundary_source_has_rough_wall_function_method": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_rough_wall_function_method")
@@ -3434,6 +3598,9 @@ def main() -> int:
             "native_boundary_source_has_rough_wall_application_evidence": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_rough_wall_application_evidence")
             ),
+            "native_boundary_source_has_rough_wall_ground_face_application_evidence": first_bool_text(
+                native_preconditions_audit.get("boundary_source_has_rough_wall_ground_face_application_evidence")
+            ),
             "native_boundary_source_has_precursor_or_recycling_boundary_method": first_bool_text(
                 native_preconditions_audit.get("boundary_source_has_precursor_or_recycling_boundary_method")
             ),
@@ -3443,6 +3610,11 @@ def main() -> int:
             "native_boundary_source_has_precursor_or_recycling_boundary_application_evidence": first_bool_text(
                 native_preconditions_audit.get(
                     "boundary_source_has_precursor_or_recycling_boundary_application_evidence"
+                )
+            ),
+            "native_boundary_source_has_precursor_or_recycling_boundary_inlet_face_application_evidence": first_bool_text(
+                native_preconditions_audit.get(
+                    "boundary_source_has_precursor_or_recycling_boundary_inlet_face_application_evidence"
                 )
             ),
             "native_boundary_protocol_gate": audit_gate(native_preconditions_audit, "boundary_protocol_gate"),
@@ -3717,6 +3889,13 @@ def main() -> int:
             "probe_vtk_source_time_steps": ";".join(unique_probe_source_steps),
             "probe_vtk_source_step_span": fmt(unique_probe_source_step_spans[0] if len(unique_probe_source_step_spans) == 1 else None),
             "probe_vtk_minimum_step_span": fmt(unique_probe_minimum_step_spans[0] if len(unique_probe_minimum_step_spans) == 1 else None),
+            "probe_vtk_expected_source_step_hash_pairs": expected_source_step_hash_pairs,
+            "probe_vtk_source_step_hash_pairs": (
+                unique_probe_source_step_hash_pair_sets[0]
+                if len(unique_probe_source_step_hash_pair_sets) == 1
+                else ""
+            ),
+            "probe_vtk_source_step_hash_pair_set_count": fmt(len(unique_probe_source_step_hash_pair_sets)),
             "probe_vtk_source_hash_set_count": fmt(len(unique_probe_source_hash_sets)),
             "probe_id_field": args.probe_id_column,
             "probe_tolerance_m": tolerance,

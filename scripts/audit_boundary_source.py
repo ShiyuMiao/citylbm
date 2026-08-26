@@ -197,6 +197,30 @@ def count_empty_advanced_boundary_method_stubs(text: str) -> int:
     )
 
 
+def call_indices_excluding_definitions(text: str, pattern: str) -> List[int]:
+    indices: List[int] = []
+    for match in re.finditer(pattern, text, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL):
+        prefix = text[max(0, match.start() - 48) : match.start()]
+        if re.search(r"\b(?:void|float|float3|uint|int|bool|auto)\s+$", prefix):
+            continue
+        indices.append(match.start())
+    return indices
+
+
+def has_contextual_boundary_call(
+    text: str,
+    call_pattern: str,
+    required_patterns: Iterable[str],
+    before: int = 650,
+    after: int = 260,
+) -> bool:
+    for index in call_indices_excluding_definitions(text, call_pattern):
+        window = text[max(0, index - before) : index + after]
+        if all(has_regex(window, pattern) for pattern in required_patterns):
+            return True
+    return False
+
+
 def main() -> int:
     args = parse_args()
     setup_path = Path(args.setup).expanduser().resolve()
@@ -398,6 +422,11 @@ def main() -> int:
         implementation_code,
         r"\b\w*(non_reflecting|nonReflecting|convective_outlet|convectiveOutlet|absorbing_outlet|absorbingOutlet|radiation_boundary|radiationBoundary|sponge_layer|spongeLayer)\w*\s*\(",
     )
+    non_reflecting_outlet_call_pattern = (
+        r"\b\w*(non_reflecting|nonReflecting|convective_outlet|convectiveOutlet|"
+        r"absorbing_outlet|absorbingOutlet|radiation_boundary|radiationBoundary|"
+        r"sponge_layer|spongeLayer)\w*\s*\("
+    )
     has_non_reflecting_outlet_state_evidence = contains_any(
         implementation_code,
         [
@@ -420,7 +449,15 @@ def main() -> int:
         implementation_code,
         r"\b(sponge|absorbing|damping|radiation|convective)\w*\s*(\[|=|\{)",
     )
-    has_non_reflecting_outlet_application_evidence = non_reflecting_outlet_call_count >= 2
+    has_non_reflecting_outlet_face_application_evidence = has_contextual_boundary_call(
+        implementation_code,
+        non_reflecting_outlet_call_pattern,
+        [
+            r"\bTYPE_E\b",
+            r"(?:x\s*==\s*0u?|x\s*==\s*Nx\s*-\s*1u?|y\s*==\s*0u?|y\s*==\s*Ny\s*-\s*1u?)",
+        ],
+    )
+    has_non_reflecting_outlet_application_evidence = has_non_reflecting_outlet_face_application_evidence
     has_non_reflecting_outlet = (
         has_non_reflecting_outlet_method
         and has_non_reflecting_outlet_state_evidence
@@ -433,6 +470,10 @@ def main() -> int:
     periodic_side_top_call_count = count_regex(
         implementation_code,
         r"\b(periodic_[xyz]|periodicX|periodicY|periodicZ|set_periodic|setPeriodic|periodic_boundary|periodicBoundary)\w*\s*\(",
+    )
+    periodic_side_top_call_pattern = (
+        r"\b(periodic_[xyz]|periodicX|periodicY|periodicZ|set_periodic|setPeriodic|"
+        r"periodic_boundary|periodicBoundary)\w*\s*\("
     )
     has_periodic_pair_mapping_evidence = contains_any(
         implementation_code,
@@ -452,7 +493,15 @@ def main() -> int:
         implementation_code,
         r"%\s*N[xyz]\b|\(\s*\w+\s*\+\s*N[xyz]\s*[-+]",
     )
-    has_periodic_side_top_application_evidence = periodic_side_top_call_count >= 2
+    has_periodic_side_top_face_application_evidence = has_contextual_boundary_call(
+        implementation_code,
+        periodic_side_top_call_pattern,
+        [
+            r"\bTYPE_E\b",
+            r"(?:x\s*==\s*0u?|x\s*==\s*Nx\s*-\s*1u?|y\s*==\s*0u?|y\s*==\s*Ny\s*-\s*1u?|z\s*==\s*Nz\s*-\s*1u?)",
+        ],
+    )
+    has_periodic_side_top_application_evidence = has_periodic_side_top_face_application_evidence
     has_periodic_side_top = (
         has_periodic_side_top_method
         and has_periodic_pair_mapping_evidence
@@ -468,6 +517,10 @@ def main() -> int:
     rough_wall_call_count = count_regex(
         implementation_code,
         r"\b\w*(rough_wall|roughWall|wall_function|wallFunction|log_law|logLaw|apply_rough_wall|applyRoughWall)\w*\s*\(",
+    )
+    rough_wall_call_pattern = (
+        r"\b\w*(rough_wall|roughWall|wall_function|wallFunction|log_law|logLaw|"
+        r"apply_rough_wall|applyRoughWall)\w*\s*\("
     )
     has_rough_wall_parameter_evidence = contains_any(
         implementation_code,
@@ -510,11 +563,19 @@ def main() -> int:
     )
     if not has_rough_wall_function_method:
         has_rough_wall_action_evidence = False
+    has_rough_wall_face_application_evidence = generated_rough_wall_drag_active or has_contextual_boundary_call(
+        implementation_code,
+        rough_wall_call_pattern,
+        [
+            r"(?:\bTYPE_S\b|ground|floor|wall)",
+            r"(?:z\s*==\s*0u?|ground|floor)",
+        ],
+    )
     has_rough_wall_function = (
         has_rough_wall_function_method
         and has_rough_wall_parameter_evidence
         and has_rough_wall_action_evidence
-        and rough_wall_call_count >= 3
+        and has_rough_wall_face_application_evidence
     )
     has_precursor_or_recycling_method = has_regex(
         implementation_code,
@@ -523,6 +584,10 @@ def main() -> int:
     precursor_or_recycling_call_count = count_regex(
         implementation_code,
         r"\b\w*(precursor|recycling_rescaling|recyclingRescaling|recycle_rescale|recycleRescale)\w*\s*\(",
+    )
+    precursor_or_recycling_call_pattern = (
+        r"\b\w*(precursor|recycling_rescaling|recyclingRescaling|recycle_rescale|"
+        r"recycleRescale)\w*\s*\("
     )
     has_precursor_or_recycling_field_evidence = contains_any(
         implementation_code,
@@ -543,7 +608,15 @@ def main() -> int:
             "precursorVtk",
         ],
     )
-    has_precursor_or_recycling_application_evidence = precursor_or_recycling_call_count >= 2
+    has_precursor_or_recycling_face_application_evidence = has_contextual_boundary_call(
+        implementation_code,
+        precursor_or_recycling_call_pattern,
+        [
+            r"\bTYPE_E\b",
+            r"(?:x\s*==\s*0u?|x\s*==\s*Nx\s*-\s*1u?|y\s*==\s*0u?|y\s*==\s*Ny\s*-\s*1u?)",
+        ],
+    )
+    has_precursor_or_recycling_application_evidence = has_precursor_or_recycling_face_application_evidence
     has_precursor_or_recycling = (
         has_precursor_or_recycling_method
         and has_precursor_or_recycling_field_evidence
@@ -715,20 +788,31 @@ def main() -> int:
         and not has_non_reflecting_outlet_application_evidence
     ):
         reasons.append("non_reflecting_boundary_source_missing_application_evidence")
+    if (
+        has_non_reflecting_outlet_method
+        and has_non_reflecting_outlet_state_evidence
+        and not has_non_reflecting_outlet_face_application_evidence
+    ):
+        reasons.append("non_reflecting_boundary_source_missing_outlet_face_application_evidence")
     if has_periodic_side_top_method and not has_periodic_pair_mapping_evidence:
         reasons.append("periodic_boundary_source_missing_pair_mapping_evidence")
     if has_periodic_side_top_method and has_periodic_pair_mapping_evidence and not has_periodic_side_top_application_evidence:
         reasons.append("periodic_boundary_source_missing_application_evidence")
+    if has_periodic_side_top_method and has_periodic_pair_mapping_evidence and not has_periodic_side_top_face_application_evidence:
+        reasons.append("periodic_boundary_source_missing_side_top_face_application_evidence")
     if has_rough_wall_function_method and not has_rough_wall_parameter_evidence:
         reasons.append("rough_wall_boundary_source_missing_roughness_parameter_evidence")
     if has_rough_wall_function_method and not has_rough_wall_action_evidence:
         reasons.append("rough_wall_boundary_source_missing_wall_action_evidence")
-    if has_rough_wall_function_method and has_rough_wall_parameter_evidence and has_rough_wall_action_evidence and rough_wall_call_count < 3:
+    if has_rough_wall_function_method and has_rough_wall_parameter_evidence and has_rough_wall_action_evidence and not has_rough_wall_face_application_evidence:
         reasons.append("rough_wall_boundary_source_missing_application_evidence")
+        reasons.append("rough_wall_boundary_source_missing_ground_face_application_evidence")
     if has_precursor_or_recycling_method and not has_precursor_or_recycling_field_evidence:
         reasons.append("precursor_recycling_boundary_source_missing_recycled_field_evidence")
     if has_precursor_or_recycling_method and has_precursor_or_recycling_field_evidence and not has_precursor_or_recycling_application_evidence:
         reasons.append("precursor_recycling_boundary_source_missing_application_evidence")
+    if has_precursor_or_recycling_method and has_precursor_or_recycling_field_evidence and not has_precursor_or_recycling_face_application_evidence:
+        reasons.append("precursor_recycling_boundary_source_missing_inlet_face_application_evidence")
     if has_empty_advanced_method_stub:
         reasons.append("advanced_boundary_method_empty_stub_definition")
 
@@ -856,19 +940,22 @@ def main() -> int:
         "has_non_reflecting_outlet_method": has_non_reflecting_outlet_method,
         "has_non_reflecting_outlet_state_evidence": has_non_reflecting_outlet_state_evidence,
         "has_non_reflecting_outlet_application_evidence": has_non_reflecting_outlet_application_evidence,
+        "has_non_reflecting_outlet_face_application_evidence": has_non_reflecting_outlet_face_application_evidence,
         "non_reflecting_outlet_call_count": non_reflecting_outlet_call_count,
         "has_non_reflecting_outlet_token": has_non_reflecting_outlet_token,
         "has_periodic_side_top_evidence": has_periodic_side_top,
         "has_periodic_side_top_method": has_periodic_side_top_method,
         "has_periodic_pair_mapping_evidence": has_periodic_pair_mapping_evidence,
         "has_periodic_side_top_application_evidence": has_periodic_side_top_application_evidence,
+        "has_periodic_side_top_face_application_evidence": has_periodic_side_top_face_application_evidence,
         "periodic_side_top_call_count": periodic_side_top_call_count,
         "has_periodic_side_top_token": has_periodic_side_top_token,
         "has_rough_wall_function_evidence": has_rough_wall_function,
         "has_rough_wall_function_method": has_rough_wall_function_method,
         "has_rough_wall_parameter_evidence": has_rough_wall_parameter_evidence,
         "has_rough_wall_action_evidence": has_rough_wall_action_evidence,
-        "has_rough_wall_application_evidence": rough_wall_call_count >= 3,
+        "has_rough_wall_application_evidence": has_rough_wall_face_application_evidence,
+        "has_rough_wall_ground_face_application_evidence": has_rough_wall_face_application_evidence,
         "rough_wall_call_count": rough_wall_call_count,
         "has_rough_wall_function_token": has_rough_wall_function_token,
         "has_named_rough_wall_function_token": has_named_rough_wall_function_token,
@@ -881,6 +968,9 @@ def main() -> int:
         "has_precursor_or_recycling_boundary_method": has_precursor_or_recycling_method,
         "has_precursor_or_recycling_boundary_field_evidence": has_precursor_or_recycling_field_evidence,
         "has_precursor_or_recycling_boundary_application_evidence": has_precursor_or_recycling_application_evidence,
+        "has_precursor_or_recycling_boundary_inlet_face_application_evidence": (
+            has_precursor_or_recycling_face_application_evidence
+        ),
         "precursor_or_recycling_call_count": precursor_or_recycling_call_count,
         "has_precursor_or_recycling_boundary_token": has_precursor_or_recycling_token,
         "has_empty_advanced_boundary_method_stub": has_empty_advanced_method_stub,

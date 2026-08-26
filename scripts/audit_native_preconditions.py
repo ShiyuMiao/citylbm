@@ -132,6 +132,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--boundary-protocol-audit", help="boundary_protocol_audit.json with AIJ-equivalent evidence.")
     parser.add_argument("--boundary-runtime-audit", help="boundary_runtime_audit.json from final-window VTK boundary faces.")
     parser.add_argument("--time-averaging-evidence", help="time_averaging_evidence.json from the same final-window VTK schedule.")
+    parser.add_argument(
+        "--coordinate-probe-protocol-audit",
+        help="coordinate_probe_protocol_audit.json proving official probe, Uref and domain-origin mapping closure.",
+    )
     parser.add_argument("--probe-audit", help="probe_audit.csv used for metrics.")
     parser.add_argument("--component-sensitivity-audit", help="component_sensitivity_audit.json for component/Uref checks.")
     parser.add_argument("--official", help="Official RS/probe CSV used to recompute per-probe coordinate closure.")
@@ -621,6 +625,44 @@ def read_json(path: Optional[Path]) -> Dict[str, Any]:
     with path.open("r", encoding="utf-8-sig") as handle:
         data = json.load(handle)
     return data if isinstance(data, dict) else {}
+
+
+def vector_csv(value: Any) -> str:
+    if isinstance(value, (list, tuple)):
+        return ";".join(str(item) for item in value)
+    if isinstance(value, dict):
+        items = [value.get(key) for key in ("x", "y", "z")]
+        if any(item is not None for item in items):
+            return ";".join(str(item) for item in items)
+        items = [value.get(key) for key in ("X", "Y", "Z")]
+        if any(item is not None for item in items):
+            return ";".join(str(item) for item in items)
+    return str(value or "")
+
+
+def coordinate_protocol_reasons(audit: Dict[str, Any]) -> List[str]:
+    reasons: List[str] = []
+    if not audit:
+        return ["coordinate_probe_protocol_audit_missing"]
+    gate = str(audit.get("coordinate_probe_protocol_gate") or audit.get("Gate") or "").strip().lower()
+    if gate != "pass":
+        reasons.append(f"coordinate_probe_protocol_gate_not_pass:{gate or 'missing'}")
+    for reason in split_scalar_list(audit.get("Reasons") or audit.get("reasons")):
+        reasons.append(f"coordinate_probe_protocol:{reason}")
+    protocol = audit.get("CoordinateProtocol") if isinstance(audit.get("CoordinateProtocol"), dict) else {}
+    domain_origin = protocol.get("DomainOrigin") if isinstance(protocol.get("DomainOrigin"), dict) else {}
+    if domain_origin.get("valid") is not True:
+        reasons.append("coordinate_probe_domain_origin_not_valid")
+    if as_float(domain_origin.get("dx_m")) is None:
+        reasons.append("coordinate_probe_domain_origin_dx_m_missing")
+    domain_min = domain_origin.get("domain_min_m")
+    if not (isinstance(domain_min, list) and len(domain_min) == 3):
+        reasons.append("coordinate_probe_domain_origin_min_m_missing")
+    projection = protocol.get("ProbeProjection") if isinstance(protocol.get("ProbeProjection"), dict) else {}
+    formula = str(projection.get("Formula") or projection.get("formula") or "").lower()
+    if "dx" not in formula or ("domain" not in formula and "origin" not in formula and "min" not in formula):
+        reasons.append("coordinate_probe_projection_formula_missing_domain_origin_or_dx")
+    return reasons
 
 
 def load_protocol_items(audit: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -1459,6 +1501,8 @@ def build_time_average_evidence_reasons(
     min_avg_frames: int,
     time_averaging_evidence_file_gate: str,
     time_averaging_evidence_file_reasons: List[str],
+    time_averaging_evidence_selected_steps_csv: str,
+    time_averaging_evidence_selected_hash_count: Optional[int],
 ) -> List[str]:
     evidence_reasons: List[str] = []
     if not runtime_audit_present:
@@ -1534,6 +1578,27 @@ def build_time_average_evidence_reasons(
         )
     for reason in time_averaging_evidence_file_reasons:
         evidence_reasons.append(f"time_averaging_evidence_file_reason:{reason}")
+    evidence_steps = parse_int_list(time_averaging_evidence_selected_steps_csv)
+    if not evidence_steps:
+        evidence_reasons.append("time_averaging_evidence_selected_final_window_steps_missing")
+    elif runtime_steps and evidence_steps != runtime_steps:
+        evidence_reasons.append("time_averaging_evidence_selected_final_window_steps_mismatch_runtime")
+    if time_averaging_evidence_selected_hash_count is None:
+        evidence_reasons.append("time_averaging_evidence_selected_final_window_vtk_sha256_count_missing")
+    else:
+        if time_averaging_evidence_selected_hash_count != runtime_hash_count:
+            evidence_reasons.append(
+                "time_averaging_evidence_selected_final_window_vtk_sha256_count_mismatch_runtime"
+            )
+        if time_averaging_evidence_selected_hash_count < min_avg_frames:
+            evidence_reasons.append(
+                count_below_minimum_reason(
+                    "time_averaging_evidence_selected_final_window_vtk_sha256_count",
+                    time_averaging_evidence_selected_hash_count,
+                    min_avg_frames,
+                )
+                or "time_averaging_evidence_selected_final_window_vtk_sha256_count_below_minimum"
+            )
     return evidence_reasons
 
 
@@ -1701,6 +1766,15 @@ def build_inlet_equivalence_evidence_reasons(
     source_has_type_e_equilibrium_route = as_bool(
         inlet_source_audit.get("has_type_e_equilibrium_boundary_route")
     )
+    source_has_digital_filter = as_bool(inlet_source_audit.get("has_digital_filter_evidence"))
+    source_has_digital_filter_kernel = as_bool(inlet_source_audit.get("has_digital_filter_kernel_evidence"))
+    source_has_digital_filter_spatial_stencil = as_bool(
+        inlet_source_audit.get("has_digital_filter_spatial_stencil_evidence")
+    )
+    source_has_digital_filter_state = as_bool(inlet_source_audit.get("has_digital_filter_state_evidence"))
+    source_has_digital_filter_velocity_coupling = as_bool(
+        inlet_source_audit.get("has_digital_filter_velocity_coupling_evidence")
+    )
     source_has_length_scale = as_bool(inlet_source_audit.get("has_inlet_length_scale_evidence"))
     source_has_code_length_scale = as_bool(inlet_source_audit.get("has_source_length_scale_evidence"))
     source_has_metadata_length_scale = as_bool(inlet_source_audit.get("has_metadata_length_scale_evidence"))
@@ -1776,6 +1850,20 @@ def build_inlet_equivalence_evidence_reasons(
             evidence_reasons.append(f"inlet_source_rms_k_surrogate_reason:{reason}")
     if source_correlation_model in {"uncorrelated_random_rms_velocity_field_only", "velocity_field_only_without_correlation_evidence"}:
         evidence_reasons.append(f"inlet_synthetic_correlation_model_not_paper_grade:{source_correlation_model}")
+    source_is_digital_filter = any(
+        "digital_filter" in value or "digital-filter" in value
+        for value in [source_method_class, source_fidelity_class, source_correlation_model]
+    )
+    if source_is_digital_filter:
+        for key, value in [
+            ("inlet_source_has_digital_filter_evidence", source_has_digital_filter),
+            ("inlet_source_has_digital_filter_kernel_evidence", source_has_digital_filter_kernel),
+            ("inlet_source_has_digital_filter_spatial_stencil_evidence", source_has_digital_filter_spatial_stencil),
+            ("inlet_source_has_digital_filter_state_evidence", source_has_digital_filter_state),
+            ("inlet_source_has_digital_filter_velocity_coupling_evidence", source_has_digital_filter_velocity_coupling),
+        ]:
+            if value is not True:
+                evidence_reasons.append(f"{key}_not_true:{value if value is not None else 'missing'}")
     if source_distribution_route_gate != "pass":
         evidence_reasons.append(
             f"inlet_distribution_route_gate_not_pass:{source_distribution_route_gate or 'missing'}"
@@ -2330,6 +2418,7 @@ def build_probe_component_interpretation_gate(
                 "tolerance",
                 "out_of_tolerance",
                 "projection",
+                "domain_origin",
             ]
         ):
             blocker = "probe_projection"
@@ -2630,6 +2719,7 @@ def classify_probe_component_fidelity(reasons: List[str]) -> str:
             "nearest_distance",
             "tolerance_missing",
             "probe_projection",
+            "domain_origin",
         ]
     ):
         return "probe_projection_mismatch"
@@ -2665,6 +2755,11 @@ def main() -> int:
     boundary_protocol_audit_path = Path(args.boundary_protocol_audit).expanduser().resolve() if args.boundary_protocol_audit else find_first(run_dir, ["boundary_protocol_audit.json"])
     boundary_runtime_audit_path = Path(args.boundary_runtime_audit).expanduser().resolve() if args.boundary_runtime_audit else find_first(run_dir, ["boundary_runtime_audit.json"])
     time_averaging_evidence_path = Path(args.time_averaging_evidence).expanduser().resolve() if args.time_averaging_evidence else find_first(run_dir, ["time_averaging_evidence.json"])
+    coordinate_probe_protocol_audit_path = (
+        Path(args.coordinate_probe_protocol_audit).expanduser().resolve()
+        if args.coordinate_probe_protocol_audit
+        else find_first(run_dir, ["coordinate_probe_protocol_audit.json"])
+    )
     probe_audit_path = Path(args.probe_audit).expanduser().resolve() if args.probe_audit else find_first(run_dir, ["probe_audit.csv"])
     component_sensitivity_audit_path = Path(args.component_sensitivity_audit).expanduser().resolve() if args.component_sensitivity_audit else find_first(run_dir, ["component_sensitivity_audit.json"])
     official_path = Path(args.official).expanduser().resolve() if args.official else None
@@ -2688,6 +2783,30 @@ def main() -> int:
         time_averaging_evidence,
     )
     validation_protocol_audit = read_json(protocol_audit_path)
+    coordinate_probe_protocol_audit = read_json(coordinate_probe_protocol_audit_path)
+    coordinate_probe_protocol_gate = str(
+        coordinate_probe_protocol_audit.get("coordinate_probe_protocol_gate")
+        or coordinate_probe_protocol_audit.get("Gate")
+        or ""
+    ).strip().lower()
+    coordinate_probe_protocol_reason_list = coordinate_protocol_reasons(
+        coordinate_probe_protocol_audit
+    )
+    coordinate_protocol = (
+        coordinate_probe_protocol_audit.get("CoordinateProtocol")
+        if isinstance(coordinate_probe_protocol_audit.get("CoordinateProtocol"), dict)
+        else {}
+    )
+    coordinate_domain_origin = (
+        coordinate_protocol.get("DomainOrigin")
+        if isinstance(coordinate_protocol.get("DomainOrigin"), dict)
+        else {}
+    )
+    coordinate_probe_projection = (
+        coordinate_protocol.get("ProbeProjection")
+        if isinstance(coordinate_protocol.get("ProbeProjection"), dict)
+        else {}
+    )
     protocol_content_audit = audit_protocol_content(validation_protocol_audit)
     probe_rows = read_csv_rows(probe_audit_path)
     component_sensitivity_audit = read_json(component_sensitivity_audit_path)
@@ -2699,6 +2818,7 @@ def main() -> int:
         official_sha,
     )
     reasons: List[str] = []
+    reasons.extend(coordinate_probe_protocol_reason_list)
 
     if not manifest:
         reasons.append("native_manifest_missing_or_empty")
@@ -3251,6 +3371,12 @@ def main() -> int:
         min_avg_frames=args.min_avg_frames,
         time_averaging_evidence_file_gate=time_averaging_evidence_file_gate["gate"],
         time_averaging_evidence_file_reasons=time_averaging_evidence_file_gate["reasons"],
+        time_averaging_evidence_selected_steps_csv=time_averaging_evidence_file_gate[
+            "selected_final_window_time_steps_csv"
+        ],
+        time_averaging_evidence_selected_hash_count=time_averaging_evidence_file_gate[
+            "selected_final_window_vtk_sha256_count"
+        ],
     )
     time_average_evidence_reasons.extend(flow_through_time_evidence_reasons)
     time_average_gate = "pass" if not time_average_evidence_reasons else "fail"
@@ -3647,6 +3773,9 @@ def main() -> int:
     boundary_source_has_non_reflecting_outlet_application = as_bool(
         boundary_source_audit.get("has_non_reflecting_outlet_application_evidence")
     )
+    boundary_source_has_non_reflecting_outlet_face_application = as_bool(
+        boundary_source_audit.get("has_non_reflecting_outlet_face_application_evidence")
+    )
     boundary_source_has_periodic_side_top_method = as_bool(
         boundary_source_audit.get("has_periodic_side_top_method")
     )
@@ -3655,6 +3784,9 @@ def main() -> int:
     )
     boundary_source_has_periodic_side_top_application = as_bool(
         boundary_source_audit.get("has_periodic_side_top_application_evidence")
+    )
+    boundary_source_has_periodic_side_top_face_application = as_bool(
+        boundary_source_audit.get("has_periodic_side_top_face_application_evidence")
     )
     boundary_source_has_rough_wall_function_method = as_bool(
         boundary_source_audit.get("has_rough_wall_function_method")
@@ -3668,6 +3800,9 @@ def main() -> int:
     boundary_source_has_rough_wall_application = as_bool(
         boundary_source_audit.get("has_rough_wall_application_evidence")
     )
+    boundary_source_has_rough_wall_ground_face_application = as_bool(
+        boundary_source_audit.get("has_rough_wall_ground_face_application_evidence")
+    )
     boundary_source_has_precursor_recycling_method = as_bool(
         boundary_source_audit.get("has_precursor_or_recycling_boundary_method")
     )
@@ -3676,6 +3811,9 @@ def main() -> int:
     )
     boundary_source_has_precursor_recycling_application = as_bool(
         boundary_source_audit.get("has_precursor_or_recycling_boundary_application_evidence")
+    )
+    boundary_source_has_precursor_recycling_inlet_face_application = as_bool(
+        boundary_source_audit.get("has_precursor_or_recycling_boundary_inlet_face_application_evidence")
     )
     boundary_source_missing_paper_evidence = split_scalar_list(
         boundary_source_audit.get("missing_paper_grade_source_evidence")
@@ -4412,6 +4550,7 @@ def main() -> int:
     for reason in streamwise_sign_gate_reasons:
         native_probe_component_equivalence_reasons.append(f"streamwise_sign_gate:{reason}")
     native_probe_component_equivalence_reasons.extend(component_hash_traceability["reasons"])
+    native_probe_component_equivalence_reasons.extend(coordinate_probe_protocol_reason_list)
     for key, value in [
         ("component_source_time_steps", component_sensitivity_audit.get("component_source_time_steps")),
         ("component_source_sha256", component_sensitivity_audit.get("component_source_sha256")),
@@ -4473,6 +4612,28 @@ def main() -> int:
         "domain_origin": str(domain_origin_path) if domain_origin_path else "",
         "validation_protocol_audit": str(protocol_audit_path) if protocol_audit_path else "",
         "time_averaging_evidence": str(time_averaging_evidence_path) if time_averaging_evidence_path else "",
+        "coordinate_probe_protocol_audit": (
+            str(coordinate_probe_protocol_audit_path)
+            if coordinate_probe_protocol_audit_path
+            else ""
+        ),
+        "coordinate_probe_protocol_audit_sha256": sha256_file(
+            coordinate_probe_protocol_audit_path
+        ),
+        "coordinate_probe_protocol_gate": coordinate_probe_protocol_gate,
+        "coordinate_probe_protocol_gate_reasons": coordinate_probe_protocol_reason_list,
+        "coordinate_probe_protocol_gate_reasons_csv": ";".join(
+            coordinate_probe_protocol_reason_list
+        ),
+        "coordinate_probe_domain_origin_valid": coordinate_domain_origin.get("valid"),
+        "coordinate_probe_domain_origin_path": coordinate_domain_origin.get("path", ""),
+        "coordinate_probe_domain_origin_sha256": coordinate_domain_origin.get("sha256", ""),
+        "coordinate_probe_domain_origin_dx_m": coordinate_domain_origin.get("dx_m"),
+        "coordinate_probe_domain_origin_min_m": coordinate_domain_origin.get("domain_min_m", []),
+        "coordinate_probe_domain_origin_min_m_csv": vector_csv(
+            coordinate_domain_origin.get("domain_min_m")
+        ),
+        "coordinate_probe_projection_formula": coordinate_probe_projection.get("Formula", ""),
         "baseline_id": str(manifest.get("BaselineId") or "").strip(),
         "case": args.case,
         "software": args.software,
@@ -4763,6 +4924,21 @@ def main() -> int:
         "inlet_source_has_reynolds_stress_diagonal_usage_evidence": inlet_has_reynolds_diagonal_usage,
         "inlet_source_has_reynolds_stress_offdiagonal_usage_evidence": inlet_has_reynolds_offdiagonal_usage,
         "inlet_source_has_reynolds_stress_full_tensor_usage_evidence": inlet_has_reynolds_full_tensor_usage,
+        "inlet_source_has_digital_filter_evidence": as_bool(
+            inlet_source_audit.get("has_digital_filter_evidence")
+        ),
+        "inlet_source_has_digital_filter_kernel_evidence": as_bool(
+            inlet_source_audit.get("has_digital_filter_kernel_evidence")
+        ),
+        "inlet_source_has_digital_filter_spatial_stencil_evidence": as_bool(
+            inlet_source_audit.get("has_digital_filter_spatial_stencil_evidence")
+        ),
+        "inlet_source_has_digital_filter_state_evidence": as_bool(
+            inlet_source_audit.get("has_digital_filter_state_evidence")
+        ),
+        "inlet_source_has_digital_filter_velocity_coupling_evidence": as_bool(
+            inlet_source_audit.get("has_digital_filter_velocity_coupling_evidence")
+        ),
         "inlet_source_has_sem_eddy_update_evidence": as_bool(
             inlet_source_audit.get("has_sem_eddy_update_evidence")
         ),
@@ -4837,19 +5013,31 @@ def main() -> int:
         "boundary_source_has_non_reflecting_outlet_application_evidence": (
             boundary_source_has_non_reflecting_outlet_application
         ),
+        "boundary_source_has_non_reflecting_outlet_face_application_evidence": (
+            boundary_source_has_non_reflecting_outlet_face_application
+        ),
         "boundary_source_has_periodic_side_top_method": boundary_source_has_periodic_side_top_method,
         "boundary_source_has_periodic_pair_mapping_evidence": boundary_source_has_periodic_pair_mapping,
         "boundary_source_has_periodic_side_top_application_evidence": (
             boundary_source_has_periodic_side_top_application
         ),
+        "boundary_source_has_periodic_side_top_face_application_evidence": (
+            boundary_source_has_periodic_side_top_face_application
+        ),
         "boundary_source_has_rough_wall_function_method": boundary_source_has_rough_wall_function_method,
         "boundary_source_has_rough_wall_parameter_evidence": boundary_source_has_rough_wall_parameter,
         "boundary_source_has_rough_wall_action_evidence": boundary_source_has_rough_wall_action,
         "boundary_source_has_rough_wall_application_evidence": boundary_source_has_rough_wall_application,
+        "boundary_source_has_rough_wall_ground_face_application_evidence": (
+            boundary_source_has_rough_wall_ground_face_application
+        ),
         "boundary_source_has_precursor_or_recycling_boundary_method": boundary_source_has_precursor_recycling_method,
         "boundary_source_has_precursor_or_recycling_boundary_field_evidence": boundary_source_has_precursor_recycling_field,
         "boundary_source_has_precursor_or_recycling_boundary_application_evidence": (
             boundary_source_has_precursor_recycling_application
+        ),
+        "boundary_source_has_precursor_or_recycling_boundary_inlet_face_application_evidence": (
+            boundary_source_has_precursor_recycling_inlet_face_application
         ),
         "boundary_source_missing_paper_grade_source_evidence": boundary_source_missing_paper_evidence,
         "boundary_source_missing_paper_grade_source_evidence_csv": ";".join(boundary_source_missing_paper_evidence),

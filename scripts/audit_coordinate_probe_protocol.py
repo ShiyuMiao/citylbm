@@ -24,6 +24,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--metadata", required=True, help="case_metadata.json generated with the case.")
     parser.add_argument("--official", default="", help="Official RS/probe CSV used for probe comparison.")
     parser.add_argument("--af-csv", default="", help="Official AF inlet-profile CSV used for Uref cross-check.")
+    parser.add_argument("--domain-origin", default="", help="domain_origin.json used to map official metre coordinates to VTK lattice coordinates.")
     parser.add_argument("--out", required=True, help="Output coordinate_probe_protocol_audit.json.")
     parser.add_argument("--expected-aij-case", default="")
     parser.add_argument("--expected-wind-direction", default="")
@@ -111,6 +112,121 @@ def resolve_path(
         "path": str(resolved) if resolved else "",
         "exists": bool(resolved and resolved.is_file()),
         "sha256": sha256(resolved) if resolved and resolved.is_file() else "",
+    }
+
+
+def resolve_domain_origin_path(
+    explicit: str,
+    metadata: Dict[str, Any],
+    metadata_path: Path,
+    run_dir: Path,
+    probe_projection: Dict[str, Any],
+) -> Dict[str, Any]:
+    candidates = []
+    explicit_text = explicit.strip()
+    if explicit_text:
+        candidates.append(("argument", explicit_text))
+    for key in ["DomainOriginPath", "DomainOriginJson", "DomainOriginFile"]:
+        value = probe_projection.get(key)
+        if value not in (None, ""):
+            candidates.append(("metadata_probe_projection", str(value)))
+    for paths in [
+        [("DomainOriginPath",), ("DomainOriginJson",), ("DomainOriginFile",)],
+        [("Validation", "DomainOriginPath"), ("Validation", "DomainOriginJson")],
+    ]:
+        for path_keys in paths:
+            value = nested(metadata, *path_keys)
+            if value not in (None, ""):
+                candidates.append(("metadata", str(value)))
+    candidates.extend(
+        [
+            ("run_dir", str(run_dir / "domain_origin.json")),
+            ("metadata_dir", str(metadata_path.parent / "domain_origin.json")),
+        ]
+    )
+    for source, raw in candidates:
+        path = Path(raw).expanduser()
+        if not path.is_absolute():
+            path = (metadata_path.parent if source.startswith("metadata") else Path.cwd()) / path
+        resolved = path.resolve()
+        if resolved.is_file():
+            return {
+                "source": source,
+                "raw": raw,
+                "path": str(resolved),
+                "exists": True,
+                "sha256": sha256(resolved),
+            }
+    source, raw = candidates[0] if candidates else ("missing", "")
+    path = Path(raw).expanduser() if raw else None
+    if path is not None and not path.is_absolute():
+        path = (metadata_path.parent if source.startswith("metadata") else Path.cwd()) / path
+    resolved = path.resolve() if path is not None else None
+    return {
+        "source": source,
+        "raw": raw,
+        "path": str(resolved) if resolved else "",
+        "exists": False,
+        "sha256": "",
+    }
+
+
+def vector3_from_mapping(value: Any) -> List[float]:
+    if isinstance(value, list) and len(value) >= 3:
+        parsed = [as_float(item) for item in value[:3]]
+        return [item for item in parsed if item is not None]
+    if isinstance(value, dict):
+        parsed = [as_float(value.get(key)) for key in ("X", "Y", "Z")]
+        if all(item is not None for item in parsed):
+            return [item for item in parsed if item is not None]
+        parsed = [as_float(value.get(key)) for key in ("x", "y", "z")]
+        if all(item is not None for item in parsed):
+            return [item for item in parsed if item is not None]
+    return []
+
+
+def domain_origin_summary(path_info: Dict[str, Any]) -> Dict[str, Any]:
+    if not path_info.get("exists"):
+        return {
+            "dx_m": None,
+            "domain_min_m": [],
+            "domain_min_source": "",
+            "valid": False,
+        }
+    path = Path(str(path_info.get("path")))
+    data = read_json(path)
+    dx = None
+    for key in ["Dx", "dx", "DxM", "dx_m", "GridSpacingM", "grid_spacing_m"]:
+        dx = as_float(data.get(key))
+        if dx is not None:
+            break
+    domain_min_source = ""
+    domain_min = vector3_from_mapping(data.get("DomainMin"))
+    if len(domain_min) == 3:
+        domain_min_source = "DomainMin"
+    if len(domain_min) != 3:
+        domain_min = vector3_from_mapping(data.get("DomainOrigin"))
+        if len(domain_min) == 3:
+            domain_min_source = "DomainOrigin"
+    if len(domain_min) != 3:
+        domain_min = vector3_from_mapping(data.get("Origin"))
+        if len(domain_min) == 3:
+            domain_min_source = "Origin"
+    if len(domain_min) != 3:
+        parsed = [as_float(data.get(f"DomainMin{axis}")) for axis in ["X", "Y", "Z"]]
+        if all(value is not None for value in parsed):
+            domain_min = [value for value in parsed if value is not None]
+            domain_min_source = "DomainMinXYZ"
+    if len(domain_min) != 3:
+        parsed = [as_float(data.get(f"DomainOrigin{axis}")) for axis in ["X", "Y", "Z"]]
+        if all(value is not None for value in parsed):
+            domain_min = [value for value in parsed if value is not None]
+            domain_min_source = "DomainOriginXYZ"
+    return {
+        "dx_m": dx,
+        "domain_min_m": domain_min,
+        "domain_min_source": domain_min_source,
+        "valid": dx is not None and dx > 0.0 and len(domain_min) == 3,
     }
 
 
@@ -530,6 +646,13 @@ def main() -> int:
     missing_probe_projection = [key for key in required_probe_projection if key not in probe_projection]
     if missing_probe_projection:
         reasons.append("probe_projection_fields_missing:" + ",".join(missing_probe_projection))
+    projection_formula = str(probe_projection.get("Formula") or "")
+    if not text_contains(projection_formula, "dx") or not (
+        text_contains(projection_formula, "domain")
+        or text_contains(projection_formula, "origin")
+        or text_contains(projection_formula, "min")
+    ):
+        reasons.append("probe_projection_formula_missing_domain_origin_or_dx_mapping")
     if str(probe_projection.get("SamplingMethod") or metadata.get("ProbeSampling") or "").lower() not in {
         "nearest-valid",
         "nearest_valid",
@@ -538,6 +661,42 @@ def main() -> int:
         "trilinear",
     }:
         reasons.append("probe_sampling_method_missing_or_unknown")
+    probe_radius = as_float(probe_projection.get("ProbeVolumeRadiusCells"))
+    if probe_radius is None or probe_radius < 0.0:
+        reasons.append("probe_volume_radius_cells_missing_or_invalid")
+    if as_float(probe_projection.get("ProbeZOffsetM")) is None:
+        reasons.append("probe_z_offset_m_missing_or_invalid")
+    if not isinstance(probe_projection.get("ProbeCellCenterCoordinates"), bool):
+        reasons.append("probe_cell_center_coordinates_not_boolean")
+
+    domain_origin_info = resolve_domain_origin_path(
+        args.domain_origin,
+        metadata,
+        metadata_path,
+        run_dir,
+        probe_projection,
+    )
+    domain_origin = domain_origin_summary(domain_origin_info)
+    if not domain_origin_info["exists"]:
+        reasons.append("domain_origin_json_missing")
+    if domain_origin["dx_m"] is None or domain_origin["dx_m"] <= 0.0:
+        reasons.append("domain_origin_dx_m_missing_or_invalid")
+    if len(domain_origin["domain_min_m"]) != 3:
+        reasons.append("domain_origin_domain_min_m_missing_or_invalid")
+    projection_dx = as_float(probe_projection.get("DxM"))
+    if projection_dx is not None and domain_origin["dx_m"] is not None and not close(
+        projection_dx,
+        domain_origin["dx_m"],
+        1.0e-9,
+    ):
+        reasons.append(f"probe_projection_dx_m_mismatch_domain_origin:{projection_dx}!={domain_origin['dx_m']}")
+    projection_min = vector3_from_mapping(probe_projection.get("DomainMinM"))
+    if projection_min and len(domain_origin["domain_min_m"]) == 3 and not vector_close(
+        projection_min,
+        domain_origin["domain_min_m"],
+        1.0e-9,
+    ):
+        reasons.append("probe_projection_domain_min_m_mismatch_domain_origin")
 
     probe_count = as_float(metadata.get("ProbeCount"))
     if args.expected_probe_row_count > 0 and probe_count is not None and int(probe_count) != args.expected_probe_row_count:
@@ -644,7 +803,10 @@ def main() -> int:
         development_runs_cfd_next = False
         development_next_cfd_scope = "none_until_uref_normalization_gate_passes"
         development_reason = "Uref, zref or output-ratio normalization does not match the official AF/profile protocol."
-    elif any("probe" in reason.lower() for reason in reasons):
+    elif any(
+        "probe" in reason.lower() or "domain_origin" in reason.lower()
+        for reason in reasons
+    ):
         development_stage = "fix_probe_subset_projection_before_cfd"
         development_duration = "minutes"
         development_runs_cfd_next = False
@@ -680,6 +842,18 @@ def main() -> int:
             "VelocityRatioMapping": velocity_mapping,
             "Normalization": normalization,
             "ProbeProjection": probe_projection,
+            "DomainOrigin": {
+                "path": domain_origin_info.get("path", ""),
+                "source": domain_origin_info.get("source", ""),
+                "exists": domain_origin_info.get("exists", False),
+                "sha256": domain_origin_info.get("sha256", ""),
+                "dx_m": domain_origin.get("dx_m"),
+                "domain_min_m": domain_origin.get("domain_min_m"),
+                "domain_min_source": domain_origin.get("domain_min_source"),
+                "valid": domain_origin.get("valid", False),
+                "projection_dx_m": projection_dx,
+                "projection_domain_min_m": projection_min,
+            },
         },
         "Uref": {
             "metadata_mps": uref,
@@ -706,6 +880,7 @@ def main() -> int:
             "simulated velocity ratio maps explicitly to the official measured quantity",
             "Uref and zref match the official AF profile",
             "probe count and probe z or z-range match the selected AIJ RS subset",
+            "domain_origin.json exists and provides Dx plus three-axis DomainMin/DomainOrigin for reproducible probe mapping",
         ],
     }
     write_json(Path(args.out).expanduser().resolve(), report)

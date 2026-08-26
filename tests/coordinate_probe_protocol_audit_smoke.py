@@ -31,11 +31,13 @@ def main() -> int:
         case_dir.mkdir()
         official = case_dir / "RS_filtered.csv"
         af_csv = case_dir / "AF.csv"
+        domain_origin = case_dir / "domain_origin.json"
         metadata_path = case_dir / "case_metadata.json"
         out = temp / "audit.json"
 
         write(official, "No.,x,y,z,U\n1,0,0,2.0,0.5\n2,1,0,2.0,0.7\n")
         write(af_csv, "z(m),U(m/s),k(m2/s2)\n0,0.0,0.01\n15.9,3.928296,0.1\n30,6.0,0.2\n")
+        write(domain_origin, json.dumps({"DomainMinX": -10.0, "DomainMinY": -20.0, "DomainMinZ": 0.0, "Dx": 2.5}, indent=2))
         metadata = {
             "AijCase": "CaseE",
             "WindDirection": "N",
@@ -116,6 +118,12 @@ def main() -> int:
         if report["OfficialProbeIdentity"]["invalid_coordinate_count"] != 0:
             raise AssertionError(report)
         if report["WindVector"]["metadata"] != [0.0, -1.0, 0.0]:
+            raise AssertionError(report)
+        if report["CoordinateProtocol"]["DomainOrigin"]["valid"] is not True:
+            raise AssertionError(report)
+        if report["CoordinateProtocol"]["DomainOrigin"]["dx_m"] != 2.5:
+            raise AssertionError(report)
+        if report["CoordinateProtocol"]["DomainOrigin"]["domain_min_m"] != [-10.0, -20.0, 0.0]:
             raise AssertionError(report)
         if report["development_acceleration_stage"] != "eligible_for_short_native_canary":
             raise AssertionError(report)
@@ -348,6 +356,64 @@ def main() -> int:
                 raise AssertionError(duplicate_report)
         if duplicate_report["development_acceleration_runs_cfd_next"] is not False:
             raise AssertionError(duplicate_report)
+
+        domainless_dir = temp / "domainless_case"
+        domainless_dir.mkdir()
+        domainless_official = domainless_dir / "RS.csv"
+        domainless_af = domainless_dir / "AF.csv"
+        domainless_metadata = domainless_dir / "case_metadata.json"
+        domainless_out = temp / "domainless_audit.json"
+        write(domainless_official, "No.,x,y,z,Velocity_Ratio\n1,0,0,2.0,0.2\n2,1,0,2.0,0.3\n")
+        write(domainless_af, "z(m),U(m/s),k(m2/s2)\n0,0,0.01\n15.9,3.928296,0.1\n")
+        write(domainless_metadata, json.dumps(metadata, indent=2))
+        domainless_failed = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                str(domainless_dir),
+                "--metadata",
+                str(domainless_metadata),
+                "--official",
+                str(domainless_official),
+                "--af-csv",
+                str(domainless_af),
+                "--out",
+                str(domainless_out),
+                "--expected-aij-case",
+                "CaseE",
+                "--expected-wind-direction",
+                "N",
+                "--expected-wind-vector",
+                "0,-1,0",
+                "--expected-probe-row-count",
+                "2",
+                "--expected-probe-z",
+                "2.0",
+                "--z-ref",
+                "15.9",
+                "--expected-uref",
+                "3.928296",
+            ],
+            cwd=str(REPO),
+            text=True,
+            capture_output=True,
+        )
+        if domainless_failed.returncode != 2:
+            raise AssertionError((domainless_failed.returncode, domainless_failed.stdout, domainless_failed.stderr))
+        domainless_report = load(domainless_out)
+        for reason in [
+            "domain_origin_json_missing",
+            "domain_origin_dx_m_missing_or_invalid",
+            "domain_origin_domain_min_m_missing_or_invalid",
+        ]:
+            if reason not in domainless_report["Reasons"]:
+                raise AssertionError(domainless_report)
+        if domainless_report["CoordinateProtocol"]["DomainOrigin"]["valid"] is not False:
+            raise AssertionError(domainless_report)
+        if domainless_report["development_acceleration_stage"] != "fix_probe_subset_projection_before_cfd":
+            raise AssertionError(domainless_report)
+        if domainless_report["long_cfd_allowed_by_coordinate_probe_protocol"] is not False:
+            raise AssertionError(domainless_report)
 
     print("coordinate_probe_protocol_audit_smoke passed")
     return 0

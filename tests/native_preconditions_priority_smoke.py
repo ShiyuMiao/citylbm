@@ -76,6 +76,31 @@ def main() -> int:
     )
     if coordinate_probe_interpretation["blocker"] != "official_probe_mapping":
         raise AssertionError(coordinate_probe_interpretation)
+    domain_origin_probe_interpretation = module.build_probe_component_interpretation_gate(
+        "fail",
+        ["coordinate_probe_domain_origin_not_valid"],
+    )
+    if domain_origin_probe_interpretation["blocker"] != "probe_projection":
+        raise AssertionError(domain_origin_probe_interpretation)
+    domain_origin_reasons = module.coordinate_protocol_reasons(
+        {
+            "coordinate_probe_protocol_gate": "fail",
+            "Reasons": ["domain_origin_json_missing"],
+            "CoordinateProtocol": {
+                "ProbeProjection": {"Formula": "(coordinate_m - DomainMin) / dx"},
+                "DomainOrigin": {"valid": False, "dx_m": None, "domain_min_m": []},
+            },
+        }
+    )
+    for expected_reason in [
+        "coordinate_probe_protocol_gate_not_pass:fail",
+        "coordinate_probe_protocol:domain_origin_json_missing",
+        "coordinate_probe_domain_origin_not_valid",
+        "coordinate_probe_domain_origin_dx_m_missing",
+        "coordinate_probe_domain_origin_min_m_missing",
+    ]:
+        if expected_reason not in domain_origin_reasons:
+            raise AssertionError(domain_origin_reasons)
     source_window_probe_interpretation = module.build_probe_component_interpretation_gate(
         "fail",
         ["component_source_step_hash_pairs_mismatch_runtime"],
@@ -150,9 +175,52 @@ def main() -> int:
         runtime_hash_count=40,
         runtime_hash_unique_count=40,
         min_avg_frames=40,
+        time_averaging_evidence_file_gate="pass",
+        time_averaging_evidence_file_reasons=[],
+        time_averaging_evidence_selected_steps_csv=";".join(str(step) for step in range(1000, 41000, 1000)),
+        time_averaging_evidence_selected_hash_count=40,
     )
     if passing_time_reasons:
         raise AssertionError(passing_time_reasons)
+
+    mismatched_time_evidence_reasons = module.build_time_average_evidence_reasons(
+        runtime_audit_present=True,
+        runtime_reported_time_average_gate="pass",
+        time_gate="pass",
+        requested_frame_gate="pass",
+        final_window_frame_count_gate="pass",
+        final_window_frame_count_reasons=[],
+        stationarity_gate="pass",
+        stationarity_reasons=[],
+        planned_frame_shortfall_reason=None,
+        runtime_average_shortfall_reason=None,
+        planned_step_shortfall_reason=None,
+        runtime_step_shortfall_reason=None,
+        runtime_avg=40,
+        required_average_last_n=40,
+        runtime_selected_last_window=True,
+        runtime_step_span=39000,
+        runtime_step_span_reported=39000,
+        runtime_step_span_from_steps=39000,
+        runtime_steps=list(range(1000, 41000, 1000)),
+        runtime_steps_increasing=True,
+        runtime_steps_uniform=True,
+        runtime_hashes=[f"{idx:064x}" for idx in range(40)],
+        runtime_hash_count=40,
+        runtime_hash_unique_count=40,
+        min_avg_frames=40,
+        time_averaging_evidence_file_gate="pass",
+        time_averaging_evidence_file_reasons=[],
+        time_averaging_evidence_selected_steps_csv="2000;3000;4000;5000",
+        time_averaging_evidence_selected_hash_count=39,
+    )
+    for expected_reason in [
+        "time_averaging_evidence_selected_final_window_steps_mismatch_runtime",
+        "time_averaging_evidence_selected_final_window_vtk_sha256_count_mismatch_runtime",
+        "time_averaging_evidence_selected_final_window_vtk_sha256_count_39_below_minimum_40",
+    ]:
+        if expected_reason not in mismatched_time_evidence_reasons:
+            raise AssertionError((expected_reason, mismatched_time_evidence_reasons))
 
     short_time_reasons = module.build_time_average_evidence_reasons(
         runtime_audit_present=True,
@@ -180,6 +248,10 @@ def main() -> int:
         runtime_hash_count=4,
         runtime_hash_unique_count=4,
         min_avg_frames=40,
+        time_averaging_evidence_file_gate="pass",
+        time_averaging_evidence_file_reasons=[],
+        time_averaging_evidence_selected_steps_csv="1000;2000;3000;4000",
+        time_averaging_evidence_selected_hash_count=4,
     )
     for expected_reason in [
         "runtime_reported_time_averaging_gate_not_pass:fail",
@@ -326,6 +398,8 @@ def main() -> int:
         "has_streamwise_clipping_control": True,
         "streamwise_clipping_enabled": False,
         "has_legacy_hardcoded_streamwise_clipping": False,
+        "inlet_source_has_rms_k_velocity_surrogate": False,
+        "inlet_source_rms_k_surrogate_gate": "pass",
         "inlet_source_gate_reasons": ["inlet_source_consistent_with_declared_metadata"],
         "paper_grade_inlet_source_gate_reasons": ["source_distribution_consistent"],
     }
@@ -470,8 +544,12 @@ def main() -> int:
     passing_boundary_source = {
         "boundary_source_gate": "pass",
         "paper_grade_boundary_source_gate": "pass",
+        "boundary_source_method_class": "wind_tunnel_equivalent_boundary_source",
         "boundary_source_wind_tunnel_equivalent": True,
         "boundary_source_simplified": False,
+        "boundary_source_has_simplified_wind_tunnel_surrogate": False,
+        "boundary_source_simplified_wind_tunnel_surrogate_gate": "pass",
+        "boundary_source_simplified_wind_tunnel_surrogate_reasons": [],
         "boundary_source_fidelity_class": "wind_tunnel_equivalent_complete",
         "boundary_source_has_complete_wind_tunnel_evidence": True,
         "boundary_source_has_empty_advanced_method_stub_only": False,
@@ -526,8 +604,12 @@ def main() -> int:
     failing_boundary_source.update(
         {
             "paper_grade_boundary_source_gate": "fail",
+            "boundary_source_method_class": "simplified_type_e_box",
             "boundary_source_wind_tunnel_equivalent": False,
             "boundary_source_simplified": True,
+            "boundary_source_has_simplified_wind_tunnel_surrogate": True,
+            "boundary_source_simplified_wind_tunnel_surrogate_gate": "fail",
+            "boundary_source_simplified_wind_tunnel_surrogate_reasons": ["simplified_type_e_box"],
             "boundary_source_fidelity_class": "simplified_type_e_box",
             "boundary_source_has_complete_wind_tunnel_evidence": False,
             "boundary_source_advanced_code_evidence": False,

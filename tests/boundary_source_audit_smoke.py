@@ -222,10 +222,20 @@ void main_setup() {
     parallel_for(lbm.get_N(), [&](ulong n) {
         uint x=0u, y=0u, z=0u;
         lbm.coordinates(n, x, y, z);
-        if(z == 0u) { lbm.flags[n] = TYPE_S; return; }
+        if(z == 0u) {
+            lbm.flags[n] = TYPE_S;
+            rough_wall_function(roughness_height, friction_velocity);
+            apply_rough_wall(rough_wall_drag);
+            return;
+        }
         if(y == Ny-1u) {
             lbm.flags[n] = TYPE_E;
             non_reflecting_outlet(sponge_strength, convective_speed);
+            return;
+        }
+        if(y == 0u) {
+            lbm.flags[n] = TYPE_E;
+            precursor_boundary(precursor_velocity, recycling_plane);
             return;
         }
         if(x == 0u || x == Nx-1u || z == Nz-1u) {
@@ -235,9 +245,6 @@ void main_setup() {
         }
     });
     lbm.voxelize_stl(get_exe_path()+"../buildings.stl", TYPE_S);
-    rough_wall_function(roughness_height, friction_velocity);
-    apply_rough_wall(rough_wall_drag);
-    precursor_boundary(precursor_velocity, recycling_plane);
 }
 """,
             encoding="utf-8",
@@ -336,9 +343,16 @@ void main_setup() {
         require(unapplied.get("boundary_source_gate") == "fail", unapplied)
         require(unapplied.get("paper_grade_boundary_source_gate") == "fail", unapplied)
         require(unapplied.get("has_non_reflecting_outlet_application_evidence") is False, unapplied)
+        require(unapplied.get("has_non_reflecting_outlet_face_application_evidence") is False, unapplied)
         require(unapplied.get("has_periodic_side_top_application_evidence") is False, unapplied)
+        require(unapplied.get("has_periodic_side_top_face_application_evidence") is False, unapplied)
         require(unapplied.get("has_rough_wall_application_evidence") is False, unapplied)
+        require(unapplied.get("has_rough_wall_ground_face_application_evidence") is False, unapplied)
         require(unapplied.get("has_precursor_or_recycling_boundary_application_evidence") is False, unapplied)
+        require(
+            unapplied.get("has_precursor_or_recycling_boundary_inlet_face_application_evidence") is False,
+            unapplied,
+        )
         for reason in [
             "non_reflecting_boundary_source_missing_application_evidence",
             "periodic_boundary_source_missing_application_evidence",
@@ -426,9 +440,16 @@ void main_setup() {
         require(advanced.get("has_empty_advanced_boundary_method_stub") is False, advanced)
         require(advanced.get("empty_advanced_boundary_method_stub_count") == 0, advanced)
         require(advanced.get("has_non_reflecting_outlet_application_evidence") is True, advanced)
+        require(advanced.get("has_non_reflecting_outlet_face_application_evidence") is True, advanced)
         require(advanced.get("has_periodic_side_top_application_evidence") is True, advanced)
+        require(advanced.get("has_periodic_side_top_face_application_evidence") is True, advanced)
         require(advanced.get("has_rough_wall_application_evidence") is True, advanced)
+        require(advanced.get("has_rough_wall_ground_face_application_evidence") is True, advanced)
         require(advanced.get("has_precursor_or_recycling_boundary_application_evidence") is True, advanced)
+        require(
+            advanced.get("has_precursor_or_recycling_boundary_inlet_face_application_evidence") is True,
+            advanced,
+        )
         require(advanced.get("missing_paper_grade_source_evidence") == [], advanced)
         require(advanced.get("development_acceleration_stage") == "eligible_for_short_native_canary", advanced)
         require(advanced.get("development_acceleration_runs_cfd_next") is True, advanced)

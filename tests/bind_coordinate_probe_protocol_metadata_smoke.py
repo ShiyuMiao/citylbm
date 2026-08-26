@@ -38,6 +38,7 @@ def main() -> int:
         metadata = case_dir / "case_metadata.json"
         official = case_dir / "RS_caseE.csv"
         af_csv = case_dir / "AF_caseE.csv"
+        domain_origin = case_dir / "domain_origin.json"
         setup = case_dir / "setup.cpp"
         bound = case_dir / "preflight" / "case_metadata.coordinate_probe_bound.json"
         audit = case_dir / "preflight" / "coordinate_probe_protocol_audit.json"
@@ -56,6 +57,7 @@ def main() -> int:
         )
         write(official, "No.,case,Wind_direction,x(m),y(m),z(m),Velocity_Ratio\n1,ac,N,0,0,2,0.2\n2,ac,N,1,0,2,0.3\n")
         write(af_csv, "z(m),U(m/s),k(m2/s2)\n0,0,0.01\n15.9,3.928296,0.1\n")
+        write(domain_origin, json.dumps({"DomainMin": [-300.0, -300.0, 0.0], "Dx": 2.5}, indent=2))
         write(setup, "const double umag_mps = sqrt(ux_mps*ux_mps + uy_mps*uy_mps + uz_mps*uz_mps);\nconst double sim_ratio = umag_mps/u_ref_si;\n")
 
         bind_result = subprocess.run(
@@ -99,11 +101,22 @@ def main() -> int:
             raise AssertionError(bound_data)
         if "streamwise" not in protocol["Axes"]["y"]:
             raise AssertionError(bound_data)
+        projection = protocol["ProbeProjection"]
+        if projection["DomainOriginPath"] != str(domain_origin.resolve()):
+            raise AssertionError(bound_data)
+        if projection["DomainOriginSha256"] != sha256(domain_origin):
+            raise AssertionError(bound_data)
+        if projection["DomainMinM"] != [-300.0, -300.0, 0.0]:
+            raise AssertionError(bound_data)
+        if projection["DxM"] != 2.5:
+            raise AssertionError(bound_data)
         if bound_data.get("OfficialAFSha256") != sha256(af_csv):
             raise AssertionError(bound_data)
         if bound_data.get("OfficialRSSha256") != sha256(official):
             raise AssertionError(bound_data)
         if bound_data.get("OfficialProbeDataSha256") != sha256(official):
+            raise AssertionError(bound_data)
+        if bound_data.get("DomainOriginSha256") != sha256(domain_origin):
             raise AssertionError(bound_data)
 
         audit_result = subprocess.run(
@@ -148,6 +161,8 @@ def main() -> int:
         if report["coordinate_probe_protocol_gate"] != "pass":
             raise AssertionError(report)
         if report["CoordinateProtocol"]["VelocityRatioMapping"]["mode"] != "velocity_magnitude":
+            raise AssertionError(report)
+        if report["CoordinateProtocol"]["DomainOrigin"]["valid"] is not True:
             raise AssertionError(report)
 
     print("bind_coordinate_probe_protocol_metadata_smoke passed")
