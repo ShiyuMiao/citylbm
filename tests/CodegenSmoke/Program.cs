@@ -154,6 +154,15 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "synthetic_eddy_count");
                 Require(setup, "updateSyntheticEddyPlane");
                 Require(setup, "updateTemporalFilter");
+                Require(setup, "bool citylbm_sem_eddy_initialized = false;");
+                Require(setup, "initializeSyntheticEddyPopulation");
+                Require(setup, "wrapSyntheticEddyPopulation");
+                Require(setup, "sem_eddy[m].eddy_center_x += dir_x * advect;");
+                Require(setup, "sem_eddy[m].eddy_center_y += dir_y * advect;");
+                Require(setup, "sem_eddy[m].eddy_center_z += dir_z * advect;");
+                RequireNotContains(setup, "sem_eddy[m].eddy_center_x = hash01(seed + 11u) * (float)Nx - dir_x * advect;");
+                RequireNotContains(setup, "sem_eddy[m].eddy_center_y = hash01(seed + 23u) * (float)Ny - dir_y * advect;");
+                RequireNotContains(setup, "sem_eddy[m].eddy_center_z = hash01(seed + 37u) * (float)Nz - dir_z * advect;");
                 RequireNotContains(setup, "updateDigitalFilter");
                 Require(setup, "turbulentWind");
                 Require(setup, "applyInlet");
@@ -193,7 +202,9 @@ namespace CityLBM.CodegenSmoke
                 Require(setup, "lbm.F.x[n] += force_scale * target.x;");
                 Require(setup, "lbm.F.write_to_device();");
                 Require(metadata, "divergence-reduced spectral modes");
+                Require(metadata, "persistent compact synthetic eddies");
                 Require(metadata, "continuous-step Taylor frozen-turbulence phase advection");
+                Require(metadata, "persistent synthetic_eddy centers advected/wrapped");
                 Require(metadata, "projected normal to synthetic wave vectors");
                 Require(metadata, "component RMS target sigma=sqrt(2k/3)");
                 Require(metadata, "per_z_cell inlet-face RMS rescaling");
@@ -297,7 +308,7 @@ namespace CityLBM.CodegenSmoke
                 Require(nativeManifest, "not_clamped_in_case_generation");
                 Require(nativeManifest, "\"SyntheticTurbulenceMinStreamwiseFraction\": 0.0");
                 Require(nativeManifest, "disabled_no_streamwise_clipping_of_k_perturbations");
-                Require(nativeManifest, "\"BaselineId\": \"citylbm-v0.3.0-stg_codegen_smoke-");
+                Require(nativeManifest, "\"BaselineId\": \"citylbm-v0.4.0-stg_codegen_smoke-");
                 Require(nativeManifest, "Native FluidX3D original setup");
                 Require(nativeManifest, "Native FluidX3D lbm.hpp");
                 Require(nativeManifest, "auto-detected paths are not sufficient evidence");

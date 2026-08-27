@@ -63,6 +63,7 @@ v0.4.0 封装当前 Rhino 7 / Grasshopper 验证分支成果，停止继续向�
 - 2026-08-27 main 分支归档：将当前 v0.4.0 成果作为 GitHub `main` 上传基线追加记录，旧版本记录与旧发布目录保留，不作为本次封装删除或覆盖。
 - 2026-08-27 最终补充封装：追加坐标/测点投影、边界源、入口源和 native preconditions 的脚本级门禁，保留为 v0.4.0 证据链补强；该记录不新增 CFD 精度结论，也不删除历史 v0.2.0/v0.3.0 记录。
 - 2026-08-27 停止优化封装：按当前成果冻结 v0.4.0 发布线，补齐生成案例运行元数据中的 `CityLBMVersion=0.4.0`，重新打包并上传 GitHub；后续精度优化转入新分支或新版本记录。
+- 2026-08-27 当前成果归档：纳入入口合成涡中心持续平移/回卷的代码生成修复与 smoke 覆盖，作为 v0.4.0 冻结成果上传；该项仍属于入口证据链补强，不宣称 AIJ Case A/E 精度已经达到论文发表标准。
 
 ### 快速开始
 
@@ -114,6 +115,7 @@ v0.4.0 packages the current Rhino 7 / Grasshopper validation branch and stops fu
 - Main-branch archive on 2026-08-27: the current v0.4.0 state is appended as the GitHub `main` upload baseline. Earlier version records and release directories are preserved rather than deleted or overwritten by this package.
 - Final supplemental package on 2026-08-27: script-level gates for coordinate/probe projection, boundary source evidence, inlet source evidence, and native preconditions were appended as v0.4.0 traceability hardening. This record adds no new CFD accuracy claim and preserves earlier v0.2.0/v0.3.0 records.
 - Stop-optimization package on 2026-08-27: v0.4.0 is frozen from the current state, generated-case runtime metadata now records `CityLBMVersion=0.4.0`, and the package is rebuilt and uploaded to GitHub. Later accuracy work should continue in a new branch or version record.
+- Current-result archive on 2026-08-27: the generated-code fix for persistent synthetic-eddy center advection/wrapping and its smoke coverage are included in the frozen v0.4.0 upload. This remains inlet-evidence hardening and does not claim publication-grade AIJ Case A/E accuracy.
 
 ### Quick Start
 

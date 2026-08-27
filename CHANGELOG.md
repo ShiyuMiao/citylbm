@@ -15,6 +15,7 @@
 - Added `releases/v0.4.0` as a new release package without deleting previous release records.
 - Archived the current v0.4.0 state as the GitHub `main` upload baseline while preserving earlier release records and directories.
 - Froze the current release line as the stop-optimization v0.4.0 package, updated generated-case runtime metadata to `CityLBMVersion=0.4.0`, and preserved later accuracy work for a new branch or version.
+- Included the current generated-code fix for persistent synthetic-eddy center advection/wrapping and its smoke-test coverage in the frozen v0.4.0 archive without promoting it as publication-grade AIJ accuracy evidence.
 
 ## v0.3.0
 
