@@ -3288,7 +3288,7 @@ namespace CityLBM.Solver
                 var metadata = new
                 {
                     SchemaVersion = 2,
-                    CityLBMVersion = "0.3.0",
+                    CityLBMVersion = "0.4.0",
                     SceneName = scene.Name,
                     AijCase = InferAijCaseLabel(scene.Name),
                     CaseName = InferAijCaseLabel(scene.Name),
@@ -4051,7 +4051,7 @@ namespace CityLBM.Solver
                 var audit = new
                 {
                     SchemaVersion = 1,
-                    CityLBMVersion = "0.3.0",
+                    CityLBMVersion = "0.4.0",
                     SceneName = scene.Name,
                     GeneratedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                     Purpose = "Protocol-level audit for AIJ validation before interpreting error metrics.",
@@ -4136,7 +4136,7 @@ namespace CityLBM.Solver
                 var manifest = new
                 {
                     SchemaVersion = 1,
-                    CityLBMVersion = "0.3.0",
+                    CityLBMVersion = "0.4.0",
                     BaselineId = baselineId,
                     SceneName = scene.Name,
                     GeneratedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
@@ -4335,7 +4335,7 @@ namespace CityLBM.Solver
             {
                 byte[] bytes = Encoding.UTF8.GetBytes(sb.ToString());
                 string digest = BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
-                return $"citylbm-v0.3.0-{SanitizeName(scene?.Name ?? "case")}-{digest.Substring(0, 12)}";
+                return $"citylbm-v0.4.0-{SanitizeName(scene?.Name ?? "case")}-{digest.Substring(0, 12)}";
             }
         }
 
@@ -4692,7 +4692,7 @@ namespace CityLBM.Solver
                 var info = new
                 {
                     SchemaVersion = 2,
-                    CityLBMVersion = "0.3.0",
+                    CityLBMVersion = "0.4.0",
                     DomainOriginX = Math.Round(origin.X, 6),
                     DomainOriginY = Math.Round(origin.Y, 6),
                     DomainOriginZ = Math.Round(origin.Z, 6),

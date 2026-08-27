@@ -410,6 +410,8 @@ TEMPLATE_FIELDS = [
     "native_preconditions_time_averaging_evidence_actual_vtk_output_gate",
     "native_preconditions_time_averaging_evidence_bound",
     "native_preconditions_time_averaging_evidence_selected_steps",
+    "native_preconditions_time_averaging_evidence_selected_hashes",
+    "native_preconditions_time_averaging_evidence_selected_step_hash_pairs",
     "native_preconditions_time_averaging_evidence_selected_hash_count",
     "native_time_averaging_interpretation_gate",
     "native_time_averaging_interpretation_allowed",
@@ -517,11 +519,18 @@ TEMPLATE_FIELDS = [
     "native_inlet_correlation_gate",
     "native_inlet_k_variance_gate",
     "native_inlet_streamwise_variance_target_from_k",
+    "native_inlet_streamwise_variance_target_source",
     "native_inlet_streamwise_variance_to_k_ratio",
     "native_inlet_tke_gate",
     "native_inlet_tke_target_from_af_k",
+    "native_inlet_tke_target_source",
     "native_inlet_tke_to_k_ratio",
     "native_inlet_mean_turbulent_kinetic_energy_from_components",
+    "native_inlet_turbulence_target_source",
+    "native_inlet_turbulence_target_source_gate",
+    "native_inlet_turbulence_target_source_gate_reasons",
+    "native_inlet_turbulence_target_uses_official_af_k",
+    "native_inlet_turbulence_target_uses_metadata_full_tensor",
     "native_inlet_correlation_source_vtk_sha256",
     "native_inlet_correlation_source_time_steps_match_runtime",
     "native_inlet_correlation_source_vtk_sha256_match_runtime",
@@ -2898,6 +2907,12 @@ def main() -> int:
             "native_preconditions_time_averaging_evidence_selected_steps": audit_field(
                 native_preconditions_audit, "time_averaging_evidence_selected_final_window_time_steps_csv"
             ),
+            "native_preconditions_time_averaging_evidence_selected_hashes": audit_field(
+                native_preconditions_audit, "time_averaging_evidence_selected_final_window_vtk_sha256_csv"
+            ),
+            "native_preconditions_time_averaging_evidence_selected_step_hash_pairs": audit_field(
+                native_preconditions_audit, "time_averaging_evidence_selected_final_window_step_hash_pairs_csv"
+            ),
             "native_preconditions_time_averaging_evidence_selected_hash_count": fmt(
                 audit_int(native_preconditions_audit, "time_averaging_evidence_selected_final_window_vtk_sha256_count")
             ),
@@ -3212,6 +3227,9 @@ def main() -> int:
             "native_inlet_streamwise_variance_target_from_k": fmt(
                 audit_float(native_preconditions_audit, "inlet_streamwise_variance_target_from_k")
             ),
+            "native_inlet_streamwise_variance_target_source": audit_field(
+                native_preconditions_audit, "inlet_streamwise_variance_target_source"
+            ),
             "native_inlet_streamwise_variance_to_k_ratio": fmt(
                 audit_float(native_preconditions_audit, "inlet_streamwise_variance_to_k_ratio")
             ),
@@ -3219,11 +3237,29 @@ def main() -> int:
             "native_inlet_tke_target_from_af_k": fmt(
                 audit_float(native_preconditions_audit, "inlet_tke_target_from_af_k")
             ),
+            "native_inlet_tke_target_source": audit_field(
+                native_preconditions_audit, "inlet_tke_target_source"
+            ),
             "native_inlet_tke_to_k_ratio": fmt(
                 audit_float(native_preconditions_audit, "inlet_tke_to_k_ratio")
             ),
             "native_inlet_mean_turbulent_kinetic_energy_from_components": fmt(
                 audit_float(native_preconditions_audit, "inlet_mean_turbulent_kinetic_energy_from_components")
+            ),
+            "native_inlet_turbulence_target_source": audit_field(
+                native_preconditions_audit, "inlet_turbulence_target_source"
+            ),
+            "native_inlet_turbulence_target_source_gate": audit_gate(
+                native_preconditions_audit, "inlet_turbulence_target_source_gate"
+            ),
+            "native_inlet_turbulence_target_source_gate_reasons": audit_field(
+                native_preconditions_audit, "inlet_turbulence_target_source_gate_reasons_csv"
+            ),
+            "native_inlet_turbulence_target_uses_official_af_k": first_bool_text(
+                native_preconditions_audit.get("inlet_turbulence_target_uses_official_af_k")
+            ),
+            "native_inlet_turbulence_target_uses_metadata_full_tensor": first_bool_text(
+                native_preconditions_audit.get("inlet_turbulence_target_uses_metadata_full_tensor")
             ),
             "native_inlet_correlation_source_vtk_sha256": audit_list_field(
                 native_preconditions_audit, "inlet_correlation_source_vtk_sha256"

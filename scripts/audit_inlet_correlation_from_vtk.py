@@ -503,6 +503,31 @@ def tke_gate(
     return PASS if not gate_reasons else FAIL, gate_reasons or ["tke_evidence_present"], ratio
 
 
+def turbulence_target_source_gate(
+    target_source: str,
+    k_target_count: int,
+    tke_target_count: int,
+    require_check: bool,
+) -> Tuple[str, List[str]]:
+    source = (target_source or "").strip()
+    valid_sources = {"metadata_full_tensor_active_target", "af_csv_isotropic_k"}
+    if source in valid_sources and k_target_count > 0 and tke_target_count > 0:
+        return PASS, [source]
+
+    reasons: List[str] = []
+    if not source or source == "not_checked":
+        reasons.append("inlet_turbulence_target_source_missing")
+    elif source not in valid_sources:
+        reasons.append(f"inlet_turbulence_target_source_unsupported:{source}")
+    if k_target_count <= 0:
+        reasons.append("inlet_streamwise_variance_target_sample_count_missing")
+    if tke_target_count <= 0:
+        reasons.append("inlet_tke_target_sample_count_missing")
+    if not require_check:
+        return "not_checked", reasons or ["inlet_turbulence_target_source_not_checked"]
+    return FAIL, reasons
+
+
 def temporal_lag_correlations(
     streamwise_series: Dict[int, List[float]],
     max_lag_count: int,
@@ -624,6 +649,7 @@ def write_failure_report(
             else ["k_variance_not_evaluated_after_audit_failure"]
         ),
         "inlet_streamwise_variance_target_from_k": None,
+        "inlet_streamwise_variance_target_source": "not_evaluated_after_audit_failure",
         "inlet_streamwise_variance_to_k_ratio": None,
         "inlet_k_variance_target_sample_count": 0,
         "inlet_tke_gate": FAIL if args.require_k_variance_check else "not_checked",
@@ -633,8 +659,18 @@ def write_failure_report(
             else ["tke_not_evaluated_after_audit_failure"]
         ),
         "inlet_tke_target_from_af_k": None,
+        "inlet_tke_target_source": "not_evaluated_after_audit_failure",
         "inlet_tke_to_k_ratio": None,
         "inlet_tke_target_sample_count": 0,
+        "inlet_turbulence_target_source": "not_evaluated_after_audit_failure",
+        "inlet_turbulence_target_source_gate": FAIL if args.require_k_variance_check else "not_checked",
+        "inlet_turbulence_target_source_gate_reasons": (
+            ["inlet_turbulence_target_not_evaluated_after_audit_failure"]
+            if args.require_k_variance_check
+            else ["inlet_turbulence_target_source_not_checked_after_audit_failure"]
+        ),
+        "inlet_turbulence_target_uses_official_af_k": False,
+        "inlet_turbulence_target_uses_metadata_full_tensor": False,
         "min_k_variance_ratio": args.min_k_variance_ratio,
         "max_k_variance_ratio": args.max_k_variance_ratio,
         "temporal_lag1_mean_correlation": None,
@@ -970,6 +1006,12 @@ def main() -> int:
         args.require_k_variance_check,
         af_csv_supplied,
     )
+    target_source_gate, target_source_reasons = turbulence_target_source_gate(
+        target_source,
+        k_variance_target_count,
+        tke_target_count,
+        args.require_k_variance_check,
+    )
     if k_variance_gate_reasons:
         k_gate = FAIL
         k_reasons = k_variance_gate_reasons
@@ -1025,6 +1067,8 @@ def main() -> int:
         reasons.extend(k_reasons)
     if tke_check_gate == FAIL:
         reasons.extend(tke_reasons)
+    if target_source_gate == FAIL:
+        reasons.extend(target_source_reasons)
 
     gate = PASS if not reasons else FAIL
     report: Dict[str, Any] = {
@@ -1086,6 +1130,11 @@ def main() -> int:
         "inlet_tke_target_source": target_source,
         "inlet_tke_to_k_ratio": tke_ratio,
         "inlet_tke_target_sample_count": tke_target_count,
+        "inlet_turbulence_target_source": target_source,
+        "inlet_turbulence_target_source_gate": target_source_gate,
+        "inlet_turbulence_target_source_gate_reasons": target_source_reasons,
+        "inlet_turbulence_target_uses_official_af_k": target_source == "af_csv_isotropic_k",
+        "inlet_turbulence_target_uses_metadata_full_tensor": target_source == "metadata_full_tensor_active_target",
         "min_k_variance_ratio": args.min_k_variance_ratio,
         "max_k_variance_ratio": args.max_k_variance_ratio,
         "temporal_lag1_mean_correlation": temporal_corr,

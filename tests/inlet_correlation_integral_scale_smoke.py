@@ -191,6 +191,42 @@ def main() -> int:
     if gate != module.FAIL or "tke_to_k_ratio_below_0.5" not in reasons or ratio is None:
         raise AssertionError((gate, reasons, ratio))
 
+    gate, reasons = module.turbulence_target_source_gate(
+        "af_csv_isotropic_k",
+        k_target_count=3,
+        tke_target_count=3,
+        require_check=True,
+    )
+    if gate != module.PASS or reasons != ["af_csv_isotropic_k"]:
+        raise AssertionError((gate, reasons))
+
+    gate, reasons = module.turbulence_target_source_gate(
+        "metadata_full_tensor_active_target",
+        k_target_count=3,
+        tke_target_count=3,
+        require_check=True,
+    )
+    if gate != module.PASS or reasons != ["metadata_full_tensor_active_target"]:
+        raise AssertionError((gate, reasons))
+
+    gate, reasons = module.turbulence_target_source_gate(
+        "not_checked",
+        k_target_count=0,
+        tke_target_count=0,
+        require_check=True,
+    )
+    if gate != module.FAIL or "inlet_turbulence_target_source_missing" not in reasons:
+        raise AssertionError((gate, reasons))
+
+    gate, reasons = module.turbulence_target_source_gate(
+        "not_checked",
+        k_target_count=0,
+        tke_target_count=0,
+        require_check=False,
+    )
+    if gate != "not_checked" or "inlet_turbulence_target_source_missing" not in reasons:
+        raise AssertionError((gate, reasons))
+
     print("inlet_correlation_integral_scale_smoke passed")
     return 0
 

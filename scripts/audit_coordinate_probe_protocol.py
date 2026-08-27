@@ -742,6 +742,27 @@ def main() -> int:
         args.probe_z_tolerance,
     )
     official_identity = official_probe_identity_summary(official_rows, uref)
+    zref_checked = args.z_ref if args.z_ref is not None else zref
+    if not args.expected_aij_case.strip():
+        reasons.append("expected_aij_case_not_bound_for_protocol_gate")
+    if not expected_vector:
+        reasons.append("expected_wind_vector_not_bound_for_protocol_gate")
+    if args.expected_probe_row_count <= 0:
+        reasons.append("expected_probe_row_count_not_bound_for_protocol_gate")
+    if (
+        args.expected_probe_z is None
+        and args.expected_probe_z_min is None
+        and args.expected_probe_z_max is None
+    ):
+        reasons.append("expected_probe_z_constraint_not_bound_for_protocol_gate")
+    if args.expected_uref is None:
+        reasons.append("expected_uref_not_bound_for_protocol_gate")
+    if zref_checked is None:
+        reasons.append("zref_not_bound_for_uref_protocol_gate")
+    if not official_info["exists"]:
+        reasons.append("official_probe_csv_not_bound_for_protocol_gate")
+    if not af_info["exists"]:
+        reasons.append("af_csv_not_bound_for_uref_protocol_gate")
     if (args.official or official_info["source"] == "metadata") and not official_info["exists"]:
         reasons.append("official_probe_csv_missing")
     if official_rows:
@@ -776,7 +797,7 @@ def main() -> int:
             reasons.append(f"official_probe_z_range_mismatch_count:{official_summary['z_range_mismatch_count']}")
 
     af_rows = load_csv_rows(af_info)
-    af_uref = interpolate_af_u(af_rows, args.z_ref if args.z_ref is not None else zref)
+    af_uref = interpolate_af_u(af_rows, zref_checked)
     if args.af_csv and not af_info["exists"]:
         reasons.append("af_csv_missing")
     if args.expected_uref is not None and af_rows and af_uref is not None and not close(
@@ -860,7 +881,7 @@ def main() -> int:
             "metadata_zref_m": zref,
             "expected_mps": args.expected_uref,
             "af_u_at_zref_mps": af_uref,
-            "zref_checked_m": args.z_ref if args.z_ref is not None else zref,
+            "zref_checked_m": zref_checked,
         },
         "OfficialProbeCsv": official_info,
         "OfficialProbeSummary": official_summary,

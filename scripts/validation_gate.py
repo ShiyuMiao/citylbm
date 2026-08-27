@@ -508,6 +508,21 @@ def find_first(base: Path, names: Iterable[str]) -> Optional[Path]:
     return None
 
 
+def find_first_from_roots(roots: Iterable[Optional[Path]], names: Iterable[str]) -> Optional[Path]:
+    seen: set[Path] = set()
+    for root in roots:
+        if root is None:
+            continue
+        root = root.resolve()
+        if root in seen or not root.exists():
+            continue
+        seen.add(root)
+        found = find_first(root, names)
+        if found is not None:
+            return found
+    return None
+
+
 def find_metrics(base: Path) -> Optional[Path]:
     patterns = [
         "*validation_metrics*.csv",
@@ -1680,6 +1695,7 @@ def component_normalization_failure_reasons(
     max_normalization_best_scale_deviation: float,
     min_normalization_scaled_improvement_ratio: float,
     normalization_scale_not_explained: bool,
+    normalization_scale_reasons: Optional[List[str]] = None,
 ) -> List[str]:
     reasons: List[str] = []
     if not component_sensitivity_audit_exists:
@@ -1696,6 +1712,9 @@ def component_normalization_failure_reasons(
     for reason in streamwise_sign_reasons:
         if reason:
             reasons.append(f"streamwise_sign_gate:{reason}")
+    for reason in normalization_scale_reasons or []:
+        if reason:
+            reasons.append(f"normalization_scale_gate:{reason}")
     for reason in component_source_window_reasons:
         if reason:
             reasons.append(f"component_source_window_gate:{reason}")
@@ -4486,6 +4505,71 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     metrics_path = Path(args.metrics).resolve() if args.metrics else find_metrics(run_dir)
     probe_path = Path(args.probe_audit).resolve() if args.probe_audit else None
     official_path = Path(args.official).resolve() if args.official else None
+    audit_roots = [
+        run_dir,
+        metrics_path.parent if metrics_path else None,
+        probe_path.parent if probe_path else None,
+    ]
+
+    audit_path = audit_path or find_first_from_roots(audit_roots, ["validation_protocol_audit.json"])
+    inlet_correlation_audit_path = inlet_correlation_audit_path or find_first_from_roots(
+        audit_roots,
+        ["inlet_correlation_audit.json"],
+    )
+    inlet_profile_audit_path = inlet_profile_audit_path or find_first_from_roots(
+        audit_roots,
+        ["inlet_profile_audit.json"],
+    )
+    inlet_source_audit_path = inlet_source_audit_path or find_first_from_roots(
+        audit_roots,
+        ["inlet_source_audit.json"],
+    )
+    boundary_source_audit_path = boundary_source_audit_path or find_first_from_roots(
+        audit_roots,
+        ["boundary_source_audit.json"],
+    )
+    boundary_audit_path = boundary_audit_path or find_first_from_roots(
+        audit_roots,
+        ["boundary_protocol_audit.json"],
+    )
+    boundary_runtime_audit_path = boundary_runtime_audit_path or find_first_from_roots(
+        audit_roots,
+        ["boundary_runtime_audit.json"],
+    )
+    component_sensitivity_audit_path = component_sensitivity_audit_path or find_first_from_roots(
+        audit_roots,
+        ["component_sensitivity_audit.json"],
+    )
+    grid_sensitivity_audit_path = grid_sensitivity_audit_path or find_first_from_roots(
+        audit_roots,
+        ["grid_sensitivity_audit.json"],
+    )
+    native_preconditions_audit_path = native_preconditions_audit_path or find_first_from_roots(
+        audit_roots,
+        ["native_preconditions_audit.json"],
+    )
+    native_citylbm_parity_audit_path = native_citylbm_parity_audit_path or find_first_from_roots(
+        audit_roots,
+        ["native_citylbm_parity_audit.json"],
+    )
+    native_citylbm_accuracy_delta_audit_path = (
+        native_citylbm_accuracy_delta_audit_path
+        or find_first_from_roots(audit_roots, ["native_citylbm_accuracy_delta_audit.json"])
+    )
+    runtime_audit_path = runtime_audit_path or find_first_from_roots(
+        audit_roots,
+        [
+            "native_run_audit.json",
+            "read_vtk_audit.json",
+            "read_vtk_averaging_audit.json",
+            "averaging_audit.json",
+            "ReadVTK_AveragingAudit.json",
+        ],
+    )
+    manifest_path = manifest_path or find_first_from_roots(
+        audit_roots,
+        ["native_fluidx3d_baseline_manifest.json"],
+    )
 
     metadata = read_json(metadata_path)
     audit = read_json(audit_path)
@@ -4495,7 +4579,6 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     boundary_source_audit = read_json(boundary_source_audit_path)
     external_boundary_audit = read_json(boundary_audit_path)
     boundary_runtime_audit = read_json(boundary_runtime_audit_path)
-    component_sensitivity_audit = read_json(component_sensitivity_audit_path)
     grid_sensitivity_audit = read_json(grid_sensitivity_audit_path)
     native_preconditions_audit = read_json(native_preconditions_audit_path)
     native_citylbm_parity_audit = read_json(native_citylbm_parity_audit_path)
@@ -4503,6 +4586,18 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
     runtime_audit = read_json(runtime_audit_path)
     manifest = read_json(manifest_path)
     metrics, metrics_path = read_metrics(metrics_path)
+    component_sensitivity_audit = read_json(component_sensitivity_audit_path)
+    metric_component_sensitivity_audit = str(
+        get_any(metrics, ["component_sensitivity_audit", "ComponentSensitivityAudit"]) or ""
+    ).strip()
+    if not component_sensitivity_audit and metric_component_sensitivity_audit:
+        metric_component_sensitivity_audit_path = resolve_audit_path(
+            metric_component_sensitivity_audit,
+            metrics_path,
+        )
+        if metric_component_sensitivity_audit_path.exists():
+            component_sensitivity_audit_path = metric_component_sensitivity_audit_path
+            component_sensitivity_audit = read_json(component_sensitivity_audit_path)
     items = load_protocol_items(audit)
     protocol_content = audit_protocol_content(audit)
     shared_run_conditions = manifest.get("SharedRunConditions", {})
@@ -8060,6 +8155,14 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         if streamwise_sign_reasons_raw
         else []
     )
+    normalization_scale_reasons_raw = component_sensitivity_audit.get("normalization_scale_gate_reasons")
+    normalization_scale_reasons = (
+        [str(value) for value in normalization_scale_reasons_raw]
+        if isinstance(normalization_scale_reasons_raw, list)
+        else [str(normalization_scale_reasons_raw)]
+        if normalization_scale_reasons_raw
+        else []
+    )
     streamwise_negative_fraction = as_float(
         component_sensitivity_audit.get("streamwise_negative_fraction")
     )
@@ -8253,6 +8356,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
         max_normalization_best_scale_deviation=args.max_normalization_best_scale_deviation,
         min_normalization_scaled_improvement_ratio=args.min_normalization_scaled_improvement_ratio,
         normalization_scale_not_explained=normalization_scale_not_explained,
+        normalization_scale_reasons=normalization_scale_reasons,
     )
     component_normalization_pass = (
         component_sensitivity_audit_exists
@@ -8671,6 +8775,7 @@ def build_report(args: argparse.Namespace) -> Dict[str, Any]:
             "native_citylbm_parity_audit": str(native_citylbm_parity_audit_path) if native_citylbm_parity_audit_path else "",
             "native_citylbm_accuracy_delta_audit": str(native_citylbm_accuracy_delta_audit_path) if native_citylbm_accuracy_delta_audit_path else "",
             "native_fluidx3d_baseline_manifest": str(manifest_path) if manifest_path else "",
+            "runtime_audit": str(runtime_audit_path) if runtime_audit_path else "",
             "metrics": str(metrics_path) if metrics_path else "",
             "probe_audit": str(probe_path) if probe_path else "",
             "official": str(official_path) if official_path else "",

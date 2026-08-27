@@ -62,6 +62,7 @@ v0.4.0 封装当前 Rhino 7 / Grasshopper 验证分支成果，停止继续向�
 - 2026-08-27 GitHub 上传检查点：追加 RMS/k 速度替代入口门禁，明确当前随机 RMS/k 扰动不能作为真实数字滤波、SEM 或 precursor/recycling 湍流入流证据；该补丁是证据边界收紧，不是新的精度优化。
 - 2026-08-27 main 分支归档：将当前 v0.4.0 成果作为 GitHub `main` 上传基线追加记录，旧版本记录与旧发布目录保留，不作为本次封装删除或覆盖。
 - 2026-08-27 最终补充封装：追加坐标/测点投影、边界源、入口源和 native preconditions 的脚本级门禁，保留为 v0.4.0 证据链补强；该记录不新增 CFD 精度结论，也不删除历史 v0.2.0/v0.3.0 记录。
+- 2026-08-27 停止优化封装：按当前成果冻结 v0.4.0 发布线，补齐生成案例运行元数据中的 `CityLBMVersion=0.4.0`，重新打包并上传 GitHub；后续精度优化转入新分支或新版本记录。
 
 ### 快速开始
 
@@ -112,6 +113,7 @@ v0.4.0 packages the current Rhino 7 / Grasshopper validation branch and stops fu
 - GitHub upload checkpoint on 2026-08-27: the RMS/k velocity-surrogate inlet gate was added, making clear that random RMS/k perturbations are not evidence of a true digital-filter, SEM, or precursor/recycling turbulent inflow. This is evidence-boundary hardening, not a new accuracy optimization.
 - Main-branch archive on 2026-08-27: the current v0.4.0 state is appended as the GitHub `main` upload baseline. Earlier version records and release directories are preserved rather than deleted or overwritten by this package.
 - Final supplemental package on 2026-08-27: script-level gates for coordinate/probe projection, boundary source evidence, inlet source evidence, and native preconditions were appended as v0.4.0 traceability hardening. This record adds no new CFD accuracy claim and preserves earlier v0.2.0/v0.3.0 records.
+- Stop-optimization package on 2026-08-27: v0.4.0 is frozen from the current state, generated-case runtime metadata now records `CityLBMVersion=0.4.0`, and the package is rebuilt and uploaded to GitHub. Later accuracy work should continue in a new branch or version record.
 
 ### Quick Start
 

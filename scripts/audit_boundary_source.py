@@ -868,18 +868,18 @@ def main() -> int:
         development_runs_cfd_next = False
         development_next_cfd_scope = "none_until_boundary_source_gate_passes"
     elif paper_gate != "pass":
-        if source_class == "profile_maintenance_buffer_diagnostic":
+        if simplified_wind_tunnel_surrogate_gate != "pass":
+            development_stage = "replace_simplified_wind_tunnel_surrogate_boundary_before_cfd"
+            development_duration = "code_then_short_cfd"
+            development_reason = "The current source is a simplified wind-tunnel surrogate boundary, so even a short CFD canary would not close the protocol-level boundary error."
+            development_runs_cfd_next = False
+            development_next_cfd_scope = "none_until_paper_grade_boundary_source_gate_passes"
+        elif source_class == "profile_maintenance_buffer_diagnostic":
             development_stage = "eligible_for_short_diagnostic_native_canary"
             development_duration = "code_then_short_cfd"
             development_reason = "Boundary source has coherent TYPE_E/TYPE_S setup plus diagnostic rough-wall and profile-maintenance FORCE_FIELD buffers; use only a short canary to check numerical direction before paper-length runs."
             development_runs_cfd_next = True
             development_next_cfd_scope = "short_native_canary_only_no_paper_metrics"
-        elif simplified_wind_tunnel_surrogate_gate != "pass":
-            development_stage = "replace_simplified_wind_tunnel_surrogate_boundary_before_cfd"
-            development_duration = "code_then_short_cfd"
-            development_reason = "The current source is a simplified wind-tunnel surrogate boundary, so long CFD would not address the protocol-level error."
-            development_runs_cfd_next = False
-            development_next_cfd_scope = "none_until_paper_grade_boundary_source_gate_passes"
         else:
             development_stage = "resolve_boundary_wall_protocol_evidence"
             development_duration = "minutes"

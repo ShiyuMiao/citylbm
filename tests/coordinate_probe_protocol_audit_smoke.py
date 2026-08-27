@@ -132,6 +132,42 @@ def main() -> int:
         if report["long_cfd_allowed_by_coordinate_probe_protocol"] is not True:
             raise AssertionError(report)
 
+        unbound_out = temp / "unbound_expected_audit.json"
+        unbound = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                str(case_dir),
+                "--metadata",
+                str(metadata_path),
+                "--official",
+                str(official),
+                "--af-csv",
+                str(af_csv),
+                "--out",
+                str(unbound_out),
+            ],
+            cwd=str(REPO),
+            text=True,
+            capture_output=True,
+        )
+        if unbound.returncode != 2:
+            raise AssertionError((unbound.returncode, unbound.stdout, unbound.stderr, load(unbound_out)))
+        unbound_report = load(unbound_out)
+        for reason in [
+            "expected_aij_case_not_bound_for_protocol_gate",
+            "expected_wind_vector_not_bound_for_protocol_gate",
+            "expected_probe_row_count_not_bound_for_protocol_gate",
+            "expected_probe_z_constraint_not_bound_for_protocol_gate",
+            "expected_uref_not_bound_for_protocol_gate",
+        ]:
+            if reason not in unbound_report["Reasons"]:
+                raise AssertionError(unbound_report)
+        if unbound_report["long_cfd_allowed_by_coordinate_probe_protocol"] is not False:
+            raise AssertionError(unbound_report)
+        if unbound_report["development_acceleration_runs_cfd_next"] is not False:
+            raise AssertionError(unbound_report)
+
         range_official = case_dir / "RS_caseA.csv"
         range_af_csv = case_dir / "AF_caseA.csv"
         range_metadata_path = case_dir / "casea_metadata.json"

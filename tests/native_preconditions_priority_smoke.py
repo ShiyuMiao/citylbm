@@ -149,6 +149,40 @@ def main() -> int:
     if "inlet_profile_source_step_hash_pairs_mismatch" not in source_window_reasons:
         raise AssertionError(source_window_reasons)
 
+    time_evidence_file_gate = module.audit_time_averaging_evidence_file(
+        REPO / "README.md",
+        {
+            "Schema": "citylbm.time_averaging_evidence.v1",
+            "Gate": "pass",
+            "ActualVtkOutputGate": {
+                "Gate": "pass",
+                "SelectedFinalWindowTimeSteps": [1000, 2000, 3000],
+                "SelectedFinalWindowVtkSha256": ["a" * 64, "b" * 64, "c" * 64],
+                "SelectedFinalWindowStepHashPairs": [
+                    {"time_step": 1000, "sha256": "a" * 64},
+                    {"time_step": 2000, "sha256": "b" * 64},
+                    {"time_step": 3000, "sha256": "c" * 64},
+                ],
+                "SelectedFinalWindowVtkSha256Count": 3,
+            },
+        },
+    )
+    if time_evidence_file_gate["gate"] != "pass":
+        raise AssertionError(time_evidence_file_gate)
+    if time_evidence_file_gate["selected_final_window_time_steps_csv"] != "1000;2000;3000":
+        raise AssertionError(time_evidence_file_gate)
+    if time_evidence_file_gate["selected_final_window_vtk_sha256_count"] != 3:
+        raise AssertionError(time_evidence_file_gate)
+    expected_step_hash_pairs = ";".join(
+        [
+            f"1000:{'a' * 64}",
+            f"2000:{'b' * 64}",
+            f"3000:{'c' * 64}",
+        ]
+    )
+    if time_evidence_file_gate["selected_final_window_step_hash_pairs_csv"] != expected_step_hash_pairs:
+        raise AssertionError(time_evidence_file_gate)
+
     passing_time_reasons = module.build_time_average_evidence_reasons(
         runtime_audit_present=True,
         runtime_reported_time_average_gate="pass",
@@ -178,6 +212,10 @@ def main() -> int:
         time_averaging_evidence_file_gate="pass",
         time_averaging_evidence_file_reasons=[],
         time_averaging_evidence_selected_steps_csv=";".join(str(step) for step in range(1000, 41000, 1000)),
+        time_averaging_evidence_selected_hashes_csv=";".join(f"{idx:064x}" for idx in range(40)),
+        time_averaging_evidence_selected_step_hash_pairs_csv=";".join(
+            f"{step}:{idx:064x}" for idx, step in enumerate(range(1000, 41000, 1000))
+        ),
         time_averaging_evidence_selected_hash_count=40,
     )
     if passing_time_reasons:
@@ -212,10 +250,16 @@ def main() -> int:
         time_averaging_evidence_file_gate="pass",
         time_averaging_evidence_file_reasons=[],
         time_averaging_evidence_selected_steps_csv="2000;3000;4000;5000",
+        time_averaging_evidence_selected_hashes_csv=";".join(f"{idx:064x}" for idx in range(39)),
+        time_averaging_evidence_selected_step_hash_pairs_csv=";".join(
+            f"{step}:{idx:064x}" for idx, step in enumerate([2000, 3000, 4000, 5000])
+        ),
         time_averaging_evidence_selected_hash_count=39,
     )
     for expected_reason in [
         "time_averaging_evidence_selected_final_window_steps_mismatch_runtime",
+        "time_averaging_evidence_selected_final_window_vtk_sha256_mismatch_runtime",
+        "time_averaging_evidence_selected_final_window_step_hash_pairs_mismatch_runtime",
         "time_averaging_evidence_selected_final_window_vtk_sha256_count_mismatch_runtime",
         "time_averaging_evidence_selected_final_window_vtk_sha256_count_39_below_minimum_40",
     ]:
@@ -251,6 +295,10 @@ def main() -> int:
         time_averaging_evidence_file_gate="pass",
         time_averaging_evidence_file_reasons=[],
         time_averaging_evidence_selected_steps_csv="1000;2000;3000;4000",
+        time_averaging_evidence_selected_hashes_csv=";".join(f"{idx:064x}" for idx in range(4)),
+        time_averaging_evidence_selected_step_hash_pairs_csv=";".join(
+            f"{step}:{idx:064x}" for idx, step in enumerate([1000, 2000, 3000, 4000])
+        ),
         time_averaging_evidence_selected_hash_count=4,
     )
     for expected_reason in [
@@ -420,6 +468,9 @@ def main() -> int:
         "inlet_correlation_gate_reasons": ["inlet_correlation_evidence_present"],
         "inlet_k_variance_gate_reasons": ["k_variance_matches_af_profile"],
         "inlet_tke_gate_reasons": ["tke_matches_af_profile"],
+        "inlet_turbulence_target_source": "metadata_full_tensor_active_target",
+        "inlet_turbulence_target_source_gate": "PASS",
+        "inlet_turbulence_target_source_gate_reasons": ["metadata_full_tensor_active_target"],
     }
     passing_window_profile = {
         "inlet_profile_source_time_steps_match_runtime": True,

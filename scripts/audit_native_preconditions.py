@@ -748,14 +748,34 @@ def audit_time_averaging_evidence_file(
     if evidence and actual_gate != "pass":
         reasons.append(f"time_averaging_evidence_actual_vtk_output_gate_not_pass:{actual_gate or 'missing'}")
 
-    selected_steps = actual_gate_obj.get("SelectedFinalWindowTimeSteps") or evidence.get("PlannedSelectedFinalWindowSteps")
+    selected_steps = (
+        actual_gate_obj.get("SelectedFinalWindowTimeSteps")
+        or actual_gate_obj.get("SelectedFinalWindowTimeStepsCsv")
+        or evidence.get("PlannedSelectedFinalWindowSteps")
+    )
     selected_steps_csv = ""
     if isinstance(selected_steps, list):
         selected_steps_csv = ";".join(str(step) for step in selected_steps)
     elif selected_steps is not None:
         selected_steps_csv = str(selected_steps)
 
+    selected_hashes = parse_hash_list(
+        actual_gate_obj.get("SelectedFinalWindowVtkSha256")
+        or actual_gate_obj.get("SelectedFinalWindowVtkSha256Csv")
+        or evidence.get("SelectedFinalWindowVtkSha256")
+        or evidence.get("SelectedFinalWindowVtkSha256Csv")
+    )
+    selected_pairs = parse_step_hash_pairs(
+        actual_gate_obj.get("SelectedFinalWindowStepHashPairs")
+        or actual_gate_obj.get("SelectedFinalWindowStepHashPairsCsv")
+        or evidence.get("SelectedFinalWindowStepHashPairs")
+        or evidence.get("SelectedFinalWindowStepHashPairsCsv")
+    )
+    if not selected_pairs:
+        selected_pairs = step_hash_pairs_from_steps_hashes(parse_int_list(selected_steps_csv), selected_hashes)
     selected_hash_count = as_int(actual_gate_obj.get("SelectedFinalWindowVtkSha256Count"))
+    if selected_hash_count is None and selected_hashes:
+        selected_hash_count = len(selected_hashes)
     return {
         "gate": "pass" if not reasons else "fail",
         "reasons": reasons,
@@ -764,6 +784,8 @@ def audit_time_averaging_evidence_file(
         "evidence_gate": evidence_gate,
         "actual_vtk_output_gate": actual_gate,
         "selected_final_window_time_steps_csv": selected_steps_csv,
+        "selected_final_window_vtk_sha256_csv": ";".join(selected_hashes),
+        "selected_final_window_step_hash_pairs_csv": step_hash_pairs_to_csv(selected_pairs),
         "selected_final_window_vtk_sha256_count": selected_hash_count,
         "bound": bool(path and path.exists() and evidence),
     }
@@ -1335,6 +1357,52 @@ def step_hash_pairs_from_steps_hashes(steps: List[int], hashes: List[str]) -> Li
     return [(step, digest) for step, digest in zip(steps, hashes)]
 
 
+def step_hash_pairs_to_csv(pairs: List[Tuple[int, str]]) -> str:
+    return ";".join(f"{step}:{digest}" for step, digest in pairs)
+
+
+def parse_step_hash_pairs(value: Any) -> List[Tuple[int, str]]:
+    if value is None or value == "":
+        return []
+    pairs: List[Tuple[int, str]] = []
+    if isinstance(value, list):
+        for item in value:
+            if isinstance(item, dict):
+                step = as_int(
+                    item.get("time_step")
+                    or item.get("TimeStep")
+                    or item.get("step")
+                    or item.get("Step")
+                )
+                digest = str(
+                    item.get("sha256")
+                    or item.get("Sha256")
+                    or item.get("SHA256")
+                    or item.get("hash")
+                    or item.get("Hash")
+                    or ""
+                ).strip().lower()
+                if step is not None and digest:
+                    pairs.append((step, digest))
+            elif isinstance(item, (list, tuple)) and len(item) >= 2:
+                step = as_int(item[0])
+                digest = str(item[1] or "").strip().lower()
+                if step is not None and digest:
+                    pairs.append((step, digest))
+            else:
+                pairs.extend(parse_step_hash_pairs(str(item)))
+        return pairs
+    for item in split_scalar_list(value):
+        if ":" not in item:
+            continue
+        step_text, digest = item.split(":", 1)
+        step = as_int(step_text)
+        clean_digest = digest.strip().lower()
+        if step is not None and clean_digest:
+            pairs.append((step, clean_digest))
+    return pairs
+
+
 def audit_source_step_hash_pairs(audit: Dict[str, Any]) -> List[Tuple[int, str]]:
     for key in ["selected_vtk_files", "freshness_selected_vtk_files", "vtk_files"]:
         records = audit.get(key)
@@ -1502,6 +1570,8 @@ def build_time_average_evidence_reasons(
     time_averaging_evidence_file_gate: str,
     time_averaging_evidence_file_reasons: List[str],
     time_averaging_evidence_selected_steps_csv: str,
+    time_averaging_evidence_selected_hashes_csv: str,
+    time_averaging_evidence_selected_step_hash_pairs_csv: str,
     time_averaging_evidence_selected_hash_count: Optional[int],
 ) -> List[str]:
     evidence_reasons: List[str] = []
@@ -1579,10 +1649,25 @@ def build_time_average_evidence_reasons(
     for reason in time_averaging_evidence_file_reasons:
         evidence_reasons.append(f"time_averaging_evidence_file_reason:{reason}")
     evidence_steps = parse_int_list(time_averaging_evidence_selected_steps_csv)
+    evidence_hashes = parse_hash_list(time_averaging_evidence_selected_hashes_csv)
+    evidence_step_hash_pairs = parse_step_hash_pairs(time_averaging_evidence_selected_step_hash_pairs_csv)
+    runtime_step_hash_pairs = step_hash_pairs_from_steps_hashes(runtime_steps, runtime_hashes)
     if not evidence_steps:
         evidence_reasons.append("time_averaging_evidence_selected_final_window_steps_missing")
     elif runtime_steps and evidence_steps != runtime_steps:
         evidence_reasons.append("time_averaging_evidence_selected_final_window_steps_mismatch_runtime")
+    if not evidence_hashes:
+        evidence_reasons.append("time_averaging_evidence_selected_final_window_vtk_sha256_missing")
+    elif runtime_hashes and evidence_hashes != runtime_hashes:
+        evidence_reasons.append("time_averaging_evidence_selected_final_window_vtk_sha256_mismatch_runtime")
+    if not runtime_step_hash_pairs:
+        evidence_reasons.append("runtime_source_step_hash_pairs_missing")
+    if not evidence_step_hash_pairs:
+        evidence_reasons.append("time_averaging_evidence_selected_final_window_step_hash_pairs_missing")
+    elif runtime_step_hash_pairs and evidence_step_hash_pairs != runtime_step_hash_pairs:
+        evidence_reasons.append(
+            "time_averaging_evidence_selected_final_window_step_hash_pairs_mismatch_runtime"
+        )
     if time_averaging_evidence_selected_hash_count is None:
         evidence_reasons.append("time_averaging_evidence_selected_final_window_vtk_sha256_count_missing")
     else:
@@ -1976,6 +2061,9 @@ def build_inlet_equivalence_evidence_reasons(
     correlation_gate = str(inlet_correlation_audit.get("inlet_correlation_gate") or "").strip().upper()
     k_variance_gate = str(inlet_correlation_audit.get("inlet_k_variance_gate") or "").strip().upper()
     tke_gate = str(inlet_correlation_audit.get("inlet_tke_gate") or "").strip().upper()
+    target_source_gate = str(
+        inlet_correlation_audit.get("inlet_turbulence_target_source_gate") or ""
+    ).strip().upper()
     correlation_frame_count = as_int(inlet_correlation_audit.get("frame_count"))
     correlation_step_span = source_step_span_from_steps(audit_source_steps(inlet_correlation_audit))
     if correlation_step_span is None:
@@ -1986,6 +2074,7 @@ def build_inlet_equivalence_evidence_reasons(
         ("inlet_correlation_gate", correlation_gate),
         ("inlet_k_variance_gate", k_variance_gate),
         ("inlet_tke_gate", tke_gate),
+        ("inlet_turbulence_target_source_gate", target_source_gate),
     ]:
         if value != "PASS":
             evidence_reasons.append(f"{key}_not_pass:{value.lower() or 'missing'}")
@@ -2016,6 +2105,9 @@ def build_inlet_equivalence_evidence_reasons(
     for reason in split_scalar_list(inlet_correlation_audit.get("inlet_tke_gate_reasons")):
         if reason != "tke_matches_af_profile":
             evidence_reasons.append(f"inlet_tke_reason:{reason}")
+    for reason in split_scalar_list(inlet_correlation_audit.get("inlet_turbulence_target_source_gate_reasons")):
+        if reason not in {"af_csv_isotropic_k", "metadata_full_tensor_active_target"}:
+            evidence_reasons.append(f"inlet_turbulence_target_source_reason:{reason}")
 
     return evidence_reasons
 
@@ -3374,6 +3466,12 @@ def main() -> int:
         time_averaging_evidence_selected_steps_csv=time_averaging_evidence_file_gate[
             "selected_final_window_time_steps_csv"
         ],
+        time_averaging_evidence_selected_hashes_csv=time_averaging_evidence_file_gate[
+            "selected_final_window_vtk_sha256_csv"
+        ],
+        time_averaging_evidence_selected_step_hash_pairs_csv=time_averaging_evidence_file_gate[
+            "selected_final_window_step_hash_pairs_csv"
+        ],
         time_averaging_evidence_selected_hash_count=time_averaging_evidence_file_gate[
             "selected_final_window_vtk_sha256_count"
         ],
@@ -3679,10 +3777,29 @@ def main() -> int:
     inlet_k_variance_gate = str(inlet_correlation_audit.get("inlet_k_variance_gate") or "").strip().upper()
     inlet_k_variance_ratio = as_float(inlet_correlation_audit.get("inlet_streamwise_variance_to_k_ratio"))
     inlet_k_variance_target = as_float(inlet_correlation_audit.get("inlet_streamwise_variance_target_from_k"))
+    inlet_k_variance_target_source = str(
+        inlet_correlation_audit.get("inlet_streamwise_variance_target_source") or ""
+    ).strip()
     inlet_tke_gate = str(inlet_correlation_audit.get("inlet_tke_gate") or "").strip().upper()
     inlet_tke_target = as_float(inlet_correlation_audit.get("inlet_tke_target_from_af_k"))
+    inlet_tke_target_source = str(inlet_correlation_audit.get("inlet_tke_target_source") or "").strip()
     inlet_tke_ratio = as_float(inlet_correlation_audit.get("inlet_tke_to_k_ratio"))
     inlet_mean_tke = as_float(inlet_correlation_audit.get("mean_turbulent_kinetic_energy_from_components"))
+    inlet_turbulence_target_source = str(
+        inlet_correlation_audit.get("inlet_turbulence_target_source") or ""
+    ).strip()
+    inlet_turbulence_target_source_gate = str(
+        inlet_correlation_audit.get("inlet_turbulence_target_source_gate") or ""
+    ).strip().upper()
+    inlet_turbulence_target_source_reasons = split_scalar_list(
+        inlet_correlation_audit.get("inlet_turbulence_target_source_gate_reasons")
+    )
+    inlet_turbulence_target_uses_official_af_k = as_bool(
+        inlet_correlation_audit.get("inlet_turbulence_target_uses_official_af_k")
+    )
+    inlet_turbulence_target_uses_metadata_full_tensor = as_bool(
+        inlet_correlation_audit.get("inlet_turbulence_target_uses_metadata_full_tensor")
+    )
     inlet_correlation_frame_count = as_int(inlet_correlation_audit.get("frame_count"))
     if not inlet_correlation_audit:
         reasons.append("inlet_correlation_audit_missing")
@@ -3692,6 +3809,8 @@ def main() -> int:
         reasons.append("inlet_k_variance_gate_not_pass")
     if inlet_tke_gate != "PASS":
         reasons.append("inlet_tke_gate_not_pass")
+    if inlet_turbulence_target_source_gate != "PASS":
+        reasons.append("inlet_turbulence_target_source_gate_not_pass")
     if inlet_correlation_frame_count is None or inlet_correlation_frame_count < args.min_avg_frames:
         reasons.append("inlet_correlation_frame_count_below_minimum")
     inlet_correlation_span_check = append_source_step_span_reasons(
@@ -4728,6 +4847,12 @@ def main() -> int:
         "time_averaging_evidence_selected_final_window_time_steps_csv": time_averaging_evidence_file_gate[
             "selected_final_window_time_steps_csv"
         ],
+        "time_averaging_evidence_selected_final_window_vtk_sha256_csv": time_averaging_evidence_file_gate[
+            "selected_final_window_vtk_sha256_csv"
+        ],
+        "time_averaging_evidence_selected_final_window_step_hash_pairs_csv": time_averaging_evidence_file_gate[
+            "selected_final_window_step_hash_pairs_csv"
+        ],
         "time_averaging_evidence_selected_final_window_vtk_sha256_count": time_averaging_evidence_file_gate[
             "selected_final_window_vtk_sha256_count"
         ],
@@ -4980,11 +5105,19 @@ def main() -> int:
         "inlet_correlation_gate": inlet_correlation_gate,
         "inlet_k_variance_gate": inlet_k_variance_gate,
         "inlet_streamwise_variance_target_from_k": inlet_k_variance_target,
+        "inlet_streamwise_variance_target_source": inlet_k_variance_target_source,
         "inlet_streamwise_variance_to_k_ratio": inlet_k_variance_ratio,
         "inlet_tke_gate": inlet_tke_gate,
         "inlet_tke_target_from_af_k": inlet_tke_target,
+        "inlet_tke_target_source": inlet_tke_target_source,
         "inlet_tke_to_k_ratio": inlet_tke_ratio,
         "inlet_mean_turbulent_kinetic_energy_from_components": inlet_mean_tke,
+        "inlet_turbulence_target_source": inlet_turbulence_target_source,
+        "inlet_turbulence_target_source_gate": inlet_turbulence_target_source_gate,
+        "inlet_turbulence_target_source_gate_reasons": inlet_turbulence_target_source_reasons,
+        "inlet_turbulence_target_source_gate_reasons_csv": ";".join(inlet_turbulence_target_source_reasons),
+        "inlet_turbulence_target_uses_official_af_k": inlet_turbulence_target_uses_official_af_k,
+        "inlet_turbulence_target_uses_metadata_full_tensor": inlet_turbulence_target_uses_metadata_full_tensor,
         **inlet_correlation_span_check,
         **inlet_correlation_window_check,
         "boundary_source_gate": boundary_source_gate,

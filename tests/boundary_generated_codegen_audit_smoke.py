@@ -89,8 +89,8 @@ def main() -> int:
     require(data.get("has_paper_grade_side_top_source") is False, data)
     require(data.get("has_paper_grade_rough_wall_source") is True, data)
     require(data.get("has_paper_grade_development_source") is False, data)
-    require(data.get("development_acceleration_stage") == "eligible_for_short_diagnostic_native_canary", data)
-    require(data.get("development_acceleration_runs_cfd_next") is True, data)
+    require(data.get("development_acceleration_stage") == "replace_simplified_wind_tunnel_surrogate_boundary_before_cfd", data)
+    require(data.get("development_acceleration_runs_cfd_next") is False, data)
     require(data.get("long_cfd_allowed_by_boundary_source_audit") is False, data)
 
     paper_reasons = data.get("paper_grade_boundary_source_gate_reasons", [])
